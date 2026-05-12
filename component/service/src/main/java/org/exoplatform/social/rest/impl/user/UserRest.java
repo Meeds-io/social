@@ -389,7 +389,6 @@ public class UserRest implements ResourceContainer, Startable {
     String username = request.getRemoteUser();
     if (!userACL.getSuperUser().equals(username)
         && !RestUtils.isMemberOfAdminGroup()
-        && !RestUtils.isMemberOfDelegatedGroup()
         && userType != null
         && !userType.equals(INTERNAL)
         && !groupIds.isEmpty()) {
@@ -504,7 +503,7 @@ public class UserRest implements ResourceContainer, Startable {
     }
     List<DataEntity> profileInfos = new ArrayList<>();
     for (Identity identity : identities) {
-      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), groupIds, expand);
       //
       profileInfos.add(profileInfo.getDataEntity());
     }

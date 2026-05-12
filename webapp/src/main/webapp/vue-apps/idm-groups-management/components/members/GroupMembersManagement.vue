@@ -33,7 +33,6 @@
       @closed="handleDrawerClosed"
       @apply-advanced-filter="applyAdvancedFilter" />
     <group-members-membership-drawer />
-    <group-management-membership-form-drawer />
   </v-card>
 </template>
 <script>

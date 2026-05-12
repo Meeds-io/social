@@ -40,29 +40,17 @@
             :format="fullDateFormat"
             class="grey--text me-1" />
         </div>
-
         <div v-else class="grey--text">
           {{ $t('UsersManagement.lastConnection.neverConnected') }}
         </div>
       </template>
-
+      <template #[`item.userType`]="{ item }">
+        <v-icon size="18" class="d-flex justify-center">
+          {{ item.isManager ? 'fa-user-cog' : 'fa-user' }}
+        </v-icon>
+      </template>
       <template #[`item.actions`]="{ item }">
-        <v-menu offset-y>
-          <template #activator="{ on, attrs }">
-            <v-btn
-              icon
-              small
-              v-bind="attrs"
-              v-on="on">
-              <v-icon>mdi-dots-vertical</v-icon>
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item @click="$root.$emit(&quot;open-group-membership-drawer&quot;, item)">
-              <v-list-item-title>Edit membership</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+        <group-members-action-menu :member="item" />
       </template>
 
       <template #no-data>
@@ -128,11 +116,12 @@ export default {
           text: this.$t('groupsManagement.members.userType'),
           value: 'userType',
           sortable: false,
+          align: 'center'
         },
         {
           text: this.$t('groupsManagement.members.actions'),
           value: 'actions',
-          align: 'end',
+          align: 'center',
           sortable: false,
           width: '100px',
         },

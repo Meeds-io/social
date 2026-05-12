@@ -27,7 +27,7 @@
     :loading="loading"
     allow-expand
     right>
-    <template #title>{{ $t('UsersManagement.editMembershipsOfUser', {0: user?.fullname}) }}</template>
+    <template #title>{{ $t('groupsManagement.members.editMembership', {0: user?.fullname}) }}</template>
     <template #content>
       <div
         v-if="initialized && !membershipsArray.length"
@@ -259,6 +259,7 @@ export default {
         this.close();
       } finally {
         this.saving = false;
+        this.$root.$emit('refresh-group-members');
       }
     },
     async createMembership(membership) {

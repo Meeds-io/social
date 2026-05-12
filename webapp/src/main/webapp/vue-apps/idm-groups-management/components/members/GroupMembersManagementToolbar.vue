@@ -43,7 +43,7 @@
           class="btn btn-primary"
           @click="$root.$emit('addNewMembership', $root.selectedGroup)">
           <span class="d-none d-sm-inline">
-            {{ $t('UsersManagement.addUser') }}
+            {{ $t('GroupsManagement.addGroup') }}
           </span>
         </v-btn>
         <v-btn

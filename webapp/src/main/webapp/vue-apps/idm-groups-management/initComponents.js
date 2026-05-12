@@ -9,9 +9,11 @@ import GroupManagementToolbar from './components/header/GroupManagementToolbar.v
 import GroupManagementPlaceholder from './components/GroupManagementPlaceholder.vue';
 import GroupMembersManagement from './components/members/GroupMembersManagement.vue';
 import GroupMembersList from './components/members/GroupMembersList.vue';
-import GroupMembersManagementToolbar from './components/members/GroupMembersManagementToolbar.vue';
 import UsersManagementFilterDrawer from '../idm-users-management/components/UsersManagementFilterDrawer.vue';
 import GroupMembersMembershipDrawer from './components/members/GroupMembersMembershipDrawer.vue';
+import GroupMembersManagementToolbar from './components/members/GroupMembersManagementToolbar.vue';
+import GroupMembersActionMenu from './components/members/GroupMembersActionMenu.vue';
+
 const components = {
   'group-management': GroupManagement,
   'group-management-tree': GroupManagementTree,
@@ -27,6 +29,7 @@ const components = {
   'group-members-list': GroupMembersList,
   'group-members-filter-drawer': UsersManagementFilterDrawer,
   'group-members-membership-drawer': GroupMembersMembershipDrawer,
+  'group-members-action-menu': GroupMembersActionMenu,
 };
 
 for (const key in components) {
