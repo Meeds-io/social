@@ -12,7 +12,7 @@
     }"
     :filters-count="filtersCount"
     compact
-    @filter-button-click="$root.$emit('advancedFilter')"
+    @filter-button-click="$root.$emit('open-advanced-filter-drawer')"
     @filter-text-input-end-typing="keyword = $event">
     <template #left>
       <div class="d-flex position-absolute zindex-1 mt-n1 t-0">
@@ -149,12 +149,12 @@ export default {
     },
   },
   created() {
-    this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
+    this.$root.$on('apply-users-filter', this.applyAdvancedFilter);
     document.addEventListener('multiSelect', this.updateSelectedUsers);
   },
   beforeDestroy() {
     document.removeEventListener('multiSelect', this.updateSelectedUsers);
-    this.$root.$off('applyAdvancedFilter', this.applyAdvancedFilter);
+    this.$root.$off('apply-users-filter', this.applyAdvancedFilter);
   },
   methods: {
     updateSelectedUsers(event) {
