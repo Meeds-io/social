@@ -5,7 +5,7 @@
     v-model="drawer"
     :loading="saving"
     right>
-    <template slot="title">
+    <template #title>
       {{ title }}
     </template>
     <template v-if="drawer" #content>
@@ -15,7 +15,7 @@
         flat
         @submit="saveMembership">
         <v-card-text class="d-flex membershipNameLabel flex-grow-1 text-no-wrap pb-2">
-          {{ $t('UsersManagement.membershipType') }} *
+          {{ $t('UsersManagement.membershipType') }}
         </v-card-text>
         <v-card-text class="d-flex membershipNameField py-0">
           <template v-if="newMembership">
@@ -51,38 +51,36 @@
         </v-card-text>
 
         <v-card-text class="d-flex membershipUser flex-grow-1 text-no-wrap pb-2">
-          {{ $t('GroupsManagement.user') }} *
+          {{ $t('GroupsManagement.user') }}
         </v-card-text>
         <v-card-text class="d-flex membershipUserField py-0">
-          <template v-if="newMembership">
+          <v-flex v-if="newMembership">
             <v-autocomplete
-              id="userNameInput"
-              ref="userNameInput"
+              id="membershipUserNameInput"
+              ref="membershipUserNameInput"
               v-model="selectedUsers"
+              autofocus
+              item-text="fullName"
+              item-value="userName"
+              menu-props="closeOnClick, closeOnContentClick, maxHeight = 100"
+              class="identitySuggester identitySuggesterInputStyle"
+              content-class="identitySuggesterContent"
+              append-icon=""
+              width="100%"
+              max-width="100%"
+              chips
+              dense
+              flat
+              hide-selected
+              multiple
+              cache-items
               :disabled="saving || !newMembership"
               :loading="loadingSuggestions > 0"
               :items="users"
               :search-input.sync="searchTerm"
-              :placeholder="$t('GroupsManagement.addMemberInGroup')"
+              :placeholder="$t('GroupsManagement.addMember.label')"
               :required="!selectedUsers.length"
               :return-object="false"
-              name="membershipUser"
-              height="100"
-              append-icon=""
-              menu-props="closeOnClick, maxHeight = 100"
-              class="identitySuggester"
-              content-class="identitySuggesterContent"
-              width="100%"
-              max-width="100%"
-              item-text="fullName"
-              item-value="userName"
-              persistent-hint
-              hide-selected
-              chips
-              cache-items
-              dense
-              flat
-              multiple
               @change="clearSearch"
               @update:search-input="searchTerm = $event">
               <template slot="no-data">
@@ -107,59 +105,7 @@
                 <v-list-item-title class="text-truncate identitySuggestionMenuItemText" v-text="item.fullName" />
               </template>
             </v-autocomplete>
-          </template>
-          <template v-else>
-            <v-autocomplete
-              id="userNameInput"
-              ref="userNameInput"
-              v-model="membership.userName"
-              :disabled="saving || !newMembership"
-              :loading="loadingSuggestions > 0"
-              :items="users"
-              :search-input.sync="searchTerm"
-              :placeholder="$t('GroupsManagement.addMemberInGroup')"
-              :required="!membership.userName"
-              :return-object="false"
-              name="membershipUser"
-              height="100"
-              append-icon=""
-              menu-props="closeOnClick, maxHeight = 100"
-              class="identitySuggester"
-              content-class="identitySuggesterContent"
-              width="100%"
-              max-width="100%"
-              item-text="fullName"
-              item-value="userName"
-              hide-selected
-              chips
-              cache-items
-              dense
-              flat
-              single-line
-              @update:search-input="searchTerm = $event">
-              <template slot="no-data">
-                <v-list-item class="pa-0">
-                  <v-list-item-title class="px-2">
-                    {{ $t('GroupsManagement.label.addMembers') }}
-                  </v-list-item-title>
-                </v-list-item>
-              </template>
-              <template slot="selection" slot-scope="{item, selected}">
-                <v-chip
-                  :input-value="selected"
-                  :close="newMembership"
-                  class="identitySuggesterItem"
-                  @click:close="membership.userName = null">
-                  <span class="text-truncate">
-                    {{ item.fullName }}
-                  </span>
-                </v-chip>
-              </template>
-              <template slot="item" slot-scope="{ item }">
-                <v-list-item-title class="text-truncate identitySuggestionMenuItemText" v-text="item.fullName" />
-              </template>
-            </v-autocomplete>
-          </template>
+          </v-flex>
         </v-card-text>
       </v-form>
     </template>
@@ -215,7 +161,6 @@ export default {
   watch: {
     searchTerm(value) {
       if (value?.length) {
-        this.$refs.userNameInput.isFocused = true;
         window.setTimeout(() => {
           if (this.previousSearchTerm === this.searchTerm) {
             this.users = [];
@@ -233,22 +178,6 @@ export default {
         this.users = [];
       }
     },
-    drawer() {
-      if (this.drawer) {
-        this.$refs.drawer.open();
-        window.setTimeout(() => {
-          this.$refs.membershipTypeInput.focus();
-          $('#membershipFormDrawer #userNameInput').on('blur', () => {
-            // A hack to close on select
-            // See https://www.reddit.com/r/vuetifyjs/comments/819h8u/how_to_close_a_multiple_autocomplete_vselect/
-            this.$refs.userNameInput.isFocused = false;
-          });
-
-        }, 200);
-      } else {
-        this.$refs.drawer.close();
-      }
-    },
     selectedUsers() {
       this.selectedUsers.forEach(user => {
         if (!this.memberships.some(membership => membership.userName === user)) {
@@ -263,7 +192,6 @@ export default {
   },
   created() {
     this.$root.$on('addNewMembership', this.addNewMembership);
-    this.$root.$on('editMembership', this.editMembership);
 
     return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/membershipTypes`, {
       method: 'GET',
@@ -290,32 +218,19 @@ export default {
       this.newMembership = true;
       this.drawer = true;
     },
-    editMembership(membership, group) {
-      this.membershipType = null;
-      this.selectedUsers = [];
-      this.membership = Object.assign({}, membership);
-      this.group = group;
-      this.newMembership = false;
-      this.refreshUserSelection(this.membership.userName);
-      this.drawer = true;
-    },
     saveMembership(event) {
       if (event) {
         event.preventDefault();
         event.stopPropagation();
       }
-
       this.fieldError = false;
       this.resetCustomValidity();
-
       if (!this.$refs.membershipForm.validate() // Vuetify rules
           || !this.$refs.membershipForm.$el.reportValidity()) { // Standard HTML rules
         return;
       }
-
       this.saving = true;
       this.membership.groupId = this.group.id;
-      
       // set the membershipType for each membership
       this.memberships.forEach(membership => membership.membershipType = this.membershipType);
       const input = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/${this.newMembership ? 'memberships/bulk' : 'memberships'}?membershipId=${this.membership.id || ''}`;
