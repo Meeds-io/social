@@ -46,7 +46,7 @@
       </template>
       <template #[`item.userType`]="{ item }">
         <v-icon size="18" class="d-flex justify-center">
-          {{ item.isManager ? 'fa-user-cog' : 'fa-user' }}
+          {{ item.userRoleIcon }}
         </v-icon>
       </template>
       <template #[`item.actions`]="{ item }">
@@ -133,6 +133,7 @@ export default {
         lastLoginTime: member?.lastLoginTime
           ? Number(member.lastLoginTime)
           : null,
+        userRoleIcon: this.getIcon(member),
       }));
     },
     isEmpty() {
@@ -200,7 +201,19 @@ export default {
     refreshMembers() {
       this.page = 1;
       this.searchGroupMembers();
-    }
+    },
+    getIcon(member) {
+      if (member?.isManager) {
+        return 'fa-user-cog';
+      }
+      if (member?.isPublisher) {
+        return 'fa-user-tag';
+      }
+      if (member?.isRedactor) {
+        return 'fa-user-edit';
+      }
+      return 'fa-user';
+    },
   },
 };
 </script>
