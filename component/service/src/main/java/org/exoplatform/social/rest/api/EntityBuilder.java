@@ -413,6 +413,8 @@ public class EntityBuilder {
     if (CollectionUtils.isNotEmpty(groupIds) && groupIds.size() == 1) {
       UserACL userACL = ExoContainerContext.getService(UserACL.class);
       userEntity.setIsManager(userACL.isMemberOf(userACL.getUserIdentity(profile.getIdentity().getRemoteId()), MANAGER, groupIds.getFirst()));
+      userEntity.getDataEntity().put("isRedactor", userACL.isMemberOf(userACL.getUserIdentity(profile.getIdentity().getRemoteId()), REDACTOR_MEMBERSHIP, groupIds.getFirst()));
+      userEntity.getDataEntity().put("isPublisher", userACL.isMemberOf(userACL.getUserIdentity(profile.getIdentity().getRemoteId()), PUBLISHER_MEMBERSHIP, groupIds.getFirst()));
     }
 
     String[] expandArray = StringUtils.split(expand, ",");
