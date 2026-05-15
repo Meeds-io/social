@@ -33,17 +33,17 @@ export default {
         return this.$t('Notification.intranet.message.one.LikePlugin');
       } else if (this.likerUsernames.length < 2) {
         return this.$t('Notification.intranet.message.one.LikePlugin', {
-          0: `<a class="user-name font-weight-bold">${this.likerIdentities[0].fullname}</a>`,
+          0: `<span class="user-name font-weight-bold">${this.likerIdentities[0].fullname}</span>`,
         });
       } else if (this.likerUsernames.length < 3) {
         return this.$t('Notification.intranet.message.two.LikePlugin', {
-          0: `<a class="user-name font-weight-bold">${this.likerIdentities[0].fullname}</a>`,
-          1: `<a class="user-name font-weight-bold">${this.likerIdentities[1].fullname}</a>`,
+          0: `<span class="user-name font-weight-bold">${this.likerIdentities[0].fullname}</span>`,
+          1: `<span class="user-name font-weight-bold">${this.likerIdentities[1].fullname}</span>`,
         });
       } else {
         return this.$t('Notification.intranet.message.more.LikePlugin', {
-          0: `<a class="user-name font-weight-bold">${this.likerIdentities[0].fullname}</a>`,
-          1: `<a class="user-name font-weight-bold">${this.likerIdentities[1].fullname}</a>`,
+          0: `<span class="user-name font-weight-bold">${this.likerIdentities[0].fullname}</span>`,
+          1: `<span class="user-name font-weight-bold">${this.likerIdentities[1].fullname}</span>`,
           2: `<strong>${this.likerUsernames.length - 2}</strong>`,
         });
       }

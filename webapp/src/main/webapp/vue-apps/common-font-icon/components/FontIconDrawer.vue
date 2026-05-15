@@ -35,11 +35,13 @@
         <v-text-field
           v-model="keyword"
           :placeholder="$t('nodeIconPickerDrawer.searchPlaceholder')"
+          :aria-label="$t('nodeIconPickerDrawer.searchPlaceholder')"
           prepend-inner-icon="fa-filter">
           <template #append>
             <v-btn
               icon
               size="22"
+              :aria-label="$t('label.clear')"
               @click="closeFilter()">
               <v-icon
                 size="18"

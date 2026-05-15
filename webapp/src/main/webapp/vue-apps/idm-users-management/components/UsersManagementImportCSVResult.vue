@@ -21,10 +21,18 @@
             </template>
           </li>
           <li v-if="errorsCount">
-            - {{ $t('UsersManagement.errorImportingCSVFile') }}: <a @click="$refs.errorDrawer.open()">{{ errorsCount }} / {{ progress.processedCount }}</a>
+            - {{ $t('UsersManagement.errorImportingCSVFile') }}: <a
+              role="button"
+              tabindex="0"
+              @click="$refs.errorDrawer.open()"
+              @keydown.enter.prevent="$refs.errorDrawer.open()">{{ errorsCount }} / {{ progress.processedCount }}</a>
           </li>
           <li v-if="warnsCount">
-            - {{ $t('UsersManagement.warningImportingCSVFile') }}: <a @click="$refs.warnDrawer.open()">{{ warnsCount }} / {{ progress.processedCount }}</a>
+            - {{ $t('UsersManagement.warningImportingCSVFile') }}: <a
+              role="button"
+              tabindex="0"
+              @click="$refs.warnDrawer.open()"
+              @keydown.enter.prevent="$refs.warnDrawer.open()">{{ warnsCount }} / {{ progress.processedCount }}</a>
           </li>
         </ul>
       </template>

@@ -31,6 +31,7 @@
           icon
           outlined
           small
+          :aria-label="$t('profileSettings.label.edit')"
           @click="editContactInformation">
           <v-icon size="18">fas fa-edit</v-icon>
         </v-btn>

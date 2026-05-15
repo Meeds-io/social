@@ -5,6 +5,7 @@
       id="searchInput"
       v-model="term"
       :placeholder="searchInputPlaceholder"
+      :aria-label="searchInputPlaceholder"
       rounded
       clearable
       clear-icon="fas fa-times fa-1x"

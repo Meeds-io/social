@@ -232,7 +232,7 @@ export default {
       } else if (this.$root.selectedSpaces.length === this.$root.spaces.length && this.$root.spaces.length < this.$root.spacesSize) {
         return this.$t('social.spaces.administration.manageSpaces.allDisplayedSpacesSelected', {
           0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
-          1: '<a class="primary--text font-weight-bold" onclick="window.dispatchEvent(new CustomEvent(\'select-all-spaces\'))">',
+          1: '<span role="button" tabindex="0" class="primary--text font-weight-bold" onclick="window.dispatchEvent(new CustomEvent(\'select-all-spaces\'))" onkeydown="if(event.key===\'Enter\'||event.key===\' \')window.dispatchEvent(new CustomEvent(\'select-all-spaces\'))">',
           2: this.$root.spacesSize,
           3: '</a>',
         });

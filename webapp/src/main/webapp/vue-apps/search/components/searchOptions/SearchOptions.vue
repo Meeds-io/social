@@ -52,6 +52,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               :ripple="false"
               readonly
               dense
+              :aria-label="$t('search.connector.label.all')"
               class="ma-0" />
             <span>{{ $t('search.connector.label.all') }}</span>
           </v-list-item-title>
@@ -69,6 +70,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               :input-value="!allEnabled && connector.enabled"
               :ripple="false"
               dense
+              :aria-label="connector.label"
               class="ma-0" />
             <span>{{ connector.label }}</span>
           </v-list-item-title>

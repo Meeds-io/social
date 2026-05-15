@@ -63,17 +63,17 @@ export default {
         return 'Notification.intranet.message.one.ActivityCommentPlugin';
       } else if (this.posterUsernames.length < 2) {
         return this.$t('Notification.intranet.message.one.ActivityCommentPlugin', {
-          0: `<a class="user-name font-weight-bold">${this.posterIdentities[0].fullname}</a>`,
+          0: `<span class="user-name font-weight-bold">${this.posterIdentities[0].fullname}</span>`,
         });
       } else if (this.posterUsernames.length < 3) {
         return this.$t('Notification.intranet.message.two.ActivityCommentPlugin', {
-          0: `<a class="user-name font-weight-bold">${this.posterIdentities[0].fullname}</a>`,
-          1: `<a class="user-name font-weight-bold">${this.posterIdentities[1].fullname}</a>`,
+          0: `<span class="user-name font-weight-bold">${this.posterIdentities[0].fullname}</span>`,
+          1: `<span class="user-name font-weight-bold">${this.posterIdentities[1].fullname}</span>`,
         });
       } else {
         return this.$t('Notification.intranet.message.more.ActivityCommentPlugin', {
-          0: `<a class="user-name font-weight-bold">${this.posterIdentities[0].fullname}</a>`,
-          1: `<a class="user-name font-weight-bold">${this.posterIdentities[1].fullname}</a>`,
+          0: `<span class="user-name font-weight-bold">${this.posterIdentities[0].fullname}</span>`,
+          1: `<span class="user-name font-weight-bold">${this.posterIdentities[1].fullname}</span>`,
           2: `<strong>${this.posterUsernames.length - 2}</strong>`,
         });
       }

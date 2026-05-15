@@ -111,6 +111,7 @@
             class="px-0 me-auto"
             small
             icon
+            :aria-label="$t('label.goBack')"
             @click="expandFilter = false">
             <v-icon size="26" class="icon-default-color">fa-arrow-left</v-icon>
           </v-btn>
@@ -135,6 +136,7 @@
                   ref="applicationToolbarFilterInput"
                   v-model="term"
                   :placeholder="rightTextFilter.placeholder"
+                  :aria-label="rightTextFilter.placeholder"
                   :disabled="rightTextFilter.disabled"
                   :autofocus="autofocusTextFilter"
                   :height="isCompact && 24 || 36"
@@ -154,6 +156,7 @@
             id="applicationToolbarFilterSelect"
             v-model="select"
             :disabled="rightSelectBox?.disabled"
+            :aria-label="rightSelectBox?.placeholder || $t('label.filter')"
             class="flex-grow-0 ignore-vuetify-classes py-2 height-auto width-auto text-truncate my-auto ms-4"
             @change="$emit('filter-select-change', select)">
             <option
@@ -191,6 +194,7 @@
             class="px-0 ms-4"
             small
             icon
+            :aria-label="$t('label.filter')"
             @click="expandFilter = true">
             <v-icon :class="coneColor" size="20">
               fa-filter

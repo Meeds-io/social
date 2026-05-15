@@ -80,8 +80,8 @@ export default {
     },
     message() {
       return this.space && this.profile && this.$t(this.messageKey, {
-        0: `<a class="user-name font-weight-bold">${this.profileFullname}</a>`,
-        1: `<a class="space-name font-weight-bold">${this.spaceDisplatName}</a>`,
+        0: `<span class="user-name font-weight-bold">${this.profileFullname}</span>`,
+        1: `<span class="space-name font-weight-bold">${this.spaceDisplatName}</span>`,
       }) || '';
     },
   },

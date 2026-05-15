@@ -65,7 +65,7 @@ export default {
     },
     message() {
       return this.profile && this.$t(this.messageKey, {
-        0: `<a class="user-name font-weight-bold">${this.profile.fullname}</a>`,
+        0: `<span class="user-name font-weight-bold">${this.profile.fullname}</span>`,
       }) || '';
     },
   },

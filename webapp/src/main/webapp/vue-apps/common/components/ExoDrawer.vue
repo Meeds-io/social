@@ -25,7 +25,10 @@
     max-width="100vw"
     class="drawerParent overflow-initial"
     ref="drawerParent"
-    tabindex="0">
+    role="dialog"
+    :aria-modal="drawer.toString()"
+    :aria-labelledby="drawerTitleId"
+    tabindex="-1">
     <div
       v-if="initialized || eager"
       class="pa-0 fill-width fill-height">
@@ -45,6 +48,7 @@
               <v-list-item-action v-if="goBackButton && !useFilter" class="drawerIcons ps-1 me-2">
                 <v-btn
                   icon
+                  :aria-label="$t('label.goBack')"
                   @click="goBack">
                   <v-icon size="20">
                     {{ $vuetify.rtl && 'fa fa-arrow-right' || 'fa fa-arrow-left' }}
@@ -54,6 +58,7 @@
               <v-list-item-content :class="goBackButton ? 'ps-2' : 'ps-4'" class="drawerTitle align-start text-header-title">
                 <div
                   v-if="!showFilter"
+                  :id="drawerTitleId"
                   class="text-truncate full-width">
                   <slot name="title"></slot>
                 </div>
@@ -62,6 +67,7 @@
                   v-if="showFilter"
                   v-model="filterText"
                   :placeholder="resolvedFilterPlaceholder"
+                  :aria-label="resolvedFilterPlaceholder"
                   class="d-flex my-0 ms-0 me-4 pa-0"
                   hide-details
                   @focus="filterFocused = true"
@@ -77,6 +83,7 @@
                   <template #prepend>
                     <v-btn
                       icon
+                      :aria-label="$t('label.goBack')"
                       class="pa-0 mb-n6px mx-0 mt-0"
                       @click="showFilter = !showFilter">
                       <v-icon
@@ -94,6 +101,7 @@
                       width="24"
                       height="24"
                       icon
+                      :aria-label="$t('label.clear')"
                       @click="filterText = ''">
                       <v-icon
                         class="primary--text"
@@ -111,6 +119,7 @@
                 <v-btn
                   v-if="useFilter"
                   icon
+                  :aria-label="$t('label.filter')"
                   @click="openFilter">
                   <v-icon
                     :class="{
@@ -323,6 +332,9 @@ export default {
     filterFocused: false
   }),
   computed: {
+    drawerTitleId() {
+      return `exo-drawer-title-${this._uid}`;
+    },
     zIndex() {
       return this.drawer ? (this.drawerZIndex + (eXo.openedDrawers?.length || 0)) : this.drawerZIndex;
     },

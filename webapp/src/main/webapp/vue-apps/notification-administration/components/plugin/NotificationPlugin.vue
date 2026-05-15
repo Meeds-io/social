@@ -9,7 +9,7 @@
         </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action class="ma-auto">
-        <v-btn icon @click="$emit('edit')">
+        <v-btn icon :aria-label="$t('label.edit')" @click="$emit('edit')">
           <v-icon>
             fa-edit
           </v-icon>

@@ -47,15 +47,13 @@
           <v-text-field
             id="username"
             v-model="username"
-            :title="$t('portal.login.Username')"
+            :aria-label="$t('portal.login.Username')"
             :placeholder="$t('portal.login.Username')"
             name="username"
             prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
             class="login-username border-box-sizing pt-0"
-            autofocus="autofocus"
             aria-required="true"
             type="text"
-            tabindex="0"
             required="required"
             outlined
             dense

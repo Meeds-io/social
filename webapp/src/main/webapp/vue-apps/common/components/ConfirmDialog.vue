@@ -5,17 +5,26 @@
     :persistent="persistent"
     :width="width"
     :content-class="`uiPopup ${isBrandingLayout && 'layout-drawer' || ''}`"
-    max-width="100vw">
+    max-width="100vw"
+    :aria-labelledby="titleId"
+    :aria-describedby="messageId"
+    role="dialog">
     <v-card class="elevation-12 transparent">
       <div class="ignore-vuetify-classes popupHeader ClearFix" :class="isBrandingLayout && 'layout-drawer' || ''">
-        <a
-          class="uiIconClose pull-right"
-          aria-hidden="true"
-          @click="close"></a>
+        <v-btn
+          icon
+          class="uiIconClose pull-right ignore-vuetify-classes"
+          :aria-label="$t('label.close')"
+          @click="close">
+          <v-icon size="20">fa-times</v-icon>
+        </v-btn>
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <span class="ignore-vuetify-classes text-title" v-html="title"></span>
+        <span
+          :id="titleId"
+          class="ignore-vuetify-classes text-title"
+          v-html="title"></span>
       </div>
-      <v-card-text v-sanitized-html="message" />
+      <v-card-text :id="messageId" v-sanitized-html="message" />
       <v-card-actions v-if="!hideActions">
         <v-spacer />
         <button
@@ -99,10 +108,20 @@ export default {
   data: () => ({
     dialog: false,
     closed: false,
+    previousFocus: null,
   }),
+  computed: {
+    titleId() {
+      return `confirm-dialog-title-${this._uid}`;
+    },
+    messageId() {
+      return `confirm-dialog-message-${this._uid}`;
+    }
+  },
   watch: {
     dialog() {
       if (this.dialog) {
+        this.previousFocus = document.activeElement;
         this.closed = false;
         this.$emit('dialog-opened');
         document.dispatchEvent(new CustomEvent('modalOpened'));
@@ -131,6 +150,10 @@ export default {
       this.$nextTick(() => {
         this.dialog = false;
         this.emitClosedEvent();
+        if (this.previousFocus) {
+          this.previousFocus.focus();
+          this.previousFocus = null;
+        }
       });
     },
     open() {

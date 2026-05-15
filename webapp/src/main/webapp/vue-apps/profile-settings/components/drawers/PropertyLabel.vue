@@ -40,6 +40,7 @@
         <v-text-field
           v-model="propertylabel.label"
           :placeholder="$t('profileSettings.placeholder.label')"
+          :aria-label="$t('profileSettings.placeholder.label')"
           type="text"
           class="flex-grow-1 pa-3 ms-1"
           maxlength="2000"
@@ -47,7 +48,7 @@
           dense
           :rules="[v => !!v || $t('profileSettings.message.field.required')]" />
         <div class="flex-grow-0 mt-3">
-          <v-btn icon @click="deleteLabel">
+          <v-btn icon :aria-label="$t('label.remove')" @click="deleteLabel">
             <v-icon size="16" class="error-color">fas fa-trash-alt</v-icon>
           </v-btn>
         </div>

@@ -67,12 +67,11 @@
             {{ versionObject.summary }}
           </div>
         </v-tooltip>
-        <v-text-field
-          v-if="canManage"
-          ref="NewDescriptionInput"
+          <v-text-field
           v-show="!descriptionInputHidden && !isUpdatingDescription"
           v-model="newDescription"
           :placeholder="$t('versionHistory.description.placeholder')"
+          :aria-label="$t('versionHistory.description.placeholder')"
           class="description pa-0 dark-grey-color"
           outlined
           dense
@@ -84,6 +83,7 @@
               class="mt-n1 me-n2 pb-1"
               icon
               small
+              :aria-label="$t('label.confirm')"
               :disabled="descriptionMaxLengthReached"
               @click.stop.prevent="updateDescription">
               <v-icon
@@ -97,12 +97,13 @@
             <v-btn
               class="mt-n1 me-n2 pb-1"
               small
-              icon>
+              icon
+              :aria-label="$t('label.cancel')"
+              @click.stop.prevent="resetInput">
               <v-icon
                 class="clickable px-0 ma-0"
                 color="red"
-                small
-                @click.stop.prevent="resetInput">
+                small>
                 fa-times
               </v-icon>
             </v-btn>

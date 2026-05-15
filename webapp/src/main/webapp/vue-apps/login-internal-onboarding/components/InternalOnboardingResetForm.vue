@@ -45,7 +45,7 @@
             <v-text-field
               id="username"
               v-model="usernameParam"
-              :title="$t('portal.login.Username')"
+              :aria-label="$t('portal.login.Username')"
               :placeholder="$t('portal.login.Username')"
               name="username"
               prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
@@ -65,7 +65,7 @@
             <v-text-field
               id="password"
               v-model="password"
-              :title="$t('onboarding.NewPassword')"
+              :aria-label="$t('onboarding.NewPassword')"
               :placeholder="$t('onboarding.NewPassword')"
               :type="passwordType"
               :append-icon="showPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
@@ -73,8 +73,6 @@
               class="login-password border-box-sizing"
               name="password"
               autocomplete="new-password"
-              autofocus="autofocus"
-              tabindex="0"
               required="required"
               outlined
               dense
@@ -89,7 +87,7 @@
             <v-text-field
               id="password2"
               v-model="confirmPassword"
-              :title="$t('onboarding.ConfirmNewPassword')"
+              :aria-label="$t('onboarding.ConfirmNewPassword')"
               :placeholder="$t('onboarding.ConfirmNewPassword')"
               :type="passwordConfirmType"
               :append-icon="showConfirmPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
@@ -118,7 +116,7 @@
             <v-text-field
               id="captcha"
               v-model="captcha"
-              :title="$t('onboarding.captchaPlaceholder')"
+              :aria-label="$t('onboarding.captchaPlaceholder')"
               :placeholder="$t('onboarding.captchaPlaceholder')"
               name="captcha"
               class="login-username border-box-sizing pa-0 mt-1"

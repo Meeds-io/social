@@ -37,6 +37,7 @@
         class="ml-0"
         fab
         x-small
+        :aria-label="$t('label.remove')"
         @click="deleteFile">
         <v-icon class="error-color" small>fa-trash</v-icon>
       </v-btn>
@@ -57,6 +58,7 @@
         class="mr-1" 
         fab 
         x-small
+        :aria-label="$t('label.edit')"
         @click="openImageCropDrawer">
         <v-icon class="icon-default-color" small>fa-edit</v-icon>
       </v-btn>
@@ -64,6 +66,7 @@
         class="ml-0" 
         fab 
         x-small
+        :aria-label="$t('label.remove')"
         @click.prevent.stop="deleteFile">
         <v-icon class="error-color" small>fa-trash</v-icon>
       </v-btn>

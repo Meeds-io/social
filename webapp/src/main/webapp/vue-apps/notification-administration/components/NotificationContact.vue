@@ -8,7 +8,7 @@
       </div>
     </div>
     <div class="d-flex flex-grow-0 flex-shrink-0">
-      <v-btn icon @click="$refs.drawer.open()">
+      <v-btn icon :aria-label="$t('label.edit')" @click="$refs.drawer.open()">
         <v-icon>
           fa-edit
         </v-icon>

@@ -68,7 +68,7 @@ export default {
     },
     message() {
       return this.$t('Notification.title.JoinedSpaceByInvitationLinkPlugin', {
-        0: `<a class="user-name font-weight-bold">${this.invitedUserDisplayName}</a>`
+        0: `<span class="user-name font-weight-bold">${this.invitedUserDisplayName}</span>`
       });
     },
     actionMessage() {

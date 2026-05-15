@@ -58,6 +58,7 @@
           v-model="siteId"
           :items="filteredSites"
           :placeholder="$t('generalSettings.selectASitePlaceholder')"
+          :aria-label="$t('generalSettings.selectASitePlaceholder')"
           item-text="displayName"
           item-value="siteId"
           class="ma-0 pa-0 elevation-0 no-border"
@@ -74,6 +75,7 @@
               <span class="me-1">{{ $t('generalSettings.anyPage') }}</span>
               <v-checkbox
                 v-model="expandPages"
+                :aria-label="$t('generalSettings.anyPage')"
                 false-value="false"
                 true-value="true"
                 class="ma-0 pa-0"

@@ -72,10 +72,10 @@ export default {
     },
     message() {
       return this.space && this.$t(this.messageKey, this.accepted && {
-        0: `<a class="space-name font-weight-bold">${this.space.displayName}</a>`,
+        0: `<span class="space-name font-weight-bold">${this.space.displayName}</span>`,
       } || {
-        0: `<a class="user-name font-weight-bold">${this.profileFullname}</a>`,
-        1: `<a class="space-name font-weight-bold">${this.space.displayName}</a>`,
+        0: `<span class="user-name font-weight-bold">${this.profileFullname}</span>`,
+        1: `<span class="space-name font-weight-bold">${this.space.displayName}</span>`,
       }) || '';
     },
   },

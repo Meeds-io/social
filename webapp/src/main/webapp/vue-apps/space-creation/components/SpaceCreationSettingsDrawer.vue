@@ -61,6 +61,7 @@
         v-model="selectedTemplateId"
         :items="$root.availableSpaceTemplates"
         :placeholder="$t('space.creation.instantiation.settingsDrawer.content.searchTemplatePlaceholder')"
+        :aria-label="$t('space.creation.instantiation.settingsDrawer.content.searchTemplatePlaceholder')"
         item-text="name"
         item-value="id"
         class="mt-n2 mb-4 px-5 elevation-0 no-border"

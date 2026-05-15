@@ -152,8 +152,8 @@ export default {
         return this.extension.getMessage(this.notification, this.activity);
       } else {
         return this.$t(this.messageKey || `Notification.intranet.message.${this.notification?.plugin}`, {
-          0: `<a class="user-name font-weight-bold">${this.profileFullname}</a>`,
-          1: `<a class="space-name font-weight-bold">${this.spaceDisplatName}</a>`,
+          0: `<span class="user-name font-weight-bold">${this.profileFullname}</span>`,
+          1: `<span class="space-name font-weight-bold">${this.spaceDisplatName}</span>`,
         });
       }
     },

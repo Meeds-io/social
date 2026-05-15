@@ -108,6 +108,7 @@
       <template v-if="!isMobile && alertDismissible" #close="{toggle}">
         <v-btn
           icon
+          :aria-label="$t('label.close')"
           @click="dismiss(toggle)">
           <v-icon size="16" class="icon-default-color">fa-times</v-icon>
         </v-btn>

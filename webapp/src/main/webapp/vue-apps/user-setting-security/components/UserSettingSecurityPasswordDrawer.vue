@@ -51,7 +51,7 @@
             id="currentPassword"
             ref="currentPassword"
             v-model="currentPassword"
-            :title="$t('UserSettings.security.passwordChange.current')"
+            :aria-label="$t('UserSettings.security.passwordChange.current')"
             :placeholder="$t('UserSettings.security.passwordChange.current')"
             :readonly="saving"
             :type="currentPasswordType"
@@ -60,9 +60,7 @@
             prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
             class="border-box-sizing full-width pa-0 mt-2"
             aria-required="true"
-            tabindex="0"
             required="required"
-            autofocus="autofocus"
             outlined
             dense>
             <template #append>
@@ -89,7 +87,7 @@
             id="newPassword"
             ref="newPassword"
             v-model="newPassword"
-            :title="$t('UserSettings.security.passwordChange.new')"
+            :aria-label="$t('UserSettings.security.passwordChange.new')"
             :placeholder="$t('UserSettings.security.passwordChange.new')"
             :readonly="saving"
             :type="newPasswordType"
@@ -98,7 +96,6 @@
             prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
             class="border-box-sizing full-width pa-0 mt-2"
             aria-required="true"
-            tabindex="0"
             required="required"
             outlined
             dense>
@@ -123,7 +120,7 @@
             id="confirmNewPassword"
             ref="confirmNewPassword"
             v-model="confirmNewPassword"
-            :title="$t('UserSettings.security.passwordChange.confirmNew')"
+            :aria-label="$t('UserSettings.security.passwordChange.confirmNew')"
             :placeholder="$t('UserSettings.security.passwordChange.confirmNew')"
             :readonly="saving"
             :type="confirmNewPasswordType"
@@ -132,7 +129,6 @@
             prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
             class="border-box-sizing full-width pa-0 mt-2"
             aria-required="true"
-            tabindex="0"
             required="required"
             outlined
             dense>

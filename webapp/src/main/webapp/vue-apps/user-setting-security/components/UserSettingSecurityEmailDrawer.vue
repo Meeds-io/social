@@ -43,7 +43,7 @@
             id="email"
             ref="email"
             v-model="email"
-            :title="$t('UserSettings.security.emailChange.current')"
+            :aria-label="$t('UserSettings.security.emailChange.current')"
             readonly
             name="email"
             autocomplete="email"
@@ -51,9 +51,7 @@
             class="border-box-sizing full-width pa-0 mt-2"
             aria-required="true"
             type="email"
-            tabindex="0"
             required="required"
-            autofocus="autofocus"
             outlined
             dense />
           <div class="font-weight-bold mt-4">
@@ -63,7 +61,7 @@
             id="newEmail"
             ref="newEmail"
             v-model="newEmail"
-            :title="$t('UserSettings.security.emailChange.newPlaceholder')"
+            :aria-label="$t('UserSettings.security.emailChange.newPlaceholder')"
             :placeholder="$t('UserSettings.security.emailChange.newPlaceholder')"
             :readonly="saving"
             name="newEmail"
@@ -72,7 +70,6 @@
             class="border-box-sizing full-width pa-0 mt-2"
             aria-required="true"
             type="email"
-            tabindex="0"
             required="required"
             outlined
             dense />
@@ -86,7 +83,7 @@
                   id="otpCode"
                   ref="otpCode"
                   v-model="otpCode"
-                  :title="$t('UserSettings.security.emailChange.confirmAccess.inputTitle')"
+                  :aria-label="$t('UserSettings.security.emailChange.confirmAccess.inputTitle')"
                   :placeholder="$t('UserSettings.security.emailChange.confirmAccess.inputPlaceholder')"
                   :readonly="saving"
                   prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
@@ -94,7 +91,6 @@
                   name="otpCode"
                   aria-required="true"
                   type="text"
-                  tabindex="0"
                   required="required"
                   outlined
                   dense

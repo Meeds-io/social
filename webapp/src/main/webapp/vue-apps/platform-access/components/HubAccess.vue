@@ -40,6 +40,7 @@
           <v-radio-group v-model="accessType">
             <v-radio
               value="OPEN"
+              :aria-label="$t('generalSettings.access.open')"
               on-icon="fa-lg far fa-dot-circle"
               off-icon="fa-lg far fa-circle"
               @click="accessType = 'OPEN'" />
@@ -108,6 +109,7 @@
           <v-radio-group v-model="accessType">
             <v-radio
               value="RESTRICTED"
+              :aria-label="$t('generalSettings.access.restricted')"
               on-icon="fa-lg far fa-dot-circle"
               off-icon="fa-lg far fa-circle"
               @click="accessType = 'RESTRICTED'" />

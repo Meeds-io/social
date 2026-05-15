@@ -4,15 +4,23 @@
     :width="width"
     :persistent="persistent"
     content-class="uiPopup"
-    max-width="100vw">
+    max-width="100vw"
+    :aria-labelledby="titleId"
+    role="dialog">
     <v-card class="elevation-12">
       <div class="ignore-vuetify-classes popupHeader ClearFix">
-        <a
-          class="uiIconClose pull-right"
-          aria-hidden="true"
-          @click="close"></a>
+        <v-btn
+          icon
+          class="uiIconClose pull-right ignore-vuetify-classes"
+          :aria-label="$t('label.close')"
+          @click="close">
+          <v-icon size="20">fa-times</v-icon>
+        </v-btn>
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <span class="ignore-vuetify-classes PopupTitle popupTitle text-truncate" v-html="title"></span>
+        <span
+          :id="titleId"
+          class="ignore-vuetify-classes PopupTitle popupTitle text-truncate"
+          v-html="title"></span>
       </div>
       <slot></slot>
       <v-card-actions v-if="!hideActions">
@@ -71,10 +79,17 @@ export default {
   },
   data: () => ({
     dialog: false,
+    previousFocus: null,
   }),
+  computed: {
+    titleId() {
+      return `exo-modal-title-${this._uid}`;
+    }
+  },
   watch: {
     dialog() {
       if (this.dialog) {
+        this.previousFocus = document.activeElement;
         this.$emit('dialog-opened');
         document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
@@ -83,16 +98,10 @@ export default {
       }
     }
   },
-  created() {
-    document.addEventListener('keydown', this.closeOnEscape);
-  },
   mounted() {
     if (this.$el.closest('.layout-sticky-application')) {
       document.querySelector('#vuetify-apps').appendChild(this.$el);
     }
-  },
-  beforeDestroy() {
-    document.removeEventListener('keydown', this.closeOnEscape);
   },
   methods: {
     open() {
@@ -100,10 +109,9 @@ export default {
     },
     close() {
       this.dialog = false;
-    },
-    closeOnEscape(event) {
-      if (event.key === 'Escape') {
-        this.close();
+      if (this.previousFocus) {
+        this.$nextTick(() => this.previousFocus?.focus());
+        this.previousFocus = null;
       }
     },
   }

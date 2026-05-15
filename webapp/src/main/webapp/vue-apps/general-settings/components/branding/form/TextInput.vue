@@ -31,10 +31,10 @@
         v-if="textTitleStyle"
         class="me-0 my-auto ms-auto">
         <v-btn-toggle v-model="textTitleStyle" multiple>
-          <v-btn value="bold" small>
+          <v-btn value="bold" small aria-label="Bold">
             <v-icon size="18">fa-bold</v-icon>
           </v-btn>
-          <v-btn value="italic" small>
+          <v-btn value="italic" small aria-label="Italic">
             <v-icon size="18">fa-italic</v-icon>
           </v-btn>
         </v-btn-toggle>
@@ -68,10 +68,10 @@
         v-if="textHeaderStyle"
         class="me-0 my-auto ms-auto">
         <v-btn-toggle v-model="textHeaderStyle" multiple>
-          <v-btn value="bold" small>
+          <v-btn value="bold" small aria-label="Bold">
             <v-icon size="18">fa-bold</v-icon>
           </v-btn>
-          <v-btn value="italic" small>
+          <v-btn value="italic" small aria-label="Italic">
             <v-icon size="18">fa-italic</v-icon>
           </v-btn>
         </v-btn-toggle>
@@ -105,10 +105,10 @@
         v-if="textStyle"
         class="me-0 my-auto ms-auto">
         <v-btn-toggle v-model="textStyle" multiple>
-          <v-btn value="bold" small>
+          <v-btn value="bold" small aria-label="Bold">
             <v-icon size="18">fa-bold</v-icon>
           </v-btn>
-          <v-btn value="italic" small>
+          <v-btn value="italic" small aria-label="Italic">
             <v-icon size="18">fa-italic</v-icon>
           </v-btn>
         </v-btn-toggle>
@@ -142,10 +142,10 @@
         v-if="textSubtitleStyle"
         class="me-0 my-auto ms-auto">
         <v-btn-toggle v-model="textSubtitleStyle" multiple>
-          <v-btn value="bold" small>
+          <v-btn value="bold" small aria-label="Bold">
             <v-icon size="18">fa-bold</v-icon>
           </v-btn>
-          <v-btn value="italic" small>
+          <v-btn value="italic" small aria-label="Italic">
             <v-icon size="18">fa-italic</v-icon>
           </v-btn>
         </v-btn-toggle>

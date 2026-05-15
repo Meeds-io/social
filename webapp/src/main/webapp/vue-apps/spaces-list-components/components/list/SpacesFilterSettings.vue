@@ -40,6 +40,7 @@
             v-model="templateId"
             :items="enabledTemplates"
             :placeholder="$t('spacesList.settings.searchTemplatePlaceholder')"
+            :aria-label="$t('spacesList.settings.searchTemplatePlaceholder')"
             class="mb-2 mx-0 pa-0 elevation-0 no-border"
             item-text="name"
             item-value="id"
@@ -102,17 +103,26 @@
                 <v-list-item-title class="text-truncate">{{ c.name }}</v-list-item-title>
               </v-list-item-content>
               <v-list-item-action :class="index === selectedCategories.length - 1 && 'invisible'">
-                <v-btn icon @click="moveDown(index, localSettings.categoryIds)">
+                <v-btn
+                  icon
+                  :aria-label="$t('spacesList.settings.moveDown')"
+                  @click="moveDown(index, localSettings.categoryIds)">
                   <v-icon size="18">fa-arrow-down</v-icon>
                 </v-btn>
               </v-list-item-action>
               <v-list-item-action :class="index === 0 && 'invisible'">
-                <v-btn icon @click="moveUp(index, localSettings.categoryIds)">
+                <v-btn
+                  icon
+                  :aria-label="$t('spacesList.settings.moveUp')"
+                  @click="moveUp(index, localSettings.categoryIds)">
                   <v-icon size="18">fa-arrow-up</v-icon>
                 </v-btn>
               </v-list-item-action>
               <v-list-item-action>
-                <v-btn icon @click="removeItem(index, localSettings.categoryIds)">
+                <v-btn
+                  icon
+                  :aria-label="$t('spacesList.settings.remove')"
+                  @click="removeItem(index, localSettings.categoryIds)">
                   <v-icon size="18" color="error">fa-trash</v-icon>
                 </v-btn>
               </v-list-item-action>
