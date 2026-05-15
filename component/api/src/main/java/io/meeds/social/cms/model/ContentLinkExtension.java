@@ -37,6 +37,8 @@ public class ContentLinkExtension {
 
   private boolean drawer;
 
+  private boolean hidden;
+
   public ContentLinkExtension(String objectType,
                               String titleKey,
                               String icon,
@@ -45,6 +47,18 @@ public class ContentLinkExtension {
     this.titleKey = titleKey;
     this.icon = icon;
     this.command = command;
+  }
+
+  public ContentLinkExtension(String objectType,
+                              String titleKey,
+                              String icon,
+                              String command,
+                              boolean drawer) {
+    this.objectType = objectType;
+    this.titleKey = titleKey;
+    this.icon = icon;
+    this.command = command;
+    this.drawer = drawer;
   }
 
 }
