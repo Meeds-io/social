@@ -27,10 +27,10 @@
     <template #title>
       {{ $t('contentLink.drawer.title') }}
     </template>
-    <template v-if="drawer && $root.plugins" #content>
+    <template v-if="drawer && plugins.length" #content>
       <div class="d-flex flex-wrap py-5 px-3">
         <content-link-plugin
-          v-for="p in $root.plugins"
+          v-for="p in plugins"
           :key="p.command"
           :plugin="p"
           class="mx-2 mb-4"
@@ -44,6 +44,11 @@ export default {
   data: () => ({
     drawer: false,
   }),
+  computed: {
+    plugins() {
+      return this.$root.plugins?.filter?.(p => p && !p.hidden) || [];
+    },
+  },
   created() {
     this.$utils.includeExtensions('ContentLinkExtension');
   },

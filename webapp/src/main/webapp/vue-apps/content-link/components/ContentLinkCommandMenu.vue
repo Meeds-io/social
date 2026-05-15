@@ -162,8 +162,11 @@ export default {
     position: null,
   }),
   computed: {
+    plugins() {
+      return this.$root.plugins?.filter?.(p => p && !p.hidden) || [];
+    },
     filteredPlugins() {
-      return this.query?.length ? this.$root.plugins?.filter?.(p => p.command?.startsWith(this.query)) : this.$root.plugins || [];
+      return this.query?.length ? this.plugins?.filter?.(p => p.command?.startsWith(this.query)) : this.plugins;
     },
     isCommandFiltering() {
       return !this.query?.includes?.(':');
@@ -217,7 +220,7 @@ export default {
           const commandParts = this.query?.split?.(':');
           if (commandParts?.length) {
             const command = commandParts[0];
-            this.plugin = this.$root.plugins.find(p => p.command === command);
+            this.plugin = this.plugins.find(p => p.command === command);
           }
         }
         await this.$nextTick();
@@ -354,7 +357,7 @@ export default {
         if (this.isItemFiltering) {
           const commandParts = command.split(':');
           this.keyword = commandParts[1];
-          const plugin = this.$root.plugins.find(p => p.command === commandParts[0]);
+          const plugin = this.plugins.find(p => p.command === commandParts[0]);
           if (plugin?.insert) {
             this.selectCommand(plugin);
           } else if (plugin) {
