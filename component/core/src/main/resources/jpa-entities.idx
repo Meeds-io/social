@@ -1,5 +1,6 @@
 org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportUserEntity
 org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity
+org.exoplatform.social.core.jpa.storage.entity.ProfilePropertyOptionEntity
 org.exoplatform.social.core.jpa.storage.entity.UserSpaceBindingEntity
 org.exoplatform.social.core.jpa.storage.entity.MetadataEntity
 org.exoplatform.social.core.jpa.storage.entity.ActivityShareActionEntity
@@ -14,8 +15,10 @@ org.exoplatform.social.core.jpa.storage.entity.SpaceEntity
 org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingEntity
 org.exoplatform.social.core.jpa.storage.entity.ProfileExperienceEntity
 org.exoplatform.social.core.jpa.storage.entity.IdentityEntity
-org.exoplatform.social.core.jpa.storage.entity.AppEntity
 org.exoplatform.social.core.jpa.storage.entity.ProfileLabelEntity
 org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity
 org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity
+org.exoplatform.social.core.jpa.storage.entity.UserBindingsQueueEntity
+org.exoplatform.social.core.jpa.storage.entity.UserSpaceBindingEntity
 io.meeds.social.space.template.entity.SpaceTemplateEntity
+io.meeds.social.space.invitation.entity.SpaceInvitationLinkEntity
