@@ -38,7 +38,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import org.exoplatform.commons.api.settings.SettingService;
@@ -59,10 +59,10 @@ public class CoeditingServiceTest {
 
   private static final String                               USERNAME = "username";
 
-  @MockBean
+  @MockitoBean
   private SettingService                                    settingService;
 
-  @MockBean
+  @MockitoBean
   private CacheService                                      cacheService;
 
   @Autowired
