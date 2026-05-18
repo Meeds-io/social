@@ -1,0 +1,72 @@
+<!--
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
+<template>
+  <application-toolbar
+    :right-text-filter="{
+      minCharacters: 1,
+      placeholder: $t('groupsManagement.nestedGroup.filterBy'),
+      tooltip: $t('groupsManagement.nestedGroup.filterBy'),
+    }"
+    @filter-text-input-end-typing="$emit('keyword-change', $event)">
+    <template #left>
+      <div class="d-flex position-absolute zindex-1 mt-n1 t-0">
+        <v-btn
+          :width="$root.isMobile && 36 || 'auto'"
+          :class="$root.isMobile && 'border-box-sizing'"
+          class="btn btn-primary"
+          @click="$root.$emit('addNewGroup', $root.selectedGroup, true)">
+          <span class="d-none d-sm-inline">
+            {{ $t('GroupsManagement.addGroup') }}
+          </span>
+        </v-btn>
+      </div>
+    </template>
+  </application-toolbar>
+</template>
+<script>
+export default {
+  props: {
+    loading: {
+      type: Boolean,
+      default: () => false,
+    },
+    filter: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  data: () => ({
+    keyword: null,
+  }),
+  computed: {
+    status() {
+      return this.filter?.status || 'ENABLED';
+    },
+    filtersCount() {
+      return (this.status !== 'ENABLED' ? 1 : 0)
+          + (this.filter?.type ? 1 : 0)
+          + (this.filter?.connectionStatus ? 1 : 0)
+          + (this.filter?.enrollmentStatus ? 1 : 0);
+    },
+  },
+};
+</script>
