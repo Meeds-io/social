@@ -21,7 +21,18 @@ package org.exoplatform.social.core.jpa.storage.entity;
 import java.io.Serializable;
 import java.time.Instant;
 
-import jakarta.persistence.*;
+import io.meeds.common.persistence.PortableSequence;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Data;
 
 @Entity(name = "SocGroupSpaceBindingQueue")
@@ -37,8 +48,7 @@ import lombok.Data;
 public class GroupSpaceBindingQueueEntity implements Serializable {
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID")
+  @PortableSequence(name = "SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID")
   @Column(name = "GROUP_SPACE_BINDING_QUEUE_ID")
   private long                    id;
 

@@ -476,7 +476,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <includeEmptyDirectories>false</includeEmptyDirectories>
-          <packagingExcludes>WEB-INF/lib/*.jar,**/*.less,**/less/**,**/*.vue,css/lib/*,vue-apps/**,js/mock/**/*,**-dev.*,**/vue-apps</packagingExcludes>
+          <packagingExcludes>WEB-INF/lib/**,**/*.less,**/less/**,**/*.vue,css/lib/*,vue-apps/**,js/mock/**/*,**-dev.*,**/vue-apps</packagingExcludes>
         </configuration>
       </plugin>
       <plugin>

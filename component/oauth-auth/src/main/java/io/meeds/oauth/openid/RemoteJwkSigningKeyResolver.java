@@ -71,7 +71,7 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
   }
 
   @Override
-  public Key resolveSigningKey(JwsHeader header, String plaintext) {
+  public Key resolveSigningKey(JwsHeader header, byte[] plaintext) {
     return getKey(header.getKeyId());
   }
 

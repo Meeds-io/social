@@ -25,17 +25,16 @@ import java.util.List;
 
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
 
+import io.meeds.common.persistence.PortableSequence;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -75,8 +74,7 @@ query = "SELECT NEW org.exoplatform.social.core.binding.model.GroupSpaceBindingO
         + " ORDER BY report.endDate DESC NULLS FIRST")
 public class GroupSpaceBindingReportActionEntity implements Serializable {
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")
+  @PortableSequence(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID")
   @Column(name = "GROUP_SPACE_BINDING_REPORT_ACTION_ID")
   private long                                    id;
   

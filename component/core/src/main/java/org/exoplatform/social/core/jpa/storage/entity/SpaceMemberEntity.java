@@ -25,17 +25,15 @@ import java.util.Date;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 
+import io.meeds.common.persistence.PortableSequence;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -99,8 +97,7 @@ public class SpaceMemberEntity implements Serializable {
   private static final long serialVersionUID = 1015703779692801839L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_SPACE_MEMBER_ID", sequenceName = "SEQ_SOC_SPACE_MEMBER_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_SPACE_MEMBER_ID")
+  @PortableSequence(name = "SEQ_SOC_SPACE_MEMBER_ID")
   @Column(name = "SPACE_MEMBER_ID")
   private Long              id;
 
