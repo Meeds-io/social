@@ -28,7 +28,6 @@ import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.service.LayoutService;
-import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -41,13 +40,10 @@ public class PublicSpaceSiteLifecycle extends BaseComponentPlugin implements App
 
   private SpaceService          spaceService;
 
-  private ResourceBundleService resourceBundleService;
-
   @Override
-  public void onInit(Application app) throws Exception {
+  public void onInit(Application app) {
     layoutService = ExoContainerContext.getService(LayoutService.class);
     spaceService = ExoContainerContext.getService(SpaceService.class);
-    resourceBundleService = ExoContainerContext.getService(ResourceBundleService.class);
   }
 
   public void onStartRequest(Application app, PortalRequestContext context) { // NOSONAR
@@ -69,9 +65,6 @@ public class PublicSpaceSiteLifecycle extends BaseComponentPlugin implements App
       return;
     }
     SpaceUtils.setSpaceByContext(context, space);
-
-    String browserTabTitle = resourceBundleService.getSharedString("UISpaceMenu.browser.publicSiteTitle", context.getLocale());
-    context.getRequest().setAttribute(PortalRequestContext.REQUEST_TITLE, browserTabTitle.replace("{0}", space.getDisplayName()));
   }
 
 }
