@@ -22,7 +22,14 @@
 <template>
   <v-card class="application-body" flat>
     <div class="ps-4 pt-4 text-title">{{ $t('groupsManagement.nestedGroups') }}</div>
-    <nested-groups-toolbar />
-    <nested-groups-list />
+    <nested-groups-toolbar @keyword-change="keyword = $event" />
+    <nested-groups-list :keyword="keyword" />
   </v-card>
 </template>
+<script>
+export default {
+  data: () => ({
+    keyword: '',
+  }),
+};
+</script>

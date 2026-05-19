@@ -49,24 +49,6 @@ export default {
       type: Boolean,
       default: () => false,
     },
-    filter: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
-  data: () => ({
-    keyword: null,
-  }),
-  computed: {
-    status() {
-      return this.filter?.status || 'ENABLED';
-    },
-    filtersCount() {
-      return (this.status !== 'ENABLED' ? 1 : 0)
-          + (this.filter?.type ? 1 : 0)
-          + (this.filter?.connectionStatus ? 1 : 0)
-          + (this.filter?.enrollmentStatus ? 1 : 0);
-    },
   },
 };
 </script>

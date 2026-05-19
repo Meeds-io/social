@@ -33,9 +33,6 @@
       :footer-props="footerProps"
       :hide-default-footer="isEmpty"
       @update:items-per-page="handleItemsPerPageChange">
-      <template #[`item.adminsCount`]="{ item }">
-        <group-members-count :group="item" :membership-type="'manager'" />
-      </template>
       <template #[`item.usersCount`]="{ item }">
         <group-members-count :group="item" />
       </template>
@@ -95,12 +92,6 @@ export default {
           sortable: false,
         },
         {
-          text: this.$t('groupsManagement.admins'),
-          value: 'adminsCount',
-          sortable: false,
-          align: 'center'
-        },
-        {
           text: this.$t('groupsManagement.users'),
           value: 'usersCount',
           align: 'center',
@@ -113,17 +104,22 @@ export default {
       return !this.nestedGroups?.length;
     },
     mappedGroups() {
-      const groups =  this.nestedGroups.map(group => ({
+      let groups = this.nestedGroups.map(group => ({
         ...group,
         description: group?.description || '-',
       }));
+      if (this.keyword && this.keyword.trim() !== '') {
+        const searchKeyword = this.keyword.toLowerCase();
+        groups = groups.filter(group => {
+          const matchesLabel = group?.label?.toLowerCase()?.includes(searchKeyword);
+          const matchesDescription = group?.description?.toLowerCase()?.includes(searchKeyword);
+          return matchesLabel || matchesDescription;
+        });
+      }
       return groups;
-    }
+    },
   },
   watch: {
-    keyword() {
-      this.getNestedGroups();
-    },
     group() {
       this.resetPagination();
       this.getNestedGroups();

@@ -20,19 +20,10 @@
 
 -->
 <template>
-  <exo-user-avatars-list
-    class="justify-center align-center"
-    :margin-left="totalSize > 1 && 'ml-n5' || ''"
-    v-if="isManagerMembershipType"
-    :default-length="totalSize"
-    :icon-size="33"
-    :max="3"
-    compact
-    clickable
-    popover />
-  <span v-else>
-    {{ formattedTotalSize }}
-  </span>
+  <number-format
+    :title="totalSize"
+    :value="totalSize"
+    use-k-suffix />
 </template>
 <script>
 export default {
@@ -40,44 +31,25 @@ export default {
     group: {
       type: Object,
       default: null
-    },
-    membershipType: {
-      type: String,
-      default: null
     }
   },
   data: () => ({
-    groupMembers: [],
     totalSize: 0,
   }),
-  computed: {
-    isManagerMembershipType() {
-      return this.membershipType === 'manager';
-    },
-    formattedTotalSize() {
-      if (this.totalSize >= 1000) {
-        return `${(this.totalSize / 1000).toFixed(this.totalSize >= 10000 ? 0 : 1)}k`;
-      }
-      return this.totalSize;
-    },
-  },
   created() {
     this.countGroupMembers();
   },
   methods: {
     async countGroupMembers() {
-      if (!this.membershipType) {
-        const data =
-            await this.$groupMembersService.getGroupMembers(
-              this.group.id,
-              null,
-              null,
-              0,
-              1
-            ) || {};
-        this.groupMembers = data?.users || data?.entities || [];
-        this.totalSize = data?.size || 0;
-      }
+      const data =
+          await this.$groupMembersService.getGroupMembers(
+            this.group?.id,
+            null,
+            null,
+            0,
+            1
+          ) || {};
+      this.totalSize = data?.size || 0;
     },
   }
 };
