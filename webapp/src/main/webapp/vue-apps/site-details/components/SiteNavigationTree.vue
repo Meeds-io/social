@@ -34,7 +34,7 @@
       <site-navigation-item
         :navigation="item"
         :enable-change-home="enableChangeHome"
-        :enable-unread="firstNavigationId === item.id"
+        :enable-unread="firstNavigationId === item.id && spaceWebChannelStatus"
         :aria-current="isActive(item) && 'true'"
         :aria-selected="isActive(item) && 'true'" />
     </template>
@@ -109,6 +109,9 @@ export default {
       }
       return [this.selectedNodeUri];
     },
+    spaceWebChannelStatus() {
+      return eXo.env.portal.spaceWebChannelStatus;
+    }
   },
   methods: {
     filterNodes(navigations) {

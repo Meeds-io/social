@@ -120,7 +120,7 @@
           height="auto">
       </v-list-item-avatar>
       <v-card
-        v-if="spaceUnreadCount && $root.icon && !$root.expand"
+        v-if="spaceWebChannelStatus && spaceUnreadCount && $root.icon && !$root.expand"
         :class="$vuetify.rtl && 'l-0' || 'r-0'"
         class="hamburger-unread-badge border-radius-circle error-color-background position-absolute t-0 me-4 mt-0"
         width="12"
@@ -170,7 +170,7 @@
         </v-btn>
       </v-list-item-action>
       <space-unread-badge
-        v-if="isSpace"
+        v-if="spaceWebChannelStatus && isSpace"
         v-show="!toggleArrow"
         :space-id="spaceId"
         :unread-badge="spaceUnreadCount"
@@ -363,6 +363,9 @@ export default {
     avatar() {
       return this.item.avatar || this.iconUrl;
     },
+    spaceWebChannelStatus() {
+      return eXo.env.portal.spaceWebChannelStatus;
+    }
   },
   watch: {
     hover() {

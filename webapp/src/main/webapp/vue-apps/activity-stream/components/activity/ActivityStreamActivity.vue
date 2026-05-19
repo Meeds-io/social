@@ -3,6 +3,7 @@
     :id="id"
     :unread-metadata="unreadMetadata"
     :space-id="spaceId"
+    :display="displayUnreadBadge"
     class="application-background-color application-border application-border-radius activity-detail flex flex-column"
     @read="markAsRead">
     <div v-if="displayLoading" class="d-flex">
@@ -215,7 +216,16 @@ export default {
     },
     activityReactionEnabled() {
       return this.activityTypeExtension?.reactionEnabled?.(this.activity) ?? true;
-    }
+    },
+    displayUnreadBadge() {
+      return this.isUnreadMetadata && this.spaceWebChannelStatus;
+    },
+    isUnreadMetadata() {
+      return this.activity?.metadatas?.unread?.length && !!this.activity?.metadatas?.unread[0];
+    },
+    spaceWebChannelStatus() {
+      return eXo.env.portal.spaceWebChannelStatus;
+    } 
   },
   watch: {
     activityLoading() {
