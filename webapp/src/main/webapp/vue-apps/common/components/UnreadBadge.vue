@@ -41,6 +41,10 @@ export default {
       type: Number,
       default: () => 1,
     },
+    display: {
+      type: Boolean,
+      default: () => false,
+    }
   },
   data: () => ({
     textLength: 0,
@@ -70,6 +74,11 @@ export default {
     },
   },
   watch: {
+    isUnread() {
+      if (this.isUnread && !this.display) {
+        this.markAsRead('read');
+      } 
+    },
     displayBadge() {
       if (this.displayBadge) {
         this.countText();
@@ -172,7 +181,7 @@ export default {
       this.isPageHidden = document.hidden || document.msHidden || document.webkitHidden || document.mozHidden;
     },
     markAsRead(event) {
-      if (this.displayBadge) {
+      if (this.spaceId && this.isUnread) {
         this.$spaceService.markAsRead(this.spaceId, this.applicationName, this.applicationId, event?.type && 'click' || 'read');
       }
     },
