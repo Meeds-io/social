@@ -45,7 +45,10 @@
         </div>
       </template>
       <template #[`item.userType`]="{ item }">
-        <v-icon size="18" class="d-flex justify-center">
+        <v-icon
+          size="18"
+          class="d-flex justify-center"
+          :title="item.userRoleIconTitle">
           {{ item.userRoleIcon }}
         </v-icon>
       </template>
@@ -134,6 +137,7 @@ export default {
           ? Number(member.lastLoginTime)
           : null,
         userRoleIcon: this.getIcon(member),
+        userRoleIconTitle: this.getIconTitle(member),
       }));
     },
     isEmpty() {
@@ -213,6 +217,18 @@ export default {
         return 'fa-user-edit';
       }
       return 'fa-user';
+    },
+    getIconTitle(member) {
+      if (member?.isManager) {
+        return this.$t('groupsManagement.members.adminRole');
+      }
+      if (member?.isPublisher) {
+        return this.$t('groupsManagement.members.publisherRole');
+      }
+      if (member?.isRedactor) {
+        return this.$t('groupsManagement.members.redactorRole');
+      }
+      return this.$t('groupsManagement.members.memberRole');
     },
   },
 };
