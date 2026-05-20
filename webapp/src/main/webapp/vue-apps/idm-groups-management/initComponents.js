@@ -13,6 +13,11 @@ import UsersManagementFilterDrawer from '../idm-users-management/components/User
 import GroupMembersMembershipDrawer from './components/members/GroupMembersMembershipDrawer.vue';
 import GroupMembersManagementToolbar from './components/members/GroupMembersManagementToolbar.vue';
 import GroupMembersActionMenu from './components/members/GroupMembersActionMenu.vue';
+import NestedGroupsManagement from './components/NestedGroups/NestedGroupsManagement.vue';
+import NestedGroupsList from './components/NestedGroups/NestedGroupsList.vue';
+import NestedGroupsToolbar from './components/NestedGroups/NestedGroupsToolbar.vue';
+import GroupMembersCount from './components/members/GroupMembersCount.vue';
+
 
 const components = {
   'group-management': GroupManagement,
@@ -30,6 +35,10 @@ const components = {
   'group-members-filter-drawer': UsersManagementFilterDrawer,
   'group-members-membership-drawer': GroupMembersMembershipDrawer,
   'group-members-action-menu': GroupMembersActionMenu,
+  'nested-groups-management': NestedGroupsManagement,
+  'nested-groups-list': NestedGroupsList,
+  'nested-groups-toolbar': NestedGroupsToolbar,
+  'group-members-count': GroupMembersCount
 };
 
 for (const key in components) {
