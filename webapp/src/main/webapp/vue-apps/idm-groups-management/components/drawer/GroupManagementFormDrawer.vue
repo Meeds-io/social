@@ -89,7 +89,8 @@ export default {
     saving: false,
     confirmNewPassword: null,
     group: {},
-    parentGroup: null
+    parentGroup: null,
+    membershipType: 'member',
   }),
   computed: {
     title() {
@@ -134,11 +135,18 @@ export default {
     resetCustomValidity() {
       this.$refs.nameInput.setCustomValidity('');
     },
-    addNewGroup(parentGroup) {
+    addNewGroup(parentGroup, linkAsMemberInParent) {
       this.parentGroup = parentGroup;
       this.group = {
         parentId: this.parentGroup && this.parentGroup.id || null,
       };
+      if (linkAsMemberInParent) {
+        this.group.enclosingMemberships = [{
+          membershipType: this.membershipType,
+          groupId: this.parentGroup?.id,
+          nestedMembershipType: this.membershipType,
+        }];
+      }
       this.newGroup = true;
       this.drawer = true;
     },
