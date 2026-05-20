@@ -20,12 +20,17 @@
 
 -->
 <template>
-  <v-menu
-    ref="groupMembersActionMenu"
+  <component
+    :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
+    ref="actionMenu"
     v-model="menu"
-    close-on-content-click
-    content-class="application-menu z-index-modal"
-    offset-y>
+    :attach="$root.isMobile && '#vuetify-apps'"
+    :left="!$vuetify.rtl"
+    :right="$vuetify.rtl"
+    transition="slide-x-reverse-transition"
+    content-class="position-absolute application-menu z-index-modal"
+    offset-y
+    eager>
     <template #activator="{ attrs, on }">
       <v-btn
         v-bind="attrs"
@@ -40,14 +45,15 @@
       </v-btn>
     </template>
     <v-list class="pa-0" dense>
-      <v-list-item @click.prevent="openGroupMembershipDrawer">
+      <v-list-item @click.prevent="openGroupMembershipDrawer" dense>
         <v-list-item-icon class="mx-1 justify-center">
-          <v-icon size="14">fa-users</v-icon>
+          <v-icon small>fa-users</v-icon>
         </v-list-item-icon>
         <v-list-item-title>{{ $t('groupsManagement.members.editMembership') }}</v-list-item-title>
       </v-list-item>
+      <group-members-delete-menu-item :item="member" />
     </v-list>
-  </v-menu>
+  </component>
 </template>
 <script>
 export default {
@@ -58,6 +64,7 @@ export default {
     }
   },
   data: () => ({
+    id: Math.random(), // NOSONAR
     menu: false
   }),
   watch: {
@@ -74,11 +81,17 @@ export default {
     openGroupMembershipDrawer() {
       this.$root.$emit('open-group-membership-drawer', this.member);
     },
-    closeMenu() {
-      window.setTimeout(() => {
-        this.menu = false;
-      }, 200);
-    }
+    closeMenu(event) {
+      if (event !== this.id) {
+        if (event?.target) {
+          window.setTimeout(() => {
+            this.menu = false;
+          }, 200);
+        } else {
+          this.menu = false;
+        }
+      }
+    },
   }
 };
 </script>
