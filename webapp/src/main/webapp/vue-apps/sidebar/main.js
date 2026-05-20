@@ -41,7 +41,6 @@ const appId = 'HamburgerNavigationMenu';
 
 export function init(
   mode,
-  defaultUserPath,
   unreadPerSpace,
   avatarUrl,
   isExternalFeatureEnabled,
@@ -51,7 +50,7 @@ export function init(
       // init Vue app when locale ressources are ready
       Vue.createApp({
         data: {
-          defaultUserPath,
+          defaultUserPath: eXo.env.portal.defaultPath,
           unreadPerSpace,
           avatarUrl,
           mode,
