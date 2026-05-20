@@ -21,6 +21,7 @@
 -->
 <template>
   <v-card class="application-body" flat>
+    <div class="ps-4 text-title">{{ $t('groupsManagement.users') }}</div>
     <group-members-management-toolbar
       disabled-users
       :filter="filter"
