@@ -44,7 +44,8 @@
           <div v-if="!$root.selectedGroup" class="d-flex fill-height border-box-sizing">
             <group-management-placeholder />
           </div>
-          <span v-else>
+          <span v-else class="d-flex flex-column">
+            <nested-groups-management />
             <group-members-management />
           </span>
         </div>
