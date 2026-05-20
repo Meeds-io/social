@@ -20,29 +20,27 @@
 
 -->
 <template>
-  <div id="groupNestedMembershipsManagement" class="d-flex flex-column fill-height">
-    <v-data-table
-      class="elevation-0 border-radius"
-      item-key="id"
-      :headers="headers"
-      :items="mappedGroups"
-      :loading="loading"
-      :items-per-page="itemsPerPage"
-      :page.sync="page"
-      :server-items-length="totalSize"
-      :footer-props="footerProps"
-      :hide-default-footer="isEmpty"
-      @update:items-per-page="handleItemsPerPageChange">
-      <template #[`item.usersCount`]="{ item }">
-        <group-members-count :group="item" />
-      </template>
-      <template #no-data>
-        <div class="d-flex flex-column align-center justify-center py-8">
-          {{ $t('groupsManagement.members.emptyTitle') }}
-        </div>
-      </template>
-    </v-data-table>
-  </div>
+  <v-data-table
+    class="elevation-0 border-radius"
+    item-key="id"
+    :headers="headers"
+    :items="mappedGroups"
+    :loading="loading"
+    :items-per-page="itemsPerPage"
+    :page.sync="page"
+    :server-items-length="totalSize"
+    :footer-props="footerProps"
+    :hide-default-footer="isEmpty"
+    @update:items-per-page="handleItemsPerPageChange">
+    <template #[`item.usersCount`]="{ item }">
+      <group-members-count :group="item" />
+    </template>
+    <template #no-data>
+      <div class="d-flex flex-column align-center justify-center py-8">
+        {{ $t('groupsManagement.members.emptyTitle') }}
+      </div>
+    </template>
+  </v-data-table>
 </template>
 
 <script>
@@ -152,21 +150,7 @@ export default {
       try {
         const limit = this.itemsPerPage;
         const offset = (this.page - 1) * limit;
-        const form = new FormData();
-        form.append('groupId', this.group?.id);
-        form.append('limit', limit);
-        form.append('offset', offset);
-        form.append('returnSize', true);
-        const params = new URLSearchParams(form).toString();
-        const data = await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/nested?${params}`, {
-          method: 'GET',
-          credentials: 'include'
-        }).then(response => {
-          if (!response?.ok) {
-            throw new Error('Error fetching nested groups');
-          }
-          return response.json();
-        });
+        const data = await this.$groupService.getNestedGroups(this.group.id, limit, offset);
         this.nestedGroups = data.entities;
         this.totalSize = data.size;
       } finally {
