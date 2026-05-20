@@ -62,11 +62,7 @@
               <div class="px-2">
                 {{ $t('UsersManagement.of') }}
               </div>
-              <space-avatar
-                v-if="g.isSpace"
-                :space-group-id="g.groupId"
-                class="text-truncate" />
-              <template v-else>
+              <template>
                 <v-icon size="28" class="me-2">
                   fa-users
                 </v-icon>
@@ -100,7 +96,7 @@
         </v-list-item>
       </v-list>
     </template>
-    <template v-if="!$root.isDelegatedAdministrator" #footer>
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
