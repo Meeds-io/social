@@ -40,7 +40,7 @@
       <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
     </v-list-item-content>
     <v-list-item-action
-      v-if="spaceUnreadCount && spaceWebChannelStatus"
+      v-if="spaceUnreadCount"
       class="me-2 my-auto align-center">
       <v-chip
         color="error-color-background"
@@ -91,7 +91,7 @@
         </ripple-hover-button>
       </v-list-item-action>
       <v-list-item-action
-        v-if="!toggleArrow && spaceUnreadCount && spaceWebChannelStatus"
+        v-if="!toggleArrow && spaceUnreadCount"
         class="me-2 my-auto align-center">
         <v-chip
           v-if="spaceUnreadCount"
@@ -169,9 +169,6 @@ export default {
     arrowIconRight() {
       return this.$vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
     },
-    spaceWebChannelStatus() {
-      return eXo.env.portal.spaceWebChannelStatus;
-    }
   },
   watch: {
     space: {
