@@ -182,6 +182,26 @@ public class SpaceLayoutService {
     }
   }
 
+  /**
+   * Renames the space sites (group and public) labels
+   * 
+   * @param space {@link Space}
+   */
+  public void renameSpaceSite(Space space) {
+    PortalConfig groupPortalConfig = layoutService.getPortalConfig(PortalConfig.GROUP_TYPE, space.getGroupId());
+    if (groupPortalConfig != null) {
+      groupPortalConfig.setLabel(space.getDisplayName());
+      layoutService.save(groupPortalConfig);
+    }
+    if (space.getPublicSiteId() != 0) {
+      PortalConfig publicPortalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
+      if (publicPortalConfig != null) {
+        publicPortalConfig.setLabel(space.getDisplayName());
+        layoutService.save(publicPortalConfig);
+      }
+    }
+  }
+
   @SneakyThrows
   private long createSpacePublicSite(Space space,
                                      String name,
