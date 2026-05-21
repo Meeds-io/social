@@ -19,9 +19,9 @@
 package io.meeds.social.category.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class CategoryPluginServiceImpl implements CategoryPluginService {
   @Autowired(required = false)
   private List<CategoryPlugin>        categoryPlugins;
 
-  private Map<String, CategoryPlugin> categoryPluginsByType = new HashMap<>();
+  private Map<String, CategoryPlugin> categoryPluginsByType = new ConcurrentHashMap<>();
 
   @Override
   public void addPlugin(CategoryPlugin categoryPlugin) {
