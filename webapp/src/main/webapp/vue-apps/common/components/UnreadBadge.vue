@@ -33,6 +33,14 @@ export default {
       type: Object,
       default: null,
     },
+    objectType: {
+      type: String,
+      default: null,
+    },
+    objectId: {
+      type: String,
+      default: null,
+    },
     spaceId: {
       type: String,
       default: null,
@@ -41,10 +49,6 @@ export default {
       type: Number,
       default: () => 1,
     },
-    display: {
-      type: Boolean,
-      default: () => false,
-    }
   },
   data: () => ({
     textLength: 0,
@@ -55,37 +59,24 @@ export default {
     displayTimeout: false,
     computeTimeout: false,
     isPageHidden: false,
+    isMarkedAsRead: true,
   }),
   computed: {
-    isUnread() {
-      return !!this.unreadMetadata;
-    },
     displayBadge() {
       return this.spaceId && this.isUnread;
     },
     waitTimeToMarkAsRead() {
       return Math.max(parseInt(this.textLength / 100 * 5000) - 1000, 4000);
     },
-    applicationName() {
-      return this.unreadMetadata?.objectType;
-    },
-    applicationId() {
-      return this.unreadMetadata?.objectId;
-    },
   },
   watch: {
-    isUnread() {
-      if (this.isUnread && !this.display) {
-        this.markAsRead('read');
-      } 
-    },
-    displayBadge() {
-      if (this.displayBadge) {
+    isMarkedAsRead() {
+      if (this.isMarkedAsRead) {
+        this.uninstallBodyScrollListener();
+      } else {
         this.countText();
         this.computePagePosition();
         this.installBodyScrollListener();
-      } else {
-        this.uninstallBodyScrollListener();
       }
       this.computeIsReading();
     },
@@ -110,6 +101,7 @@ export default {
     document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
     document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
     document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
+    this.isMarkedAsRead = false;
   },
   beforeDestroy() {
     document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
@@ -134,14 +126,14 @@ export default {
       if (spaceWebNotificationItem?.length) {
         spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
       }
-      const applicationName = spaceWebNotificationItem?.applicationName;
-      const applicationId = spaceWebNotificationItem?.applicationItemId;
+      const objectType = spaceWebNotificationItem?.applicationName;
+      const objectId = spaceWebNotificationItem?.applicationItemId;
       const spaceId = spaceWebNotificationItem?.spaceId;
       if (Number(this.spaceId) === Number(spaceId)) {
         if (wsEventName === 'notification.read.allItems') {
           this.$emit('read');
         } else {
-          if (applicationName === this.applicationName && applicationId === this.applicationId) {
+          if (objectType === this.objectType && objectId === this.objectId) {
             if (wsEventName === 'notification.unread.item') {
               this.$emit('unread');
             } else if (wsEventName === 'notification.read.item') {
@@ -152,12 +144,12 @@ export default {
       }
     },
     countText() {
-      if (this.displayBadge) {
+      if (!this.isMarkedAsRead) {
         this.textLength = this.$el?.innerText.replace(/[\n\r\t ]/g, '').length || 0;
       }
     },
     computePagePosition() {
-      if (this.displayBadge && !this.computeTimeout) {
+      if (!this.isMarkedAsRead && !this.computeTimeout) {
         this.computeTimeout = window.setTimeout(() => {
           this.textPosition = this.$el?.getBoundingClientRect();
           if (!this.streamHeight) {
@@ -170,7 +162,7 @@ export default {
       }
     },
     computeIsReading() {
-      this.isReading = this.displayBadge && this.textPosition && !this.isPageHidden
+      this.isReading = !this.isMarkedAsRead && this.textPosition && !this.isPageHidden
         && ((this.textPosition.top >= 200 && this.textPosition.top <= this.streamHeight)
           || (this.textPosition.bottom >= 200 && this.textPosition.bottom <= this.streamHeight)
           || (this.textPosition.top <= 200 && this.textPosition.bottom >= this.streamHeight)
@@ -181,8 +173,9 @@ export default {
       this.isPageHidden = document.hidden || document.msHidden || document.webkitHidden || document.mozHidden;
     },
     markAsRead(event) {
-      if (this.spaceId && this.isUnread) {
-        this.$spaceService.markAsRead(this.spaceId, this.applicationName, this.applicationId, event?.type && 'click' || 'read');
+      if (!this.isMarkedAsRead) {
+        this.isMarkedAsRead = true;
+        this.$spaceService.markAsRead(this.spaceId, this.objectType, this.objectId, event?.type && 'click' || 'read');
       }
     },
   }

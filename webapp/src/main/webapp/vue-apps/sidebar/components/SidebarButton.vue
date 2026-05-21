@@ -41,13 +41,9 @@ export default {
   computed: {
     showBadge() {
       return this.$root.unreadPerSpace
-        && this.spaceWebChannelStatus
         && this.$root.hidden
         && Object.values(this.$root.unreadPerSpace).reduce((sum, v) => sum += v, 0) > 0;
     },
-    spaceWebChannelStatus() {
-      return eXo.env.portal.spaceWebChannelStatus;
-    }
   },
 };
 </script>
