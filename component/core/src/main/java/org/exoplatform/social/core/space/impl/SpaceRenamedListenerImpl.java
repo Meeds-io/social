@@ -60,6 +60,7 @@ public class SpaceRenamedListenerImpl extends SpaceListenerPlugin {
     renameGroupLabel(space);
     updateDefaultSpaceAvatar(space);
     updateSpaceUrl(space);
+    getSpaceLayoutService().renameSpaceSite(space);
   }
 
   @ContainerTransactional
