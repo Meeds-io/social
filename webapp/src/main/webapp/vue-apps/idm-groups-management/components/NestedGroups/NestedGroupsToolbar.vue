@@ -33,7 +33,7 @@
           :width="$root.isMobile && 36 || 'auto'"
           :class="$root.isMobile && 'border-box-sizing'"
           class="btn btn-primary"
-          @click="$root.$emit('addNewGroup', $root.selectedGroup, true)">
+          @click="$root.$emit('add-new-group', $root.selectedGroup, true)">
           <span class="d-none d-sm-inline">
             {{ $t('GroupsManagement.addGroup') }}
           </span>
