@@ -18,6 +18,7 @@ import NestedGroupsList from './components/NestedGroups/NestedGroupsList.vue';
 import NestedGroupsToolbar from './components/NestedGroups/NestedGroupsToolbar.vue';
 import GroupMembersCount from './components/members/GroupMembersCount.vue';
 import GroupMembersDeleteMenuItem from './components/members/GroupMembersDeleteMenuItem.vue';
+import GroupManagementSettingsDrawer from './components/drawer/GroupManagementSettingsDrawer.vue';
 
 
 const components = {
@@ -40,7 +41,8 @@ const components = {
   'nested-groups-list': NestedGroupsList,
   'nested-groups-toolbar': NestedGroupsToolbar,
   'group-members-count': GroupMembersCount,
-  'group-members-delete-menu-item': GroupMembersDeleteMenuItem
+  'group-members-delete-menu-item': GroupMembersDeleteMenuItem,
+  'group-management-settings-drawer': GroupManagementSettingsDrawer
 };
 
 for (const key in components) {
