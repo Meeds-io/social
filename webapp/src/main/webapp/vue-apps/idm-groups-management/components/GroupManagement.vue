@@ -45,6 +45,10 @@
             <group-management-placeholder />
           </div>
           <span v-else class="d-flex flex-column">
+            <div class="d-flex align-center justify-space-between flex-grow-1 text-no-wrap pa-4">
+              <span class="text-title">{{ $t('GroupsManagement.groupSettings') }}</span>
+              <v-icon size="18" @click="$root.$emit('open-group-settings-drawer', $root.selectedGroup)">fa fa-cog</v-icon>
+            </div>
             <nested-groups-management />
             <group-members-management />
           </span>
@@ -53,6 +57,7 @@
     </main>
     <group-management-form-drawer />
     <group-management-membership-form-drawer />
+    <group-management-settings-drawer />
   </v-app>
 </template>
 <script>
