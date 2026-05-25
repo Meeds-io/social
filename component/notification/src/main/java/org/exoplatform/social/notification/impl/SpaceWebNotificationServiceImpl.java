@@ -206,8 +206,8 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
       for (MetadataItem metadataItem : metadataItems) {
         metadataService.deleteMetadataItem(metadataItem.getId(), true);
       }
-      listenerService.broadcast(NOTIFICATION_READ_EVENT_NAME, notificationItem, userIdentityId);
     }
+    listenerService.broadcast(NOTIFICATION_READ_EVENT_NAME, notificationItem, userIdentityId);
   }
 
   @Override
