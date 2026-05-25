@@ -17,7 +17,7 @@
         <v-btn
           color="primary"
           elevation="0"
-          @click="$root.$emit('addNewGroup')">
+          @click="$root.$emit('add-new-group')">
           {{ $t('GroupsManagement.addGroup') }}
         </v-btn>
       </div>
