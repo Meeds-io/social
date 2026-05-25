@@ -3,6 +3,8 @@
     :id="id"
     :unread-metadata="unreadMetadata"
     :space-id="spaceId"
+    :object-id="activityId"
+    object-type="activity"
     class="application-background-color application-border application-border-radius activity-detail flex flex-column"
     @read="markAsRead">
     <div v-if="displayLoading" class="d-flex">
