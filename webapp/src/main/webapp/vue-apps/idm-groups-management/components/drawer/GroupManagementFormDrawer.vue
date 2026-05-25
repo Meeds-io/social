@@ -4,10 +4,10 @@
     ref="groupFormDrawer"
     right
     @closed="drawer = false">
-    <template slot="title">
+    <template #title>
       {{ title }}
     </template>
-    <template slot="content">
+    <template #content>
       <v-form
         ref="groupForm"
         class="form-horizontal pt-0 pb-4"
@@ -57,9 +57,21 @@
             class="ignore-vuetify-classes flex-grow-1 textarea-no-resize"
             maxlength="2000"></textarea>
         </v-card-text>
+        <v-card-text
+          v-if="displayNestInParentSwitch"
+          class="d-flex align-center justify-space-between flex-grow-1 text-no-wrap pb-2">
+          <span>{{ $t('GroupsManagement.nestInParent') }}</span>
+          <v-switch
+            id="nestInParentSwitch"
+            v-model="nestInParent"
+            hide-details
+            class="mt-0 pt-0"
+            :aria-label="$t('GroupsManagement.nestInParent.ariaLabel')"
+            :aria-checked="nestInParent ? 'true' : 'false'" />
+        </v-card-text>
       </v-form>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
@@ -91,6 +103,8 @@ export default {
     group: {},
     parentGroup: null,
     membershipType: 'member',
+    nestInParent: false,
+    hideNestInParentSwitch: false,
   }),
   computed: {
     title() {
@@ -100,6 +114,9 @@ export default {
         return this.$t('GroupsManagement.editGroup');
       }
     },
+    displayNestInParentSwitch() {
+      return this.group?.parentId && !this.hideNestInParentSwitch;
+    }
   },
   watch: {
     confirmNewPassword() {
@@ -126,6 +143,9 @@ export default {
         this.$refs.groupFormDrawer.close();
       }
     },
+    nestInParent() {
+      this.handleNestInParentSwitchChange();
+    }
   },
   created() {
     this.$root.$on('addNewGroup', this.addNewGroup);
@@ -135,31 +155,31 @@ export default {
     resetCustomValidity() {
       this.$refs.nameInput.setCustomValidity('');
     },
-    addNewGroup(parentGroup, linkAsMemberInParent) {
+    addNewGroup(parentGroup, nestInParent) {
       this.parentGroup = parentGroup;
       this.group = {
         parentId: this.parentGroup && this.parentGroup.id || null,
       };
-      if (linkAsMemberInParent) {
-        this.group.enclosingMemberships = [{
-          membershipType: this.membershipType,
-          groupId: this.parentGroup?.id,
-          nestedMembershipType: this.membershipType,
-        }];
-      }
       this.newGroup = true;
       this.drawer = true;
+      if (nestInParent) {
+        this.hideNestInParentSwitch = true;
+        this.nestInParent = true;
+      }
     },
     editGroup(group) {
       this.group = {
         id: group.id,
-        parentId: group.parentId,
-        groupName: group.groupName,
-        label: group.label,
-        description: group.description,
+        parentId: group?.parentId,
+        groupName: group?.groupName,
+        label: group?.label,
+        description: group?.description,
+        enclosingMemberships: group?.enclosingMemberships,
       };
       this.newGroup = false;
       this.drawer = true;
+      this.nestInParent = Array.isArray(this.group?.enclosingMemberships) &&
+          this.group.enclosingMemberships.some(item => item.groupId === this.group?.parentId);
     },
     saveGroup(event) {
       const regex =  /(?!^\d)^[a-zA-Z0-9-_]+$/;
@@ -239,10 +259,13 @@ export default {
       }).then(() => this.$root.$emit('refreshGroup', this.group, this.parentGroup))
         .then(() => this.$refs.groupFormDrawer.close())
         .catch(this.handleError)
-        .finally(() => this.saving = false);
+        .finally(() => {
+          this.saving = false;
+          this.reset();
+        });
     },
     cancel() {
-      this.drawer = false;
+      this.close();
     },
     handleError(error) {
       this.resetCustomValidity();
@@ -262,6 +285,42 @@ export default {
         }, 200);
       }
     },
+    close() {
+      this.reset();
+      this.drawer = false;
+    },
+    reset() {
+      this.nestInParent = false;
+      this.hideNestInParentSwitch = false;
+      this.newGroup = false;
+      this.group = null;
+      this.parentGroup = null;
+    },
+    handleNestInParentSwitchChange() {
+      if (!this.group?.parentId) {
+        return;
+      }
+      if (!Array.isArray(this.group.enclosingMemberships)) {
+        this.$set(this.group, 'enclosingMemberships', []);
+      }
+      if (this.nestInParent) {
+        const alreadyExists = this.group.enclosingMemberships.some(
+          item => item.groupId === this.group?.parentId
+        );
+        if (!alreadyExists) {
+          this.group.enclosingMemberships.push({
+            membershipType: this.membershipType,
+            groupId: this.group?.parentId,
+            nestedMembershipType: this.membershipType,
+            nestedGroupId: this.group.id || null,
+          });
+        }
+      } else {
+        this.group.enclosingMemberships = this.group.enclosingMemberships.filter(
+          item => item.groupId !== this.group?.parentId
+        );
+      }
+    }
   },
 };
 </script>
