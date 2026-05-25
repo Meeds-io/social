@@ -67,7 +67,8 @@
             hide-details
             class="mt-0 pt-0"
             :aria-label="$t('GroupsManagement.nestInParent.ariaLabel')"
-            :aria-checked="nestInParent ? 'true' : 'false'" />
+            :aria-checked="nestInParent ? 'true' : 'false'"
+            @change="handleNestInParentSwitchChange" />
         </v-card-text>
       </v-form>
     </template>
@@ -119,9 +120,6 @@ export default {
     }
   },
   watch: {
-    confirmNewPassword() {
-      this.resetCustomValidity();
-    },
     saving() {
       if (this.saving) {
         this.$refs.groupFormDrawer.startLoading();
@@ -143,13 +141,10 @@ export default {
         this.$refs.groupFormDrawer.close();
       }
     },
-    nestInParent() {
-      this.handleNestInParentSwitchChange();
-    }
   },
   created() {
-    this.$root.$on('addNewGroup', this.addNewGroup);
-    this.$root.$on('editGroup', this.editGroup);
+    this.$root.$on('add-new-group', this.addNewGroup);
+    this.$root.$on('edit-group', this.editGroup);
   },
   methods: {
     resetCustomValidity() {
@@ -293,7 +288,7 @@ export default {
       this.nestInParent = false;
       this.hideNestInParentSwitch = false;
       this.newGroup = false;
-      this.group = null;
+      this.group = {};
       this.parentGroup = null;
     },
     handleNestInParentSwitchChange() {
