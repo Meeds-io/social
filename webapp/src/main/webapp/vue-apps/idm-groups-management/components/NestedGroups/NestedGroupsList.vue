@@ -157,8 +157,8 @@ export default {
         this.loading = false;
       }
     },
-    refreshNestedGroups(group, parentGroup) {
-      if (parentGroup?.id === this.group.id) {
+    refreshNestedGroups(group) {
+      if (group?.parentId === this.group.id) {
         this.getNestedGroups();
       }
     }
