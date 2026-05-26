@@ -182,7 +182,7 @@ export default {
         parentGroup.loading = true;
       }
       this.loading++;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/tree?parentId=${parentId}&q=${this.keyword || ''}&&offset=${offset || 0}&limit=${this.pageSize}&returnSize=true`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/tree?parentId=${encodeURIComponent(parentId)}&q=${encodeURIComponent(this.keyword || '')}&&offset=${offset || 0}&limit=${this.pageSize}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
@@ -212,7 +212,7 @@ export default {
     },
     searchGroups() {
       this.loading++;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups?q=${this.keyword || ''}&offset=0&limit=${this.pageSize}&tree=true&returnSize=true`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups?q=${encodeURIComponent(this.keyword || '')}&offset=0&limit=${this.pageSize}&tree=true&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
