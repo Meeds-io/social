@@ -180,11 +180,15 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     String groupLabel = groupName;
     groupName = Utils.cleanString(groupName);
     Group group = getGroup(buildGroupId(parentGroup, groupName));
+    GroupHandler groupHandler = organizationService.getGroupHandler();
     if (group != null) {
-        group.setLabel(getGroupLabel(groupLabel, parentGroup, groupName));
+      String newLabel = getGroupLabel(groupLabel, parentGroup, groupName);
+      if (!newLabel.equals(group.getLabel())) {
+        group.setLabel(newLabel);
+        groupHandler.saveGroup(group, true);
+      }
       return group;
     }
-    GroupHandler groupHandler = organizationService.getGroupHandler();
     Group newGroup = groupHandler.createGroupInstance();
     newGroup.setGroupName(groupName.toLowerCase());
     newGroup.setLabel(getGroupLabel(groupLabel, parentGroup, groupName));
@@ -199,11 +203,19 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
       String parentId = (String) parentGroup.getParentId();
       if (profileGroup.equals(parentId)) {
         String propertyName = (String) parentGroup.getGroupName();
-        ProfilePropertySetting profileSetting = (ProfilePropertySetting) profilePropertyService.getProfileSettingByName(propertyName);
-        if (profileSetting.isDropdownList()) {
+        ProfilePropertySetting profileSetting = profilePropertyService.getPropertySettings()
+                                                                      .stream()
+                                                                      .filter(setting -> setting.getPropertyName().equalsIgnoreCase(propertyName))
+                                                                      .findFirst()
+                                                                      .orElse(null);
+        if (profileSetting != null && profileSetting.isDropdownList()) {
           for (ProfilePropertyOption option : profileSetting.getPropertyOptions()) {
-            if ((Long) option.getId() == Long.parseLong(groupName)) {
-              return option.getValue();
+            try {
+              if ((Long) option.getId() == Long.parseLong(groupName)) {
+                return option.getValue();
+              }
+            } catch (NumberFormatException e) {
+              LOG.debug("Group name {} is not a valid ID for property option", groupName);
             }
           }
         }
