@@ -108,7 +108,7 @@ export default {
     },
     deleteConfirm() {
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups?groupId=${this.group.id}`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups?groupId=${encodeURIComponent(this.group.id)}`, {
         method: 'DELETE',
         credentials: 'include',
       }).then(resp => {

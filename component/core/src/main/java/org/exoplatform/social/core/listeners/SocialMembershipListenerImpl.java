@@ -32,6 +32,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
+import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.ConversationState;
@@ -60,11 +61,17 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
     if (m.getGroupId().startsWith(SpaceUtils.SPACE_GROUP)
         && (SpaceUtils.MEMBER.equals(m.getMembershipType())
             || "*".equals(m.getMembershipType()))) {
-      Space space = ExoContainerContext.getService(SpaceService.class).getSpaceByGroupId(m.getGroupId());
+      SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
+      Space space = spaceService.getSpaceByGroupId(m.getGroupId());
       GroupSpaceBindingService groupBindingService = ExoContainerContext.getService(GroupSpaceBindingService.class);
       if (space != null
           && groupBindingService.countUserBindings(space.getId(), m.getUserName()) > 0) {
-        throw new IllegalStateException("space.cantLeaveBoundSpace");
+        OrganizationService orgService = CommonsUtils.getService(OrganizationService.class);
+        MembershipHandler membershipHandler = orgService.getMembershipHandler();
+        String otherType = SpaceUtils.MEMBER.equals(m.getMembershipType()) ? "*" : SpaceUtils.MEMBER;
+        if (membershipHandler.findMembershipByUserGroupAndType(m.getUserName(), m.getGroupId(), otherType) == null) {
+          throw new IllegalStateException("space.cantLeaveBoundSpace");
+        }
       }
     }
   }
