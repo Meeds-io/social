@@ -577,6 +577,7 @@ public class ProfileSearchConnector {
                 } else {
                   searchedText = removeAccents(splittedValues[i]);
                 }
+                key = normalizeESFieldName(key);
                 expression.append(" ").append(key.replace(" ", "\\\\ ")).append(isEmailProfileProperty(key) ? ":" : ".whitespace:").append(searchedText);
               }
             }
@@ -593,6 +594,7 @@ public class ProfileSearchConnector {
                                                               + StorageUtils.ASTERISK_STR
                                                           : removeAccents(value);
             String propertyName = property.getPropertyName();
+            propertyName = normalizeESFieldName(propertyName);
             String filedName = isEmailProfileProperty(propertyName) ? propertyName : "%s.whitespace".formatted(propertyName);
             query.append("""
                   {
@@ -639,5 +641,8 @@ public class ProfileSearchConnector {
   }
   private boolean isEmailProfileProperty(String propertyName) {
     return propertyName.equals("email");
+  }
+  private String normalizeESFieldName(String fieldName) {
+    return fieldName.replace(".", "_");
   }
 }
