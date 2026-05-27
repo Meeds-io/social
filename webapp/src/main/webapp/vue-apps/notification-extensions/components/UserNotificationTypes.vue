@@ -29,22 +29,48 @@ export default {
     unreadIndex: false,
     selectedGroupIndex: null,
     groups: [],
+    settings: null,
   }),
   watch: {
     badgeByPlugin() {
-      this.refreshExtensions();
+      this.refreshSettings();
     },
   },
   created() {
-    this.refreshExtensions();
+    this.refreshSettings();
   },
   methods: {
+    async refreshSettings() {
+      this.loading = true;
+      try {
+        const resp = await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (resp && resp.ok) {
+          this.settings = await resp.json();
+          this.refreshExtensions();
+        }
+      } catch (error) {
+        console.error('Failed to fetch notification settings:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
     refreshExtensions() {
       const groups = [];
+      const selectedGroupName = this.groups[this.selectedGroupIndex] && this.groups[this.selectedGroupIndex].name;
       extensionRegistry.loadExtensions('WebNotification', 'notification-group-extension')
         .forEach(group => {
+          if (this.settings && group?.plugins?.length) {
+            const listPlugins = group.plugins.filter(pluginId => {
+              return this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.some(choice => choice.channelActive && choice.pluginId === pluginId);
+            });
+            if (!listPlugins.length) {
+              return;
+            }
+          }
           const badge = this.badgeByPlugin && group.plugins && group.plugins.reduce((sum, p) => sum += this.badgeByPlugin[p] || 0, 0) || 0;
-          group = {...group, badge};
           groups.push({
             ...group,
             badge,
@@ -53,7 +79,10 @@ export default {
               : group.name
           });
         });
-      const badge = this.badgeByPlugin && Object.keys(this.badgeByPlugin).reduce((sum, p) => sum += this.badgeByPlugin[p] || 0, 0) || 0;
+      const badge = this.badgeByPlugin && Object.keys(this.badgeByPlugin).reduce((sum, p) => {
+        const isEnabled = !this.settings || (this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.some(choice => choice.channelActive && choice.pluginId === p));
+        return isEnabled ? sum + (this.badgeByPlugin[p] || 0) : sum;
+      }, 0) || 0;
       groups.splice(0, 0, {
         rank: -1,
         name: 'all',
@@ -64,6 +93,10 @@ export default {
       });
       groups.sort((g1, g2) => (g1.rank || 100) - (g2.rank || 100));
       this.groups = groups;
+      if (selectedGroupName) {
+        const newIndex = this.groups.findIndex(g => g.name === selectedGroupName);
+        this.selectedGroupIndex = newIndex !== -1 ? newIndex : (this.groups.length ? 0 : null);
+      }
     },
     selectType(index, unreadOnly) {
       this.selectedGroupIndex = index;
