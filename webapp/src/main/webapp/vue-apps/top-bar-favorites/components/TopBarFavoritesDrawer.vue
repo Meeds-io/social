@@ -35,9 +35,11 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <template v-if="drawer" #content>
       <div
         :class="expanded && 'pa-4'"
-        class="d-flex light-grey-background-color fill-height">
+        class="d-flex light-grey-background-color border-box-sizing"
+        style="min-height: 100%">
         <div
-          class="page-content pa-0 d-flex fill-height">
+          class="page-content pa-0 d-flex border-box-sizing"
+          style="min-height: 100%;">
           <v-card
             v-if="expanded"
             class="card-border-radius"
