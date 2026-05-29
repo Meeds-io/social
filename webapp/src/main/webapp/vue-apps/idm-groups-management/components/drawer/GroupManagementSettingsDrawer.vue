@@ -24,17 +24,17 @@
     </template>
     <template v-if="drawer" #content>
       <div class="application-body d-flex flex-column pa-5">
-        <span class="text-header py-4">{{ $t('GroupsManagement.groupInfo') }}</span>
+        <span class="text-header py-0">{{ $t('GroupsManagement.groupInfo') }}</span>
         <div class="d-flex align-center justify-space-between flex-grow-1 text-no-wrap">
-          <span class="text-body text-capitalize-first-letter">{{ groupLabel }}</span>
-          <v-icon
-            size="18"
-            :title="$t('GroupsManagement.edit')"
+          <span class="text-body text-capitalize-first-letter pt-4">{{ groupLabel }}</span>
+          <v-btn
+            icon
+            :title="$t('GroupsManagement.editInfo.title')"
             @click="$root.$emit('edit-group', group)">
-            fa fa-edit
-          </v-icon>
+            <v-icon size="20">fa fa-edit</v-icon>
+          </v-btn>
         </div>
-        <span class="text-header py-4">{{ $t('GroupsManagement.groupCharacteristics') }}</span>
+        <span class="text-header pt-5">{{ $t('GroupsManagement.groupCharacteristics') }}</span>
       </div>
     </template>
     <template #footer>
