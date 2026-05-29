@@ -160,6 +160,11 @@ export default {
       if (nestInParent) {
         this.hideNestInParentSwitch = true;
         this.nestInParent = true;
+        this.group.enclosingMemberships = [{
+          membershipType: this.membershipType,
+          groupId: this.parentGroup?.id,
+          nestedMembershipType: this.membershipType,
+        }];
       }
     },
     editGroup(group) {
