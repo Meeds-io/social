@@ -86,7 +86,6 @@ export default {
         {
           text: this.$t('GroupsManagement.description'),
           value: 'description',
-          align: 'center',
           sortable: false,
         },
         {
