@@ -31,7 +31,7 @@
         </v-icon>
       </v-list-item-icon>
       <v-list-item-title>
-        {{ $t('label.remove') }}
+        <span class="error-color">{{ $t('label.remove') }}</span>
       </v-list-item-title>
     </v-list-item>
   </v-card>
