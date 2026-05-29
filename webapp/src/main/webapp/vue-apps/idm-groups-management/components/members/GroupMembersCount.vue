@@ -20,7 +20,13 @@
 
 -->
 <template>
+  <v-progress-circular
+    v-if="loading"
+    color="primary"
+    size="28"
+    indeterminate />
   <number-format
+    v-else
     :title="totalSize"
     :value="totalSize"
     use-k-suffix />
@@ -35,21 +41,27 @@ export default {
   },
   data: () => ({
     totalSize: 0,
+    loading: false,
   }),
   created() {
     this.countGroupMembers();
   },
   methods: {
     async countGroupMembers() {
-      const data =
-          await this.$groupMembersService.getGroupMembers(
-            this.group?.id,
-            null,
-            null,
-            0,
-            1
-          ) || {};
-      this.totalSize = data?.size || 0;
+      try {
+        this.loading = true;
+        const data =
+            await this.$groupMembersService.getGroupMembers(
+              this.group?.id,
+              null,
+              null,
+              0,
+              1
+            ) || {};
+        this.totalSize = data?.size || 0;
+      } finally {
+        this.loading = false;
+      }
     },
   }
 };
