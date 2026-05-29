@@ -55,7 +55,9 @@
             <v-icon class="error-color" size="18">fa-trash</v-icon>
           </v-list-item-icon>
           <v-list-item-title>
-            {{ $t('GroupsManagement.delete') }}
+            <span class="error-color">
+              {{ $t('GroupsManagement.delete') }}
+            </span>
           </v-list-item-title>
         </v-list-item>
       </v-list>
