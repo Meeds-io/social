@@ -47,7 +47,12 @@
           <span v-else class="d-flex flex-column">
             <div class="d-flex align-center justify-space-between flex-grow-1 text-no-wrap pa-4">
               <span class="text-title">{{ $t('GroupsManagement.groupSettings') }}</span>
-              <v-icon size="18" @click="$root.$emit('open-group-settings-drawer', $root.selectedGroup)">fa fa-cog</v-icon>
+              <v-btn
+                icon
+                :title="$t('GroupsManagement.groupSettings.title')"
+                @click="$root.$emit('open-group-settings-drawer', $root.selectedGroup)">
+                <v-icon size="20">fa fa-cog</v-icon>
+              </v-btn>
             </div>
             <nested-groups-management />
             <group-members-management />
