@@ -124,8 +124,10 @@ export default {
       } else {
         this.category = null;
         this.categories = [];
+        await this.$nextTick();
         if (this.$refs?.autocomplete) {
           this.$refs.autocomplete.isFocused = false;
+          this.$refs.autocomplete?.blur();
         }
       }
     },
