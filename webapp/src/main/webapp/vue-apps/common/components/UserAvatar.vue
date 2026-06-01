@@ -46,7 +46,8 @@
           :title="$t('label.disabled')"
           class="muted font-weight-regular">
           <v-icon
-            class="primary--text mb-1">
+            class="primary--text mb-1"
+            small>
             fas fa-user-slash
           </v-icon>
         </span>
@@ -91,7 +92,8 @@
             :title="$t('label.disabled')"
             class="muted font-weight-regular">
             <v-icon
-              class="primary--text mb-1">
+              class="primary--text mb-1"
+              small>
               fas fa-user-slash
             </v-icon>
           </span>
@@ -155,7 +157,8 @@
           :title="$t('label.disabled')"
           class="muted font-weight-regular">
           <v-icon
-            class="primary--text mb-1">
+            class="primary--text mb-1"
+            small>
             fas fa-user-slash
           </v-icon>
         </span>
@@ -215,7 +218,8 @@
             :title="$t('label.disabled')"
             class="muted font-weight-regular">
             <v-icon
-              class="primary--text mb-1">
+              class="primary--text mb-1"
+              small>
               fas fa-user-slash
             </v-icon>
           </span>
