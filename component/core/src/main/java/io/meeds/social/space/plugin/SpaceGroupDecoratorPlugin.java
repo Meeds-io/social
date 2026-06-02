@@ -89,4 +89,13 @@ public class SpaceGroupDecoratorPlugin extends BaseComponentPlugin implements Gr
       return group;
     }
   }
+
+  @Override
+  public Group undecorate(Group group) {
+    if (group != null && group.getId().startsWith(SPACES_ROOT)) {
+      group.setDescription("");
+    }
+    return group;
+  }
+
 }
