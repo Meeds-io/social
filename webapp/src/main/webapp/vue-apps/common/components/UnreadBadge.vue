@@ -62,6 +62,9 @@ export default {
     isMarkedAsRead: true,
   }),
   computed: {
+    isUnread() {
+      return !!this.unreadMetadata;
+    },
     displayBadge() {
       return this.spaceId && this.isUnread;
     },
