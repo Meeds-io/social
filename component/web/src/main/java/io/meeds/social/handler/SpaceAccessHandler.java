@@ -106,7 +106,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
   }
 
   @Override
-  public boolean execute(ControllerContext controllerContext) throws Exception {
+  public boolean execute(ControllerContext controllerContext) throws Exception { // NOSONAR
     String username = controllerContext.getRequest().getRemoteUser();
     String requestSiteType = controllerContext.getParameter(REQUEST_SITE_TYPE);
     String requestSiteName = controllerContext.getParameter(REQUEST_SITE_NAME);
@@ -116,7 +116,9 @@ public class SpaceAccessHandler extends WebRequestHandler {
       return false;
     }
     Space space = spaceService.getSpaceByGroupId(requestSiteName);
-    if (StringUtils.isBlank(username) && space.getPublicSiteId() != 0
+    if (StringUtils.isBlank(username)
+        && space != null
+        && space.getPublicSiteId() != 0
         && canAccessSpacePublicSite(space, username)) {
       controllerContext.getResponse()
                        .sendRedirect(String.format("%s/%s",
