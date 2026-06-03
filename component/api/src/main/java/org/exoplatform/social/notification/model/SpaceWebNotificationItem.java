@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpaceWebNotificationItem {
+public class SpaceWebNotificationItem implements Cloneable {
 
   private String      applicationName;
 
@@ -62,4 +62,14 @@ public class SpaceWebNotificationItem {
     }
   }
 
+  @Override
+  public SpaceWebNotificationItem clone() { // NOSONAR
+    return new SpaceWebNotificationItem(applicationName,
+                                        applicationItemId,
+                                        userId,
+                                        spaceId,
+                                        applicationSubItemIds,
+                                        activityId,
+                                        activityActionType);
+  }
 }
