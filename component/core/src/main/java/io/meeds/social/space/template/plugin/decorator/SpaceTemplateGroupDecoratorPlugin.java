@@ -94,6 +94,14 @@ public class SpaceTemplateGroupDecoratorPlugin extends BaseComponentPlugin imple
     }
   }
 
+  @Override
+  public Group undecorate(Group group) {
+    if (group != null && group.getId().startsWith(SPACE_TEMPLATES_ROOT)) {
+      group.setDescription("");
+    }
+    return group;
+  }
+
   private static boolean isValidEnclosingExpression(String expression) {
     if (expression == null) {
       return false;
