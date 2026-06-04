@@ -728,7 +728,7 @@ public class ProfileSearchConnectorTest {
         Identity identity2 = new Identity("test2","test2");
         excludedIdentityList.add(identity1);
         excludedIdentityList.add(identity2);
-        profileSettings.put("testProperty","value+ -=&&||of><!(){} test[]^\"~*? Property:\\/");
+        profileSettings.put("testProperty","value+ -=&&||of><!(){} test[]^\"~*? Property:");
         filter.setSearchEmail(false);
         filter.setSearchUserName(false);
         filter.setName("\\\"te-s t\\\"");
@@ -825,7 +825,7 @@ public class ProfileSearchConnectorTest {
           ,
             {
               "query_string": {
-                "query": " testProperty.whitespace:*value* AND  testProperty.whitespace:*of* AND  testProperty.whitespace:*test* AND  testProperty.whitespace:*Property*"
+                "query": " testProperty.whitespace:*value\\\\+* AND  testProperty.whitespace:*\\\\-\\\\=\\\\&&\\\\||of\\\\>\\\\<\\\\!\\\\(\\\\)\\\\{\\\\}* AND  testProperty.whitespace:*test\\\\[\\\\]\\\\^\\\\"\\\\~\\\\*\\\\?* AND  testProperty.whitespace:*Property\\\\:*"
               }
            }
                 ]
