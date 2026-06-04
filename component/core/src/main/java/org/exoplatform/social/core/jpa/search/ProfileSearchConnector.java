@@ -561,7 +561,7 @@ public class ProfileSearchConnector {
           query.append(",");
         }
         String value = settings.get(key);
-        value = removeESReservedChars(value);
+        value = escapeESReservedChars(value);
         if (StringUtils.isNotBlank(value)) {
           StringBuilder expression = new StringBuilder();
           String[] splittedValues = value.split(" ");
@@ -616,10 +616,10 @@ public class ProfileSearchConnector {
     return string;
   }
 
-  public static String removeESReservedChars(String string) {
+  public static String escapeESReservedChars(String string) {
     String [] ES_RESERVED_CHARS = new String []{"+","-","=","&&","||",">","<","!","(",")","{","}","[","]","^","\"","~","*","?",":","\\","/"};
     for(String c : ES_RESERVED_CHARS) {
-      string = string.replace(c, " ");
+      string = string.replace(c, "\\" + c);
     }
     return string;
   }
