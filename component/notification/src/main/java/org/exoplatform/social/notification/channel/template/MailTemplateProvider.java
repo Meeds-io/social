@@ -60,6 +60,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.utils.MentionUtils;
 import org.exoplatform.social.notification.LinkProviderUtils;
@@ -936,7 +937,7 @@ public class MailTemplateProvider extends TemplateProvider {
       templateContext.put("SUBJECT", cleanedTitle);
       String subject = TemplateUtils.processSubject(templateContext);
 
-      templateContext.put("SPACE_URL", LinkProviderUtils.getRedirectUrl("space", space.getId()));
+      templateContext.put("SPACE_URL", getSpaceUrl(space.getId()));
       templateContext.put("OPEN_URL", LinkProviderUtils.getOpenLink(activity));
       templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
       templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity", activity.getId()));
@@ -1022,7 +1023,7 @@ public class MailTemplateProvider extends TemplateProvider {
       templateContext.put("SUBJECT", originalTitle);
       templateContext.put("TITLE", sharedTitle);
       templateContext.put("IMAGE", CommonsUtils.getCurrentDomain() +"/news/images/news.png");
-      templateContext.put("SPACE_URL", LinkProviderUtils.getRedirectUrl("space", space.getId()));
+      templateContext.put("SPACE_URL", getSpaceUrl(space.getId()));
       templateContext.put("OPEN_URL", LinkProviderUtils.getOpenLink(activity));
       templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
       templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity", activity.getId()));
@@ -1226,7 +1227,7 @@ public class MailTemplateProvider extends TemplateProvider {
       }
 
       templateContext.put("SPACE", space.getDisplayName());
-      templateContext.put("SPACE_URL", LinkProviderUtils.getRedirectUrl("space", space.getId()));
+      templateContext.put("SPACE_URL", getSpaceUrl(spaceId));
       String subject = TemplateUtils.processSubject(templateContext);
 
       templateContext.put("SPACE_AVATAR", LinkProviderUtils.getSpaceAvatarUrl(space));
@@ -1348,6 +1349,14 @@ public class MailTemplateProvider extends TemplateProvider {
   private String processBody(String message, String language) {
     message = MentionUtils.substituteRoleWithLocale(message, Locale.forLanguageTag(language));
     return org.exoplatform.commons.notification.NotificationUtils.processLinkTitle(message);
+  }
+
+  private String getSpaceUrl(String spaceId) {
+    try {
+      return LinkProvider.getSpaceLink(spaceId);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
 }
