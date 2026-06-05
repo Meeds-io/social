@@ -49,10 +49,6 @@ export default {
       type: Object,
       default: null,
     },
-    isMobile: {
-      type: Boolean,
-      default: () => false
-    },
   },
   data: () => ({
     changingLike: false,
@@ -74,7 +70,10 @@ export default {
     cssClass() {
       return (this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.xl && !this.$root.reducedWidth) ? 'ms-4'
         : ((this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg && !this.$root.reducedWidth) ? ' ms-3' :'');
-    }
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm';
+    },
   },
   created() {
     this.computeLikes();
