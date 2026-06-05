@@ -32,6 +32,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -159,12 +160,19 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
         return;
       }
     } else {
-      request.setAttribute("SSO.Login.Status", "USER_ACCOUNT_NOT_FOUND");
       request.removeAttribute("portalUser");
       authenticationRegistry.removeAttributeOfClient(request, OAuthConstants.ATTRIBUTE_AUTHENTICATED_OAUTH_PRINCIPAL);
       authenticationRegistry.removeAttributeOfClient(request, OAuthConstants.ATTRIBUTE_AUTHENTICATED_PORTAL_USER);
       log.warn("User {} does not have an account and On the fly registration is disabled, could not login !",
                portalUser.getDisplayName());
+      String loginRedirectURL = "/portal/login?error=SigninFail";
+      Cookie cookie = new Cookie("OPENID_ACCESS_TOKEN", "");
+      cookie.setMaxAge(0);
+      cookie.setPath("/");
+      cookie.setHttpOnly(true);
+      cookie.setSecure(request.isSecure());
+      response.addCookie(cookie);
+      response.sendRedirect(loginRedirectURL);
     }
 
     chain.doFilter(request, response);
