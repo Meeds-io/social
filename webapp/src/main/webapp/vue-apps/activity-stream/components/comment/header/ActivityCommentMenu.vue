@@ -2,13 +2,13 @@
   <v-list-item-icon v-show="enabledActions && enabledActions.length" class="mx-0 mb-0 mt-n1 flex-shrink-0">
     <v-menu
       v-model="menu"
-      :left="!$vuetify.rtl"
-      :right="$vuetify.rtl"
-      :close-on-content-click="!$root.isMobile"
       content-class="white"
       bottom
       offset-y
-      attach>
+      :left="!$vuetify.rtl"
+      :right="$vuetify.rtl"
+      :close-on-content-click="!$root.isMobile"
+      :attach="attachMenu">
       <template #activator="{ on, attrs }">
         <v-btn
           icon
@@ -136,6 +136,7 @@ export default {
   },
   data: () => ({
     menu: false,
+    attachMenu: true,
   }),
   computed: {
     enabledActions() {
@@ -146,6 +147,11 @@ export default {
       });
       return enabledActions;
     },
+  },
+  mounted() {
+    if (this.$el.closest('#activityCommentsDrawer')) {
+      this.attachMenu = false;
+    }
   },
   watch: {
     menu() {
