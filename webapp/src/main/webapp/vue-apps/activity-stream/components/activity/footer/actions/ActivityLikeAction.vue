@@ -3,7 +3,7 @@
     :class="cssClass"
     class="d-inline-flex">
     <!-- Added for mobile -->
-    <v-tooltip bottom>
+    <v-tooltip :disabled="isMobile" bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           :id="`LikeLink${activityId}`"
