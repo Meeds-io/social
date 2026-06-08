@@ -69,8 +69,8 @@
             </v-tooltip>
             <v-tooltip
               v-if="$root.canEdit"
-              bottom
-              :disabled="isMobile">
+              :disabled="isMobile"
+              bottom>
               <template #activator="{ on, attrs }">
                 <v-btn
                   v-bind="attrs"
