@@ -75,8 +75,9 @@
               </v-list-item-title>
               <v-list-item-subtitle
                 v-if="space.description"
-                v-sanitized-html="space.description"
-                class="caption text-truncate" />
+                class="caption text-truncate">
+                {{ getSpaceDescriptionText(space.description) }}
+              </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action class="pa-0 my-auto">
               <v-tooltip
@@ -198,6 +199,9 @@ export default {
         })
         .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'))
         .finally(() => this.loading = false);
+    },
+    getSpaceDescriptionText(description) {
+      return this.$utils.htmlToText(description);
     },
   },
 };
