@@ -26,6 +26,7 @@
     :content-class="`topBar-navigation-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
+    :max-height="menuMaxHeight"
     bottom
     offset-y
     eager>
@@ -100,6 +101,7 @@ export default {
     return {
       showMenu: false,
       isOpenedOnHover: true,
+      menuMaxHeight: '100vh'
     };
   },
   computed: {
