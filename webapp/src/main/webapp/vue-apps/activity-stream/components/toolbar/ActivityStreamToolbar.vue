@@ -67,7 +67,10 @@
                 {{ $t('activity.filter.button.markAllAsRead') }}
               </span>
             </v-tooltip>
-            <v-tooltip v-if="$root.canEdit" bottom>
+            <v-tooltip
+              v-if="$root.canEdit"
+              bottom
+              :disabled="isMobile">
               <template #activator="{ on, attrs }">
                 <v-btn
                   v-bind="attrs"
@@ -96,7 +99,7 @@
               name="ActivityToolbarButton"
               type="activity-toolbar-button"
               class="hidden-xs-only d-flex align-center" />
-            <v-tooltip bottom>
+            <v-tooltip :disabled="isMobile" bottom>
               <template #activator="{ on, attrs }">
                 <v-btn
                   v-if="streamFilterEnabled"

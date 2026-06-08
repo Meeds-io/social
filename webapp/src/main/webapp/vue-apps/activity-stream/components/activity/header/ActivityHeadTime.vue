@@ -8,7 +8,7 @@
       x-small>
       far fa-clock
     </v-icon>
-    <v-tooltip bottom>
+    <v-tooltip :disabled="isMobile" bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           :href="activityLink"
