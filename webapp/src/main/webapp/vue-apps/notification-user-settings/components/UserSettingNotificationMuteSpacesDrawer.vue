@@ -75,8 +75,9 @@
               </v-list-item-title>
               <v-list-item-subtitle
                 v-if="space.description"
-                v-sanitized-html="getSpaceDescriptionText(space.description)"
-                class="caption text-truncate" />
+                class="caption text-truncate">
+                {{ getSpaceDescriptionText(space.description) }}
+              </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action class="pa-0 my-auto">
               <v-tooltip
