@@ -9,8 +9,8 @@
       <div class="border-box-sizing flex">
         <v-avatar
           v-if="supportsThumbnail"
-          :max-height="thumbnailMobileHeight"
-          :min-height="thumbnailMobileHeight"
+          :max-height="thumbnailMobileMaxHeight"
+          :min-height="thumbnailMobileMinHeight"
           :min-width="thumbnailMobileWidth"
           :max-width="thumbnailMobileWidth"
           :width="thumbnailMobileWidth"
@@ -19,16 +19,17 @@
           class="overflow-hidden"
           eager
           tile>
-          <img
+          <v-img
             v-if="thumbnail"
             :src="`${thumbnail}`"
             :alt="featuredThumbnailAltText"
             :class="thumbnailClass"
             :style="imageMobileStyle"
+            :aspect-ratio="8"
             class="my-auto"
             loading="lazy"
             width="auto"
-            height="auto">
+            height="auto" />
           <v-icon
             v-else
             :size="defaultIconSize"
@@ -39,38 +40,59 @@
         </v-avatar>
         <div
           v-if="title"
-          :class="thumbnailMobileNoBorder || 'border-color no-border-top'"
-          class="pa-4">
+          class="mt-3 mx-2 pb-2">
           <div
             v-if="title"
             v-text="titleText"
             :title="titleTooltip"
-            class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate-2">
+            class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate">
           </div>
+          <dynamic-html-element
+            v-if="summary"
+            :child="summaryElement"
+            :class="bodyClass"
+            class="text-subtitle mt-3 text-color text-truncate-2 text-wrap text-break reset-style-box rich-editor-content mb-0"
+            dir="auto" />
         </div>
+        <activity-link-footer
+          v-if="showFooter"
+          :activity="activity"
+          :is-mobile="isMobile"
+          :activity-type-extension="activityTypeExtension"
+          class="mx-2 mb-2"/>
       </div>
     </template>
     <template v-else>
       <v-avatar
         v-if="supportsThumbnail"
-        :min-height="thumbnailHeight"
-        :height="thumbnailHeight"
+        v-bind="!isMobile &&{
+          height: thumbnailHeight,
+        } || {
+          maxHeight:thumbnailMobileMaxHeight
+        }"
+        :min-height="!isMobile && thumbnailHeight || thumbnailMobileMinHeight"
         :min-width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
         :width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
-        :class="useEmbeddedLinkView && (!isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius')"
+        :class="{
+          'border-bottom-left-radius': useEmbeddedLinkView && !isMobile,
+          'border-top-left-radius': useEmbeddedLinkView,
+          'border-top-right-radius': useEmbeddedLinkView && isMobile,
+
+        }"
         :style="`background-color: ${thumbnailBG};`"
-        class="border-box-sizing align-start me-4 rounded-l"
+        class="border-box-sizing align-start rounded-l border-color no-border-top no-border-bottom no-border-left"
         eager
         tile>
-        <img
+        <v-img
           v-if="thumbnail"
           :src="thumbnail"
           :alt="featuredThumbnailAltText"
           :class="thumbnailClass"
+          :aspect-ratio="!isMobile && 16/9 || 8"
           class="my-auto"
           loading="lazy"
           width="auto"
-          height="auto">
+          height="auto" />
         <v-icon
           v-else
           :size="defaultIconSize"
@@ -97,19 +119,17 @@
         </v-icon>
       </v-avatar>
       <div
-        :class="isMobile && 'mx-3' || ''"
-        class="my-2 position-relative d-flex flex-column width-full">
+        class="no-min-width position-relative d-flex flex-column flex-grow-1 mx-3">
         <dynamic-html-element
           v-if="title"
           :child="titleElement"
-          :class="useEllipsisOnTitle && 'text-truncate-2' || ''"
-          class="font-weight-bold text-color mx-0 mt-0 mb-2 text-wrap text-break"
+          class="text-truncate text-body mb-3 mt-2 font-weight-bold text-color mx-0 mt-0 text-wrap text-break"
           dir="auto" />
         <dynamic-html-element
           v-if="summary"
           :child="summaryElement"
           :class="bodyClass"
-          class="text-wrap text-break reset-style-box rich-editor-content text-color mb-0"
+          class="text-subtitle text-color text-truncate-2 text-wrap text-break reset-style-box rich-editor-content mb-0"
           dir="auto" />
         <v-btn
           v-if="showReadMore"
@@ -120,33 +140,12 @@
           @click="displayFullContent">
           <span class="pl-6">{{ $t('UIActivity.label.seeMore') }}</span>
         </v-btn>
-        <div
-          class="d-flex justify-end mt-auto ms-auto width-fit-content">
-          <div>
-            <extension-registry-components
-              name="ActivityLinkBottomRight"
-              type="activity-link-extension"
-              :params="{
-                activity
-              }"
-              element-class="me-3"
-              parent-element="span"
-              element="span" />
-            <span
-              v-if="activityViews"
-              :title="activityViewsTooltip"
-              class="me-3">
-              <v-icon
-                size="20"
-                class="icon-default-color">
-                fas fa-eye
-              </v-icon>
-              <span class="ms-1 text-subtitle text-color">
-                {{ activityViewsCount }}
-              </span>
-            </span>
-          </div>
-        </div>
+        <activity-link-footer
+          v-if="showFooter"
+          :activity="activity"
+          :is-mobile="isMobile"
+          :activity-type-extension="activityTypeExtension"
+          class="mb-2" />
       </div>
     </template>
   </dynamic-html-element>
@@ -190,6 +189,9 @@ export default {
     activityViews: null
   }),
   computed: {
+    showFooter() {
+      return this.activityTypeExtension?.showFooter;
+    },
     getTitle() {
       return this.activityTypeExtension && this.activityTypeExtension.getTitle;
     },
@@ -248,10 +250,10 @@ export default {
       return this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) && '_self' || (this.sourceLink && '_blank') || '';
     },
     thumbnailHeight() {
-      return this.thumbnailProperties && this.thumbnailProperties.height || (!this.useEmbeddedLinkView && '150px' || '120px');
+      return this.thumbnailProperties && this.thumbnailProperties.height || (!this.useEmbeddedLinkView && '150px' || '124px');
     },
     thumbnailWidth() {
-      return this.thumbnailProperties && this.thumbnailProperties.width || (!this.useEmbeddedLinkView && '252px' || '150px');
+      return this.thumbnailProperties && this.thumbnailProperties.width || (!this.useEmbeddedLinkView && '252px' || '220px');
     },
     thumbnailPreviewHeight() {
       return this.activityTypeExtension && this.activityTypeExtension.getPreviewHeight && this.activityTypeExtension.getPreviewHeight(this.activity) || 0;
@@ -274,8 +276,11 @@ export default {
     iconNoBorder() {
       return this.defaultIcon && this.defaultIcon.noBorder;
     },
-    thumbnailMobileHeight() {
-      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.height || '120px';
+    thumbnailMobileMaxHeight() {
+      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.maxHeight || '75px';
+    },
+    thumbnailMobileMinHeight() {
+      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.minHeight || '40px';
     },
     thumbnailMobileWidth() {
       return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.width || '100%';
@@ -305,7 +310,7 @@ export default {
     },
     titleElement() {
       return {
-        template: this.title && ExtendedDomPurify.purify(`<div>${this.title}</div>`) || '',
+        template: this.title && ExtendedDomPurify.purify(`<span>${this.title}</span>`) || '',
       };
     },
     bodyClass() {
@@ -351,6 +356,9 @@ export default {
     featuredThumbnailAltText() {
       return this.activity?.news?.properties?.featuredImage?.altText || '';
     },
+    summaryClass() {
+      return this.activityTypeExtension?.summaryClass;
+    }
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
