@@ -74,9 +74,10 @@
                       {{ item.name }}
                     </div>
                     <div
-                      v-sanitized-html="item.description || ''"
-                      :title="item.description"
-                      class="text-subtitle white--text full-width text-truncate-5"></div>
+                      :title="getTemplateDescriptionText(item.description)"
+                      class="text-subtitle white--text full-width text-truncate-5">
+                      {{ getTemplateDescriptionText(item.description) }}
+                    </div>
                   </div>
                 </v-expand-transition>
               </div>
@@ -676,7 +677,10 @@ export default {
       if (!this.parentSpaceId) {
         this.selectedParentSpace = null;
       }
-    }
+    },
+    getTemplateDescriptionText(description) {
+      return this.$utils.htmlToText(description);
+    },
   },
 };
 </script>
