@@ -76,8 +76,8 @@ const defaultActivityOptions = {
   getPreviewHeight: activity => activity && activity.templateParams && activity.templateParams.previewHeight || 0,
   getThumbnailBG: activity => activity && activity.templateParams && activity.templateParams.bgColor,
   getThumbnailProperties: activity => !(activity  && activity.templateParams && activity.templateParams.image) && {
-    height: '90px',
-    width: '140px',
+    height: '124px',
+    width: '220px',
     noBorder: true,
   },
   isUseSameViewForMobile: activity => !activity || !activity.templateParams || !activity.templateParams.image,
