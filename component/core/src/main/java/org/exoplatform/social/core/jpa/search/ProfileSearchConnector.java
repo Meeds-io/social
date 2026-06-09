@@ -87,7 +87,6 @@ public class ProfileSearchConnector {
   public int count(Identity identity,
                    ProfileFilter filter,
                    Type type) {
-    filter.setWildcardSearch(false);
     String esQuery = buildQueryStatement(identity, filter, type, 0, 1);
     String jsonResponse = this.client.sendRequest(esQuery, this.index);
     return getCount(jsonResponse);
