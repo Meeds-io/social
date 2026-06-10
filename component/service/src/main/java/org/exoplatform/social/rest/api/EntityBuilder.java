@@ -564,6 +564,7 @@ public class EntityBuilder {
     ProfileFilter filter = new ProfileFilter();
     filter.setEnabled(true);
     filter.setUserType("internal");
+    filter.setWildcardSearch(false);
     filter.setProfileSettings(Map.of(MANAGER, userEntity.getUsername()));
     ListAccess<Identity> managedUsers = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME,
                                                                                           filter,
