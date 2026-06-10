@@ -167,15 +167,18 @@ export default {
     },
     retrieveSpaces() {
       this.loading = true;
-      return Promise.all(this.mutedSpaceIds.map(id => this.$spaceService.getSpaceById(id)))
-        .then(spaces => {
-          const mutedSpaces = spaces || [];
-          mutedSpaces.forEach(space => {
-            space.url = `${eXo.env.portal.context}/s/${space.id}`;
-          });
-          this.mutedSpaces = mutedSpaces;
-        })
-        .finally(() => this.loading = false);
+      return Promise.allSettled(
+        this.mutedSpaceIds.map(id => this.$spaceService.getSpaceById(id))).then(results => {
+        // rejected promises has no value
+        const mutedSpaces = results.filter(result => result?.value).map(result => result.value);
+        mutedSpaces.forEach(space => {
+          space.url = `${eXo.env.portal.context}/s/${space.id}`;
+        });
+        this.mutedSpaces = mutedSpaces;
+      })
+        .finally(() => {
+          this.loading = false;
+        });
     },
     muteSpace(space, unmute) {
       this.loading = true;
