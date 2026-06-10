@@ -72,7 +72,7 @@ export default {
     initExtension() {
       if (this.$refs.container?.$el) {
         this.$refs.container.$el.innerHTML = '';
-        this.extension.init(this.$refs.container?.$el, this.user.username);
+        this.extension.init(this.$refs.container?.$el, this.user.username, { isMenu: true });
       }
     }
   }
