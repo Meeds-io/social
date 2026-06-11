@@ -19,6 +19,7 @@
 package io.meeds.social.space.template.entity;
 
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.commons.utils.StringListConverter;
 
@@ -36,6 +37,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.exoplatform.commons.utils.StringMapConverter;
 
 @Entity(name = "SpaceTemplate")
 @Table(name = "SOC_SPACE_TEMPLATES")
@@ -48,72 +50,76 @@ public class SpaceTemplateEntity {
   @SequenceGenerator(name = "SEQ_SOC_SPACE_TEMPLATE_ID", sequenceName = "SEQ_SOC_SPACE_TEMPLATE_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_SPACE_TEMPLATE_ID")
   @Column(name = "ID")
-  private Long              id;
+  private Long                id;
 
   @Column(name = "ICON")
-  private String            icon;
+  private String              icon;
 
   @Column(name = "ENABLED")
-  private boolean           enabled;
+  private boolean             enabled;
 
   @Column(name = "DELETED")
-  private boolean           deleted;
+  private boolean             deleted;
 
   @Column(name = "IS_SYSTEM")
-  private boolean           system;
+  private boolean             system;
 
   @Column(name = "LAYOUT")
-  private String            layout;
+  private String              layout;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "PERMISSIONS")
-  private List<String>      permissions;
+  private List<String>        permissions;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "ADMIN_PERMISSIONS")
-  private List<String>      adminPermissions;
+  private List<String>        adminPermissions;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "SPACE_LAYOUT_PERMISSIONS")
-  private List<String>      spaceLayoutPermissions;
+  private List<String>        spaceLayoutPermissions;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "SPACE_DELETE_PERMISSIONS")
-  private List<String>      spaceDeletePermissions;
+  private List<String>        spaceDeletePermissions;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "SPACE_PUBLIC_SITE_PERMISSIONS")
-  private List<String>      spacePublicSitePermissions;
+  private List<String>        spacePublicSitePermissions;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "SPACE_FIELDS")
-  private List<String>      spaceFields;
+  private List<String>        spaceFields;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "SPACE_CATEGORY_IDS")
-  private List<String>      spaceDefaultCategoryIds;
+  private List<String>        spaceDefaultCategoryIds;
 
   @Column(name = "SPACE_DEFAULT_VISIBILITY")
-  private SpaceVisibility   spaceDefaultVisibility;
+  private SpaceVisibility     spaceDefaultVisibility;
 
   @Column(name = "SPACE_DEFAULT_ACCESS")
-  private SpaceRegistration spaceDefaultRegistration;
+  private SpaceRegistration   spaceDefaultRegistration;
 
   @Column(name = "SPACE_ALLOW_CONTENT_CREATION")
-  private boolean           spaceAllowContentCreation;
+  private boolean             spaceAllowContentCreation;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "ALLOWED_SUBSPACE_TEMPLATES")
-  private List<String>      allowedSubspaceTemplates;
+  private List<String>        allowedSubspaceTemplates;
 
   @Column(name = "SUBSPACES_MAX_LIMIT")
-  private Integer           subspacesMaxLimit;
+  private Integer             subspacesMaxLimit;
 
   @Column(name = "GROUP_ID")
-  private String            groupId;
+  private String              groupId;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "ENCLOSING_MEMBERSHIPS")
-  private List<String>      enclosingMemberships;
+  private List<String>        enclosingMemberships;
+
+  @Column(name = "EXTENDED_PROPERTIES")
+  @Convert(converter = StringMapConverter.class)
+  private Map<String, String> extendedProperties;
 
 }

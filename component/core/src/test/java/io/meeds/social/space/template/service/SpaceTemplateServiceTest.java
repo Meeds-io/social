@@ -28,10 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -118,7 +115,7 @@ public class SpaceTemplateServiceTest {
 
   @Mock
   private PortalConfig              portalConfig;
-  
+
   @Mock
   private OrganizationService       organizationService;
 
@@ -127,7 +124,6 @@ public class SpaceTemplateServiceTest {
 
   @Mock
   private LocaleConfigService       localeConfigService;
-
 
   private SpaceTemplateService      spaceTemplateService;
 
@@ -305,16 +301,14 @@ public class SpaceTemplateServiceTest {
   public void testGetAllowedSubspaceTemplates() throws Exception {
     // parent template not found
     when(spaceTemplateStorage.getSpaceTemplate(1L)).thenReturn(null);
-    
-    assertThrows(ObjectNotFoundException.class,
-            () -> spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null));
+
+    assertThrows(ObjectNotFoundException.class, () -> spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null));
     // parent template deleted
     SpaceTemplate spaceTemplate = Mockito.mock(SpaceTemplate.class);
     when(spaceTemplate.isDeleted()).thenReturn(true);
     when(spaceTemplateStorage.getSpaceTemplate(anyLong())).thenReturn(null).thenReturn(spaceTemplate);
 
-    assertThrows(ObjectNotFoundException.class,
-            () -> spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null));
+    assertThrows(ObjectNotFoundException.class, () -> spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null));
 
     // parent template has no allowed subspace template
     when(spaceTemplate.isDeleted()).thenReturn(false);
@@ -330,7 +324,7 @@ public class SpaceTemplateServiceTest {
     SpaceTemplate subspaceTemplate = mock(SpaceTemplate.class);
     when(subspaceTemplate.isEnabled()).thenReturn(true);
     when(spaceTemplateStorage.getSpaceTemplate(10L)).thenReturn(subspaceTemplate);
-    try(MockedStatic<CommonsUtils> mockedUtils = mockStatic(CommonsUtils.class)) {
+    try (MockedStatic<CommonsUtils> mockedUtils = mockStatic(CommonsUtils.class)) {
       when(subspaceTemplate.getPermissions()).thenReturn(List.of("*:/platform/users"));
       when(identity.isMemberOf(any(MembershipEntry.class))).thenReturn(true);
       List<SpaceTemplate> result = spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null);
@@ -372,7 +366,8 @@ public class SpaceTemplateServiceTest {
                              null,
                              0,
                              "/space_templates/name",
-                             null);
+                             null,
+                             new HashMap<>());
   }
 
 }

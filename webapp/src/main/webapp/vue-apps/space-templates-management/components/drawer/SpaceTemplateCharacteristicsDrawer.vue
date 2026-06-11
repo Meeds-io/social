@@ -252,6 +252,15 @@
             class="mb-4"
             admins
             space-admin />
+          <extension-registry-components
+            :key="spaceTemplate.id"
+            :params="{
+              'spaceTemplate' : spaceTemplate
+            }"
+            name="SpaceTemplateManagement"
+            type="form-permission-management"
+            parent-element="div"
+            element="div" />
         </div>
         <v-card
           v-on="step5Enabled && {
