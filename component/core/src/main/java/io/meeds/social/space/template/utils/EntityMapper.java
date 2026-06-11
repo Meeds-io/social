@@ -60,7 +60,8 @@ public class EntityMapper {
                              entity.getAllowedSubspaceTemplates(),
                              entity.getSubspacesMaxLimit(),
                              entity.getGroupId(),
-                             entity.getEnclosingMemberships());
+                             entity.getEnclosingMemberships(),
+                             entity.getExtendedProperties());
   }
 
   public static SpaceTemplateEntity toEntity(SpaceTemplate model) {
@@ -87,7 +88,8 @@ public class EntityMapper {
                                    model.getAllowedSubspaceTemplates(),
                                    model.getSubspacesMaxLimit(),
                                    model.getGroupId(),
-                                   model.getEnclosingMemberships());
+                                   model.getEnclosingMemberships(),
+                                   model.getExtendedProperties());
   }
 
   private static List<String> getNonEmptyValueList(List<String> list) {
