@@ -19,6 +19,7 @@
 package org.exoplatform.social.core.space.model;
 
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.CacheEntry;
@@ -30,115 +31,114 @@ import lombok.Setter;
 
 /**
  * Space Model
- *
  */
 public class Space implements CacheEntry {
 
-  public static final String DEFAULT_SPACE_METADATA_OBJECT_TYPE = "space";
+  public static final String  DEFAULT_SPACE_METADATA_OBJECT_TYPE = "space";
 
   /** The Constant ACTIVE_STATUS. */
-  public static final String ACTIVE_STATUS                      = "active";
+  public static final String  ACTIVE_STATUS                      = "active";
 
   /** The Constant DEACTIVE_STATUS. */
-  public static final String DEACTIVE_STATUS                    = "deactive";
+  public static final String  DEACTIVE_STATUS                    = "deactive";
 
   /** The Constant INSTALL_STATUS. */
-  public static final String INSTALL_STATUS                     = "installed";
+  public static final String  INSTALL_STATUS                     = "installed";
 
   /** The Constant PUBLIC. */
-  public static final String PUBLIC                             = "public";
+  public static final String  PUBLIC                             = "public";
 
   /** The Constant PRIVATE. */
-  public static final String PRIVATE                            = "private";
+  public static final String  PRIVATE                            = "private";
 
   /** The Constant HIDDEN. */
-  public static final String HIDDEN                             = "hidden";
+  public static final String  HIDDEN                             = "hidden";
 
   /** The Constant OPEN. */
-  public static final String OPEN                               = "open";
+  public static final String  OPEN                               = "open";
 
   /** The Constant VALIDATION. */
-  public static final String VALIDATION                         = "validation";
+  public static final String  VALIDATION                         = "validation";
 
   /** The Constant CLOSED. */
-  public static final String CLOSED                             = "closed";
+  public static final String  CLOSED                             = "closed";
 
-  public static final String HOME_URL                           = "home";
+  public static final String  HOME_URL                           = "home";
 
   /** The id. */
-  private long               id;
+  private long                id;
 
   @Getter
   @Setter
-  private String             displayName;
+  private String              displayName;
 
   @Getter
   @Setter
-  private String             groupId;
+  private String              groupId;
 
   @Setter
-  private boolean            hasBindings;
-
-  @Getter
-  @Setter
-  private String             description;
+  private boolean             hasBindings;
 
   @Getter
   @Setter
-  private String[]           pendingUsers;
+  private String              description;
 
   @Getter
   @Setter
-  private String[]           invitedUsers;
+  private String[]            pendingUsers;
 
   @Getter
   @Setter
-  private long               templateId;
+  private String[]            invitedUsers;
 
   @Getter
   @Setter
-  private boolean            sovereign;
+  private long                templateId;
+
+  @Getter
+  @Setter
+  private boolean             sovereign;
 
   /** The url. */
   @Setter
   @Getter
-  private String             url;
+  private String              url;
 
   @Setter
   @Getter
-  private String             visibility;
+  private String              visibility;
 
   @Setter
   @Getter
-  private String             registration;
+  private String              registration;
 
   @Getter
-  private AvatarAttachment   avatarAttachment;
+  private AvatarAttachment    avatarAttachment;
 
   /** The space banner attachment. */
   @Getter
-  private BannerAttachment   bannerAttachment;
+  private BannerAttachment    bannerAttachment;
 
   /** Created time. */
   @Getter
-  private long               createdTime;
+  private long                createdTime;
 
   @Getter
   @Setter
-  private long               cacheTime;
+  private long                cacheTime;
 
   @Getter
   @Setter
-  private long               publicSiteId;
+  private long                publicSiteId;
 
   @Getter
   @Setter
-  private String             publicSiteVisibility;
+  private String              publicSiteVisibility;
 
   /** Last Updated time */
   @Getter
   @Setter
-  private long               lastUpdatedTime;
+  private long                lastUpdatedTime;
 
   /**
    * The pretty name of space.
@@ -146,7 +146,7 @@ public class Space implements CacheEntry {
    * @since 1.2.0-GA
    */
   @Getter
-  private String             prettyName;
+  private String              prettyName;
 
   /**
    * The url of avatar.
@@ -155,11 +155,11 @@ public class Space implements CacheEntry {
    */
   @Setter
   @Getter
-  private String             avatarUrl;
+  private String              avatarUrl;
 
   @Setter
   @Getter
-  private String             bannerUrl;
+  private String              bannerUrl;
 
   /**
    * The editor of space.
@@ -168,7 +168,7 @@ public class Space implements CacheEntry {
    */
   @Setter
   @Getter
-  private String             editor;
+  private String              editor;
 
   /**
    * The managers of a space.
@@ -177,7 +177,7 @@ public class Space implements CacheEntry {
    */
   @Setter
   @Getter
-  private String[]           managers;
+  private String[]            managers;
 
   /**
    * The last updated time of avatar ( in millisecond)
@@ -186,7 +186,7 @@ public class Space implements CacheEntry {
    */
   @Setter
   @Getter
-  private Long               avatarLastUpdated;
+  private Long                avatarLastUpdated;
 
   /**
    * The last updated time of banner ( in millisecond)
@@ -195,7 +195,7 @@ public class Space implements CacheEntry {
    */
   @Setter
   @Getter
-  private Long               bannerLastUpdated;
+  private Long                bannerLastUpdated;
 
   /**
    * The members of a space.
@@ -204,38 +204,42 @@ public class Space implements CacheEntry {
    */
   @Setter
   @Getter
-  private String[]           members;
+  private String[]            members;
 
   @Setter
   @Getter
-  private String[]           redactors;
+  private String[]            redactors;
 
   /**
    * The publishers of a space.
    */
   @Setter
   @Getter
-  private String[]           publishers;
+  private String[]            publishers;
 
   @Getter
   @Setter
-  private List<String>       layoutPermissions;
+  private List<String>        layoutPermissions;
 
   @Getter
   @Setter
-  private List<String>       deletePermissions;
+  private List<String>        deletePermissions;
 
   @Getter
   @Setter
-  private List<String>       publicSitePermissions;
+  private List<String>        publicSitePermissions;
 
   @Getter
   @Setter
-  private List<Long>         categoryIds;
+  private List<Long>          categoryIds;
 
   @Getter
   @Setter
-  private Long               parentSpaceId;
+  private Long                parentSpaceId;
+
+  @Getter
+  @Setter
+  private Map<String, String> extendedPermissions;
 
   /** Types of updating of space. */
   public enum UpdatedField {
