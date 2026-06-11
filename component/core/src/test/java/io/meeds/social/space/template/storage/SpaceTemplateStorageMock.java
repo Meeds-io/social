@@ -20,6 +20,7 @@ package io.meeds.social.space.template.storage;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -59,8 +60,9 @@ public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
                                       false,
                                       null,
                                       0,
-                                     "/space_templates/name",
-                                     null);
+                                      "/space_templates/name",
+                                      null,
+                                      new HashMap<>());
   }
 
   @Override

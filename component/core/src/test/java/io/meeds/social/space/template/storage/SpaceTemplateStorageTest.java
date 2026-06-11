@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -196,7 +197,8 @@ public class SpaceTemplateStorageTest {
                                    null,
                                    0,
                                    "/space_templates/name",
-                                   null);
+                                   null,
+                                   new HashMap<>());
   }
 
   private SpaceTemplate newSpaceTemplate() {
@@ -221,8 +223,9 @@ public class SpaceTemplateStorageTest {
                              true,
                              null,
                              0,
-                      "/space_templates/name",
-                             null);
+                             "/space_templates/name",
+                             null,
+                             new HashMap<>());
   }
 
 }

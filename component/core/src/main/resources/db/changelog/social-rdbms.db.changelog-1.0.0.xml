@@ -1325,4 +1325,9 @@
    <changeSet author="social" id="1.0.0-123" dbms="hsqldb">
     <createSequence sequenceName="SEQ_SOC_USER_BINDINGS_QUEUE_ID" startValue="1"/>
    </changeSet>
+  <changeSet id="1.0.0-124" author="social">
+    <addColumn tableName="SOC_SPACE_TEMPLATES">
+      <column name="EXTENDED_PROPERTIES" type="LONGTEXT"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>
