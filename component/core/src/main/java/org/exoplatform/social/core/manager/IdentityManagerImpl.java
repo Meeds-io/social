@@ -404,7 +404,7 @@ public class IdentityManagerImpl implements IdentityManager {
 
         // case of create new space or user, an event will be called only in
         // case of create user
-        if (result.isUser()) {
+        if (result != null && result.isUser()) {
           profileLifeCycle.createProfile(result.getProfile());
         }
       } else {
