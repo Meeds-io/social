@@ -138,12 +138,16 @@ public class ContentLinkRest {
                                                    @Parameter(description = "Search result limit")
                                                    @RequestParam(name = "fieldName", required = false, defaultValue = "10")
                                                    int limit) {
-    return contentLinkService.searchLinks(objectType,
-                                          query,
-                                          request.getRemoteUser(),
-                                          request.getLocale(),
-                                          offset,
-                                          limit);
+    try {
+      return contentLinkService.searchLinks(objectType,
+                                            query,
+                                            request.getRemoteUser(),
+                                            request.getLocale(),
+                                            offset,
+                                            limit);
+    } catch (ObjectNotFoundException e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+    }
   }
 
   @PutMapping(value = "{objectType}/{objectId}", consumes = MediaType.APPLICATION_JSON_VALUE)

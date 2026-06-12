@@ -75,9 +75,11 @@ public class ContentLinkServiceImpl implements ContentLinkService {
                                                    String username,
                                                    Locale locale,
                                                    int offset,
-                                                   int limit) {
+                                                   int limit) throws ObjectNotFoundException{
     keyword = StringUtils.trim(keyword);
-    if (contentLinkPluginService.isId(objectType, keyword) ) {
+    if (contentLinkPluginService.getPlugin(objectType) == null) {
+      throw new ObjectNotFoundException("Content Link Plugin with type '%s' doesn't exists".formatted(objectType));
+    } else if (contentLinkPluginService.isId(objectType, keyword) ) {
       try {
         ContentLink link = getLink(new ContentLinkIdentifier(objectType, keyword, locale), username);
         return Collections.singletonList(new ContentLinkSearchResult(link));

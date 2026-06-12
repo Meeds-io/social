@@ -86,7 +86,7 @@ public interface ContentLinkService {
                                             String username,
                                             Locale locale,
                                             int offset,
-                                            int limit);
+                                            int limit) throws ObjectNotFoundException;
 
   /**
    * @param contentObject {@link ContentObject}
