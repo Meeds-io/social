@@ -77,7 +77,7 @@
           <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
-            <version>6.6.49.Final</version>
+            <version>6.6.53.Final</version>
           </dependency>
         </dependencies>
       </plugin>
