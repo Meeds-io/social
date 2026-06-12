@@ -627,7 +627,9 @@ public class SpaceUtils {
         Space space = spaceService.getSpaceByGroupId(groupId);
         if (space != null) {
           Identity identity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
-          groupIdentityIds.add(identity.getId());
+          if (identity != null) {
+            groupIdentityIds.add(identity.getId());
+          }
         }
       } else {
         Identity identity = identityManager.getOrCreateGroupIdentity(groupId);
