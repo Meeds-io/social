@@ -18,7 +18,6 @@
  */
 package io.meeds.social.cms.plugin;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -27,7 +26,6 @@ import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.meeds.social.cms.model.ContentLinkExtension;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +38,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.resources.ResourceBundleService;
 
 import io.meeds.social.cms.model.ContentLink;
+import io.meeds.social.cms.model.ContentLinkExtension;
 import io.meeds.social.cms.model.ContentLinkIdentifier;
 import io.meeds.social.cms.service.ContentLinkPluginService;
 import io.meeds.social.cms.service.ContentLinkService;
@@ -65,9 +64,7 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
   private static final String      NOT_FOUND_LABEL                 = "(Content has been deleted)";
 
   private static final String      CONTENT_LINK_TAG                =
-                                                    """
-                                                        <content-link contenteditable="false" style="display: none;">/%s</content-link>
-                                                        """;
+                                                    "<content-link contenteditable=\"false\" style=\"display: none;\">/%s</content-link>";
 
   private static final String      CONTENT_LINK_START_TAG          = "<content-link";
 
@@ -120,8 +117,13 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
   }
 
   private String replaceContentLinkTag(String html, HtmlTransformerContext context) { // NOSONAR
-    while (html.contains(CONTENT_LINK_START_TAG)) {
-      String contentLinkTag = getContentLinkTag(html);
+    int contentLinkIndex;
+    while ((contentLinkIndex = html.indexOf(CONTENT_LINK_START_TAG)) > -1) {
+      String contentLinkTag = getContentLinkTag(html, contentLinkIndex);
+      if (StringUtils.isBlank(contentLinkTag)) {
+        html = html.substring(0, contentLinkIndex) + html.substring(contentLinkIndex + CONTENT_LINK_START_TAG.length());
+        continue;
+      }
       ContentLinkIdentifier contentLinkIdentifier = getContentLinkIdentifier(contentLinkTag, context.getLocale());
       if (contentLinkIdentifier == null) {
         html = html.replace(contentLinkTag, "");
@@ -170,16 +172,22 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
 
   private String replaceDataObjectTag(String html) {
     int fromIndex = 0;
-    while (html.indexOf(DATA_OBJECT_ATTRIBUTE, fromIndex) > -1) {
-      String dataObjectTag = getDataObjectTag(html, fromIndex);
-      if (StringUtils.isNotBlank(dataObjectTag)) {
-        String dataObjectAttribute = getDataObjectAttribute(dataObjectTag);
-        if (dataObjectAttribute != null) {
-          html = html.replace(dataObjectTag,
-                              String.format(CONTENT_LINK_TAG, dataObjectAttribute.trim()));
-        }
+    int attributeIndex;
+    while ((attributeIndex = html.indexOf(DATA_OBJECT_ATTRIBUTE, fromIndex)) > -1) {
+      String dataObjectTag = getDataObjectTag(html, attributeIndex);
+      if (StringUtils.isBlank(dataObjectTag)) {
+        fromIndex = attributeIndex + DATA_OBJECT_ATTRIBUTE.length();
+        continue;
       }
-      fromIndex = html.indexOf(DATA_OBJECT_ATTRIBUTE, fromIndex + DATA_OBJECT_ATTRIBUTE.length());
+      String dataObjectAttribute = getDataObjectAttribute(dataObjectTag);
+      if (dataObjectAttribute == null) {
+        fromIndex = attributeIndex + DATA_OBJECT_ATTRIBUTE.length();
+        continue;
+      }
+      int tagIndex = html.lastIndexOf(DATA_OBJECT_START_TAG, attributeIndex);
+      String replacement = String.format(CONTENT_LINK_TAG, dataObjectAttribute.trim());
+      html = html.substring(0, tagIndex) + replacement + html.substring(tagIndex + dataObjectTag.length());
+      fromIndex = tagIndex + replacement.length();
     }
     return html;
   }
@@ -217,33 +225,52 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
 
   private ContentLinkIdentifier getContentLinkIdentifier(String contentLinkTag, Locale locale) {
     int startIndex = contentLinkTag.indexOf(">");
-    int endIndex = contentLinkTag.indexOf("<", startIndex);
-    if (endIndex < 0) {
-      endIndex = contentLinkTag.indexOf("'", startIndex);
-    }
-    String contentLinkObject = contentLinkTag.substring(startIndex + 2, endIndex);
-    if (contentLinkObject.contains(":")) {
-      String[] parts = contentLinkObject.trim().replace("/", "").trim().split(":");
-      return new ContentLinkIdentifier(parts[0], parts[1], null, locale);
-    } else {
+    if (startIndex < 0 || startIndex + 1 >= contentLinkTag.length()) {
       return null;
     }
+    int endIndex = contentLinkTag.indexOf("<", startIndex + 1);
+    if (endIndex < 0) {
+      endIndex = contentLinkTag.indexOf("'", startIndex + 1);
+    }
+    if (endIndex <= startIndex + 1) {
+      return null;
+    }
+    String contentLinkObject = contentLinkTag.substring(startIndex + 1, endIndex).trim().replaceFirst("^/", "");
+    if (contentLinkObject.contains(":")) {
+      String[] parts = contentLinkObject.split(":", 2);
+      if (parts.length == 2 && StringUtils.isNoneBlank(parts[0], parts[1])) {
+        return new ContentLinkIdentifier(parts[0], parts[1], null, locale);
+      }
+    }
+    return null;
   }
 
-  private String getContentLinkTag(String html) {
-    int startIndex = html.indexOf(CONTENT_LINK_START_TAG);
+  private String getContentLinkTag(String html, int fromIndex) {
+    int startIndex = html.indexOf(CONTENT_LINK_START_TAG, fromIndex);
+    if (startIndex < 0) {
+      return null;
+    }
     int endIndex = html.indexOf(CONTENT_LINK_END_TAG, startIndex);
+    if (endIndex < 0) {
+      return null;
+    }
     return html.substring(startIndex, endIndex + CONTENT_LINK_END_TAG.length());
   }
 
   private String getDataObjectTag(String html, int fromIndex) {
-    int attributeIndex = html.indexOf(DATA_OBJECT_ATTRIBUTE, fromIndex);
-    int startIndex = html.substring(fromIndex, attributeIndex).lastIndexOf(DATA_OBJECT_START_TAG);
-    if (startIndex > -1 && !html.substring(startIndex + 1, attributeIndex).contains("<")) {
-      int endIndex = html.indexOf(DATA_OBJECT_END_TAG, attributeIndex);
-      return html.substring(fromIndex + startIndex, endIndex + DATA_OBJECT_END_TAG.length());
+    int attributeIndex = html.indexOf(DATA_OBJECT_ATTRIBUTE, Math.max(0, fromIndex));
+    if (attributeIndex < 0) {
+      return null;
     }
-    return null;
+    int startIndex = html.lastIndexOf(DATA_OBJECT_START_TAG, attributeIndex);
+    if (startIndex < 0 || html.substring(startIndex + 1, attributeIndex).contains("<")) {
+      return null;
+    }
+    int endIndex = html.indexOf(DATA_OBJECT_END_TAG, attributeIndex);
+    if (endIndex < 0) {
+      return null;
+    }
+    return html.substring(startIndex, endIndex + DATA_OBJECT_END_TAG.length());
   }
 
   private String getDataObjectAttribute(String dataObjectTag) {
