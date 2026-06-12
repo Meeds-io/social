@@ -222,12 +222,14 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
       }
       // Remove last element if the used limit to request data from DB
       // is incremented by 1
-      if (identities.size() > limit) {
-        identities =  new ArrayList<>(identities);
-        identities.remove(identities.size() -1);
-      }
+      identities = identities.stream()
+                             .filter(Objects::nonNull)
+                             .limit(limit)
+                             .toList();
     }
-    return identities.toArray(new Identity[0]);
+    return identities.stream()
+                     .filter(Objects::nonNull)
+                     .toArray(Identity[]::new);
   }
 
   /**
