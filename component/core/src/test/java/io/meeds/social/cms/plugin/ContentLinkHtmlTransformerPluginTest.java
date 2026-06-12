@@ -158,6 +158,41 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
     assertEquals(CONTENT_LINK_RESULT.trim(), HtmlUtils.transform(CONTENT_LINK_OLD, CONTENT_LINK_CONTEXT).trim());
   }
 
+
+  @Test
+  @SneakyThrows
+  public void testContentLinkPluginWhenSeveralDataObjectLinksAreFollowedByExternalLink() {
+    String externalLink = """
+        <a href="https://example.org/portal/g/:spaces:knowledge/tasks/taskDetail/73190" rel="nofollow">https://example.org/portal/g/:spaces:knowledge/tasks/taskDetail/73190</a>
+        """.replace("\n", "").trim();
+    String html = """
+        <div>Generated draft block 814</div><div><a class="content-link" contenteditable="false" data-object="testContentLink:5874" href="/portal/s/842/notes/5874">First randomized note</a></div><div>Intermediate text 263</div><div><a class="content-link" contenteditable="false" data-object="testContentLink:5874" href="/portal/s/843/notes/5874" target="_blank">Second randomized note</a></div><div>Reference task %s</div>
+        """.formatted(externalLink).replace("\n", "").trim();
+
+    String expectedContentLink = """
+        <a href="linkToContent" data-object="testContentLink:5874" contenteditable="false" class="content-link"><i aria-hidden="true" class="pluginIcon v-icon notranslate theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>contentTitle</a>
+        """.replace("\n", "").trim();
+    String expected = """
+        <div>Generated draft block 814</div><div>%s</div><div>Intermediate text 263</div><div>%s</div><div>Reference task %s</div>
+        """.formatted(expectedContentLink, expectedContentLink, externalLink).replace("\n", "").trim();
+
+    assertEquals(expected, HtmlUtils.transform(html, CONTENT_LINK_CONTEXT).trim());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testContentLinkPluginIgnoresMalformedDataObjectOccurrences() {
+    String html = """
+        <div>Data object marker outside an anchor data-object="testContentLink:5874" should stay untouched 419</div><div><span data-object="testContentLink:5874">Unexpected span marker</span></div><div><a href="/portal/s/842/notes/5874" data-object="testContentLink:5874">Recoverable randomized link</a></div>
+        """.replace("\n", "").trim();
+
+    String expected = """
+        <div>Data object marker outside an anchor data-object="testContentLink:5874" should stay untouched 419</div><div><span data-object="testContentLink:5874">Unexpected span marker</span></div><div><a href="linkToContent" data-object="testContentLink:5874" contenteditable="false" class="content-link"><i aria-hidden="true" class="pluginIcon v-icon notranslate theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>contentTitle</a></div>
+        """.replace("\n", "").trim();
+
+    assertEquals(expected, HtmlUtils.transform(html, CONTENT_LINK_CONTEXT).trim());
+  }
+
   private void addAclPlugin(String objectType) {
     userAcl.addAclPlugin(new AclPlugin() {
       @Override

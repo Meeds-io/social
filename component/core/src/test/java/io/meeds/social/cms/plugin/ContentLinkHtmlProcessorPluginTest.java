@@ -194,6 +194,39 @@ public class ContentLinkHtmlProcessorPluginTest extends AbstractSpringConfigurat
     }
   }
 
+
+  @Test
+  @SneakyThrows
+  public void testContentLinkPluginFromSeveralATagsFollowedByExternalLink() {
+    String html = """
+        <div>Random publication checklist 927</div><div><a class="content-link" contenteditable="false" data-object="testContentLink:5874" href="/portal/s/215/notes/5874">Randomized note reference</a></div><div><a href="https://example.org/portal/g/:spaces:knowledge/tasks/taskDetail/64823" rel="nofollow">https://example.org/portal/g/:spaces:knowledge/tasks/taskDetail/64823</a></div>
+        """.replace("\n", "").trim();
+
+    assertEquals(html, HtmlUtils.process(html, CONTENT_OBJECT_CONTEXT));
+
+    List<ContentLink> links = contentLinkService.getLinks(CONTENT_OBJECT,
+                                                          Locale.ENGLISH,
+                                                          userAcl.getSuperUser());
+    assertNotNull(links);
+    assertEquals(1, links.size());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testContentLinkPluginSkipsMalformedDataObjectOccurrences() {
+    String html = """
+        <div>Free text marker data-object="testContentLink:5874" should not break processing 531</div><div><span data-object="testContentLink:5874">Unexpected marker</span></div><div><a class="content-link" contenteditable="false" data-object="testContentLink:5874" href="/portal/s/316/notes/5874">Valid randomized reference</a></div>
+        """.replace("\n", "").trim();
+
+    assertEquals(html, HtmlUtils.process(html, CONTENT_OBJECT_CONTEXT));
+
+    List<ContentLink> links = contentLinkService.getLinks(CONTENT_OBJECT,
+                                                          Locale.ENGLISH,
+                                                          userAcl.getSuperUser());
+    assertNotNull(links);
+    assertEquals(1, links.size());
+  }
+
   private void addAclPlugin(String objectType) {
     userAcl.addAclPlugin(new AclPlugin() {
       @Override
