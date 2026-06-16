@@ -17,13 +17,15 @@
 
 <template>
   <a
+    v-on="!isMobile && {
+      mouseover: () => showAction = true,
+      mouseleave: () => showAction = false,
+    }"
     :href="uri"
     :target="target"
     :rel="rel"
     :ripple="false"
-    class="d-flex px-0"
-    @mouseover="showAction = true"
-    @mouseleave="showAction = false">
+    class="d-flex px-0">
     <v-list-item-avatar
       v-if="iconUrl"
       class="d-flex align-center justify-center my-auto ms-0 me-3"
@@ -77,7 +79,6 @@
     </v-list-item-action>
   </a>
 </template>
-
 <script>
 export default {
   props: {
@@ -99,6 +100,9 @@ export default {
     showAction: false,
   }),
   computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.md;
+    },
     baseSiteUri() {
       if (this.navigation.siteKey.type === 'GROUP') {
         return `${eXo.env.portal.context}/g/${this.navigation.siteKey.name.replace?.(/\//g, ':')}/`;
