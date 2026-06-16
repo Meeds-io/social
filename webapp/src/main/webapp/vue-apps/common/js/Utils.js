@@ -39,7 +39,8 @@ export function includeExtensions(suffix) {
       window.require([module], app => {
         const previousLoadingResult = window.requireJsLoadedExtension[module];
         if (!previousLoadingResult) {
-          window.requireJsLoadedExtension[module] = Promise.try(() => app?.init?.()) // NOSONAR
+          window.requireJsLoadedExtension[module] = Promise.resolve()
+            .then(() => app?.init?.()) // NOSONAR
             .then(() => { // NOSONAR
               window.requireJsLoadedExtension[module] = true;
               resolve();
