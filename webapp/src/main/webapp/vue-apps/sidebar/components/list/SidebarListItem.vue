@@ -26,10 +26,10 @@
       :item="item" />
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate || isSpaceCategory">
-    <v-hover
+    <component
+      :is="$root.displaySequentially ? 'v-hover' : 'div'"
       v-model="hover"
-      v-if="displaySpacesList"
-      :disabled="!$root.displaySequentially">
+      v-if="displaySpacesList">
       <v-list-item
         :title="spacesTooltip"
         :class="$root.iconCollapse && 'mx-0'"
@@ -74,15 +74,16 @@
           </ripple-hover-button>
         </v-list-item-action>
       </v-list-item>
-    </v-hover>
+    </component>
     <v-expand-transition v-if="displayItemsInMobile">
       <sidebar-list-sub-list
         v-show="!collapsedSpaces || !$root.displaySequentially"
         :item="item" />
     </v-expand-transition>
   </div>
-  <v-hover
+  <component
     v-else-if="item.url"
+    :is="$root.displaySequentially ? 'v-hover' : 'div'"
     v-model="hover">
     <v-list-item
       v-bind="itemAttributes"
@@ -176,7 +177,7 @@
         :unread-badge="spaceUnreadCount"
         @refresh="retrieveSpace(true)" />
     </v-list-item>
-  </v-hover>
+  </component>
 </template>
 <script>
 export default {
