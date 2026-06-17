@@ -129,7 +129,7 @@
           v-if="summary"
           :child="summaryElement"
           :class="bodyClass"
-          class="text-subtitle text-color text-truncate-2 text-wrap text-break reset-style-box rich-editor-content mb-0"
+          class="text-subtitle text-color text-wrap text-break reset-style-box rich-editor-content mb-0"
           dir="auto" />
         <v-btn
           v-if="showReadMore"
