@@ -85,9 +85,7 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
         deletePermissions = spaceAdminsPermission;
       }
     }
-    return new SpacePermissions(layoutPermissions,
-                                publicSitePermissions,
-                                deletePermissions);
+    return new SpacePermissions(layoutPermissions, publicSitePermissions, deletePermissions, space.getExtendedPermissions());
   }
 
   @Override
@@ -99,6 +97,7 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
     space.setLayoutPermissions(permissions.getLayoutPermissions());
     space.setPublicSitePermissions(permissions.getPublicSitePermissions());
     space.setDeletePermissions(permissions.getDeletePermissions());
+    space.setExtendedPermissions(permissions.getExtendedPermissions());
     spaceService.updateSpace(space);
   }
 

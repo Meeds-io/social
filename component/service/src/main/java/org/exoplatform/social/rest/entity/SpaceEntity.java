@@ -528,4 +528,13 @@ public class SpaceEntity extends BaseEntity {
     }
     return 0L;
   }
+
+  public SpaceEntity setExtendedPermissions(Map<String, String> extendedPermissions) {
+    setProperty("extendedPermissions", extendedPermissions);
+    return this;
+  }
+
+  public Map<String, String> getExtendedPermissions() {
+    return (Map<String, String>) getProperty("extendedPermissions");
+  }
 }
