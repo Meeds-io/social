@@ -350,13 +350,13 @@ export default {
         this.initCKEditor(true, storageMessageText);
         this.updateInput(this.inputVal);
       } else {
-        this.initCKEditor(true, this.value);
+        this.initCKEditor(true, DOMPurify.sanitize(this.value));
       }
     },
     initCKEditor(reset, textValue) {
       const self = this;
       window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester'], function() {
-        self.initCKEditorInstance(reset, textValue || self.value);
+        self.initCKEditorInstance(reset, textValue || DOMPurify.sanitize(self.value));
       });
     },
     async initCKEditorInstance(reset, textValue) {
