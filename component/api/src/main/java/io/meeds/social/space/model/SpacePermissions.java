@@ -19,6 +19,7 @@
 package io.meeds.social.space.model;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,10 +30,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SpacePermissions {
 
-  private List<String> layoutPermissions;
+  private List<String>        layoutPermissions;
 
-  private List<String> publicSitePermissions;
+  private List<String>        publicSitePermissions;
 
-  private List<String> deletePermissions;
+  private List<String>        deletePermissions;
+
+  private Map<String, String> extendedPermissions;
 
 }

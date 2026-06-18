@@ -19,13 +19,7 @@
 package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
+import java.util.*;
 
 import org.exoplatform.commons.utils.StringListConverter;
 import io.meeds.social.space.constant.PublicSiteVisibility;
@@ -52,6 +46,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
+import org.exoplatform.commons.utils.StringMapConverter;
 
 @Entity(name = "SocSpaceEntity")
 @Table(name = "SOC_SPACES")
@@ -217,7 +212,13 @@ public class SpaceEntity implements Serializable {
   @Setter
   @Getter
   @Column(name = "PARENT_SPACE_ID")
-  private Long                              parentSpaceId;
+  private Long                                     parentSpaceId;
+
+  @Setter
+  @Getter
+  @Column(name = "EXTENDED_PERMISSIONS")
+  @Convert(converter = StringMapConverter.class)
+  private Map<String, String>                      extendedPermissions;
 
   public List<Long> getCategoryIds() {
     return getCategories().stream().map(SpaceCategoryEntity::getCategoryId).toList();
