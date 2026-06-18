@@ -1330,4 +1330,9 @@
       <column name="EXTENDED_PROPERTIES" type="LONGTEXT"/>
     </addColumn>
   </changeSet>
+  <changeSet id="1.0.0-125" author="social">
+    <addColumn tableName="SOC_SPACES">
+      <column name="EXTENDED_PERMISSIONS" type="LONGTEXT"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

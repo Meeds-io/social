@@ -19,6 +19,7 @@
 package org.exoplatform.social.core.storage.cache.model.data;
 
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.social.core.space.model.Space;
 
@@ -26,71 +27,72 @@ import lombok.EqualsAndHashCode;
 
 /**
  * Immutable space data.
- *
  */
 @EqualsAndHashCode
 public class SpaceData implements CacheData<Space> {
-  private static final long serialVersionUID = 6109309246791818373L;
+  private static final long   serialVersionUID = 6109309246791818373L;
 
-  private final long        id;
+  private final long          id;
 
-  private final String      prettyName;
+  private final String        prettyName;
 
-  private final String      displayName;
+  private final String        displayName;
 
-  private final String      registration;
+  private final String        registration;
 
-  private final String      description;
+  private final String        description;
 
-  private final String      visibility;
+  private final String        visibility;
 
-  private final String      avatarUrl;
+  private final String        avatarUrl;
 
-  private final String      bannerUrl;
+  private final String        bannerUrl;
 
-  private final String      groupId;
+  private final String        groupId;
 
-  private final String      url;
+  private final String        url;
 
-  private final Long        avatarLastUpdated;
+  private final Long          avatarLastUpdated;
 
-  private final Long        bannerLastUpdated;
+  private final Long          bannerLastUpdated;
 
-  private final Long        createdTime;
+  private final Long          createdTime;
 
-  private final Long        lastUpdatedTime;
+  private final Long          lastUpdatedTime;
 
-  private final long        templateId;
+  private final long          templateId;
 
-  private final long        cacheTime;
+  private final long          cacheTime;
 
-  private final String[]    members;
+  private final String[]      members;
 
-  private final String[]    redactors;
+  private final String[]      redactors;
 
-  private final String[]    publishers;
+  private final String[]      publishers;
 
-  private final String[]    managers;
+  private final String[]      managers;
 
-  private final String[]    pendingUser;
+  private final String[]      pendingUser;
 
-  private final String[]    invitedUser;
+  private final String[]      invitedUser;
 
-  private long              publicSiteId;
+  private long                publicSiteId;
 
-  private String            publicSiteVisibility;
+  private String              publicSiteVisibility;
 
-  private List<String>      layoutPermissions;
+  private List<String>        layoutPermissions;
 
-  private List<String>      deletePermissions;
+  private List<String>        deletePermissions;
 
-  private List<String>      publicSitePermissions;
+  private List<String>        publicSitePermissions;
 
-  private List<Long>        categoryIds;
+  private List<Long>          categoryIds;
 
-  private boolean           sovereign;
+  private boolean             sovereign;
 
-  private Long              parentSpaceId;
+  private Long                parentSpaceId;
+
+  private Map<String, String> extendedPermissions;
 
   public SpaceData(final Space space) {
     id = space.getSpaceId();
@@ -121,6 +123,7 @@ public class SpaceData implements CacheData<Space> {
     categoryIds = space.getCategoryIds();
     sovereign = space.isSovereign();
     parentSpaceId = space.getParentSpaceId();
+    extendedPermissions = space.getExtendedPermissions();
     lastUpdatedTime = space.getLastUpdatedTime();
     cacheTime = System.currentTimeMillis();
   }
@@ -157,6 +160,7 @@ public class SpaceData implements CacheData<Space> {
     space.setCategoryIds(categoryIds);
     space.setSovereign(sovereign);
     space.setParentSpaceId(parentSpaceId);
+    space.setExtendedPermissions(extendedPermissions);
     return space;
   }
 }

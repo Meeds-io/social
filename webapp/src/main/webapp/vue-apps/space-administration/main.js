@@ -70,7 +70,7 @@ export function init(isExternalFeatureEnabled) {
         processedSpaces: 0,
         sortBy: 'title',
         sortDesc: false,
-        expand: 'managers,groupBinding',
+        expand: 'managers,groupBinding,extendedPermissions',
         spaces: [],
       },
       computed: {
