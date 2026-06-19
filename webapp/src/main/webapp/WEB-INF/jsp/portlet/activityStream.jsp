@@ -1,7 +1,7 @@
-<%@page import="org.apache.commons.text.StringEscapeUtils"%>
 <%@taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@page import="org.exoplatform.social.core.manager.IdentityManager"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
+<%@ page import="java.net.URLEncoder" %>
 <portlet:defineObjects/>
 <portlet:actionURL var="saveSettingsUrl" />
 <%
@@ -36,11 +36,11 @@
         <div class="v-progress-circular__info"></div>
       </div>
     </div>
-    <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava((String) settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"")%></textarea>
+    <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : URLEncoder.encode(settings.toString().replace(" ", "._.")).replace("._.", " ").replace("\\\"", "\"").replace("\\\\\"", "\\\"")%></textarea>
     <script type="text/javascript">
       require(['SHARED/ActivityStream'], app => app.init({
         appId: '<%=domId%>',
-        settings: JSON.parse(document.getElementById('<%=valueDomId%>').value),
+        settings: JSON.parse(decodeURIComponent(document.getElementById('<%=valueDomId%>').value)),
         saveSettingsUrl: '<%=saveSettingsUrl%>',
         canEdit: <%=canEdit%>,
         maxUploadSize: <%=maxUploadSize%>,
