@@ -14,6 +14,7 @@
 <%@page import="java.util.List"%>
 <%@page import="org.exoplatform.social.core.space.model.Space"%>
 <%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
+<%@ page import="java.net.URLEncoder" %>
 <%
   Identity viewerIdentity = Utils.getViewerIdentity();
   if (viewerIdentity != null && !viewerIdentity.isExternal()) {
@@ -50,7 +51,7 @@
   <div data-app="true"
     class="v-application hiddenable-widget v-application--is-ltr theme--light"
     id="OnlinePortlet">
-    <textarea id="whoIsOnlineDefaultValue" class="hidden"><%=usersOnlineString%></textarea>
+    <textarea id="whoIsOnlineDefaultValue" class="hidden"><%=URLEncoder.encode(usersOnlineString.replace(" ", "._.")).replace("._.", " ").replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "")%></textarea>
     <script type="text/javascript">
       require(['PORTLET/social/WhoIsOnLinePortlet'], app => app.init());
     </script>

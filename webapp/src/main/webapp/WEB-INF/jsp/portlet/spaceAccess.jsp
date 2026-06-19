@@ -21,6 +21,10 @@
 <%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@page import="org.exoplatform.web.application.RequestContext"%>
 <%@page import="org.exoplatform.social.core.space.SpaceAccessType"%>
+<%@ page import="io.meeds.social.util.JsonUtils" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.net.URLEncoder" %>
 <%
   PortalRequestContext portalRequestContext = RequestContext.getCurrentInstance();
   HttpSession portalSession = portalRequestContext.getRequest().getSession();
@@ -33,24 +37,32 @@
   String spacePrettyName = (String) portalSession.getAttribute(SpaceAccessType.ACCESSED_SPACE_PRETTY_NAME_KEY);
   String spaceDisplayName = (String) portalSession.getAttribute(SpaceAccessType.ACCESSED_SPACE_DISPLAY_NAME_KEY);
   String originalUri = (String) portalSession.getAttribute(SpaceAccessType.ACCESSED_SPACE_REQUEST_PATH_KEY);
+
+  Map<String, Object> data = new HashMap<>();
+  data.put("spaceId", spaceId);
+  data.put("spaceAccessTypeLabel", spaceAccessTypeLabel);
+  data.put("spacePrettyName", spacePrettyName);
+  data.put("spaceDisplayName", spaceDisplayName);
+  data.put("originalUri", originalUri);
+
+  String valueDomId = "SpaceAccessData";
+  String dataJson = JsonUtils.toJsonString(data);
 %>
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
     id="SpaceAccess">
-    <textarea id="SpaceAccessData" rows="0" class="d-none">{
-      "spaceId": "<%=spaceId%>",
-      "spaceAccessTypeLabel": "<%=spaceAccessTypeLabel%>",
-      "spacePrettyName": "<%=spacePrettyName%>",
-      "spaceDisplayName": "<%=spaceDisplayName%>",
-      "originalUri": "<%=originalUri%>"
-    }</textarea>
+    <textarea id="<%=valueDomId%>" rows="0" class="d-none"> <%=URLEncoder.encode(dataJson.replace(" ", "._."))
+                                                                         .replace("._.", " ")
+                                                                         .replace("\\\"", "\"")
+                                                                         .replace("\\\\\"", "\\\"")
+                                                                         .replace("\\n", "")%></textarea>
     <script type="text/javascript">
       const queryString = window.location.search;
       const urlParams = new URLSearchParams(queryString);
       const spaceInvitationToken = urlParams.get('invitation_id') || '';
       const data = JSON.parse(
-        document.getElementById('SpaceAccessData').value.replace(/\n/g, '')
+        decodeURIComponent(document.getElementById('<%=valueDomId%>').value)
       );
       if (urlParams.has('isParentSpaceMember')) {
         data.isParentSpaceMember = urlParams.get('isParentSpaceMember') === 'true';

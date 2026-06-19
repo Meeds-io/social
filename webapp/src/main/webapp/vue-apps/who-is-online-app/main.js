@@ -27,7 +27,7 @@ export function init() {
   }}));
   exoi18n.loadLanguageAsync(lang, url)
     .then(() => {
-      const onlineUsers = JSON.parse(document.getElementById('whoIsOnlineDefaultValue').value);
+      const onlineUsers = JSON.parse(decodeURIComponent(document.getElementById('whoIsOnlineDefaultValue').value));
       if (!onlineUsers.length) {
         Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#OnlinePortlet'));
       }
