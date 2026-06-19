@@ -215,7 +215,7 @@ export default {
       }
     },
     addUpdatedExtendedPermission(permission) {
-      if (!this.updatedExtendedPermissions.has(permission.key)) {
+      if (!this.updatedExtendedPermissions.has(permission.key) || this.updatedExtendedPermissions.get(permission.key)[permission.key] !== permission.value[permission.key]) {
         this.updatedExtendedPermissions.set(permission.key, permission.value);
         this.updatedPermissionCount ++;
       }
