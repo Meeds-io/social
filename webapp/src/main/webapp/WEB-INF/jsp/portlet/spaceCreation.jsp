@@ -11,6 +11,7 @@
 <%@page import="java.util.Map" %>
 <%@page import="javax.portlet.PortletPreferences" %>
 <%@page import="org.apache.commons.text.StringEscapeUtils"%>
+<%@ page import="java.net.URLEncoder" %>
 <%@taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects />
 <portlet:actionURL var="saveSettingsUrl" />
@@ -37,10 +38,10 @@ String valueDomId = "spaceCreationApplicationSettingsValue" + portletId;
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light"
       id="<%=domId%>">
-      <textarea id="spaceCreationSettings<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
-      <textarea id="spaceCreationTemplate<%=valueDomId%>" style="display:none;"><%=StringEscapeUtils.escapeJava(spaceTemplatesJson).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\\\n", "").replace("\\n", "") %></textarea>
+      <textarea id="spaceCreationSettings<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : URLEncoder.encode(settings.replace(" ", "._.")).replace("._.", " ").replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
+      <textarea id="spaceCreationTemplate<%=valueDomId%>" style="display:none;"><%=URLEncoder.encode(spaceTemplatesJson.replace(" ", "._.")).replace("._.", " ").replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\\\n", "").replace("\\n", "") %></textarea>
       <script type="text/javascript">
-        require(['PORTLET/social/SpaceCreation'], app => app.init('<%=domId%>', JSON.parse(document.getElementById('spaceCreationSettings<%=valueDomId%>').value), <%=isAdministrator%>, '<%=saveSettingsUrl%>', JSON.parse(document.getElementById('spaceCreationTemplate<%=valueDomId%>').value)));
+        require(['PORTLET/social/SpaceCreation'], app => app.init('<%=domId%>', JSON.parse(decodeURIComponent(document.getElementById('spaceCreationSettings<%=valueDomId%>').value)), <%=isAdministrator%>, '<%=saveSettingsUrl%>', JSON.parse(decodeURIComponent(document.getElementById('spaceCreationTemplate<%=valueDomId%>').value))));
       </script>
     </div>
   </div>

@@ -2,7 +2,7 @@
 <%@ page import="org.exoplatform.social.core.space.model.Space" %>
 <%@ page import="org.exoplatform.social.core.space.spi.SpaceService" %>
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils" %>
-<%@page import="org.apache.commons.text.StringEscapeUtils"%>
+<%@ page import="java.net.URLEncoder" %>
 <%@taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects />
 <portlet:actionURL var="saveSettingsUrl" />
@@ -30,10 +30,10 @@
   <div data-app="true"
        class="v-application v-application--is-ltr theme--light"
        id="<%=domId%>">
-    <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
+    <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : URLEncoder.encode(settings.toString().replace(" ", "._.")).replace("._.", " ").replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
     <script type="text/javascript">
         require(['PORTLET/social/ParentSpaceListing'],
-            app => app.init('<%=domId%>', '<%=parentSpaceId%>', <%=isManager%>, JSON.parse(document.getElementById('<%=valueDomId%>').value), '<%=saveSettingsUrl%>')
+            app => app.init('<%=domId%>', '<%=parentSpaceId%>', <%=isManager%>, JSON.parse(decodeURIComponent(document.getElementById('<%=valueDomId%>').value)), '<%=saveSettingsUrl%>')
         );
     </script>
   </div>
