@@ -99,7 +99,8 @@ export default {
     avatarSize: '33px',
     files: [],
     attachments: null,
-    comment: null
+    comment: null,
+    commentBodyEdited: false,
   }),
   computed: {
     avatarUrl() {
@@ -113,7 +114,7 @@ export default {
       return !!this.commentId;
     },
     disableButton() {
-      return this.commenting || ((!this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.message.trim() === '<div></div>') && !this.activityCommentAttachmentsEdited) || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
+      return this.commenting || (this.commentId && !this.commentBodyEdited) || ((!this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.message.trim() === '<div></div>') && !this.activityCommentAttachmentsEdited) || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
     },
     ckEditorType() {
       return this.commentTypeExtension?.ckEditorType
@@ -152,10 +153,17 @@ export default {
   },
   mounted() {
     this.init();
-  },
+  }, 
   beforeDestroy() {
     document.removeEventListener('activity-composer-edited', this.activityComposerEdit);
     this.reset();
+  },
+  watch: {
+    message(newVal, oldVal) {
+      if (oldVal != null && this.commentId && !this.commentBodyEdited) {
+        this.commentBodyEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(oldVal);
+      }
+    }
   },
   methods: {
     activityComposerEdit(event) {
@@ -201,7 +209,6 @@ export default {
       } else {
         this.message = null;
       }
-
       if (this.$refs.commentEditor) {
         this.$refs.commentEditor.initCKEditor(false, this.message);
         this.initialized = true;
