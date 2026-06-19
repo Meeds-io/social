@@ -5,6 +5,7 @@
 <%@ page import="org.exoplatform.social.rest.api.RestUtils" %>
 <%@ page import="io.meeds.portal.security.service.SecuritySettingService" %>
 <%@ page import="io.meeds.portal.security.constant.UserRegistrationType" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects />
 <portlet:actionURL var="saveSettingsUrl" />
@@ -50,10 +51,10 @@
   <div data-app="true"
        class="v-application transparent v-application--is-ltr theme--light"
        id="<%=domId%>">
-    <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : settings%></textarea>
+    <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : URLEncoder.encode(settings.toString().replace(" ", "._.")).replace("._.", " ").replace("\\\"", "\"").replace("\\\\\"", "\\\"")%></textarea>
     <script type="text/javascript">
       require(['PORTLET/social/SpacesList'],
-          app => app.init('<%=domId%>', '<%=filter%>', <%=canCreateSpace%>, <%=isExternalFeatureEnabled%>, <%=canEdit%>, JSON.parse(document.getElementById('<%=valueDomId%>').value), '<%=saveSettingsUrl%>', '<%=getSettingNameUrl%>', '<%=settingName == null ? "" : settingName%>', '<%=registrationType%>', <%=isAdministrator%>, <%=isPublicPage%>)
+          app => app.init('<%=domId%>', '<%=filter%>', <%=canCreateSpace%>, <%=isExternalFeatureEnabled%>, <%=canEdit%>, JSON.parse(decodeURIComponent(document.getElementById('<%=valueDomId%>').value)), '<%=saveSettingsUrl%>', '<%=getSettingNameUrl%>', '<%=settingName == null ? "" : settingName%>', '<%=registrationType%>', <%=isAdministrator%>, <%=isPublicPage%>)
       );
     </script>
   <% } else { %>
