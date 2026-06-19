@@ -956,10 +956,10 @@ public class EntityBuilder {
     if (canEdit) {
       spaceEntity.setPendingUsersCount(space.getPendingUsers() == null ? 0 : countUsers(space.getPendingUsers()));
       spaceEntity.setInvitedUsersCount(space.getInvitedUsers() == null ? 0 : countUsers(space.getInvitedUsers()));
-      buildSpaceExtendedPermissions(space, spaceEntity, expand);
     }
     spaceEntity.setParentSpaceId(space.getParentSpaceId());
     spaceEntity.setIsParentSpace(isParentSpace(space));
+    buildSpaceExtendedPermissions(space, spaceEntity, expand);
 
     return spaceEntity;
   }
