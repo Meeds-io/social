@@ -138,16 +138,16 @@ export default {
   }),
   computed: {
     filteredProfileActionExtensions() {
-      return this.profileActionExtensions.filter(extension => (!extension.mobileOnly || this.$root.isMobile) && extension.enabled(this.user, this.spaceId))
+      return this.profileActionExtensions.filter(extension => (!extension.mobileOnly || this.$root.isMobile) && extension.enabled(this.user, this.spaceId, true))
         || [];
     },
     filteredUserNavigationExtensions() {
-      return this.userNavigationExtensions.filter(extension => (!extension.mobileOnly || this.$root.isMobile) && !this.ignoredNavigationExtensions.includes(extension?.id) && extension.enabled(this.user, this.spaceId))
+      return this.userNavigationExtensions.filter(extension => (!extension.mobileOnly || this.$root.isMobile) && !this.ignoredNavigationExtensions.includes(extension?.id) && extension.enabled(this.user, this.spaceId, true))
         || [];
     },
     filteredSpaceMembersExtensions() {
       return this.spaceId
-        && this.spaceMembersExtensions?.filter?.(extension => (!extension.mobileOnly || this.$root.isMobile) && extension.enabled(this.user, this.spaceId)) || [];
+        && this.spaceMembersExtensions?.filter?.(extension => (!extension.mobileOnly || this.$root.isMobile) && extension.enabled(this.user, this.spaceId, true)) || [];
     },
     hasActions() {
       return (this.filteredProfileActionExtensions.length
