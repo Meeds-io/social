@@ -70,7 +70,8 @@
           <extension-registry-components
             :params="{
               'space' : space,
-              'spaces': spaces
+              'spaces': spaces,
+              'extendedPermissions': extendedPermissions,
             }"
             name="SpacesAdministrationPermissions"
             type="form-permission-management"
@@ -212,6 +213,8 @@ export default {
         this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spacePermissionsUpdateError'), 'error');
       } finally {
         this.saving = false;
+        this.updatedPermissionCount = 0;
+        this.updatedExtendedPermissions = new Map();
       }
     },
     addUpdatedExtendedPermission(permission) {
