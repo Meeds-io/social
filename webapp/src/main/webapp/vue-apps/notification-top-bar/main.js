@@ -49,6 +49,8 @@ export function init(badge) {
           initialized: false,
           lastLoadedNotificationIndex: 0,
           now: Date.now(),
+          selectMode: false,
+          selectedNotificationIds: [],
         },
         template: `<top-bar-notification id="${appId}"></top-bar-notification>`,
         vuetify: Vue.prototype.vuetifyOptions,

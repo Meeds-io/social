@@ -146,6 +146,31 @@ public class WebNotificationRestService implements ResourceContainer {
   }
 
   @DELETE
+  @RolesAllowed("users")
+  @Operation(summary = "Hide notifications", description = "Hides a designated list of notifications", method = "DELETE")
+  @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fullfilled"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input"),
+      @ApiResponse(responseCode = "500", description = "Internal server error") })
+  public Response hideNotifications(
+                                    @Parameter(description = "The list of notification ids to hide", required = true)
+                                    @QueryParam("id")
+                                    List<String> notificationIds) {
+    String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
+    if (notificationIds == null || notificationIds.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+    for (String notificationId : notificationIds) {
+      NotificationInfo notification = webNftService.getNotificationInfo(notificationId);
+      if (notification != null && currentUser.equals(notification.getTo())) {
+        webNftService.hidePopover(notificationId);
+      } else {
+        LOG.warn("User {} is not allowed to hide notification {}", currentUser, notificationId);
+      }
+    }
+    return Response.noContent().build();
+  }
+
+  @DELETE
   @Path("{id}")
   @RolesAllowed("users")
   @Operation(summary = "Hide notification", description = "Hides a designated notification", method = "DELETE")
@@ -183,6 +208,9 @@ public class WebNotificationRestService implements ResourceContainer {
                                       @Parameter(description = "The list of plugins to include in list", required = false)
                                       @QueryParam("plugin")
                                       List<String> plugins,
+                                      @Parameter(description = "The list of notification ids to update, used by the markAsRead operation", required = false)
+                                      @QueryParam("id")
+                                      List<String> notificationIds,
                                       @Parameter(description = "notification operation", required = true)
                                       @QueryParam("operation")
                                       String operation) {
@@ -192,6 +220,18 @@ public class WebNotificationRestService implements ResourceContainer {
     } else if (MARK_ALL_AS_READ_OPERATION.equals(operation)) {
       webNftService.markAllRead(plugins, currentUser);
       webNftService.resetNumberOnBadge(plugins, currentUser);
+    } else if (MARK_AS_READ_OPERATION.equals(operation)) {
+      if (notificationIds == null || notificationIds.isEmpty()) {
+        return Response.status(Response.Status.BAD_REQUEST).build();
+      }
+      for (String notificationId : notificationIds) {
+        NotificationInfo notification = webNftService.getNotificationInfo(notificationId);
+        if (notification != null && currentUser.equals(notification.getTo())) {
+          webNftService.markRead(notificationId);
+        } else {
+          LOG.warn("User {} is not allowed to mark notification {} as read", currentUser, notificationId);
+        }
+      }
     } else {
       return Response.status(Response.Status.BAD_REQUEST).entity("Unrecognized operation parameter value: " + operation).build();
     }

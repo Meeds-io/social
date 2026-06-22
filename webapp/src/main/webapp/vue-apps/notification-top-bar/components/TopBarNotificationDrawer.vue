@@ -29,41 +29,72 @@
     @closed="$emit('closed')"
     @expand-updated="expanded = $event">
     <template slot="title">
-      {{ $t('UIIntranetNotificationsPortlet.title.notifications') }}
+      <div v-if="selectMode" class="d-flex align-center">
+        <v-btn
+          icon
+          class="me-2"
+          @click="cancelSelect">
+          <v-icon size="18">{{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}</v-icon>
+        </v-btn>
+        <span class="text-body">
+          {{ $t('Notification.label.selectedCount', {0: selectedCount}) }}
+        </span>
+      </div>
+      <template v-else>
+        {{ $t('UIIntranetNotificationsPortlet.title.notifications') }}
+      </template>
     </template>
     <template #titleIcons>
-      <v-tooltip bottom>
-        <template #activator="{on, bind}">
-          <div v-on="on" v-bind="bind">
+      <template v-if="selectMode">
+        <v-btn
+          :disabled="!selectedCount"
+          :title="$t('Notification.markRead')"
+          icon
+          @click="markSelectedAsRead">
+          <v-icon size="18">fa-envelope-open-text</v-icon>
+        </v-btn>
+        <v-btn
+          :disabled="!selectedCount"
+          :title="$t('Notification.deleteNotification')"
+          icon
+          @click="deleteSelected">
+          <v-icon size="18" class="error--text">fa-trash</v-icon>
+        </v-btn>
+      </template>
+      <template v-else>
+        <v-tooltip bottom>
+          <template #activator="{on, bind}">
+            <div v-on="on" v-bind="bind">
+              <v-btn
+                :disabled="markingAsReadDisabled"
+                :loading="markingAllAsRead"
+                icon
+                @click="markAllAsRead">
+                <v-icon size="18">fa-envelope-open-text</v-icon>
+              </v-btn>
+            </div>
+          </template>
+          <span>{{ markingAsReadDisabled && $t('Notification.label.NoMarkAllAsRead') || $t('Notification.label.MarkAsRead', {0: $t(`Notification.label.types.${groupName}`)}) }}</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template #activator="{on, attrs}">
             <v-btn
-              :disabled="markingAsReadDisabled"
-              :loading="markingAllAsRead"
+              :href="settingsLink"
               icon
-              @click="markAllAsRead">
-              <v-icon size="18">fa-envelope-open-text</v-icon>
+              v-on="on"
+              v-bind="{
+                ...attrs,
+                'aria-label': $t('UIIntranetNotificationsPortlet.title.NotificationsSetting'),
+                role: null,
+                'aria-haspopup': null,
+                'aria-expanded': null}"
+              @click="openSettings">
+              <v-icon size="18" class="notifDrawerSettings">fa-sliders-h</v-icon>
             </v-btn>
-          </div>
-        </template>
-        <span>{{ markingAsReadDisabled && $t('Notification.label.NoMarkAllAsRead') || $t('Notification.label.MarkAsRead', {0: $t(`Notification.label.types.${groupName}`)}) }}</span>
-      </v-tooltip>
-      <v-tooltip bottom>
-        <template #activator="{on, attrs}">
-          <v-btn
-            :href="settingsLink"
-            icon
-            v-on="on"
-            v-bind="{
-              ...attrs,
-              'aria-label': $t('UIIntranetNotificationsPortlet.title.NotificationsSetting'),
-              role: null,
-              'aria-haspopup': null,
-              'aria-expanded': null}"
-            @click="openSettings">
-            <v-icon size="18" class="notifDrawerSettings">fa-sliders-h</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t('UIIntranetNotificationsPortlet.title.NotificationsSetting') }}</span>
-      </v-tooltip>
+          </template>
+          <span>{{ $t('UIIntranetNotificationsPortlet.title.NotificationsSetting') }}</span>
+        </v-tooltip>
+      </template>
     </template>
     <template #content>
       <div
@@ -170,6 +201,12 @@ export default {
     markingAsReadDisabled() {
       return !this.hasUnread || this.loading > 0;
     },
+    selectMode() {
+      return this.$root.selectMode;
+    },
+    selectedCount() {
+      return this.$root.selectedNotificationIds.length;
+    },
   },
   watch: {
     loading() {
@@ -201,12 +238,23 @@ export default {
   },
   methods: {
     open() {
+      this.cancelSelect();
       this.$refs.drawer.open();
       return this.$notificationService.resetBadge()
         .then(() => this.$root.$emit('notification-badge-updated', 0));
     },
     close() {
+      this.cancelSelect();
       this.$refs.drawer.close();
+    },
+    cancelSelect() {
+      this.$root.$emit('notification-cancel-select');
+    },
+    markSelectedAsRead() {
+      this.$root.$emit('notification-mark-selected-read');
+    },
+    deleteSelected() {
+      this.$root.$emit('notification-delete-selected');
     },
     incrementLoading() {
       this.loading++;

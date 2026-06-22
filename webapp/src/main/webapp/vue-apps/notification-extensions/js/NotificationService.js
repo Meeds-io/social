@@ -103,3 +103,30 @@ export function hideNotification(id) {
     }
   });
 }
+
+export function markNotificationsAsRead(ids) {
+  const params = new URLSearchParams();
+  params.append('operation', 'markAsRead');
+  (ids || []).forEach(id => params.append('id', id));
+  return fetch(`/portal/rest/notifications/webNotifications?${params.toString()}`, {
+    method: 'PATCH',
+    credentials: 'include',
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error('Error processing request on server');
+    }
+  });
+}
+
+export function deleteNotifications(ids) {
+  const params = new URLSearchParams();
+  (ids || []).forEach(id => params.append('id', id));
+  return fetch(`/portal/rest/notifications/webNotifications?${params.toString()}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error('Error processing request on server');
+    }
+  });
+}
