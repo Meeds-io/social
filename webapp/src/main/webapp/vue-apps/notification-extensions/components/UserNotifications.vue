@@ -19,11 +19,22 @@
 
 -->
 <template>
-  <user-notifications-list
-    v-if="hasNotifications"
-    :notifications="notifications" />
   <user-notification-empty
-    v-else />
+    v-if="!hasNotifications" />
+  <div v-else>
+    <v-checkbox
+      v-if="$root.selectMode"
+      v-model="selectAllModel"
+      :indeterminate="indeterminate"
+      :label="$t('Notification.label.selectAll')"
+      class="ps-4 my-2 pt-0"
+      color="primary"
+      background-color="transparent"
+      hide-details
+      @click.stop />
+    <user-notifications-list
+      :notifications="notifications" />
+  </div>
 </template>
 <script>
 export default {
@@ -54,6 +65,19 @@ export default {
   computed: {
     hasNotifications() {
       return this.loading || this.notifications?.length;
+    },
+    selectAllModel: {
+      get() {
+        return this.notifications.length > 0
+          && this.$root.selectedNotificationIds.length === this.notifications.length;
+      },
+      set(value) {
+        this.selectAll(value);
+      },
+    },
+    indeterminate() {
+      const selectedCount = this.$root.selectedNotificationIds.length;
+      return selectedCount > 0 && selectedCount < this.notifications.length;
     },
   },
   watch: {
@@ -103,18 +127,30 @@ export default {
         this.$emit('notificationsCount', 0);
         this.$emit('unreadCount', 0);
       }
+      if (this.$root.selectMode) {
+        const existingIds = this.notifications.map(n => n.id);
+        this.$root.selectedNotificationIds = this.$root.selectedNotificationIds.filter(id => existingIds.includes(id));
+      }
     },
   },
   created() {
     document.addEventListener('refresh-notifications', this.refreshNotifications);
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
     this.$root.$on('notifications-initialized', this.notificationsDisplayed);
+    this.$root.$on('notification-select', this.toggleSelect);
+    this.$root.$on('notification-mark-selected-read', this.markSelectedAsRead);
+    this.$root.$on('notification-delete-selected', this.deleteSelected);
+    this.$root.$on('notification-cancel-select', this.cancelSelect);
     this.loadNotifications();
   },
   beforeDestroy() {
     document.removeEventListener('refresh-notifications', this.refreshNotifications);
     document.removeEventListener('cometdNotifEvent', this.notificationUpdated);
     this.$root.$off('notifications-initialized', this.notificationsDisplayed);
+    this.$root.$off('notification-select', this.toggleSelect);
+    this.$root.$off('notification-mark-selected-read', this.markSelectedAsRead);
+    this.$root.$off('notification-delete-selected', this.deleteSelected);
+    this.$root.$off('notification-cancel-select', this.cancelSelect);
   },
   methods: {
     reset() {
@@ -161,6 +197,52 @@ export default {
     },
     notificationsDisplayed() {
       this.$root.lastLoadedNotificationIndex = this.notifications?.length || 0;
+    },
+    toggleSelect({ id, selected }) {
+      this.$root.selectMode = true;
+      const ids = this.$root.selectedNotificationIds;
+      if (selected) {
+        if (!ids.includes(id)) {
+          ids.push(id);
+        }
+      } else {
+        this.$root.selectedNotificationIds = ids.filter(selectedId => selectedId !== id);
+      }
+    },
+    selectAll(value) {
+      this.$root.selectedNotificationIds = value ? this.notifications.map(n => n.id) : [];
+    },
+    markSelectedAsRead() {
+      const ids = this.$root.selectedNotificationIds.slice();
+      if (!ids.length) {
+        return;
+      }
+      return this.$notificationService.markNotificationsAsRead(ids)
+        .then(() => {
+          this.notifications.forEach(notification => {
+            if (ids.includes(notification.id)) {
+              this.$set(notification, 'read', true);
+            }
+          });
+          this.cancelSelect();
+          document.dispatchEvent(new CustomEvent('refresh-notifications'));
+        });
+    },
+    deleteSelected() {
+      const ids = this.$root.selectedNotificationIds.slice();
+      if (!ids.length) {
+        return;
+      }
+      return this.$notificationService.deleteNotifications(ids)
+        .then(() => {
+          this.notifications = this.notifications.filter(notification => !ids.includes(notification.id));
+          this.cancelSelect();
+          document.dispatchEvent(new CustomEvent('refresh-notifications'));
+        });
+    },
+    cancelSelect() {
+      this.$root.selectMode = false;
+      this.$root.selectedNotificationIds = [];
     },
   }
 };
