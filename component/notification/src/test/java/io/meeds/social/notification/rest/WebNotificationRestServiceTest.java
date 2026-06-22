@@ -20,7 +20,12 @@ package io.meeds.social.notification.rest;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.List;
 
 import javax.ws.rs.core.Response;
 
@@ -111,6 +116,92 @@ public class WebNotificationRestServiceTest extends BaseRestServicesTestCase { /
 
     assertEquals(204, response.getStatus());
 
+  }
+
+  public void testBatchMarkAsReadAuthorized() {
+    startSessionAs("john");
+
+    webNotificationService = mock(WebNotificationService.class);
+    NotificationInfo notificationInfo = new NotificationInfo();
+    notificationInfo.setTo("john");
+    when(webNotificationService.getNotificationInfo(anyString())).thenReturn(notificationInfo);
+
+    WebNotificationRestService webNotificationRestService = newWebNotificationRestService();
+    Response response = webNotificationRestService.updateNotifications(null, List.of("1", "2"), "markAsRead");
+
+    assertEquals(204, response.getStatus());
+    verify(webNotificationService).markRead("1");
+    verify(webNotificationService).markRead("2");
+  }
+
+  public void testBatchMarkAsReadSkipsNotOwned() {
+    startSessionAs("john");
+
+    webNotificationService = mock(WebNotificationService.class);
+    NotificationInfo notificationInfo = new NotificationInfo();
+    notificationInfo.setTo("mary");
+    when(webNotificationService.getNotificationInfo(anyString())).thenReturn(notificationInfo);
+
+    WebNotificationRestService webNotificationRestService = newWebNotificationRestService();
+    Response response = webNotificationRestService.updateNotifications(null, List.of("1"), "markAsRead");
+
+    assertEquals(204, response.getStatus());
+    verify(webNotificationService, never()).markRead(anyString());
+  }
+
+  public void testBatchMarkAsReadEmptyIds() {
+    startSessionAs("john");
+
+    webNotificationService = mock(WebNotificationService.class);
+
+    WebNotificationRestService webNotificationRestService = newWebNotificationRestService();
+    Response response = webNotificationRestService.updateNotifications(null, Collections.emptyList(), "markAsRead");
+
+    assertEquals(400, response.getStatus());
+    verify(webNotificationService, never()).markRead(anyString());
+  }
+
+  public void testBatchHideAuthorized() {
+    startSessionAs("john");
+
+    webNotificationService = mock(WebNotificationService.class);
+    NotificationInfo notificationInfo = new NotificationInfo();
+    notificationInfo.setTo("john");
+    when(webNotificationService.getNotificationInfo(anyString())).thenReturn(notificationInfo);
+
+    WebNotificationRestService webNotificationRestService = newWebNotificationRestService();
+    Response response = webNotificationRestService.hideNotifications(List.of("1", "2"));
+
+    assertEquals(204, response.getStatus());
+    verify(webNotificationService).hidePopover("1");
+    verify(webNotificationService).hidePopover("2");
+  }
+
+  public void testBatchHideSkipsNotOwned() {
+    startSessionAs("john");
+
+    webNotificationService = mock(WebNotificationService.class);
+    NotificationInfo notificationInfo = new NotificationInfo();
+    notificationInfo.setTo("mary");
+    when(webNotificationService.getNotificationInfo(anyString())).thenReturn(notificationInfo);
+
+    WebNotificationRestService webNotificationRestService = newWebNotificationRestService();
+    Response response = webNotificationRestService.hideNotifications(List.of("1"));
+
+    assertEquals(204, response.getStatus());
+    verify(webNotificationService, never()).hidePopover(anyString());
+  }
+
+  public void testBatchHideEmptyIds() {
+    startSessionAs("john");
+
+    webNotificationService = mock(WebNotificationService.class);
+
+    WebNotificationRestService webNotificationRestService = newWebNotificationRestService();
+    Response response = webNotificationRestService.hideNotifications(Collections.<String> emptyList());
+
+    assertEquals(400, response.getStatus());
+    verify(webNotificationService, never()).hidePopover(anyString());
   }
 
   private void startSessionAs(String username) {
