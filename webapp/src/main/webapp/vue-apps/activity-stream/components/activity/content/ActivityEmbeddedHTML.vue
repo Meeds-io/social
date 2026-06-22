@@ -89,7 +89,7 @@ export default {
   methods: {
     computeEmbeddedHTML(htmlElement) {
       const tempdiv = document.createElement('div');
-      tempdiv.innerHTML = DOMPurify.sanitize(htmlElement);
+      tempdiv.innerHTML = ExtendedDomPurify.purify(htmlElement);
       if (tempdiv.firstElementChild.style.maxWidth) {
         tempdiv.firstElementChild.style.maxWidth = `${this.maxWidth}px`;
       }
