@@ -56,6 +56,7 @@
           :can-mute="canMute"
           :url="url"
           class="white"
+          @select="enterSelectMode"
           @remove="hideNotification"
           @mute="muteSpace()"
           @read="markAsRead()"
@@ -63,7 +64,8 @@
       </div>
       <v-slide-x-transition>
         <v-list-item
-          :href="url"
+          :href="selectMode ? null : url"
+          :ripple="!selectMode"
           :input-value="unread && !hover"
           :class="absolute && 'position-absolute white' || 'position-static'"
           :style="absolute && {
@@ -79,9 +81,19 @@
             end: moveEnd,
             move: moveSwipe,
           }"
+          @click="onItemClick"
           @mousedown="markAsReadMouseDown"
           @mouseup="markAsReadMouseUp"
           @contextmenu="showContextMenu">
+          <v-checkbox
+            v-if="selectMode"
+            class="flex-grow-0 flex-shrink-0 ms-0 me-2 mt-0 pt-0 align-self-center"
+            color="primary"
+            background-color="transparent"
+            hide-details
+            :input-value="selected"
+            @click.stop
+            @change="onSelectChange" />
           <v-list-item-avatar
             :rounded="spaceAvatar"
             :tile="!!$slots.avatar"
@@ -194,6 +206,12 @@ export default {
     notificationId() {
       return this.notification.id;
     },
+    selectMode() {
+      return this.$root.selectMode || false;
+    },
+    selected() {
+      return this.$root.selectedNotificationIds?.includes(this.notificationId) || false;
+    },
     unread() {
       return this.markedAsRead === false && this.notification?.read === false;
     },
@@ -234,6 +252,19 @@ export default {
     },
   },
   methods: {
+    enterSelectMode() {
+      this.$root.$emit('notification-select', { id: this.notificationId, selected: true });
+    },
+    onSelectChange(value) {
+      this.$root.$emit('notification-select', { id: this.notificationId, selected: value });
+    },
+    onItemClick(event) {
+      if (this.selectMode) {
+        event.preventDefault();
+        this.$root.$emit('notification-select', { id: this.notificationId, selected: !this.selected });
+        event.currentTarget?.blur?.();
+      }
+    },
     hideNotification() {
       this.hidden = true;
       this.$notificationService.hideNotification(this.notificationId)
@@ -269,12 +300,18 @@ export default {
       this.$refs.menu.showMenu(event.clientX, event.clientY);
     },
     markAsReadMouseDown(event) {
+      if (this.selectMode) {
+        return true;
+      }
       if (event.button === 0 && !event.ctrlKey && !event.altKey && !event.shiftKey) {
         this.markAsRead(true);
       }
       return true;
     },
     markAsReadMouseUp(event) {
+      if (this.selectMode) {
+        return true;
+      }
       if (event.button === 1 || (event.button === 0 && (event.ctrlKey || event.altKey  || event.shiftKey))) {
         this.markAsRead(false, true);
       }
@@ -304,7 +341,7 @@ export default {
       this.minHeight = 0;
     },
     async moveStart() {
-      if (this.absolute) {
+      if (this.absolute || this.selectMode) {
         return;
       }
       await this.reset();
