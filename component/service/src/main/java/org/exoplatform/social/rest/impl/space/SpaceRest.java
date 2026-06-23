@@ -609,6 +609,7 @@ public class SpaceRest implements ResourceContainer {
       Space space = byId ? spaceService.getSpaceById(id) : spaceService.getSpaceByPrettyName(id);
       if (space == null
           || (Space.HIDDEN.equals(space.getVisibility())
+              && Space.CLOSED.equals(space.getRegistration())
               && !spaceService.canViewSpace(space, authenticatedUser) && !Arrays.asList(space.getInvitedUsers()).contains(authenticatedUser))) {
         return Response.status(Status.NOT_FOUND).build();
       }
@@ -718,6 +719,7 @@ public class SpaceRest implements ResourceContainer {
       Space space = byId ? spaceService.getSpaceById(id) : spaceService.getSpaceByPrettyName(id);
       if (space == null
           || (Space.HIDDEN.equals(space.getVisibility())
+              && Space.CLOSED.equals(space.getRegistration())
               && !spaceService.canViewSpace(space, authenticatedUser))) {
         return Response.status(Status.NOT_FOUND).build();
       }
