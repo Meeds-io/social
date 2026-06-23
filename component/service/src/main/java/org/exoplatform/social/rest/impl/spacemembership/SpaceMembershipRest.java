@@ -302,8 +302,7 @@ public class SpaceMembershipRest implements ResourceContainer {
         throw new WebApplicationException(Response.Status.CONFLICT);
       } else if (space.getRegistration().equals(Space.OPEN)) {
         spaceService.addMember(space, user);
-      } else if (space.getVisibility().equals(Space.HIDDEN)
-                 || space.getRegistration().equals(Space.CLOSED)) {
+      } else if (space.getRegistration().equals(Space.CLOSED)) {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       } else {
         spaceService.addPendingUser(space, user);
