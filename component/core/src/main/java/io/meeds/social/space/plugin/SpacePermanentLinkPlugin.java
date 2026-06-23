@@ -78,11 +78,9 @@ public class SpacePermanentLinkPlugin implements PermanentLinkPlugin {
         throw new ObjectNotFoundException(String.format("Space with id %s not found", object.getObjectId()));
       } else {
         String username = identity.getUserId();
-        return spaceService.isSuperManager(space, username)
-               || spaceService.isInvitedUser(space, username)
-               || spaceService.isMember(space, username)
-               || (!StringUtils.equals(Space.HIDDEN, space.getVisibility())
-                   && !StringUtils.equals(Space.CLOSED, space.getRegistration()));
+        return !StringUtils.equals(Space.CLOSED, space.getRegistration())
+               || spaceService.canViewSpace(space, username)
+               || spaceService.isInvitedUser(space, username);
       }
     }
   }

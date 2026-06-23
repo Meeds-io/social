@@ -406,6 +406,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     space.setVisibility(Space.HIDDEN);
+    space.setRegistration(Space.CLOSED);
     space = spaceService.updateSpace(space);
     avatarUrl = space.getAvatarUrl().replace("/portal/rest", "");
 
@@ -440,6 +441,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     space.setVisibility(Space.HIDDEN);
+    space.setRegistration(Space.CLOSED);
     space = spaceService.updateSpace(space);
     avatarUrl = space.getAvatarUrl().replace("/portal/rest", "");
 
@@ -529,6 +531,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     space.setVisibility(Space.HIDDEN);
+    space.setRegistration(Space.CLOSED);
     space = spaceService.updateSpace(space);
     restartTransaction();
     space = spaceService.getSpaceById(space.getId());
@@ -563,6 +566,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     space.setVisibility(Space.HIDDEN);
+    space.setRegistration(Space.CLOSED);
     space = spaceService.updateSpace(space);
     restartTransaction();
     space = spaceService.getSpaceById(space.getId());

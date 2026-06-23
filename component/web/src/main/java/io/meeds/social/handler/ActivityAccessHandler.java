@@ -93,9 +93,7 @@ public class ActivityAccessHandler extends WebRequestHandler {
         }
         String spaceId = activity.getSpaceId();
         Space space = spaceService.getSpaceById(spaceId);
-        if (space == null || Space.HIDDEN.equals(space.getVisibility())) {
-          return false;
-        } else if (username == null) {
+        if (space == null || username == null) {
           return false;
         } else {
           processSpaceAccess(controllerContext, authenticatedUserIdentity.getUserId(), space);
