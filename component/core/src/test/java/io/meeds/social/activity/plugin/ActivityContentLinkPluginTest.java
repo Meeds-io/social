@@ -105,7 +105,7 @@ public class ActivityContentLinkPluginTest extends AbstractSpringConfigurationTe
                                               identity);
     assertNotNull(activity);
     assertNotNull(activity.getId());
-
+    Thread.sleep(150);
     List<ContentLink> links = contentLinkService.getLinks(new ContentObject(ActivityContentLinkPlugin.OBJECT_TYPE,
                                                                             activity.getId()),
                                                           null,

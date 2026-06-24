@@ -52,6 +52,15 @@ public interface ContentLinkService {
    */
   void saveLinks(ContentObject contentObject,
                  List<? extends ContentObjectIdentifier> links);
+  
+  /**
+   * Saves the {@link List} of Links attached to the designated Object asyncronously
+   * 
+   * @param contentObject {@link ContentObject}
+   * @param links {@link List} of {@link ContentObjectIdentifier} to attach
+   */
+  void saveLinksAsync(ContentObject contentObject,
+                      List<? extends ContentObjectIdentifier> links);
 
   /**
    * Delete the {@link List} of Links attached to the designated Object

@@ -159,6 +159,7 @@ public class ContentLinkHtmlProcessorPluginTest extends AbstractSpringConfigurat
 
     for (int i = 0; i < 5; i++) {
       assertEquals(CONTENT_LINK, HtmlUtils.process(CONTENT_LINK, CONTENT_OBJECT_CONTEXT));
+      Thread.sleep(150);
       links = contentLinkService.getLinks(CONTENT_OBJECT,
                                           Locale.ENGLISH,
                                           userAcl.getSuperUser());
@@ -167,7 +168,7 @@ public class ContentLinkHtmlProcessorPluginTest extends AbstractSpringConfigurat
     }
 
     assertEquals(CONTENT_LINK_NOT_FOUND, HtmlUtils.process(CONTENT_LINK_NOT_FOUND, CONTENT_OBJECT_CONTEXT));
-
+    Thread.sleep(150);
     links = contentLinkService.getLinks(CONTENT_OBJECT,
                                         Locale.ENGLISH,
                                         userAcl.getSuperUser());
@@ -186,6 +187,7 @@ public class ContentLinkHtmlProcessorPluginTest extends AbstractSpringConfigurat
 
     for (int i = 0; i < 5; i++) {
       assertEquals(CONTENT_LINK_RESULT, HtmlUtils.process(CONTENT_LINK_RESULT, CONTENT_OBJECT_CONTEXT));
+      Thread.sleep(150);
       links = contentLinkService.getLinks(CONTENT_OBJECT,
                                           Locale.ENGLISH,
                                           userAcl.getSuperUser());
@@ -203,7 +205,7 @@ public class ContentLinkHtmlProcessorPluginTest extends AbstractSpringConfigurat
         """.replace("\n", "").trim();
 
     assertEquals(html, HtmlUtils.process(html, CONTENT_OBJECT_CONTEXT));
-
+    Thread.sleep(150);
     List<ContentLink> links = contentLinkService.getLinks(CONTENT_OBJECT,
                                                           Locale.ENGLISH,
                                                           userAcl.getSuperUser());
@@ -219,7 +221,7 @@ public class ContentLinkHtmlProcessorPluginTest extends AbstractSpringConfigurat
         """.replace("\n", "").trim();
 
     assertEquals(html, HtmlUtils.process(html, CONTENT_OBJECT_CONTEXT));
-
+    Thread.sleep(150);
     List<ContentLink> links = contentLinkService.getLinks(CONTENT_OBJECT,
                                                           Locale.ENGLISH,
                                                           userAcl.getSuperUser());

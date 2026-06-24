@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
 
+import io.meeds.common.ContainerTransactional;
 import io.meeds.social.cms.model.ContentLink;
 import io.meeds.social.cms.model.ContentLinkExtension;
 import io.meeds.social.cms.model.ContentLinkIdentifier;
@@ -36,18 +39,33 @@ import io.meeds.social.cms.model.ContentLinkSearchResult;
 import io.meeds.social.cms.model.ContentObject;
 import io.meeds.social.cms.model.ContentObjectIdentifier;
 import io.meeds.social.cms.storage.ContentLinkStorage;
-
-import lombok.AllArgsConstructor;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ContentLinkServiceImpl implements ContentLinkService {
 
-  private ContentLinkPluginService contentLinkPluginService;
+  private final ContentLinkPluginService contentLinkPluginService;
 
-  private UserACL                  userAcl;
+  private final UserACL                  userAcl;
 
-  private ContentLinkStorage       contentLinkStorage;
+  private final ContentLinkStorage       contentLinkStorage;
+  
+  private ExecutorService                executorService;
+
+  @PostConstruct
+  public void init() {
+    executorService = Executors.newCachedThreadPool();
+  }
+
+  @PreDestroy
+  public void stop() {
+    if (executorService != null) {
+      executorService.shutdown();
+    }
+  }
 
   @Override
   public List<ContentLinkExtension> getExtensions() {
@@ -118,6 +136,11 @@ public class ContentLinkServiceImpl implements ContentLinkService {
   public void saveLinks(ContentObject contentObject, List<? extends ContentObjectIdentifier> links) {
     contentLinkStorage.saveLinks(contentObject, links);
   }
+  
+  @Override
+  public void saveLinksAsync(ContentObject contentObject, List<? extends ContentObjectIdentifier> links) {
+    executorService.execute(() -> saveLinksTransactional(contentObject, links));
+  }
 
   @Override
   public void deleteLinks(ContentObjectIdentifier contentObject) {
@@ -163,6 +186,11 @@ public class ContentLinkServiceImpl implements ContentLinkService {
     return userAcl.hasEditPermission(contentObject.getObjectType(),
                                      contentObject.getObjectId(),
                                      username);
+  }
+
+  @ContainerTransactional
+  protected void saveLinksTransactional(ContentObject contentObject, List<? extends ContentObjectIdentifier> links) {
+    saveLinks(contentObject, links);
   }
 
 }
