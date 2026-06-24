@@ -67,7 +67,7 @@ public class ContentLinkHtmlProcessorPlugin implements HtmlProcessorPlugin {
   public String process(String html, HtmlProcessorContext context) {
     String formattedHtml = replaceDataObjectTag(html);
     List<ContentLinkIdentifier> links = getContentLinkFromTag(formattedHtml, context);
-    contentLinkService.saveLinks(new ContentObject(context.getObjectType(),
+    contentLinkService.saveLinksAsync(new ContentObject(context.getObjectType(),
                                                    context.getObjectId(),
                                                    context.getFieldName(),
                                                    context.getLocale()),
