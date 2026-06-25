@@ -209,7 +209,6 @@ export default {
       } else {
         this.message = null;
       }
-
       if (this.$refs.commentEditor) {
         this.$refs.commentEditor.initCKEditor(false, this.message);
         this.initialized = true;
