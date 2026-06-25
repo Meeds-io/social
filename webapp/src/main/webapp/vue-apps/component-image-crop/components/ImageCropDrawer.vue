@@ -627,7 +627,9 @@ export default {
               this.sendingImage = false;
               return;
             }
-            this.$uploadService.upload(blob)
+            const extension = this.mimetype.split('/')[1];
+            const file = new File([blob], `cropped.${extension}`, { type: this.mimetype });
+            this.$uploadService.upload(file)
               .then(uploadId => {
                 if (uploadId) {
                   const reader = new FileReader();
@@ -640,7 +642,7 @@ export default {
                       linkUrl: this.linkUrl || '',
                       linkTarget: this.linkTarget || '',
                       format: this.format || '',
-                      mimetype: this.mimeType || ''
+                      mimetype: this.mimetype || ''
                     });
                     self.$forceUpdate();
                   };
