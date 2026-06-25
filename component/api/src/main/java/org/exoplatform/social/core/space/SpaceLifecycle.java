@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.space;
 
+import io.meeds.social.space.plugin.SpaceExtendedPermissionsLifeCycleEvent;
 import io.meeds.social.space.plugin.SpaceInvitationLifeCycleEvent;
 import org.exoplatform.social.common.lifecycle.AbstractLifeCycle;
 import org.exoplatform.social.core.space.model.Space;
@@ -27,13 +28,14 @@ import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 
 import io.meeds.social.space.plugin.SpaceCategoryLifeCycleEvent;
 
+import java.util.*;
+
 /**
  * Implementation of the lifecycle of spaces. <br>
  * Events are dispatched asynchronously but sequentially to their listeners
  * according to their type.<br>
  * Listeners may fail, this is safe for the lifecycle, subsequent listeners will
  * still be called.
- *
  */
 public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, SpaceLifeCycleEvent> {
 
@@ -144,12 +146,15 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
       break;
     case SPACE_SOVEREIGNTY:
       listener.spaceSovereigntyEdited(event);
-      break; 
+      break;
     case SPACE_TEMPLATE_APPLIED:
       listener.templateApplied(event);
       break;
     case USER_JOINED_BY_INVITATION_LINK:
       listener.userJoinedByInvitationLink((SpaceInvitationLifeCycleEvent) event);
+      break;
+    case EXTENDED_PERMISSIONS_UPDATED:
+      listener.extendedPermissionsUpdated((SpaceExtendedPermissionsLifeCycleEvent) event);
       break;
     default:
       break;
@@ -195,7 +200,7 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
   public void spaceBannerEdited(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_BANNER_EDITED));
   }
-  
+
   public void spaceAccessEdited(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_HIDDEN));
   }
@@ -262,6 +267,31 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
 
   public void userJoinedByInvitationLink(Space space, String userId, String inviterId) {
     broadcast(new SpaceInvitationLifeCycleEvent(space, userId, Type.USER_JOINED_BY_INVITATION_LINK, inviterId));
+  }
+
+  public void extendedPermissionsUpdated(Space oldSpace, Space newSpace, String userId) {
+    List<String> addedPropertiesKeys = newSpace.getExtendedPermissions()
+                                               .keySet()
+                                               .stream()
+                                               .filter(k -> oldSpace.getExtendedPermissions() == null
+                                                   || !oldSpace.getExtendedPermissions().containsKey(k))
+                                               .toList();
+    List<String> updatedValuesKeys = newSpace.getExtendedPermissions()
+                                             .keySet()
+                                             .stream()
+                                             .filter(k -> oldSpace.getExtendedPermissions() != null
+                                                 && oldSpace.getExtendedPermissions().containsKey(k)
+                                                 && !Objects.equals(oldSpace.getExtendedPermissions().get(k),
+                                                                   newSpace.getExtendedPermissions().get(k)))
+                                             .toList();
+    Set<String> set = new HashSet<>(addedPropertiesKeys);
+    set.addAll(updatedValuesKeys);
+
+    List<String> changedPermissions = new ArrayList<>(set);
+    broadcast(new SpaceExtendedPermissionsLifeCycleEvent(newSpace,
+                                                         userId,
+                                                         Type.EXTENDED_PERMISSIONS_UPDATED,
+                                                         changedPermissions));
   }
 
   private boolean isSpaceProperEvent(SpaceLifeCycleEvent event) {
