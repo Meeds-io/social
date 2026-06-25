@@ -640,7 +640,7 @@ export default {
                       linkUrl: this.linkUrl || '',
                       linkTarget: this.linkTarget || '',
                       format: this.format || '',
-                      mimetype: this.mimeType || ''
+                      mimetype: this.mimetype || ''
                     });
                     self.$forceUpdate();
                   };
