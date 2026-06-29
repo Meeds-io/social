@@ -536,6 +536,42 @@ public class SpaceRest implements ResourceContainer {
   }
 
   @GET
+  @Path("bulk")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @Operation(summary = "Gets spaces by a list of ids", method = "GET", description = "Returns accessible spaces matching the provided ids, silently skipping deleted or inaccessible ones")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response getSpacesByIds(
+                                 @Context
+                                 UriInfo uriInfo,
+                                 @Parameter(description = "List of space ids to retrieve", required = true)
+                                 @QueryParam("id")
+                                 List<String> ids,
+                                 @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false)
+                                 @QueryParam("expand")
+                                 String expand) {
+    if (CollectionUtils.isEmpty(ids)) {
+      return Response.status(Status.BAD_REQUEST).entity("At least one space id is required").build();
+    }
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    List<Space> spaces = ids.stream()
+                            .map(spaceService::getSpaceById)
+                            .filter(space -> space != null
+                                && (!Space.HIDDEN.equals(space.getVisibility())
+                                    || spaceService.canViewSpace(space, authenticatedUser)))
+                            .toList();
+    CollectionEntity collectionSpace = EntityBuilder.buildEntityFromSpaces(spaces,
+                                                                           authenticatedUser,
+                                                                           0,
+                                                                           ids.size(),
+                                                                           expand,
+                                                                           uriInfo);
+    return Response.ok(collectionSpace).build();
+  }
+
+  @GET
   @Path("countByTemplate")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("administrators")

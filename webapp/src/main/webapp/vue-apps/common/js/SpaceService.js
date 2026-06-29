@@ -50,6 +50,28 @@ export function declineExternalInvitation(spaceId, invitationId) {
   });
 }
 
+export function getSpacesByIds(ids, expand) {
+  if (!ids?.length) {
+    return Promise.resolve([]);
+  }
+  expand = expand || '';
+  const params = new URLSearchParams();
+  ids.forEach(id => params.append('id', id));
+  if (expand) {
+    params.append('expand', expand);
+  }
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/bulk?${params.toString()}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  }).then(data => data?.spaces || []);
+}
+
 export function getSpaceById(spaceId, expand, forceRefresh) {
   expand = expand || '';
   const key = `${spaceId}-${expand}`;
