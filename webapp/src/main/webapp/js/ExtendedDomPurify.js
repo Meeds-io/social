@@ -34,6 +34,7 @@
     content = decodeEntitiesInUrls(content);
     content = content.replace(/<div> <\/div>/g, '<div><br><\/div>');
     content = content.trim().replace(/>[ \n]+</g, '> <').replace(/  /g, '&nbsp;&nbsp;');
+    // FIXME a workaround for https://github.com/Meeds-io/social/pull/github.com/gregjacobs/Autolinker.js/issues/393
     content = content.replace(/\b[a-zA-Z][a-zA-Z0-9+\-.]*:\/?\/?[^\s<>"'@&]+(?:@|&#64;)[^\s<>"'<>]+/gi, url => `<a href="${url}">${url}</a>`);
     const pureHtml = DOMPurify.sanitize(Autolinker.link(content, {
       email: false,
