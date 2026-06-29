@@ -22,6 +22,7 @@
       :object-id="attachmentObjectId"
       :object-type="objectType"
       :images="attachedFiles"
+      :linkable="linkable"
       @delete="deleteImage" />
     <attachments-image-input-multi-upload
       ref="uploadInput"
@@ -49,6 +50,10 @@ export default {
       type: Boolean,
       default: false
     },
+    linkable: {
+      type: Boolean,
+      default: true
+    }
   },
   data: () => ({
     images: [],
