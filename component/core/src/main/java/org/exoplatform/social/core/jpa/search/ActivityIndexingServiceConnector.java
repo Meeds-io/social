@@ -181,7 +181,10 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     // in field 'description'
     if (activity.getTemplateParams() != null && activity.getTemplateParams().containsKey("description")) {
       body += '\n';
-      body += activity.getTemplateParams().get("description");
+      String description = activity.getTemplateParams().get("description");
+      if (StringUtils.isNotBlank(description)) {
+        body += description;
+      }
     }
 
     // Ensure to index text only without html tags
