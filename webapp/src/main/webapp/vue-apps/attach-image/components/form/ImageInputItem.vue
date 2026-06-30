@@ -85,6 +85,10 @@ export default {
       type: String,
       default: null
     },
+    link: {
+      type: Boolean,
+      default: true
+    }
   },
   computed: {
     imageItem() {
@@ -105,7 +109,12 @@ export default {
       if (this.imageItem?.src) {
         this.imageItem.src = this.imageItem.src.split('&')[0];
       }
-      document.dispatchEvent(new CustomEvent('attachments-image-open-crop-drawer',{detail: this.imageItem}));
+      document.dispatchEvent(new CustomEvent('attachments-image-open-crop-drawer',{
+        detail: {
+          imageItem: this.imageItem,
+          noLink: !this.link,
+        }
+      }));
     },
   }
 };

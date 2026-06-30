@@ -27,8 +27,8 @@
     :back-icon="backIcon"
     :use-format="useFormat"
     :custom-format="!useFormat"
+    :link="!noLink"
     alt
-    link
     @apply="forwardUpdate" />
 </template>
 <script>
@@ -61,6 +61,7 @@ export default {
   data: () => ({
     imageItem: null,
     maxFileSize: 20971520,
+    noLink: false,
   }),
   computed: {
     imageCropperSrc() {
@@ -79,10 +80,14 @@ export default {
   },
   methods: {
     openAttachmentCropDrawer(event) {
-      this.open(event?.detail);
+      const detail = event?.detail || {};
+      const imageItem = detail.imageItem || detail;
+      const noLink = detail?.noLink;
+      this.open(imageItem, noLink);
     },
-    open(imageItem) {
+    open(imageItem, noLink) {
       this.imageItem = imageItem;
+      this.noLink = !!noLink;
       this.$refs.drawer.open(this.imageItem);
     },
     forwardUpdate(data) {
