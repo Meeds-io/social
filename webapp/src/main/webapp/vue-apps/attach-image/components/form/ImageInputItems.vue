@@ -26,6 +26,7 @@
         :image="image"
         :object-id="objectId"
         :object-type="objectType"
+        :link="linkable"
         @delete="$emit('delete', $event)" />
     </v-list-item>
     <v-list-item class="px-2">
@@ -56,6 +57,10 @@ export default {
       type: String,
       default: null,
     },
+    linkable: {
+      type: Boolean,
+      default: true
+    }
   },
   methods: {
     openFileExplorer() {
