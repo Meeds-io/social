@@ -37,6 +37,7 @@
       :object-type="objectType"
       :object-id="objectId"
       :disable-paste="disableImageAttachmentPaste"
+      :linkable="linkableImages"
       @changed="emitChanges" />
   </div>
 </template>
@@ -203,6 +204,10 @@ export default {
       type: String,
       default: null,
     },
+    linkableImages: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     SMARTPHONE_LANDSCAPE_WIDTH: 768,
