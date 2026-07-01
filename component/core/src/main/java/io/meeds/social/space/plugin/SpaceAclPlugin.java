@@ -80,7 +80,7 @@ public class SpaceAclPlugin implements AclPlugin {
         yield spaceService.canDeleteSpace(space, username);
       }
       case LIST_PERMISSION_TYPE: {
-        yield spaceService.canViewSpace(space, username);
+        yield spaceService.canListSpace(space, username);
       }
       case REDACT_PERMISSION_TYPE: {
         yield spaceService.canRedactOnSpace(space, username);
