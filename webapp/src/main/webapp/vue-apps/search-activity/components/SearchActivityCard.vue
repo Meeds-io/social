@@ -9,15 +9,12 @@
         <v-list-item>
           <v-list-item-icon class="me-2 pt-1">
             <span class="d-flex align-center justify-center pt-2px">
-              <v-avatar
-                size="32"
-                class="flex-shrink-0">
-                <img
-                  :src="posterAvatar"
-                  class="object-fit-cover ma-auto"
-                  loading="lazy"
-                  alt="">
-              </v-avatar>
+              <exo-user-avatar
+                :identity="posterIdentity"
+                :size="32"
+                :extra-class="'object-fit-cover ma-auto'" 
+                popover
+                avatar />
             </span>
           </v-list-item-icon>
 
@@ -25,9 +22,13 @@
             <v-list-item-title class="d-flex flex-row full-width align-center">
               <div class="d-flex flex-row align-center flex-grow-1 text-truncate">
                 <span
-                  class="title pt-1 mb-0 ps-0 my-auto text-start text-truncate primary--text"
+                  class="d-inline-flex title pt-1 mb-0 ps-0 my-auto text-start text-truncate primary--text"
                   :aria-label="activityTitleText">
-                  {{ posterName }}
+                  <exo-user-avatar
+                    :identity="posterIdentity"
+                    fullname
+                    popover
+                    link-style />
                   <span v-if="isSpaceStreamOwner">
                     <v-icon class="icon-default-color ms-1" size="14">
                       fas fa-chevron-right
@@ -141,6 +142,9 @@ export default {
     },
     poster() {
       return this.activity?.poster?.profile;
+    },
+    posterIdentity() {
+      return this.activity?.poster?.profile?.dataEntity;
     },
     posterAvatar() {
       return this.poster?.avatar;
