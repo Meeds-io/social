@@ -100,11 +100,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     validateMetadata(metadata);
     validateUserIdentityId(userIdentityId);
     metadata = metadataStorage.updateMetadata(metadata);
-    try {
-      this.listenerService.broadcast("social.metadata.updated", userIdentityId, metadata);
-    } catch (Exception e) {
-      LOG.warn("Error while broadcasting event for metadata update", e);
-    }
+    this.listenerService.broadcast("social.metadata.updated", userIdentityId, metadata);
     return metadata;
 
   }
@@ -217,11 +213,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     validateUserIdentityId(userIdentityId);
     metadataItem = metadataStorage.updateMetadataItem(metadataItem);
     if (broadcast) {
-      try {
-        this.listenerService.broadcast("social.metadataItem.updated", userIdentityId, metadataItem);
-      } catch (Exception e) {
-        LOG.warn("Error while broadcasting event for metadataItem update", e);
-      }
+      this.listenerService.broadcast("social.metadataItem.updated", userIdentityId, metadataItem);
     }
     return metadataItem;
   }
@@ -240,11 +232,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     }
     metadataItem = this.metadataStorage.deleteMetadataItemById(itemId);
     if (broadcast) {
-      try {
-        this.listenerService.broadcast("social.metadataItem.deleted", 0l, metadataItem);
-      } catch (Exception e) {
-        LOG.warn("Error while broadcasting event for metadata item deleted", e);
-      }
+      this.listenerService.broadcast("social.metadataItem.deleted", 0l, metadataItem);
     }
     return metadataItem;
   }
@@ -343,11 +331,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
         sharedMetadataItems.add(sharedMetadataItem);
       }
     }
-    try {
-      this.listenerService.broadcast("social.metadataItem.shared", sourceObject, targetObjectId);
-    } catch (Exception e) {
-      LOG.warn("Error while broadcasting event for metadata item shared", e);
-    }
+    this.listenerService.broadcast("social.metadataItem.shared", sourceObject, targetObjectId);
     return sharedMetadataItems;
   }
 
@@ -724,23 +708,26 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   private Metadata createMetadataAndBroadcast(Metadata metadata, long userIdentityId) {
-    metadata = metadataStorage.createMetadata(metadata);
     try {
-      this.listenerService.broadcast("social.metadata.created", userIdentityId, metadata);
+      Metadata createdMetadata = metadataStorage.createMetadata(metadata);
+      this.listenerService.broadcast("social.metadata.created", userIdentityId, createdMetadata);
+      return createdMetadata;
     } catch (Exception e) {
-      LOG.warn("Error while broadcasting event for metadata creation", e);
+      Metadata createdMetadata = metadataStorage.getMetadataByKey(new MetadataKey(metadata.getType().getName(),
+                                                                                  metadata.getName(),
+                                                                                  metadata.getAudienceId()));
+      if (createdMetadata != null) {
+        return createdMetadata;
+      } else {
+        throw e;
+      }
     }
-    return metadata;
   }
 
   private MetadataItem createMetadataItem(MetadataItem metadataItem, long userIdentityId, boolean broadcast) {
     metadataItem = metadataStorage.createMetadataItem(metadataItem);
     if (broadcast) {
-      try {
-        this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadataItem);
-      } catch (Exception e) {
-        LOG.warn("Error while broadcasting event for metadata item creation", e);
-      }
+      this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadataItem);
     }
     return metadataItem;
   }
@@ -817,11 +804,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   private void broadcastDeleted(MetadataItem metadataItem, long userIdentityId) {
-    try {
-      this.listenerService.broadcast("social.metadataItem.deleted", userIdentityId, metadataItem);
-    } catch (Exception e) {
-      LOG.warn("Error while broadcasting event for metadata item deleted", e);
-    }
+    this.listenerService.broadcast("social.metadataItem.deleted", userIdentityId, metadataItem);
   }
 
   private long getSuperUserIdentityId() {
