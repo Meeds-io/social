@@ -76,6 +76,7 @@
     <v-flex>
       <v-list-item-action
         id="HamburgerMenuSpaceLeftNavigationActions"
+        :key="space"
         class="my-0 pt-3 pb-0 d-flex flex-row align-center justify-end me-0">
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">

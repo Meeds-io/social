@@ -22,6 +22,7 @@
 -->
 <template>
   <v-card
+    v-if="displayed"
     :width="iconOnly && 36 || 'auto'"
     flat>
     <v-tooltip :disabled="extension.title && ($root.isMobile || !iconOnly)" bottom>
@@ -84,6 +85,16 @@ export default {
       type: Boolean,
       default: false,
     },
+  },
+  data: () => ({
+    displayed: false,
+  }),
+  async created() {
+    if (this.space?.id && this.extension.enabled) {
+      this.displayed = await Promise.resolve(this.extension.enabled(this.space));
+    } else {
+      this.displayed = true;
+    }
   },
   computed: {
     iconOnly() {
