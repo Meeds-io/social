@@ -450,10 +450,7 @@ public class SpaceMembershipRest implements ResourceContainer {
     } else if (space == null) {
       return StringUtils.equals(targetUser, authenticatedUser);
     } else {
-      return !Space.HIDDEN.equals(space.getVisibility())
-             || spaceService.canViewSpace(space, authenticatedUser)
-             || spaceService.isInvitedUser(space,
-                                           authenticatedUser);
+      return spaceService.canListSpace(space, authenticatedUser);
     }
   }
 
