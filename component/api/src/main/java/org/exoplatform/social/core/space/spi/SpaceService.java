@@ -661,6 +661,18 @@ public interface SpaceService {
   }
 
   /**
+   * checks whether the user can list the space or not
+   *
+   * @param space {@link Space}
+   * @param username
+   * @return true if can list the space, else false
+   */
+  default boolean canListSpace(Space space, String username) {
+    return space != null
+        && (!Space.HIDDEN.equals(space.getVisibility()) || canViewSpace(space, username) || isInvitedUser(space, username));
+  }
+
+  /**
    * Checks whether the user can access Space Public Site or not
    * 
    * @param space {@link Space}
