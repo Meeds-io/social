@@ -25,7 +25,7 @@
             :placeholder="$t('GroupsManagement.namePlaceholder')"
             type="text"
             class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000"
+            maxlength="30"
             required>
         </v-card-text>
 
@@ -40,7 +40,7 @@
             :placeholder="$t('GroupsManagement.labelPlaceholder')"
             type="text"
             class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000"
+            maxlength="50"
             required>
         </v-card-text>
 
