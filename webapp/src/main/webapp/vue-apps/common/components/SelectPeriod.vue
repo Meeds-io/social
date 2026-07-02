@@ -243,7 +243,7 @@ export default {
       if (this.selectedPeriodName) {
         selectedPeriod.period = this.selectedPeriodName;
 
-        this.fromTime = '00:00';
+        this.fromTime = '00:00:00';
         this.toTime = '23:59:59';
 
         const today = new Date();
@@ -330,7 +330,7 @@ export default {
     },
     selectCustomDates() {
       this.selectedPeriodName = null;
-      this.fromTime = '00:00';
+      this.fromTime = '00:00:00';
       this.toTime = '23:59:59';
       this.selectDates();
     },
