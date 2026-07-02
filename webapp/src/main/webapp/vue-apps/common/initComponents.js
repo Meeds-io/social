@@ -54,6 +54,7 @@ import SerializeDrawer from './components/SerializeDrawer.vue';
 import ContentLinkDrawer from './components/ContentLinkDrawer.vue';
 import StickyPositionElement from './components/StickyPositionElement.vue';
 import FloatingArrowButton from './components/FloatingArrowButton.vue';
+import SelectPeriod from './components/SelectPeriod.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -102,7 +103,8 @@ const components = {
   'serialize-drawer': SerializeDrawer,
   'content-link-drawer': ContentLinkDrawer,
   'sticky-position-element': StickyPositionElement,
-  'floating-arrow-button': FloatingArrowButton
+  'floating-arrow-button': FloatingArrowButton,
+  'select-period': SelectPeriod,
 };
 
 for (const key in components) {
