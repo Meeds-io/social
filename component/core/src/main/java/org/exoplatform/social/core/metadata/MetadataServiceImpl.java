@@ -31,6 +31,7 @@ import org.picocontainer.Startable;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
@@ -48,6 +49,8 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
+
+import lombok.Synchronized;
 
 @SuppressWarnings("removal")
 public class MetadataServiceImpl implements MetadataService, Startable {
@@ -707,12 +710,22 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     return metadata;
   }
 
+  @Synchronized
   private Metadata createMetadataAndBroadcast(Metadata metadata, long userIdentityId) {
     try {
+      // Need to commit previous changes in order to not rollback the entire
+      // transaction if an error happens
+      RequestLifeCycle.restartTransaction();
       Metadata createdMetadata = metadataStorage.createMetadata(metadata);
+      // Need to commit changes in order to propagate changes through JPA
+      // Sessions
+      RequestLifeCycle.restartTransaction();
       this.listenerService.broadcast("social.metadata.created", userIdentityId, createdMetadata);
       return createdMetadata;
     } catch (Exception e) {
+      // Need to restart a clean transaction knowing that the previous one will
+      // be roolbacked
+      RequestLifeCycle.restartTransaction();
       Metadata createdMetadata = metadataStorage.getMetadataByKey(new MetadataKey(metadata.getType().getName(),
                                                                                   metadata.getName(),
                                                                                   metadata.getAudienceId()));
