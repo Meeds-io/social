@@ -135,7 +135,7 @@ export default {
       menu: false,
       lang: eXo.env.portal.language && eXo.env.portal.language.replace('_', '-'),
       dates: [],
-      fromTime: '00:00',
+      fromTime: '00:00:00',
       toTime: '23:59:59',
       selectedPeriodName: this.defaultPeriod,
       menuId: `SelectPeriodMenu${parseInt(Math.random() * 10000).toString()}`,
@@ -206,11 +206,11 @@ export default {
       if (newVal && !oldVal && newVal !== oldVal) {
         if (this.value) {
           this.dates = [
-            this.fromDate.toLocaleDateString('sv-SV'),
-            this.toDate.toLocaleDateString('sv-SV'),
+            this.fromDate.toLocaleDateString(),
+            this.toDate.toLocaleDateString(),
           ];
-          this.fromTime = this.fromDate.toLocaleTimeString('sv-SV').substring(0, 5);
-          this.toTime = this.toDate.toLocaleTimeString('sv-SV').substring(0, 5);
+          this.fromTime = this.fromDate.toLocaleTimeString().substring(0, 5);
+          this.toTime = this.toDate.toLocaleTimeString().substring(0, 5);
         }
       }
     },
@@ -322,7 +322,7 @@ export default {
           this.dates[1] = tmp;
         }
         selectedPeriod.min = new Date(`${this.dates[0]}T${this.fromTime || '00:00'}`).getTime();
-        selectedPeriod.max = new Date(`${this.dates[1]}T${this.toTime || '23:59:59'}`).getTime();
+        selectedPeriod.max = new Date(`${this.dates[1]}T${this.toTime || '23:59:59'}.999`).getTime();
         this.$emit('input', selectedPeriod);
         return true;
       }
