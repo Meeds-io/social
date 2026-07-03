@@ -127,6 +127,7 @@
             :max-file-size="$root.maxFileSize"
             :suggester-space-id="spaceId"
             :activity-id="activityId"
+            :linkable-images="false"
             class="activityRichEditor"
             ck-editor-type="activityContent"
             context-name="activityComposer"
