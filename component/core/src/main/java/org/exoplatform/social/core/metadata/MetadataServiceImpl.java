@@ -475,7 +475,9 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   public int countMetadataItemsByMetadataTypeAndObjectTypeAndCreator(String metadataTypeName, String objectType, long creatorId) {
     MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
     validateUserIdentityId(creatorId);
-    return this.metadataStorage.countMetadataItemsByMetadataTypeAndObjectTypeAndCreator(metadataType.getId(), objectType, creatorId);
+    return this.metadataStorage.countMetadataItemsByMetadataTypeAndObjectTypeAndCreator(metadataType.getId(),
+                                                                                        objectType,
+                                                                                        creatorId);
   }
 
   public Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId(String metadataTypeName, long creatorId, long spaceId) {
@@ -712,10 +714,17 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   @Synchronized
   private Metadata createMetadataAndBroadcast(Metadata metadata, long userIdentityId) {
+    // Need to commit previous changes in order to not rollback the entire
+    // transaction if an error happens
+    RequestLifeCycle.restartTransaction();
+    MetadataKey metadataKey = new MetadataKey(metadata.getType().getName(),
+                                              metadata.getName(),
+                                              metadata.getAudienceId());
+    Metadata existingMetadata = metadataStorage.getMetadataByKey(metadataKey);
+    if (existingMetadata != null) {
+      return existingMetadata;
+    }
     try {
-      // Need to commit previous changes in order to not rollback the entire
-      // transaction if an error happens
-      RequestLifeCycle.restartTransaction();
       Metadata createdMetadata = metadataStorage.createMetadata(metadata);
       // Need to commit changes in order to propagate changes through JPA
       // Sessions
@@ -726,9 +735,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
       // Need to restart a clean transaction knowing that the previous one will
       // be roolbacked
       RequestLifeCycle.restartTransaction();
-      Metadata createdMetadata = metadataStorage.getMetadataByKey(new MetadataKey(metadata.getType().getName(),
-                                                                                  metadata.getName(),
-                                                                                  metadata.getAudienceId()));
+      Metadata createdMetadata = metadataStorage.getMetadataByKey(metadataKey);
       if (createdMetadata != null) {
         return createdMetadata;
       } else {
