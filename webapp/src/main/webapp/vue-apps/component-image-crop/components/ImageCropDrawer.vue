@@ -627,8 +627,9 @@ export default {
               this.sendingImage = false;
               return;
             }
-            const extension = this.mimetype.split('/')[1];
-            const file = new File([blob], `cropped.${extension}`, { type: this.mimetype });
+            const mimetype = this.mimetype || blob.type || 'image/png';
+            const extension = mimetype.split('/')[1];
+            const file = new File([blob], `cropped.${extension}`, { type: mimetype });
             this.$uploadService.upload(file)
               .then(uploadId => {
                 if (uploadId) {
