@@ -25,7 +25,12 @@
     color="transparent"
     flat>
     <div class="d-flex overflow-hidden full-width mb-2">
-      <slot v-if="$slots.label" name="label"></slot>
+      <slot
+        v-if="$scopedSlots.label"
+        name="label"
+        :open-categories-drawer="openCategoriesDrawer"
+        :has-categories="hasCategories"
+        :categories="sortedCategories"></slot>
       <div
         v-else
         :class="labelClass"
@@ -47,7 +52,7 @@
       color="primary"
       indeterminate />
     <v-list
-      v-if="hasCategories"
+      v-if="hasCategories && !hideCategoriesList"
       class="pa-0 mb-4 full-width overflow-hidden"
       dense>
       <v-list-item
@@ -99,7 +104,7 @@
       </v-list-item>
     </v-list>
     <v-card
-      v-else-if="!loading"
+      v-else-if="!loading && !hideAddButton"
       class="d-flex justify-center align-center mt-2 mb-4"
       width="100%"
       flat>
@@ -145,6 +150,14 @@ export default {
       default: false,
     },
     single: {
+      type: Boolean,
+      default: false,
+    },
+    hideAddButton: {
+      type: Boolean,
+      default: false,
+    },
+    hideCategoriesList: {
       type: Boolean,
       default: false,
     },
