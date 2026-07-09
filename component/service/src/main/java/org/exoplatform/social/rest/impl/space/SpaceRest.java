@@ -1122,8 +1122,8 @@ public class SpaceRest implements ResourceContainer {
       space.setSovereign(model.getSovereign().booleanValue());
     }
 
-    if (model.getExtendedPermissions() != null && !model.getExtendedPermissions().isEmpty()) {
-      space.setExtendedPermissions(model.getExtendedPermissions());
+    if (model.getExtendedProperties() != null && !model.getExtendedProperties().isEmpty()) {
+      space.setExtendedProperties(model.getExtendedProperties());
     }
 
     if (StringUtils.equalsIgnoreCase(Space.HIDDEN, model.getVisibility())) {

@@ -22,6 +22,8 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -96,6 +98,17 @@ public class SpaceAdministrationServiceTest {
   }
 
   @Test
+  public void testGetSpaceExtendedProperties() throws ObjectNotFoundException {
+    assertThrows(ObjectNotFoundException.class, () -> spaceAdministrationService.getSpaceExtendedProperties(spaceId));
+
+    when(spaceService.getSpaceById(spaceId)).thenReturn(space);
+    Map<String, String> extendedProperties = Collections.singletonMap("key", "value");
+    when(space.getExtendedProperties()).thenReturn(extendedProperties);
+
+    assertEquals(extendedProperties, spaceAdministrationService.getSpaceExtendedProperties(spaceId));
+  }
+
+  @Test
   public void testUpdateSpacePermissions() throws ObjectNotFoundException {
     SpacePermissions spacePermissions = mock(SpacePermissions.class);
     when(spacePermissions.getLayoutPermissions()).thenReturn(Collections.singletonList("layoutPermissions"));
@@ -109,6 +122,70 @@ public class SpaceAdministrationServiceTest {
     verify(space).setDeletePermissions(spacePermissions.getDeletePermissions());
     verify(space).setLayoutPermissions(spacePermissions.getLayoutPermissions());
     verify(space).setPublicSitePermissions(spacePermissions.getPublicSitePermissions());
+    verify(spaceService).updateSpace(space);
+  }
+
+  @Test
+  public void testUpdateSpaceExtendedPropertyWhenSpaceNotFound() {
+    assertThrows(ObjectNotFoundException.class,
+                 () -> spaceAdministrationService.updateSpaceExtendedProperty(spaceId, "key", "value"));
+  }
+
+  @Test
+  public void testUpdateSpaceExtendedPropertyWhenValueBlankRemovesProperty() throws ObjectNotFoundException {
+    when(spaceService.getSpaceById(spaceId)).thenReturn(space);
+    Map<String, String> existingProperties = new HashMap<>();
+    existingProperties.put("key", "value");
+    when(space.getExtendedProperties()).thenReturn(existingProperties);
+
+    spaceAdministrationService.updateSpaceExtendedProperty(spaceId, "key", " ");
+
+    verify(space).setExtendedProperties(Collections.emptyMap());
+    verify(spaceService).updateSpace(space);
+  }
+
+  @Test
+  public void testUpdateSpaceExtendedPropertyWhenValueNotBlankAddsProperty() throws ObjectNotFoundException {
+    when(spaceService.getSpaceById(spaceId)).thenReturn(space);
+    when(space.getExtendedProperties()).thenReturn(null);
+
+    spaceAdministrationService.updateSpaceExtendedProperty(spaceId, "key", "value");
+
+    verify(space).setExtendedProperties(Collections.singletonMap("key", "value"));
+    verify(spaceService).updateSpace(space);
+  }
+
+  @Test
+  public void testUpdateSpaceExtendedPropertiesWhenSpaceNotFound() {
+    assertThrows(ObjectNotFoundException.class,
+                 () -> spaceAdministrationService.updateSpaceExtendedProperties(spaceId, Collections.singletonMap("key", "value")));
+  }
+
+  @Test
+  public void testUpdateSpaceExtendedPropertiesWhenEmptyDoesNothing() throws ObjectNotFoundException {
+    when(spaceService.getSpaceById(spaceId)).thenReturn(space);
+
+    spaceAdministrationService.updateSpaceExtendedProperties(spaceId, null);
+    spaceAdministrationService.updateSpaceExtendedProperties(spaceId, Collections.emptyMap());
+
+    verify(space, never()).setExtendedProperties(any());
+    verify(spaceService, never()).updateSpace(any());
+  }
+
+  @Test
+  public void testUpdateSpaceExtendedPropertiesMergesWithExisting() throws ObjectNotFoundException {
+    when(spaceService.getSpaceById(spaceId)).thenReturn(space);
+    Map<String, String> existingProperties = new HashMap<>();
+    existingProperties.put("existingKey", "existingValue");
+    when(space.getExtendedProperties()).thenReturn(existingProperties);
+
+    Map<String, String> newProperties = Collections.singletonMap("newKey", "newValue");
+    spaceAdministrationService.updateSpaceExtendedProperties(spaceId, newProperties);
+
+    Map<String, String> expected = new HashMap<>();
+    expected.put("existingKey", "existingValue");
+    expected.put("newKey", "newValue");
+    verify(space).setExtendedProperties(expected);
     verify(spaceService).updateSpace(space);
   }
 

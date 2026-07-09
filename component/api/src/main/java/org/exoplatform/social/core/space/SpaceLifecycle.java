@@ -18,7 +18,7 @@
  */
 package org.exoplatform.social.core.space;
 
-import io.meeds.social.space.plugin.SpaceExtendedPermissionsLifeCycleEvent;
+import io.meeds.social.space.plugin.SpaceExtendedPropertiesLifeCycleEvent;
 import io.meeds.social.space.plugin.SpaceInvitationLifeCycleEvent;
 import org.exoplatform.social.common.lifecycle.AbstractLifeCycle;
 import org.exoplatform.social.core.space.model.Space;
@@ -153,8 +153,8 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
     case USER_JOINED_BY_INVITATION_LINK:
       listener.userJoinedByInvitationLink((SpaceInvitationLifeCycleEvent) event);
       break;
-    case EXTENDED_PERMISSIONS_UPDATED:
-      listener.extendedPermissionsUpdated((SpaceExtendedPermissionsLifeCycleEvent) event);
+    case EXTENDED_PROPERTIES_UPDATED:
+      listener.extendedPropertiesUpdated((SpaceExtendedPropertiesLifeCycleEvent) event);
       break;
     default:
       break;
@@ -269,29 +269,29 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
     broadcast(new SpaceInvitationLifeCycleEvent(space, userId, Type.USER_JOINED_BY_INVITATION_LINK, inviterId));
   }
 
-  public void extendedPermissionsUpdated(Space oldSpace, Space newSpace, String userId) {
-    List<String> addedPropertiesKeys = newSpace.getExtendedPermissions()
+  public void extendedPropertiesUpdated(Space oldSpace, Space newSpace, String userId) {
+    List<String> addedPropertiesKeys = newSpace.getExtendedProperties()
                                                .keySet()
                                                .stream()
-                                               .filter(k -> oldSpace.getExtendedPermissions() == null
-                                                   || !oldSpace.getExtendedPermissions().containsKey(k))
+                                               .filter(k -> oldSpace.getExtendedProperties() == null
+                                                   || !oldSpace.getExtendedProperties().containsKey(k))
                                                .toList();
-    List<String> updatedValuesKeys = newSpace.getExtendedPermissions()
+    List<String> updatedValuesKeys = newSpace.getExtendedProperties()
                                              .keySet()
                                              .stream()
-                                             .filter(k -> oldSpace.getExtendedPermissions() != null
-                                                 && oldSpace.getExtendedPermissions().containsKey(k)
-                                                 && !Objects.equals(oldSpace.getExtendedPermissions().get(k),
-                                                                   newSpace.getExtendedPermissions().get(k)))
+                                             .filter(k -> oldSpace.getExtendedProperties() != null
+                                                 && oldSpace.getExtendedProperties().containsKey(k)
+                                                 && !Objects.equals(oldSpace.getExtendedProperties().get(k),
+                                                                   newSpace.getExtendedProperties().get(k)))
                                              .toList();
     Set<String> set = new HashSet<>(addedPropertiesKeys);
     set.addAll(updatedValuesKeys);
 
-    List<String> changedPermissions = new ArrayList<>(set);
-    broadcast(new SpaceExtendedPermissionsLifeCycleEvent(newSpace,
+    List<String> changedProperties = new ArrayList<>(set);
+    broadcast(new SpaceExtendedPropertiesLifeCycleEvent(newSpace,
                                                          userId,
-                                                         Type.EXTENDED_PERMISSIONS_UPDATED,
-                                                         changedPermissions));
+                                                         Type.EXTENDED_PROPERTIES_UPDATED,
+                                                         changedProperties));
   }
 
   private boolean isSpaceProperEvent(SpaceLifeCycleEvent event) {

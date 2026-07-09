@@ -216,9 +216,9 @@ public class SpaceEntity implements Serializable {
 
   @Setter
   @Getter
-  @Column(name = "EXTENDED_PERMISSIONS")
+  @Column(name = "EXTENDED_PROPERTIES")
   @Convert(converter = StringMapConverter.class)
-  private Map<String, String>                      extendedPermissions;
+  private Map<String, String>                      extendedProperties;
 
   public List<Long> getCategoryIds() {
     return getCategories().stream().map(SpaceCategoryEntity::getCategoryId).toList();

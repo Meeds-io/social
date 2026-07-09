@@ -71,7 +71,7 @@
             :params="{
               'space' : space,
               'spaces': spaces,
-              'extendedPermissions': extendedPermissions,
+              'extendedProperties': extendedProperties,
             }"
             name="SpacesAdministrationPermissions"
             type="form-permission-management"
@@ -114,13 +114,14 @@ export default {
     originalLayoutPermissions: null,
     originalPublicSitePermissions: null,
     originalDeletePermissions: null,
+    originalExtendedProperties: null,
     spaces: null,
     selectionCount: null,
     callback: null,
     extendedFieldsModified: [],
-    extendedPermissions: null,
-    updatedExtendedPermissions: null,
-    updatedPermissionCount: 0,
+    extendedProperties: null,
+    updatedExtendedProperties: null,
+    updatedPropertiesCount: 0,
   }),
   computed: {
     modified() {
@@ -128,19 +129,19 @@ export default {
         || JSON.stringify(this.layoutPermissions) !== JSON.stringify(this.originalLayoutPermissions)
         || JSON.stringify(this.publicSitePermissions) !== JSON.stringify(this.originalPublicSitePermissions)
         || JSON.stringify(this.deletePermissions) !== JSON.stringify(this.originalDeletePermissions)
-        || this.updatedPermissionCount > 0;
+        || this.updatedPropertiesCount > 0;
     },
   },
   created() {
-    this.updatedExtendedPermissions = new Map();
+    this.updatedExtendedProperties = new Map();
     this.$root.$on('space-administration-permissions-drawer-open', this.open);
-    this.$root.$on('space-administration-permissions-drawer-extended-field-updated', this.addUpdatedExtendedPermission);
-    this.$root.$on('space-administration-permissions-drawer-extended-field-restored', this.removeUpdatedExtendedPermission);
+    this.$root.$on('space-administration-permissions-drawer-extended-field-updated', this.addUpdatedExtendedProperty);
+    this.$root.$on('space-administration-permissions-drawer-extended-field-restored', this.removeUpdatedExtendedProperty);
   },
   beforeDestroy() {
     this.$root.$off('space-administration-permissions-drawer-open', this.open);
-    this.$root.$off('space-administration-permissions-drawer-extended-field-updated', this.addUpdatedExtendedPermission);
-    this.$root.$off('space-administration-permissions-drawer-extended-field-restored', this.removeUpdatedExtendedPermission);
+    this.$root.$off('space-administration-permissions-drawer-extended-field-updated', this.addUpdatedExtendedProperty);
+    this.$root.$off('space-administration-permissions-drawer-extended-field-restored', this.removeUpdatedExtendedProperty);
 
   },
   methods: {
@@ -156,11 +157,11 @@ export default {
           this.originalLayoutPermissions = permissions.layoutPermissions;
           this.originalPublicSitePermissions = permissions.publicSitePermissions;
           this.originalDeletePermissions = permissions.deletePermissions;
-          this.originalExtendedPermissions = permissions.extendedPermissions;
+          this.originalExtendedProperties = await this.$spaceAdministrationService.getSpaceExtendedProperties(this.space.id);
           this.layoutPermissions = JSON.parse(JSON.stringify(this.originalLayoutPermissions));
           this.publicSitePermissions = JSON.parse(JSON.stringify(this.originalPublicSitePermissions));
           this.deletePermissions = JSON.parse(JSON.stringify(this.originalDeletePermissions));
-          this.extendedPermissions = JSON.parse(JSON.stringify(this.originalExtendedPermissions));
+          this.extendedProperties = this.originalExtendedProperties && JSON.parse(this.originalExtendedProperties) || null;
         } else {
           this.space = null;
           this.spaces = obj;
@@ -169,10 +170,11 @@ export default {
           this.originalLayoutPermissions = [];
           this.originalPublicSitePermissions = [];
           this.originalDeletePermissions = [];
+          this.originalExtendedProperties = [];
           this.layoutPermissions = [];
           this.publicSitePermissions = [];
           this.deletePermissions = [];
-          this.extendedPermissions = {};
+          this.extendedProperties = {};
         }
       } finally {
         this.loading = false;
@@ -184,12 +186,12 @@ export default {
     async save() {
       this.saving = true;
       try {
-        if (!this.extendedPermissions) {
-          this.extendedPermissions = {};
+        if (!this.extendedProperties) {
+          this.extendedProperties = {};
         }
-        if (this.updatedExtendedPermissions.size) {
-          this.updatedExtendedPermissions.forEach((v, k) => {
-            this.extendedPermissions[k] = v[k];
+        if (this.updatedExtendedProperties.size) {
+          this.updatedExtendedProperties.forEach((v, k) => {
+            this.extendedProperties[k] = v[k];
           });
         }
         if (this.callback) {
@@ -197,15 +199,15 @@ export default {
             layoutPermissions: this.layoutPermissions,
             publicSitePermissions: this.publicSitePermissions,
             deletePermissions: this.deletePermissions,
-            extendedPermissions: this.extendedPermissions,
+            extendedProperties: this.extendedProperties,
           });
         } else {
           await this.$spaceAdministrationService.updateSpacePermissions(this.space.id, {
             layoutPermissions: this.layoutPermissions,
             publicSitePermissions: this.publicSitePermissions,
             deletePermissions: this.deletePermissions,
-            extendedPermissions: this.extendedPermissions,
           });
+          await this.$spaceAdministrationService.updateSpaceExtendedProperties(this.space.id, this.extendedProperties);
           this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spacePermissionsUpdateSuccess'), 'success');
         }
         this.close();
@@ -213,20 +215,20 @@ export default {
         this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spacePermissionsUpdateError'), 'error');
       } finally {
         this.saving = false;
-        this.updatedPermissionCount = 0;
-        this.updatedExtendedPermissions = new Map();
+        this.updatedPropertiesCount = 0;
+        this.updatedExtendedProperties = new Map();
       }
     },
-    addUpdatedExtendedPermission(permission) {
-      if (!this.updatedExtendedPermissions.has(permission.key) || this.updatedExtendedPermissions.get(permission.key)[permission.key] !== permission.value[permission.key]) {
-        this.updatedExtendedPermissions.set(permission.key, permission.value);
-        this.updatedPermissionCount ++;
+    addUpdatedExtendedProperty(permission) {
+      if (!this.updatedExtendedProperties.has(permission.key) || this.updatedExtendedProperties.get(permission.key)[permission.key] !== permission.value[permission.key]) {
+        this.updatedExtendedProperties.set(permission.key, permission.value);
+        this.updatedPropertiesCount ++;
       }
     },
-    removeUpdatedExtendedPermission(permission) {
-      if (this.updatedExtendedPermissions.has(permission.key)) {
-        this.updatedExtendedPermissions.delete(permission.key);
-        this.updatedPermissionCount --;
+    removeUpdatedExtendedProperty(permission) {
+      if (this.updatedExtendedProperties.has(permission.key)) {
+        this.updatedExtendedProperties.delete(permission.key);
+        this.updatedPropertiesCount --;
       }
     }
   },
