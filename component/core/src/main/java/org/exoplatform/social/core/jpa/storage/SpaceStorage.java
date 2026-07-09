@@ -615,7 +615,7 @@ public class SpaceStorage {
     space.setManagers(managers);
     space.setSovereign(entity.isSovereign());
     space.setLastUpdatedTime(entity.getUpdatedDate().getTime());
-    space.setExtendedPermissions(entity.getExtendedPermissions());
+    space.setExtendedProperties(entity.getExtendedProperties());
     return space;
   }
 
@@ -738,7 +738,7 @@ public class SpaceStorage {
     space.setCategoryIds(entity.getCategoryIds());
     space.setSovereign(entity.isSovereign());
     space.setParentSpaceId(entity.getParentSpaceId());
-    space.setExtendedPermissions(entity.getExtendedPermissions());
+    space.setExtendedProperties(entity.getExtendedProperties());
 
     Date lastUpdated = ObjectUtils.getFirstNonNull(entity::getAvatarLastUpdated, () -> new Date(System.currentTimeMillis()));
     space.setAvatarLastUpdated(lastUpdated.getTime());

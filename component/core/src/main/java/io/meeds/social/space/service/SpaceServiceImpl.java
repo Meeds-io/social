@@ -1408,9 +1408,9 @@ public class SpaceServiceImpl implements SpaceService {
         spaceLifeCycle.spaceRegistrationEdited(newSpace, newSpace.getEditor());
       }
 
-      if (newSpace.getExtendedPermissions() != null
-          && !newSpace.getExtendedPermissions().equals(oldSpace.getExtendedPermissions())) {
-        spaceLifeCycle.extendedPermissionsUpdated(oldSpace, newSpace, newSpace.getEditor());
+      if (newSpace.getExtendedProperties() != null
+          && !newSpace.getExtendedProperties().equals(oldSpace.getExtendedProperties())) {
+        spaceLifeCycle.extendedPropertiesUpdated(oldSpace, newSpace, newSpace.getEditor());
       }
     }
   }

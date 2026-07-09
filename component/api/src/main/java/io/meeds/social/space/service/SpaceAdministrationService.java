@@ -18,6 +18,8 @@
  */
 package io.meeds.social.space.service;
 
+import java.util.Map;
+
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.space.model.Space;
 
@@ -36,11 +38,34 @@ public interface SpaceAdministrationService {
 
   /**
    * @param spaceId {@link Space} technical id
+   * @return {@link Space} extendedProperties
+   * @throws ObjectNotFoundException when the space doesn't exist
+   */
+  Map<String, String> getSpaceExtendedProperties(long spaceId) throws ObjectNotFoundException;
+
+  /**
+   * @param spaceId {@link Space} technical id
    * @param permissions Space permissions with layoutPermissions,
    *          deletePermissions and publicSitePermissions
    * @throws ObjectNotFoundException when the space doesn't exist
    */
   void updateSpacePermissions(long spaceId, SpacePermissions permissions) throws ObjectNotFoundException;
+
+  /**
+   * @param spaceId {@link Space} technical id
+   * @param propKey Extended Property Key to update
+   * @param propValue Extended Property Value to update if not blank else to
+   *          remove
+   * @throws ObjectNotFoundException when the space doesn't exist
+   */
+  void updateSpaceExtendedProperty(long spaceId, String propKey, String propValue) throws ObjectNotFoundException;
+
+  /**
+   * @param spaceId {@link Space} technical id
+   * @param extendedProperties Map of updated properties
+   * @throws ObjectNotFoundException when the space doesn't exist
+   */
+  void updateSpaceExtendedProperties(long spaceId, Map<String, String> extendedProperties) throws ObjectNotFoundException;
 
   /**
    * @param spaceId {@link Space} technical id

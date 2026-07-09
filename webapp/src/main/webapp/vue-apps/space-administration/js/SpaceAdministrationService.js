@@ -59,3 +59,31 @@ export function applySpaceTemplate(spaceId, templatePatch) {
     }
   });
 }
+
+export function getSpaceExtendedProperties(spaceId) {
+  return fetch(`/social/rest/space/administration/${spaceId}/extendedProperties`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.text();
+    }
+  });
+}
+
+export function updateSpaceExtendedProperties(spaceId, extendedProperties) {
+  return fetch(`/social/rest/space/administration/${spaceId}/extendedProperties`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(extendedProperties),
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
