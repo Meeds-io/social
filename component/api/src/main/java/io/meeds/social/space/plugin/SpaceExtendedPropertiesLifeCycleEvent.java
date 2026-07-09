@@ -1,7 +1,7 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,23 +16,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.space.model;
+package io.meeds.social.space.plugin;
+
+import lombok.Getter;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public class SpaceExtendedPropertiesLifeCycleEvent extends SpaceLifeCycleEvent {
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class SpacePermissions {
+  @Getter
+  List<String> changedProperties;
 
-  private List<String>        layoutPermissions;
-
-  private List<String>        publicSitePermissions;
-
-  private List<String>        deletePermissions;
-
+  public SpaceExtendedPropertiesLifeCycleEvent(Space space, String userId, Type type, List<String> changedProperties) {
+    super(space, userId, type);
+    this.changedProperties = changedProperties;
+  }
 }

@@ -959,7 +959,7 @@ public class EntityBuilder {
     }
     spaceEntity.setParentSpaceId(space.getParentSpaceId());
     spaceEntity.setIsParentSpace(isParentSpace(space));
-    buildSpaceExtendedPermissions(space, spaceEntity, expand);
+    buildSpaceExtendedProperties(space, spaceEntity, expand);
 
     return spaceEntity;
   }
@@ -975,12 +975,12 @@ public class EntityBuilder {
     }
   }
 
-  public static void buildSpaceExtendedPermissions(Space space, SpaceEntity spaceEntity, String expand) {
+  public static void buildSpaceExtendedProperties(Space space, SpaceEntity spaceEntity, String expand) {
     if (StringUtils.isNotBlank(expand)
-        && (Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.EXTENDED_PERMISSIONS)
+        && (Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.EXTENDED_PROPERTIES)
         || Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.ALL))) {
-      if(space != null && space.getExtendedPermissions() != null && !space.getExtendedPermissions().isEmpty()) {
-        spaceEntity.getDataEntity().put(RestProperties.EXTENDED_PERMISSIONS, space.getExtendedPermissions());
+      if(space != null && space.getExtendedProperties() != null && !space.getExtendedProperties().isEmpty()) {
+        spaceEntity.getDataEntity().put(RestProperties.EXTENDED_PROPERTIES, space.getExtendedProperties());
       }
     }
   }

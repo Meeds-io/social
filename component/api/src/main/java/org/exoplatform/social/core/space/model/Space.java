@@ -239,7 +239,7 @@ public class Space implements CacheEntry {
 
   @Getter
   @Setter
-  private Map<String, String> extendedPermissions;
+  private Map<String, String> extendedProperties;
 
   /** Types of updating of space. */
   public enum UpdatedField {

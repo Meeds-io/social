@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.storage.cache.model.data;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -92,7 +93,7 @@ public class SpaceData implements CacheData<Space> {
 
   private Long                parentSpaceId;
 
-  private Map<String, String> extendedPermissions;
+  private Map<String, String> extendedProperties;
 
   public SpaceData(final Space space) {
     id = space.getSpaceId();
@@ -123,7 +124,7 @@ public class SpaceData implements CacheData<Space> {
     categoryIds = space.getCategoryIds();
     sovereign = space.isSovereign();
     parentSpaceId = space.getParentSpaceId();
-    extendedPermissions = space.getExtendedPermissions();
+    extendedProperties = space.getExtendedProperties() == null ? null : new HashMap<>(space.getExtendedProperties());
     lastUpdatedTime = space.getLastUpdatedTime();
     cacheTime = System.currentTimeMillis();
   }
@@ -160,7 +161,7 @@ public class SpaceData implements CacheData<Space> {
     space.setCategoryIds(categoryIds);
     space.setSovereign(sovereign);
     space.setParentSpaceId(parentSpaceId);
-    space.setExtendedPermissions(extendedPermissions);
+    space.setExtendedProperties(extendedProperties == null ? null : new HashMap<>(extendedProperties));
     return space;
   }
 }

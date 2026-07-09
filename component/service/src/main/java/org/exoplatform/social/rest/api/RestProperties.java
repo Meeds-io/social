@@ -83,7 +83,7 @@ public class RestProperties {
 
   public static final String NAVIGATIONS_PERMISSION = "navigations_permission";
 
-  public static final String EXTENDED_PERMISSIONS   = "extendedPermissions";
+  public static final String EXTENDED_PROPERTIES    = "extendedProperties";
 
   public static final String ALL                    = "all";
 }
