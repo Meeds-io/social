@@ -121,7 +121,7 @@ export default {
     drawer: false,
     backgroundProperties: null,
     defaultCustomPageWidth: '1320',
-    defaultPageBackground: '#F0F0F0',
+    defaultPageBackground: '#F0F0F0FF',
     pageWidth: null,
     borderRadius: null,
     defaultPageStylingProperties: null,
@@ -164,7 +164,7 @@ export default {
   methods: {
     init() {
       this.backgroundProperties = {
-        backgroundColor: this.pageStylingProperties?.pageBackgroundColor || this.defaultPageBackground,
+        backgroundColor: this.normalizeBackgroundColor(this.pageStylingProperties?.pageBackgroundColor) || this.defaultPageBackground,
         backgroundPosition: this.pageStylingProperties?.pageBackgroundPosition || null,
         background: this.pageStylingProperties?.pageBackground || null,
         backgroundRepeat: this.pageStylingProperties?.pageBackgroundRepeat || null,
@@ -204,6 +204,12 @@ export default {
     close() {
       this.reset();
       this.$refs.drawer.close();
+    },
+    normalizeBackgroundColor(color) {
+      if (!color) {
+        return color;
+      }
+      return color.length === 7 ? `${color}FF` : color;
     },
     getPageBackgroundEffect() {
       const effect = this.pageStylingProperties?.pageBackgroundEffect;
