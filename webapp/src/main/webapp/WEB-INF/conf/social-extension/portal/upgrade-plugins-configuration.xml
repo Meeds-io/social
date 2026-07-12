@@ -23,6 +23,34 @@
   <external-component-plugins>
     <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
     <component-plugin>
+      <name>UserPermissionBackfillUpgradePlugin</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>io.meeds.social.permission.upgrade.UserPermissionUpgradePlugin</type>
+      <description>Backfill the SOC_USER_PERMISSION group membership projection from PicketLink IDM</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <value>org.exoplatform.social</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <value>7.0.0</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <value>90</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <value>true</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
       <name>SpaceSettingPermissionUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
       <type>io.meeds.social.upgrade.SpaceSettingPermissionUpgradePlugin</type>

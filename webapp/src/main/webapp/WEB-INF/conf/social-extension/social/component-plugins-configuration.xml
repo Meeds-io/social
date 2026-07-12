@@ -101,6 +101,13 @@
       <type>org.exoplatform.social.core.listeners.SocialMembershipListenerImpl</type>
       <priority>50</priority>
     </component-plugin>
+    <component-plugin>
+      <name>social.userPermission.membership.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>io.meeds.social.permission.listener.UserPermissionMembershipListener</type>
+      <description>Keeps the SOC_USER_PERMISSION projection in sync with membership changes.</description>
+      <priority>60</priority>
+    </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>
