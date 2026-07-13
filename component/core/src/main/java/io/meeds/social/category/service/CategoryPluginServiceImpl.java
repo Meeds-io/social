@@ -39,16 +39,12 @@ public class CategoryPluginServiceImpl implements CategoryPluginService {
   @Autowired
   private PortalContainer             container;
 
-  @Autowired(required = false)
-  private List<CategoryPlugin>        categoryPlugins;
+  private List<CategoryPlugin>        categoryPlugins = new ArrayList<>();
 
   private Map<String, CategoryPlugin> categoryPluginsByType = new ConcurrentHashMap<>();
 
   @Override
   public void addPlugin(CategoryPlugin categoryPlugin) {
-    if (!(categoryPlugins instanceof ArrayList)) {
-      categoryPlugins = categoryPlugins == null ? new ArrayList<>() : new ArrayList<>(categoryPlugins);
-    }
     categoryPlugins.add(categoryPlugin);
   }
 

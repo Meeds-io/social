@@ -44,7 +44,7 @@
         :class="[chipClass, small && 'text-subtitle-font-size' || '', !visible && 'invisible' || '']"
         :color="selected && 'primary'"
         :small="small"
-        tabindex="0"
+        :tabindex="tabindex"
         class="text-truncate border-box-sizing"
         @focus="menu = true">
         <v-card
@@ -98,7 +98,7 @@
     :class="[chipClass, small && 'text-subtitle-font-size' || '', !visible && 'invisible' || '']"
     :color="selected && 'primary'"
     :small="small"
-    tabindex="0"
+    :tabindex="tabindex"
     class="text-truncate border-box-sizing"
     @click.prevent.stop="openCategory(category)"
     @keydown.enter.stop.prevent="openCategory(category)">
@@ -150,6 +150,10 @@ export default {
     small: {
       type: Boolean,
       default: false,
+    },
+    tabindex: {
+      type: [String, Number],
+      default: 0,
     },
   },
   data: () => ({
