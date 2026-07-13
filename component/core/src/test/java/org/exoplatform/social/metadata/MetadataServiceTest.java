@@ -733,6 +733,47 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(1, metadataItems.size());
   }
 
+  public void testGetMetadataItemsByMetadataIdAndObjectTypes() throws Exception {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    String objectId1 = "objectIdTestEntry1";
+    String objectId2 = "objectIdTestEntry2";
+    String objectType1 = "objectTypeTestEntry1";
+    String objectType2 = "objectTypeTestEntry2";
+    String name = "testMetadataEntry";
+    String type = userMetadataType.getName();
+    MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
+    MetadataObject metadataObject1 = newMetadataObjectInstance(objectType1, objectId1, null);
+    MetadataObject metadataObject2 = newMetadataObjectInstance(objectType2, objectId2, null);
+
+    MetadataItem metadataItem1 = metadataService.createMetadataItem(metadataObject1, metadataKey, creatorId);
+    metadataService.createMetadataItem(metadataObject2, metadataKey, creatorId);
+    long metadataId = metadataItem1.getMetadata().getId();
+
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataIdAndObjectTypes(metadataId,
+                                                                                                   Arrays.asList(objectType1,
+                                                                                                                objectType2),
+                                                                                                   0,
+                                                                                                   10);
+    assertNotNull(metadataItems);
+    assertEquals(2, metadataItems.size());
+
+    metadataItems = metadataService.getMetadataItemsByMetadataIdAndObjectTypes(metadataId,
+                                                                               Collections.singletonList(objectType1),
+                                                                               0,
+                                                                               10);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+    assertEquals(objectType1, metadataItems.get(0).getObjectType());
+
+    metadataItems = metadataService.getMetadataItemsByMetadataIdAndObjectTypes(metadataId,
+                                                                               Collections.singletonList("notMatchingType"),
+                                                                               0,
+                                                                               10);
+    assertNotNull(metadataItems);
+    assertEquals(0, metadataItems.size());
+  }
+
   public void testGetMetadataNamesByMetadataTypeAndObject() {
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;

@@ -68,6 +68,11 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
   }
 
   @Override
+  public List<CategoryObject> getLinkedObjects(long categoryId, List<String> objectTypes, int offset, int limit) {
+    return categoryStorage.getLinkedItems(categoryId, objectTypes, offset, limit);
+  }
+
+  @Override
   public boolean isLinked(long categoryId, CategoryObject object) {
     return categoryStorage.isLinked(categoryId, getObject(object));
   }

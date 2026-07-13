@@ -22,8 +22,10 @@ import static io.meeds.social.category.utils.Utils.isManagerOf;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,7 +48,10 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryEntryItem;
+import io.meeds.social.category.model.CategoryEntryList;
 import io.meeds.social.category.model.CategoryFilter;
+import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.model.CategoryRootTree;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategorySearchResult;
@@ -299,6 +304,31 @@ public class CategoryServiceImpl implements CategoryService {
       org.exoplatform.services.security.Identity identity = StringUtils.isBlank(username) ? null : userAcl.getUserIdentity(username);
       return userAcl.isMemberOf(identity, StringUtils.join(category.getLinkPermissions(), ","));
     }
+  }
+
+  @Override
+  public CategoryEntryList getCategoryEntries(long categoryId, List<String> objectTypes, String username, long offset, long limit) {
+    long fetchLimit = limit * 3;
+    List<CategoryObject> linkedObjects = categoryStorage.getLinkedItems(categoryId, objectTypes, (int) offset, (int) fetchLimit);
+    // De-duplicate: when the same entry is linked switch several objectTypes, keep only the occurrence
+    // whose objectType comes first in the caller-supplied list.
+    Map<String, CategoryObject> deduplicated = new LinkedHashMap<>();
+    linkedObjects.forEach(object -> {
+      CategoryObject existing = deduplicated.get(object.getId());
+      if (existing == null || objectTypes.indexOf(object.getType()) < objectTypes.indexOf(existing.getType())) {
+        deduplicated.put(object.getId(), object);
+      }
+    });
+    List<CategoryEntryItem> items = deduplicated.values()
+                                                .stream()
+                                                .filter(object -> categoryPluginService.canAccess(object.getType(), object.getId(), username))
+                                                .map(object -> categoryPluginService.getEntryItem(object.getType(), object.getId(), username))
+                                                .filter(Objects::nonNull)
+                                                .toList();
+    boolean hasMoreCandidates = linkedObjects.size() == fetchLimit;
+    boolean truncated = items.size() > limit;
+    List<CategoryEntryItem> page = truncated ? items.subList(0, (int) limit) : items;
+    return new CategoryEntryList(page, offset, limit, truncated || hasMoreCandidates);
   }
 
   private long getAdminGroupIdentityId() {

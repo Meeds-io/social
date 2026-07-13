@@ -19,7 +19,9 @@
 package io.meeds.social.category.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +45,9 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryEntryItem;
+import io.meeds.social.category.model.CategoryEntryList;
+import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategorySearchResult;
 import io.meeds.social.category.storage.CategoryStorage;
@@ -85,6 +90,10 @@ public class CategoryServiceUnitTest {
   private static final String   TERM                    = "term";
 
   private static final String   TEST_USER               = "testuser";
+
+  private static final String   TYPE_A                  = "typeA";
+
+  private static final String   TYPE_B                  = "typeB";
 
   @MockBean
   private IdentityManager       identityManager;
@@ -176,6 +185,40 @@ public class CategoryServiceUnitTest {
     assertNotNull(categories);
     assertEquals(1, categories.size());
     assertEquals(Collections.singletonList(PARENT_ID), categories.get(0).getAncestorIds());
+  }
+
+  @Test
+  public void testGetCategoryEntries() {
+    List<String> objectTypes = Arrays.asList(TYPE_A, TYPE_B);
+    List<CategoryObject> linkedObjects = Arrays.asList(new CategoryObject(TYPE_A, "1", 0l),
+                                                       new CategoryObject(TYPE_B, "1", 0l),
+                                                       new CategoryObject(TYPE_A, "2", 0l),
+                                                       new CategoryObject(TYPE_B, "3", 0l),
+                                                       new CategoryObject(TYPE_A, "4", 0l));
+    when(categoryStorage.getLinkedItems(CATEGORY_ID, objectTypes, 0, 6)).thenReturn(linkedObjects);
+
+    when(categoryPluginService.canAccess(TYPE_A, "1", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_B, "1", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "2", TEST_USER)).thenReturn(false);
+    when(categoryPluginService.canAccess(TYPE_B, "3", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "4", TEST_USER)).thenReturn(true);
+
+    CategoryEntryItem item1 = mock(CategoryEntryItem.class);
+    CategoryEntryItem item4 = mock(CategoryEntryItem.class);
+    when(categoryPluginService.getEntryItem(TYPE_A, "1", TEST_USER)).thenReturn(item1);
+    when(categoryPluginService.getEntryItem(TYPE_B, "3", TEST_USER)).thenReturn(null);
+    when(categoryPluginService.getEntryItem(TYPE_A, "4", TEST_USER)).thenReturn(item4);
+
+    CategoryEntryList result = categoryService.getCategoryEntries(CATEGORY_ID, objectTypes, TEST_USER, 0, 2);
+    assertNotNull(result);
+    // Duplicate entry (typeB/1) dropped in favor of typeA/1, entry typeA/2 dropped (no access),
+    // entry typeB/3 dropped (no resolved preview): only typeA/1 and typeA/4 remain.
+    assertEquals(2, result.getItems().size());
+    assertTrue(result.getItems().contains(item1));
+    assertTrue(result.getItems().contains(item4));
+    assertEquals(0, result.getOffset());
+    assertEquals(2, result.getLimit());
+    assertFalse(result.isHasMore());
   }
 
 }

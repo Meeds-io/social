@@ -87,7 +87,7 @@ public class CategoryLinkModifiedListener implements ListenerBase<Long, Category
       String activityId = object.getId();
       ExoSocialActivity activity = activityManager.getActivity(activityId);
       if (activity != null) {
-        List<Long> categoryIds = categoryLinkService.getLinkedIds(new CategoryObject(activity.getMetadataObject()));
+        List<Long> categoryIds = categoryLinkService.getLinkedIds(object);
         if (CollectionUtils.size(activity.getCategoryIds()) != CollectionUtils.size(categoryIds)
             || (CollectionUtils.size(categoryIds) > 0
                 && !CollectionUtils.isEqualCollection(categoryIds, activity.getCategoryIds()))) {

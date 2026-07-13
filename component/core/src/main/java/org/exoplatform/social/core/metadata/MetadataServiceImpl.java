@@ -583,6 +583,14 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public List<MetadataItem> getMetadataItemsByMetadataIdAndObjectTypes(long metadataId,
+                                                                       List<String> objectTypes,
+                                                                       int offset,
+                                                                       int limit) {
+    return this.metadataStorage.getMetadataItemsByMetadataIdAndObjectTypes(metadataId, objectTypes, offset, limit);
+  }
+
+  @Override
   public void addMetadataTypePlugin(MetadataTypePlugin metadataTypePlugin) {
     if (metadataTypePlugins.values()
                            .stream()
