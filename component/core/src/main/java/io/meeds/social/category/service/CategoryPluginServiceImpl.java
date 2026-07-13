@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import org.exoplatform.container.PortalContainer;
 
+import io.meeds.social.category.model.CategoryEntryItem;
 import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.plugin.CategoryPlugin;
 import io.meeds.social.category.plugin.DefaultCategoryPlugin;
@@ -64,6 +65,16 @@ public class CategoryPluginServiceImpl implements CategoryPluginService {
   @Override
   public boolean canEdit(String objectType, String objectId, String username) {
     return getCategoryPlugin(objectType).canEdit(objectId, username);
+  }
+
+  @Override
+  public boolean canAccess(String objectType, String objectId, String username) {
+    return getCategoryPlugin(objectType).canAccess(objectId, username);
+  }
+
+  @Override
+  public CategoryEntryItem getEntryItem(String objectType, String objectId, String username) {
+    return getCategoryPlugin(objectType).getEntryItem(objectId, username);
   }
 
   @Override
