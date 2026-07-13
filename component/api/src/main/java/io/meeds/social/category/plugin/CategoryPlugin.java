@@ -21,6 +21,7 @@ package io.meeds.social.category.plugin;
 import java.util.List;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryEntryItem;
 import io.meeds.social.category.model.CategoryObject;
 
 public interface CategoryPlugin {
@@ -86,6 +87,21 @@ public interface CategoryPlugin {
 
   default CategoryObject getObject(CategoryObject metadataObject) {
     return metadataObject;
+  }
+
+  /**
+   * Resolves a generic, object-type agnostic preview (title, summary, image,
+   * author, date, url ...) of the designated object, so that it can be
+   * displayed in a Category entries listing (browse entries by Category)
+   * without the caller having to know anything specific to this objectType.
+   *
+   * @param objectId Object technical identifier
+   * @param username User technical name (login identifier)
+   * @return {@link CategoryEntryItem} or null when this objectType isn't
+   *         meant to be browsable as an entry (Space, Activity ...)
+   */
+  default CategoryEntryItem getEntryItem(String objectId, String username) {
+    return null;
   }
 
 }

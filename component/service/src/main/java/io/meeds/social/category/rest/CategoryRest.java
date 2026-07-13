@@ -40,6 +40,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.rest.api.RestUtils;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryEntryList;
 import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategorySearchResult;
@@ -153,6 +154,28 @@ public class CategoryRest {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     return categoryTree;
+  }
+
+  @GetMapping("{id}/entries")
+  @Operation(summary = "Retrieves the entries linked to a Category", method = "GET", description = "This retrieves the entries linked to a category switch the designated objectTypes, de-duplicated and ordered switch last modification date descending")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  })
+  @Secured("users")
+  public CategoryEntryList getCategoryEntries(HttpServletRequest request,
+                                              @Parameter(description = "Category Identifier")
+                                              @PathVariable(name = "id", required = true)
+                                              long id,
+                                              @Parameter(description = "Comma separated list of objectTypes to browse")
+                                              @RequestParam(name = "types", required = true)
+                                              List<String> types,
+                                              @Parameter(description = "Request offset")
+                                              @RequestParam(name = "offset", required = false, defaultValue = "0")
+                                              long offset,
+                                              @Parameter(description = "Request limit")
+                                              @RequestParam(name = "limit", required = false, defaultValue = "20")
+                                              long limit) {
+    return categoryService.getCategoryEntries(id, types, request.getRemoteUser(), offset, limit);
   }
 
   @GetMapping("search")

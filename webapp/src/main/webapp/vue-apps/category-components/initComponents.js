@@ -24,6 +24,8 @@ import BulkCategoriesDrawer from './components/drawer/BulkCategoriesDrawer.vue';
 import CategoryFormDrawer from './components/drawer/CategoryFormDrawer.vue';
 import CategoryListDrawer from './components/drawer/CategoryListDrawer.vue';
 import CategoryInputDrawer from './components/drawer/CategoryInputDrawer.vue';
+import EntryListDrawer from './components/drawer/EntryListDrawer.vue';
+import EntryListItem from './components/drawer/EntryListItem.vue';
 
 import CategoriesFilter from './components/CategoriesFilter.vue';
 import CategoriesBreadcrumb from './components/filter/CategoriesBreadcrumb.vue';
@@ -40,6 +42,8 @@ const components = {
   'categories-bulk-edit-drawer': BulkCategoriesDrawer,
   'category-form-drawer': CategoryFormDrawer,
   'categories-list-drawer': CategoryListDrawer,
+  'category-entry-drawer': EntryListDrawer,
+  'category-entry-list-item': EntryListItem,
 
   'category-suggester': CategorySuggester,
   'categories-filter': CategoriesFilter,

@@ -172,6 +172,14 @@ public class CategoryStorage {
                                               .collect(Collectors.toSet()));
   }
 
+  public List<CategoryObject> getLinkedItems(long categoryId, List<String> objectTypes, int offset, int limit) {
+    List<MetadataItem> items = metadataService.getMetadataItemsByMetadataIdAndObjectTypes(categoryId, objectTypes, offset, limit);
+    return items == null ? Collections.emptyList() :
+                         items.stream()
+                              .map(item -> new CategoryObject(item.getObjectType(), item.getObjectId(), item.getSpaceId()))
+                              .toList();
+  }
+
   public boolean isLinked(long categoryId, CategoryObject object) {
     return getMetadataItem(categoryId, object) != null;
   }

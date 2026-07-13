@@ -774,4 +774,22 @@ public interface MetadataService {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Retrieves the list of Metadata items attached to a {@link Metadata}
+   * identified by its technical identifier, filtered by a list of object
+   * types, ordered by last modification date descending.
+   *
+   * @param metadataId {@link Metadata} technical identifier
+   * @param objectTypes {@link List} of {@link MetadataItem} objectTypes
+   * @param offset offset of items to retrieve
+   * @param limit limit of items to retrieve
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  default List<MetadataItem> getMetadataItemsByMetadataIdAndObjectTypes(long metadataId,
+                                                                        List<String> objectTypes,
+                                                                        int offset,
+                                                                        int limit) {
+    throw new UnsupportedOperationException();
+  }
+
 }

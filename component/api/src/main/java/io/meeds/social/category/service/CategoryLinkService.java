@@ -47,6 +47,17 @@ public interface CategoryLinkService {
 
   /**
    * @param categoryId {@link Category} identifier
+   * @param objectTypes {@link List} of {@link CategoryObject} types to filter
+   *          switch
+   * @param offset offset of objects to retrieve
+   * @param limit limit of objects to retrieve
+   * @return {@link List} of {@link CategoryObject} linked to the category,
+   *         ordered by last modification date descending
+   */
+  List<CategoryObject> getLinkedObjects(long categoryId, List<String> objectTypes, int offset, int limit);
+
+  /**
+   * @param categoryId {@link Category} identifier
    * @param object {@link CategoryObject} using type/id to designate any object
    *          in the platform (Space, Activity ...)
    * @return true if the object is linked to the category
