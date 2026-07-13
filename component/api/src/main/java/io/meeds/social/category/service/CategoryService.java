@@ -26,6 +26,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.identity.model.Identity;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryEntryList;
 import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategorySearchResult;
@@ -218,5 +219,20 @@ public interface CategoryService {
    * @return true if can link an object to the category, else false
    */
   boolean canManageLink(long categoryId, String username);
+
+  /**
+   * Retrieves the entries linked to a Category, de-duplicated (when the same
+   * entry is available switch several objectTypes, only the most specific
+   * one is kept), filtered switch the accessibility of each item to the
+   * designated user, ordered by last modification date descending.
+   *
+   * @param categoryId {@link Category} identifier
+   * @param objectTypes {@link List} of objectTypes to browse
+   * @param username User name/login
+   * @param offset Request offset
+   * @param limit Request limit
+   * @return {@link CategoryEntryList} switch used filter
+   */
+  CategoryEntryList getCategoryEntries(long categoryId, List<String> objectTypes, String username, long offset, long limit);
 
 }

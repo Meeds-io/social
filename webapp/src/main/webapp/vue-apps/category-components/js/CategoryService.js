@@ -73,6 +73,28 @@ export function getCategory(id) {
   });
 }
 
+export function getCategoryEntries(options) {
+  const formData = new FormData();
+  formData.append('types', (options.types || []).join(','));
+  if (options.offset) {
+    formData.append('offset', options.offset);
+  }
+  if (options.limit) {
+    formData.append('limit', options.limit);
+  }
+  const urlParams = new URLSearchParams(formData).toString();
+  return fetch(`/social/rest/categories/${options.categoryId}/entries?${urlParams}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when retrieving the category entries');
+    }
+  });
+}
+
 export function getAncestorIds(id) {
   return fetch(`/social/rest/categories/${id}/ancestors`, {
     method: 'GET',

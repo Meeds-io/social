@@ -432,6 +432,20 @@ public class MetadataStorage {
     return metadataDAO.findMetadataNamesByUserAndQuery(term, metadataTypeId, creatorId, audienceIds, limit);
   }
 
+  public List<MetadataItem> getMetadataItemsByMetadataIdAndObjectTypes(long metadataId,
+                                                                       List<String> objectTypes,
+                                                                       int offset,
+                                                                       int limit) {
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataIdAndObjectTypes(metadataId,
+                                                                                                                objectTypes,
+                                                                                                                offset,
+                                                                                                                limit);
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
+  }
+
   public List<MetadataItem> getMetadataItemsByMetadataAndObject(long metadataId, MetadataObject object) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataAndObject(metadataId,
                                                                                                         object.getType(),
