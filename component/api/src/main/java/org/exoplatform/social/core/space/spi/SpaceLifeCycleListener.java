@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.space.spi;
 
+import io.meeds.social.space.plugin.SpaceExtendedPropertiesLifeCycleEvent;
 import io.meeds.social.space.plugin.SpaceInvitationLifeCycleEvent;
 import org.exoplatform.social.common.lifecycle.LifeCycleListener;
 
@@ -252,4 +253,7 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
     // No default implementation
   }
 
+  default void extendedPropertiesUpdated(SpaceExtendedPropertiesLifeCycleEvent event) {
+    // No default implementation
+  }
 }

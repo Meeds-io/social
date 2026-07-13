@@ -147,7 +147,7 @@ public class SpaceServiceImpl implements SpaceService {
   private SpaceLifecycle              spaceLifeCycle               = new SpaceLifecycle();
 
   private CodecInitializer            codecInitializer;
-  
+
   private SecureRandomService         secureRandomService;
 
   private int invitationTokenNonceMaxLength;
@@ -1406,6 +1406,11 @@ public class SpaceServiceImpl implements SpaceService {
       if ((oldRegistration == null && registration != null)
           || (oldRegistration != null && !oldRegistration.equals(registration))) {
         spaceLifeCycle.spaceRegistrationEdited(newSpace, newSpace.getEditor());
+      }
+
+      if (newSpace.getExtendedProperties() != null
+          && !newSpace.getExtendedProperties().equals(oldSpace.getExtendedProperties())) {
+        spaceLifeCycle.extendedPropertiesUpdated(oldSpace, newSpace, newSpace.getEditor());
       }
     }
   }

@@ -539,7 +539,7 @@ public class EntityBuilder {
                                                                                                                 fallbackProperty)
                                                                                       : "";
   }
-  
+
   private static String getProfilePropertyValue(Profile profile, String propertyName) {
     ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
     String profilePropertyValue;
@@ -959,6 +959,7 @@ public class EntityBuilder {
     }
     spaceEntity.setParentSpaceId(space.getParentSpaceId());
     spaceEntity.setIsParentSpace(isParentSpace(space));
+    buildSpaceExtendedProperties(space, spaceEntity, expand);
 
     return spaceEntity;
   }
@@ -970,6 +971,16 @@ public class EntityBuilder {
       long unreadBadge = spaceWebNotificationService.countUnreadActivitiesBySpace(username, Long.parseLong(spaceEntity.getId()));
       if (unreadBadge > 0) {
         spaceEntity.getDataEntity().put(RestProperties.UNREAD, unreadBadge);
+      }
+    }
+  }
+
+  public static void buildSpaceExtendedProperties(Space space, SpaceEntity spaceEntity, String expand) {
+    if (StringUtils.isNotBlank(expand)
+        && (Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.EXTENDED_PROPERTIES)
+        || Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.ALL))) {
+      if(space != null && space.getExtendedProperties() != null && !space.getExtendedProperties().isEmpty()) {
+        spaceEntity.getDataEntity().put(RestProperties.EXTENDED_PROPERTIES, space.getExtendedProperties());
       }
     }
   }
@@ -2058,7 +2069,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setDefault(profilePropertyService.isDefaultProperties(profilePropertySetting));
     return profilePropertySettingEntity;
   }
-  
+
   public static List<ProfilePropertyOptionEntity> toProfilePropertyOptionEntities(List<ProfilePropertyOption> profilePropertyOptions) {
     if (profilePropertyOptions == null) {
       return new ArrayList<>();

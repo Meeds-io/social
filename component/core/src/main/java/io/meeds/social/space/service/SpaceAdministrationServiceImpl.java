@@ -22,10 +22,13 @@ import static org.exoplatform.social.core.space.SpaceUtils.setPermissionsFromTem
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -85,9 +88,16 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
         deletePermissions = spaceAdminsPermission;
       }
     }
-    return new SpacePermissions(layoutPermissions,
-                                publicSitePermissions,
-                                deletePermissions);
+    return new SpacePermissions(layoutPermissions, publicSitePermissions, deletePermissions);
+  }
+
+  @Override
+  public Map<String, String> getSpaceExtendedProperties(long spaceId) throws ObjectNotFoundException {
+    Space space = spaceService.getSpaceById(spaceId);
+    if (space == null) {
+      throw new ObjectNotFoundException(String.format(SPACE_NOT_FOUND_MESSAGE, spaceId));
+    }
+    return space.getExtendedProperties();
   }
 
   @Override
@@ -99,6 +109,42 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
     space.setLayoutPermissions(permissions.getLayoutPermissions());
     space.setPublicSitePermissions(permissions.getPublicSitePermissions());
     space.setDeletePermissions(permissions.getDeletePermissions());
+    spaceService.updateSpace(space);
+  }
+
+  @Override
+  public void updateSpaceExtendedProperty(long spaceId, String propKey, String propValue) throws ObjectNotFoundException {
+    Space space = spaceService.getSpaceById(spaceId);
+    if (space == null) {
+      throw new ObjectNotFoundException(String.format(SPACE_NOT_FOUND_MESSAGE, spaceId));
+    }
+    Map<String, String> extendedProperties = space.getExtendedProperties() == null ? new HashMap<>()
+                                                                                   : new HashMap<>(space.getExtendedProperties());
+    if (StringUtils.isBlank(propValue)) {
+      extendedProperties.remove(propKey);
+    } else {
+      extendedProperties.put(propKey, propValue);
+    }
+    space.setExtendedProperties(extendedProperties);
+    spaceService.updateSpace(space);
+  }
+
+  @Override
+  public void updateSpaceExtendedProperties(long spaceId, Map<String, String> extendedProperties) throws ObjectNotFoundException {
+    Space space = spaceService.getSpaceById(spaceId);
+    if (space == null) {
+      throw new ObjectNotFoundException(String.format(SPACE_NOT_FOUND_MESSAGE, spaceId));
+    }
+
+    if (extendedProperties == null || extendedProperties.isEmpty()) {
+      return;
+    }
+    Map<String, String> originalExtendedProperties =
+                                                   space.getExtendedProperties() == null ? new HashMap<>()
+                                                                                         : new HashMap<>(space.getExtendedProperties());
+
+    originalExtendedProperties.putAll(new HashMap<>(extendedProperties));
+    space.setExtendedProperties(originalExtendedProperties);
     spaceService.updateSpace(space);
   }
 
@@ -118,14 +164,10 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
       space.setVisibility(spaceTemplate.getSpaceDefaultVisibility().name().toLowerCase());
     }
     if (templatePatch.isDeletePermissions()) {
-      setPermissionsFromTemplate(spaceTemplate::getSpaceDeletePermissions,
-                                 space::setDeletePermissions,
-                                 space.getGroupId());
+      setPermissionsFromTemplate(spaceTemplate::getSpaceDeletePermissions, space::setDeletePermissions, space.getGroupId());
     }
     if (templatePatch.isLayoutPermissions()) {
-      setPermissionsFromTemplate(spaceTemplate::getSpaceLayoutPermissions,
-                                 space::setLayoutPermissions,
-                                 space.getGroupId());
+      setPermissionsFromTemplate(spaceTemplate::getSpaceLayoutPermissions, space::setLayoutPermissions, space.getGroupId());
     }
     if (templatePatch.isPublicSitePermissions()) {
       setPermissionsFromTemplate(spaceTemplate::getSpacePublicSitePermissions,

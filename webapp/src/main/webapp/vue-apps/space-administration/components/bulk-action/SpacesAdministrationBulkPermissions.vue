@@ -42,6 +42,7 @@ export default {
           permissions.publicSitePermissions = params.publicSitePermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
           permissions.deletePermissions = params.deletePermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
           await this.$spaceAdministrationService.updateSpacePermissions(space.id, permissions);
+          await this.$spaceAdministrationService.updateSpaceExtendedProperties(space.id, params.extendedProperties);
         },
         null,
         () => {

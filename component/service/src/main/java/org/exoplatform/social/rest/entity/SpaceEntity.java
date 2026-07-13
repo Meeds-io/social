@@ -57,12 +57,12 @@ public class SpaceEntity extends BaseEntity {
   public String getDisplayName() {
     return getString("displayName");
   }
-  
+
   public SpaceEntity setTemplateId(Long templateId) {
     setProperty("templateId", templateId == null ? "0" : templateId.toString());
     return this;
   }
-  
+
   public long getTemplateId() {
     String templateId = getString("templateId");
     return StringUtils.isBlank(templateId) ? 0l : Long.parseLong(templateId);
@@ -267,12 +267,12 @@ public class SpaceEntity extends BaseEntity {
   public String getCreatedTime() {
     return (String) getProperty("createdTime");
   }
-  
+
   public SpaceEntity setCanEdit(boolean canEdit) {
     setProperty("canEdit", canEdit);
     return this;
   }
-  
+
   public Boolean getCanEdit() {
     return (Boolean) getProperty("canEdit");
   }
@@ -527,5 +527,14 @@ public class SpaceEntity extends BaseEntity {
     }
     }
     return 0L;
+  }
+
+  public SpaceEntity setExtendedProperties(Map<String, String> extendedProperties) {
+    setProperty("extendedProperties", extendedProperties);
+    return this;
+  }
+
+  public Map<String, String> getExtendedProperties() {
+    return (Map<String, String>) getProperty("extendedProperties");
   }
 }
