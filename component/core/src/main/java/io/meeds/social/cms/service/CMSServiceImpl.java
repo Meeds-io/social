@@ -19,6 +19,7 @@
 package io.meeds.social.cms.service;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -61,6 +62,11 @@ public class CMSServiceImpl implements CMSService {
   @Override
   public CMSSetting getSetting(String type, String name) {
     return cmsStorage.getSetting(type, name);
+  }
+
+  @Override
+  public List<CMSSetting> getSettingsByType(String type) {
+    return cmsStorage.getSettingsByType(type);
   }
 
   @Override
