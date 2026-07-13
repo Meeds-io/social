@@ -56,6 +56,7 @@
           <category-chip
             v-if="firstCategory"
             :category="firstCategory"
+            tabindex="-1"
             small />
         </div>
         <span class="text-body text-truncate-2">{{ item.title }}</span>
