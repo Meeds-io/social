@@ -195,6 +195,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     //
     activity.isLocked(activityEntity.getLocked());
     activity.isHidden(activityEntity.getHidden());
+    activity.setPublicationStartTime(activityEntity.getPublicationStartTime());
     activity.setTitleId(activityEntity.getTitleId());
     activity.setPostedTime(activityEntity.getPosted() != null ? activityEntity.getPosted().getTime() : 0);
     activity.setUpdated(activityEntity.getUpdatedDate().getTime());
@@ -268,6 +269,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     processDates(activityEntity);
     activityEntity.setLocked(activity.isLocked());
     activityEntity.setHidden(activity.isHidden());
+    activityEntity.setPublicationStartTime(activity.getPublicationStartTime());
     activityEntity.setPinned(activity.isPinned());
     activityEntity.setPinDate(StorageUtils.parseRFC3339Date(activity.getPinDate()));
     activityEntity.setPinAuthorId(activity.getPinAuthorId());
@@ -1210,6 +1212,27 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     activityEntity.setHidden(true);
     activityEntity = activityDAO.update(activityEntity);
     return convertActivityEntityToActivity(activityEntity);
+  }
+
+  @Override
+  @ExoTransactional
+  public ExoSocialActivity publishScheduledActivity(String activityId) {
+    long publishTime = System.currentTimeMillis();
+    boolean claimed = activityDAO.claimScheduledActivity(Long.parseLong(activityId), publishTime);
+    if (!claimed) {
+      return null;
+    }
+    ActivityEntity activityEntity = activityDAO.find(Long.valueOf(activityId));
+    if (activityEntity.getStreamItems() != null) {
+      activityEntity.getStreamItems().forEach(streamItem -> streamItem.setUpdatedDate(new Date(publishTime)));
+      activityEntity = activityDAO.update(activityEntity);
+    }
+    return convertActivityEntityToActivity(activityEntity);
+  }
+
+  @Override
+  public List<String> getScheduledActivityIds(long dueTime, int offset, int limit) {
+    return activityDAO.getScheduledActivityIds(dueTime, offset, limit).stream().map(String::valueOf).toList();
   }
 
   @Override

@@ -91,7 +91,7 @@ export function getActivityComments(id, sortDescending, offset, limit, expand) {
   });
 }
 
-export function createActivity(message, activityType, attachments, spaceId, templateParams) {
+export function createActivity(message, activityType, attachments, spaceId, templateParams, publicationStartTime) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities?spaceId=${spaceId || ''}`, {
     headers: {
       'Content-Type': 'application/json'
@@ -102,7 +102,8 @@ export function createActivity(message, activityType, attachments, spaceId, temp
       'title': message,
       'type': activityType,
       'templateParams': templateParams || {},
-      'files': attachments
+      'files': attachments,
+      'publicationStartTime': publicationStartTime || null
     })
   }).then(resp => {
     if (!resp || !resp.ok) {

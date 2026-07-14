@@ -350,6 +350,22 @@ public class CachedActivityStorage implements ActivityStorage {
   }
 
   @Override
+  public ExoSocialActivity publishScheduledActivity(String activityId) {
+    ExoSocialActivity a = storage.publishScheduledActivity(activityId);
+    if (a != null) {
+      ActivityKey key = new ActivityKey(a.getId());
+      exoActivityCache.remove(key);
+      clearCache();
+    }
+    return a;
+  }
+
+  @Override
+  public List<String> getScheduledActivityIds(long dueTime, int offset, int limit) {
+    return storage.getScheduledActivityIds(dueTime, offset, limit);
+  }
+
+  @Override
   public ExoSocialActivity pinActivity(String activityId, String userIdentityId) {
     ExoSocialActivity a = storage.pinActivity(activityId, userIdentityId);
     ActivityKey key = new ActivityKey(a.getId());
