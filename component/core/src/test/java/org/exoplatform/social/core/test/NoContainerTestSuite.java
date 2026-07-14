@@ -62,6 +62,13 @@ import io.meeds.social.space.template.service.SpaceTemplateServiceTest;
 import io.meeds.social.space.template.storage.SpaceTemplateStorageTest;
 import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
 import io.meeds.social.user.plugin.UserAclPluginTest;
+import io.meeds.social.identity.permission.listener.UserPermissionGroupListenerTest;
+import io.meeds.social.identity.permission.listener.UserPermissionMembershipListenerTest;
+import io.meeds.social.identity.permission.listener.UserPermissionNestedMembershipListenerTest;
+import io.meeds.social.identity.permission.search.UserPermissionIndexingConnectorTest;
+import io.meeds.social.identity.permission.service.UserPermissionServiceTest;
+import io.meeds.social.identity.permission.storage.UserPermissionStorageTest;
+import io.meeds.social.identity.permission.upgrade.UserPermissionBackfillUpgradePluginTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -103,7 +110,14 @@ import io.meeds.social.user.plugin.UserAclPluginTest;
     UserAclPluginTest.class,
     RemoveProfilePropertyUpgradePlugin.class,
     SpaceInvitationLinkLinkJoinListenerTest.class,
-    SpaceInvitationLinkLinkStorageTest.class
+    SpaceInvitationLinkLinkStorageTest.class,
+    UserPermissionServiceTest.class,
+    UserPermissionBackfillUpgradePluginTest.class,
+    UserPermissionGroupListenerTest.class,
+    UserPermissionNestedMembershipListenerTest.class,
+    UserPermissionMembershipListenerTest.class,
+    UserPermissionStorageTest.class,
+    UserPermissionIndexingConnectorTest.class
 })
 public class NoContainerTestSuite {
 
