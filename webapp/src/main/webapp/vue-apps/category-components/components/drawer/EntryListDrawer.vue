@@ -93,7 +93,8 @@ export default {
         this.$categoryService.getAncestorIds(this.categoryId),
       ]);
       const ancestors = await Promise.all((ancestorIds || []).map(id => this.$categoryService.getCategory(id)));
-      this.breadcrumb = [...ancestors.reverse(), category].filter(cat => cat);
+      // The tree root category has no meaningful display name (the Home icon already represents it)
+      this.breadcrumb = [...ancestors.reverse(), category].filter(cat => cat && cat.parentId !== 0);
     },
     async loadEntries() {
       this.loading = true;
