@@ -48,6 +48,9 @@ public class ActivityEntity extends BaseEntity {
     setHidden(activity.isHidden());
     setSharedActions(activity.getShareActions());
     setTemplateParams(activity.getTemplateParams());
+    if (activity.getPublicationStartTime() != null) {
+      setPublicationStartTime(activity.getPublicationStartTime());
+    }
   }
 
   public ActivityEntity setIdentity(LinkEntity identity) {
@@ -150,6 +153,16 @@ public class ActivityEntity extends BaseEntity {
 
   public boolean isHidden() {
     return (Boolean) getProperty("hidden");
+  }
+
+  public ActivityEntity setPublicationStartTime(Long publicationStartTime) {
+    setProperty("publicationStartTime", publicationStartTime);
+    return this;
+  }
+
+  public Long getPublicationStartTime() {
+    Object publicationStartTime = getProperty("publicationStartTime");
+    return publicationStartTime == null ? null : Long.valueOf(publicationStartTime.toString());
   }
 
   public String getPinDate() {

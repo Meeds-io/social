@@ -295,6 +295,12 @@ public class ActivityRest implements ResourceContainer {
     activity.setType(model.getType());
     activity.setUserId(authenticatedUserIdentity.getId());
     activity.setFiles(model.getFiles());
+    if (model.getPublicationStartTime() != null && model.getPublicationStartTime() > 0) {
+      if (model.getPublicationStartTime() <= System.currentTimeMillis()) {
+        return Response.status(Response.Status.BAD_REQUEST).entity("activity.publicationStartTimeMustBeInFuture").build();
+      }
+      activity.setPublicationStartTime(model.getPublicationStartTime());
+    }
 
     EntityBuilder.buildActivityParamsFromEntity(activity, model.getTemplateParams());
 
@@ -785,6 +791,11 @@ public class ActivityRest implements ResourceContainer {
     ExoSocialActivity activity = activityManager.getActivity(activityId);
     if (!activityManager.isActivityEditable(activity, ConversationState.getCurrent().getIdentity())) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    if (activity.getPublicationStartTime() != null) {
+      // A scheduled activity is published by its schedule or by editing it,
+      // not through the unhide operation
+      return Response.status(Response.Status.BAD_REQUEST).entity("activity.scheduledActivityCannotBeUnhidden").build();
     }
     activity.isHidden(false);
     activityManager.updateActivity(activity, true);

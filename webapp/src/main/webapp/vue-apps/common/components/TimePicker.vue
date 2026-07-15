@@ -90,6 +90,10 @@ export default {
         return;
       }
       const timeOption = this.timeOptionsByValue[this.timeValue];
+      if (!timeOption) {
+        this.$emit('input', null);
+        return;
+      }
       if (this.valueType === 'date') {
         const date = new Date(this.value);
         date.setHours(timeOption.hours);
@@ -160,11 +164,12 @@ export default {
     },
     computeTimeValue() {
       const selectedOption = this.timeOptionsByValue[this.timeValue];
-      if (selectedOption && !selectedOption.enabled) {
-        this.timeValue = this.minTimeValue;
-      }
-      if (!this.timeValue) {
-        this.timeValue = this.minTimeValue;
+      if (!this.timeValue || (selectedOption && !selectedOption.enabled)) {
+        // Snap to the first selectable option: the minTimeValue itself isn't
+        // necessarily part of the options when it isn't aligned on the
+        // configured interval
+        const firstEnabledOption = this.timeOptions.find(timeOption => timeOption.enabled);
+        this.timeValue = firstEnabledOption?.value || this.minTimeValue;
       }
     },
     getTimeValue(hour, minute) {
