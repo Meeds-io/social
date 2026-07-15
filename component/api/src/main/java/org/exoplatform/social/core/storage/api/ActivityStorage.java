@@ -1160,6 +1160,28 @@ public interface ActivityStorage {
   }
 
   /**
+   * Publishes a scheduled activity: makes it visible in streams with a posted
+   * time equal to the publication time and clears its scheduled time
+   *
+   * @param activityId Activity Identifier to publish
+   * @return published {@link ExoSocialActivity}, or null when the activity
+   *         isn't a pending scheduled activity anymore
+   */
+  default ExoSocialActivity publishScheduledActivity(String activityId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param dueTime scheduled time upper bound in milliseconds
+   * @param offset the offset index
+   * @param limit maximum number of items to load
+   * @return {@link List} of scheduled activity ids due for publication
+   */
+  default List<String> getScheduledActivityIds(long dueTime, int offset, int limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * @param activityId {@link ExoSocialActivity} technical identifier
    * @return true if activity exists else false
    */

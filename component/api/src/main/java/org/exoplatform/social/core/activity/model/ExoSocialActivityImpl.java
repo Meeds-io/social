@@ -115,6 +115,8 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
 
   private Long postedTime;
 
+  private Long publicationStartTime;
+
   private Date updated;
 
   private boolean pinned;
@@ -557,6 +559,16 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
 
   public void setPostedTime(Long postedTime) {
     this.postedTime = postedTime;
+  }
+
+  @Override
+  public Long getPublicationStartTime() {
+    return publicationStartTime;
+  }
+
+  @Override
+  public void setPublicationStartTime(Long publicationStartTime) {
+    this.publicationStartTime = publicationStartTime;
   }
 
   public String getUrl() {

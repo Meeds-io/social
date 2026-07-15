@@ -213,9 +213,23 @@ public class ActivityManagerImpl implements ActivityManager {
       return;
     }
 
+    if (newActivity.getPublicationStartTime() != null) {
+      if (newActivity.getPublicationStartTime() <= System.currentTimeMillis()) {
+        throw new IllegalArgumentException("activity.publicationStartTimeMustBeInFuture");
+      }
+      // A scheduled activity stays hidden from streams, search and
+      // notifications until its publication time
+      newActivity.isHidden(true);
+    }
+
     ExoSocialActivity savedActivity = activityStorage.saveActivity(streamOwner, newActivity);
     newActivity.setId(savedActivity.getId());
-    activityLifeCycle.saveActivity(newActivity);
+    if (newActivity.getPublicationStartTime() == null) {
+      // The creation lifecycle event of a scheduled activity is broadcasted
+      // only once, at publication time, so that notifications and other
+      // listeners process the activity when it becomes visible
+      activityLifeCycle.saveActivity(newActivity);
+    }
   }
 
   /**
@@ -396,6 +410,17 @@ public class ActivityManagerImpl implements ActivityManager {
     // so,
     // as a solution we pass them throw the activity's template params
     ExoSocialActivity existingActivity = getActivity(activityId);
+    if (activity.getPublicationStartTime() != null) {
+      if (existingActivity.getPublicationStartTime() == null) {
+        // An already posted activity can never become a scheduled one
+        throw new IllegalArgumentException("activity.publicationStartTimeNotAllowedOnPostedActivity");
+      } else if (!activity.getPublicationStartTime().equals(existingActivity.getPublicationStartTime())
+                 && activity.getPublicationStartTime() <= System.currentTimeMillis()) {
+        throw new IllegalArgumentException("activity.publicationStartTimeMustBeInFuture");
+      }
+      // A rescheduled activity stays hidden until its publication time
+      activity.isHidden(true);
+    }
     String[] previousMentions = existingActivity.getMentionedIds();
     activityStorage.updateActivity(activity);
 
@@ -455,6 +480,23 @@ public class ActivityManagerImpl implements ActivityManager {
     return activity;
   }
 
+  @Override
+  public ExoSocialActivity publishScheduledActivity(String activityId) {
+    if (StringUtils.isBlank(activityId)) {
+      throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
+    }
+    ExoSocialActivity activity = activityStorage.publishScheduledActivity(activityId);
+    if (activity != null) {
+      activityLifeCycle.saveActivity(activity);
+    }
+    return activity;
+  }
+
+  @Override
+  public List<String> getScheduledActivityIds(long dueTime, int offset, int limit) {
+    return activityStorage.getScheduledActivityIds(dueTime, offset, limit);
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -465,6 +507,10 @@ public class ActivityManagerImpl implements ActivityManager {
     if (existingActivity.getId() == null) {
       LOG.debug("Comment could not be saved because activity id is null.");
       return;
+    }
+    if (existingActivity.getPublicationStartTime() != null) {
+      throw new ActivityStorageException(ActivityStorageException.Type.FAILED_TO_SAVE_COMMENT,
+                                         "Comments aren't allowed on a scheduled activity which isn't published yet");
     }
     String activityType = existingActivity.getType();
     String commentActivityType = comment.getType();

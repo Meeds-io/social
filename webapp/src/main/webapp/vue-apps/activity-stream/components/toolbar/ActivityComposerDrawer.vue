@@ -174,16 +174,99 @@
     <template #footer>
       <div class="d-flex">
         <v-spacer />
-        <v-btn
-          id="activityComposerPostButton"
-          :disabled="postDisabled"
-          :loading="loading"
-          :aria-label="$t(`activity.composer.${composerAction}`)"
-          type="button"
-          class="primary btn no-box-shadow ms-auto"
-          @click="postMessage">
-          {{ composerActionLabel }}
-        </v-btn>
+        <v-menu
+          v-model="scheduleMode"
+          :close-on-content-click="false"
+          content-class="activityComposerSchedulePopup elevation-2 overflow-visible"
+          offset-y
+          top
+          left>
+          <template #activator="{ attrs }">
+            <div
+              v-bind="attrs"
+              class="d-flex">
+              <v-btn
+                id="activityComposerPostButton"
+                :disabled="postDisabled"
+                :loading="loading"
+                :aria-label="$t(`activity.composer.${composerAction}`)"
+                type="button"
+                class="primary btn no-box-shadow ms-auto"
+                @click="postMessage">
+                {{ composerActionLabel }}
+              </v-btn>
+              <v-menu
+                v-if="!activityId"
+                v-model="scheduleMenu"
+                offset-y
+                top
+                left>
+                <template #activator="{ on, attrs: menuAttrs }">
+                  <v-btn
+                    id="activityComposerScheduleMenuButton"
+                    :disabled="postDisabled"
+                    :aria-label="$t('activity.composer.schedule.openMenu')"
+                    min-width="28"
+                    type="button"
+                    class="primary btn no-box-shadow px-0 ms-1"
+                    v-bind="menuAttrs"
+                    v-on="on">
+                    <v-icon size="16">fas fa-caret-down</v-icon>
+                  </v-btn>
+                </template>
+                <v-list
+                  class="pa-0"
+                  dense>
+                  <v-list-item
+                    id="activityComposerScheduleAction"
+                    :aria-label="$t('activity.composer.schedule')"
+                    class="px-2"
+                    @click="openScheduleMode">
+                    <v-list-item-icon
+                      class="me-0 my-auto">
+                      <v-icon size="16">fas fa-clock</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>
+                      {{ $t('activity.composer.schedule') }}
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
+          </template>
+          <v-card
+            id="activityComposerScheduleInputs"
+            class="d-flex align-center flex-nowrap pa-2"
+            flat>
+            <date-picker
+              v-model="scheduledDate"
+              :attach="false"
+              :min-value="minScheduleDate"
+              :aria-label="$t('activity.composer.schedule.date')"
+              class="flex-grow-0 me-2"
+              top
+              return-iso
+              required />
+            <time-picker
+              v-model="scheduledHour"
+              :min="minScheduleHour"
+              :aria-label="$t('activity.composer.schedule.hour')"
+              class="flex-grow-0 ms-0 me-2" />
+            <v-btn
+              id="activityComposerScheduleConfirmButton"
+              :disabled="postDisabled || !scheduledDateTime"
+              :loading="loading"
+              :aria-label="$t('activity.composer.schedule.confirm')"
+              icon
+              @click="scheduleMessage">
+              <v-icon
+                size="20"
+                class="success--text">
+                fas fa-check
+              </v-icon>
+            </v-btn>
+          </v-card>
+        </v-menu>
       </div>
     </template>
   </exo-drawer>
@@ -218,6 +301,11 @@ export default {
       filterPreselection: false,
       filteredCategoryIds: [],
       selectedCategoryIds: [],
+      scheduleMenu: false,
+      scheduleMode: false,
+      scheduledDate: null,
+      scheduledHour: null,
+      pendingScheduledTime: null,
     };
   },
   computed: {
@@ -292,6 +380,23 @@ export default {
     },
     postVisibility() {
       return  this.postInYourNetwork || (this.postInYourSpacesChoice && !this.spaceId);
+    },
+    minScheduleDate() {
+      // User local date, not the UTC one that toISOString would give
+      return this.$dateUtil.getISODate(new Date());
+    },
+    minScheduleHour() {
+      // Restrict selectable hours only when the selected date is today, with
+      // a one minute margin so the snapped slot is always in the future
+      return this.scheduledDate === this.minScheduleDate && new Date(Date.now() + 60000) || null;
+    },
+    scheduledDateTime() {
+      if (!this.scheduledDate || !this.scheduledHour?.getHours) {
+        return null;
+      }
+      const dateTime = this.$dateUtil.getDateObjectFromString(this.scheduledDate, true);
+      dateTime.setHours(this.scheduledHour.getHours(), this.scheduledHour.getMinutes(), 0, 0);
+      return dateTime.getTime();
     }
   },
   watch: {
@@ -353,7 +458,9 @@ export default {
     },
     attachmentsEdit(attachments, changed) {
       this.attachments = attachments;
-      this.activityAttachmentsEdited = changed;
+      // When creating a post, an attachment change with an empty result
+      // (no attachment left) must not enable posting an empty activity
+      this.activityAttachmentsEdited = changed && (!!attachments?.length || !!this.activityId);
     },
     open(params) {
       params = params && params.detail;
@@ -373,6 +480,7 @@ export default {
         this.templateParams = {};
         this.files = [];
         this.activityType = [];
+        this.attachments = null;
       }
       this.allowFilteringPerCategory = !params?.activityId && params?.allowFilteringPerCategory || false;
       this.isFilteredStream = !params?.activityId && params?.isFilteredStream || false;
@@ -384,13 +492,34 @@ export default {
         this.filterPreselection = false;
         this.selectedCategoryIds = [];
       }
+      this.scheduleMode = false;
+      this.scheduledDate = null;
+      this.scheduledHour = null;
+      this.pendingScheduledTime = null;
       this.$nextTick().then(() => {
         this.activityBodyEdited = false;
+        this.activityAttachmentsEdited = false;
         this.messageEdited = false;
         this.loading = false;
         this.$refs.activityComposerDrawer.open();
         document.dispatchEvent(new CustomEvent('message-composer-opened'));
       });
+    },
+    openScheduleMode() {
+      const defaultSchedule = new Date();
+      defaultSchedule.setDate(defaultSchedule.getDate() + 1);
+      defaultSchedule.setHours(8, 0, 0, 0);
+      this.scheduledHour = new Date(defaultSchedule.getTime());
+      this.scheduledDate = this.$dateUtil.getISODate(defaultSchedule);
+      this.scheduleMode = true;
+    },
+    scheduleMessage() {
+      if (!this.scheduledDateTime || this.scheduledDateTime <= Date.now()) {
+        this.$root.$emit('alert-message', this.$t('activity.composer.schedule.mustBeInFuture'), 'warning');
+        return;
+      }
+      this.pendingScheduledTime = this.scheduledDateTime;
+      this.postMessage();
     },
     close() {
       if (this.ckEditorInstance) {
@@ -444,7 +573,8 @@ export default {
           if (!this.spaceId && !!eXo.env.portal.spaceId) {
             this.spaceId = eXo.env.portal.spaceId;
           }
-          this.$activityService.createActivity(message, activityType, this.files, this.spaceId, this.templateParams)
+          const scheduledTime = this.pendingScheduledTime;
+          this.$activityService.createActivity(message, activityType, this.files, this.spaceId, this.templateParams, scheduledTime)
             .then(activity => {
               this.activityId = activity.id;
               this.templateParams = activity.templateParams;
@@ -465,6 +595,9 @@ export default {
             })
             .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
+              if (scheduledTime) {
+                this.$root.$emit('alert-message', this.$t('activity.composer.schedule.success'), 'success');
+              }
               this.resetAudienceChoice();
               this.close();
             })
@@ -473,7 +606,10 @@ export default {
               console.error('Error when posting message', error);
               this.$root.$emit('alert-message', this.$t('activityStream.errorUpdatingActivity'), 'error');
             })
-            .finally(() => this.loading = false);
+            .finally(() => {
+              this.loading = false;
+              this.pendingScheduledTime = null;
+            });
         }
       }
     },
