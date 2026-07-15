@@ -707,6 +707,106 @@ public class ActivityManagerTest extends AbstractCoreTest {
   }
 
   /**
+   * Test {@link ActivityManager#saveActivityNoReturn(Identity, ExoSocialActivity)}
+   * with a publication start time
+   */
+  public void testScheduleActivity() {
+    long publicationStartTime = System.currentTimeMillis() + 3600000l;
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("scheduled activity");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(publicationStartTime);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+
+    activity = activityManager.getActivity(activity.getId());
+    assertNotNull(activity);
+    assertTrue("Scheduled activity must stay hidden until publication", activity.isHidden());
+    assertEquals(Long.valueOf(publicationStartTime), activity.getPublicationStartTime());
+
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivityFeedWithListAccess(johnIdentity);
+    assertEquals("Scheduled activity mustn't be displayed in stream", 0, activities.getSize());
+
+    List<String> scheduledActivityIds = activityManager.getScheduledActivityIds(publicationStartTime + 60000l, 0, 10);
+    assertTrue("Scheduled activity must be returned as due for publication",
+               scheduledActivityIds.contains(activity.getId()));
+  }
+
+  /**
+   * Test {@link ActivityManager#saveActivityNoReturn(Identity, ExoSocialActivity)}
+   * with a publication start time in the past
+   */
+  public void testScheduleActivityInPastNotAllowed() {
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("scheduled activity");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(System.currentTimeMillis() - 60000l);
+
+    assertThrows(IllegalArgumentException.class, () -> activityManager.saveActivityNoReturn(johnIdentity, activity));
+  }
+
+  /**
+   * Test {@link ActivityManager#publishScheduledActivity(String)}
+   */
+  public void testPublishScheduledActivity() {
+    long publicationStartTime = System.currentTimeMillis() + 3600000l;
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("scheduled activity");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(publicationStartTime);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    String activityId = activity.getId();
+
+    ExoSocialActivity publishedActivity = activityManager.publishScheduledActivity(activityId);
+    assertNotNull(publishedActivity);
+    assertFalse("Published activity mustn't be hidden anymore", publishedActivity.isHidden());
+    assertNull("Published activity mustn't have a publication start time anymore",
+               publishedActivity.getPublicationStartTime());
+    assertTrue("Published activity posted time must be the publication time",
+               publishedActivity.getPostedTime() >= publicationStartTime - 3600000l);
+
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivityFeedWithListAccess(johnIdentity);
+    assertEquals("Published activity must be displayed in stream", 1, activities.getSize());
+
+    assertNull("Publishing an already published activity must have no effect",
+               activityManager.publishScheduledActivity(activityId));
+  }
+
+  /**
+   * Test {@link ActivityManager#updateActivity(ExoSocialActivity, boolean)}
+   * with a publication start time on an already posted activity
+   */
+  public void testCannotAddPublicationStartTimeToPostedActivity() {
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("posted activity");
+    activity.setUserId(johnIdentity.getId());
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+
+    ExoSocialActivity postedActivity = activityManager.getActivity(activity.getId());
+    postedActivity.setPublicationStartTime(System.currentTimeMillis() + 3600000l);
+
+    assertThrows(IllegalArgumentException.class, () -> activityManager.updateActivity(postedActivity, true));
+  }
+
+  /**
+   * Test {@link ActivityManager#saveComment(ExoSocialActivity, ExoSocialActivity)}
+   * on a scheduled activity
+   */
+  public void testCannotCommentScheduledActivity() {
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("scheduled activity");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(System.currentTimeMillis() + 3600000l);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    ExoSocialActivity scheduledActivity = activityManager.getActivity(activity.getId());
+
+    ExoSocialActivity comment = new ExoSocialActivityImpl();
+    comment.setTitle("comment");
+    comment.setUserId(maryIdentity.getId());
+
+    assertThrows(ActivityStorageException.class, () -> activityManager.saveComment(scheduledActivity, comment));
+  }
+
+  /**
    * Test {@link ActivityManager#pinActivity(String, String)} Test
    * {@link ActivityManager#unpinActivity(String)}
    */

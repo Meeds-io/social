@@ -144,6 +144,31 @@ public interface ActivityManager {
   }
 
   /**
+   * Publishes a scheduled activity: makes it visible in streams with a posted
+   * time equal to the publication time, and broadcasts the activity creation
+   * lifecycle event so that notifications, indexing and streams update happen
+   * at publication time. Publication is idempotent: only the first caller
+   * actually publishes.
+   *
+   * @param activityId Activity Identifier to publish
+   * @return published {@link ExoSocialActivity}, or null when the activity
+   *         isn't a pending scheduled activity
+   */
+  default ExoSocialActivity publishScheduledActivity(String activityId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param dueTime scheduled time upper bound in milliseconds
+   * @param offset the offset index
+   * @param limit maximum number of items to load
+   * @return {@link List} of scheduled activity ids due for publication
+   */
+  default List<String> getScheduledActivityIds(long dueTime, int offset, int limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Creates or updates a comment or a comment reply on a specific activity.
    *
    * @param activity The activity.

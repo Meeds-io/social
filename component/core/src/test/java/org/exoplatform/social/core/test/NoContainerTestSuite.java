@@ -44,9 +44,11 @@ import org.exoplatform.social.core.relationship.RelationshipTest;
 import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
 
+import io.meeds.social.activity.schedule.ActivityPublicationPluginTest;
 import io.meeds.social.authorization.AuthorizationManagerTest;
 import io.meeds.social.category.service.CategoryServiceUnitTest;
 import io.meeds.social.coediting.service.CoeditingServiceTest;
+import io.meeds.social.publication.service.ContentPublicationServiceTest;
 import io.meeds.social.core.identity.service.UserExportServiceTest;
 import io.meeds.social.core.identity.service.UserImportServiceTest;
 import io.meeds.social.core.plugin.SiteAttachmentPluginTest;
@@ -103,7 +105,9 @@ import io.meeds.social.user.plugin.UserAclPluginTest;
     UserAclPluginTest.class,
     RemoveProfilePropertyUpgradePlugin.class,
     SpaceInvitationLinkLinkJoinListenerTest.class,
-    SpaceInvitationLinkLinkStorageTest.class
+    SpaceInvitationLinkLinkStorageTest.class,
+    ContentPublicationServiceTest.class,
+    ActivityPublicationPluginTest.class
 })
 public class NoContainerTestSuite {
 

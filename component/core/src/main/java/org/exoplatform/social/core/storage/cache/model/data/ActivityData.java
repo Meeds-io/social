@@ -89,6 +89,8 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
 
   private final Long                            pinAuthorId;
 
+  private final Long                            publicationStartTime;
+
   private List<Long>                      categoryIds;
 
 
@@ -141,6 +143,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     this.pinned = activity.isPinned();
     this.pinDate = activity.getPinDate();
     this.pinAuthorId = activity.getPinAuthorId();
+    this.publicationStartTime = activity.getPublicationStartTime();
     this.categoryIds = activity.getCategoryIds();
   }
 
@@ -198,6 +201,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     activity.setPinned(pinned);
     activity.setPinDate(pinDate);
     activity.setPinAuthorId(pinAuthorId);
+    activity.setPublicationStartTime(publicationStartTime);
     activity.setCategoryIds(categoryIds);
 
     return activity;
@@ -301,6 +305,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
             pinned == that.pinned &&
             Objects.equals(pinDate, that.pinDate) &&
             Objects.equals(pinAuthorId, that.pinAuthorId) &&
+            Objects.equals(publicationStartTime, that.publicationStartTime) &&
             Objects.equals(categoryIds, that.categoryIds);
   }
 
@@ -309,6 +314,6 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     return Objects.hash(id, title, body, likes, isComment, isHidden, isLocked, postedTime, lastUpdated, replyIds,
             userId, spaceId, appId, titleId, bodyId, type, templateParams, externalId, url, streamId, streamOwner, streamFaviconUrl,
             streamSourceUrl, streamTitle, streamUrl, mentioners, commenters, streamType, posterId, parentId, parentCommentId,
-            shareActions, files, pinned, pinDate, pinAuthorId, categoryIds);
+            shareActions, files, pinned, pinDate, pinAuthorId, publicationStartTime, categoryIds);
   }
 }
