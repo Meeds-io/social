@@ -36,6 +36,11 @@ public class ActivityNotificationImpl extends ActivityListenerPlugin {
   @Override
   public void saveActivity(ActivityLifeCycleEvent event) {
     ExoSocialActivity originalActivity = event.getSource();
+    if (originalActivity.isHidden()) {
+      // Hidden activities (like scheduled ones) must not notify: the same
+      // event is broadcasted again, unhidden, at publication time
+      return;
+    }
     ExoSocialActivity activity = CommonsUtils.getService(ActivityManager.class).getActivity(originalActivity.getId());
     NotificationContext ctx = NotificationContextImpl.cloneInstance().append(SocialNotificationUtils.ACTIVITY, activity);
     ctx.append(SocialNotificationUtils.ORIGINAL_TITLE, originalActivity.getTitle());
@@ -49,6 +54,11 @@ public class ActivityNotificationImpl extends ActivityListenerPlugin {
   @Override
   public void updateActivity(ActivityLifeCycleEvent event) {
     ExoSocialActivity activity = event.getSource();
+    if (activity.isHidden()) {
+      // No edit nor mention notification while the activity is hidden (like a
+      // scheduled activity): mentions are notified at publication time
+      return;
+    }
     Map<String, String> mentionsTemplateParams = activity.getTemplateParams() != null ? activity.getTemplateParams()
                                                                                       : new HashMap<>();
     activity = CommonsUtils.getService(ActivityManager.class).getActivity(activity.getId());

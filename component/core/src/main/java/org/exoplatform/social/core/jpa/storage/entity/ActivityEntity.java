@@ -67,6 +67,11 @@ import lombok.Setter;
         ),
         @NamedQuery(name = "SocActivity.migratePosterId", query = "UPDATE SocActivity a SET a.posterId = :newId WHERE a.posterId = :oldId"),
         @NamedQuery(name = "SocActivity.migrateOwnerId", query = "UPDATE SocActivity a SET a.ownerId = :newId WHERE a.ownerId = :oldId"),
+        @NamedQuery(name = "SocActivity.getScheduledActivityIds",
+                query = "SELECT a.id FROM SocActivity a WHERE a.publicationStartTime IS NOT NULL AND a.publicationStartTime <= :dueTime ORDER BY a.publicationStartTime ASC"),
+        @NamedQuery(name = "SocActivity.publishScheduledActivity",
+                query = "UPDATE SocActivity a SET a.hidden = false, a.publicationStartTime = NULL, a.posted = :publishTime, a.updatedDate = :publishTime"
+                    + " WHERE a.id = :activityId AND a.publicationStartTime IS NOT NULL"),
 
         @NamedQuery(name = "SocActivity.getAllActivities", query = "SELECT a FROM SocActivity a WHERE a.isComment = false AND a.parent IS NULL"),
         @NamedQuery(name = "SocActivity.findCommentsOfActivity", query = "SELECT a FROM SocActivity a WHERE a.parent.id = :activityId ORDER BY a.posted ASC"),
@@ -354,7 +359,14 @@ public class ActivityEntity implements Serializable {
 
   @Column(name = "PIN_AUTHOR_ID")
   private Long pinAuthorId;
-  
+
+  /** Publication time of a scheduled activity; non-null means not yet published */
+  @Getter
+  @Setter
+  @Column(name = "PUBLICATION_START_TIME")
+  private Long publicationStartTime;
+
+
   @ElementCollection
   @CollectionTable(
     name = "SOC_ACTIVITY_LIKERS",

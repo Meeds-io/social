@@ -115,6 +115,35 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
 
   @Override
+  public List<Long> getScheduledActivityIds(long dueTime, int offset, int limit) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SocActivity.getScheduledActivityIds", Long.class);
+    query.setParameter("dueTime", dueTime);
+    if (limit > 0) {
+      query.setFirstResult(Math.max(offset, 0));
+      query.setMaxResults(limit);
+    }
+    return query.getResultList();
+  }
+
+  @Override
+  @ExoTransactional
+  public boolean claimScheduledActivity(long activityId, long publishTime) {
+    Query query = getEntityManager().createNamedQuery("SocActivity.publishScheduledActivity");
+    query.setParameter(ACTIVITY_ID_PARAM, activityId);
+    query.setParameter("publishTime", publishTime);
+    boolean claimed = query.executeUpdate() > 0;
+    if (claimed) {
+      // The bulk update bypasses the persistence context: refresh the entity
+      // so that callers of the current transaction don't read a stale state
+      ActivityEntity activityEntity = getEntityManager().find(ActivityEntity.class, activityId);
+      if (activityEntity != null) {
+        getEntityManager().refresh(activityEntity);
+      }
+    }
+    return claimed;
+  }
+
+  @Override
   public List<String> getUserIdsActivities(Identity owner, long offset, long limit) throws ActivityStorageException {
     long ownerId = Long.parseLong(owner.getId());
 

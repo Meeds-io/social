@@ -1338,4 +1338,12 @@
       <column name="EXTENDED_PROPERTIES" type="LONGTEXT"/>
     </addColumn>
   </changeSet>
+  <changeSet id="1.0.0-126" author="social">
+    <addColumn tableName="SOC_ACTIVITIES">
+      <column name="PUBLICATION_START_TIME" type="BIGINT"/>
+    </addColumn>
+    <createIndex tableName="SOC_ACTIVITIES" indexName="IDX_SOC_ACTIVITIES_06">
+      <column name="PUBLICATION_START_TIME"/>
+    </createIndex>
+  </changeSet>
 </databaseChangeLog>

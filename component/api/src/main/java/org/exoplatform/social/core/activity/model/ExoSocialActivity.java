@@ -115,6 +115,24 @@ public interface ExoSocialActivity extends CacheEntry {
   void isHidden(boolean isHiddenOrNot);
   
   /**
+   * @return the scheduled publication time in milliseconds, or null when the
+   *         activity isn't a pending scheduled activity
+   */
+  default Long getPublicationStartTime() {
+    return null;
+  }
+
+  /**
+   * Sets the scheduled publication time of the activity.
+   *
+   * @param publicationStartTime scheduled publication time in milliseconds, null when
+   *          not scheduled
+   */
+  default void setPublicationStartTime(Long publicationStartTime) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * To know if this is a locked activity.
    *
    * @return true or false

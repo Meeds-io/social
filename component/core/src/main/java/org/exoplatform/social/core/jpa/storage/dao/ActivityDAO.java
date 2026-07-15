@@ -53,6 +53,30 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
   List<String> getUserIdsActivities(Identity owner, long offset, long limit) throws ActivityStorageException;
 
   /**
+   * @param dueTime scheduled time upper bound in milliseconds
+   * @param offset the offset index
+   * @param limit maximum number of items to load
+   * @return the list of scheduled activity ids due for publication
+   */
+  default List<Long> getScheduledActivityIds(long dueTime, int offset, int limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Atomically flips a scheduled activity to published state (visible, posted
+   * now, no more scheduled time). Only one caller can win the claim, making
+   * publication idempotent and cluster-safe.
+   *
+   * @param activityId the activity id
+   * @param publishTime publication time in milliseconds
+   * @return true when the activity was claimed by this call, false when it was
+   *         already published or isn't scheduled
+   */
+  default boolean claimScheduledActivity(long activityId, long publishTime) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * @param activityFilter the activity filter
    * @param spaceIdentityIds the space identity ids
    * @param offset the offset index
