@@ -50,4 +50,5 @@ export function init(event) {
   } else {
     document.dispatchEvent(new CustomEvent('open-preview-dialog', event));
   }
+  Vue.prototype.$utils.includeExtensions('Preview');
 }
