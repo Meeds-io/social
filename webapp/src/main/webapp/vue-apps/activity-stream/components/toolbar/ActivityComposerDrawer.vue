@@ -247,11 +247,13 @@
               top
               return-iso
               required />
-            <time-picker
-              v-model="scheduledHour"
-              :min="minScheduleHour"
-              :aria-label="$t('activity.composer.schedule.hour')"
-              class="flex-grow-0 ms-0 me-2" />
+            <div class="d-flex ms-n4">
+              <time-picker
+                v-model="scheduledHour"
+                :min="minScheduleHour"
+                :aria-label="$t('activity.composer.schedule.hour')"
+                class="flex-grow-0 me-3" />
+            </div>
             <v-btn
               id="activityComposerScheduleConfirmButton"
               :disabled="postDisabled || !scheduledDateTime"

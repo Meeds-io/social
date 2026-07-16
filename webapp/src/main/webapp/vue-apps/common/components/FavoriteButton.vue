@@ -1,13 +1,14 @@
 <template>
   <div :class="!displayLabel && 'd-inline-flex'">
-    <v-tooltip bottom>
+    <v-tooltip :disabled="disabled" bottom>
       <template v-if="!displayLabel" #activator="{ on, attrs }">
         <v-btn
           :id="`FavoriteLink_${type}_${id}`"
           :style="buttonStyle"
           :loading="loading"
-          :disabled="loading"
-          :aria-label="favoriteTooltip"
+          :disabled="loading || disabled"
+          :class="disabled && 'opacity-5'"
+          :aria-label="buttonAriaLabel"
           class="pa-0 mt-0"
           icon
           :small="small"
@@ -109,6 +110,14 @@ export default {
       type: Number,
       default: () => 16,
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    disabledLabel: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     isFavorite: false,
@@ -127,6 +136,14 @@ export default {
     },
     favoriteTooltip() {
       return this.isFavorite && this.$t('Favorite.tooltip.DeleteFavorite') || this.$t('Favorite.tooltip.AddAsFavorite');
+    },
+    buttonAriaLabel() {
+      // Expose in the accessible label the disabled reason shown by the
+      // tooltip
+      if (this.disabled && this.disabledLabel) {
+        return `${this.favoriteTooltip}. ${this.disabledLabel}`;
+      }
+      return this.favoriteTooltip;
     },
     favoriteIconColor() {
       return this.isFavorite && 'yellow--text text--darken-2 ma-n2px' || 'icon-default-color';

@@ -48,4 +48,6 @@ public class ActivityFilter implements Serializable {
 
   private boolean            pinned;
 
+  private boolean            scheduled;
+
 }
