@@ -18,6 +18,8 @@
  */
 package io.meeds.social.cms.service;
 
+import java.util.List;
+
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.services.security.Identity;
@@ -115,5 +117,11 @@ public interface CMSService {
    * @return {@link CMSSetting} if exists elase null
    */
   CMSSetting getSetting(String settingType, String settingName);
+
+  /**
+   * @param settingType Setting content type (notes, attachment, links...)
+   * @return all {@link CMSSetting} registered for the given content type
+   */
+  List<CMSSetting> getSettingsByType(String settingType);
 
 }
