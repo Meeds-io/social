@@ -21,6 +21,8 @@
 -->
 <template>
   <v-card
+    :class="mobilePreview && 'mx-auto'"
+    :width="mobilePreview && 420 || undefined"
     class="d-flex align-center px-4"
     height="56">
     <div class="d-flex">
