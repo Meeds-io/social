@@ -219,6 +219,52 @@ public class CategoryServiceUnitTest {
     assertEquals(0, result.getOffset());
     assertEquals(2, result.getLimit());
     assertFalse(result.isHasMore());
+    // The page filled up exactly at the last raw row (typeA/4, index 4 of 5): the next page
+    // must resume right after it.
+    assertEquals(5, result.getNextOffset());
+  }
+
+  @Test
+  public void testGetCategoryEntriesPaginationAcrossPagesDoesNotSkipOrRepeat() {
+    // 5 raw rows share the category link, but "2" is filtered out (e.g. no access) - the
+    // exact scenario where naively advancing offset by limit (instead of by the number of raw
+    // rows actually consumed) would either skip or repeat entries on the next page.
+    List<String> objectTypes = Collections.singletonList(TYPE_A);
+    List<CategoryObject> firstBatch = Arrays.asList(new CategoryObject(TYPE_A, "1", 0l),
+                                                    new CategoryObject(TYPE_A, "2", 0l),
+                                                    new CategoryObject(TYPE_A, "3", 0l),
+                                                    new CategoryObject(TYPE_A, "4", 0l),
+                                                    new CategoryObject(TYPE_A, "5", 0l));
+    when(categoryStorage.getLinkedItems(CATEGORY_ID, objectTypes, 0, 6)).thenReturn(firstBatch);
+    when(categoryPluginService.canAccess(TYPE_A, "1", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "2", TEST_USER)).thenReturn(false);
+    when(categoryPluginService.canAccess(TYPE_A, "3", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "4", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "5", TEST_USER)).thenReturn(true);
+    CategoryEntryItem item1 = mock(CategoryEntryItem.class);
+    CategoryEntryItem item3 = mock(CategoryEntryItem.class);
+    CategoryEntryItem item4 = mock(CategoryEntryItem.class);
+    CategoryEntryItem item5 = mock(CategoryEntryItem.class);
+    when(categoryPluginService.getEntryItem(TYPE_A, "1", TEST_USER)).thenReturn(item1);
+    when(categoryPluginService.getEntryItem(TYPE_A, "3", TEST_USER)).thenReturn(item3);
+    when(categoryPluginService.getEntryItem(TYPE_A, "4", TEST_USER)).thenReturn(item4);
+    when(categoryPluginService.getEntryItem(TYPE_A, "5", TEST_USER)).thenReturn(item5);
+
+    CategoryEntryList firstPage = categoryService.getCategoryEntries(CATEGORY_ID, objectTypes, TEST_USER, 0, 2);
+    assertEquals(Arrays.asList(item1, item3), firstPage.getItems());
+    assertTrue(firstPage.isHasMore());
+    // Raw index 1 ("2") was filtered out and consumed without producing an item; the page still
+    // filled up at raw index 2 ("3"), so the next page must resume at index 3 - not at offset+limit=2,
+    // which would re-fetch "3" and return it twice.
+    assertEquals(3, firstPage.getNextOffset());
+
+    List<CategoryObject> secondBatch = Arrays.asList(new CategoryObject(TYPE_A, "4", 0l),
+                                                     new CategoryObject(TYPE_A, "5", 0l));
+    when(categoryStorage.getLinkedItems(CATEGORY_ID, objectTypes, 3, 6)).thenReturn(secondBatch);
+
+    CategoryEntryList secondPage = categoryService.getCategoryEntries(CATEGORY_ID, objectTypes, TEST_USER, firstPage.getNextOffset(), 2);
+    assertEquals(Arrays.asList(item4, item5), secondPage.getItems());
+    assertFalse(secondPage.isHasMore());
   }
 
 }

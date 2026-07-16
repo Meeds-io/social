@@ -50,12 +50,22 @@ public class CategoryPluginServiceImpl implements CategoryPluginService {
 
   @Override
   public CategoryPlugin getCategoryPlugin(String objectType) {
-    return categoryPluginsByType.computeIfAbsent(objectType,
-                                                 t -> categoryPlugins.stream()
-                                                                     .filter(c -> c.getType().equals(t))
-                                                                     .findFirst()
-                                                                     .orElseGet(() -> new DefaultCategoryPlugin(container,
-                                                                                                                objectType)));
+    CategoryPlugin plugin = categoryPluginsByType.get(objectType);
+    if (plugin != null) {
+      return plugin;
+    }
+    // Only cache an actually registered plugin. Plugins self-register asynchronously
+    // (each via its own @PostConstruct), so caching the DefaultCategoryPlugin fallback
+    // here would permanently poison this objectType if it's resolved before its plugin
+    // has registered yet.
+    return categoryPlugins.stream()
+                          .filter(c -> c.getType().equals(objectType))
+                          .findFirst()
+                          .map(p -> {
+                            categoryPluginsByType.put(objectType, p);
+                            return p;
+                          })
+                          .orElseGet(() -> new DefaultCategoryPlugin(container, objectType));
   }
 
   @Override

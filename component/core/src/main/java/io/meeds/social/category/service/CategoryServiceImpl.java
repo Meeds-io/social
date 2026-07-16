@@ -22,6 +22,7 @@ import static io.meeds.social.category.utils.Utils.isManagerOf;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -310,25 +312,68 @@ public class CategoryServiceImpl implements CategoryService {
   public CategoryEntryList getCategoryEntries(long categoryId, List<String> objectTypes, String username, long offset, long limit) {
     long fetchLimit = limit * 3;
     List<CategoryObject> linkedObjects = categoryStorage.getLinkedItems(categoryId, objectTypes, (int) offset, (int) fetchLimit);
-    // De-duplicate: when the same entry is linked switch several objectTypes, keep only the occurrence
-    // whose objectType comes first in the caller-supplied list.
+    return buildPagedEntryList(linkedObjects, objectTypes, username, offset, limit, fetchLimit, 0);
+  }
+
+  /**
+   * De-duplicates a raw, storage-ordered batch of {@link CategoryObject}s
+   * (when the same entry is linked with several objectTypes, keeps only the
+   * occurrence whose objectType comes first in the caller-supplied list),
+   * resolves each surviving object to a {@link CategoryEntryItem} with the
+   * designated user's permissions, and paginates the result with a
+   * {@link CategoryEntryList#getNextOffset()} that points at the exact raw
+   * storage row the next page must resume from - as opposed to advancing
+   * {@link #offset} by {@link #limit}, which does not account for rows
+   * dropped along the way by de-duplication or the accessibility check, and
+   * would otherwise skip or repeat entries on subsequent pages.
+   */
+  private CategoryEntryList buildPagedEntryList(List<CategoryObject> linkedObjects,
+                                                List<String> objectTypes,
+                                                String username,
+                                                long offset,
+                                                long limit,
+                                                long fetchLimit,
+                                                long spaceId) {
     Map<String, CategoryObject> deduplicated = new LinkedHashMap<>();
-    linkedObjects.forEach(object -> {
+    Map<String, Integer> firstIndexById = new HashMap<>();
+    IntStream.range(0, linkedObjects.size()).forEach(i -> {
+      CategoryObject object = linkedObjects.get(i);
       CategoryObject existing = deduplicated.get(object.getId());
-      if (existing == null || objectTypes.indexOf(object.getType()) < objectTypes.indexOf(existing.getType())) {
+      if (existing == null) {
+        deduplicated.put(object.getId(), object);
+        firstIndexById.put(object.getId(), i);
+      } else if (objectTypes.indexOf(object.getType()) < objectTypes.indexOf(existing.getType())) {
         deduplicated.put(object.getId(), object);
       }
     });
-    List<CategoryEntryItem> items = deduplicated.values()
-                                                .stream()
-                                                .filter(object -> categoryPluginService.canAccess(object.getType(), object.getId(), username))
-                                                .map(object -> categoryPluginService.getEntryItem(object.getType(), object.getId(), username))
-                                                .filter(Objects::nonNull)
-                                                .toList();
-    boolean hasMoreCandidates = linkedObjects.size() == fetchLimit;
-    boolean truncated = items.size() > limit;
-    List<CategoryEntryItem> page = truncated ? items.subList(0, (int) limit) : items;
-    return new CategoryEntryList(page, offset, limit, truncated || hasMoreCandidates);
+    List<CategoryEntryItem> items = new ArrayList<>();
+    int lastConsumedIndex = -1;
+    for (Map.Entry<String, CategoryObject> entry : deduplicated.entrySet()) {
+      CategoryObject object = entry.getValue();
+      if ((spaceId > 0 && object.getSpaceId() != spaceId) || !categoryPluginService.canAccess(object.getType(), object.getId(), username)) {
+        continue;
+      }
+      CategoryEntryItem item = categoryPluginService.getEntryItem(object.getType(), object.getId(), username);
+      if (item == null) {
+        continue;
+      }
+      items.add(item);
+      lastConsumedIndex = Math.max(lastConsumedIndex, firstIndexById.get(entry.getKey()));
+      if (items.size() == limit) {
+        break;
+      }
+    }
+    long nextOffset;
+    boolean hasMore;
+    if (items.size() == limit) {
+      nextOffset = offset + lastConsumedIndex + 1;
+      boolean reachedEndOfBatch = lastConsumedIndex == linkedObjects.size() - 1;
+      hasMore = !reachedEndOfBatch || linkedObjects.size() == fetchLimit;
+    } else {
+      nextOffset = offset + linkedObjects.size();
+      hasMore = linkedObjects.size() == fetchLimit;
+    }
+    return new CategoryEntryList(items, offset, limit, hasMore, nextOffset);
   }
 
   private long getAdminGroupIdentityId() {

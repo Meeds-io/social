@@ -73,8 +73,24 @@ public class CategoryPluginServiceImplTest {
 
     CategoryPlugin defaultPlugin = categoryPluginService.getCategoryPlugin("unregisteredType");
     assertEquals("unregisteredType", defaultPlugin.getType());
-    // Same instance is cached and returned on subsequent calls switch the same objectType
-    assertSame(defaultPlugin, categoryPluginService.getCategoryPlugin("unregisteredType"));
+  }
+
+  @Test
+  public void testDispatchToPluginRegisteredAfterAnInitialLookupMiss() {
+    // Plugins self-register asynchronously (each via its own @PostConstruct), so a lookup
+    // for an objectType can legitimately happen before that type's plugin has registered
+    // yet. The fallback returned in that case must not be cached, otherwise the objectType
+    // stays permanently stuck on the default no-op plugin even once the real one registers.
+    CategoryPluginServiceImpl categoryPluginService = new CategoryPluginServiceImpl();
+
+    CategoryPlugin defaultPlugin = categoryPluginService.getCategoryPlugin(OBJECT_TYPE);
+    assertEquals(OBJECT_TYPE, defaultPlugin.getType());
+
+    CategoryPlugin plugin = mock(CategoryPlugin.class);
+    when(plugin.getType()).thenReturn(OBJECT_TYPE);
+    categoryPluginService.addPlugin(plugin);
+
+    assertSame(plugin, categoryPluginService.getCategoryPlugin(OBJECT_TYPE));
   }
 
 }

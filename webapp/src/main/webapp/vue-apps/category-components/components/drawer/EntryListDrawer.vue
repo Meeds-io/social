@@ -107,13 +107,17 @@ export default {
         });
         this.items = [...this.items, ...(data?.items || [])];
         this.hasMore = !!data?.hasMore;
+        // The next page must resume at the raw storage row nextOffset points to, not at
+        // offset + limit: de-duplication and permission filtering can drop a variable number
+        // of rows between what was fetched and what's returned, so advancing by a fixed
+        // limit would skip or repeat entries on subsequent pages.
+        this.offset = data?.nextOffset ?? (this.offset + this.limit);
       } finally {
         this.loading = false;
       }
     },
     async loadMore() {
       this.loadingMore = true;
-      this.offset += this.limit;
       try {
         await this.loadEntries();
       } finally {

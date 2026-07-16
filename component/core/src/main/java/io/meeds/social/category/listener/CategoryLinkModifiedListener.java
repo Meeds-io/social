@@ -21,6 +21,7 @@ package io.meeds.social.category.listener;
 import static io.meeds.social.category.service.CategoryLinkService.EVENT_CATEGORY_LINK_ADDED;
 import static io.meeds.social.category.service.CategoryLinkService.EVENT_CATEGORY_LINK_REMOVED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -37,7 +38,6 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.activity.plugin.ActivityCategoryPlugin;
 import io.meeds.social.category.model.CategoryObject;
-import io.meeds.social.category.service.CategoryLinkService;
 import io.meeds.social.space.category.service.SpaceCategoryService;
 import io.meeds.social.space.plugin.SpaceCategoryPlugin;
 
@@ -57,9 +57,6 @@ public class CategoryLinkModifiedListener implements ListenerBase<Long, Category
 
   @Autowired
   private ListenerService      listenerService;
-
-  @Autowired
-  private CategoryLinkService  categoryLinkService;
 
   @PostConstruct
   public void init() {
@@ -87,10 +84,18 @@ public class CategoryLinkModifiedListener implements ListenerBase<Long, Category
       String activityId = object.getId();
       ExoSocialActivity activity = activityManager.getActivity(activityId);
       if (activity != null) {
-        List<Long> categoryIds = categoryLinkService.getLinkedIds(object);
-        if (CollectionUtils.size(activity.getCategoryIds()) != CollectionUtils.size(categoryIds)
-            || (CollectionUtils.size(categoryIds) > 0
-                && !CollectionUtils.isEqualCollection(categoryIds, activity.getCategoryIds()))) {
+        // Update the cached categoryIds incrementally from the event itself instead of
+        // re-querying the storage: the link/unlink that triggered this event may not be
+        // visible yet to a fresh query within the same request/transaction.
+        Long categoryId = event.getSource();
+        List<Long> categoryIds = activity.getCategoryIds() == null ? new ArrayList<>() : new ArrayList<>(activity.getCategoryIds());
+        boolean changed;
+        if (EVENT_CATEGORY_LINK_ADDED.equals(event.getEventName())) {
+          changed = !categoryIds.contains(categoryId) && categoryIds.add(categoryId);
+        } else {
+          changed = categoryIds.remove(categoryId);
+        }
+        if (changed) {
           activity.setCategoryIds(categoryIds);
           activityManager.updateActivity(activity);
         }

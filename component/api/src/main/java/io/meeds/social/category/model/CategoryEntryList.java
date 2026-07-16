@@ -37,4 +37,16 @@ public class CategoryEntryList {
 
   private boolean                   hasMore;
 
+  /**
+   * Raw storage offset to use for the next page request (i.e. "load more"),
+   * as opposed to {@link #offset}, which is the storage offset used to build
+   * this page. Since the number of items returned to the caller can differ
+   * from the number of raw storage rows consumed to build them (some rows are
+   * dropped by de-duplication and by the accessibility check), the caller
+   * must not simply advance {@link #offset} by {@link #limit} when loading
+   * the next page - doing so misaligns with the underlying storage and can
+   * skip or repeat entries.
+   */
+  private long                      nextOffset;
+
 }
