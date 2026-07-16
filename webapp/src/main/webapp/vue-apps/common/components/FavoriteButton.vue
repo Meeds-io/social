@@ -1,12 +1,13 @@
 <template>
   <div :class="!displayLabel && 'd-inline-flex'">
-    <v-tooltip bottom>
+    <v-tooltip :disabled="disabled" bottom>
       <template v-if="!displayLabel" #activator="{ on, attrs }">
         <v-btn
           :id="`FavoriteLink_${type}_${id}`"
           :style="buttonStyle"
           :loading="loading"
-          :disabled="loading"
+          :disabled="loading || disabled"
+          :class="disabled && 'opacity-5'"
           :aria-label="favoriteTooltip"
           class="pa-0 mt-0"
           icon
@@ -108,6 +109,10 @@ export default {
     iconSize: {
       type: Number,
       default: () => 16,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

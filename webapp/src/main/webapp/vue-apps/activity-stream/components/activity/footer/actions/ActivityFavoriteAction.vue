@@ -1,19 +1,32 @@
 <template>
-  <favorite-button
-    v-if="!isActivityShared"
-    :id="metadataObjectId"
-    :type="metadataObjectType"
-    :space-id="spaceId"
-    :favorite="isFavorite"
-    :absolute="absolute"
-    :top="top"
-    :right="right"
-    :template-params="templateParams"
-    :type-label="extensionName"
-    @removed="removed"
-    @remove-error="removeError"
-    @added="added"
-    @add-error="addError" />
+  <div v-if="!isActivityShared" class="d-inline-flex">
+    <v-tooltip :disabled="!isScheduled" bottom>
+      <template #activator="{ on, attrs }">
+        <div
+          :aria-disabled="isScheduled"
+          :aria-label="isScheduled && $t('activityStream.scheduledActionsDisabled') || null"
+          v-bind="attrs"
+          v-on="on">
+          <favorite-button
+            :id="metadataObjectId"
+            :type="metadataObjectType"
+            :space-id="spaceId"
+            :favorite="isFavorite"
+            :absolute="absolute"
+            :top="top"
+            :right="right"
+            :template-params="templateParams"
+            :type-label="extensionName"
+            :disabled="isScheduled"
+            @removed="removed"
+            @remove-error="removeError"
+            @added="added"
+            @add-error="addError" />
+        </div>
+      </template>
+      <span>{{ $t('activityStream.scheduledActionsDisabled') }}</span>
+    </v-tooltip>
+  </div>
 </template>
 
 <script>
@@ -42,6 +55,10 @@ export default {
     right: {
       type: Number,
       default: () => 0,
+    },
+    isScheduled: {
+      type: Boolean,
+      default: () => false
     },
   },
   data: () => ({
