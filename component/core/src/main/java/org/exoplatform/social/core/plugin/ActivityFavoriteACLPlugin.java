@@ -44,6 +44,6 @@ public class ActivityFavoriteACLPlugin extends FavoriteACLPlugin {
     if (activity == null) {
       throw new IllegalStateException("Activity with id " + objectId + " wasn't found");
     }
-    return activityManager.isActivityViewable(activity, userIdentity);
+    return activity.getPublicationStartTime() == null && activityManager.isActivityViewable(activity, userIdentity);
   }
 }

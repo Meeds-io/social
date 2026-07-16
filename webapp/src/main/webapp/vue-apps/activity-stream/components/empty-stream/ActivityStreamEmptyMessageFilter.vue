@@ -63,6 +63,8 @@ export default {
         return 'fa-feather-alt';
       case 'user_favorite_stream':
         return 'fa-star-half-alt';
+      case 'scheduled_stream':
+        return 'fa-clock';
       default:
         return '';
       }

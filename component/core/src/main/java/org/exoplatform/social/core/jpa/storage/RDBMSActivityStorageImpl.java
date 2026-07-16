@@ -617,6 +617,16 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         streamIdentityIds.addAll(connectionIds.stream().map(String::valueOf).toList());
       }
       break;
+    case SCHEDULED_STREAM:
+      activityFilter.setScheduled(true);
+      activityFilter.setUserId(viewerIdentity.getIdentityId());
+      if (activityFilter.getSpaceIdentityId() == 0) {
+        streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                       String.valueOf(SpaceMembershipStatus.MEMBER),
+                                                                       0,
+                                                                       -1);
+      }
+      break;
     default:
       throw new UnsupportedOperationException();
     }
@@ -719,6 +729,16 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityFilter.setPinned(true);
       activityFilter.setShowPinned(true);
       break;
+    case SCHEDULED_STREAM:
+      activityFilter.setScheduled(true);
+      activityFilter.setUserId(viewerIdentity.getIdentityId());
+      if (activityFilter.getSpaceIdentityId() == 0) {
+        streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                       String.valueOf(SpaceMembershipStatus.MEMBER),
+                                                                       0,
+                                                                       -1);
+      }
+      break;
     default:
       throw new UnsupportedOperationException();
     }
@@ -786,6 +806,16 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     case ANY_SPACE_ACTIVITY:
       if (activityFilter.getSpaceIdentityId() == 0) {
         return 0;
+      }
+      break;
+    case SCHEDULED_STREAM:
+      activityFilter.setScheduled(true);
+      activityFilter.setUserId(viewerIdentity.getIdentityId());
+      if (activityFilter.getSpaceIdentityId() == 0) {
+        streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                       String.valueOf(SpaceMembershipStatus.MEMBER),
+                                                                       0,
+                                                                       -1);
       }
       break;
     default:

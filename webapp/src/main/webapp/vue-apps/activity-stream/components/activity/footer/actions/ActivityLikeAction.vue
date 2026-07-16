@@ -3,13 +3,14 @@
     :class="cssClass"
     class="d-inline-flex">
     <!-- Added for mobile -->
-    <v-tooltip :disabled="isMobile" bottom>
+    <v-tooltip :disabled="isMobile || isScheduled" bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           :id="`LikeLink${activityId}`"
           :loading="changingLike"
-          :class="likeTextColorClass"
-          :aria-label="hasLiked ? $t('UIActivity.aria.Like') : $t('UIActivity.msg.LikeActivity')"
+          :disabled="isScheduled"
+          :class="[likeTextColorClass, isScheduled && 'opacity-5']"
+          :aria-label="likeAriaLabel"
           class="pa-0 mt-0"
           text
           link
@@ -49,6 +50,10 @@ export default {
       type: Object,
       default: null,
     },
+    isScheduled: {
+      type: Boolean,
+      default: () => false
+    },
   },
   data: () => ({
     changingLike: false,
@@ -66,6 +71,12 @@ export default {
     },
     likeButtonTitle() {
       return this.hasLiked && this.$t('UIActivity.msg.UnlikeActivity') || this.$t('UIActivity.msg.LikeActivity');
+    },
+    likeAriaLabel() {
+      const label = this.hasLiked && this.$t('UIActivity.aria.Like') || this.$t('UIActivity.msg.LikeActivity');
+      // Expose in the accessible label the disabled reason shown by the
+      // tooltip
+      return this.isScheduled && `${label}. ${this.$t('activityStream.scheduledActionsDisabled')}` || label;
     },
     cssClass() {
       return (this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.xl && !this.$root.reducedWidth) ? 'ms-4'

@@ -1,13 +1,14 @@
 <template>
   <div class="d-inline-flex ms-xl-4 ms-lg-3">
     <!-- Added for mobile -->
-    <v-tooltip :disabled="isMobile" bottom>
+    <v-tooltip :disabled="isMobile || isScheduled" bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           v-if="isShareable"
           :id="`ShareActivity${activityId}`"
-          :class="shareTextColorClass"
-          :aria-label="hasShared ? $t('UIActivity.aria.Share') : $t('UIActivity.share')"
+          :disabled="isScheduled"
+          :class="[shareTextColorClass, isScheduled && 'opacity-5']"
+          :aria-label="shareAriaLabel"
           class="pa-0 mt-0"
           text
           link
@@ -54,6 +55,10 @@ export default {
       type: Boolean,
       default: () => false
     },
+    isScheduled: {
+      type: Boolean,
+      default: () => false
+    },
   },
   data: () => ({
     hasShared: false,
@@ -76,6 +81,12 @@ export default {
     },
     shareIconColorClass() {
       return this.hasShared && 'primary--text' || 'disabled--text';
+    },
+    shareAriaLabel() {
+      const label = this.hasShared && this.$t('UIActivity.aria.Share') || this.$t('UIActivity.share');
+      // Expose in the accessible label the disabled reason shown by the
+      // tooltip
+      return this.isScheduled && `${label}. ${this.$t('activityStream.scheduledActionsDisabled')}` || label;
     },
   },
   created() {
