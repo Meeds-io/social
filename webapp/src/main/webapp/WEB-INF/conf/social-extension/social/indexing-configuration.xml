@@ -136,6 +136,20 @@
         </properties-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>PageContentIndexingConnector</name>
+      <set-method>addConnector</set-method>
+      <type>io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnector</type>
+      <description>Page Content Block ElasticSearch Indexing Connector</description>
+      <init-params>
+        <properties-param>
+          <name>constructor.params</name>
+          <property name="index_alias" value="page_content_alias" />
+          <property name="index_current" value="${meeds.social.index.page.current:page_content}" />
+          <property name="reindexOnUpgrade" value="${meeds.social.index.page.reindexOnUpgrade:true}" />
+        </properties-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>
