@@ -246,7 +246,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   confirmOkKey: 'UIActivity.label.Confirm_Delete_Activity-Button',
   confirmCancelKey: 'UIActivity.label.Cancel_Delete_Activity-Button',
   isEnabled: (activity, activityTypeExtension) => {
-    if (activityTypeExtension.canDelete && !activityTypeExtension.canDelete(activity)) {
+    if (activity.publicationStartTime || (activityTypeExtension.canDelete && !activityTypeExtension.canDelete(activity))) {
       return false;
     }
     return activity.canDelete === 'true';
@@ -261,6 +261,30 @@ extensionRegistry.registerExtension('activity', 'action', {
           document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
         }
       })
+      .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+  },
+});
+
+extensionRegistry.registerExtension('activity', 'action', {
+  id: 'cancelScheduling',
+  rank: 100,
+  labelKey: 'UIActivity.label.Delete',
+  icon: 'fa-trash-alt',
+  confirmDialog: true,
+  confirmMessageKey: 'activityStream.scheduledPost.cancelSchedulingMessage',
+  confirmTitleKey: 'activityStream.scheduledPost.cancelScheduling',
+  confirmOkKey: 'activityStream.scheduledPost.cancelSchedulingConfirm',
+  confirmCancelKey: 'UIActivity.label.Cancel_Delete_Activity-Button',
+  isEnabled: (activity, activityTypeExtension) => {
+    if (!activity.publicationStartTime || (activityTypeExtension.canDelete && !activityTypeExtension.canDelete(activity))) {
+      return false;
+    }
+    return activity.canDelete === 'true';
+  },
+  click: (activity) => {
+    document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+    return Vue.prototype.$activityService.deleteActivity(activity.id)
+      .then(() => document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id})))
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });
