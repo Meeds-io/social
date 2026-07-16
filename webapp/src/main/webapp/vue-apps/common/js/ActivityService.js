@@ -135,7 +135,7 @@ export function shareActivity(activityId, message, templateParams, spaces) {
   });
 }
 
-export function updateActivity(activityId, message, activityType, files, templateParams) {
+export function updateActivity(activityId, message, activityType, files, templateParams, publicationStartTime) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}`, {
     headers: {
       'Content-Type': 'application/json'
@@ -146,8 +146,22 @@ export function updateActivity(activityId, message, activityType, files, templat
       'title': message,
       'type': activityType,
       'templateParams': templateParams || {},
-      'files': files
+      'files': files,
+      'publicationStartTime': publicationStartTime || null
     })
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function publishActivity(activityId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/publish`, {
+    credentials: 'include',
+    method: 'PUT',
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
