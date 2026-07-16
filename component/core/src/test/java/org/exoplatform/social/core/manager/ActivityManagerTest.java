@@ -70,6 +70,7 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ProfileSearchConnector;
+import org.exoplatform.social.core.plugin.ActivityFavoriteACLPlugin;
 import org.exoplatform.social.core.jpa.storage.RDBMSIdentityStorageImpl;
 import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.profile.ProfileFilter;
@@ -804,6 +805,111 @@ public class ActivityManagerTest extends AbstractCoreTest {
     comment.setUserId(maryIdentity.getId());
 
     assertThrows(ActivityStorageException.class, () -> activityManager.saveComment(scheduledActivity, comment));
+  }
+
+  /**
+   * Test {@link ActivityManager#saveLike(ExoSocialActivity, Identity)}
+   * on a scheduled activity
+   */
+  public void testCannotLikeScheduledActivity() {
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("scheduled activity");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(System.currentTimeMillis() + 3600000l);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    ExoSocialActivity scheduledActivity = activityManager.getActivity(activity.getId());
+
+    assertThrows(ActivityStorageException.class, () -> activityManager.saveLike(scheduledActivity, maryIdentity));
+  }
+
+  /**
+   * Test {@link ActivityManager#shareActivity(ExoSocialActivity, String, List, org.exoplatform.services.security.Identity)}
+   * on a scheduled activity
+   */
+  public void testCannotShareScheduledActivity() {
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("scheduled activity");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(System.currentTimeMillis() + 3600000l);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    String activityId = activity.getId();
+
+    Space targetSpace = createSpace("ScheduledShareTargetSpace", "john", "john");
+    ExoSocialActivity shareActivityTemplate = new ExoSocialActivityImpl();
+    shareActivityTemplate.setTitle("share message");
+    org.exoplatform.services.security.Identity johnSecurityIdentity = new org.exoplatform.services.security.Identity("john");
+
+    assertThrows(IllegalAccessException.class,
+                 () -> activityManager.shareActivity(shareActivityTemplate,
+                                                     activityId,
+                                                     Arrays.asList(targetSpace.getPrettyName()),
+                                                     johnSecurityIdentity));
+  }
+
+  /**
+   * Test {@link ActivityFavoriteACLPlugin#canCreateFavorite(org.exoplatform.services.security.Identity, String)}
+   * on a scheduled activity
+   */
+  public void testCannotFavoriteScheduledActivity() {
+    ActivityFavoriteACLPlugin favoriteACLPlugin = new ActivityFavoriteACLPlugin(activityManager);
+    org.exoplatform.services.security.Identity johnSecurityIdentity = new org.exoplatform.services.security.Identity("john");
+
+    ExoSocialActivity postedActivity = new ExoSocialActivityImpl();
+    postedActivity.setTitle("posted activity");
+    postedActivity.setUserId(johnIdentity.getId());
+    activityManager.saveActivityNoReturn(johnIdentity, postedActivity);
+    assertTrue("Favorite must be allowed on a posted activity",
+               favoriteACLPlugin.canCreateFavorite(johnSecurityIdentity, postedActivity.getId()));
+
+    ExoSocialActivity scheduledActivity = new ExoSocialActivityImpl();
+    scheduledActivity.setTitle("scheduled activity");
+    scheduledActivity.setUserId(johnIdentity.getId());
+    scheduledActivity.setPublicationStartTime(System.currentTimeMillis() + 3600000l);
+    activityManager.saveActivityNoReturn(johnIdentity, scheduledActivity);
+    assertFalse("Favorite mustn't be allowed on a scheduled activity which isn't published yet",
+                favoriteACLPlugin.canCreateFavorite(johnSecurityIdentity, scheduledActivity.getId()));
+  }
+
+  /**
+   * Test {@link ActivityManager#getActivitiesByFilterWithListAccess(Identity, ActivityFilter)}
+   * with the scheduled activities stream filter
+   */
+  @SneakyThrows
+  public void testScheduledActivitiesStreamFilter() {
+    long farthestPublicationStartTime = System.currentTimeMillis() + 7200000l;
+    ExoSocialActivity farthestScheduledActivity = new ExoSocialActivityImpl();
+    farthestScheduledActivity.setTitle("farthest scheduled activity");
+    farthestScheduledActivity.setUserId(johnIdentity.getId());
+    farthestScheduledActivity.setPublicationStartTime(farthestPublicationStartTime);
+    activityManager.saveActivityNoReturn(johnIdentity, farthestScheduledActivity);
+
+    long closestPublicationStartTime = System.currentTimeMillis() + 3600000l;
+    ExoSocialActivity closestScheduledActivity = new ExoSocialActivityImpl();
+    closestScheduledActivity.setTitle("closest scheduled activity");
+    closestScheduledActivity.setUserId(johnIdentity.getId());
+    closestScheduledActivity.setPublicationStartTime(closestPublicationStartTime);
+    activityManager.saveActivityNoReturn(johnIdentity, closestScheduledActivity);
+
+    ExoSocialActivity postedActivity = new ExoSocialActivityImpl();
+    postedActivity.setTitle("posted activity");
+    postedActivity.setUserId(johnIdentity.getId());
+    activityManager.saveActivityNoReturn(johnIdentity, postedActivity);
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.SCHEDULED_STREAM);
+
+    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesByFilterWithListAccess(johnIdentity,
+                                                                                                           activityFilter);
+    assertEquals("Scheduled stream must list only scheduled activities of the poster", 2, listAccess.getSize());
+    List<ExoSocialActivity> activities = listAccess.loadAsList(0, 10);
+    assertEquals(2, activities.size());
+    assertEquals("Scheduled activities must be ordered from the closest schedule to the farthest one",
+                 Long.valueOf(closestPublicationStartTime),
+                 activities.get(0).getPublicationStartTime());
+    assertEquals(Long.valueOf(farthestPublicationStartTime), activities.get(1).getPublicationStartTime());
+
+    listAccess = activityManager.getActivitiesByFilterWithListAccess(maryIdentity, activityFilter);
+    assertEquals("Scheduled activities of other users mustn't be listed", 0, listAccess.getSize());
   }
 
   /**

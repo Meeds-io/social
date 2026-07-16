@@ -21,8 +21,14 @@
           plain
           v-bind="attrs"
           v-on="on">
+          <span
+            v-if="isScheduled"
+            :class="truncateText"
+            class="text-subtitle relativeDateFormatClass text-none">
+            {{ scheduledForLabel }}
+          </span>
           <relative-date-format
-            v-if="isActivityEdited"
+            v-else-if="isActivityEdited"
             :value="activity.updateDate"
             :short="isMobile"
             :class="truncateText"
@@ -71,6 +77,16 @@ export default {
     },
   }),
   computed: {
+    isScheduled() {
+      return !!this.activity?.publicationStartTime;
+    },
+    scheduledForLabel() {
+      const scheduledDate = this.$dateUtil.formatDateObjectToDisplay(
+        new Date(this.activity.publicationStartTime),
+        this.dateFormat,
+        eXo.env.portal.language);
+      return this.$t('UIActivity.label.ScheduledFor', {0: scheduledDate});
+    },
     isActivityEdited() {
       return this.activity && this.activity.updateDate !== this.activity.createDate;
     },
@@ -81,6 +97,9 @@ export default {
       return `${this.$root.activityBaseLink}?id=${this.activityId}`;
     },
     activityPostedTime() {
+      if (this.isScheduled) {
+        return this.activity.publicationStartTime;
+      }
       return this.activity && (this.activity.updateDate || this.activity.createDate);
     },
     btnHeight() {
