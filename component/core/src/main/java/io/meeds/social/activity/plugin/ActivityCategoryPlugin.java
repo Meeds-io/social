@@ -23,6 +23,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
@@ -30,6 +31,9 @@ import org.exoplatform.social.core.manager.ActivityManager;
 
 import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.plugin.CategoryPlugin;
+import io.meeds.social.category.service.CategoryPluginService;
+
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class ActivityCategoryPlugin implements CategoryPlugin {
@@ -37,10 +41,18 @@ public class ActivityCategoryPlugin implements CategoryPlugin {
   public static final String OBJECT_TYPE            = ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE;
 
   @Autowired
+  private PortalContainer    container;
+
+  @Autowired
   private ActivityManager    activityManager;
 
   @Autowired
   private UserACL            userAcl;
+
+  @PostConstruct
+  public void init() {
+    container.getComponentInstanceOfType(CategoryPluginService.class).addPlugin(this);
+  }
 
   @Override
   public String getType() {
