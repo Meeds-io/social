@@ -158,7 +158,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   labelKey: 'UIActivity.label.pin',
   icon: 'fa-thumbtack',
   isEnabled: (activity, activityTypeExtension) => {
-    if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
+    if (activity.publicationStartTime || (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity))) {
       return false;
     }
     return activity.canPin && !activity.pinned;
@@ -177,7 +177,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   labelKey: 'UIActivity.label.unpin',
   icon: 'fa-thumbtack',
   isEnabled: (activity, activityTypeExtension) => {
-    if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
+    if (activity.publicationStartTime || (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity))) {
       return false;
     }
     return activity.canPin && activity.pinned;
@@ -208,7 +208,8 @@ extensionRegistry.registerExtension('activity', 'action', {
       activityBody: bodyToEdit,
       files: activity.files ? window.JSON.parse(window.JSON.stringify(activity.files)) : null,
       templateParams: window.JSON.parse(window.JSON.stringify(activity.templateParams)),
-      activityType: activity.type
+      activityType: activity.type,
+      publicationStartTime: activity.publicationStartTime
     }}));
   },
 });
@@ -219,7 +220,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   labelKey: 'activityStream.label.addCategories',
   icon: 'fa-th-large',
   isEnabled: (activity, activityTypeExtension) => {
-    if (activityTypeExtension.canManage && !activityTypeExtension.canManage(activity)) {
+    if (activity.publicationStartTime || (activityTypeExtension.canManage && !activityTypeExtension.canManage(activity))) {
       return false;
     }
     return activity.canManage === 'true';
@@ -275,7 +276,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   confirmOkKey: 'UIActivity.label.Confirm_Delete_Activity-Button',
   confirmCancelKey: 'UIActivity.label.Cancel_Delete_Activity-Button',
   isEnabled: (activity, activityTypeExtension) => {
-    return !activity.hidden && activity.canDelete === 'true' && activityTypeExtension.canHide && activityTypeExtension.canHide(activity);
+    return !activity.publicationStartTime && !activity.hidden && activity.canDelete === 'true' && activityTypeExtension.canHide && activityTypeExtension.canHide(activity);
   },
   click: (activity, activityTypeExtension, isActivityDetail) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
@@ -297,7 +298,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   labelKey: 'UIActivity.label.Unhide',
   icon: 'fa-eye',
   isEnabled: (activity, activityTypeExtension) => {
-    return activity.hidden && activity.canEdit === 'true' && activityTypeExtension.canUnhide && activityTypeExtension.canUnhide(activity);
+    return !activity.publicationStartTime && activity.hidden && activity.canEdit === 'true' && activityTypeExtension.canUnhide && activityTypeExtension.canUnhide(activity);
   },
   click: activity => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
@@ -312,7 +313,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   rank: 40,
   labelKey: 'UIActivity.label.CopyLink',
   icon: 'fa-copy',
-  isEnabled: activity => activity && activity.id,
+  isEnabled: activity => activity && activity.id && !activity.publicationStartTime,
   click: (activity) => {
     const activityLink = `${window.location.origin}${activityBaseLink}?id=${activity.id}`;
     if (!$('#copyToClipboard').length) {
@@ -331,7 +332,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   rank: 40,
   labelKey: 'UIActivity.label.Watch',
   icon: 'fa-eye',
-  isEnabled: activity => !activity?.metadatas?.observers?.length || false,
+  isEnabled: activity => !activity.publicationStartTime && !activity?.metadatas?.observers?.length || false,
   click: activity => {
     return Vue.prototype.$observerService.createObserver('activity', activity.id)
       .then(() => document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id})));
@@ -343,7 +344,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   rank: 40,
   labelKey: 'UIActivity.label.Unwatch',
   icon: 'fa-eye-slash',
-  isEnabled: activity => activity?.metadatas?.observers?.length || false,
+  isEnabled: activity => !activity.publicationStartTime && activity?.metadatas?.observers?.length || false,
   click: activity => {
     return Vue.prototype.$observerService.deleteObserver('activity', activity.id)
       .then(() => document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id})));
