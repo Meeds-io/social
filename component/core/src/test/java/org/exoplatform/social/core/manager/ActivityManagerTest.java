@@ -774,6 +774,43 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
   /**
    * Test {@link ActivityManager#updateActivity(ExoSocialActivity, boolean)}
+   * on a still scheduled activity: content update keeping the schedule and
+   * reschedule to another future publication start time
+   */
+  public void testRescheduleActivity() {
+    long publicationStartTime = System.currentTimeMillis() + 3600000l;
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("scheduled activity");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(publicationStartTime);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+
+    ExoSocialActivity scheduledActivity = activityManager.getActivity(activity.getId());
+    scheduledActivity.setTitle("updated scheduled activity");
+    activityManager.updateActivity(scheduledActivity, true);
+    scheduledActivity = activityManager.getActivity(activity.getId());
+    assertEquals("updated scheduled activity", scheduledActivity.getTitle());
+    assertEquals("A content update must keep the schedule",
+                 Long.valueOf(publicationStartTime),
+                 scheduledActivity.getPublicationStartTime());
+    assertTrue(scheduledActivity.isHidden());
+
+    long newPublicationStartTime = publicationStartTime + 7200000l;
+    scheduledActivity.setPublicationStartTime(newPublicationStartTime);
+    activityManager.updateActivity(scheduledActivity, true);
+    scheduledActivity = activityManager.getActivity(activity.getId());
+    assertEquals("The new future publication start time must be persisted",
+                 Long.valueOf(newPublicationStartTime),
+                 scheduledActivity.getPublicationStartTime());
+    assertTrue("A rescheduled activity must stay hidden until publication", scheduledActivity.isHidden());
+
+    ExoSocialActivity rescheduledActivity = activityManager.getActivity(activity.getId());
+    rescheduledActivity.setPublicationStartTime(System.currentTimeMillis() - 60000l);
+    assertThrows(IllegalArgumentException.class, () -> activityManager.updateActivity(rescheduledActivity, true));
+  }
+
+  /**
+   * Test {@link ActivityManager#updateActivity(ExoSocialActivity, boolean)}
    * with a publication start time on an already posted activity
    */
   public void testCannotAddPublicationStartTimeToPostedActivity() {

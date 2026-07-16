@@ -1684,6 +1684,12 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       if (existingActivity.getUpdated() != null)
         updatedActivity.setUpdatedDate(existingActivity.getUpdated());
+      if (existingActivity.getPublicationStartTime() != null && updatedActivity.getPublicationStartTime() != null) {
+        // A still scheduled activity can be rescheduled, but a publication
+        // start time can neither be added to a posted activity nor cleared by
+        // an update: the publication claim is the only operation clearing it
+        updatedActivity.setPublicationStartTime(existingActivity.getPublicationStartTime());
+      }
       updatedActivity.setHidden(existingActivity.isHidden());
       updatedActivity.setComment(existingActivity.isComment());
       updatedActivity.setLocked(existingActivity.isLocked());
