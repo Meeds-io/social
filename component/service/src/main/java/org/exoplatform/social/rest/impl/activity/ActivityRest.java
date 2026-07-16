@@ -420,6 +420,17 @@ public class ActivityRest implements ResourceContainer {
     EntityBuilder.buildActivityFromEntity(model, activity);
     activity.setFiles(model.getFiles());
     activity.setUpdated(System.currentTimeMillis());
+    if (model.getPublicationStartTime() != null && model.getPublicationStartTime() > 0
+        && !model.getPublicationStartTime().equals(activity.getPublicationStartTime())) {
+      if (activity.getPublicationStartTime() == null) {
+        return Response.status(Response.Status.BAD_REQUEST)
+                       .entity("activity.publicationStartTimeNotAllowedOnPostedActivity")
+                       .build();
+      } else if (model.getPublicationStartTime() <= System.currentTimeMillis()) {
+        return Response.status(Response.Status.BAD_REQUEST).entity("activity.publicationStartTimeMustBeInFuture").build();
+      }
+      activity.setPublicationStartTime(model.getPublicationStartTime());
+    }
     activityManager.updateActivity(activity, true);
 
     ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
@@ -800,6 +811,56 @@ public class ActivityRest implements ResourceContainer {
     activity.isHidden(false);
     activityManager.updateActivity(activity, true);
     return Response.noContent().build();
+  }
+
+  @PUT
+  @Path("{activityId}/publish")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @Operation(
+      summary = "Publishes immediately a scheduled activity",
+      method = "PUT",
+      description = "This publishes immediately a scheduled activity, cancelling its scheduling, if the authenticated user has edit permissions"
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized"),
+  })
+  public Response publishScheduledActivityNow(
+                                              @Context
+                                              UriInfo uriInfo,
+                                              @Parameter(description = "Activity id", required = true)
+                                              @PathParam("activityId")
+                                              String activityId,
+                                              @Parameter(
+                                                  description = "Asking for a full representation of a specific subresource if any",
+                                                  required = false
+                                              )
+                                              @QueryParam("expand")
+                                              String expand) {
+    if (StringUtils.isBlank(activityId)) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    ExoSocialActivity activity = activityManager.getActivity(activityId);
+    if (!activityManager.isActivityEditable(activity, ConversationState.getCurrent().getIdentity())) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    ExoSocialActivity publishedActivity = activity.getPublicationStartTime() == null ? null
+                                                                                     : activityManager.publishScheduledActivity(activityId);
+    if (publishedActivity == null) {
+      // Not scheduled anymore or already claimed by a concurrent publication:
+      // the operation stays idempotent and returns the current state
+      publishedActivity = activityManager.getActivity(activityId);
+    }
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(publishedActivity,
+                                                                          currentUser,
+                                                                          uriInfo.getPath(),
+                                                                          expand);
+    return EntityBuilder.getResponse(activityEntity.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   @GET
