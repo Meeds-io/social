@@ -196,7 +196,7 @@
                 {{ composerActionLabel }}
               </v-btn>
               <v-menu
-                v-if="!activityId"
+                v-if="!activityId || isScheduledActivity"
                 v-model="scheduleMenu"
                 offset-y
                 top
@@ -308,6 +308,7 @@ export default {
       scheduledDate: null,
       scheduledHour: null,
       pendingScheduledTime: null,
+      publicationStartTime: null,
     };
   },
   computed: {
@@ -318,7 +319,12 @@ export default {
       return this.$t('activity.composer.placeholder');
     },
     composerAction() {
-      return this.activityId && 'update' || 'post';
+      // The post CTA of a still scheduled activity posts it immediately,
+      // cancelling the scheduling
+      return this.activityId && !this.isScheduledActivity && 'update' || 'post';
+    },
+    isScheduledActivity() {
+      return !!this.activityId && !!this.publicationStartTime;
     },
     composerActionLabel() {
       return this.$t(`activity.composer.${this.composerAction}`);
@@ -344,7 +350,7 @@ export default {
       return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited)
           || this.messageLength > this.MESSAGE_MAX_LENGTH
           || this.loading
-          || (!!this.activityId && !this.activityBodyEdited && !this.activityAttachmentsEdited)
+          || (!!this.activityId && !this.activityBodyEdited && !this.activityAttachmentsEdited && !this.isScheduledActivity)
           || (!this.activityAttachmentsEdited && !this.messageLength && !this.activityBodyEdited)
           || (this.postInYourSpacesChoice && !(this.spaceId || this.activityType?.toString()?.includes('poll') && eXo.env.portal.spaceId))
           || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited)
@@ -476,6 +482,7 @@ export default {
         this.activityType = params.activityType;
         this.attachments = this.templateParams?.metadatas?.attachments;
         this.activityToolbarAction = params.activityToolbarAction;
+        this.publicationStartTime = params.publicationStartTime || null;
       } else {
         this.activityId = null;
         this.message = '';
@@ -483,6 +490,7 @@ export default {
         this.files = [];
         this.activityType = [];
         this.attachments = null;
+        this.publicationStartTime = null;
       }
       this.allowFilteringPerCategory = !params?.activityId && params?.allowFilteringPerCategory || false;
       this.isFilteredStream = !params?.activityId && params?.isFilteredStream || false;
@@ -508,9 +516,15 @@ export default {
       });
     },
     openScheduleMode() {
-      const defaultSchedule = new Date();
-      defaultSchedule.setDate(defaultSchedule.getDate() + 1);
-      defaultSchedule.setHours(8, 0, 0, 0);
+      let defaultSchedule;
+      if (this.isScheduledActivity) {
+        // Review the previously set scheduling of the edited activity
+        defaultSchedule = new Date(this.publicationStartTime);
+      } else {
+        defaultSchedule = new Date();
+        defaultSchedule.setDate(defaultSchedule.getDate() + 1);
+        defaultSchedule.setHours(8, 0, 0, 0);
+      }
       this.scheduledHour = new Date(defaultSchedule.getTime());
       this.scheduledDate = this.$dateUtil.getISODate(defaultSchedule);
       this.scheduleMode = true;
@@ -547,11 +561,22 @@ export default {
         } else if (this.templateParams && this.templateParams.link === '-') {
           activityType = null;
         }
-        this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
+        const scheduledTime = this.pendingScheduledTime;
+        this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams, scheduledTime)
           .then(this.postUpdateMessage)
           .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
           .then(() => {
+            if (this.isScheduledActivity && !scheduledTime) {
+              // Post CTA on a still scheduled activity: publish it
+              // immediately, which cancels the scheduling
+              return this.$activityService.publishActivity(this.activityId);
+            }
+          })
+          .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
+            if (scheduledTime) {
+              this.$root.$emit('alert-message', this.$t('activity.composer.schedule.success'), 'success');
+            }
             this.close();
           })
           .catch(error => {
@@ -559,7 +584,10 @@ export default {
             console.error('Error when updating the activity', error);
             this.$root.$emit('alert-message', this.$t('activityStream.errorCreatingActivity'), 'error');
           })
-          .finally(() => this.loading = false);
+          .finally(() => {
+            this.loading = false;
+            this.pendingScheduledTime = null;
+          });
       } else {
         let activityType = this.activityType;
         if (this.templateParams && this.templateParams.link && !this.activityType) {
