@@ -1030,7 +1030,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
                                             List<String> streamIdentityIds,
                                             TypedQuery<T> query,
                                             boolean count) {
-    if (!count) {
+    if (!count && !activityFilter.isScheduled()) {
       query.setParameter(MAIN_STREAM_TYPES_PARAM, MAIN_STREAM_TYPES);
     }
     if (activityFilter.getSpaceIdentityId() > 0) {
@@ -1102,6 +1102,10 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       suffixes.add("Pinned");
       predicates.add("activity.pinned = true");
     }
+    if (activityFilter.isScheduled()) {
+      suffixes.add("Scheduled");
+      predicates.add("activity.publicationStartTime IS NOT NULL");
+    }
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
       suffixes.add("CategoryIds");
     }
@@ -1121,12 +1125,28 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
 
   private String getQueryFilterContent(ActivityFilter activityFilter, List<String> predicates, boolean count) {
-    String querySelect = count ? "SELECT COUNT(DISTINCT activity.id)" : "SELECT DISTINCT(activity.id), activity.pinDate, item.updatedDate updatedDate";
+    boolean scheduled = activityFilter.isScheduled();
+    String querySelect;
+    if (count) {
+      querySelect = "SELECT COUNT(DISTINCT activity.id)";
+    } else if (scheduled) {
+      querySelect = "SELECT DISTINCT(activity.id), activity.publicationStartTime";
+    } else {
+      querySelect = "SELECT DISTINCT(activity.id), activity.pinDate, item.updatedDate updatedDate";
+    }
     querySelect = querySelect + " FROM SocActivity activity";
 
-    String orderBy = activityFilter.isShowPinned() ? " ORDER BY activity.pinDate DESC NULLS LAST, updatedDate DESC NULLS LAST" : " ORDER BY updatedDate DESC NULLS LAST";
+    String orderBy;
+    if (scheduled) {
+      // From the closest schedule to the farthest one
+      orderBy = " ORDER BY activity.publicationStartTime ASC";
+    } else if (activityFilter.isShowPinned()) {
+      orderBy = " ORDER BY activity.pinDate DESC NULLS LAST, updatedDate DESC NULLS LAST";
+    } else {
+      orderBy = " ORDER BY updatedDate DESC NULLS LAST";
+    }
 
-    if (!count) {
+    if (!count && !scheduled) {
       querySelect += " INNER JOIN activity.streamItems item ON item.streamType in (:mainStreamTypes)";
     }
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
@@ -1136,7 +1156,10 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       querySelect += " LEFT JOIN activity.categories catExclude ON catExclude.categoryId IN :excludedCategoryIds";
     }
 
-    querySelect += " WHERE activity.hidden = false AND activity.parent IS NULL";
+    // A scheduled activity is hidden until its publication: the hidden
+    // exclusion doesn't apply to the scheduled stream
+    querySelect += scheduled ? " WHERE activity.parent IS NULL"
+                             : " WHERE activity.hidden = false AND activity.parent IS NULL";
 
     if (CollectionUtils.isNotEmpty(activityFilter.getExcludedCategoryIds())) {
       querySelect += " AND catExclude.categoryId IS NULL";

@@ -103,6 +103,9 @@ export default {
         text: this.$t('activity.filter.favoriteSpaces'),
         value: 'favorite_spaces_stream',
         enable: !this.spaceId,
+      },{
+        text: this.$t('activity.filter.scheduledActivities'),
+        value: 'scheduled_stream',
       }].filter(filter => filter.enable == null || filter.enable === true);
     },
   },

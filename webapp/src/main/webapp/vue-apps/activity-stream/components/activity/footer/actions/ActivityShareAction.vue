@@ -1,12 +1,13 @@
 <template>
   <div class="d-inline-flex ms-xl-4 ms-lg-3">
     <!-- Added for mobile -->
-    <v-tooltip :disabled="isMobile" bottom>
+    <v-tooltip :disabled="isMobile || isScheduled" bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           v-if="isShareable"
           :id="`ShareActivity${activityId}`"
-          :class="shareTextColorClass"
+          :disabled="isScheduled"
+          :class="[shareTextColorClass, isScheduled && 'opacity-5']"
           :aria-label="hasShared ? $t('UIActivity.aria.Share') : $t('UIActivity.share')"
           class="pa-0 mt-0"
           text
@@ -51,6 +52,10 @@ export default {
       default: null,
     },
     isMobile: {
+      type: Boolean,
+      default: () => false
+    },
+    isScheduled: {
       type: Boolean,
       default: () => false
     },

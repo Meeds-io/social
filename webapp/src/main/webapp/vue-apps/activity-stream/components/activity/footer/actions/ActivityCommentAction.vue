@@ -1,11 +1,12 @@
 <template>
   <div class="d-inline-flex ms-xl-4 ms-lg-3">
     <!-- Added for mobile -->
-    <v-tooltip :disabled="isMobile" bottom>
+    <v-tooltip :disabled="isMobile || isScheduled" bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           :id="`CommentLink${activityId}`"
-          :class="commentTextColorClass"
+          :disabled="isScheduled"
+          :class="[commentTextColorClass, isScheduled && 'opacity-5']"
           class="pa-0 mt-0"
           :aria-label="hasCommented ? $t('UIActivity.aria.Comment') : $t('UIActivity.label.Comment')"
           text
@@ -46,6 +47,10 @@ export default {
       default: null,
     },
     isMobile: {
+      type: Boolean,
+      default: () => false
+    },
+    isScheduled: {
       type: Boolean,
       default: () => false
     },

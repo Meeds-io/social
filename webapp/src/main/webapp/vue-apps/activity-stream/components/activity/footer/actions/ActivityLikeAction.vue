@@ -3,12 +3,13 @@
     :class="cssClass"
     class="d-inline-flex">
     <!-- Added for mobile -->
-    <v-tooltip :disabled="isMobile" bottom>
+    <v-tooltip :disabled="isMobile || isScheduled" bottom>
       <template #activator="{ on, attrs }">
         <v-btn
           :id="`LikeLink${activityId}`"
           :loading="changingLike"
-          :class="likeTextColorClass"
+          :disabled="isScheduled"
+          :class="[likeTextColorClass, isScheduled && 'opacity-5']"
           :aria-label="hasLiked ? $t('UIActivity.aria.Like') : $t('UIActivity.msg.LikeActivity')"
           class="pa-0 mt-0"
           text
@@ -48,6 +49,10 @@ export default {
     activity: {
       type: Object,
       default: null,
+    },
+    isScheduled: {
+      type: Boolean,
+      default: () => false
     },
   },
   data: () => ({

@@ -273,6 +273,10 @@ public class ActivityManagerImpl implements ActivityManager {
     if (activity == null) {
       throw new ObjectNotFoundException("Activity with id " + activityId + " wasn't found");
     }
+    if (activity.getPublicationStartTime() != null) {
+      throw new IllegalAccessException("Activity with id " + activityId
+          + " can't be shared while it's scheduled and not published yet");
+    }
     Set<Long> spaceIds = activityShareAction.getSpaceIds();
     if (CollectionUtils.isEmpty(spaceIds)) {
       throw new IllegalArgumentException("spaceIds is mandatory");
@@ -612,7 +616,11 @@ public class ActivityManagerImpl implements ActivityManager {
    * {@inheritDoc}
    */
   public void saveLike(ExoSocialActivity existingActivity, Identity identity) {
-    // in order to avoid updating unnecessarily activity title, body and template params 
+    if (existingActivity.getPublicationStartTime() != null) {
+      throw new ActivityStorageException(ActivityStorageException.Type.FAILED_TO_UPDATE_ACTIVITY,
+                                         "Likes aren't allowed on a scheduled activity which isn't published yet");
+    }
+    // in order to avoid updating unnecessarily activity title, body and template params
     existingActivity.setTitle(null);
     existingActivity.setBody(null);
     existingActivity.setTemplateParams(null);

@@ -120,8 +120,12 @@ export default {
       return {
         activity: this.activity,
         activityTypeExtension: this.activityTypeExtension,
-        isActivityShared: this.isActivityShared
+        isActivityShared: this.isActivityShared,
+        isScheduled: this.isScheduled
       };
+    },
+    isScheduled() {
+      return !!this.activity?.publicationStartTime;
     },
     posterIdentity() {
       return this.activity && this.activity.identity && this.activity.identity.profile && this.activity.identity.profile.dataEntity;
