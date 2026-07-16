@@ -18,6 +18,10 @@
  */
 package org.exoplatform.social.core.test;
 
+import io.meeds.social.cms.listener.PageContentBlockIndexingListenerTest;
+import io.meeds.social.cms.service.PageContentBlockPluginServiceImplTest;
+import io.meeds.social.cms.service.PageUrlResolverServiceImplTest;
+import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnectorTest;
 import io.meeds.social.space.invitation.storage.SpaceInvitationLinkLinkStorageTest;
 import io.meeds.social.space.listener.SpaceGroupCacheListenerTest;
 import io.meeds.social.space.listener.SpaceInvitationLinkLinkJoinListenerTest;
@@ -64,17 +68,6 @@ import io.meeds.social.space.template.service.SpaceTemplateServiceTest;
 import io.meeds.social.space.template.storage.SpaceTemplateStorageTest;
 import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
 import io.meeds.social.user.plugin.UserAclPluginTest;
-import io.meeds.social.identity.permission.listener.UserPermissionGroupListenerTest;
-import io.meeds.social.identity.permission.listener.UserPermissionMembershipListenerTest;
-import io.meeds.social.identity.permission.listener.UserPermissionNestedMembershipListenerTest;
-import io.meeds.social.identity.permission.search.UserPermissionIndexingConnectorTest;
-import io.meeds.social.identity.permission.service.UserPermissionServiceTest;
-import io.meeds.social.identity.permission.storage.UserPermissionStorageTest;
-import io.meeds.social.identity.permission.upgrade.UserPermissionBackfillUpgradePluginTest;
-import io.meeds.social.organizationalunit.listener.OrganizationalUnitGroupListenerTest;
-import io.meeds.social.group.plugin.GroupAclPluginTest;
-import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
-import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -129,7 +122,12 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     OrganizationalUnitStorageTest.class,
     OrganizationalUnitServiceTest.class,
     OrganizationalUnitGroupListenerTest.class,
-    GroupAclPluginTest.class
+    GroupAclPluginTest.class,
+    ActivityPublicationPluginTest.class
+    PageContentBlockPluginServiceImplTest.class,
+    PageUrlResolverServiceImplTest.class,
+    PageContentBlockIndexingListenerTest.class,
+    PageContentIndexingConnectorTest.class
 })
 public class NoContainerTestSuite {
 
