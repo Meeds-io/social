@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -57,6 +58,8 @@ import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.ActivityTypePlugin;
 import org.exoplatform.social.core.activity.ActivityFilter;
+import org.exoplatform.social.core.activity.ActivityLifeCycleEvent;
+import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
@@ -807,6 +810,50 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity rescheduledActivity = activityManager.getActivity(activity.getId());
     rescheduledActivity.setPublicationStartTime(System.currentTimeMillis() - 60000l);
     assertThrows(IllegalArgumentException.class, () -> activityManager.updateActivity(rescheduledActivity, true));
+  }
+
+  /**
+   * Test that the creation lifecycle event of a scheduled activity, which
+   * triggers the notifications (post activity and mention), is broadcasted
+   * exactly once, at publication time, and never before
+   */
+  public void testScheduledActivityCreationEventBroadcastedAtPublicationOnly() {
+    AtomicInteger creationEventCount = new AtomicInteger();
+    AtomicBoolean hiddenOnCreationEvent = new AtomicBoolean(true);
+    activityManager.addActivityEventListener(new ActivityListenerPlugin() {
+      @Override
+      public void saveActivity(ActivityLifeCycleEvent event) {
+        creationEventCount.incrementAndGet();
+        hiddenOnCreationEvent.set(event.getSource().isHidden());
+      }
+    });
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("scheduled activity mentioning @mary");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(System.currentTimeMillis() + 3600000l);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    assertEquals("No creation event, hence no notification, must be broadcasted at scheduling time",
+                 0,
+                 creationEventCount.get());
+
+    ExoSocialActivity scheduledActivity = activityManager.getActivity(activity.getId());
+    scheduledActivity.setTitle("updated scheduled activity mentioning @mary");
+    activityManager.updateActivity(scheduledActivity, true);
+    assertEquals("No creation event must be broadcasted when editing a still scheduled activity",
+                 0,
+                 creationEventCount.get());
+
+    activityManager.publishScheduledActivity(activity.getId());
+    assertEquals("The creation event must be broadcasted exactly once, at publication time",
+                 1,
+                 creationEventCount.get());
+    assertFalse("The creation event must carry the visible published activity, so that notifications are sent",
+                hiddenOnCreationEvent.get());
+
+    assertNull("Publishing an already published activity must have no effect",
+               activityManager.publishScheduledActivity(activity.getId()));
+    assertEquals("The creation event mustn't be broadcasted twice", 1, creationEventCount.get());
   }
 
   /**
