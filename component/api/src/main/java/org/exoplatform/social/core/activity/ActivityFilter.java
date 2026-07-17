@@ -50,4 +50,11 @@ public class ActivityFilter implements Serializable {
 
   private boolean            scheduled;
 
+  /**
+   * Identity ids of the spaces where the viewer is a content writer (manager,
+   * redactor or publisher), used by the scheduled stream to list the
+   * scheduled posts of others in those spaces
+   */
+  private List<String>       contentWriterSpaceIdentityIds;
+
 }

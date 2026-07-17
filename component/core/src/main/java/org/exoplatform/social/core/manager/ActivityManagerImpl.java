@@ -948,6 +948,12 @@ public class ActivityManagerImpl implements ActivityManager {
         // Not implemented, thus ignore exception
       }
     }
+    Long publicationStartTime = activity.getPublicationStartTime();
+    if (publicationStartTime != null && publicationStartTime > 0 && isActivityManageable(activity, viewer)) {
+      // Space content writers can edit a scheduled post of others until its
+      // publication, while the original author remains the same
+      return true;
+    }
     Identity identity = identityManager.getOrCreateUserIdentity(viewer.getUserId());
     return identity != null
         && StringUtils.equals(identity.getId(), activity.getPosterId())
@@ -968,6 +974,12 @@ public class ActivityManagerImpl implements ActivityManager {
       } catch (UnsupportedOperationException e) {
         // Not implemented, thus ignore exception
       }
+    }
+    Long publicationStartTime = activity.getPublicationStartTime();
+    if (publicationStartTime != null && publicationStartTime > 0 && isActivityManageable(activity, viewer)) {
+      // Space content writers can cancel the scheduling of a post of others
+      // by deleting it until its publication
+      return true;
     }
     if (StringUtils.equals(identity.getId(), activity.getPosterId())) {
       if (activity.getTemplateParams().containsKey(REMOVABLE)) {

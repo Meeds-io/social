@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -618,14 +619,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case SCHEDULED_STREAM:
-      activityFilter.setScheduled(true);
-      activityFilter.setUserId(viewerIdentity.getIdentityId());
-      if (activityFilter.getSpaceIdentityId() == 0) {
-        streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                       String.valueOf(SpaceMembershipStatus.MEMBER),
-                                                                       0,
-                                                                       -1);
-      }
+      streamIdentityIds = configureScheduledStreamFilter(activityFilter, viewerIdentity);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -730,14 +724,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityFilter.setShowPinned(true);
       break;
     case SCHEDULED_STREAM:
-      activityFilter.setScheduled(true);
-      activityFilter.setUserId(viewerIdentity.getIdentityId());
-      if (activityFilter.getSpaceIdentityId() == 0) {
-        streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                       String.valueOf(SpaceMembershipStatus.MEMBER),
-                                                                       0,
-                                                                       -1);
-      }
+      streamIdentityIds = configureScheduledStreamFilter(activityFilter, viewerIdentity);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -809,14 +796,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case SCHEDULED_STREAM:
-      activityFilter.setScheduled(true);
-      activityFilter.setUserId(viewerIdentity.getIdentityId());
-      if (activityFilter.getSpaceIdentityId() == 0) {
-        streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                       String.valueOf(SpaceMembershipStatus.MEMBER),
-                                                                       0,
-                                                                       -1);
-      }
+      streamIdentityIds = configureScheduledStreamFilter(activityFilter, viewerIdentity);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -1263,6 +1243,43 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   @Override
   public List<String> getScheduledActivityIds(long dueTime, int offset, int limit) {
     return activityDAO.getScheduledActivityIds(dueTime, offset, limit).stream().map(String::valueOf).toList();
+  }
+
+  private List<String> configureScheduledStreamFilter(ActivityFilter activityFilter, Identity viewerIdentity) {
+    activityFilter.setScheduled(true);
+    List<String> contentWriterSpaceIdentityIds = getContentWriterSpaceIdentityIds(viewerIdentity.getRemoteId());
+    if (activityFilter.getSpaceIdentityId() > 0) {
+      // Space content writers see all the scheduled posts of the space, while
+      // other members only see their own ones
+      if (!contentWriterSpaceIdentityIds.contains(String.valueOf(activityFilter.getSpaceIdentityId()))) {
+        activityFilter.setUserId(viewerIdentity.getIdentityId());
+      }
+      return null; // NOSONAR the space identity id is the only owner used
+    } else {
+      activityFilter.setUserId(viewerIdentity.getIdentityId());
+      activityFilter.setContentWriterSpaceIdentityIds(contentWriterSpaceIdentityIds);
+      return spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                        String.valueOf(SpaceMembershipStatus.MEMBER),
+                                                        0,
+                                                        -1);
+    }
+  }
+
+  private List<String> getContentWriterSpaceIdentityIds(String username) {
+    Set<String> spaceIdentityIds = new LinkedHashSet<>();
+    spaceIdentityIds.addAll(spaceStorage.getSpaceIdentityIdsByUserRole(username,
+                                                                       String.valueOf(SpaceMembershipStatus.MANAGER),
+                                                                       0,
+                                                                       -1));
+    spaceIdentityIds.addAll(spaceStorage.getSpaceIdentityIdsByUserRole(username,
+                                                                       String.valueOf(SpaceMembershipStatus.REDACTOR),
+                                                                       0,
+                                                                       -1));
+    spaceIdentityIds.addAll(spaceStorage.getSpaceIdentityIdsByUserRole(username,
+                                                                       String.valueOf(SpaceMembershipStatus.PUBLISHER),
+                                                                       0,
+                                                                       -1));
+    return new ArrayList<>(spaceIdentityIds);
   }
 
   @Override
