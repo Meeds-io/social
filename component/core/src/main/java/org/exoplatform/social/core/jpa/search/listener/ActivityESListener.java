@@ -64,7 +64,12 @@ public class ActivityESListener implements ActivityListener {
 
   @Override
   public void updateCategories(ActivityCategoryLifeCycleEvent event) {
-    reindexActivity(event.getActivity(), "update category");
+    ExoSocialActivity activity = event.getActivity();
+    if (activity.isHidden()) {
+      unindexActivity(activity, "hide activity");
+    } else {
+      reindexActivity(activity, "update category");
+    }
   }
 
   @Override
