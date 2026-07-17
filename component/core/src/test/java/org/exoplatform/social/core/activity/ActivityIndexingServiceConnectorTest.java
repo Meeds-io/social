@@ -20,6 +20,7 @@ package org.exoplatform.social.core.activity;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -221,6 +222,27 @@ public class ActivityIndexingServiceConnectorTest {
     assertNotNull(document.getPermissions());
     assertEquals(2, document.getPermissions().size());
     assertEquals("streamOwner", document.getPermissions().iterator().next());
+  }
+
+  @Test
+  public void testHiddenScheduledActivityNotIndexed() {
+    activityIndexingServiceConnector = new ActivityIndexingServiceConnector(activitySearchProcessor,
+                                                                            i18nActivityProcessor,
+                                                                            identityManager,
+                                                                            activityManager,
+                                                                            metadataService,
+                                                                            getParams());
+    ExoSocialActivityImpl activity = new ExoSocialActivityImpl();
+    activity.setId("1");
+    activity.setPosterId("posterId");
+    activity.setPublicationStartTime(System.currentTimeMillis() + 3600000L);
+    activity.isHidden(true);
+    when(activityManager.getActivity("1")).thenReturn(activity);
+
+    assertNull("A hidden activity, like a scheduled post which isn't published yet, mustn't be indexed",
+               activityIndexingServiceConnector.create("1"));
+    assertNull("A hidden activity, like a scheduled post which isn't published yet, mustn't be reindexed",
+               activityIndexingServiceConnector.update("1"));
   }
 
   private InitParams getParams() {
