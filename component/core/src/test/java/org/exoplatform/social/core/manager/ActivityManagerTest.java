@@ -1067,6 +1067,50 @@ public class ActivityManagerTest extends AbstractCoreTest {
   }
 
   /**
+   * Test that the categories of a still scheduled activity can be managed:
+   * the manage permission follows {@link ActivityManager#isActivityManageable},
+   * the category update keeps the scheduling and the categories remain once
+   * the activity is published
+   */
+  public void testUpdateScheduledActivityCategories() {
+    Space space = createSpace("ScheduledCategoriesSpace", "john", "john", "demo", "mary");
+    spaceService.addRedactor(space, "demo");
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+
+    long publicationStartTime = System.currentTimeMillis() + 3600000l;
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("scheduled activity with categories");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(publicationStartTime);
+    activityManager.saveActivityNoReturn(spaceIdentity, activity);
+    String activityId = activity.getId();
+
+    ExoSocialActivity scheduledActivity = activityManager.getActivity(activityId);
+    assertTrue("A space redactor must be able to manage the categories of a scheduled post",
+               activityManager.isActivityManageable(scheduledActivity,
+                                                    new org.exoplatform.services.security.Identity("demo")));
+    assertFalse("A simple space member mustn't be able to manage the categories of a scheduled post of others",
+                activityManager.isActivityManageable(scheduledActivity,
+                                                     new org.exoplatform.services.security.Identity("mary")));
+
+    scheduledActivity.setCategoryIds(Arrays.asList(5l, 6l));
+    activityManager.updateActivity(scheduledActivity, true);
+
+    scheduledActivity = activityManager.getActivity(activityId);
+    assertEquals(2, CollectionUtils.size(scheduledActivity.getCategoryIds()));
+    assertEquals("The category update must keep the schedule",
+                 Long.valueOf(publicationStartTime),
+                 scheduledActivity.getPublicationStartTime());
+    assertTrue("The category update must keep the activity hidden until publication", scheduledActivity.isHidden());
+
+    ExoSocialActivity publishedActivity = activityManager.publishScheduledActivity(activityId);
+    assertNotNull(publishedActivity);
+    assertEquals("The categories must remain on the published activity",
+                 2,
+                 CollectionUtils.size(publishedActivity.getCategoryIds()));
+  }
+
+  /**
    * Test {@link ActivityManager#pinActivity(String, String)} Test
    * {@link ActivityManager#unpinActivity(String)}
    */
