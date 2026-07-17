@@ -108,6 +108,12 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     if (activity == null) {
       throw new IllegalStateException("activity with id '" + id + "' is mandatory");
     }
+    if (activity.isHidden()) {
+      // A hidden activity, like a scheduled post which isn't published yet,
+      // must never be searchable, whatever the operation triggering its
+      // indexing (metadata change, category update...)
+      return null;
+    }
     Map<String, String> fields = new HashMap<>();
     String activityId = activity.getId();
     String documentId = activityId.replace("comment", "");
