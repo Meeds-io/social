@@ -63,6 +63,16 @@
     </init-params>
   </component>
 
+  <component>
+    <type>io.meeds.social.cms.storage.elasticsearch.PageContentSearchConnector</type>
+    <init-params>
+      <value-param>
+        <name>query.file.path</name>
+        <value>${social.pages.es.query.path:war:/conf/social-extension/social/search/page-search-query.json}</value>
+      </value-param>
+    </init-params>
+  </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.social.core.search.SearchService</target-component>
     <component-plugin>
@@ -198,6 +208,44 @@
             </field>
             <field name="icon">
               <string>fas fa-stream</string>
+            </field>
+            <field name="spaceFilterEnabled">
+              <boolean>true</boolean>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>PageSearchConnector</name>
+      <set-method>addConnector</set-method>
+      <type>org.exoplatform.social.core.search.SearchConnectorPlugin</type>
+      <description>Page Search connector</description>
+      <init-params>
+        <object-param>
+          <name>PageSearchConnector</name>
+          <description>Search connector for pages carrying an indexed content block</description>
+          <object type="org.exoplatform.social.core.search.SearchConnector">
+            <field name="name">
+              <string>pages</string>
+            </field>
+            <field name="contentType">
+              <string>page</string>
+            </field>
+            <field name="uri">
+              <string><![CDATA[/social/rest/pages/search?q={keyword}&limit={limit}]]></string>
+            </field>
+            <field name="enabled">
+              <boolean>${search.page.enabled:true}</boolean>
+            </field>
+            <field name="jsModule">
+              <string>SHARED/PageSearchResultCard</string>
+            </field>
+            <field name="uiComponent">
+              <string>page-search-result-card</string>
+            </field>
+            <field name="icon">
+              <string>fas fa-file-alt</string>
             </field>
             <field name="spaceFilterEnabled">
               <boolean>true</boolean>
