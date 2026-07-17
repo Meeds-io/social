@@ -159,6 +159,15 @@
   </external-component-plugins>
 
   <external-component-plugins>
+    <target-component>org.exoplatform.social.metadata.favorite.FavoriteService</target-component>
+    <component-plugin>
+      <name>PageFavoriteACLPlugin</name>
+      <set-method>addFavoriteACLPlugin</set-method>
+      <type>org.exoplatform.social.core.plugin.PageFavoriteACLPlugin</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
     <target-component>org.exoplatform.social.attachment.AttachmentService</target-component>
     <component-plugin>
       <name>ActivityAttachmentPlugin</name>

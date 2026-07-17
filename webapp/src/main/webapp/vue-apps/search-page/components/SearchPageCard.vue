@@ -37,6 +37,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
               v-sanitized-html="excerptHtml">
             </v-list-item-subtitle>
           </v-list-item-content>
+          <v-list-item-action v-if="result && result.id">
+            <favorite-button
+              :id="result.id"
+              :favorite="result.favorite"
+              type="page"
+              @removed="$emit('refresh-favorite')"
+              @added="$emit('refresh-favorite')" />
+          </v-list-item-action>
         </v-list-item>
       </v-list>
     </v-card>

@@ -58,6 +58,16 @@
   </component>
 
   <component>
+    <type>io.meeds.social.cms.storage.elasticsearch.PageContentSearchConnector</type>
+    <init-params>
+      <value-param>
+        <name>query.file.path</name>
+        <value>${social.pages.es.query.path:jar:/page-search-query.json}</value>
+      </value-param>
+    </init-params>
+  </component>
+
+  <component>
     <type>org.exoplatform.social.core.storage.cache.SocialStorageCacheService</type>
   </component>
 
