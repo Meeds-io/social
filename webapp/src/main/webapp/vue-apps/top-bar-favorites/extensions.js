@@ -18,5 +18,16 @@ extensionRegistry.registerExtension('favorite', 'favorite-type', {
 extensionRegistry.registerComponent('favorite-space', 'favorite-drawer-item', {
   id: 'space',
   vueComponent: Vue.options.components['space-favorite-item'],
-}); 
+});
+
+extensionRegistry.registerExtension('favorite', 'favorite-type', {
+  rank: 30,
+  id: 'page',
+  icon: 'fa-file-alt',
+});
+
+extensionRegistry.registerComponent('favorite-page', 'favorite-drawer-item', {
+  id: 'page',
+  vueComponent: Vue.options.components['page-favorite-item'],
+});
 

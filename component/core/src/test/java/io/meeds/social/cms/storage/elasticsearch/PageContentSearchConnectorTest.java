@@ -52,6 +52,9 @@ import org.exoplatform.services.resources.ResourceBundleManager;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
 
 import io.meeds.social.search.model.PageSearchResult;
 
@@ -73,6 +76,12 @@ public class PageContentSearchConnectorTest {
   @Mock
   private ResourceBundleManager      resourceBundleManager;
 
+  @Mock
+  private FavoriteService            favoriteService;
+
+  @Mock
+  private IdentityManager            identityManager;
+
   private PageContentSearchConnector connector;
 
   @Before
@@ -83,7 +92,13 @@ public class PageContentSearchConnectorTest {
     queryFileParam.setName("query.file.path");
     queryFileParam.setValue("query.json");
     params.addParameter(queryFileParam);
-    connector = new PageContentSearchConnector(configurationManager, client, layoutService, resourceBundleManager, params);
+    connector = new PageContentSearchConnector(configurationManager,
+                                               client,
+                                               layoutService,
+                                               resourceBundleManager,
+                                               favoriteService,
+                                               identityManager,
+                                               params);
   }
 
   @After
@@ -400,6 +415,108 @@ public class PageContentSearchConnectorTest {
     List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH);
 
     assertEquals("unknown", results.get(0).getSiteName());
+  }
+
+  @Test
+  public void shouldMarkResultAsFavoriteWhenAlreadyFavorited() {
+    Identity identity = new Identity("john", Arrays.asList());
+    ConversationState.setCurrent(new ConversationState(identity));
+    org.exoplatform.social.core.identity.model.Identity socialIdentity =
+                                                                        mock(org.exoplatform.social.core.identity.model.Identity.class);
+    when(socialIdentity.getId()).thenReturn("42");
+    when(identityManager.getOrCreateUserIdentity("john")).thenReturn(socialIdentity);
+    when(favoriteService.isFavorite(new Favorite("page", "page_139", null, 42L))).thenReturn(true);
+
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_139",
+                "_source": {
+                  "pageTitle": "test",
+                  "content": "hello world"
+                },
+                "highlight": {
+                  "content": ["hello <span>world</span>"]
+                }
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH);
+
+    assertTrue(results.get(0).isFavorite());
+  }
+
+  @Test
+  public void shouldMarkResultAsNotFavoriteWhenNoCurrentIdentity() {
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_139",
+                "_source": {
+                  "pageTitle": "test",
+                  "content": "hello world"
+                },
+                "highlight": {
+                  "content": ["hello <span>world</span>"]
+                }
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH);
+
+    assertTrue(!results.get(0).isFavorite());
+  }
+
+  @Test
+  public void shouldGetByIdWithPlainSnippetInUserLanguage() {
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_139",
+                "_source": {
+                  "siteName": "site",
+                  "pageName": "page",
+                  "pageTitle": "My Page",
+                  "pagePath": "/portal/site/page",
+                  "author": "john",
+                  "lastUpdatedDate": 1234567890,
+                  "content": "default content",
+                  "content-fr": "contenu francais"
+                }
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    PageSearchResult result = connector.getById("page_139", Locale.FRENCH);
+
+    assertEquals("page_139", result.getId());
+    assertEquals("My Page", result.getPageTitle());
+    assertEquals(1, result.getExcerpts().size());
+    assertEquals("contenu francais", result.getExcerpts().get(0));
+  }
+
+  @Test
+  public void shouldGetByIdReturnNullWhenNotFound() {
+    when(client.sendRequest(any(), any())).thenReturn(emptyResponse());
+
+    assertEquals(null, connector.getById("page_139", Locale.ENGLISH));
   }
 
   private String emptyResponse() {

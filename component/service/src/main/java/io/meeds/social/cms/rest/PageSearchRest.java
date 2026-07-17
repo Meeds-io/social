@@ -21,11 +21,14 @@ package io.meeds.social.cms.rest;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import io.meeds.social.cms.storage.elasticsearch.PageContentSearchConnector;
 import io.meeds.social.search.model.PageSearchResult;
@@ -61,6 +64,23 @@ public class PageSearchRest {
                                        @RequestParam(name = "limit", required = false, defaultValue = "20")
                                        int limit) {
     return pageContentSearchConnector.search(term, offset, limit, request.getLocale());
+  }
+
+  @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Retrieves a single indexed page by its storage id", method = "GET")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "404", description = "Not found"),
+  })
+  public PageSearchResult getById(HttpServletRequest request,
+                                  @Parameter(description = "Page storage id")
+                                  @PathVariable(name = "id")
+                                  String id) {
+    PageSearchResult result = pageContentSearchConnector.getById(id, request.getLocale());
+    if (result == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+    }
+    return result;
   }
 
 }

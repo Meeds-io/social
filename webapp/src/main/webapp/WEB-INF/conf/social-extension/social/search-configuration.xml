@@ -250,6 +250,9 @@
             <field name="spaceFilterEnabled">
               <boolean>true</boolean>
             </field>
+            <field name="favoritesEnabled">
+              <boolean>${search.page.favorites.enabled:true}</boolean>
+            </field>
           </object>
         </object-param>
       </init-params>
