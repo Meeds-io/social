@@ -69,6 +69,8 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
 
   private static final String           ACTIVITY_OWNER_IDS        = "ownerIds";
 
+  private static final String           CONTENT_WRITER_OWNER_IDS  = "contentWriterOwnerIds";
+
   public static final String            CATEGORY_IDS              = "categoryIds";
 
   public static final String            EXCLUDED_CATEGORY_IDS     = "excludedCategoryIds";
@@ -1044,6 +1046,9 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       if (CollectionUtils.isNotEmpty(streamIdentityIds)) {
         query.setParameter(SPACE_PROVIDER_ID, SpaceIdentityProvider.NAME);
         query.setParameter(ACTIVITY_OWNER_IDS, streamIdentityIds);
+        if (activityFilter.isScheduled() && CollectionUtils.isNotEmpty(activityFilter.getContentWriterSpaceIdentityIds())) {
+          query.setParameter(CONTENT_WRITER_OWNER_IDS, activityFilter.getContentWriterSpaceIdentityIds());
+        }
       }
     } else if (activityFilter.getPosterId() == 0) {
       query.setParameter(ACTIVITY_OWNER_IDS, streamIdentityIds == null ? Collections.emptyList() : streamIdentityIds);
@@ -1079,13 +1084,23 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       }
       predicates.add("activity.ownerId in (:ownerIds)");
     } else if (activityFilter.getUserId() > 0) {
-      predicates.add("activity.posterId = :posterId");
-      if (CollectionUtils.isEmpty(streamIdentityIds)) {
-        suffixes.add("PostedActivitiesInUserStreams");
-        predicates.add("activity.providerId = :userProviderId");
+      if (activityFilter.isScheduled()
+          && CollectionUtils.isNotEmpty(activityFilter.getContentWriterSpaceIdentityIds())
+          && CollectionUtils.isNotEmpty(streamIdentityIds)) {
+        // Space content writers (managers, redactors and publishers) see the
+        // scheduled posts of others in their spaces in addition to their own
+        suffixes.add("PostedOrContentWriterSpaceStreams");
+        predicates.add("((activity.posterId = :posterId AND (activity.providerId = :userProviderId OR (activity.providerId = :spaceProviderId AND activity.ownerId in (:ownerIds))))"
+            + " OR (activity.providerId = :spaceProviderId AND activity.ownerId in (:contentWriterOwnerIds)))");
       } else {
-        suffixes.add("PostedActivitiesInAllStreams");
-        predicates.add("(activity.providerId = :userProviderId OR (activity.providerId = :spaceProviderId AND activity.ownerId in (:ownerIds)))");
+        predicates.add("activity.posterId = :posterId");
+        if (CollectionUtils.isEmpty(streamIdentityIds)) {
+          suffixes.add("PostedActivitiesInUserStreams");
+          predicates.add("activity.providerId = :userProviderId");
+        } else {
+          suffixes.add("PostedActivitiesInAllStreams");
+          predicates.add("(activity.providerId = :userProviderId OR (activity.providerId = :spaceProviderId AND activity.ownerId in (:ownerIds)))");
+        }
       }
     } else if (activityFilter.getPosterId() == 0) {
       suffixes.add("SpacesAndConnectionsStream");
