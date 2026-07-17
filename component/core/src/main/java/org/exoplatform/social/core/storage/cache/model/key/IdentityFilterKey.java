@@ -55,6 +55,12 @@ public class IdentityFilterKey implements CacheKey {
 
   private List<String>      remoteIds;
 
+  private List<String>      groupIds;
+
+  private String            membershipType;
+
+  private boolean           includeInheritedMemberships;
+
   private String            all;
 
   private Sorting           sorting;
@@ -96,6 +102,9 @@ public class IdentityFilterKey implements CacheKey {
 
       this.onlineRemoteIds = Collections.unmodifiableList(filter.getOnlineRemoteIds());
       this.remoteIds = filter.getRemoteIds() == null ? null : Collections.unmodifiableList(filter.getRemoteIds());
+      this.groupIds = filter.getGroupIds() == null ? null : Collections.unmodifiableList(filter.getGroupIds());
+      this.membershipType = filter.getMembershipType();
+      this.includeInheritedMemberships = filter.isIncludeInheritedMemberships();
       this.all = filter.getAll();
       this.sorting = filter.getSorting();
     }

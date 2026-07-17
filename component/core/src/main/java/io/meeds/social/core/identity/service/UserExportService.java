@@ -262,7 +262,7 @@ public class UserExportService {
     List<Long> spaceIds = userExportFilter.getSpaceIds();
     if (CollectionUtils.isNotEmpty(spaceIds)) {
       List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
-      filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(viewerIdentity.getRemoteId(), spaceIdsString));
+      filter.setGroupIds(SpaceUtils.getSpaceGroupIds(viewerIdentity.getRemoteId(), spaceIdsString));
     }
   }
 

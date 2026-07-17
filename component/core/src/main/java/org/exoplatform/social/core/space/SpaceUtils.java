@@ -612,6 +612,17 @@ public class SpaceUtils {
     }).filter(Objects::nonNull).toList();
   }
 
+  public static List<String> getSpaceGroupIds(String userName, List<String> spaceIds) {
+    SpaceService spaceService = getSpaceService();
+    return spaceIds.stream().map(id -> {
+      Space space = spaceService.getSpaceById(id);
+      if (space != null && (StringUtils.isBlank(userName) || spaceService.canViewSpace(space, userName))) {
+        return space.getGroupId();
+      }
+      return null;
+    }).filter(Objects::nonNull).toList();
+  }
+
   public static Set<String> getUserPermissionsIdentityIds(Identity ownerIdentity) {
     UserACL userACL = ExoContainerContext.getService(UserACL.class);
     Set<String> groupIds = userACL.getUserIdentity(ownerIdentity.getRemoteId()).getGroups();

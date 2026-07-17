@@ -42,6 +42,7 @@ import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 import io.meeds.social.core.profileproperty.storage.CachedProfileSettingStorage;
+import io.meeds.social.identity.permission.service.UserPermissionService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +62,9 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
 
   @Mock
   private IdentityDAO                     identityDAO;
+
+  @Mock
+  private UserPermissionService           userPermissionService;
 
   private ProfilePropertyService          profilePropertyService;
 
@@ -97,7 +101,8 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
                                                                                connectionDAO,
                                                                                profilePropertyService,
                                                                                translationService,
-                                                                               userACL);
+                                                                               userACL,
+                                                                               userPermissionService);
   }
 
   @Test
