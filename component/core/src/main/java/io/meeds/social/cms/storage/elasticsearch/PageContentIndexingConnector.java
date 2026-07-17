@@ -82,7 +82,6 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
           "pageTitle" : {"type" : "keyword"},
           "pagePath" : {"type" : "keyword"},
           "author" : {"type" : "keyword"},
-          "date" : {"type" : "date", "format": "epoch_millis"},
           "permissions" : {"type" : "keyword"},
           @content_mappings@
         }
