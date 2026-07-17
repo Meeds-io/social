@@ -49,4 +49,6 @@ public class PageSearchResult {
 
   private List<String> excerpts;
 
+  private boolean       favorite;
+
 }
