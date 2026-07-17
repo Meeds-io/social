@@ -51,23 +51,36 @@
             :key="item.id"
             class="space-template-card col-6 mt-0 mb-4 mx-0 ps-4 pa-0"
             height="136"
-            flat
-            @click="handleAddNewSpace(item.id, templates, parentSpaceId)">
+            flat>
             <v-hover v-slot="{hover}">
-              <div class="d-flex flex-column border-color align-center full-height full-width pb-3 px-2">
+              <v-card
+                class="d-flex flex-column border-color align-center full-height full-width pb-3 px-2"
+                :class="{'border-primary-dashed': focusedCardId === item.id}"
+                flat
+                tabindex="0"
+                role="button"
+                :aria-label="item.name"
+                @focusin="focusTemplateCard(item, $event)"
+                @focusout="blurTemplateCard(item, $event)"
+                @keydown.enter="handleAddNewSpace(item.id, templates, parentSpaceId)"
+                @keydown.esc="escapeTemplateCard(item, $event)"
+                @click="handleAddNewSpace(item.id, templates, parentSpaceId)">
                 <div
                   class="mt-auto mb-2">
                   <v-icon size="32" class="py-2">{{ item.icon }}</v-icon>
                 </div>
-                <div
+                <v-card
                   :title="item.name"
-                  class="mb-auto full-width">
+                  class="mb-auto full-width"
+                  flat
+                  tabindex="0"
+                  role="button">
                   {{ item.name }}
-                </div>
+                </v-card>
                 <v-expand-transition>
                   <div
-                    v-show="hover"
-                    class="absolute-full-size text-start pa-2 ms-4 border-radius mask-color">
+                    v-show="hover || focusedDetailsId === item.id"
+                    class="absolute-full-size text-start pa-2 border-radius mask-color">
                     <div
                       :title="item.name"
                       class="text-truncate-2 font-weight-bold white--text full-width pb-1">
@@ -80,7 +93,7 @@
                     </div>
                   </div>
                 </v-expand-transition>
-              </div>
+              </v-card>
             </v-hover>
           </v-card>
         </div>
@@ -281,6 +294,8 @@ export default {
     parentSpacesSize: 0,
     selectedParentSpace: null,
     parentSpaceId: null,
+    focusedCardId: null,
+    focusedDetailsId: null,
   }),
   computed: {
     drawerTitle() {
@@ -448,6 +463,22 @@ export default {
     document.removeEventListener('addNewSpaceWithAppId', this.openByAppId);
   },
   methods: {
+    focusTemplateCard(item, event) {
+      this.focusedCardId = item.id;
+      this.focusedDetailsId = event.target === event.currentTarget ? null : item.id;
+    },
+    blurTemplateCard(item, event) {
+      if (!event.currentTarget.contains(event.relatedTarget)) {
+        this.focusedCardId = null;
+        this.focusedDetailsId = null;
+      }
+    },
+    escapeTemplateCard(item, event) {
+      if (this.focusedDetailsId === item.id) {
+        event.stopPropagation();
+        event.target.blur();
+      }
+    },
     async handleAddNewSpace(templateId, spaceTemplates, parentSpaceId, isParentSpaceSelection) {
       this.templateId = templateId;
       this.parentSpaceId = parentSpaceId;
