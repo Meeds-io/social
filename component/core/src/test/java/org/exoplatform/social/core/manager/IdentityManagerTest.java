@@ -23,7 +23,10 @@ import java.util.*;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.common.RealtimeListAccess;
@@ -47,6 +50,8 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
+
+import io.meeds.social.identity.permission.entity.UserPermissionEntity;
 
 /**
  * Unit Tests for {@link IdentityManager}
@@ -533,6 +538,8 @@ public class IdentityManagerTest extends AbstractCoreTest {
   }
 
   public void testGetIdentitiesByGroupsIdsAccessList() throws Exception {
+    seedUserPermissionsForGroup("/platform/administrators");
+
     ProfileFilter pf = new ProfileFilter();
     List<String> groupIds = new ArrayList<>();
     groupIds.add("/platform/administrators");
@@ -546,5 +553,35 @@ public class IdentityManagerTest extends AbstractCoreTest {
     pf1.setGroupIds(groupIds);
     List<Identity> identities1 = identityManager.getIdentitiesByProfileFilter("organization", pf1);
     assertTrue("Number of identities must be " + identities1.size(), identities.size() > 0);
+  }
+
+  private void seedUserPermissionsForGroup(String groupId) throws Exception {
+    OrganizationService organizationService = (OrganizationService) getContainer().getComponentInstanceOfType(OrganizationService.class);
+    org.exoplatform.services.organization.Group group = organizationService.getGroupHandler().findGroupById(groupId);
+    if (group == null) {
+      return;
+    }
+    ListAccess<Membership> membershipsListAccess = organizationService.getMembershipHandler().findAllMembershipsByGroup(group);
+    Membership[] memberships = membershipsListAccess.load(0, membershipsListAccess.getSize());
+    EntityManagerService entityManagerService = getContainer().getComponentInstanceOfType(EntityManagerService.class);
+    jakarta.persistence.EntityManager entityManager = entityManagerService.getEntityManager();
+    entityManager.getTransaction().begin();
+    for (Membership membership : memberships) {
+      if (membership == null) {
+        continue;
+      }
+      Identity identity = identityManager.getOrCreateUserIdentity(membership.getUserName());
+      if (identity == null) {
+        continue;
+      }
+      UserPermissionEntity entity = new UserPermissionEntity();
+      entity.setIdentityId(Long.parseLong(identity.getId()));
+      entity.setUserName(membership.getUserName());
+      entity.setGroupId(membership.getGroupId());
+      entity.setMembershipType(membership.getMembershipType());
+      entity.setInherited(false);
+      entityManager.persist(entity);
+    }
+    entityManager.getTransaction().commit();
   }
 }

@@ -35,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
@@ -50,13 +49,14 @@ import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
-import org.exoplatform.social.core.space.SpaceUtils;
+
+import io.meeds.social.identity.permission.service.UserPermissionService;
 
 public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  public static final String           TYPE         = "profile";
+  public static final String           TYPE                         = "profile";
 
-  private static final Log             LOG          = ExoLogger.getLogger(ProfileIndexingServiceConnector.class);
+  private static final Log             LOG                          = ExoLogger.getLogger(ProfileIndexingServiceConnector.class);
 
   private final IdentityManager        identityManager;
 
@@ -70,6 +70,8 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
   private final UserACL                userACL;
 
+  private final UserPermissionService  userPermissionService;
+
   private static final String          HIDDEN_VALUE                 = "hidden";
 
   private static final String          PROFILE_PROPERTY_FIELD_NAME  = "optionValue";
@@ -82,7 +84,8 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
                                          ConnectionDAO connectionDAO,
                                          ProfilePropertyService profilePropertyService,
                                          TranslationService translationService,
-                                         UserACL userACL) {
+                                         UserACL userACL,
+                                         UserPermissionService userPermissionService) {
     super(initParams);
     this.identityManager = identityManager;
     this.identityDAO = identityDAO;
@@ -90,6 +93,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     this.profilePropertyService = profilePropertyService;
     this.translationService = translationService;
     this.userACL = userACL;
+    this.userPermissionService = userPermissionService;
   }
 
   @Override
@@ -230,6 +234,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
             .append("    \"userName\" : {\"type\" : \"keyword\"},\n")
             .append(profileSettingsFieldsMapping)
             .append("    \"email\" : {\"type\" : \"keyword\"},\n")
+            .append("    \"permissions\" : {\"type\" : \"keyword\"},\n")
             .append("    \"connections\" : {\"type\" : \"long\"},\n")
             .append("    \"avatarUrl\" : {\"type\" : \"text\", \"index\": false},\n")
             .append("    \"skills\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
@@ -307,7 +312,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     }
 
     Document document = new ProfileIndexDocument(id, null, new Date(), (Set<String>) null, fields);
-    document.setPermissions(getGroupIdentityIds(identity));
+    document.setPermissions(getPermissions(identity));
     LOG.info("profile document generated for identity id={} remote_id={} duration_ms={}",
             id,
             identity.getRemoteId(),
@@ -367,8 +372,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     return optionValue;
   }
 
-  private Set<String> getGroupIdentityIds(Identity ownerIdentity) {
-    SpaceUtils spaceUtils = ExoContainerContext.getService(SpaceUtils.class);
-    return spaceUtils.getUserPermissionsIdentityIds(ownerIdentity);
+  private Set<String> getPermissions(Identity ownerIdentity) {
+    return new HashSet<>(userPermissionService.getPermissionTokens(ownerIdentity.getRemoteId()));
   }
 }

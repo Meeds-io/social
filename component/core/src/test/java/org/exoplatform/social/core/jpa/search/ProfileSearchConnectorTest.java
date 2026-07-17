@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.meeds.social.identity.permission.service.UserPermissionService;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
@@ -59,6 +60,9 @@ public class ProfileSearchConnectorTest {
     @Mock
     private ProfilePropertyService profilePropertyService;
 
+    @Mock
+    private UserPermissionService userPermissionService;
+
     private static final MockedStatic<CommonsUtils> COMMONS_UTILS = mockStatic(CommonsUtils.class);
 
     @AfterClass
@@ -70,7 +74,7 @@ public class ProfileSearchConnectorTest {
     public void testSearch() {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
         IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
-        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService);
+        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
         ProfileFilter filter = new ProfileFilter();
         Identity identity1 = new Identity("test","usernameee");
         String index = "profile_alias";
@@ -115,7 +119,7 @@ public class ProfileSearchConnectorTest {
         IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
         Identity identity1 = new Identity("test","test");
         Identity identity2 = new Identity("test2","test2");
-        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService);
+        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
         ProfileFilter filter = new ProfileFilter();
         Sorting sorting = new Sorting(Sorting.SortBy.FIRSTNAME, Sorting.OrderBy.DESC);
         Map <String,String> profileSettings = new HashMap<>();
@@ -240,7 +244,7 @@ public class ProfileSearchConnectorTest {
     @Test
     public void testSearchWithNameOrUsername() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
-        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService);
+        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
         IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
         ProfileFilter filter = new ProfileFilter();
         Sorting sorting = new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC);
@@ -450,7 +454,7 @@ public class ProfileSearchConnectorTest {
     @Test
     public void testSearchWithProfileSetting() {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
-        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService);
+        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
         IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
         ProfileFilter filter = new ProfileFilter();
         Sorting sorting = new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC);
@@ -582,7 +586,7 @@ public class ProfileSearchConnectorTest {
     @Test
     public void testSearchWithProfileSettingWithSpacedValue() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
-        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService);
+        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
         IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
         ProfileFilter filter = new ProfileFilter();
         Sorting sorting = new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC);
@@ -715,7 +719,7 @@ public class ProfileSearchConnectorTest {
     @Test
     public void testSearchWithProfileSettingAndSpecialChars() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
-        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService);
+        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
         IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
         ProfileFilter filter = new ProfileFilter();
         Sorting sorting = new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC);
@@ -848,7 +852,7 @@ public class ProfileSearchConnectorTest {
     @Test
     public void testCount() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
-        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService);
+        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
         ProfileFilter filter = new ProfileFilter();
         Sorting sorting = new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC);
         Map <String,String> profileSettings = new HashMap<>();
@@ -970,7 +974,8 @@ public class ProfileSearchConnectorTest {
     @Test
     public void testSearchWithSpace() {
       ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
-      profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService);
+      when(userPermissionService.getMembershipTypes()).thenReturn(Arrays.asList("member", "redactor"));
+      profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
       IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
       ProfileFilter filter = new ProfileFilter();
       filter.setSearchEmail(false);
@@ -978,7 +983,7 @@ public class ProfileSearchConnectorTest {
       filter.setName("\\\"aaa\\\"");
       filter.setEnabled(true);
       filter.setUserType("internal");
-      filter.setSpaceIdentityIds(Arrays.asList("5"));
+      filter.setGroupIds(Arrays.asList("/spaces/test"));
       filter.setEnrollmentStatus("noEnrollmentPossible");
       String index = "profile_alias";
       String expectedQuery = """
@@ -992,12 +997,11 @@ public class ProfileSearchConnectorTest {
                   "bool" :{
               "must": [
               {
-                "terms": {
-                  "permissions": [
-        5
-                  ]
-                }
-              },
+                "terms" :{
+                  "permissions" : ["member:/spaces/test","redactor:/spaces/test"]
+                }\s
+              }
+        ,
               {
                 "bool": {
                   "should": [

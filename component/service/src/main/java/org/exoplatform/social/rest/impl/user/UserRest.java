@@ -33,6 +33,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -337,6 +338,10 @@ public class UserRest implements ResourceContainer, Startable {
                            @Parameter(description = "Group id to filter only its members, ex: /platform")
                            @QueryParam("groupId")
                            List<String> groupIds,
+                           @Parameter(description = "When filtering by groupId, whether to also include members inherited through nested groups")
+                           @Schema(defaultValue = "false")
+                           @QueryParam("includeInheritedMemberships")
+                           boolean includeInheritedMemberships,
                            @Parameter(description = "Is disabled users")
                            @Schema(defaultValue = "false")
                            @QueryParam("isDisabled")
@@ -474,12 +479,17 @@ public class UserRest implements ResourceContainer, Startable {
       filter.setSearchEmail(searchEmail);
       filter.setSearchUserName(searchUsername);
       filter.setEnabled(!isDisabled);
+      Set<String> allGroupIds = new LinkedHashSet<>();
       if (CollectionUtils.isNotEmpty(spaceIds)) {
         List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
-        filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(target.getRemoteId(), spaceIdsString));
+        allGroupIds.addAll(SpaceUtils.getSpaceGroupIds(target.getRemoteId(), spaceIdsString));
       }
       if (CollectionUtils.isNotEmpty(groupIds)) {
-        filter.setGroupIds(groupIds);
+        allGroupIds.addAll(groupIds);
+        filter.setIncludeInheritedMemberships(includeInheritedMemberships);
+      }
+      if (CollectionUtils.isNotEmpty(allGroupIds)) {
+        filter.setGroupIds(new ArrayList<>(allGroupIds));
       }
       if (StringUtils.isNotBlank(sortField)) {
         Sorting.SortBy sortBy = Sorting.SortBy.valueOf(sortField.toUpperCase());
