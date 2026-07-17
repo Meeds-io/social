@@ -1,0 +1,30 @@
+{
+  "from": "@offset@",
+  "size": "@limit@",
+  "query": {
+    "bool": {
+      "must": {
+        "query_string": {
+          "fields": ["pageTitle", "pageName", "siteName", "content*"],
+          "default_operator": "AND",
+          "query": "@term@"
+        }
+      },
+      "filter": [
+        @permissions_filter@
+      ]
+    }
+  },
+  "highlight": {
+    "number_of_fragments": 2,
+    "fragment_size": 150,
+    "no_match_size": 0,
+    "order": "score",
+    "fields": {
+      "content*": {
+        "pre_tags": ["<span class='searchMatchExcerpt'>"],
+        "post_tags": ["</span>"]
+      }
+    }
+  }
+}
