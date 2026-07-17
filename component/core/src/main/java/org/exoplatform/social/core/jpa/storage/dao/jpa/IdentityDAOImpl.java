@@ -134,7 +134,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
 
   @Override
   public ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId, String sortField, String sortDirection) {
-    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, sortField, sortDirection, true, null, null, null, null);
+    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, sortField, sortDirection, true, null, null, null, null, null, null, true);
 
     TypedQuery<ConnectionEntity> connectionsQuery = getEntityManager().createNamedQuery("SocConnection.findConnectionsByIdentityIds", ConnectionEntity.class);
 
@@ -168,21 +168,21 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
-  public List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, List<String> remoteIds, long offset, long limit) {
-    Query query = getIdentitiesQuerySortedByField(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds);
+  public List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, boolean includeInheritedMemberships, long offset, long limit) {
+    Query query = getIdentitiesQuerySortedByField(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, includeInheritedMemberships);
     return getResultsFromQuery(query, 0, offset, limit, String.class);
   }
 
   @Override
-  public List<Long> getIdentityIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, List<String> remoteIds,long offset, long limit) {
-    Query query = getIdentitiesQuerySortedByField(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds);
+  public List<Long> getIdentityIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, boolean includeInheritedMemberships, long offset, long limit) {
+    Query query = getIdentitiesQuerySortedByField(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, includeInheritedMemberships);
     return getResultsFromQuery(query, 1, offset, limit, Long.class);
   }
 
   @Override
-  public int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean isEnabled, String enrollmentStatus, List<String> remoteIds) {
+  public int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean isEnabled, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, boolean includeInheritedMemberships) {
     boolean noEnrollmentPossible = enrollmentStatus != null && !enrollmentStatus.isEmpty() && enrollmentStatus.equals(NO_ENROLLMENT_POSSIBLE);
-    Query query = getIdentitiesQueryCount(providerId, userType, isConnected, isEnabled, enrollmentStatus, remoteIds);
+    Query query = getIdentitiesQueryCount(providerId, userType, isConnected, isEnabled, enrollmentStatus, remoteIds, groupIds, membershipType, includeInheritedMemberships);
     int totalCount = ((Number) query.getSingleResult()).intValue();
     if(noEnrollmentPossible) {
       Query externalQuery = getExternalIdentitiesQueryCount(providerId, isEnabled);
@@ -379,7 +379,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     }
   }
 
-  private Query getIdentitiesQueryCount(String providerId, String userType, Boolean isConnected, boolean isEnabled, String enrollmentStatus, List<String> remoteIds) {
+  private Query getIdentitiesQueryCount(String providerId, String userType, Boolean isConnected, boolean isEnabled, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, boolean includeInheritedMemberships) {
 
     boolean isUserTypeFilter = userType != null && ( userType.equals(INTERNAL) || userType.equals(EXTERNAL));
     boolean isEnrollmentStatusFilter = enrollmentStatus != null && !enrollmentStatus.isEmpty();
@@ -472,11 +472,13 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     if (CollectionUtils.isNotEmpty(remoteIds)) {
       queryStringBuilder.append(" AND identity_1.remote_id IN (:remoteIds) \n");
     }
+    appendGroupPermissionExists(queryStringBuilder, groupIds, membershipType, includeInheritedMemberships);
 
     Query query = getEntityManager().createNativeQuery(queryStringBuilder.toString());
     if (CollectionUtils.isNotEmpty(remoteIds)){
       query.setParameter("remoteIds", remoteIds);
     }
+    setGroupPermissionParameters(query, groupIds, membershipType);
     return query;
   }
 
@@ -507,7 +509,10 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
                                                 String userType,
                                                 Boolean isConnected,
                                                 String enrollmentStatus,
-                                                List<String> remoteIds) {
+                                                List<String> remoteIds,
+                                                List<String> groupIds,
+                                                String membershipType,
+                                                boolean includeInheritedMemberships) {
     StringBuilder queryStringBuilder = null;
     boolean isUserTypeFilter = userType != null && ( userType.equals(INTERNAL) || userType.equals(EXTERNAL));
     boolean isEnrollmentStatusFilter = enrollmentStatus != null && !enrollmentStatus.isEmpty();
@@ -612,6 +617,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     if (CollectionUtils.isNotEmpty(remoteIds)) {
       queryStringBuilder.append(" AND identity_1.remote_id IN (:remoteIds) \n");
     }
+    appendGroupPermissionExists(queryStringBuilder, groupIds, membershipType, includeInheritedMemberships);
     if(isEnrollmentStatusFilter && enrollmentStatus.equals(NO_ENROLLMENT_POSSIBLE)) {
       queryStringBuilder.append(" \n");
       queryStringBuilder.append("UNION").append(" \n");
@@ -640,6 +646,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       if (CollectionUtils.isNotEmpty(remoteIds)) {
         queryStringBuilder.append(" AND identity_1.remote_id IN (:remoteIds) \n");
       }
+      appendGroupPermissionExists(queryStringBuilder, groupIds, membershipType, includeInheritedMemberships);
     }
 
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
@@ -650,7 +657,37 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     if (CollectionUtils.isNotEmpty(remoteIds)){
       query.setParameter("remoteIds", remoteIds);
     }
+    setGroupPermissionParameters(query, groupIds, membershipType);
     return query;
+  }
+
+  private void appendGroupPermissionExists(StringBuilder queryStringBuilder,
+                                           List<String> groupIds,
+                                           String membershipType,
+                                           boolean includeInheritedMemberships) {
+    if (CollectionUtils.isEmpty(groupIds)) {
+      return;
+    }
+    queryStringBuilder.append(" AND EXISTS ( SELECT 1 FROM SOC_USER_PERMISSION user_permission_1 \n");
+    queryStringBuilder.append("   WHERE user_permission_1.USER_NAME = identity_1.remote_id \n");
+    queryStringBuilder.append("   AND user_permission_1.GROUP_ID IN (:groupIds) \n");
+    if (StringUtils.isNotBlank(membershipType)) {
+      queryStringBuilder.append("   AND (user_permission_1.MEMBERSHIP_TYPE = :membershipType OR user_permission_1.MEMBERSHIP_TYPE = '*') \n");
+    }
+    if (!includeInheritedMemberships) {
+      queryStringBuilder.append("   AND user_permission_1.IS_INHERITED = FALSE \n");
+    }
+    queryStringBuilder.append(" ) \n");
+  }
+
+  private void setGroupPermissionParameters(Query query, List<String> groupIds, String membershipType) {
+    if (CollectionUtils.isEmpty(groupIds)) {
+      return;
+    }
+    query.setParameter("groupIds", groupIds);
+    if (StringUtils.isNotBlank(membershipType)) {
+      query.setParameter("membershipType", membershipType);
+    }
   }
 
   @SuppressWarnings("unchecked")

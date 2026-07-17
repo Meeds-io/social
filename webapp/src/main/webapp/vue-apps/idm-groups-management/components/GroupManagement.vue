@@ -46,7 +46,7 @@
           </div>
           <span v-else class="d-flex flex-column">
             <div class="d-flex align-center justify-space-between flex-grow-1 text-no-wrap pa-4">
-              <span class="text-title">{{ $t('GroupsManagement.groupSettings') }}</span>
+              <span class="text-title">{{ selectedGroupLabel }}</span>
               <v-btn
                 icon
                 :title="$t('GroupsManagement.groupSettings.title')"
@@ -66,6 +66,13 @@
   </v-app>
 </template>
 <script>
+export default {
+  computed: {
+    selectedGroupLabel() {
+      return this.$root?.selectedGroup?.label || '';
+    }
+  }
+};
 </script>
 
 
