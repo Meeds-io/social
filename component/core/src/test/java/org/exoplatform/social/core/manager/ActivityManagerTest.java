@@ -950,6 +950,76 @@ public class ActivityManagerTest extends AbstractCoreTest {
   }
 
   /**
+   * Test {@link ActivityManager#getActivitiesByFilterWithListAccess(Identity, ActivityFilter)}
+   * with the scheduled activities stream filter, as a space content writer
+   * (manager, redactor or publisher) who sees the scheduled posts of others
+   * in the space and can edit or delete them, while the original author
+   * remains the same at publication
+   */
+  @SneakyThrows
+  public void testScheduledActivitiesStreamFilterForSpaceContentWriters() {
+    Space space = createSpace("ScheduledContentWritersSpace", "john", "john", "demo", "mary");
+    spaceService.addRedactor(space, "demo");
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("space scheduled activity");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(System.currentTimeMillis() + 3600000l);
+    activityManager.saveActivityNoReturn(spaceIdentity, activity);
+    String activityId = activity.getId();
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.SCHEDULED_STREAM);
+
+    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesByFilterWithListAccess(johnIdentity,
+                                                                                                           activityFilter);
+    assertEquals("The poster must see its own scheduled space post", 1, listAccess.getSize());
+
+    listAccess = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals("A space redactor must see the scheduled posts of others in the space", 1, listAccess.getSize());
+
+    listAccess = activityManager.getActivitiesByFilterWithListAccess(maryIdentity, activityFilter);
+    assertEquals("A simple space member mustn't see the scheduled posts of others", 0, listAccess.getSize());
+
+    activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.SCHEDULED_STREAM);
+    activityFilter.setSpaceIdentityId(Long.parseLong(spaceIdentity.getId()));
+    listAccess = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals("A space redactor must see the scheduled posts of others in the space scoped filter",
+                 1,
+                 listAccess.getSize());
+    activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.SCHEDULED_STREAM);
+    activityFilter.setSpaceIdentityId(Long.parseLong(spaceIdentity.getId()));
+    listAccess = activityManager.getActivitiesByFilterWithListAccess(maryIdentity, activityFilter);
+    assertEquals("A simple space member mustn't see the scheduled posts of others in the space scoped filter",
+                 0,
+                 listAccess.getSize());
+
+    org.exoplatform.services.security.Identity demoSecurityIdentity = new org.exoplatform.services.security.Identity("demo");
+    org.exoplatform.services.security.Identity marySecurityIdentity = new org.exoplatform.services.security.Identity("mary");
+    ExoSocialActivity scheduledActivity = activityManager.getActivity(activityId);
+    assertTrue("A space redactor must be able to edit a scheduled post of others",
+               activityManager.isActivityEditable(scheduledActivity, demoSecurityIdentity));
+    assertTrue("A space redactor must be able to delete a scheduled post of others",
+               activityManager.isActivityDeletable(scheduledActivity, demoSecurityIdentity));
+    assertFalse("A simple space member mustn't be able to edit a scheduled post of others",
+                activityManager.isActivityEditable(scheduledActivity, marySecurityIdentity));
+    assertFalse("A simple space member mustn't be able to delete a scheduled post of others",
+                activityManager.isActivityDeletable(scheduledActivity, marySecurityIdentity));
+
+    scheduledActivity.setTitle("space scheduled activity updated by demo");
+    activityManager.updateActivity(scheduledActivity, true);
+
+    ExoSocialActivity publishedActivity = activityManager.publishScheduledActivity(activityId);
+    assertNotNull(publishedActivity);
+    assertEquals("The original author must remain the same after an edition by another content writer",
+                 johnIdentity.getId(),
+                 publishedActivity.getPosterId());
+  }
+
+  /**
    * Test {@link ActivityManager#pinActivity(String, String)} Test
    * {@link ActivityManager#unpinActivity(String)}
    */
