@@ -220,7 +220,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   labelKey: 'activityStream.label.addCategories',
   icon: 'fa-th-large',
   isEnabled: (activity, activityTypeExtension) => {
-    if (activity.publicationStartTime || (activityTypeExtension.canManage && !activityTypeExtension.canManage(activity))) {
+    if (activityTypeExtension.canManage && !activityTypeExtension.canManage(activity)) {
       return false;
     }
     return activity.canManage === 'true';
