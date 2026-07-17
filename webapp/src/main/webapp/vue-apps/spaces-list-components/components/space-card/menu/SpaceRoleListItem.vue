@@ -29,6 +29,7 @@
     <exo-user-avatar
       :identity="user"
       :size="30"
+      :url="false"
       extra-class="text-truncate ms-n6 mt-6"
       avatar />
     <v-list-item-content class="py-0 accountTitleLabel text-truncate">
