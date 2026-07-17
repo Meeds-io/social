@@ -21,14 +21,9 @@ package org.exoplatform.social.core.identity;
 import java.util.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.Membership;
-import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
-import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
 /**
@@ -150,18 +145,8 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
           String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
           String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
           List<String> groupIds = profileFilter.getGroupIds();
-          if (CollectionUtils.isNotEmpty(groupIds)) {
-            Set<String> userNames = resolveRemoteIds(groupIds);
-            if (CollectionUtils.isEmpty(userNames)) {
-              return new Identity[0];
-            }
-            if (CollectionUtils.isEmpty(remoteIds)) {
-              remoteIds = new ArrayList<>(userNames);
-            } else {
-              remoteIds.retainAll(userNames);
-            }
-          }
-          profileFilter.setRemoteIds(remoteIds);
+          String membershipType = profileFilter.getMembershipType();
+          boolean includeInheritedMemberships = profileFilter.isIncludeInheritedMemberships();
           identities = identityStorage.getIdentities(providerId,
                                                      sortFieldName,
                                                      sortDirection,
@@ -170,6 +155,9 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
                                                      isConnected,
                                                      enrollmentStatus,
                                                      remoteIds,
+                                                     groupIds,
+                                                     membershipType,
+                                                     includeInheritedMemberships,
                                                      offset,
                                                      usedLimit);
         }
@@ -184,19 +172,6 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
                                                                     usedLimit);
       }
     } else {
-      List<String> groupIds = profileFilter.getGroupIds();
-      if (CollectionUtils.isNotEmpty(groupIds)) {
-        SpaceUtils spaceUtils = ExoContainerContext.getService(SpaceUtils.class);
-        Set<String> groupIdentityIds = spaceUtils.getUserPermissionsIdentityIds(groupIds);
-        List<String> spaceIdentityIds = profileFilter.getSpaceIdentityIds();
-        if (CollectionUtils.isEmpty(spaceIdentityIds)) {
-          profileFilter.setSpaceIdentityIds(new ArrayList<>(groupIdentityIds));
-        } else {
-          List<String> spaceListIdentityIds = new ArrayList<>(spaceIdentityIds);
-          spaceListIdentityIds.retainAll(groupIdentityIds);
-          profileFilter.setSpaceIdentityIds(spaceIdentityIds);
-        }
-      }
       identities = identityStorage.getIdentitiesForMentions(providerId, profileFilter, null, offset, usedLimit, forceLoadProfile);
     }
     if (profileFilter != null && profileFilter.getViewerIdentity() != null) {
@@ -228,13 +203,6 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
     int size = 0; 
     if (profileFilter.isEmpty()) {
       if (profileFilter.getViewerIdentity() == null) {
-        if (CollectionUtils.isNotEmpty(profileFilter.getGroupIds())) {
-          Set<String> userNames = resolveRemoteIds(profileFilter.getGroupIds());
-          if (CollectionUtils.isEmpty(userNames)) {
-            return size;
-          }
-          profileFilter.setRemoteIds(userNames.stream().toList());
-        }
         size = identityStorage.getIdentitiesByProfileFilterCount(providerId, profileFilter);
       } else {
         size = identityStorage.countIdentitiesWithRelationships(profileFilter.getViewerIdentity().getId());
@@ -246,24 +214,5 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
     }
 
     return size;
-  }
-
-  private Set<String> resolveRemoteIds(List<String> groupIds) throws Exception {
-    Set<String> userNames = new HashSet<>();
-    for (String groupId : groupIds) {
-      OrganizationService organizationService = ExoContainerContext.getService(OrganizationService.class);
-      Group group = organizationService.getGroupHandler().findGroupById(groupId);
-      ListAccess<Membership> membershipsListAccess =
-          organizationService.getMembershipHandler().findAllMembershipsByGroup(group);
-      int membershipSize = membershipsListAccess.getSize();
-      if (membershipSize > 0) {
-        Membership[] memberships = membershipsListAccess.load(0, membershipSize);
-        Arrays.stream(memberships)
-              .filter(Objects::nonNull)
-              .map(Membership::getUserName)
-              .forEach(userNames::add);
-      }
-    }
-    return userNames;
   }
 }

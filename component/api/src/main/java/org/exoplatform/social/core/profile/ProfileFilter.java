@@ -81,6 +81,17 @@ public class ProfileFilter implements Cloneable {
 
   private List<String> groupIds = null;
 
+  /**
+   * Restricts {@link #groupIds} to a given membership type (blank/null matches any type;
+   */
+  private String membershipType;
+
+  /**
+   * When true, {@link #groupIds} matches both direct members and members inherited through nested
+   * groups. When false (default), only direct members are matched.
+   */
+  private boolean includeInheritedMemberships = false;
+
   private Sorting sorting;
 
   private Map<String, String> profileSettings;
@@ -321,6 +332,22 @@ public class ProfileFilter implements Cloneable {
 
   public List<String> getGroupIds() {
     return groupIds;
+  }
+
+  public void setMembershipType(String membershipType) {
+    this.membershipType = membershipType;
+  }
+
+  public String getMembershipType() {
+    return membershipType;
+  }
+
+  public void setIncludeInheritedMemberships(boolean includeInheritedMemberships) {
+    this.includeInheritedMemberships = includeInheritedMemberships;
+  }
+
+  public boolean isIncludeInheritedMemberships() {
+    return includeInheritedMemberships;
   }
 
   /**

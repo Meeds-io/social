@@ -78,6 +78,14 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
   }
 
   default List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean enabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, long offset, long limit) {
+    return getAllIdsByProviderSorted(providerId, sortField, sortDirection, enabled, userType, isConnected, enrollmentStatus, remoteIds, null, null, offset, limit);
+  }
+
+  default List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean enabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, long offset, long limit) {
+    return getAllIdsByProviderSorted(providerId, sortField, sortDirection, enabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, false, offset, limit);
+  }
+
+  default List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean enabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, boolean includeInheritedMemberships, long offset, long limit) { // NOSONAR parameters count
     return Collections.emptyList();
   }
 
@@ -119,9 +127,53 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
                                                     List<String> remoteIds,
                                                     long offset,
                                                     long limit) {
-    remoteIds = getAllIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, offset, limit);
-    return remoteIds == null ? Collections.emptyList() :
-            remoteIds.stream()
+    return getIdentityIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, null, null, offset, limit);
+  }
+
+  /**
+   * Get identity ids by providerId sorted by sortField, additionally restricted to the members of the
+   * given groupIds (optionally further restricted to a given membershipType - blank/null matches any
+   * type),
+   * backed by the indexed {@code SOC_USER_PERMISSION} table.
+   */
+  default List<Long> getIdentityIdsByProviderSorted(String providerId,
+                                                    String sortField,
+                                                    String sortDirection,
+                                                    boolean isEnabled,
+                                                    String userType,
+                                                    Boolean isConnected,
+                                                    String enrollmentStatus,
+                                                    List<String> remoteIds,
+                                                    List<String> groupIds,
+                                                    String membershipType,
+                                                    long offset,
+                                                    long limit) {
+    return getIdentityIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, false, offset, limit);
+  }
+
+  /**
+   * Get identity ids by providerId sorted by sortField, additionally restricted to the members of the
+   * given groupIds (optionally further restricted to a given membershipType - blank/null matches any
+   * type),
+   * backed by the indexed {@code SOC_USER_PERMISSION} table. When includeInheritedMemberships
+   * is false, only direct members are matched, excluding members inherited through nested groups.
+   */
+  default List<Long> getIdentityIdsByProviderSorted(String providerId,
+                                                    String sortField,
+                                                    String sortDirection,
+                                                    boolean isEnabled,
+                                                    String userType,
+                                                    Boolean isConnected,
+                                                    String enrollmentStatus,
+                                                    List<String> remoteIds,
+                                                    List<String> groupIds,
+                                                    String membershipType,
+                                                    boolean includeInheritedMemberships,
+                                                    long offset,
+                                                    long limit) { // NOSONAR parameters count
+    List<String> foundRemoteIds = getAllIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, includeInheritedMemberships, offset, limit);
+    return foundRemoteIds == null ? Collections.emptyList() :
+            foundRemoteIds.stream()
                     .map(remoteId -> findIdByProviderAndRemoteId(providerId, remoteId))
                     .filter(Objects::nonNull)
                     .toList();
@@ -143,6 +195,14 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
   }
 
   default int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean enabled, String enrollmentStatus, List<String> remoteIds) {
+    return getAllIdsCountByProvider(providerId, userType, isConnected, enabled, enrollmentStatus, remoteIds, null, null);
+  }
+
+  default int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean enabled, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType) {
+    return getAllIdsCountByProvider(providerId, userType, isConnected, enabled, enrollmentStatus, remoteIds, groupIds, membershipType, false);
+  }
+  
+  default int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean enabled, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, boolean includeInheritedMemberships) { // NOSONAR parameters count
     return 0;
   }
 
