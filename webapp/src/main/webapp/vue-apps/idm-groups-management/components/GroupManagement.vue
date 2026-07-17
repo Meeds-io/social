@@ -47,12 +47,20 @@
           <span v-else class="d-flex flex-column">
             <div class="d-flex align-center justify-space-between flex-grow-1 text-no-wrap pa-4">
               <span class="text-title">{{ selectedGroupLabel }}</span>
-              <v-btn
-                icon
-                :title="$t('GroupsManagement.groupSettings.title')"
-                @click="$root.$emit('open-group-settings-drawer', $root.selectedGroup)">
-                <v-icon size="20">fa fa-cog</v-icon>
-              </v-btn>
+              <div class="d-flex align-center">
+                <v-btn
+                  icon
+                  :title="$root.selectedGroup.organizationalUnit ? $t('GroupsManagement.organizationalUnit.tooltip') : ''"
+                  @click="$root.$emit('open-group-settings-drawer', $root.selectedGroup)">
+                  <v-icon :color="$root.selectedGroup.organizationalUnit ? 'success' : ''">mdi-city</v-icon>
+                </v-btn>
+                <v-btn
+                  icon
+                  :title="$t('GroupsManagement.groupSettings.title')"
+                  @click="$root.$emit('open-group-settings-drawer', $root.selectedGroup)">
+                  <v-icon size="20">fa fa-cog</v-icon>
+                </v-btn>
+              </div>
             </div>
             <nested-groups-management />
             <group-members-management />

@@ -35,6 +35,50 @@
           </v-btn>
         </div>
         <span class="text-header pt-5">{{ $t('GroupsManagement.groupCharacteristics') }}</span>
+        <div class="d-flex align-center justify-space-between flex-grow-1 text-no-wrap pt-4">
+          <help-label
+            label="GroupsManagement.organizationalUnit.label"
+            label-class="text-body"
+            tooltip="GroupsManagement.organizationalUnit.tooltip"
+            drawer-title="GroupsManagement.organizationalUnit.help.title">
+            <template #helpContent>
+              <div class="text-title pb-2">
+                {{ $t('GroupsManagement.organizationalUnit.help.heading') }}
+              </div>
+              <p>{{ $t('GroupsManagement.organizationalUnit.help.paragraph1') }}</p>
+              <p class="d-flex align-start">
+                <v-icon
+                  size="16"
+                  color="success"
+                  class="me-1 mt-1">
+                  mdi-checkbox-marked
+                </v-icon>
+                <span class="flex-grow-1">{{ $t('GroupsManagement.organizationalUnit.help.bullet1') }}</span>
+              </p>
+              <p class="d-flex align-start">
+                <v-icon
+                  size="16"
+                  color="success"
+                  class="me-1 mt-1">
+                  mdi-checkbox-marked
+                </v-icon>
+                <span class="flex-grow-1">{{ $t('GroupsManagement.organizationalUnit.help.bullet2') }}</span>
+              </p>
+              <p class="mb-0">{{ $t('GroupsManagement.organizationalUnit.help.paragraph2') }}</p>
+              <p class="mb-0">- {{ $t('GroupsManagement.organizationalUnit.help.item1') }}</p>
+              <p class="mb-0">- {{ $t('GroupsManagement.organizationalUnit.help.item2') }}</p>
+              <p>- {{ $t('GroupsManagement.organizationalUnit.help.item3') }}</p>
+              <p>{{ $t('GroupsManagement.organizationalUnit.help.paragraph3') }}</p>
+            </template>
+          </help-label>
+          <v-switch
+            id="organizationalUnitSwitch"
+            v-model="organizationalUnit"
+            hide-details
+            class="mt-0 pt-0"
+            :aria-label="$t('GroupsManagement.organizationalUnit.ariaLabel')"
+            :aria-checked="organizationalUnit ? 'true' : 'false'" />
+        </div>
       </div>
     </template>
     <template #footer>
@@ -59,6 +103,7 @@ export default {
   data: () => ({
     drawer: false,
     group: null,
+    organizationalUnit: false,
   }),
   computed: {
     groupLabel() {
@@ -74,12 +119,14 @@ export default {
   methods: {
     open(group) {
       this.group = group;
+      this.organizationalUnit = !!group?.organizationalUnit;
       this.drawer = true;
     },
     cancel() {
       this.drawer = false;
     },
     apply() {
+      this.$set(this.group, 'organizationalUnit', this.organizationalUnit);
       this.cancel();
     },
   },
