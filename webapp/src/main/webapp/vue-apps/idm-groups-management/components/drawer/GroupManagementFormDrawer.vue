@@ -163,7 +163,9 @@ export default {
         this.group.enclosingMemberships = [{
           membershipType: this.membershipType,
           groupId: this.parentGroup?.id,
-          nestedMembershipType: this.membershipType,
+          // '*' (NestedMembership.ALL_MEMBERSHIP_TYPE): any membership type in the nested group
+          // (member, publisher, manager, admin, or '*' itself) grants membershipType in the parent.
+          nestedMembershipType: '*',
         }];
       }
     },
@@ -311,7 +313,9 @@ export default {
           this.group.enclosingMemberships.push({
             membershipType: this.membershipType,
             groupId: this.group?.parentId,
-            nestedMembershipType: this.membershipType,
+            // '*' (NestedMembership.ALL_MEMBERSHIP_TYPE): any membership type in the nested group
+            // grants membershipType in the parent.
+            nestedMembershipType: '*',
             nestedGroupId: this.group.id || null,
           });
         }

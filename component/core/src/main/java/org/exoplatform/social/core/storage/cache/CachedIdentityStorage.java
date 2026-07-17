@@ -373,12 +373,48 @@ public class CachedIdentityStorage implements IdentityStorage {
                                      List<String> remoteIds,
                                      long offset,
                                      long limit) {
+    return getIdentityIds(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, null, null, offset, limit);
+  }
+
+  @Override
+  public List<String> getIdentityIds(String providerId,
+                                     String sortField,
+                                     String sortDirection,
+                                     boolean isEnabled,
+                                     String userType,
+                                     Boolean isConnected,
+                                     String enrollmentStatus,
+                                     List<String> remoteIds,
+                                     List<String> groupIds,
+                                     String membershipType,
+                                     long offset,
+                                     long limit) {
+    return getIdentityIds(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, false, offset, limit);
+  }
+
+  @Override
+  public List<String> getIdentityIds(String providerId,
+                                     String sortField,
+                                     String sortDirection,
+                                     boolean isEnabled,
+                                     String userType,
+                                     Boolean isConnected,
+                                     String enrollmentStatus,
+                                     List<String> remoteIds,
+                                     List<String> groupIds,
+                                     String membershipType,
+                                     boolean includeInheritedMemberships,
+                                     long offset,
+                                     long limit) {
     ProfileFilter profileFilter = new ProfileFilter();
     profileFilter.setEnabled(isEnabled);
     profileFilter.setUserType(userType);
     profileFilter.setConnected(isConnected);
     profileFilter.setEnrollmentStatus(enrollmentStatus);
     profileFilter.setRemoteIds(remoteIds);
+    profileFilter.setGroupIds(groupIds);
+    profileFilter.setMembershipType(membershipType);
+    profileFilter.setIncludeInheritedMemberships(includeInheritedMemberships);
     profileFilter.setSorting(Sorting.valueOf(sortField, sortDirection));
 
     //
@@ -395,6 +431,9 @@ public class CachedIdentityStorage implements IdentityStorage {
                                                         isConnected,
                                                         enrollmentStatus,
                                                         remoteIds,
+                                                        groupIds,
+                                                        membershipType,
+                                                        includeInheritedMemberships,
                                                         offset,
                                                         limit);
       return new ListIdentitiesData(identityIds.stream().map(IdentityKey::new).toList());
@@ -413,7 +452,40 @@ public class CachedIdentityStorage implements IdentityStorage {
                                       List<String> remoteIds,
                                       long offset,
                                       long limit) {
-    List<String> identityIds = getIdentityIds(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, offset, limit);
+    return getIdentities(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, null, null, offset, limit);
+  }
+
+  @Override
+  public List<Identity> getIdentities(String providerId,
+                                      String sortField,
+                                      String sortDirection,
+                                      boolean isEnabled,
+                                      String userType,
+                                      Boolean isConnected,
+                                      String enrollmentStatus,
+                                      List<String> remoteIds,
+                                      List<String> groupIds,
+                                      String membershipType,
+                                      long offset,
+                                      long limit) {
+    return getIdentities(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, false, offset, limit);
+  }
+
+  @Override
+  public List<Identity> getIdentities(String providerId,
+                                      String sortField,
+                                      String sortDirection,
+                                      boolean isEnabled,
+                                      String userType,
+                                      Boolean isConnected,
+                                      String enrollmentStatus,
+                                      List<String> remoteIds,
+                                      List<String> groupIds,
+                                      String membershipType,
+                                      boolean includeInheritedMemberships,
+                                      long offset,
+                                      long limit) {
+    List<String> identityIds = getIdentityIds(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, includeInheritedMemberships, offset, limit);
     return buildIdentities(identityIds);
   }
 

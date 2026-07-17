@@ -1338,4 +1338,48 @@
       <column name="EXTENDED_PROPERTIES" type="LONGTEXT"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="social" id="1.0.0-mip-237-01" dbms="oracle,postgresql,hsqldb">
+    <createSequence sequenceName="SEQ_SOC_USER_PERMISSION_ID" startValue="1"/>
+  </changeSet>
+  <changeSet author="social" id="1.0.0-mip-237-02">
+    <createTable tableName="SOC_USER_PERMISSION">
+      <column name="PERMISSION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_USER_PERMISSION"/>
+      </column>
+      <column name="IDENTITY_ID" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="USER_NAME" type="NVARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="GROUP_ID" type="NVARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="MEMBERSHIP_TYPE" type="NVARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="IS_INHERITED" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+    </modifySql>
+  </changeSet>
+  <changeSet author="social" id="1.0.0-mip-237-03">
+    <addUniqueConstraint tableName="SOC_USER_PERMISSION"
+                         columnNames="USER_NAME, GROUP_ID, MEMBERSHIP_TYPE"
+                         constraintName="UK_SOC_USER_PERMISSION_01"/>
+    <createIndex tableName="SOC_USER_PERMISSION" indexName="IDX_SOC_USER_PERMISSION_GROUP">
+      <column name="GROUP_ID"/>
+      <column name="MEMBERSHIP_TYPE"/>
+    </createIndex>
+    <createIndex tableName="SOC_USER_PERMISSION" indexName="IDX_SOC_USER_PERMISSION_IDENTITY">
+      <column name="IDENTITY_ID"/>
+    </createIndex>
+    <createIndex tableName="SOC_USER_PERMISSION" indexName="IDX_SOC_USER_PERMISSION_USER_NAME">
+      <column name="USER_NAME"/>
+    </createIndex>
+  </changeSet>
 </databaseChangeLog>

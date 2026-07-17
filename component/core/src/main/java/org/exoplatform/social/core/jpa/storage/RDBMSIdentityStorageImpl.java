@@ -731,7 +731,15 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   @Override
   public int getIdentitiesByProfileFilterCount(String providerId, ProfileFilter profileFilter) throws IdentityStorageException {
-    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.getUserType(), profileFilter.isConnected(), profileFilter.isEnabled(), profileFilter.getEnrollmentStatus(), profileFilter.getRemoteIds());
+    return getIdentityDAO().getAllIdsCountByProvider(providerId,
+                                                     profileFilter.getUserType(),
+                                                     profileFilter.isConnected(),
+                                                     profileFilter.isEnabled(),
+                                                     profileFilter.getEnrollmentStatus(),
+                                                     profileFilter.getRemoteIds(),
+                                                     profileFilter.getGroupIds(),
+                                                     profileFilter.getMembershipType(),
+                                                     profileFilter.isIncludeInheritedMemberships());
   }
 
   public List<Identity> getIdentitiesForUnifiedSearch(final String providerId,
@@ -938,7 +946,40 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                       List<String> remoteIds,
                                       long offset,
                                       long limit) {
-    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, offset, limit);
+    return getIdentities(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, null, null, offset, limit);
+  }
+
+  @Override
+  public List<Identity> getIdentities(String providerId,
+                                      String sortField,
+                                      String sortDirection,
+                                      boolean isEnabled,
+                                      String userType,
+                                      Boolean isConnected,
+                                      String enrollmentStatus,
+                                      List<String> remoteIds,
+                                      List<String> groupIds,
+                                      String membershipType,
+                                      long offset,
+                                      long limit) {
+    return getIdentities(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, false, offset, limit);
+  }
+
+  @Override
+  public List<Identity> getIdentities(String providerId,
+                                      String sortField,
+                                      String sortDirection,
+                                      boolean isEnabled,
+                                      String userType,
+                                      Boolean isConnected,
+                                      String enrollmentStatus,
+                                      List<String> remoteIds,
+                                      List<String> groupIds,
+                                      String membershipType,
+                                      boolean includeInheritedMemberships,
+                                      long offset,
+                                      long limit) {
+    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, includeInheritedMemberships, offset, limit);
     List<Identity> identities = new ArrayList<>();
     if (usernames != null && !usernames.isEmpty()) {
       for (String username : usernames) {
@@ -962,6 +1003,39 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                      List<String> remoteIds,
                                      long offset,
                                      long limit) {
+    return getIdentityIds(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, null, null, offset, limit);
+  }
+
+  @Override
+  public List<String> getIdentityIds(String providerId,
+                                     String sortField,
+                                     String sortDirection,
+                                     boolean isEnabled,
+                                     String userType,
+                                     Boolean isConnected,
+                                     String enrollmentStatus,
+                                     List<String> remoteIds,
+                                     List<String> groupIds,
+                                     String membershipType,
+                                     long offset,
+                                     long limit) {
+    return getIdentityIds(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, false, offset, limit);
+  }
+
+  @Override
+  public List<String> getIdentityIds(String providerId,
+                                     String sortField,
+                                     String sortDirection,
+                                     boolean isEnabled,
+                                     String userType,
+                                     Boolean isConnected,
+                                     String enrollmentStatus,
+                                     List<String> remoteIds,
+                                     List<String> groupIds,
+                                     String membershipType,
+                                     boolean includeInheritedMemberships,
+                                     long offset,
+                                     long limit) {
     return getIdentityDAO().getIdentityIdsByProviderSorted(providerId,
                                                            sortField,
                                                            sortDirection,
@@ -970,6 +1044,9 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                                            isConnected,
                                                            enrollmentStatus,
                                                            remoteIds,
+                                                           groupIds,
+                                                           membershipType,
+                                                           includeInheritedMemberships,
                                                            offset,
                                                            limit)
                            .stream()
