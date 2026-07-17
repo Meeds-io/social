@@ -52,6 +52,9 @@ import org.exoplatform.services.resources.LocaleContextInfo;
 import org.exoplatform.services.resources.ResourceBundleManager;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
 
 import io.meeds.social.search.model.PageSearchResult;
 
@@ -81,6 +84,10 @@ public class PageContentSearchConnector {
 
   private final ResourceBundleManager resourceBundleManager;
 
+  private final FavoriteService      favoriteService;
+
+  private final IdentityManager      identityManager;
+
   private final String               queryFilePath;
 
   private String                     query;
@@ -89,11 +96,15 @@ public class PageContentSearchConnector {
                                     ElasticSearchingClient client,
                                     LayoutService layoutService,
                                     ResourceBundleManager resourceBundleManager,
+                                    FavoriteService favoriteService,
+                                    IdentityManager identityManager,
                                     InitParams initParams) {
     this.configurationManager = configurationManager;
     this.client = client;
     this.layoutService = layoutService;
     this.resourceBundleManager = resourceBundleManager;
+    this.favoriteService = favoriteService;
+    this.identityManager = identityManager;
     ValueParam queryFileParam = initParams.getValueParam("query.file.path");
     this.queryFilePath = queryFileParam.getValue();
     this.query = retrieveQueryFromFile();
@@ -109,6 +120,90 @@ public class PageContentSearchConnector {
                                     .replace(LIMIT_REPLACEMENT, String.valueOf(limit < 1 ? 20 : limit));
     String jsonResponse = client.sendRequest(esQuery, INDEX);
     return buildResults(jsonResponse, locale == null ? Locale.getDefault() : locale);
+  }
+
+  /**
+   * Fetches a single previously-indexed page by its storage id, regardless
+   * of whether any term matches it — used to hydrate a page that a user
+   * already bookmarked for display in their favorites list. Unlike
+   * {@link #search}, there is no query term to highlight against, so the
+   * excerpt is a plain (non-highlighted) snippet of the user's own
+   * language content, falling back to the default content.
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public PageSearchResult getById(String id, Locale locale) {
+    if (StringUtils.isBlank(id)) {
+      throw new IllegalArgumentException("Id is mandatory");
+    }
+    Locale effectiveLocale = locale == null ? Locale.getDefault() : locale;
+    String esQuery = """
+        {
+          "query": {
+            "terms": {"_id": ["%s"]}
+          }
+        }
+        """.formatted(id);
+    String jsonResponse = client.sendRequest(esQuery, INDEX);
+    JSONObject jsonHit = firstHit(jsonResponse);
+    return jsonHit == null ? null : buildFavoriteResult(jsonHit, effectiveLocale);
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private JSONObject firstHit(String jsonResponse) {
+    JSONParser parser = new JSONParser();
+    Map json;
+    try {
+      json = (Map) parser.parse(jsonResponse);
+    } catch (ParseException e) {
+      throw new ElasticSearchException("Unable to parse JSON response", e);
+    }
+    JSONObject jsonResult = (JSONObject) json.get("hits");
+    if (jsonResult == null) {
+      return null;
+    }
+    JSONArray jsonHits = (JSONArray) jsonResult.get("hits");
+    return jsonHits == null || jsonHits.isEmpty() ? null : (JSONObject) jsonHits.get(0);
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private PageSearchResult buildFavoriteResult(JSONObject jsonHit, Locale locale) {
+    String id = (String) jsonHit.get("_id");
+    JSONObject source = (JSONObject) jsonHit.get("_source");
+    String langField = PageContentIndexingConnector.contentFieldName(locale.toLanguageTag());
+    String content = source == null ? null : (String) source.get(langField);
+    if (StringUtils.isBlank(content)) {
+      content = source == null ? null : (String) source.get("content");
+    }
+    List<String> excerpts = StringUtils.isBlank(content) ? Collections.emptyList()
+                                                          : List.of(StringUtils.abbreviate(content, 150));
+    Object dateValue = source == null ? null : source.get("lastUpdatedDate");
+    String siteType = source == null ? null : (String) source.get("siteType");
+    String siteName = source == null ? null : (String) source.get("siteName");
+    return new PageSearchResult(id,
+                                resolveSiteLabel(siteType, siteName, locale),
+                                source == null ? null : (String) source.get("pageName"),
+                                source == null ? null : (String) source.get("pageTitle"),
+                                source == null ? null : (String) source.get("pagePath"),
+                                source == null ? null : (String) source.get("author"),
+                                dateValue == null ? 0L : ((Number) dateValue).longValue(),
+                                excerpts,
+                                isFavorite(id));
+  }
+
+  private boolean isFavorite(String id) {
+    ConversationState conversationState = ConversationState.getCurrent();
+    if (conversationState == null || conversationState.getIdentity() == null) {
+      return false;
+    }
+    String username = conversationState.getIdentity().getUserId();
+    org.exoplatform.social.core.identity.model.Identity socialIdentity = identityManager.getOrCreateUserIdentity(username);
+    if (socialIdentity == null) {
+      return false;
+    }
+    return favoriteService.isFavorite(new Favorite(PageContentIndexingConnector.TYPE,
+                                                    id,
+                                                    null,
+                                                    Long.parseLong(socialIdentity.getId())));
   }
 
   private String retrieveQuery() {
@@ -232,7 +327,8 @@ public class PageContentSearchConnector {
                                 source == null ? null : (String) source.get("pagePath"),
                                 source == null ? null : (String) source.get("author"),
                                 dateValue == null ? 0L : ((Number) dateValue).longValue(),
-                                excerpts);
+                                excerpts,
+                                isFavorite(id));
   }
 
   /**

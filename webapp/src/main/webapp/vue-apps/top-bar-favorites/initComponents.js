@@ -4,6 +4,7 @@ import TopBarFavoritesDrawer from './components/TopBarFavoritesDrawer.vue';
 import TopBarFavoritesButton from './components/TopBarFavoritesButton.vue';
 import ActivityFavoriteItem from './components/ActivityFavoriteItem.vue';
 import SpaceFavoriteItem from './components/SpaceFavoriteItem.vue';
+import PageFavoriteItem from './components/PageFavoriteItem.vue';
 import FavoriteTypes from './components/FavoriteTypes.vue';
 import FavoriteType from './components/FavoriteType.vue';
 import FavoritePlaceholder from './components/FavoritePlaceholder.vue';
@@ -20,6 +21,7 @@ const components = {
   'favorite-placeholder': FavoritePlaceholder,
   'activity-favorite-item': ActivityFavoriteItem,
   'space-favorite-item': SpaceFavoriteItem,
+  'page-favorite-item': PageFavoriteItem,
   'favorite-space-avatar': FavoriteSpaceAvatar,
   'favorite-user-avatar': FavoriteUserAvatar,
 };
