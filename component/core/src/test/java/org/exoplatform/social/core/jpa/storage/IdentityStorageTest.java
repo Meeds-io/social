@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
@@ -57,6 +58,8 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 
+import io.meeds.social.identity.permission.entity.UserPermissionEntity;
+import jakarta.persistence.EntityManager;
 import lombok.SneakyThrows;
 
 public class IdentityStorageTest extends AbstractCoreTest {
@@ -730,6 +733,161 @@ public class IdentityStorageTest extends AbstractCoreTest {
     identities = identityStorage.getIdentitiesByProfileFilter("organization", pf, 0, 20, false);
     assertEquals("Number of identities must be " + identities.size(), 1, identities.size());
   }
+
+  public void testGetIdentitiesByGroupIdAndMembershipType() throws Exception {
+    String groupId = "/organization/mip237testgroup";
+    String memberUserName = "mip237member";
+    String managerUserName = "mip237manager";
+    String outsiderUserName = "mip237outsider";
+
+    Identity memberIdentity = createProfiledIdentity(memberUserName);
+    Identity managerIdentity = createProfiledIdentity(managerUserName);
+    Identity outsiderIdentity = createProfiledIdentity(outsiderUserName);
+
+    seedUserPermission(Long.parseLong(memberIdentity.getId()), memberUserName, groupId, "member");
+    seedUserPermission(Long.parseLong(managerIdentity.getId()), managerUserName, groupId, "manager");
+    // outsiderIdentity intentionally has no SOC_USER_PERMISSION row for groupId.
+
+    List<String> groupIds = new ArrayList<>();
+    groupIds.add(groupId);
+
+    // Any membership type: member + manager, NOT the outsider.
+    List<Identity> anyTypeResult = identityStorage.getIdentities("organization",
+                                                                 null,
+                                                                 null,
+                                                                 true,
+                                                                 null,
+                                                                 null,
+                                                                 null,
+                                                                 null,
+                                                                 groupIds,
+                                                                 null,
+                                                                 0,
+                                                                 20);
+    List<String> anyTypeRemoteIds = anyTypeResult.stream().map(Identity::getRemoteId).collect(Collectors.toList());
+    assertTrue("member must be included", anyTypeRemoteIds.contains(memberUserName));
+    assertTrue("manager must be included", anyTypeRemoteIds.contains(managerUserName));
+    assertFalse("outsider must be excluded", anyTypeRemoteIds.contains(outsiderUserName));
+
+    ProfileFilter anyTypeFilter = new ProfileFilter();
+    anyTypeFilter.setGroupIds(groupIds);
+    assertEquals(2, identityStorage.getIdentitiesByProfileFilterCount("organization", anyTypeFilter));
+
+    // Specific membership type: only the manager.
+    List<Identity> managerOnlyResult = identityStorage.getIdentities("organization",
+                                                                     null,
+                                                                     null,
+                                                                     true,
+                                                                     null,
+                                                                     null,
+                                                                     null,
+                                                                     null,
+                                                                     groupIds,
+                                                                     "manager",
+                                                                     0,
+                                                                     20);
+    List<String> managerOnlyRemoteIds = managerOnlyResult.stream().map(Identity::getRemoteId).collect(Collectors.toList());
+    assertTrue("manager must be included", managerOnlyRemoteIds.contains(managerUserName));
+    assertFalse("member must be excluded when filtering by manager type", managerOnlyRemoteIds.contains(memberUserName));
+    assertFalse("outsider must be excluded", managerOnlyRemoteIds.contains(outsiderUserName));
+
+    ProfileFilter managerOnlyFilter = new ProfileFilter();
+    managerOnlyFilter.setGroupIds(groupIds);
+    managerOnlyFilter.setMembershipType("manager");
+    assertEquals(1, identityStorage.getIdentitiesByProfileFilterCount("organization", managerOnlyFilter));
+  }
+
+  public void testGetIdentitiesByGroupIdExcludingInheritedMemberships() throws Exception {
+    String groupId = "/organization/mip237inheritedtestgroup";
+    String directUserName = "mip237direct";
+    String inheritedUserName = "mip237inherited";
+
+    Identity directIdentity = createProfiledIdentity(directUserName);
+    Identity inheritedIdentity = createProfiledIdentity(inheritedUserName);
+
+    seedUserPermission(Long.parseLong(directIdentity.getId()), directUserName, groupId, "member", true);
+    seedUserPermission(Long.parseLong(inheritedIdentity.getId()), inheritedUserName, groupId, "member", false);
+
+    List<String> groupIds = new ArrayList<>();
+    groupIds.add(groupId);
+
+    // Default (includeInheritedMemberships=false): direct member only.
+    List<Identity> directOnly = identityStorage.getIdentities("organization",
+                                                               null,
+                                                               null,
+                                                               true,
+                                                               null,
+                                                               null,
+                                                               null,
+                                                               null,
+                                                               groupIds,
+                                                               null,
+                                                               0,
+                                                               20);
+    List<String> directOnlyRemoteIds = directOnly.stream().map(Identity::getRemoteId).collect(Collectors.toList());
+    assertTrue("direct member must be included", directOnlyRemoteIds.contains(directUserName));
+    assertFalse("inherited member must be excluded by default", directOnlyRemoteIds.contains(inheritedUserName));
+
+    ProfileFilter directOnlyFilter = new ProfileFilter();
+    directOnlyFilter.setGroupIds(groupIds);
+    assertEquals(1, identityStorage.getIdentitiesByProfileFilterCount("organization", directOnlyFilter));
+
+    // Explicit includeInheritedMemberships=true: both direct and inherited members.
+    List<Identity> includingInherited = identityStorage.getIdentities("organization",
+                                                                       null,
+                                                                       null,
+                                                                       true,
+                                                                       null,
+                                                                       null,
+                                                                       null,
+                                                                       null,
+                                                                       groupIds,
+                                                                       null,
+                                                                       true,
+                                                                       0,
+                                                                       20);
+    List<String> includingInheritedRemoteIds = includingInherited.stream().map(Identity::getRemoteId).collect(Collectors.toList());
+    assertTrue("direct member must be included", includingInheritedRemoteIds.contains(directUserName));
+    assertTrue("inherited member must be included when explicitly requested",
+              includingInheritedRemoteIds.contains(inheritedUserName));
+
+    ProfileFilter includingInheritedFilter = new ProfileFilter();
+    includingInheritedFilter.setGroupIds(groupIds);
+    includingInheritedFilter.setIncludeInheritedMemberships(true);
+    assertEquals(2, identityStorage.getIdentitiesByProfileFilterCount("organization", includingInheritedFilter));
+  }
+
+  private Identity createProfiledIdentity(String userName) {
+    Identity identity = new Identity(OrganizationIdentityProvider.NAME, userName);
+    identityStorage.saveIdentity(identity);
+    tearDownIdentityList.add(identity);
+    Profile profile = new Profile(identity);
+    profile.setProperty(Profile.FIRST_NAME, userName);
+    profile.setProperty(Profile.LAST_NAME, userName);
+    profile.setProperty(Profile.FULL_NAME, userName);
+    identityStorage.saveProfile(profile);
+    identity.setProfile(profile);
+    return identity;
+  }
+
+  private void seedUserPermission(long identityId, String userName, String groupId, String membershipType) {
+    seedUserPermission(identityId, userName, groupId, membershipType, true);
+  }
+
+  private void seedUserPermission(long identityId, String userName, String groupId, String membershipType, boolean direct) {
+    UserPermissionEntity entity = new UserPermissionEntity();
+    entity.setIdentityId(identityId);
+    entity.setUserName(userName);
+    entity.setGroupId(groupId);
+    entity.setMembershipType(membershipType);
+    entity.setInherited(!direct);
+    EntityManagerService entityManagerService = getService(EntityManagerService.class);
+    EntityManager entityManager = entityManagerService.getEntityManager();
+    entityManager.getTransaction().begin();
+    entityManager.persist(entity);
+    entityManager.getTransaction().commit();
+  }
+
   /**
    * Tests {@link IdenityStorage#findIdentityByProfileFilterCount(String, ProfileFilter)}
    * 
