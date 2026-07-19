@@ -301,21 +301,19 @@ export default {
     },
     markAsReadMouseDown(event) {
       if (this.selectMode) {
-        return true;
+        return;
       }
       if (event.button === 0 && !event.ctrlKey && !event.altKey && !event.shiftKey) {
         this.markAsRead(true);
       }
-      return true;
     },
     markAsReadMouseUp(event) {
       if (this.selectMode) {
-        return true;
+        return;
       }
       if (event.button === 1 || (event.button === 0 && (event.ctrlKey || event.altKey  || event.shiftKey))) {
         this.markAsRead(false, true);
       }
-      return true;
     },
     muteSpace() {
       this.markedAsReadMuted = true;
