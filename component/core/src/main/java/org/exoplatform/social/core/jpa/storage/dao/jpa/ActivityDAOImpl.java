@@ -1153,8 +1153,9 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
 
     String orderBy;
     if (scheduled) {
-      // From the closest schedule to the farthest one
-      orderBy = " ORDER BY activity.publicationStartTime ASC";
+      // From the closest schedule to the farthest one, then from the most
+      // recently created to the oldest one when scheduled at the same time
+      orderBy = " ORDER BY activity.publicationStartTime ASC, activity.id DESC";
     } else if (activityFilter.isShowPinned()) {
       orderBy = " ORDER BY activity.pinDate DESC NULLS LAST, updatedDate DESC NULLS LAST";
     } else {
