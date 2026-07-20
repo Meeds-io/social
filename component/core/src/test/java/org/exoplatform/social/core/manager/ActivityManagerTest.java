@@ -974,6 +974,12 @@ public class ActivityManagerTest extends AbstractCoreTest {
     closestScheduledActivity.setPublicationStartTime(closestPublicationStartTime);
     activityManager.saveActivityNoReturn(johnIdentity, closestScheduledActivity);
 
+    ExoSocialActivity lastCreatedScheduledActivity = new ExoSocialActivityImpl();
+    lastCreatedScheduledActivity.setTitle("last created scheduled activity at the same time");
+    lastCreatedScheduledActivity.setUserId(johnIdentity.getId());
+    lastCreatedScheduledActivity.setPublicationStartTime(closestPublicationStartTime);
+    activityManager.saveActivityNoReturn(johnIdentity, lastCreatedScheduledActivity);
+
     ExoSocialActivity postedActivity = new ExoSocialActivityImpl();
     postedActivity.setTitle("posted activity");
     postedActivity.setUserId(johnIdentity.getId());
@@ -984,13 +990,16 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
     RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesByFilterWithListAccess(johnIdentity,
                                                                                                            activityFilter);
-    assertEquals("Scheduled stream must list only scheduled activities of the poster", 2, listAccess.getSize());
+    assertEquals("Scheduled stream must list only scheduled activities of the poster", 3, listAccess.getSize());
     List<ExoSocialActivity> activities = listAccess.loadAsList(0, 10);
-    assertEquals(2, activities.size());
-    assertEquals("Scheduled activities must be ordered from the closest schedule to the farthest one",
-                 Long.valueOf(closestPublicationStartTime),
-                 activities.get(0).getPublicationStartTime());
-    assertEquals(Long.valueOf(farthestPublicationStartTime), activities.get(1).getPublicationStartTime());
+    assertEquals(3, activities.size());
+    assertEquals("Scheduled activities must be ordered from the closest schedule to the farthest one,"
+        + " the most recently created one first when scheduled at the same time",
+                 lastCreatedScheduledActivity.getId(),
+                 activities.get(0).getId());
+    assertEquals(Long.valueOf(closestPublicationStartTime), activities.get(0).getPublicationStartTime());
+    assertEquals(closestScheduledActivity.getId(), activities.get(1).getId());
+    assertEquals(Long.valueOf(farthestPublicationStartTime), activities.get(2).getPublicationStartTime());
 
     listAccess = activityManager.getActivitiesByFilterWithListAccess(maryIdentity, activityFilter);
     assertEquals("Scheduled activities of other users mustn't be listed", 0, listAccess.getSize());
