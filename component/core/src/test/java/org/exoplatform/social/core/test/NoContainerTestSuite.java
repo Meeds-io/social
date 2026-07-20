@@ -69,6 +69,9 @@ import io.meeds.social.identity.permission.search.UserPermissionIndexingConnecto
 import io.meeds.social.identity.permission.service.UserPermissionServiceTest;
 import io.meeds.social.identity.permission.storage.UserPermissionStorageTest;
 import io.meeds.social.identity.permission.upgrade.UserPermissionBackfillUpgradePluginTest;
+import io.meeds.social.organizationalunit.listener.OrganizationalUnitGroupListenerTest;
+import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
+import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -117,7 +120,10 @@ import io.meeds.social.identity.permission.upgrade.UserPermissionBackfillUpgrade
     UserPermissionNestedMembershipListenerTest.class,
     UserPermissionMembershipListenerTest.class,
     UserPermissionStorageTest.class,
-    UserPermissionIndexingConnectorTest.class
+    UserPermissionIndexingConnectorTest.class,
+    OrganizationalUnitStorageTest.class,
+    OrganizationalUnitServiceTest.class,
+    OrganizationalUnitGroupListenerTest.class
 })
 public class NoContainerTestSuite {
 
