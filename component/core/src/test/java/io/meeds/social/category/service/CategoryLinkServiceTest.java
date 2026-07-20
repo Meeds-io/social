@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.Locale;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
@@ -127,6 +128,32 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
     spaceService.setManager(space, MARY_USER, true);
     categoryLinkService.unlink(rootCategory.getId(), object, MARY_USER);
     assertFalse(categoryLinkService.isLinked(rootCategory.getId(), object));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testLinkBySpaceIdentityIdDenormalizesCategoryIds() {
+    Space space = new Space();
+    space.setRegistration(Space.OPEN);
+    space.setVisibility(Space.PUBLIC);
+    space = spaceService.createSpace(space, ROOT_USER);
+
+    Category rootCategory = categoryService.getRootCategory(getAdminGroupIdentityId());
+
+    // Link the space using its social Identity id (how spaces are referenced
+    // across the platform) instead of its technical id, as the MCP tooling does
+    String spaceIdentityId = identityManager.getOrCreateSpaceIdentity(space.getPrettyName()).getId();
+    CategoryObject object = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, spaceIdentityId, space.getSpaceId());
+    categoryLinkService.link(rootCategory.getId(), object, ROOT_USER);
+
+    // The link is stored/read-back under the normalized technical id
+    assertTrue(categoryLinkService.isLinked(rootCategory.getId(), object));
+
+    // And the denormalization listener kept space.categoryIds in sync
+    restartTransaction();
+    Space updatedSpace = spaceService.getSpaceById(space.getId());
+    assertTrue(CollectionUtils.isNotEmpty(updatedSpace.getCategoryIds())
+               && updatedSpace.getCategoryIds().contains(rootCategory.getId()));
   }
 
 }
