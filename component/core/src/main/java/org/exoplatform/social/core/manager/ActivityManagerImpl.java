@@ -976,9 +976,11 @@ public class ActivityManagerImpl implements ActivityManager {
       }
     }
     Long publicationStartTime = activity.getPublicationStartTime();
-    if (publicationStartTime != null && publicationStartTime > 0 && isActivityManageable(activity, viewer)) {
-      // Space content writers can cancel the scheduling of a post of others
-      // by deleting it until its publication
+    if (publicationStartTime != null && publicationStartTime > 0
+        && (StringUtils.equals(identity.getId(), activity.getPosterId()) || isActivityManageable(activity, viewer))) {
+      // The poster and the space content writers can cancel the scheduling of
+      // a post by deleting it until its publication, whatever its type, even
+      // when the activity isn't removable once published, like a kudos one
       return true;
     }
     if (StringUtils.equals(identity.getId(), activity.getPosterId())) {

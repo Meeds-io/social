@@ -873,6 +873,36 @@ public class ActivityManagerTest extends AbstractCoreTest {
   }
 
   /**
+   * Test {@link ActivityManager#isActivityDeletable(ExoSocialActivity, org.exoplatform.services.security.Identity)}
+   * on a scheduled activity which isn't removable once published, like a
+   * kudos one: its poster can cancel the scheduling by deleting it until
+   * its publication
+   */
+  public void testCancelScheduledNotRemovableActivity() {
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("scheduled not removable activity");
+    activity.setUserId(johnIdentity.getId());
+    activity.setPublicationStartTime(System.currentTimeMillis() + 3600000l);
+    Map<String, String> templateParams = new HashMap<>();
+    templateParams.put(ActivityManagerImpl.REMOVABLE, "false");
+    activity.setTemplateParams(templateParams);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+
+    org.exoplatform.services.security.Identity johnSecurityIdentity = new org.exoplatform.services.security.Identity("john");
+    org.exoplatform.services.security.Identity marySecurityIdentity = new org.exoplatform.services.security.Identity("mary");
+    ExoSocialActivity scheduledActivity = activityManager.getActivity(activity.getId());
+    assertTrue("The poster must be able to cancel its scheduled post by deleting it, even when its type isn't removable",
+               activityManager.isActivityDeletable(scheduledActivity, johnSecurityIdentity));
+    assertFalse("Other users mustn't be able to delete a scheduled post of the poster",
+                activityManager.isActivityDeletable(scheduledActivity, marySecurityIdentity));
+
+    ExoSocialActivity publishedActivity = activityManager.publishScheduledActivity(activity.getId());
+    assertNotNull(publishedActivity);
+    assertFalse("A published not removable activity mustn't be deletable anymore by its poster",
+                activityManager.isActivityDeletable(publishedActivity, johnSecurityIdentity));
+  }
+
+  /**
    * Test {@link ActivityManager#saveComment(ExoSocialActivity, ExoSocialActivity)}
    * on a scheduled activity
    */
