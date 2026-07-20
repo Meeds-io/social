@@ -51,10 +51,10 @@ export function init() {
         this.$root.$off('selectGroup', this.setSelectedGroup);
       },
       methods: {
-        setSelectedGroup(group) {
+        async setSelectedGroup(group) {
           this.group = group;
           if (group) {
-            this.$groupService.isOrganizationalUnit(group.id)
+            await this.$groupService.isOrganizationalUnit(group.id)
               .then(organizationalUnit => this.$set(group, 'organizationalUnit', organizationalUnit));
           }
         },

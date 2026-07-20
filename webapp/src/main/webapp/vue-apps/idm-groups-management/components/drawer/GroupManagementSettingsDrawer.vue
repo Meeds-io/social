@@ -71,7 +71,12 @@
               <p>{{ $t('GroupsManagement.organizationalUnit.help.paragraph3') }}</p>
             </template>
           </help-label>
+          <v-progress-circular
+            v-if="loadingOrganizationalUnit"
+            indeterminate
+            size="20" />
           <v-switch
+            v-else
             id="organizationalUnitSwitch"
             v-model="organizationalUnit"
             hide-details
@@ -107,6 +112,7 @@ export default {
     drawer: false,
     group: null,
     organizationalUnit: false,
+    loadingOrganizationalUnit: false,
     saving: false,
   }),
   computed: {
@@ -121,14 +127,17 @@ export default {
     this.$root.$off('open-group-settings-drawer', this.open);
   },
   methods: {
-    open(group) {
+    async open(group) {
       this.group = group;
       this.organizationalUnit = !!group?.organizationalUnit;
       this.drawer = true;
-      this.$groupService.isOrganizationalUnit(group.id).then(organizationalUnit => {
-        this.organizationalUnit = organizationalUnit;
-        this.$set(this.group, 'organizationalUnit', organizationalUnit);
-      });
+      this.loadingOrganizationalUnit = true;
+      await this.$groupService.isOrganizationalUnit(group.id)
+        .then(organizationalUnit => {
+          this.organizationalUnit = organizationalUnit;
+          this.$set(this.group, 'organizationalUnit', organizationalUnit);
+        })
+        .finally(() => this.loadingOrganizationalUnit = false);
     },
     cancel() {
       this.drawer = false;
