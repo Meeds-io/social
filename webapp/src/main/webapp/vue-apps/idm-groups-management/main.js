@@ -53,6 +53,10 @@ export function init() {
       methods: {
         setSelectedGroup(group) {
           this.group = group;
+          if (group) {
+            this.$groupService.isOrganizationalUnit(group.id)
+              .then(organizationalUnit => this.$set(group, 'organizationalUnit', organizationalUnit));
+          }
         },
       },
       template: `<group-management id="${appId}" />`,
