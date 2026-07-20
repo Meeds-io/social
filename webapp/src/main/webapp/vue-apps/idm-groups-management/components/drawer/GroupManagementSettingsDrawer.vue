@@ -84,13 +84,16 @@
     <template #footer>
       <div class="d-flex align-center">
         <v-btn
+          :disabled="saving"
           class="btn ms-auto me-2"
           @click="cancel">
           {{ $t('GroupsManagement.button.cancel') }}
         </v-btn>
         <v-btn
-          @click="apply"
-          class="btn primary">
+          :disabled="saving"
+          :loading="saving"
+          class="btn primary"
+          @click="apply">
           {{ $t('activity.filter.button.apply') }}
         </v-btn>
       </div>
@@ -104,6 +107,7 @@ export default {
     drawer: false,
     group: null,
     organizationalUnit: false,
+    saving: false,
   }),
   computed: {
     groupLabel() {
@@ -121,13 +125,23 @@ export default {
       this.group = group;
       this.organizationalUnit = !!group?.organizationalUnit;
       this.drawer = true;
+      this.$groupService.isOrganizationalUnit(group.id).then(organizationalUnit => {
+        this.organizationalUnit = organizationalUnit;
+        this.$set(this.group, 'organizationalUnit', organizationalUnit);
+      });
     },
     cancel() {
       this.drawer = false;
     },
     apply() {
-      this.$set(this.group, 'organizationalUnit', this.organizationalUnit);
-      this.cancel();
+      this.saving = true;
+      this.$groupService.updateOrganizationalUnit(this.group.id, this.organizationalUnit)
+        .then(() => {
+          this.$set(this.group, 'organizationalUnit', this.organizationalUnit);
+          this.cancel();
+        })
+        .catch(() => this.$root.$emit('alert-message', this.$t('IDMManagement.error.UnknownServerError'), 'error'))
+        .finally(() => this.saving = false);
     },
   },
 };

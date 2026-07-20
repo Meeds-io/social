@@ -20,3 +20,4 @@ org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity
 org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity
 io.meeds.social.space.template.entity.SpaceTemplateEntity
 io.meeds.social.identity.permission.entity.UserPermissionEntity
+io.meeds.social.organizationalunit.entity.OrganizationalUnitEntity

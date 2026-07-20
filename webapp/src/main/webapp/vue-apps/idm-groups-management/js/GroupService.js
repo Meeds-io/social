@@ -16,3 +16,40 @@ export function getNestedGroups(groupId, limit, offset) {
     return response.json();
   });
 }
+
+export function isOrganizationalUnit(groupId) {
+  const params = new URLSearchParams({groupId}).toString();
+  return fetch(`/social/rest/organizational-units?${params}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(response => {
+    if (!response?.ok) {
+      throw new Error('Error checking group Organizational Unit status');
+    }
+    return response.json();
+  });
+}
+
+export function getMyOrganizationalUnits() {
+  return fetch('/social/rest/organizational-units/mine', {
+    method: 'GET',
+    credentials: 'include',
+  }).then(response => {
+    if (!response?.ok) {
+      throw new Error('Error fetching Organizational Units');
+    }
+    return response.json();
+  });
+}
+
+export function updateOrganizationalUnit(groupId, organizationalUnit) {
+  const params = new URLSearchParams({groupId, organizationalUnit}).toString();
+  return fetch(`/social/rest/organizational-units?${params}`, {
+    method: 'PUT',
+    credentials: 'include',
+  }).then(response => {
+    if (!response?.ok) {
+      throw new Error('Error updating group Organizational Unit status');
+    }
+  });
+}

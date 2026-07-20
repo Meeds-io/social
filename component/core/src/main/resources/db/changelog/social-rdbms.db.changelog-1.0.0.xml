@@ -1382,4 +1382,23 @@
       <column name="USER_NAME"/>
     </createIndex>
   </changeSet>
+  <changeSet author="social" id="1.0.0-mip-237-04" dbms="oracle,postgresql,hsqldb">
+    <createSequence sequenceName="SEQ_SOC_ORGANIZATIONAL_UNIT_ID" startValue="1"/>
+  </changeSet>
+  <changeSet author="social" id="1.0.0-mip-237-05">
+    <createTable tableName="SOC_ORGANIZATIONAL_UNIT">
+      <column name="ORGANIZATIONAL_UNIT_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_ORGANIZATIONAL_UNIT"/>
+      </column>
+      <column name="GROUP_ID" type="NVARCHAR(200)">
+        <constraints nullable="false" unique="true" uniqueConstraintName="UK_SOC_ORGANIZATIONAL_UNIT_01"/>
+      </column>
+      <column name="LABEL" type="NVARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+    </modifySql>
+  </changeSet>
 </databaseChangeLog>
