@@ -18,7 +18,6 @@
             :template-params="templateParams"
             :type-label="extensionName"
             :disabled="isScheduled"
-            :disabled-label="isScheduled && $t('activityStream.scheduledActionsDisabled') || null"
             @removed="removed"
             @remove-error="removeError"
             @added="added"

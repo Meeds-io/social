@@ -10,7 +10,7 @@
           :loading="changingLike"
           :disabled="isScheduled"
           :class="[likeTextColorClass, isScheduled && 'opacity-5']"
-          :aria-label="likeAriaLabel"
+          :aria-label="isScheduled ? null : (hasLiked ? $t('UIActivity.aria.Like') : $t('UIActivity.msg.LikeActivity'))"
           class="pa-0 mt-0"
           text
           link
@@ -71,12 +71,6 @@ export default {
     },
     likeButtonTitle() {
       return this.hasLiked && this.$t('UIActivity.msg.UnlikeActivity') || this.$t('UIActivity.msg.LikeActivity');
-    },
-    likeAriaLabel() {
-      const label = this.hasLiked && this.$t('UIActivity.aria.Like') || this.$t('UIActivity.msg.LikeActivity');
-      // Expose in the accessible label the disabled reason shown by the
-      // tooltip
-      return this.isScheduled && `${label}. ${this.$t('activityStream.scheduledActionsDisabled')}` || label;
     },
     cssClass() {
       return (this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.xl && !this.$root.reducedWidth) ? 'ms-4'
