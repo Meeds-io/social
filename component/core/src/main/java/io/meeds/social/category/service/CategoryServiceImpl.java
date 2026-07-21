@@ -49,6 +49,7 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
+import io.meeds.social.activity.plugin.ActivityCategoryPlugin;
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryEntryItem;
 import io.meeds.social.category.model.CategoryEntryList;
@@ -311,21 +312,30 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public CategoryEntryList getCategoryEntries(long categoryId, List<String> objectTypes, String username, long offset, long limit) {
     long fetchLimit = limit * 3;
-    List<CategoryObject> linkedObjects = categoryStorage.getLinkedItems(categoryId, objectTypes, (int) offset, (int) fetchLimit);
+    List<String> queryTypes = objectTypes.contains(ActivityCategoryPlugin.OBJECT_TYPE) ? objectTypes
+                                                                                        : Stream.concat(objectTypes.stream(),
+                                                                                                        Stream.of(ActivityCategoryPlugin.OBJECT_TYPE))
+                                                                                                .toList();
+    List<CategoryObject> linkedObjects = categoryStorage.getLinkedItems(categoryId, queryTypes, (int) offset, (int) fetchLimit);
     return buildPagedEntryList(linkedObjects, objectTypes, username, offset, limit, fetchLimit, 0);
   }
 
   /**
-   * De-duplicates a raw, storage-ordered batch of {@link CategoryObject}s
-   * (when the same entry is linked with several objectTypes, keeps only the
-   * occurrence whose objectType comes first in the caller-supplied list),
-   * resolves each surviving object to a {@link CategoryEntryItem} with the
-   * designated user's permissions, and paginates the result with a
-   * {@link CategoryEntryList#getNextOffset()} that points at the exact raw
-   * storage row the next page must resume from - as opposed to advancing
-   * {@link #offset} by {@link #limit}, which does not account for rows
-   * dropped along the way by de-duplication or the accessibility check, and
-   * would otherwise skip or repeat entries on subsequent pages.
+   * Resolves each raw, storage-ordered {@link CategoryObject} via
+   * {@link CategoryPluginService#getObject(CategoryObject)} (this turns an
+   * Activity-typed link back into the News/Note it actually represents, once
+   * that content has been posted to the activity stream), drops whatever
+   * doesn't resolve to one of the caller-supplied objectTypes, de-duplicates
+   * the remaining batch (when the same entry is linked under several
+   * objectTypes, keeps only the occurrence whose objectType comes first in
+   * the caller-supplied list), resolves each surviving object to a
+   * {@link CategoryEntryItem} with the designated user's permissions, and
+   * paginates the result with a {@link CategoryEntryList#getNextOffset()}
+   * that points at the exact raw storage row the next page must resume from
+   * - as opposed to advancing {@link #offset} by {@link #limit}, which does
+   * not account for rows dropped along the way by resolution,
+   * de-duplication or the accessibility check, and would otherwise skip or
+   * repeat entries on subsequent pages.
    */
   private CategoryEntryList buildPagedEntryList(List<CategoryObject> linkedObjects,
                                                 List<String> objectTypes,
@@ -335,16 +345,17 @@ public class CategoryServiceImpl implements CategoryService {
                                                 long fetchLimit,
                                                 long spaceId) {
     Map<String, CategoryObject> deduplicated = new LinkedHashMap<>();
-    Map<String, Integer> firstIndexById = new HashMap<>();
+    Map<String, Integer> lastIndexById = new HashMap<>();
     IntStream.range(0, linkedObjects.size()).forEach(i -> {
-      CategoryObject object = linkedObjects.get(i);
+      CategoryObject object = categoryPluginService.getObject(linkedObjects.get(i));
+      if (!objectTypes.contains(object.getType())) {
+        return;
+      }
       CategoryObject existing = deduplicated.get(object.getId());
-      if (existing == null) {
-        deduplicated.put(object.getId(), object);
-        firstIndexById.put(object.getId(), i);
-      } else if (objectTypes.indexOf(object.getType()) < objectTypes.indexOf(existing.getType())) {
+      if (existing == null || objectTypes.indexOf(object.getType()) < objectTypes.indexOf(existing.getType())) {
         deduplicated.put(object.getId(), object);
       }
+      lastIndexById.put(object.getId(), i);
     });
     List<CategoryEntryItem> items = new ArrayList<>();
     int lastConsumedIndex = -1;
@@ -358,7 +369,7 @@ public class CategoryServiceImpl implements CategoryService {
         continue;
       }
       items.add(item);
-      lastConsumedIndex = Math.max(lastConsumedIndex, firstIndexById.get(entry.getKey()));
+      lastConsumedIndex = Math.max(lastConsumedIndex, lastIndexById.get(entry.getKey()));
       if (items.size() == limit) {
         break;
       }

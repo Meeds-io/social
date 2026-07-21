@@ -67,13 +67,13 @@ public class CategoryRest {
   private SpaceDirectoryService spaceDirectoryService;
 
   @GetMapping
-  @Operation(summary = "Retrieves the Category Tree", method = "GET", description = "This retrieves the category tree switch a filter")
+  @Operation(summary = "Retrieves the Category Tree", method = "GET", description = "This retrieves the category tree given a filter")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse(responseCode = "404", description = "Not found"),
   })
   public CategoryTree getCategoryTree(HttpServletRequest request,
-                                      @Parameter(description = "Whether to filter the category tree or not switch accessible linked objects only. The empty categories will not be retrieved.")
+                                      @Parameter(description = "Whether to filter the category tree or not by accessible linked objects only. The empty categories will not be retrieved.")
                                       @RequestParam(name = "objectType", required = false)
                                       String objectType,
                                       @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
@@ -157,7 +157,7 @@ public class CategoryRest {
   }
 
   @GetMapping("{id}/entries")
-  @Operation(summary = "Retrieves the entries linked to a Category", method = "GET", description = "This retrieves the entries linked to a category switch the designated objectTypes, de-duplicated and ordered switch last modification date descending")
+  @Operation(summary = "Retrieves the entries linked to a Category", method = "GET", description = "This retrieves the entries linked to a category with the designated objectTypes, de-duplicated and ordered by last modification date descending")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })
@@ -179,7 +179,7 @@ public class CategoryRest {
   }
 
   @GetMapping("search")
-  @Operation(summary = "Retrieves list of categories mathing a search query", method = "GET", description = "This retrieves a list of categories switch a filter independing from its position in the tree")
+  @Operation(summary = "Retrieves list of categories mathing a search query", method = "GET", description = "This retrieves a list of categories given a filter independing from its position in the tree")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })
@@ -187,7 +187,7 @@ public class CategoryRest {
                                                    @Parameter(description = "Category Name search keyword")
                                                    @RequestParam(name = "query", required = false)
                                                    String query,
-                                                   @Parameter(description = "Whether to filter the category tree or not switch accessible linked objects only. The empty categories will not be retrieved.")
+                                                   @Parameter(description = "Whether to filter the category tree or not by accessible linked objects only. The empty categories will not be retrieved.")
                                                    @RequestParam(name = "objectType", required = false)
                                                    String objectType,
                                                    @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
@@ -227,7 +227,7 @@ public class CategoryRest {
   }
 
   @GetMapping("{id}/ancestors")
-  @Operation(summary = "Retrieves the ancestor identifiers of a category by Id", method = "GET", description = "This retrieves the subcategory identifiers switch the designated depth")
+  @Operation(summary = "Retrieves the ancestor identifiers of a category by Id", method = "GET", description = "This retrieves the subcategory identifiers given the designated depth")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse(responseCode = "403", description = "Not found"),
@@ -253,7 +253,7 @@ public class CategoryRest {
   }
 
   @GetMapping("{id}/subcategories")
-  @Operation(summary = "Retrieves the Sub category identifiers", method = "GET", description = "This retrieves the subcategory identifiers switch the designated depth")
+  @Operation(summary = "Retrieves the Sub category identifiers", method = "GET", description = "This retrieves the subcategory identifiers given the designated depth")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })

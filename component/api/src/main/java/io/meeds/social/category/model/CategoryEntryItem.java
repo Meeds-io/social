@@ -46,8 +46,8 @@ public class CategoryEntryItem {
   private String     objectType;
 
   /**
-   * Fontawesome Icon identifier used switch a corner badge to identify the
-   * entry type. Supplied by the owning plugin, never guessed switch the
+   * Fontawesome Icon identifier used as a corner badge to identify the
+   * entry type. Supplied by the owning plugin, never guessed from the
    * objectType value.
    */
   private String     icon;

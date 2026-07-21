@@ -34,7 +34,7 @@ public interface CategoryPlugin {
   /**
    * Checks whether an associated object to a category is accessible to a user.
    * This check will be called after checking whether the user can access or not
-   * to the category (generic ACL check made in Category API switch Category
+   * to the category (generic ACL check made in Category API based on Category
    * properties)
    *
    * @param objectId Object technical identifier
@@ -49,7 +49,7 @@ public interface CategoryPlugin {
    * This check will be used mainly used to know if a user can modify the object
    * in order to associate/link a category into it. This check will be called
    * after checking whether the user can link or not an object to the category
-   * (generic ACL check made in Category API switch Category properties)
+   * (generic ACL check made in Category API based on Category properties)
    *
    * @param objectId Object technical identifier
    * @param username User technical name (login identifier)
@@ -69,7 +69,7 @@ public interface CategoryPlugin {
   /**
    * param spaceId Space Identifier
    * @return {@link List} of {@link Category} Ids associated to
-   *         objects switch designated spaceId
+   *         objects for the designated spaceId
    */
   default List<Long> getCategoryIds(long spaceId) {
     return getCategoryIds();
@@ -79,7 +79,7 @@ public interface CategoryPlugin {
    * param spaceId Space Identifier
    * @param username User technical name (login identifier)
    * @return {@link List} of {@link Category} Ids associated to
-   *         objects switch designated spaceId
+   *         objects for the designated spaceId
    */
   default List<Long> getCategoryIds(long spaceId, String username) {
     return getCategoryIds();

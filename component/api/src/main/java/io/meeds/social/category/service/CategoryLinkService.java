@@ -48,7 +48,7 @@ public interface CategoryLinkService {
   /**
    * @param categoryId {@link Category} identifier
    * @param objectTypes {@link List} of {@link CategoryObject} types to filter
-   *          switch
+   *          by
    * @param offset offset of objects to retrieve
    * @param limit limit of objects to retrieve
    * @return {@link List} of {@link CategoryObject} linked to the category,
