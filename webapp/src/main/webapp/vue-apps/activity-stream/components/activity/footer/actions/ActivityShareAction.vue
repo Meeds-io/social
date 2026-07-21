@@ -8,7 +8,7 @@
           :id="`ShareActivity${activityId}`"
           :disabled="isScheduled"
           :class="[shareTextColorClass, isScheduled && 'opacity-5']"
-          :aria-label="shareAriaLabel"
+          :aria-label="isScheduled ? null : (hasShared ? $t('UIActivity.aria.Share') : $t('UIActivity.share'))"
           class="pa-0 mt-0"
           text
           link
@@ -81,12 +81,6 @@ export default {
     },
     shareIconColorClass() {
       return this.hasShared && 'primary--text' || 'disabled--text';
-    },
-    shareAriaLabel() {
-      const label = this.hasShared && this.$t('UIActivity.aria.Share') || this.$t('UIActivity.share');
-      // Expose in the accessible label the disabled reason shown by the
-      // tooltip
-      return this.isScheduled && `${label}. ${this.$t('activityStream.scheduledActionsDisabled')}` || label;
     },
   },
   created() {
