@@ -8,7 +8,7 @@
           :disabled="isScheduled"
           :class="[commentTextColorClass, isScheduled && 'opacity-5']"
           class="pa-0 mt-0"
-          :aria-label="commentAriaLabel"
+          :aria-label="isScheduled ? null : (hasCommented ? $t('UIActivity.aria.Comment') : $t('UIActivity.label.Comment'))"
           text
           link
           small
@@ -67,12 +67,6 @@ export default {
     },
     commentTextColorClass() {
       return this.hasCommented && 'primary--text' || '';
-    },
-    commentAriaLabel() {
-      const label = this.hasCommented && this.$t('UIActivity.aria.Comment') || this.$t('UIActivity.label.Comment');
-      // Expose in the accessible label the disabled reason shown by the
-      // tooltip
-      return this.isScheduled && `${label}. ${this.$t('activityStream.scheduledActionsDisabled')}` || label;
     },
   },
   watch: {
