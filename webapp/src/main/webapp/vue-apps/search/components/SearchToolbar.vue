@@ -5,6 +5,8 @@
       id="searchInput"
       v-model="term"
       :placeholder="searchInputPlaceholder"
+      :aria-label="searchInputAriaLabel"
+      :title="searchInputAriaLabel"
       rounded
       clearable
       clear-icon="fas fa-times fa-1x"
@@ -54,6 +56,9 @@ export default {
   computed: {
     searchInputPlaceholder() {
       return this.$t('Search.label.inputPlaceHolder', {0: eXo.env?.portal?.companyName});
+    },
+    searchInputAriaLabel() {
+      return this.$t('Search.label.ariaLabel');
     }
   },
   watch: {
