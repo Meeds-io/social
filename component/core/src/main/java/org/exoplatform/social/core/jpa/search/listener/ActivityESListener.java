@@ -35,6 +35,9 @@ public class ActivityESListener implements ActivityListener {
   @Override
   public void saveActivity(ActivityLifeCycleEvent event) {
     ExoSocialActivity activity = event.getActivity();
+    if (isScheduled(activity)) {
+      return;
+    }
     if (activity.isHidden()) {
       unindexActivity(event.getActivity(), "hide activity");
     } else {
@@ -45,6 +48,9 @@ public class ActivityESListener implements ActivityListener {
   @Override
   public void updateActivity(ActivityLifeCycleEvent event) {
     ExoSocialActivity activity = event.getActivity();
+    if (isScheduled(activity)) {
+      return;
+    }
     if (activity.isHidden()) {
       unindexActivity(event.getActivity(), "hide activity");
     } else {
@@ -65,6 +71,9 @@ public class ActivityESListener implements ActivityListener {
   @Override
   public void updateCategories(ActivityCategoryLifeCycleEvent event) {
     ExoSocialActivity activity = event.getActivity();
+    if (isScheduled(activity)) {
+      return;
+    }
     if (activity.isHidden()) {
       unindexActivity(activity, "hide activity");
     } else {
@@ -80,6 +89,10 @@ public class ActivityESListener implements ActivityListener {
   @Override
   public void deleteComment(ActivityLifeCycleEvent event) {
     unindexActivity(event.getActivity(), "delete comment");
+  }
+
+  private boolean isScheduled(ExoSocialActivity activity) {
+    return activity != null && activity.getPublicationStartTime() != null;
   }
 
   private void reindexActivity(ExoSocialActivity activity, String cause) {
