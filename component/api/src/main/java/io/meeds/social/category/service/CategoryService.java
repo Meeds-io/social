@@ -26,6 +26,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.identity.model.Identity;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryEntryList;
 import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategorySearchResult;
@@ -45,25 +46,25 @@ public interface CategoryService {
   public static final String EVENT_SOCIAL_CATEGORY_ITEM_UNLINKED = "social.category.object.unlinked";
 
   /**
-   * Retrieves a {@link CategoryTree} with its associated categories switch
+   * Retrieves a {@link CategoryTree} with its associated categories with
    * designated depth and limit from the filter. This method will return only
    * visible categories by the user.
-   * 
+   *
    * @param filter used filter to query the Category tree
    * @param username User name/login
    * @param locale used {@link Locale} to retrieve translated name
-   * @return {@link CategoryTree} switch used filter
+   * @return {@link CategoryTree} matching the used filter
    */
   CategoryTree getCategoryTree(CategoryFilter filter, String username, Locale locale);
 
   /**
-   * Searches Categories in flat mode switch a name. This will return only
+   * Searches Categories in flat mode by a name. This will return only
    * accessible categories by the user.
-   * 
+   *
    * @param filter used filter to query the Category tree
    * @param username User name/login
    * @param locale used {@link Locale} to retrieve translated name
-   * @return a {@link List} of {@link Category} switch used filter
+   * @return a {@link List} of {@link Category} matching the used filter
    */
   List<CategorySearchResult> findCategories(CategorySearchFilter filter, String username, Locale locale);
 
@@ -133,7 +134,7 @@ public interface CategoryService {
    * @throws ObjectNotFoundException when the {@link Category} designated by the
    *           parentId doesn't exist
    * @throws IllegalAccessException when the user isn't allowed to edit a
-   *           categories switch the ownerId field
+   *           categories by the ownerId field
    * @throws ObjectAlreadyExistsException when attempting to recreate an
    *           existing root tree element
    */
@@ -148,7 +149,7 @@ public interface CategoryService {
    * @throws ObjectNotFoundException when the {@link Category} designated by the
    *           parentId or the id of the category itself doesn't exist
    * @throws IllegalAccessException when the user isn't allowed to edit a
-   *           categories switch the ownerId field
+   *           categories by the ownerId field
    */
   Category updateCategory(Category category, String username) throws ObjectNotFoundException, IllegalAccessException;
 
@@ -159,7 +160,7 @@ public interface CategoryService {
    * @throws ObjectNotFoundException when the {@link Category} designated by the
    *           the id doesn't exist
    * @throws IllegalAccessException when the user isn't allowed to edit a
-   *           categories switch the ownerId field
+   *           categories by the ownerId field
    */
   Category deleteCategory(long categoryId, String username) throws ObjectNotFoundException, IllegalAccessException;
 
@@ -173,12 +174,12 @@ public interface CategoryService {
    * @param categoryId {@link Category} identifier
    * @param username User name/login
    * @param locale used {@link Locale} to retrieve translated name
-   * @return found {@link Category} with its associated name switch designated
+   * @return found {@link Category} with its associated name for the designated
    *         locale
    * @throws ObjectNotFoundException when the {@link Category} designated by the
    *           the id doesn't exist
    * @throws IllegalAccessException when the user isn't allowed to edit a
-   *           categories switch the ownerId field
+   *           categories by the ownerId field
    */
   CategoryWithName getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException,
                                                                                 IllegalAccessException;
@@ -192,7 +193,7 @@ public interface CategoryService {
   /**
    * @param category {@link Category}
    * @param username User name/login
-   * @return true if can edit to the category switch its tree ownerId, else
+   * @return true if can edit to the category based on its tree ownerId, else
    *         false
    */
   boolean canEdit(Category category, String username);
@@ -200,7 +201,7 @@ public interface CategoryService {
   /**
    * @param categoryId {@link Category} identifier
    * @param username User name/login
-   * @return true if can edit to the category switch its tree ownerId, else
+   * @return true if can edit to the category based on its tree ownerId, else
    *         false
    */
   boolean canEdit(long categoryId, String username);
@@ -218,5 +219,20 @@ public interface CategoryService {
    * @return true if can link an object to the category, else false
    */
   boolean canManageLink(long categoryId, String username);
+
+  /**
+   * Retrieves the entries linked to a Category, de-duplicated (when the same
+   * entry is available under several objectTypes, only the most specific
+   * one is kept), filtered by the accessibility of each item to the
+   * designated user, ordered by last modification date descending.
+   *
+   * @param categoryId {@link Category} identifier
+   * @param objectTypes {@link List} of objectTypes to browse
+   * @param username User name/login
+   * @param offset Request offset
+   * @param limit Request limit
+   * @return {@link CategoryEntryList} matching the used filter
+   */
+  CategoryEntryList getCategoryEntries(long categoryId, List<String> objectTypes, String username, long offset, long limit);
 
 }

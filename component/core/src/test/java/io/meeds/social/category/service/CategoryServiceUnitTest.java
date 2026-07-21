@@ -19,7 +19,10 @@
 package io.meeds.social.category.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +45,11 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
+import io.meeds.social.activity.plugin.ActivityCategoryPlugin;
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryEntryItem;
+import io.meeds.social.category.model.CategoryEntryList;
+import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategorySearchResult;
 import io.meeds.social.category.storage.CategoryStorage;
@@ -85,6 +92,10 @@ public class CategoryServiceUnitTest {
   private static final String   TERM                    = "term";
 
   private static final String   TEST_USER               = "testuser";
+
+  private static final String   TYPE_A                  = "typeA";
+
+  private static final String   TYPE_B                  = "typeB";
 
   @MockBean
   private IdentityManager       identityManager;
@@ -176,6 +187,160 @@ public class CategoryServiceUnitTest {
     assertNotNull(categories);
     assertEquals(1, categories.size());
     assertEquals(Collections.singletonList(PARENT_ID), categories.get(0).getAncestorIds());
+  }
+
+  @Test
+  public void testGetCategoryEntries() {
+    List<String> objectTypes = Arrays.asList(TYPE_A, TYPE_B);
+    List<String> queryTypes = Arrays.asList(TYPE_A, TYPE_B, ActivityCategoryPlugin.OBJECT_TYPE);
+    List<CategoryObject> linkedObjects = Arrays.asList(new CategoryObject(TYPE_A, "1", 0l),
+                                                       new CategoryObject(TYPE_B, "1", 0l),
+                                                       new CategoryObject(TYPE_A, "2", 0l),
+                                                       new CategoryObject(TYPE_B, "3", 0l),
+                                                       new CategoryObject(TYPE_A, "4", 0l));
+    when(categoryStorage.getLinkedItems(CATEGORY_ID, queryTypes, 0, 6)).thenReturn(linkedObjects);
+    when(categoryPluginService.getObject(any(CategoryObject.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    when(categoryPluginService.canAccess(TYPE_A, "1", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_B, "1", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "2", TEST_USER)).thenReturn(false);
+    when(categoryPluginService.canAccess(TYPE_B, "3", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "4", TEST_USER)).thenReturn(true);
+
+    CategoryEntryItem item1 = mock(CategoryEntryItem.class);
+    CategoryEntryItem item4 = mock(CategoryEntryItem.class);
+    when(categoryPluginService.getEntryItem(TYPE_A, "1", TEST_USER)).thenReturn(item1);
+    when(categoryPluginService.getEntryItem(TYPE_B, "3", TEST_USER)).thenReturn(null);
+    when(categoryPluginService.getEntryItem(TYPE_A, "4", TEST_USER)).thenReturn(item4);
+
+    CategoryEntryList result = categoryService.getCategoryEntries(CATEGORY_ID, objectTypes, TEST_USER, 0, 2);
+    assertNotNull(result);
+    // Duplicate entry (typeB/1) dropped in favor of typeA/1, entry typeA/2 dropped (no access),
+    // entry typeB/3 dropped (no resolved preview): only typeA/1 and typeA/4 remain.
+    assertEquals(2, result.getItems().size());
+    assertTrue(result.getItems().contains(item1));
+    assertTrue(result.getItems().contains(item4));
+    assertEquals(0, result.getOffset());
+    assertEquals(2, result.getLimit());
+    assertFalse(result.isHasMore());
+    // The page filled up exactly at the last raw row (typeA/4, index 4 of 5): the next page
+    // must resume right after it.
+    assertEquals(5, result.getNextOffset());
+  }
+
+  @Test
+  public void testGetCategoryEntriesPaginationAcrossPagesDoesNotSkipOrRepeat() {
+    // 5 raw rows share the category link, but "2" is filtered out (e.g. no access) - the
+    // exact scenario where naively advancing offset by limit (instead of by the number of raw
+    // rows actually consumed) would either skip or repeat entries on the next page.
+    List<String> objectTypes = Collections.singletonList(TYPE_A);
+    List<String> queryTypes = Arrays.asList(TYPE_A, ActivityCategoryPlugin.OBJECT_TYPE);
+    List<CategoryObject> firstBatch = Arrays.asList(new CategoryObject(TYPE_A, "1", 0l),
+                                                    new CategoryObject(TYPE_A, "2", 0l),
+                                                    new CategoryObject(TYPE_A, "3", 0l),
+                                                    new CategoryObject(TYPE_A, "4", 0l),
+                                                    new CategoryObject(TYPE_A, "5", 0l));
+    when(categoryStorage.getLinkedItems(CATEGORY_ID, queryTypes, 0, 6)).thenReturn(firstBatch);
+    when(categoryPluginService.getObject(any(CategoryObject.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(categoryPluginService.canAccess(TYPE_A, "1", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "2", TEST_USER)).thenReturn(false);
+    when(categoryPluginService.canAccess(TYPE_A, "3", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "4", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "5", TEST_USER)).thenReturn(true);
+    CategoryEntryItem item1 = mock(CategoryEntryItem.class);
+    CategoryEntryItem item3 = mock(CategoryEntryItem.class);
+    CategoryEntryItem item4 = mock(CategoryEntryItem.class);
+    CategoryEntryItem item5 = mock(CategoryEntryItem.class);
+    when(categoryPluginService.getEntryItem(TYPE_A, "1", TEST_USER)).thenReturn(item1);
+    when(categoryPluginService.getEntryItem(TYPE_A, "3", TEST_USER)).thenReturn(item3);
+    when(categoryPluginService.getEntryItem(TYPE_A, "4", TEST_USER)).thenReturn(item4);
+    when(categoryPluginService.getEntryItem(TYPE_A, "5", TEST_USER)).thenReturn(item5);
+
+    CategoryEntryList firstPage = categoryService.getCategoryEntries(CATEGORY_ID, objectTypes, TEST_USER, 0, 2);
+    assertEquals(Arrays.asList(item1, item3), firstPage.getItems());
+    assertTrue(firstPage.isHasMore());
+    // Raw index 1 ("2") was filtered out and consumed without producing an item; the page still
+    // filled up at raw index 2 ("3"), so the next page must resume at index 3 - not at offset+limit=2,
+    // which would re-fetch "3" and return it twice.
+    assertEquals(3, firstPage.getNextOffset());
+
+    List<CategoryObject> secondBatch = Arrays.asList(new CategoryObject(TYPE_A, "4", 0l),
+                                                     new CategoryObject(TYPE_A, "5", 0l));
+    when(categoryStorage.getLinkedItems(CATEGORY_ID, queryTypes, 3, 6)).thenReturn(secondBatch);
+
+    CategoryEntryList secondPage = categoryService.getCategoryEntries(CATEGORY_ID, objectTypes, TEST_USER, firstPage.getNextOffset(), 2);
+    assertEquals(Arrays.asList(item4, item5), secondPage.getItems());
+    assertFalse(secondPage.isHasMore());
+  }
+
+  @Test
+  public void testGetCategoryEntriesResolvesActivityLinkedContent() {
+    // Once posted to the activity stream, a News/Note's category link is persisted under
+    // objectType "activity" rather than its own type. getCategoryEntries() must transparently
+    // resolve such links back to the real content via categoryPluginService.getObject(...), and
+    // must drop whatever doesn't resolve to one of the caller-requested objectTypes (e.g. an
+    // activity whose underlying content was deleted, left unresolved by the plugin).
+    List<String> objectTypes = Collections.singletonList(TYPE_A);
+    List<String> queryTypes = Arrays.asList(TYPE_A, ActivityCategoryPlugin.OBJECT_TYPE);
+    CategoryObject directObject = new CategoryObject(TYPE_A, "1", 0l);
+    CategoryObject rawActivityObject = new CategoryObject(ActivityCategoryPlugin.OBJECT_TYPE, "act-2", 0l);
+    CategoryObject resolvedObject = new CategoryObject(TYPE_A, "2", 0l);
+    CategoryObject unresolvedActivityObject = new CategoryObject(ActivityCategoryPlugin.OBJECT_TYPE, "act-deleted", 0l);
+    List<CategoryObject> linkedObjects = Arrays.asList(directObject, rawActivityObject, unresolvedActivityObject);
+    when(categoryStorage.getLinkedItems(CATEGORY_ID, queryTypes, 0, 6)).thenReturn(linkedObjects);
+
+    when(categoryPluginService.getObject(directObject)).thenReturn(directObject);
+    when(categoryPluginService.getObject(rawActivityObject)).thenReturn(resolvedObject);
+    // Simulates ActivityCategoryPlugin.getObject() falling back to the raw activity object when
+    // the underlying activity can no longer be resolved (e.g. it was deleted).
+    when(categoryPluginService.getObject(unresolvedActivityObject)).thenReturn(unresolvedActivityObject);
+
+    when(categoryPluginService.canAccess(TYPE_A, "1", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "2", TEST_USER)).thenReturn(true);
+    // Even if reached, an item under the raw "activity" type must never surface: proves the
+    // caller-requested-objectTypes filter - not just an unstubbed null return - is what excludes it.
+    when(categoryPluginService.canAccess(ActivityCategoryPlugin.OBJECT_TYPE, "act-deleted", TEST_USER)).thenReturn(true);
+    CategoryEntryItem item1 = mock(CategoryEntryItem.class);
+    CategoryEntryItem item2 = mock(CategoryEntryItem.class);
+    CategoryEntryItem unexpectedItem = mock(CategoryEntryItem.class);
+    when(categoryPluginService.getEntryItem(TYPE_A, "1", TEST_USER)).thenReturn(item1);
+    when(categoryPluginService.getEntryItem(TYPE_A, "2", TEST_USER)).thenReturn(item2);
+    when(categoryPluginService.getEntryItem(ActivityCategoryPlugin.OBJECT_TYPE, "act-deleted", TEST_USER)).thenReturn(unexpectedItem);
+
+    CategoryEntryList result = categoryService.getCategoryEntries(CATEGORY_ID, objectTypes, TEST_USER, 0, 2);
+    assertEquals(2, result.getItems().size());
+    assertTrue(result.getItems().contains(item1));
+    assertTrue(result.getItems().contains(item2));
+    assertFalse(result.getItems().contains(unexpectedItem));
+  }
+
+  @Test
+  public void testGetCategoryEntriesDoesNotRepeatWinningDuplicateAcrossPages() {
+    // Regression test for a cross-type duplicate whose higher-priority occurrence sits at a
+    // LATER raw index than the id's first occurrence: nextOffset must account for that later
+    // index, or the winning duplicate's raw row gets re-served (and its item repeated) on the
+    // next "Load more" page.
+    List<String> objectTypes = Arrays.asList(TYPE_A, TYPE_B);
+    List<String> queryTypes = Arrays.asList(TYPE_A, TYPE_B, ActivityCategoryPlugin.OBJECT_TYPE);
+    CategoryObject typeBOne = new CategoryObject(TYPE_B, "1", 0l);
+    CategoryObject typeATwo = new CategoryObject(TYPE_A, "2", 0l);
+    CategoryObject typeAOne = new CategoryObject(TYPE_A, "1", 0l);
+    List<CategoryObject> linkedObjects = Arrays.asList(typeBOne, typeATwo, typeAOne);
+    when(categoryStorage.getLinkedItems(CATEGORY_ID, queryTypes, 0, 6)).thenReturn(linkedObjects);
+    when(categoryPluginService.getObject(any(CategoryObject.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(categoryPluginService.canAccess(TYPE_A, "1", TEST_USER)).thenReturn(true);
+    when(categoryPluginService.canAccess(TYPE_A, "2", TEST_USER)).thenReturn(true);
+    CategoryEntryItem item1 = mock(CategoryEntryItem.class);
+    CategoryEntryItem item2 = mock(CategoryEntryItem.class);
+    when(categoryPluginService.getEntryItem(TYPE_A, "1", TEST_USER)).thenReturn(item1);
+    when(categoryPluginService.getEntryItem(TYPE_A, "2", TEST_USER)).thenReturn(item2);
+
+    CategoryEntryList result = categoryService.getCategoryEntries(CATEGORY_ID, objectTypes, TEST_USER, 0, 2);
+    assertEquals(Arrays.asList(item1, item2), result.getItems());
+    // Raw index 2 (typeA/"1", the winning duplicate over typeB/"1" at index 0) must be counted
+    // as consumed: the next page has to resume at index 3, not at index 2, which would re-serve
+    // and repeat item1.
+    assertEquals(3, result.getNextOffset());
   }
 
 }

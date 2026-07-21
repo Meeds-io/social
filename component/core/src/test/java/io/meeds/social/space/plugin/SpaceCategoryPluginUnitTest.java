@@ -27,9 +27,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -37,9 +40,11 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.category.model.CategoryObject;
+import io.meeds.social.category.service.CategoryPluginService;
 
 @SpringBootTest(classes = {
   SpaceCategoryPlugin.class,
+  SpaceCategoryPluginUnitTest.TestConfig.class,
 })
 @RunWith(SpringRunner.class)
 public class SpaceCategoryPluginUnitTest {
@@ -58,6 +63,22 @@ public class SpaceCategoryPluginUnitTest {
 
   @Autowired
   private SpaceCategoryPlugin  spaceCategoryPlugin;
+
+  @TestConfiguration
+  static class TestConfig {
+
+    // SpaceCategoryPlugin's @PostConstruct self-registration
+    // (container.getComponentInstanceOfType(CategoryPluginService.class).addPlugin(this)) needs
+    // a non-null PortalContainer already stubbed by the time the bean is created - a @MockBean
+    // field is too late, since @PostConstruct fires during context refresh, before @Before runs.
+    @Bean
+    public PortalContainer container() {
+      PortalContainer container = mock(PortalContainer.class);
+      when(container.getComponentInstanceOfType(CategoryPluginService.class)).thenReturn(mock(CategoryPluginService.class));
+      return container;
+    }
+
+  }
 
   @Test
   public void testGetObjectNormalizesTechnicalId() {

@@ -18,16 +18,17 @@
  */
 package io.meeds.social.category.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.exoplatform.container.PortalContainer;
 
+import io.meeds.social.category.model.CategoryEntryItem;
 import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.plugin.CategoryPlugin;
 import io.meeds.social.category.plugin.DefaultCategoryPlugin;
@@ -38,32 +39,48 @@ public class CategoryPluginServiceImpl implements CategoryPluginService {
   @Autowired
   private PortalContainer             container;
 
-  @Autowired(required = false)
-  private List<CategoryPlugin>        categoryPlugins;
+  private List<CategoryPlugin>        categoryPlugins = new CopyOnWriteArrayList<>();
 
   private Map<String, CategoryPlugin> categoryPluginsByType = new ConcurrentHashMap<>();
 
   @Override
   public void addPlugin(CategoryPlugin categoryPlugin) {
-    if (!(categoryPlugins instanceof ArrayList)) {
-      categoryPlugins = categoryPlugins == null ? new ArrayList<>() : new ArrayList<>(categoryPlugins);
-    }
     categoryPlugins.add(categoryPlugin);
   }
 
   @Override
   public CategoryPlugin getCategoryPlugin(String objectType) {
-    return categoryPluginsByType.computeIfAbsent(objectType,
-                                                 t -> categoryPlugins.stream()
-                                                                     .filter(c -> c.getType().equals(t))
-                                                                     .findFirst()
-                                                                     .orElseGet(() -> new DefaultCategoryPlugin(container,
-                                                                                                                objectType)));
+    CategoryPlugin plugin = categoryPluginsByType.get(objectType);
+    if (plugin != null) {
+      return plugin;
+    }
+    // Only cache an actually registered plugin. Plugins self-register asynchronously
+    // (each via its own @PostConstruct), so caching the DefaultCategoryPlugin fallback
+    // here would permanently poison this objectType if it's resolved before its plugin
+    // has registered yet.
+    return categoryPlugins.stream()
+                          .filter(c -> c.getType().equals(objectType))
+                          .findFirst()
+                          .map(p -> {
+                            categoryPluginsByType.put(objectType, p);
+                            return p;
+                          })
+                          .orElseGet(() -> new DefaultCategoryPlugin(container, objectType));
   }
 
   @Override
   public boolean canEdit(String objectType, String objectId, String username) {
     return getCategoryPlugin(objectType).canEdit(objectId, username);
+  }
+
+  @Override
+  public boolean canAccess(String objectType, String objectId, String username) {
+    return getCategoryPlugin(objectType).canAccess(objectId, username);
+  }
+
+  @Override
+  public CategoryEntryItem getEntryItem(String objectType, String objectId, String username) {
+    return getCategoryPlugin(objectType).getEntryItem(objectId, username);
   }
 
   @Override

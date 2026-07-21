@@ -40,6 +40,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.rest.api.RestUtils;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryEntryList;
 import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategorySearchResult;
@@ -66,13 +67,13 @@ public class CategoryRest {
   private SpaceDirectoryService spaceDirectoryService;
 
   @GetMapping
-  @Operation(summary = "Retrieves the Category Tree", method = "GET", description = "This retrieves the category tree switch a filter")
+  @Operation(summary = "Retrieves the Category Tree", method = "GET", description = "This retrieves the category tree given a filter")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse(responseCode = "404", description = "Not found"),
   })
   public CategoryTree getCategoryTree(HttpServletRequest request,
-                                      @Parameter(description = "Whether to filter the category tree or not switch accessible linked objects only. The empty categories will not be retrieved.")
+                                      @Parameter(description = "Whether to filter the category tree or not by accessible linked objects only. The empty categories will not be retrieved.")
                                       @RequestParam(name = "objectType", required = false)
                                       String objectType,
                                       @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
@@ -155,8 +156,30 @@ public class CategoryRest {
     return categoryTree;
   }
 
+  @GetMapping("{id}/entries")
+  @Operation(summary = "Retrieves the entries linked to a Category", method = "GET", description = "This retrieves the entries linked to a category with the designated objectTypes, de-duplicated and ordered by last modification date descending")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  })
+  @Secured("users")
+  public CategoryEntryList getCategoryEntries(HttpServletRequest request,
+                                              @Parameter(description = "Category Identifier")
+                                              @PathVariable(name = "id", required = true)
+                                              long id,
+                                              @Parameter(description = "Comma separated list of objectTypes to browse")
+                                              @RequestParam(name = "types", required = true)
+                                              List<String> types,
+                                              @Parameter(description = "Request offset")
+                                              @RequestParam(name = "offset", required = false, defaultValue = "0")
+                                              long offset,
+                                              @Parameter(description = "Request limit")
+                                              @RequestParam(name = "limit", required = false, defaultValue = "20")
+                                              long limit) {
+    return categoryService.getCategoryEntries(id, types, request.getRemoteUser(), offset, limit);
+  }
+
   @GetMapping("search")
-  @Operation(summary = "Retrieves list of categories mathing a search query", method = "GET", description = "This retrieves a list of categories switch a filter independing from its position in the tree")
+  @Operation(summary = "Retrieves list of categories mathing a search query", method = "GET", description = "This retrieves a list of categories given a filter independing from its position in the tree")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })
@@ -164,7 +187,7 @@ public class CategoryRest {
                                                    @Parameter(description = "Category Name search keyword")
                                                    @RequestParam(name = "query", required = false)
                                                    String query,
-                                                   @Parameter(description = "Whether to filter the category tree or not switch accessible linked objects only. The empty categories will not be retrieved.")
+                                                   @Parameter(description = "Whether to filter the category tree or not by accessible linked objects only. The empty categories will not be retrieved.")
                                                    @RequestParam(name = "objectType", required = false)
                                                    String objectType,
                                                    @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
@@ -204,7 +227,7 @@ public class CategoryRest {
   }
 
   @GetMapping("{id}/ancestors")
-  @Operation(summary = "Retrieves the ancestor identifiers of a category by Id", method = "GET", description = "This retrieves the subcategory identifiers switch the designated depth")
+  @Operation(summary = "Retrieves the ancestor identifiers of a category by Id", method = "GET", description = "This retrieves the subcategory identifiers given the designated depth")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse(responseCode = "403", description = "Not found"),
@@ -230,7 +253,7 @@ public class CategoryRest {
   }
 
   @GetMapping("{id}/subcategories")
-  @Operation(summary = "Retrieves the Sub category identifiers", method = "GET", description = "This retrieves the subcategory identifiers switch the designated depth")
+  @Operation(summary = "Retrieves the Sub category identifiers", method = "GET", description = "This retrieves the subcategory identifiers given the designated depth")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })

@@ -23,6 +23,7 @@ import java.util.List;
 import org.exoplatform.social.core.space.model.Space;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryEntryItem;
 import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.plugin.CategoryPlugin;
 
@@ -47,6 +48,25 @@ public interface CategoryPluginService {
    *         else false
    */
   boolean canEdit(String objectType, String objectId, String username);
+
+  /**
+   * @param objectType {@link CategoryObject} type
+   * @param objectId {@link CategoryObject} id
+   * @param username User technical name (login identifier)
+   * @return true if user can access the object identified by its id and type,
+   *         else false
+   */
+  boolean canAccess(String objectType, String objectId, String username);
+
+  /**
+   * @param objectType {@link CategoryObject} type
+   * @param objectId {@link CategoryObject} id
+   * @param username User technical name (login identifier)
+   * @return {@link CategoryEntryItem} preview of the object identified by
+   *         its id and type, or null when this objectType isn't meant to be
+   *         browsable as an entry
+   */
+  CategoryEntryItem getEntryItem(String objectType, String objectId, String username);
 
   /**
    * @param objectType {@link CategoryObject} type

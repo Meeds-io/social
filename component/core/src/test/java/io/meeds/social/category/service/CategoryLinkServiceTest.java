@@ -18,11 +18,13 @@
  */
 package io.meeds.social.category.service;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -154,6 +156,45 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
     Space updatedSpace = spaceService.getSpaceById(space.getId());
     assertTrue(CollectionUtils.isNotEmpty(updatedSpace.getCategoryIds())
                && updatedSpace.getCategoryIds().contains(rootCategory.getId()));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testGetLinkedObjects() {
+    Category rootCategory = categoryService.getRootCategory(getAdminGroupIdentityId());
+
+    Space space1 = new Space();
+    space1.setRegistration(Space.OPEN);
+    space1.setVisibility(Space.PUBLIC);
+    space1 = spaceService.createSpace(space1, ROOT_USER);
+    CategoryObject object1 = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, space1.getId(), space1.getSpaceId());
+
+    Space space2 = new Space();
+    space2.setRegistration(Space.OPEN);
+    space2.setVisibility(Space.PUBLIC);
+    space2 = spaceService.createSpace(space2, ROOT_USER);
+    CategoryObject object2 = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, space2.getId(), space2.getSpaceId());
+
+    List<CategoryObject> linkedObjects = categoryLinkService.getLinkedObjects(rootCategory.getId(),
+                                                                              Collections.singletonList(SpaceCategoryPlugin.OBJECT_TYPE),
+                                                                              0,
+                                                                              10);
+    assertTrue(linkedObjects.isEmpty());
+
+    categoryLinkService.link(rootCategory.getId(), object1, ROOT_USER);
+    categoryLinkService.link(rootCategory.getId(), object2, ROOT_USER);
+
+    linkedObjects = categoryLinkService.getLinkedObjects(rootCategory.getId(),
+                                                         Collections.singletonList(SpaceCategoryPlugin.OBJECT_TYPE),
+                                                         0,
+                                                         10);
+    assertEquals(2, linkedObjects.size());
+
+    linkedObjects = categoryLinkService.getLinkedObjects(rootCategory.getId(),
+                                                         Collections.singletonList("notMatchingType"),
+                                                         0,
+                                                         10);
+    assertTrue(linkedObjects.isEmpty());
   }
 
 }

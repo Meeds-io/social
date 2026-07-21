@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -32,6 +33,9 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.plugin.CategoryPlugin;
+import io.meeds.social.category.service.CategoryPluginService;
+
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class SpaceCategoryPlugin implements CategoryPlugin {
@@ -39,10 +43,18 @@ public class SpaceCategoryPlugin implements CategoryPlugin {
   public static final String OBJECT_TYPE = SpaceAclPlugin.OBJECT_TYPE;
 
   @Autowired
+  private PortalContainer    container;
+
+  @Autowired
   private SpaceService       spaceService;
 
   @Autowired
   private IdentityManager    identityManager;
+
+  @PostConstruct
+  public void init() {
+    container.getComponentInstanceOfType(CategoryPluginService.class).addPlugin(this);
+  }
 
   @Override
   public String getType() {
