@@ -394,9 +394,9 @@ public class UserRest implements ResourceContainer, Startable {
     String username = request.getRemoteUser();
     if (!userACL.getSuperUser().equals(username)
         && !RestUtils.isMemberOfAdminGroup()
+        && (CollectionUtils.isNotEmpty(groupIds) && !RestUtils.isOrganizationalUnitsManager(groupIds))
         && userType != null
-        && !userType.equals(INTERNAL)
-        && !groupIds.isEmpty()) {
+        && !userType.equals(INTERNAL)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 

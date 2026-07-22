@@ -100,7 +100,8 @@ export default {
       headerTitleFieldName: 'chartHeaderTitle',
       translationObjectType: 'organizationalChart',
       language: eXo?.env?.portal?.language,
-      isPrintingPdf: false
+      isPrintingPdf: false,
+      displayed: true
     };
   },
   props: {
@@ -126,6 +127,9 @@ export default {
       if (this.initialUserId) {
         this.updateChart(this.initialUserId);
       }
+    },
+    displayed() {
+      this.$root.$updateApplicationVisibility(this.displayed);
     }
   },
   computed: {
@@ -174,10 +178,24 @@ export default {
 
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     document.addEventListener('extension-user-extension-navigation-updated', this.refreshUserExtensions);
+    if (!this.preview) {
+      document.addEventListener('hideMyTeamApps', this.hideChartApplication);
+      document.addEventListener('showMyTeamApps', this.showChartApplication);
+    }
     this.refreshExtensions();
     this.refreshUserExtensions();
   },
+  beforeDestroy() {
+    document.removeEventListener('hideMyTeamApps', this.hideChartApplication);
+    document.removeEventListener('showMyTeamApps', this.showChartApplication);
+  },
   methods: {
+    hideChartApplication() {
+      this.displayed = false;
+    },
+    showChartApplication() {
+      this.displayed = true;
+    },
     downloadChart() {
       this.isPrintingPdf = true;
       const content = document.getElementById('chart');
