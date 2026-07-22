@@ -51,6 +51,16 @@ public class OrganizationalUnitService {
     return organizationalUnitStorage.getManagedOrganizationalUnits(userName);
   }
 
+  /**
+   * @return true if the given group is designated as an Organizational Unit
+   *         that the given user directly manages ({@code manager} or {@code *}
+   *         membership on the Organizational Unit group itself, not inherited
+   *         from a parent group).
+   */
+  public boolean isManagedOrganizationalUnit(String groupId, String userName) {
+    return organizationalUnitStorage.isManagedOrganizationalUnit(groupId, userName);
+  }
+
   public void setOrganizationalUnit(String groupId, boolean organizationalUnit) throws Exception {
     if (organizationalUnit) {
       Group group = organizationService.getGroupHandler().findGroupById(groupId);

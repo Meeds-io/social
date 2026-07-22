@@ -90,6 +90,14 @@ public class OrganizationalUnitServiceTest {
   }
 
   @Test
+  public void testIsManagedOrganizationalUnitDelegatesToStorage() {
+    when(organizationalUnitStorage.isManagedOrganizationalUnit(GROUP_ID, "john")).thenReturn(true);
+
+    assertTrue(organizationalUnitService.isManagedOrganizationalUnit(GROUP_ID, "john"));
+    assertFalse(organizationalUnitService.isManagedOrganizationalUnit(GROUP_ID, "mary"));
+  }
+
+  @Test
   public void testSetOrganizationalUnitTrueSavesGroupLabelWhenGroupExists() throws Exception {
     Group group = mock(Group.class);
     when(group.getLabel()).thenReturn(LABEL);
