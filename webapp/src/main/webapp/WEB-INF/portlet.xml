@@ -1084,6 +1084,27 @@
   </portlet>
 
   <portlet>
+    <portlet-name>MyOrganizationalUnits</portlet-name>
+    <display-name>My Organizational Units</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/myOrganizationalUnits.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.MyOrganizationalUnits</resource-bundle>
+    <portlet-info>
+      <title>My Organizational Units</title>
+      <keywords>organizational unit</keywords>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
     <portlet-name>PlatformAccess</portlet-name>
     <display-name>Platform Access</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
