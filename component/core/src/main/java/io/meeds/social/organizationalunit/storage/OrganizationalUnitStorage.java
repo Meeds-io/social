@@ -44,6 +44,10 @@ public class OrganizationalUnitStorage {
     return organizationalUnitDAO.findManagedByUserName(userName).stream().map(this::fromEntity).toList();
   }
 
+  public boolean isManagedOrganizationalUnit(String groupId, String userName) {
+    return organizationalUnitDAO.isManagedByUserName(groupId, userName);
+  }
+
   @Transactional
   public void setOrganizationalUnit(String groupId, String label, boolean organizationalUnit) {
     if (organizationalUnit) {
