@@ -47,4 +47,14 @@ public interface OrganizationalUnitDAO extends JpaRepository<OrganizationalUnitE
          "AND up.membershipType IN ('manager', '*') AND up.inherited = false")
   List<OrganizationalUnitEntity> findManagedByUserName(@Param("userName") String userName);
 
+  /**
+   * Whether the given group is designated as an Organizational Unit that the
+   * given user directly manages ({@code manager} or {@code *} membership, non
+   * inherited).
+   */
+  @Query("SELECT COUNT(ou) > 0 FROM SocOrganizationalUnit ou, SocUserPermission up " +
+         "WHERE ou.groupId = :groupId AND up.groupId = ou.groupId AND up.userName = :userName " +
+         "AND up.membershipType IN ('manager', '*') AND up.inherited = false")
+  boolean isManagedByUserName(@Param("groupId") String groupId, @Param("userName") String userName);
+
 }
