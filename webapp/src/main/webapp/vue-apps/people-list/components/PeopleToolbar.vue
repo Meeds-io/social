@@ -25,8 +25,7 @@
     :right-text-filter="{
       minCharacters: 3,
       placeholder: $t('peopleList.label.filterPeople.placeholder'),
-      ariaLabel: $t('peopleList.label.filterPeople'),
-      tooltip: $t('peopleList.label.filterPeople')
+      ariaLabel: $t('peopleList.label.filterPeople')
     }"
     :right-filter-button="{
       hide: hideRightFilterButton,
