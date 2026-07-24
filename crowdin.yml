@@ -387,5 +387,23 @@ files: [
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
     "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/src/main/resources/locale/portlet/PlatformLogo_en.properties",
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": { YML_CROWDIN_LANGUAGES_ARG },
+    "dest": "hub/social/webapp/PlatformLogo.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/src/main/resources/locale/portlet/SidebarLogin_en.properties",
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": { YML_CROWDIN_LANGUAGES_ARG },
+    "dest": "hub/social/webapp/SidebarLogin.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
   }
 ]
