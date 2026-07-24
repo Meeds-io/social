@@ -21,12 +21,14 @@ import VerticalMenuApp from './components/VerticalMenuApp.vue';
 import VerticalMenuDrawer from './components/VerticalMenuDrawer.vue';
 import VerticalMenuContent from './components/VerticalMenuContent.vue';
 import VerticalMenuButton from './components/VerticalMenuButton.vue';
+import VerticalMenuBottomBar from './components/VerticalMenuBottomBar.vue';
 
 const components = {
   'vertical-menu-app': VerticalMenuApp,
   'vertical-menu-content': VerticalMenuContent,
   'vertical-menu-button': VerticalMenuButton,
   'vertical-menu-drawer': VerticalMenuDrawer,
+  'vertical-menu-bottom-bar': VerticalMenuBottomBar,
 };
 
 for (const key in components) {
