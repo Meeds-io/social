@@ -32,16 +32,21 @@ if (extensionRegistry) {
 Vue.use(Vuetify);
 const appId = 'verticalMenu';
 
+const lang = eXo?.env?.portal?.language || 'en';
+const i18nUrl = `/social/i18n/locale.portal.HamburgerMenu?lang=${lang}`;
 
 export function init() {
-  Vue.createApp({
-    template: `<vertical-menu-app id="${appId}"/>`,
-    vuetify: Vue.prototype.vuetifyOptions,
-    computed: {
-      isMobile() {
-        return this.$vuetify.breakpoint.smAndDown;
-      },
-    },
-    i18n: exoi18n.i18n},
-  `#${appId}`, 'Vertical menu application');
+  exoi18n.loadLanguageAsync(lang, i18nUrl)
+    .then(i18n => {
+      Vue.createApp({
+        template: `<vertical-menu-app id="${appId}"/>`,
+        vuetify: Vue.prototype.vuetifyOptions,
+        computed: {
+          isMobile() {
+            return this.$vuetify.breakpoint.smAndDown;
+          },
+        },
+        i18n},
+      `#${appId}`, 'Vertical menu application');
+    });
 }
