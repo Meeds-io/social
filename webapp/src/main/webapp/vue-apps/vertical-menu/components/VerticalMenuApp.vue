@@ -20,8 +20,10 @@
       <v-card
         min-height="var(--100vh, 100vh)"
         color="transparent"
+        class="d-flex flex-column"
         flat>
-        <vertical-menu-content :extra-class="extraClass" />
+        <vertical-menu-content :extra-class="extraClass" class="flex-grow-1 flex-shrink-1" />
+        <vertical-menu-bottom-bar class="flex-grow-0 flex-shrink-0" />
         <template v-if="$root.isMobile">
           <vertical-menu-button />
           <vertical-menu-drawer />
