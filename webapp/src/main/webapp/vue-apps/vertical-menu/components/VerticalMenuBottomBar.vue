@@ -46,7 +46,6 @@
               v-bind="attrs"
               v-on="on"
               :href="mainPortalLink"
-              :title="$t('menu.goBackToMainPortal')"
               :aria-label="$t('menu.goBackToMainPortal')"
               class="goBackToMainPortalLink me-n2 my-auto"
               target="_blank"
