@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="actionsAlignmentClass">
     <v-tooltip :disabled="!isScheduled" bottom>
       <template #activator="{ on, attrs }">
         <div
@@ -52,7 +52,10 @@ export default {
       };
     },
     actionBarBorderClass() {
-      return (!this.isDesktop || this.$root.reducedWidth) && 'border-top-color border-light-color' || ' ms-auto';
+      return (!this.isDesktop || this.$root.reducedWidth) && 'border-top-color border-light-color' || '';
+    },
+    actionsAlignmentClass() {
+      return (this.isDesktop && !this.$root.reducedWidth) && 'ms-auto' || '';
     },
     isDesktop() {
       return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
