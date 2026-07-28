@@ -30,6 +30,8 @@
         v-model="query"
         autofocus
         :placeholder="$t('Tag.search.placeholder')"
+        :aria-label="$t('Tag.search.ariaLabel')"
+        :title="$t('Tag.search.ariaLabel')"
         class="px-4" />
       <div class="pa-3">
         <span v-if="!searching" class="font-weight-bold pl-1">{{ $t('Tag.last.added') }}</span>
