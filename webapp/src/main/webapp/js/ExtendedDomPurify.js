@@ -53,7 +53,7 @@
           case 'url' :
             const url = match.getUrl();
             const tag = match.buildTag();
-            tag.setAttr('href', encodeURI(url));
+            tag.setAttr('href', url);
             if (match.getUrl().indexOf('/') === 0 || match.getUrl().indexOf(window.location.origin) === 0) {
               return true;
             } else {
