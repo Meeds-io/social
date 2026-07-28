@@ -1,13 +1,15 @@
 <template>
-  <extension-registry-components
-    :params="params"
-    :class="actionBarBorderClass"
-    class="d-flex flex-no-wrap py-2 activity-footer-actions"
-    name="ActivityFooter"
-    type="activity-footer-action"
-    parent-element="div"
-    element="div"
-    :element-class="elementClass" />
+  <div :class="actionsAlignmentClass">
+    <extension-registry-components
+      :params="params"
+      :class="actionBarBorderClass"
+      class="d-flex flex-no-wrap py-2 activity-footer-actions"
+      name="ActivityFooter"
+      type="activity-footer-action"
+      parent-element="div"
+      element="div"
+      :element-class="elementClass" />
+  </div>
 </template>
 <script>
 export default {
@@ -35,7 +37,10 @@ export default {
       };
     },
     actionBarBorderClass() {
-      return (!this.isDesktop || this.$root.reducedWidth) && 'border-top-color border-light-color' || ' ms-auto';
+      return (!this.isDesktop || this.$root.reducedWidth) && 'border-top-color border-light-color' || '';
+    },
+    actionsAlignmentClass() {
+      return (this.isDesktop && !this.$root.reducedWidth) && 'ms-auto' || '';
     },
     isDesktop() {
       return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
