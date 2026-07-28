@@ -23,7 +23,8 @@
     id="spacesListToolbar"
     :right-text-filter="{
       minCharacters: 3,
-      placeholder: $t('spacesList.label.filterSpaces'),
+      placeholder: $t('spacesList.label.filterSpaces.placeholder'),
+      ariaLabel: $t('spacesList.label.filterSpaces'),
       tooltip: $t('spacesList.label.filterSpaces')
     }"
     :right-filter-button="displayRightFilter && {
