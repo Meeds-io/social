@@ -96,6 +96,14 @@ public class OrganizationalUnitStorageTest {
   }
 
   @Test
+  public void testIsAnyManagedOrganizationalUnitDelegatesToDao() {
+    when(organizationalUnitDAO.isAnyManagedByUserName(List.of(GROUP_ID), "john")).thenReturn(true);
+
+    assertTrue(storage.isAnyManagedOrganizationalUnit(List.of(GROUP_ID), "john"));
+    assertFalse(storage.isAnyManagedOrganizationalUnit(List.of(GROUP_ID), "mary"));
+  }
+
+  @Test
   public void testSetOrganizationalUnitTrueCreatesNewEntityWhenNoneExists() {
     when(organizationalUnitDAO.findByGroupId(GROUP_ID)).thenReturn(Optional.empty());
     ArgumentCaptor<OrganizationalUnitEntity> savedEntity = ArgumentCaptor.forClass(OrganizationalUnitEntity.class);

@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.organizationalunit.plugin;
+package io.meeds.social.group.plugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -25,6 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -39,7 +40,7 @@ import io.meeds.portal.plugin.AclPlugin;
 import io.meeds.social.organizationalunit.service.OrganizationalUnitService;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OrganizationalUnitAclPluginTest {
+public class GroupAclPluginTest {
 
   private static final String         GROUP_ID  = "/platform/test";
 
@@ -58,7 +59,7 @@ public class OrganizationalUnitAclPluginTest {
   private Identity                    identity;
 
   @InjectMocks
-  private OrganizationalUnitAclPlugin plugin;
+  private GroupAclPlugin plugin;
 
   @Test
   public void testInitRegistersPluginOnUserAcl() {
@@ -71,27 +72,27 @@ public class OrganizationalUnitAclPluginTest {
 
   @Test
   public void testGetObjectType() {
-    assertEquals(OrganizationalUnitAclPlugin.OBJECT_TYPE, plugin.getObjectType());
+    assertEquals(GroupAclPlugin.OBJECT_TYPE, plugin.getObjectType());
   }
 
   @Test
   public void testHasPermissionReturnsFalseWhenIdentityIsNull() {
-    assertFalse(plugin.hasPermission(GROUP_ID, OrganizationalUnitAclPlugin.MANAGE_PERMISSION_TYPE, null));
+    assertFalse(plugin.hasPermission(GROUP_ID, GroupAclPlugin.MANAGE_MEMBERSHIPS_PERMISSION_TYPE, null));
     assertFalse(plugin.hasPermission(GROUP_ID, AclPlugin.EDIT_PERMISSION_TYPE, null));
   }
 
   @Test
-  public void testHasPermissionDelegatesToServiceForManageAndViewPermissions() {
+  public void testHasPermissionDelegatesToServiceForListMembersAndManageMembershipsPermissions() {
     when(identity.getUserId()).thenReturn(USER_NAME);
-    when(organizationalUnitService.isManagedOrganizationalUnit(GROUP_ID, USER_NAME)).thenReturn(true);
+    when(organizationalUnitService.canManageGroup(GROUP_ID, USER_NAME)).thenReturn(true);
 
-    assertTrue(plugin.hasPermission(GROUP_ID, OrganizationalUnitAclPlugin.MANAGE_PERMISSION_TYPE, identity));
-    assertTrue(plugin.hasPermission(GROUP_ID, AclPlugin.VIEW_PERMISSION_TYPE, identity));
+    assertTrue(plugin.hasPermission(GROUP_ID, GroupAclPlugin.LIST_MEMBERS_PERMISSION_TYPE, identity));
+    assertTrue(plugin.hasPermission(GROUP_ID, GroupAclPlugin.MANAGE_MEMBERSHIPS_PERMISSION_TYPE, identity));
 
-    when(organizationalUnitService.isManagedOrganizationalUnit(GROUP_ID, USER_NAME)).thenReturn(false);
+    when(organizationalUnitService.canManageGroup(GROUP_ID, USER_NAME)).thenReturn(false);
 
-    assertFalse(plugin.hasPermission(GROUP_ID, OrganizationalUnitAclPlugin.MANAGE_PERMISSION_TYPE, identity));
-    assertFalse(plugin.hasPermission(GROUP_ID, AclPlugin.VIEW_PERMISSION_TYPE, identity));
+    assertFalse(plugin.hasPermission(GROUP_ID, GroupAclPlugin.LIST_MEMBERS_PERMISSION_TYPE, identity));
+    assertFalse(plugin.hasPermission(GROUP_ID, GroupAclPlugin.MANAGE_MEMBERSHIPS_PERMISSION_TYPE, identity));
   }
 
   @Test
@@ -110,6 +111,7 @@ public class OrganizationalUnitAclPluginTest {
   @Test
   public void testHasPermissionReturnsFalseForUnknownPermissionType() {
     assertFalse(plugin.hasPermission(GROUP_ID, "unknown", identity));
+    assertFalse(plugin.hasPermission(GROUP_ID, AclPlugin.VIEW_PERMISSION_TYPE, identity));
   }
 
 }

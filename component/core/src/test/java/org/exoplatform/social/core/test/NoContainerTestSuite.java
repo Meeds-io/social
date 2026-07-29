@@ -72,7 +72,7 @@ import io.meeds.social.identity.permission.service.UserPermissionServiceTest;
 import io.meeds.social.identity.permission.storage.UserPermissionStorageTest;
 import io.meeds.social.identity.permission.upgrade.UserPermissionBackfillUpgradePluginTest;
 import io.meeds.social.organizationalunit.listener.OrganizationalUnitGroupListenerTest;
-import io.meeds.social.organizationalunit.plugin.OrganizationalUnitAclPluginTest;
+import io.meeds.social.group.plugin.GroupAclPluginTest;
 import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
 import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 
@@ -129,7 +129,7 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     OrganizationalUnitStorageTest.class,
     OrganizationalUnitServiceTest.class,
     OrganizationalUnitGroupListenerTest.class,
-    OrganizationalUnitAclPluginTest.class
+    GroupAclPluginTest.class
 })
 public class NoContainerTestSuite {
 
