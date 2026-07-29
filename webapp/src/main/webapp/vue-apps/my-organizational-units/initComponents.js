@@ -18,10 +18,14 @@
  */
 import MyOrganizationalUnits from './components/MyOrganizationalUnits.vue';
 import OrganizationalUnitMembersList from './components/OrganizationalUnitMembersList.vue';
+import OrganizationalUnitMemberActionMenu from './components/OrganizationalUnitMemberActionMenu.vue';
+import OrganizationalUnitMembershipDrawer from './components/OrganizationalUnitMembershipDrawer.vue';
 
 const components = {
   'my-organizational-units': MyOrganizationalUnits,
   'organizational-unit-members-list': OrganizationalUnitMembersList,
+  'organizational-unit-member-action-menu': OrganizationalUnitMemberActionMenu,
+  'organizational-unit-membership-drawer': OrganizationalUnitMembershipDrawer,
 };
 
 for (const key in components) {
