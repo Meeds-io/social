@@ -18,6 +18,7 @@
  */
 package io.meeds.social.organizationalunit.storage;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -46,6 +47,10 @@ public class OrganizationalUnitStorage {
 
   public boolean isManagedOrganizationalUnit(String groupId, String userName) {
     return organizationalUnitDAO.isManagedByUserName(groupId, userName);
+  }
+
+  public boolean isAnyManagedOrganizationalUnit(Collection<String> groupIds, String userName) {
+    return organizationalUnitDAO.isAnyManagedByUserName(groupIds, userName);
   }
 
   @Transactional
