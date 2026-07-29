@@ -70,6 +70,8 @@
           <organizational-unit-members-list
             :group-id="selectedOrganizationalUnit.groupId"
             :keyword="keyword" />
+          <organizational-unit-membership-drawer
+            :group-id="selectedOrganizationalUnit.groupId" />
         </div>
       </v-expand-transition>
     </widget-wrapper>

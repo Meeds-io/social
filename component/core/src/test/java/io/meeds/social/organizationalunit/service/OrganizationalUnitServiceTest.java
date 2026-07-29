@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.NestedMembership;
 import org.exoplatform.services.organization.OrganizationService;
 
 import io.meeds.social.organizationalunit.model.OrganizationalUnit;
@@ -95,6 +97,46 @@ public class OrganizationalUnitServiceTest {
 
     assertTrue(organizationalUnitService.isManagedOrganizationalUnit(GROUP_ID, "john"));
     assertFalse(organizationalUnitService.isManagedOrganizationalUnit(GROUP_ID, "mary"));
+  }
+
+  @Test
+  public void testCanManageGroupWhenGroupIsAManagedOrganizationalUnit() {
+    when(organizationalUnitStorage.isManagedOrganizationalUnit(GROUP_ID, "john")).thenReturn(true);
+
+    assertTrue(organizationalUnitService.canManageGroup(GROUP_ID, "john"));
+  }
+
+  @Test
+  public void testCanManageGroupWhenGroupIsNestedInsideAManagedOrganizationalUnit() throws Exception {
+    String nestedGroupId = GROUP_ID + "/sales";
+    String deeplyNestedGroupId = GROUP_ID + "/sales/emea";
+    mockGroupWithEnclosing(GROUP_ID, null);
+    mockGroupWithEnclosing(nestedGroupId, GROUP_ID);
+    mockGroupWithEnclosing(deeplyNestedGroupId, nestedGroupId);
+    when(organizationalUnitStorage.isAnyManagedOrganizationalUnit(Set.of(nestedGroupId, GROUP_ID),
+                                                                  "john")).thenReturn(true);
+
+    assertTrue(organizationalUnitService.canManageGroup(deeplyNestedGroupId, "john"));
+    assertFalse(organizationalUnitService.canManageGroup(deeplyNestedGroupId, "mary"));
+  }
+
+  @Test
+  public void testCanManageGroupSurvivesEnclosingGroupsCycle() throws Exception {
+    String nestedGroupId = GROUP_ID + "/sales";
+    // Cycle: each group declares the other as enclosing
+    mockGroupWithEnclosing(GROUP_ID, nestedGroupId);
+    mockGroupWithEnclosing(nestedGroupId, GROUP_ID);
+    when(organizationalUnitStorage.isAnyManagedOrganizationalUnit(Set.of(nestedGroupId, GROUP_ID), "john")).thenReturn(true);
+
+    assertTrue(organizationalUnitService.canManageGroup(nestedGroupId, "john"));
+  }
+
+  private void mockGroupWithEnclosing(String groupId, String enclosingGroupId) throws Exception {
+    Group group = mock(Group.class);
+    if (enclosingGroupId != null) {
+      when(group.getEnclosingMemberships()).thenReturn(Set.of(new NestedMembership(null, enclosingGroupId, null, groupId)));
+    }
+    when(groupHandler.findGroupById(groupId)).thenReturn(group);
   }
 
   @Test

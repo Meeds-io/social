@@ -53,7 +53,7 @@ import org.exoplatform.social.rest.entity.DataEntity;
 
 import io.meeds.portal.security.constant.UserRegistrationType;
 import io.meeds.portal.security.service.SecuritySettingService;
-import io.meeds.social.organizationalunit.plugin.OrganizationalUnitAclPlugin;
+import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
 import io.meeds.social.space.service.SpaceDirectoryService;
 
 public class RestUtils {
@@ -161,9 +161,9 @@ public class RestUtils {
   public static boolean isOrganizationalUnitsManager(List<String> groupIds) {
     UserACL userACL = ExoContainerContext.getService(UserACL.class);
     return groupIds.stream()
-                   .allMatch(groupId -> userACL.hasPermission(OrganizationalUnitAclPlugin.OBJECT_TYPE,
+                   .allMatch(groupId -> userACL.hasPermission(GroupAclPlugin.OBJECT_TYPE,
                                                               groupId,
-                                                              OrganizationalUnitAclPlugin.MANAGE_PERMISSION_TYPE,
+                                                              GroupAclPlugin.LIST_MEMBERS_PERMISSION_TYPE,
                                                               ConversationState.getCurrent().getIdentity()));
   }
 

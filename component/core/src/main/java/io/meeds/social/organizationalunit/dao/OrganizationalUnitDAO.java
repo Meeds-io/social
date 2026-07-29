@@ -18,6 +18,7 @@
  */
 package io.meeds.social.organizationalunit.dao;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,5 +57,17 @@ public interface OrganizationalUnitDAO extends JpaRepository<OrganizationalUnitE
          "WHERE ou.groupId = :groupId AND up.groupId = ou.groupId AND up.userName = :userName " +
          "AND up.membershipType IN ('manager', '*') AND up.inherited = false")
   boolean isManagedByUserName(@Param("groupId") String groupId, @Param("userName") String userName);
+
+  /**
+   * Whether at least one of the given groups is designated as an
+   * Organizational Unit that the given user directly manages ({@code manager}
+   * or {@code *} membership, non inherited). The candidates being a group and
+   * its enclosing groups, the list is bounded by the nesting depth: a single
+   * indexed IN lookup.
+   */
+  @Query("SELECT COUNT(ou) > 0 FROM SocOrganizationalUnit ou, SocUserPermission up " +
+         "WHERE ou.groupId IN (:groupIds) AND up.groupId = ou.groupId AND up.userName = :userName " +
+         "AND up.membershipType IN ('manager', '*') AND up.inherited = false")
+  boolean isAnyManagedByUserName(@Param("groupIds") Collection<String> groupIds, @Param("userName") String userName);
 
 }

@@ -22,6 +22,7 @@ import './services.js';
 const lang = eXo && eXo.env.portal.language || 'en';
 const urls = [
   `/social/i18n/locale.portlet.MyOrganizationalUnits?lang=${lang}`,
+  `/social/i18n/locale.portlet.UsersManagement?lang=${lang}`,
 ];
 const appId = 'MyOrganizationalUnits';
 
