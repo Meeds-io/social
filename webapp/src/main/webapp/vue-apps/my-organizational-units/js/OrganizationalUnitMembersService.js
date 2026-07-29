@@ -1,3 +1,24 @@
+export function createMembership(userName, groupId, membershipType) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      membershipType,
+      userName,
+      groupId,
+    }),
+  }).then(response => {
+    if (!response?.ok) {
+      return response.text().then(error => {
+        throw new Error(error || 'Error creating membership');
+      });
+    }
+  });
+}
+
 export function getOrganizationalUnitMembers(groupId, keyword, offset, limit) {
   const form = new FormData();
   form.append('groupId', groupId);

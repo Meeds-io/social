@@ -37,10 +37,10 @@
         {{ $t('organizationalUnitMembers.neverConnected') }}
       </div>
     </template>
-    <template #[`item.actions`]>
-      <v-btn icon disabled>
-        <v-icon size="18">fa-ellipsis-v</v-icon>
-      </v-btn>
+    <template #[`item.actions`]="{ item }">
+      <organizational-unit-member-action-menu
+        :member="item"
+        :group-id="groupId" />
     </template>
     <template #no-data>
       <div class="d-flex flex-column align-center justify-center py-8">
@@ -123,7 +123,11 @@ export default {
     },
   },
   created() {
+    this.$root.$on('refresh-organizational-unit-members', this.searchUsers);
     this.searchUsers();
+  },
+  beforeDestroy() {
+    this.$root.$off('refresh-organizational-unit-members', this.searchUsers);
   },
   methods: {
     resetPagination() {

@@ -18,9 +18,15 @@
  */
 package io.meeds.social.organizationalunit.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +37,8 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorage;
 
 @Service
 public class OrganizationalUnitService {
+
+  private static final Log          LOG = ExoLogger.getLogger(OrganizationalUnitService.class);
 
   @Autowired
   private OrganizationalUnitStorage organizationalUnitStorage;
@@ -59,6 +67,44 @@ public class OrganizationalUnitService {
    */
   public boolean isManagedOrganizationalUnit(String groupId, String userName) {
     return organizationalUnitStorage.isManagedOrganizationalUnit(groupId, userName);
+  }
+
+  /**
+   * Whether the given group is inside the management perimeter of the given
+   * user: either an Organizational Unit the user directly manages, or a group
+   * nested, at any level, inside such an Organizational Unit.
+   *
+   * @param groupId group id to check
+   * @param userName user name of the potential manager
+   * @return true if the given user can manage the given group
+   */
+  public boolean canManageGroup(String groupId, String userName) {
+    return isManagedOrganizationalUnit(groupId, userName)
+           || isNestedInManagedOrganizationalUnit(groupId, userName);
+  }
+
+  private boolean isNestedInManagedOrganizationalUnit(String groupId, String userName) {
+    Set<String> enclosingGroupIds = new HashSet<>();
+    collectEnclosingGroupIds(groupId, new HashSet<>(), enclosingGroupIds);
+    return CollectionUtils.isNotEmpty(enclosingGroupIds)
+           && organizationalUnitStorage.isAnyManagedOrganizationalUnit(enclosingGroupIds, userName);
+  }
+
+  private void collectEnclosingGroupIds(String groupId, Set<String> visitedGroupIds, Set<String> enclosingGroupIds) {
+    if (!visitedGroupIds.add(groupId)) {
+      return;
+    }
+    try {
+      Group group = organizationService.getGroupHandler().findGroupById(groupId);
+      if (group != null && CollectionUtils.isNotEmpty(group.getEnclosingMemberships())) {
+        group.getEnclosingMemberships().forEach(enclosingMembership -> {
+          enclosingGroupIds.add(enclosingMembership.getGroupId());
+          collectEnclosingGroupIds(enclosingMembership.getGroupId(), visitedGroupIds, enclosingGroupIds);
+        });
+      }
+    } catch (Exception e) {
+      LOG.warn("Error retrieving enclosing groups of group {}", groupId, e);
+    }
   }
 
   public void setOrganizationalUnit(String groupId, boolean organizationalUnit) throws Exception {
