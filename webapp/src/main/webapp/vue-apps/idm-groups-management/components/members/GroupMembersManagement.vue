@@ -25,9 +25,14 @@
     <group-members-management-toolbar
       disabled-users
       :filter="filter"
+      :loading="exporting"
       @keyword-change="keyword = $event"
-      @open-group-members-advanced-filter="openGroupMembersAdvancedFilter" />
-    <group-members-list :keyword="keyword" :filter="filter" />
+      @open-group-members-advanced-filter="openGroupMembersAdvancedFilter"
+      @export-users="exportMembers" />
+    <group-members-list
+      :keyword="keyword"
+      :filter="filter"
+      @total-size-updated="totalSize = $event" />
     <group-members-filter-drawer
       v-if="drawer"
       ref="groupMembersAdvancedFilter"
@@ -42,16 +47,33 @@ export default {
     return {
       filter: null,
       keyword: null,
-      members: [],
       totalSize: 0,
-      exportUsersUrl: null,
-      loading: false,
+      exporting: false,
       drawer: false,
-      page: 1,
-      itemsPerPage: 2,
     };
   },
   methods: {
+    exportMembers() {
+      const exportLink = `${this.$groupMembersService.buildFetchLink(this.$root.selectedGroup?.id, this.keyword, this.filter)}&export=true`;
+      this.exporting = true;
+      return fetch(exportLink, {
+        credentials: 'include',
+      }).then(resp => resp?.ok && resp.json())
+        .then(exportResult => document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          alertComponent: 'users-management-export-csv-result',
+          alertComponentParams: {
+            options: {
+              exportLink,
+              exportId: exportResult.exportId,
+              totalUsers: this.totalSize,
+            },
+          },
+          alertDismissible: false,
+          alertTimeout: 864000000,
+        }})))
+        .catch(error => this.$root.$emit('alert-message', error, 'error'))
+        .finally(() => this.exporting = false);
+    },
     async openGroupMembersAdvancedFilter() {
       this.drawer = true;
       await this.$nextTick();

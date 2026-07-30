@@ -438,6 +438,8 @@ public class UserRest implements ResourceContainer, Startable {
                                                                userType,
                                                                isConnected,
                                                                spaceIds,
+                                                               groupIds,
+                                                               includeInheritedMemberships,
                                                                isDisabled,
                                                                enrollmentStatus,
                                                                excludeCurrentUser,

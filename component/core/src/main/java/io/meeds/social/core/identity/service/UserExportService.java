@@ -27,13 +27,17 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -48,6 +52,7 @@ import org.springframework.stereotype.Service;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.NestedMembership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
@@ -166,6 +171,7 @@ public class UserExportService {
     int offset = 0;
     int limit = PAGINATION_PAGE_SIZE;
     File file = new File(exportResult.retrieveExportPath());
+    Set<String> exportedGroupIds = getExportedGroupIds(exportFilter.getGroupIds());
 
     OutputStream outputStream = new FileOutputStream(file);
     try (PrintWriter writer = new PrintWriter(outputStream, true, StandardCharsets.UTF_8);) {
@@ -179,7 +185,6 @@ public class UserExportService {
         } else {
           for (Identity identity : identities) {
             String userName = identity.getRemoteId();
-            Collection<Membership> memberships = organizationService.getMembershipHandler().findMembershipsByUser(userName);
             writer.write(String.format("%s,%s,%s,%s,%s,%s,%s%n",
                                        userName,
                                        identity.getProfile().getProperty(Profile.FIRST_NAME),
@@ -187,7 +192,7 @@ public class UserExportService {
                                        identity.getProfile().getEmail(),
                                        identity.isEnable() ? "TRUE" : "FALSE",
                                        identity.isExternal() ? GUEST : INTERNAL,
-                                       memberships.stream().map(m -> m.getGroupId()).collect(Collectors.joining(";"))));
+                                       getGroupsToExport(userName, exportedGroupIds)));
             exportResult.incrementProcessed();
           }
         }
@@ -223,11 +228,46 @@ public class UserExportService {
 
   private ProfileFilter computeFilter(UserExportFilter exportFilter, Identity viewerIdentity) {
     ProfileFilter filter = new ProfileFilter();
-    applySpaceIdsFilter(filter, exportFilter, viewerIdentity);
+    applyGroupIdsFilter(filter, exportFilter, viewerIdentity);
     applySortFilter(filter, exportFilter);
     applyExcludeCurrentUserFilter(exportFilter, viewerIdentity, filter);
     applyUserPropertiesFilter(filter, exportFilter);
     return filter;
+  }
+
+  private String getGroupsToExport(String userName, Set<String> exportedGroupIds) throws Exception {
+    Collection<Membership> memberships = organizationService.getMembershipHandler().findMembershipsByUser(userName);
+    return memberships.stream()
+                      .map(Membership::getGroupId)
+                      .distinct()
+                      .filter(groupId -> exportedGroupIds.isEmpty() || exportedGroupIds.contains(groupId))
+                      .collect(Collectors.joining(";"));
+  }
+
+  /**
+   * @return the exported group ids plus, for each one, the groups nested inside
+   *         it at any level (through {@link NestedMembership} links), which are
+   *         the only groups to list in the CSV 'groups' column when exporting a
+   *         group's members. Empty when no group filter is applied, meaning all
+   *         the user's groups are exported.
+   */
+  private Set<String> getExportedGroupIds(List<String> groupIds) {
+    if (CollectionUtils.isEmpty(groupIds)) {
+      return Collections.emptySet();
+    }
+    Set<String> exportedGroupIds = new LinkedHashSet<>();
+    groupIds.forEach(groupId -> collectNestedGroupIds(groupId, exportedGroupIds));
+    return exportedGroupIds;
+  }
+
+  private void collectNestedGroupIds(String groupId, Set<String> collectedGroupIds) {
+    if (!collectedGroupIds.add(groupId)) {
+      return;
+    }
+    organizationService.getGroupHandler()
+                       .getNestedMemberships(groupId)
+                       .forEach(nestedMembership -> collectNestedGroupIds(nestedMembership.getNestedGroupId(),
+                                                                          collectedGroupIds));
   }
 
   private void applyExcludeCurrentUserFilter(UserExportFilter userExportFilter,
@@ -239,11 +279,19 @@ public class UserExportService {
     }
   }
 
-  private void applySpaceIdsFilter(ProfileFilter filter, UserExportFilter userExportFilter, Identity viewerIdentity) {
+  private void applyGroupIdsFilter(ProfileFilter filter, UserExportFilter userExportFilter, Identity viewerIdentity) {
+    Set<String> allGroupIds = new LinkedHashSet<>();
     List<Long> spaceIds = userExportFilter.getSpaceIds();
     if (CollectionUtils.isNotEmpty(spaceIds)) {
       List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
-      filter.setGroupIds(SpaceUtils.getSpaceGroupIds(viewerIdentity.getRemoteId(), spaceIdsString));
+      allGroupIds.addAll(SpaceUtils.getSpaceGroupIds(viewerIdentity.getRemoteId(), spaceIdsString));
+    }
+    if (CollectionUtils.isNotEmpty(userExportFilter.getGroupIds())) {
+      allGroupIds.addAll(userExportFilter.getGroupIds());
+      filter.setIncludeInheritedMemberships(userExportFilter.isIncludeInheritedMemberships());
+    }
+    if (CollectionUtils.isNotEmpty(allGroupIds)) {
+      filter.setGroupIds(new ArrayList<>(allGroupIds));
     }
   }
 

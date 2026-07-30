@@ -37,20 +37,24 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipHandler;
+import org.exoplatform.services.organization.NestedMembership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
@@ -79,6 +83,13 @@ public class UserExportServiceTest {
                                                                         "john,John,Doe,john@example.com,TRUE,Internal,/platform/users";
 
   private static final String                        USERS_GROUP        = "/platform/users";
+
+  private static final String                        ORGANIZATION_GROUP = "/organization";
+
+  private static final String                        NESTED_GROUP       = "/sales";
+
+  private static final String                        EXPORTED_GROUP_MEMBER_LINE =
+                                                                                "john,John,Doe,john@example.com,TRUE,Internal,/organization;/sales";
 
   private static final String                        EMAIL              = "john@example.com";
 
@@ -314,6 +325,57 @@ public class UserExportServiceTest {
       String line = reader.readLine();
       assertTrue(header.contains(USER_NAME_FIELD));
       assertEquals(EXPORTED_USER_LINE, line);
+    }
+  }
+
+  @Test
+  @SneakyThrows
+  public void testExportGroupMembersRestrictsGroupsColumn() {
+    UserExportFilter filter = new UserExportFilter();
+    filter.setGroupIds(List.of(ORGANIZATION_GROUP));
+
+    Identity identity = mock(Identity.class);
+    Profile profile = mock(Profile.class);
+    when(identity.getRemoteId()).thenReturn(TEST_USER2);
+    when(identity.getProfile()).thenReturn(profile);
+    when(profile.getProperty(Profile.FIRST_NAME)).thenReturn(FIRST_NAME);
+    when(profile.getProperty(Profile.LAST_NAME)).thenReturn(LAST_NAME);
+    when(profile.getEmail()).thenReturn(EMAIL);
+    when(identity.isEnable()).thenReturn(true);
+    when(identity.isExternal()).thenReturn(false);
+
+    ArgumentCaptor<ProfileFilter> filterCaptor = ArgumentCaptor.forClass(ProfileFilter.class);
+    when(identityManager.getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME),
+                                                      filterCaptor.capture(),
+                                                      eq(true))).thenReturn(identityListAccess);
+    when(identityListAccess.load(0, 10)).thenReturn(new Identity[] { identity });
+
+    GroupHandler groupHandler = mock(GroupHandler.class);
+    when(organizationService.getGroupHandler()).thenReturn(groupHandler);
+    NestedMembership nestedMembership = mock(NestedMembership.class);
+    when(nestedMembership.getNestedGroupId()).thenReturn(NESTED_GROUP);
+    when(groupHandler.getNestedMemberships(ORGANIZATION_GROUP)).thenReturn(Set.of(nestedMembership));
+    when(groupHandler.getNestedMemberships(NESTED_GROUP)).thenReturn(Collections.emptySet());
+
+    Membership groupMembership = mock(Membership.class);
+    when(groupMembership.getGroupId()).thenReturn(ORGANIZATION_GROUP);
+    Membership nestedGroupMembership = mock(Membership.class);
+    when(nestedGroupMembership.getGroupId()).thenReturn(NESTED_GROUP);
+    Membership otherGroupMembership = mock(Membership.class);
+    when(otherGroupMembership.getGroupId()).thenReturn(USERS_GROUP);
+    when(membershipHandler.findMembershipsByUser(TEST_USER2)).thenReturn(List.of(groupMembership,
+                                                                                 nestedGroupMembership,
+                                                                                 otherGroupMembership));
+
+    UserExportResult exportResult = prepareExportResult();
+    service.exportUsers(filter, TEST_USER1, exportResult);
+    assertEquals(List.of(ORGANIZATION_GROUP), filterCaptor.getValue().getGroupIds());
+    try (InputStream in = new FileInputStream(exportResult.retrieveExportPath())) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+      String header = reader.readLine();
+      String line = reader.readLine();
+      assertTrue(header.contains(USER_NAME_FIELD));
+      assertEquals(EXPORTED_GROUP_MEMBER_LINE, line);
     }
   }
 
