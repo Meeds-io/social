@@ -54,7 +54,7 @@ export default {
   },
   methods: {
     exportMembers() {
-      const exportLink = `${this.$groupMembersService.buildFetchLink(this.$root.selectedGroup?.id, this.keyword, this.filter)}&export=true`;
+      const exportLink = `${this.$groupMembersService.buildFetchLink(this.$root.selectedGroup?.id, this.keyword, this.filter)}&export=true&includeInheritedMemberships=true`;
       this.exporting = true;
       return fetch(exportLink, {
         credentials: 'include',
