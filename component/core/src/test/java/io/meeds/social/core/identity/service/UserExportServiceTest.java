@@ -49,16 +49,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.search.UserSearchService;
-import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -74,8 +70,6 @@ import lombok.SneakyThrows;
 public class UserExportServiceTest {
 
   private static final String                        EXPORT_ID          = "123";
-
-  private static final String                        DELEGATED_GROUP    = "/delegated_group";
 
   private static final String                        QUERY_TERM         = "abc";
 
@@ -108,16 +102,7 @@ public class UserExportServiceTest {
   private OrganizationService                        organizationService;
 
   @Mock
-  private UserACL                                    userAcl;
-
-  @Mock
   private MembershipHandler                          membershipHandler;
-
-  @Mock
-  private UserHandler                                userHandler;
-
-  @Mock
-  private org.exoplatform.services.security.Identity exoIdentity;
 
   @Mock
   private ListAccess<User>                           listAccess;
@@ -131,7 +116,6 @@ public class UserExportServiceTest {
   @Before
   public void setUp() {
     when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
-    when(organizationService.getUserHandler()).thenReturn(userHandler);
     service.init();
   }
 
@@ -168,9 +152,6 @@ public class UserExportServiceTest {
     when(identity.isEnable()).thenReturn(true);
     when(identity.isExternal()).thenReturn(false);
 
-    org.exoplatform.services.security.Identity aclIdentity = mock(org.exoplatform.services.security.Identity.class);
-    when(userAcl.getUserIdentity(TEST_USER1)).thenReturn(aclIdentity);
-
     when(identityManager.getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME),
                                                       any(ProfileFilter.class),
                                                       eq(true))).thenReturn(identityListAccess);
@@ -179,53 +160,6 @@ public class UserExportServiceTest {
     Membership membership = mock(Membership.class);
     when(membership.getGroupId()).thenReturn(USERS_GROUP);
     when(membershipHandler.findMembershipsByUser(TEST_USER2)).thenReturn(List.of(membership));
-
-    UserExportResult exportResult = prepareExportResult();
-    service.exportUsers(filter, TEST_USER1, exportResult);
-    try (InputStream in = new FileInputStream(exportResult.retrieveExportPath())) {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-      String header = reader.readLine();
-      String line = reader.readLine();
-      assertTrue(header.contains(USER_NAME_FIELD));
-      assertEquals(EXPORTED_USER_LINE, line);
-    }
-  }
-
-  @Test
-  @SneakyThrows
-  public void testGetUsersDelegatedAdmin() {
-    UserExportFilter filter = new UserExportFilter();
-    filter.setUserType(EXTERNAL_USER_TYPE);
-
-    Identity identity = mock(Identity.class);
-    Profile profile = mock(Profile.class);
-    when(identity.getRemoteId()).thenReturn(TEST_USER2);
-    when(identity.getProfile()).thenReturn(profile);
-    when(profile.getProperty(Profile.FIRST_NAME)).thenReturn(FIRST_NAME);
-    when(profile.getProperty(Profile.LAST_NAME)).thenReturn(LAST_NAME);
-    when(profile.getEmail()).thenReturn(EMAIL);
-    when(identity.isEnable()).thenReturn(true);
-    when(identity.isExternal()).thenReturn(false);
-
-    Membership membership = mock(Membership.class);
-    when(membership.getGroupId()).thenReturn(USERS_GROUP);
-    when(membershipHandler.findMembershipsByUser(TEST_USER2)).thenReturn(List.of(membership));
-
-    org.exoplatform.services.security.Identity aclIdentity = mock(org.exoplatform.services.security.Identity.class);
-    when(userAcl.getUserIdentity(TEST_USER1)).thenReturn(aclIdentity);
-    when(aclIdentity.isMemberOf(UserExportService.DELEGATED_GROUP)).thenReturn(true);
-    when(aclIdentity.getMemberships()).thenReturn(Collections.singleton(new MembershipEntry(DELEGATED_GROUP, "manager")));
-
-    when(organizationService.getUserHandler()
-                            .findUsersByQuery(any(Query.class),
-                                              eq(Collections.singletonList(DELEGATED_GROUP)),
-                                              eq(UserStatus.ENABLED)))
-                                                                      .thenReturn(listAccess);
-    User user = mock(User.class);
-    when(listAccess.getSize()).thenReturn(10);
-    when(listAccess.load(anyInt(), anyInt())).thenReturn(new User[] { user });
-    when(user.getUserName()).thenReturn(TEST_USER2);
-    when(identityManager.getOrCreateUserIdentity(TEST_USER2)).thenReturn(identity);
 
     UserExportResult exportResult = prepareExportResult();
     service.exportUsers(filter, TEST_USER1, exportResult);
@@ -322,8 +256,6 @@ public class UserExportServiceTest {
 
     Identity viewerIdentity = mock(Identity.class);
     when(identityManager.getOrCreateUserIdentity(TEST_USER1)).thenReturn(viewerIdentity);
-    when(userAcl.getUserIdentity(TEST_USER1)).thenReturn(exoIdentity);
-    when(userAcl.isAdministrator(exoIdentity)).thenReturn(true);
 
     when(userSearchService.searchUsers(QUERY_TERM, UserStatus.DISABLED)).thenReturn(listAccess);
     when(listAccess.getSize()).thenReturn(1);
@@ -369,14 +301,6 @@ public class UserExportServiceTest {
     when(identity.isEnable()).thenReturn(true);
     when(identity.isExternal()).thenReturn(false);
     when(identityManager.getOrCreateUserIdentity(TEST_USER2)).thenReturn(identity);
-
-    org.exoplatform.services.security.Identity viewerAclIdentity = mock(org.exoplatform.services.security.Identity.class);
-    org.exoplatform.services.security.Identity userAclIdentity = mock(org.exoplatform.services.security.Identity.class);
-    when(userAcl.getUserIdentity(TEST_USER1)).thenReturn(viewerAclIdentity);
-    when(userAcl.getUserIdentity(TEST_USER2)).thenReturn(userAclIdentity);
-    when(viewerAclIdentity.isMemberOf(UserExportService.DELEGATED_GROUP)).thenReturn(true);
-    when(viewerAclIdentity.getMemberships()).thenReturn(Collections.singleton(new MembershipEntry(DELEGATED_GROUP, "manager")));
-    when(userAclIdentity.isMemberOf(DELEGATED_GROUP)).thenReturn(true);
 
     Membership membership = mock(Membership.class);
     when(membership.getGroupId()).thenReturn(USERS_GROUP);

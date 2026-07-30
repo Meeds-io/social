@@ -62,7 +62,6 @@ import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
-import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.services.thumbnail.ImageThumbnailService;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -1495,17 +1494,5 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(1, ((List<DataEntity>) dataEntity.get("managers")).size());
     assertEquals(0, (int) dataEntity.get("managedUsersCount"));
     endSession();
-  }
-
-  public void testGetUsersByDelegatedAdmin() throws Exception {
-
-    startSessionAs("john", new HashSet<MembershipEntry>(Arrays.asList(new MembershipEntry("/platform/delegated", "member"), new MembershipEntry("/platform/users", "manager"), new MembershipEntry("/platform/users", "member"))));
-    getSpaceInstance(700, "john");
-
-    ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0"), "", null, null);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    CollectionEntity collections = (CollectionEntity) response.getEntity();
-    assertEquals(4, collections.getEntities().size());
   }
 }

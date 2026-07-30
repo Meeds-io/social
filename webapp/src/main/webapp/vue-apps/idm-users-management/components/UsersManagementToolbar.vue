@@ -17,7 +17,6 @@
     <template #left>
       <div class="d-flex position-absolute zindex-1 mt-n1 t-0">
         <v-menu
-          v-if="!$root.isDelegatedAdministrator"
           v-model="menu"
           offset-y>
           <!-- eslint-disable vue/valid-v-slot -->
@@ -54,7 +53,7 @@
         <v-btn
           v-if="!$root.isMobile"
           :loading="exporting"
-          :class="!$root.isDelegatedAdministrator && 'ms-2'"
+          class="ms-2"
           color="primary"
           elevation="0"
           outlined
