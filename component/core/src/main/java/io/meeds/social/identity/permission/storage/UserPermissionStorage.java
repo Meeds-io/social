@@ -56,7 +56,15 @@ public class UserPermissionStorage {
     entity.setUserName(userPermission.getUserName());
     entity.setGroupId(userPermission.getGroupId());
     entity.setMembershipType(userPermission.getMembershipType());
-    entity.setInherited(userPermission.isInherited());
+    // A row holds both the direct and the inherited fact of its (user, group,
+    // membershipType) key: once direct, it stays direct — an inherited save
+    // must not downgrade it, else the direct membership vanishes on the next
+    // inherited-rows recompute
+    if (entity.getId() == null) {
+      entity.setInherited(userPermission.isInherited());
+    } else {
+      entity.setInherited(entity.isInherited() && userPermission.isInherited());
+    }
     entity = userPermissionDAO.save(entity);
     return EntityMapper.fromEntity(entity);
   }
