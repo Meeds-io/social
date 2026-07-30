@@ -198,6 +198,7 @@ export default {
             ) || {};
         this.members = data?.users || data?.entities || [];
         this.totalSize = data?.size || 0;
+        this.$emit('total-size-updated', this.totalSize);
       } finally {
         this.loading = false;
       }

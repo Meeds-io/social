@@ -40,8 +40,7 @@
           <v-list-item
             v-for="organizationalUnit in organizationalUnits"
             :key="organizationalUnit.groupId"
-            class="px-0"
-            @click="openMembers(organizationalUnit)">
+            class="px-0">
             <v-list-item-content>
               <v-list-item-title
                 :title="organizationalUnit.label"
@@ -50,9 +49,14 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action class="my-1">
-              <v-icon size="16" class="icon-default-color">
-                {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
-              </v-icon>
+              <v-btn
+                :title="$t('organizationalUnitMembers.title', {0: organizationalUnit.label})"
+                icon
+                @click="openMembers(organizationalUnit)">
+                <v-icon size="18" class="icon-default-color">
+                  {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
+                </v-icon>
+              </v-btn>
             </v-list-item-action>
           </v-list-item>
         </v-list>

@@ -10,6 +10,7 @@ import GroupManagementPlaceholder from './components/GroupManagementPlaceholder.
 import GroupMembersManagement from './components/members/GroupMembersManagement.vue';
 import GroupMembersList from './components/members/GroupMembersList.vue';
 import UsersManagementFilterDrawer from '../idm-users-management/components/UsersManagementFilterDrawer.vue';
+import UsersManagementExportCSVResult from '../idm-users-management/components/UsersManagementExportCSVResult.vue';
 import GroupMembersMembershipDrawer from './components/members/GroupMembersMembershipDrawer.vue';
 import GroupMembersManagementToolbar from './components/members/GroupMembersManagementToolbar.vue';
 import GroupMembersActionMenu from './components/members/GroupMembersActionMenu.vue';
@@ -35,6 +36,7 @@ const components = {
   'group-members-management': GroupMembersManagement,
   'group-members-list': GroupMembersList,
   'group-members-filter-drawer': UsersManagementFilterDrawer,
+  'users-management-export-csv-result': UsersManagementExportCSVResult,
   'group-members-membership-drawer': GroupMembersMembershipDrawer,
   'group-members-action-menu': GroupMembersActionMenu,
   'nested-groups-management': NestedGroupsManagement,

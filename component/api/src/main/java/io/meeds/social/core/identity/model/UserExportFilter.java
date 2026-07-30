@@ -45,6 +45,10 @@ public class UserExportFilter {
 
   private List<Long>   spaceIds;
 
+  private List<String> groupIds;
+
+  private boolean      includeInheritedMemberships;
+
   private boolean      isDisabled;
 
   private String       enrollmentStatus;
