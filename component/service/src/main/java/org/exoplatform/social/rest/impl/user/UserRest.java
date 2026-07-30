@@ -593,7 +593,6 @@ public class UserRest implements ResourceContainer, Startable {
       }
 
       if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup()
-          && !RestUtils.isMemberOfDelegatedGroup()
           && userType != null
           && !userType.equals(INTERNAL)) {
         throw new WebApplicationException(Response.Status.FORBIDDEN);
@@ -1435,7 +1434,7 @@ public class UserRest implements ResourceContainer, Startable {
                                       @Parameter(description = "User name", required = true)
                                       @PathParam("id")
                                       String id) throws Exception {
-    if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
+    if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
     UserHandler userHandler = organizationService.getUserHandler();
@@ -1461,7 +1460,7 @@ public class UserRest implements ResourceContainer, Startable {
                        @Parameter(description = "User List", required = true)
                        List<String> users) throws Exception {
 
-    if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
+    if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
     String currentUsername = request.getRemoteUser();
