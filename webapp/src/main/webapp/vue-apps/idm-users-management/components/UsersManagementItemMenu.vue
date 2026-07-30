@@ -38,7 +38,6 @@
       <v-tooltip :disabled="item.isInternal" bottom>
         <template #activator="{on, attrs}">
           <v-list-item
-            v-if="!$root.isDelegatedAdministrator"
             v-on="on"
             v-bind="attrs"
             :disabled="!item.isInternal"
