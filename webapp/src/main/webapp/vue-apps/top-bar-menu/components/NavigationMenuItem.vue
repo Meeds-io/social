@@ -55,15 +55,14 @@
           class="mx-1">
           fa-external-link-alt
         </v-icon>
-        <v-btn
+        <span
           v-if="hasChildren && childrenHasPage"
-          icon
-          @click.stop.prevent="openDropMenu"
-          @mouseover="showMenu = true">
-          <v-icon size="20">
+          class="d-flex align-center"
+          aria-hidden="true">
+          <v-icon class="ms-3" size="20">
             fa-angle-down
           </v-icon>
-        </v-btn>
+        </span>
       </v-tab>
     </template>
     <navigation-menu-sub-item
