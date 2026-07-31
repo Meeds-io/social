@@ -47,13 +47,14 @@
           flat>
           {{ category.name }}
         </v-card>
-        <v-icon
-          class="ms-2"
-          size="16"
-          right
-          @click.stop.prevent="menu = true">
-          fa-chevron-down
-        </v-icon>
+        <span class="d-flex align-center" aria-hidden="true">
+          <v-icon
+            class="ms-3 mr-0"
+            size="16"
+            right>
+            fa-chevron-down
+          </v-icon>
+        </span>
       </v-tab>
     </template>
     <v-list class="pa-0" dense>
