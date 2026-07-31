@@ -205,12 +205,14 @@ export default {
     menu(newVal, oldVal) {
       if (newVal && !oldVal && newVal !== oldVal) {
         if (this.value) {
+          const fromLocalISOString = this.toLocalISOString(this.fromDate);
+          const toLocalISOString = this.toLocalISOString(this.toDate);
           this.dates = [
-            this.fromDate.toLocaleDateString(),
-            this.toDate.toLocaleDateString(),
+            fromLocalISOString.slice(0, 10),
+            toLocalISOString.slice(0, 10),
           ];
-          this.fromTime = this.fromDate.toLocaleTimeString().substring(0, 5);
-          this.toTime = this.toDate.toLocaleTimeString().substring(0, 5);
+          this.fromTime = fromLocalISOString.slice(11, 16);
+          this.toTime = toLocalISOString.slice(11, 16);
         }
       }
     },
@@ -237,6 +239,12 @@ export default {
         const minutes = String(absOffset % 60).padStart(2, '0');
         return `${isoStr}${sign}${hours}:${minutes}`;
       }
+    },
+    timeWithSeconds(time, seconds) {
+      if (!time) {
+        return `${seconds === '00' ? '00:00' : '23:59'}:${seconds}`;
+      }
+      return time.length === 5 ? `${time}:${seconds}` : time;
     },
     selectDates() {
       const selectedPeriod = {};
@@ -281,9 +289,9 @@ export default {
           break;
         }
         case 'thisQuarter': {
-          const startOfQuarterMonth = today.getMonth() - (today.getMonth() - 1) % 3 - 1;
-          const startOfQuarter = new Date(new Date(new Date().setMonth(startOfQuarterMonth)).setDate(1));
-          let endOfQuarter = new Date(new Date(new Date(startOfQuarter).setMonth(startOfQuarterMonth + 3)).setDate(0));
+          const startOfQuarterMonth = Math.floor(today.getMonth() / 3) * 3;
+          const startOfQuarter = new Date(today.getFullYear(), startOfQuarterMonth, 1);
+          let endOfQuarter = new Date(today.getFullYear(), startOfQuarterMonth + 3, 0);
           if (endOfQuarter > this.maxDateTime) {
             endOfQuarter = this.maxDateTime;
           }
@@ -294,9 +302,9 @@ export default {
           break;
         }
         case 'thisSemester': {
-          const startOfSemesterMonth = today.getMonth() - (today.getMonth() - 1) % 6 - 1;
-          const startOfSemester = new Date(new Date(new Date().setMonth(startOfSemesterMonth)).setDate(1));
-          let endOfSemester = new Date(new Date(new Date(startOfSemester).setMonth(startOfSemesterMonth + 6)).setDate(0));
+          const startOfSemesterMonth = today.getMonth() < 6 ? 0 : 6;
+          const startOfSemester = new Date(today.getFullYear(), startOfSemesterMonth, 1);
+          let endOfSemester = new Date(today.getFullYear(), startOfSemesterMonth + 6, 0);
           if (endOfSemester > this.maxDateTime) {
             endOfSemester = this.maxDateTime;
           }
@@ -321,8 +329,8 @@ export default {
           this.dates[0] = this.dates[1];
           this.dates[1] = tmp;
         }
-        selectedPeriod.min = new Date(`${this.dates[0]}T${this.fromTime || '00:00'}`).getTime();
-        selectedPeriod.max = new Date(`${this.dates[1]}T${this.toTime || '23:59:59'}.999`).getTime();
+        selectedPeriod.min = new Date(`${this.dates[0]}T${this.timeWithSeconds(this.fromTime, '00')}`).getTime();
+        selectedPeriod.max = new Date(`${this.dates[1]}T${this.timeWithSeconds(this.toTime, '59')}.999`).getTime();
         this.$emit('input', selectedPeriod);
         return true;
       }
