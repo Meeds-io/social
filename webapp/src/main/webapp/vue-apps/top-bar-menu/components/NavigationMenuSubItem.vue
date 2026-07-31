@@ -43,9 +43,8 @@
         absolute
         eager
         offset-x>
-        <template #activator="{ attrs, on }">
+        <template #activator="{ on }">
           <div
-            v-bind="attrs"
             class="d-flex width-full px-4"
             v-on="on"
             @mouseleave="showMenu = false">
@@ -62,15 +61,12 @@
             </v-list-item-title>
             <v-list-item-icon
               v-if="hasChildren && childrenHasPage"
-              class="ms-0 me-n2 ma-auto full-height">
-              <v-btn
-                icon
-                @click.stop.prevent="showMenu = !showMenu">
-                <v-icon
-                  size="18">
+              class="ms-0 ma-auto full-height">
+              <span class="d-flex align-center" aria-hidden="true">
+                <v-icon size="18">
                   {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
                 </v-icon>
-              </v-btn>
+              </span>
             </v-list-item-icon>
           </div>
         </template>
@@ -180,6 +176,8 @@ export default {
         } else {
           window.location.href = this.navigationNodeUri;
         }
+      } else if (this.hasChildren && this.childrenHasPage) {
+        this.showMenu = !this.showMenu;
       }
     },
     updateNavigationState(value) {
