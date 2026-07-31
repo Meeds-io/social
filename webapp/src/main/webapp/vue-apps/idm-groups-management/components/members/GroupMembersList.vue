@@ -48,13 +48,13 @@
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <v-btn
-                v-on="on"
-                v-bind="attrs"
-                icon>
+              v-on="on"
+              v-bind="attrs"
+              icon>
               <v-icon
-                  size="18"
-                  class="d-flex justify-center"
-                  :title="item.userRoleIconTitle">
+                size="18"
+                class="d-flex justify-center"
+                :title="item.userRoleIconTitle">
                 {{ item.userRoleIcon }}
               </v-icon>
             </v-btn>

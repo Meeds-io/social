@@ -24,7 +24,7 @@
     v-model="showMenu"
     rounded
     offset-y>
-    <template #activator="{ attrs, on }">
+    <template #activator="{ attrs }">
       <v-tab
         class="mx-auto pa-1 text-break navigation-mobile-menu-tab"
         v-bind="attrs"
@@ -41,22 +41,14 @@
           class="text-truncate-2 pt-2">
           {{ navigation.label }}
         </span>
-        <v-btn
-          v-if="hasPage && hasChildren"
-          v-on="hasChildren && on"
-          class="mt-2"
-          icon
-          @click.stop.prevent="openDropMenu">
-          <v-icon size="20">
+        <span
+          v-if="hasChildren"
+          class="d-flex align-center"
+          aria-hidden="true">
+          <v-icon class="pa-3 mt-2" size="20">
             fa-angle-up
           </v-icon>
-        </v-btn>
-        <v-icon
-          class="pa-3 mt-2"
-          v-else-if="hasChildren"
-          size="20">
-          fa-angle-up
-        </v-icon>
+        </span>
       </v-tab>
     </template>
     <navigation-mobile-menu-sub-item
