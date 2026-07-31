@@ -21,18 +21,22 @@
 -->
 <template>
   <v-menu
+    ref="menu"
     v-model="showMenu"
     rounded
     :content-class="`topBar-navigation-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
+    :open-on-click="false"
     :max-height="menuMaxHeight"
     bottom
     offset-y
+    disable-keys
     eager>
     <template #activator="{ on, attrs }">
       <v-tab
-        v-if="hasPage || hasChildren && childrenHasPage"
+        v-if="hasPage || hasSubMenu"
+        ref="tab"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
         :rel="navigationNodeRel"
@@ -43,6 +47,16 @@
         v-on="on"
         v-bind="attrs"
         role="tab"
+        :aria-haspopup="hasSubMenu && 'true' || null"
+        :aria-expanded="hasSubMenu && String(showMenu) || null"
+        @focus="openDropMenuOnFocus"
+        @keydown.tab="showMenu = false"
+        @keydown.down.prevent="walkDeeper"
+        @keydown.up.prevent="walkDeeperFromEnd"
+        @keydown.right.prevent="onForwardKey"
+        @keydown.left.prevent="onBackKey"
+        @keydown.esc="showMenu = false"
+        @keydown.enter="onEnterKey"
         @click="checkLink"
         @change="updateNavigationState">
         <span
@@ -55,19 +69,19 @@
           class="mx-1">
           fa-external-link-alt
         </v-icon>
-        <v-btn
-          v-if="hasChildren && childrenHasPage"
-          icon
-          @click.stop.prevent="openDropMenu"
-          @mouseover="showMenu = true">
-          <v-icon size="20">
+        <span
+          v-if="hasSubMenu"
+          class="d-flex align-center"
+          aria-hidden="true">
+          <v-icon class="ms-3" size="20">
             fa-angle-down
           </v-icon>
-        </v-btn>
+        </span>
       </v-tab>
     </template>
     <navigation-menu-sub-item
       v-for="children in navigation.children"
+      ref="entries"
       class="transparent"
       :key="children.id"
       :navigation="children"
@@ -75,12 +89,18 @@
       :parent-navigation-uri="navigation.uri"
       :selected-path="selectedPath"
       @update-navigation-state="updateNavigationState"
+      @exit-menu="exitMenu"
+      @walk="walkFromEntry"
+      @leave-level="focusSelf"
       @select="updateNavigationState" />
   </v-menu>
 </template>
 
 <script>
+import menuKeyboardNavigation from '../menuKeyboardNavigation.js';
+
 export default {
+  mixins: [menuKeyboardNavigation],
   props: {
     navigation: {
       type: Object,
@@ -98,6 +118,7 @@ export default {
   data () {
     return {
       showMenu: false,
+      exitingMenu: false,
       isOpenedOnHover: true,
       menuMaxHeight: '100vh'
     };
@@ -127,9 +148,14 @@ export default {
     childrenHasPage() {
       return this.checkChildrenHasPage(this.navigation);
     },
+    hasSubMenu() {
+      // a node opens a submenu only when it has children that actually lead somewhere;
+      // this is what aria-haspopup/aria-expanded must reflect, so it is computed once
+      return !!(this.hasChildren && this.childrenHasPage);
+    },
     isTopBarElement() {
       return this.$root.isTopBarElement;
-    }
+    },
   },
   watch: {
     showMenu() {
@@ -149,6 +175,13 @@ export default {
     document.addEventListener('click', this.handleCloseMenu);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
+  beforeDestroy() {
+    // the navigation tree is rebuilt on `space-settings-updated`, so these components are
+    // destroyed and recreated: without this, every rebuild leaves a document listener and a
+    // $root handler behind, holding the dead instance alive (EXO-88911 review)
+    document.removeEventListener('click', this.handleCloseMenu);
+    this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
+  },
   methods: {
     updateNavigationState() {
       this.$emit('update-navigation-state', this.navigationNodeUri);
@@ -164,17 +197,23 @@ export default {
         } else {
           window.location.href = this.navigationNodeUri;
         }
-      } else if (this.hasChildren && this.childrenHasPage) {
-        this.openDropMenu();
       }
     },
-    openDropMenu(persist) {
-      if (!persist && this.showMenu) {
-        this.showMenu = false;
-      } else if (!this.showMenu) {
-        this.showMenu = true;
-        this.$root.$emit('close-sibling-drop-menus', this);
+    openDropMenuOnFocus() {
+      if (this.exitingMenu) {
+        // the focus is only passing by on its way out of the menu, don't open it again
+        return;
       }
+      this.showMenu = this.hasSubMenu;
+    },
+    exitMenu() {
+      // Tab from a sub item must leave the menu instead of walking through the drop menu
+      // contents, which are detached at the end of the document: close the whole menu and
+      // give the focus back to this tab, so the browser default moves on to the next tab
+      this.exitingMenu = true;
+      this.showMenu = false;
+      this.$refs.tab?.$el?.focus();
+      this.$nextTick(() => this.exitingMenu = false);
     },
     handleCloseSiblingMenus(emitter) {
       if (this !== emitter && this.showMenu) {
@@ -187,22 +226,6 @@ export default {
           this.showMenu = false;
         }, 100);
       }
-    },
-    checkChildrenHasPage(navigation) {
-      let childrenHasPage = false;
-      navigation.children.forEach(child => {
-        if (childrenHasPage === true) {
-          return;
-        }
-        if (child.pageKey) {
-          childrenHasPage = true;
-        } else if (child.children.length > 0) {
-          childrenHasPage = this.checkChildrenHasPage(child);
-        } else {
-          childrenHasPage = false;
-        }
-      });
-      return childrenHasPage;
     },
   }
 };
