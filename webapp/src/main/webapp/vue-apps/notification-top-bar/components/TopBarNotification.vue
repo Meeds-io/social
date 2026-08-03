@@ -29,7 +29,7 @@
           @click="openDrawer">
           <v-badge
             :value="badge > 0"
-            :content="badge"
+            :content="badgeContent"
             flat
             color="var(--allPagesBadgePrimaryColor, #d32a2a)"
             overlap>
@@ -55,6 +55,9 @@ export default {
   computed: {
     tooltip() {
       return `${this.$t('UIIntranetNotificationsPortlet.title.notifications')} ${this.$t('UIIntranetNotificationsPortlet.title.notifications.shortcut')}`;
+    },
+    badgeContent() {
+      return this.badge > 99 && '99+' || this.badge;
     },
   },
   watch: {
