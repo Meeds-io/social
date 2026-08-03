@@ -236,37 +236,37 @@
           </template>
           <v-card
             id="activityComposerScheduleInputs"
-            class="d-flex align-center flex-nowrap pa-2"
+            class="d-flex flex-column flex-sm-row align-start align-sm-center flex-nowrap pa-2"
             flat>
             <date-picker
               v-model="scheduledDate"
               :attach="false"
               :min-value="minScheduleDate"
               :aria-label="$t('activity.composer.schedule.date')"
-              class="flex-grow-0 me-2"
+              class="flex-grow-0 mb-2 mb-sm-0 me-sm-2"
               top
               return-iso
               required />
-            <div class="d-flex ms-n4">
+            <div class="d-flex align-center ms-n4">
               <time-picker
                 v-model="scheduledHour"
                 :min="minScheduleHour"
                 :aria-label="$t('activity.composer.schedule.hour')"
                 class="flex-grow-0 me-3" />
+              <v-btn
+                id="activityComposerScheduleConfirmButton"
+                :disabled="postDisabled || !scheduledDateTime"
+                :loading="loading"
+                :aria-label="$t('activity.composer.schedule.confirm')"
+                icon
+                @click="scheduleMessage">
+                <v-icon
+                  size="20"
+                  class="success--text">
+                  fas fa-check
+                </v-icon>
+              </v-btn>
             </div>
-            <v-btn
-              id="activityComposerScheduleConfirmButton"
-              :disabled="postDisabled || !scheduledDateTime"
-              :loading="loading"
-              :aria-label="$t('activity.composer.schedule.confirm')"
-              icon
-              @click="scheduleMessage">
-              <v-icon
-                size="20"
-                class="success--text">
-                fas fa-check
-              </v-icon>
-            </v-btn>
           </v-card>
         </v-menu>
       </div>
