@@ -87,7 +87,7 @@ public class PageContentBlockIndexingListenerTest {
   public void shouldIgnoreEventWithBlankPageReference() throws Exception {
     listener.onEvent(new Event<>("layout.page.updated", "user", ""));
 
-    verify(indexingService, never()).index(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    verify(indexingService, never()).reindex(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     verify(indexingService, never()).unindex(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
   }
 
@@ -97,7 +97,7 @@ public class PageContentBlockIndexingListenerTest {
 
     listener.onEvent(new Event<>("layout.page.updated", "user", PAGE_KEY.format()));
 
-    verify(indexingService, never()).index(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    verify(indexingService, never()).reindex(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     verify(indexingService, never()).unindex(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
   }
 
@@ -108,18 +108,33 @@ public class PageContentBlockIndexingListenerTest {
 
     listener.onEvent(new Event<>("layout.page.updated", "user", PAGE_KEY.format()));
 
-    verify(indexingService).index(PageContentIndexingConnector.TYPE, STORAGE_ID);
+    verify(indexingService).reindex(PageContentIndexingConnector.TYPE,
+                                    PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "name"));
     verify(indexingService, never()).unindex(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
   }
 
   @Test
-  public void shouldUnindexWhenPageNoLongerCarriesContentBlock() throws Exception {
+  public void shouldReindexEveryBlockWhenPageCarriesMultipleContentBlocks() throws Exception {
+    CMSSetting summary = new CMSSetting(CONTENT_TYPE, "summary", PAGE_KEY.format(), 0);
+    CMSSetting description = new CMSSetting(CONTENT_TYPE, "description", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(List.of(summary, description));
+
+    listener.onEvent(new Event<>("layout.page.updated", "user", PAGE_KEY.format()));
+
+    verify(indexingService).reindex(PageContentIndexingConnector.TYPE,
+                                    PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "summary"));
+    verify(indexingService).reindex(PageContentIndexingConnector.TYPE,
+                                    PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "description"));
+  }
+
+  @Test
+  public void shouldDoNothingWhenPageNoLongerCarriesAnyContentBlock() throws Exception {
     when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(Collections.emptyList());
 
     listener.onEvent(new Event<>("layout.page.permissions.updated", "user", PAGE_KEY.format()));
 
-    verify(indexingService).unindex(PageContentIndexingConnector.TYPE, STORAGE_ID);
-    verify(indexingService, never()).index(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    verify(indexingService, never()).unindex(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    verify(indexingService, never()).reindex(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
   }
 
 }

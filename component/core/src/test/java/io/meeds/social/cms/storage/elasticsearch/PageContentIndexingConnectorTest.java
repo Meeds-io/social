@@ -63,6 +63,10 @@ public class PageContentIndexingConnectorTest {
 
   private static final String           STORAGE_ID   = "page_139";
 
+  private static String blockId(String settingName) {
+    return PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, settingName);
+  }
+
   @Mock
   private PageContentBlockPluginService pluginService;
 
@@ -130,17 +134,17 @@ public class PageContentIndexingConnectorTest {
   }
 
   @Test
-  public void shouldFilterBlankDraftAndDuplicatePageReferencesWhenListingIds() {
+  public void shouldFilterBlankAndDraftPageReferencesWhenListingIdsAndGiveEachBlockItsOwnId() {
     CMSSetting valid = new CMSSetting(CONTENT_TYPE, "name1", PAGE_KEY.format(), 0);
     CMSSetting blank = new CMSSetting(CONTENT_TYPE, "name2", "", 0);
-    CMSSetting duplicate = new CMSSetting(CONTENT_TYPE, "name3", PAGE_KEY.format(), 0);
+    CMSSetting sameSharedPage = new CMSSetting(CONTENT_TYPE, "name3", PAGE_KEY.format(), 0);
     CMSSetting draft = new CMSSetting(CONTENT_TYPE, "name4", "portal::site::page_draft_john", 0);
-    when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(List.of(valid, blank, duplicate, draft));
+    when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(List.of(valid, blank, sameSharedPage, draft));
     when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
 
     List<String> ids = connector.getAllIds(0, 10);
 
-    assertEquals(List.of(STORAGE_ID), ids);
+    assertEquals(Set.of(blockId("name1"), blockId("name3")), Set.copyOf(ids));
   }
 
   @Test
@@ -157,21 +161,29 @@ public class PageContentIndexingConnectorTest {
   public void shouldReturnNullWhenPageNotFound() {
     when(layoutService.getPage(139L)).thenReturn(null);
 
-    assertNull(connector.create(STORAGE_ID));
+    assertNull(connector.create(blockId("name")));
   }
 
   @Test
   public void shouldReturnNullWhenPageIsADraft() {
     when(page.getPageKey()).thenReturn(PageKey.parse("portal::site::page_draft_john"));
 
-    assertNull(connector.create(STORAGE_ID));
+    assertNull(connector.create(blockId("name")));
   }
 
   @Test
   public void shouldReturnNullWhenPageHasNoRegisteredContentBlock() {
     when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(List.of());
 
-    assertNull(connector.create(STORAGE_ID));
+    assertNull(connector.create(blockId("name")));
+  }
+
+  @Test
+  public void shouldReturnNullWhenBlockNoLongerExistsOnPage() {
+    CMSSetting stillThere = new CMSSetting(CONTENT_TYPE, "other", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(List.of(stillThere));
+
+    assertNull(connector.create(blockId("removed")));
   }
 
   @Test
@@ -185,9 +197,9 @@ public class PageContentIndexingConnectorTest {
     when(page.getAccessPermissions()).thenReturn(new String[] { "Everyone" });
     when(urlResolverService.resolvePath(PAGE_KEY)).thenReturn("/portal/site/page");
 
-    Document document = connector.create(STORAGE_ID);
+    Document document = connector.create(blockId("name"));
 
-    assertEquals(STORAGE_ID, document.getId());
+    assertEquals(blockId("name"), document.getId());
     assertEquals(date, document.getLastUpdatedDate());
     assertEquals(Set.of("Everyone"), document.getPermissions());
     Map<String, String> fields = document.getFields();
@@ -201,15 +213,28 @@ public class PageContentIndexingConnectorTest {
   }
 
   @Test
+  public void shouldOnlyIndexTheRequestedBlockWhenPageCarriesMultipleContentBlocks() {
+    CMSSetting summary = new CMSSetting(CONTENT_TYPE, "summary", PAGE_KEY.format(), 0);
+    CMSSetting description = new CMSSetting(CONTENT_TYPE, "description", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(List.of(summary, description));
+    when(plugin.getContent(summary)).thenReturn(new PageContentBlock("john", new Date(), Map.of("", "Welcome here!")));
+
+    Document document = connector.create(blockId("summary"));
+
+    assertEquals("Welcome here!", document.getFields().get("content"));
+    assertEquals("john", document.getFields().get("author"));
+  }
+
+  @Test
   public void shouldDelegateUpdateToCreate() {
     CMSSetting setting = new CMSSetting(CONTENT_TYPE, "name", PAGE_KEY.format(), 0);
     when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(List.of(setting));
     PageContentBlock content = new PageContentBlock("john", new Date(), Map.of("", "Hello"));
     when(plugin.getContent(setting)).thenReturn(content);
 
-    Document document = connector.update(STORAGE_ID);
+    Document document = connector.update(blockId("name"));
 
-    assertEquals(STORAGE_ID, document.getId());
+    assertEquals(blockId("name"), document.getId());
   }
 
   @Test
