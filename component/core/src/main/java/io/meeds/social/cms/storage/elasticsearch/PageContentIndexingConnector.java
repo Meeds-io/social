@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -46,14 +47,20 @@ import io.meeds.social.cms.service.PageContentBlockPluginService;
 import io.meeds.social.cms.service.PageUrlResolverService;
 
 /**
- * Indexes a portal Page as soon as it carries a content block bound through
- * a {@link CMSSetting} whose type is backed by a registered
- * {@link PageContentBlockPlugin} — generic across content-block types, no
- * knowledge of any specific addon (e.g. Notes' Single Note View).
+ * Indexes a portal Page's content blocks bound through a {@link CMSSetting}
+ * whose type is backed by a registered {@link PageContentBlockPlugin} —
+ * generic across content-block types, no knowledge of any specific addon
+ * (e.g. Notes' Single Note View).
  * <p>
- * The document id is the page's numeric storage id (not its
+ * A page can carry more than one content block (e.g. several Single Note
+ * View blocks placed in different sections of the same page); each one is
+ * indexed as its own document, so that unified search returns one result
+ * per block rather than a single blended excerpt for the whole page.
+ * <p>
+ * The document id is {@code <page's numeric storage id>_<block hash>} (not
  * {@link PageKey#format()}, which can exceed the 50-character limit of the
- * {@code ES_INDEXING_QUEUE.ENTITY_ID} column) — it is also stable across
+ * {@code ES_INDEXING_QUEUE.ENTITY_ID} column, nor the setting's own name,
+ * which can be arbitrarily long) — the page id portion stays stable across
  * page/site renames, unlike the formatted key.
  */
 public class PageContentIndexingConnector extends ElasticIndexingServiceConnector {
@@ -79,7 +86,7 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
           "siteName" : {"type" : "keyword"},
           "siteType" : {"type" : "keyword"},
           "pageName" : {"type" : "keyword"},
-          "pageTitle" : {"type" : "keyword"},
+          "pageTitle" : {"type" : "text"},
           "pagePath" : {"type" : "keyword"},
           "author" : {"type" : "keyword"},
           "permissions" : {"type" : "keyword"},
@@ -134,13 +141,13 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
   public List<String> getAllIds(int offset, int limit) {
     return pluginService.getContentTypes()
                         .stream()
-                        .flatMap(type -> cmsService.getSettingsByType(type).stream())
-                        .map(CMSSetting::getPageReference)
+                        .flatMap(type -> cmsService.getSettingsByType(type)
+                                                   .stream()
+                                                   .filter(s -> StringUtils.isNotBlank(s.getPageReference()))
+                                                   .filter(s -> isNotDraftPageReference(s.getPageReference()))
+                                                   .map(s -> buildBlockId(type, s)))
                         .filter(StringUtils::isNotBlank)
                         .distinct()
-                        .filter(this::isNotDraftPageReference)
-                        .map(this::resolveStorageId)
-                        .filter(StringUtils::isNotBlank)
                         .skip(offset)
                         .limit(limit)
                         .toList();
@@ -152,9 +159,9 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
       throw new IllegalArgumentException("Id is null");
     }
     try {
-      Page page = layoutService.getPage(parseStorageId(id));
+      Page page = layoutService.getPage(parsePageId(id));
       if (page == null) {
-        LOGGER.warn("Page with storage id {} wasn't found, thus it can't be indexed", id);
+        LOGGER.warn("Page for content block {} wasn't found, thus it can't be indexed", id);
         return null;
       }
       PageKey pageKey = page.getPageKey();
@@ -163,9 +170,9 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
         return null;
       }
 
-      PageContentBlock content = findContentBlock(pageKey);
+      PageContentBlock content = findContentBlock(pageKey.format(), parseBlockHash(id));
       if (content == null) {
-        LOGGER.warn("Page {} doesn't carry any registered content block anymore, thus it can't be indexed", pageKey);
+        LOGGER.warn("Content block {} doesn't exist anymore on page {}, thus it can't be indexed", id, pageKey);
         return null;
       }
 
@@ -193,7 +200,7 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
       document.setFields(fields);
       return document;
     } catch (Exception e) {
-      LOGGER.warn("Cannot index page with id {}", id, e);
+      LOGGER.warn("Cannot index content block with id {}", id, e);
       return null;
     }
   }
@@ -212,24 +219,51 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
     return StringUtils.isBlank(lang) ? "content" : "content-" + lang;
   }
 
-  private PageContentBlock findContentBlock(PageKey pageKey) {
-    String pageReference = pageKey.format();
+  /**
+   * Resolves the single content block identified by {@code blockHash} among
+   * every block bound to {@code pageReference}, across every registered
+   * content type.
+   */
+  private PageContentBlock findContentBlock(String pageReference, String blockHash) {
     for (String contentType : pluginService.getContentTypes()) {
+      PageContentBlockPlugin plugin = pluginService.getPlugin(contentType);
+      if (plugin == null) {
+        continue;
+      }
       CMSSetting setting = cmsService.getSettingsByType(contentType)
                                      .stream()
                                      .filter(s -> StringUtils.equals(s.getPageReference(), pageReference))
+                                     .filter(s -> StringUtils.equals(blockHash(contentType, s.getName()), blockHash))
                                      .findFirst()
                                      .orElse(null);
-      if (setting == null) {
-        continue;
-      }
-      PageContentBlockPlugin plugin = pluginService.getPlugin(contentType);
-      PageContentBlock content = plugin == null ? null : plugin.getContent(setting);
-      if (content != null) {
-        return content;
+      if (setting != null) {
+        return plugin.getContent(setting);
       }
     }
     return null;
+  }
+
+  private String buildBlockId(String contentType, CMSSetting setting) {
+    try {
+      Page page = layoutService.getPage(PageKey.parse(setting.getPageReference()));
+      return page == null ? null : buildBlockId(page.getStorageId(), contentType, setting.getName());
+    } catch (Exception e) {
+      LOGGER.debug("Cannot resolve storage id of page {}", setting.getPageReference(), e);
+      return null;
+    }
+  }
+
+  /**
+   * @return the document id for the content block named {@code settingName}
+   *         (of type {@code contentType}) bound to the page whose storage
+   *         id is {@code pageStorageId}.
+   */
+  public static String buildBlockId(String pageStorageId, String contentType, String settingName) {
+    return pageStorageId + "_" + blockHash(contentType, settingName);
+  }
+
+  private static String blockHash(String contentType, String settingName) {
+    return Integer.toHexString(Objects.hash(contentType, settingName));
   }
 
   /**
@@ -251,19 +285,17 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
     }
   }
 
-  private long parseStorageId(String storageId) {
-    // PageStorageImpl builds page storage ids as "page_" + <numeric DB id>
-    return Long.parseLong(StringUtils.removeStart(storageId, PAGE_STORAGE_ID_PREFIX));
+  private long parsePageId(String blockId) {
+    // PageStorageImpl builds page storage ids as "page_" + <numeric DB id>,
+    // this connector appends "_" + <block hash> to that
+    String withoutPrefix = StringUtils.removeStart(blockId, PAGE_STORAGE_ID_PREFIX);
+    int separatorIndex = withoutPrefix.indexOf('_');
+    return Long.parseLong(separatorIndex < 0 ? withoutPrefix : withoutPrefix.substring(0, separatorIndex));
   }
 
-  private String resolveStorageId(String pageReference) {
-    try {
-      Page page = layoutService.getPage(PageKey.parse(pageReference));
-      return page == null ? null : page.getStorageId();
-    } catch (Exception e) {
-      LOGGER.debug("Cannot resolve storage id of page {}", pageReference, e);
-      return null;
-    }
+  private String parseBlockHash(String blockId) {
+    int separatorIndex = blockId.lastIndexOf('_');
+    return separatorIndex < 0 ? "" : blockId.substring(separatorIndex + 1);
   }
 
 }
