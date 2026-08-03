@@ -18,6 +18,8 @@
  */
 package io.meeds.social.cms.listener;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -81,20 +83,29 @@ public class PageContentBlockIndexingListener implements ListenerBase<String, St
     if (page == null) {
       return;
     }
-    String storageId = page.getStorageId();
-    if (hasContentBlock(pageRef)) {
-      indexingService.index(PageContentIndexingConnector.TYPE, storageId);
-    } else {
-      indexingService.unindex(PageContentIndexingConnector.TYPE, storageId);
-    }
+    List<String> blockIds = findContentBlockIds(pageRef, page.getStorageId());
+    blockIds.forEach(id -> indexingService.reindex(PageContentIndexingConnector.TYPE, id));
   }
 
-  private boolean hasContentBlock(String pageRef) {
+  /**
+   * A page can carry more than one content block, each indexed as its own
+   * document (see {@link PageContentIndexingConnector}) — every block
+   * currently bound to this page reference is resolved to its document id.
+   * <p>
+   * Note: this doesn't unindex a block that was just detached from the
+   * page — the caller that removes a {@link CMSSetting} binding is
+   * responsible for unindexing that specific block's own id.
+   */
+  private List<String> findContentBlockIds(String pageRef, String storageId) {
     return pluginService.getContentTypes()
                         .stream()
-                        .flatMap(type -> cmsService.getSettingsByType(type).stream())
-                        .map(CMSSetting::getPageReference)
-                        .anyMatch(pageReference -> StringUtils.equals(pageReference, pageRef));
+                        .flatMap(type -> cmsService.getSettingsByType(type)
+                                                   .stream()
+                                                   .filter(s -> StringUtils.equals(s.getPageReference(), pageRef))
+                                                   .map(s -> PageContentIndexingConnector.buildBlockId(storageId,
+                                                                                                        type,
+                                                                                                        s.getName())))
+                        .toList();
   }
 
 }
