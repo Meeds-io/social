@@ -190,13 +190,14 @@
                 :disabled="postDisabled"
                 :loading="loading"
                 :aria-label="$t(`activity.composer.${composerAction}`)"
+                :class="scheduleOptionDisplay && postButtonRadiusClass"
                 type="button"
                 class="primary btn no-box-shadow ms-auto"
                 @click="postMessage">
                 {{ composerActionLabel }}
               </v-btn>
               <v-menu
-                v-if="!activityId || isScheduledActivity"
+                v-if="scheduleOptionDisplay"
                 v-model="scheduleMenu"
                 offset-y
                 top
@@ -206,9 +207,10 @@
                     id="activityComposerScheduleMenuButton"
                     :disabled="postDisabled"
                     :aria-label="$t('activity.composer.schedule.openMenu')"
+                    :class="scheduleButtonRadiusClass"
                     min-width="28"
                     type="button"
-                    class="primary btn no-box-shadow px-0 ms-1"
+                    class="primary btn no-box-shadow px-0 ms-2px"
                     v-bind="menuAttrs"
                     v-on="on">
                     <v-icon size="16">fas fa-caret-down</v-icon>
@@ -325,6 +327,15 @@ export default {
     },
     isScheduledActivity() {
       return !!this.activityId && !!this.publicationStartTime;
+    },
+    scheduleOptionDisplay() {
+      return !this.activityId || this.isScheduledActivity;
+    },
+    postButtonRadiusClass() {
+      return this.$vuetify.rtl && 'rounded-l-0' || 'rounded-r-0';
+    },
+    scheduleButtonRadiusClass() {
+      return this.$vuetify.rtl && 'rounded-r-0' || 'rounded-l-0';
     },
     composerActionLabel() {
       return this.$t(`activity.composer.${this.composerAction}`);
