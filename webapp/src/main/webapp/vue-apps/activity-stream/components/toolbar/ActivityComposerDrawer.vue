@@ -605,11 +605,20 @@ export default {
           activityType = 'LINK_ACTIVITY';
         }
         if (this.activityType && this.activityType.length !== 0) {
+          // The activity of a typed content is created by its own addon, which
+          // is in charge of applying the scheduling. The event detail stays the
+          // message itself when no scheduling is requested, to keep the payload
+          // unchanged for the addons which don't handle it
+          const detail = this.pendingScheduledTime && {
+            message,
+            publicationStartTime: this.pendingScheduledTime,
+          } || message;
           if (this.activityToolbarAction) {
-            document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail: message}));
+            document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail}));
           } else {
-            document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
+            document.dispatchEvent(new CustomEvent('post-activity', {detail}));
           }
+          this.pendingScheduledTime = null;
         } else {
           if (!this.spaceId && !!eXo.env.portal.spaceId) {
             this.spaceId = eXo.env.portal.spaceId;
