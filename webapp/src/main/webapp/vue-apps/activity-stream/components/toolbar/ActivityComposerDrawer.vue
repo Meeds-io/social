@@ -605,11 +605,16 @@ export default {
           activityType = 'LINK_ACTIVITY';
         }
         if (this.activityType && this.activityType.length !== 0) {
+          const detail = this.pendingScheduledTime && {
+            message,
+            publicationStartTime: this.pendingScheduledTime,
+          } || message;
           if (this.activityToolbarAction) {
-            document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail: message}));
+            document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail}));
           } else {
-            document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
+            document.dispatchEvent(new CustomEvent('post-activity', {detail}));
           }
+          this.pendingScheduledTime = null;
         } else {
           if (!this.spaceId && !!eXo.env.portal.spaceId) {
             this.spaceId = eXo.env.portal.spaceId;
