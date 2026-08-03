@@ -62,8 +62,11 @@ public class PageSearchRest {
                                        int offset,
                                        @Parameter(description = "Search result limit")
                                        @RequestParam(name = "limit", required = false, defaultValue = "20")
-                                       int limit) {
-    return pageContentSearchConnector.search(term, offset, limit, request.getLocale());
+                                       int limit,
+                                       @Parameter(description = "Restrict results to these space ids")
+                                       @RequestParam(name = "spaceId", required = false)
+                                       List<Long> spaceIds) {
+    return pageContentSearchConnector.search(term, offset, limit, request.getLocale(), spaceIds);
   }
 
   @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
