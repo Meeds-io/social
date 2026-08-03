@@ -323,11 +323,18 @@ export default {
     refreshActivitiesByCategories(event) {
       const objectType = event?.detail?.objectType;
       const objectId = event?.detail?.objectId;
-      if (objectType === 'activity'
-          && this.activitiesToDisplay.find(a => a.id === objectId)
-          && this.$root.allowFilteringPerCategory
+      if (objectType !== 'activity'
+          || !this.activitiesToDisplay.find(activity => Number(activity.id) === Number(objectId))) {
+        return;
+      }
+      if (this.$root.allowFilteringPerCategory
           && (this.selectedCategoryIds?.length || this.$root.settingsSubcategoryIds?.length)) {
+        // The activity may not match the applied categories filtering anymore
         this.loadActivityIds();
+      } else {
+        // Refresh the categories displayed in the activity, since the stream
+        // isn't filtered per categories and thus isn't reloaded
+        this.updateActivityDisplayById(objectId);
       }
     },
     refreshActivities() {
