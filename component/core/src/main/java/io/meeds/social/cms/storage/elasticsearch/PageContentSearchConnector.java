@@ -25,9 +25,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -53,6 +56,8 @@ import org.exoplatform.services.resources.ResourceBundleManager;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 
@@ -76,6 +81,8 @@ public class PageContentSearchConnector {
 
   private static final String        PERMISSIONS_REPLACEMENT   = "@permissions_filter@";
 
+  private static final String        SPACE_FILTER_REPLACEMENT  = "@space_filter@";
+
   private final ConfigurationManager configurationManager;
 
   private final ElasticSearchingClient client;
@@ -88,6 +95,8 @@ public class PageContentSearchConnector {
 
   private final IdentityManager      identityManager;
 
+  private final SpaceService         spaceService;
+
   private final String               queryFilePath;
 
   private String                     query;
@@ -98,6 +107,7 @@ public class PageContentSearchConnector {
                                     ResourceBundleManager resourceBundleManager,
                                     FavoriteService favoriteService,
                                     IdentityManager identityManager,
+                                    SpaceService spaceService,
                                     InitParams initParams) {
     this.configurationManager = configurationManager;
     this.client = client;
@@ -105,17 +115,19 @@ public class PageContentSearchConnector {
     this.resourceBundleManager = resourceBundleManager;
     this.favoriteService = favoriteService;
     this.identityManager = identityManager;
+    this.spaceService = spaceService;
     ValueParam queryFileParam = initParams.getValueParam("query.file.path");
     this.queryFilePath = queryFileParam.getValue();
     this.query = retrieveQueryFromFile();
   }
 
-  public List<PageSearchResult> search(String term, int offset, int limit, Locale locale) {
+  public List<PageSearchResult> search(String term, int offset, int limit, Locale locale, List<Long> spaceIds) {
     if (StringUtils.isBlank(term)) {
       throw new IllegalArgumentException("Term is mandatory");
     }
     String esQuery = retrieveQuery().replace(TERM_REPLACEMENT, escape(term))
                                     .replace(PERMISSIONS_REPLACEMENT, buildPermissionFilter())
+                                    .replace(SPACE_FILTER_REPLACEMENT, buildSpaceFilter(spaceIds))
                                     .replace(OFFSET_REPLACEMENT, String.valueOf(Math.max(offset, 0)))
                                     .replace(LIMIT_REPLACEMENT, String.valueOf(limit < 1 ? 20 : limit));
     String jsonResponse = client.sendRequest(esQuery, INDEX);
@@ -224,6 +236,30 @@ public class PageContentSearchConnector {
 
   private String escape(String term) {
     return term.replaceAll("([\\Q+-!():^[]\"{}~*?|&/\\E])", " ").trim();
+  }
+
+  /**
+   * Restricts results to the sites of the given spaces (resolved to their
+   * {@code siteName}, which for a {@code SiteType#SPACE} site is the
+   * space's group id) when the user picked one or more spaces to filter
+   * the unified search within.
+   */
+  private String buildSpaceFilter(List<Long> spaceIds) {
+    if (CollectionUtils.isEmpty(spaceIds)) {
+      return "";
+    }
+    List<String> groupIds = spaceIds.stream()
+                                    .map(spaceService::getSpaceById)
+                                    .filter(Objects::nonNull)
+                                    .map(Space::getGroupId)
+                                    .toList();
+    if (groupIds.isEmpty()) {
+      return "";
+    }
+    String quotedGroupIds = groupIds.stream().map(id -> "\"" + id + "\"").collect(Collectors.joining(","));
+    return """
+        ,{"terms": {"siteName": [%s]}}
+        """.formatted(quotedGroupIds);
   }
 
   /**
