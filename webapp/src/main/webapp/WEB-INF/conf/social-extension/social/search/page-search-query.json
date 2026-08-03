@@ -12,6 +12,7 @@
       },
       "filter": [
         @permissions_filter@
+        @space_filter@
       ]
     }
   },
