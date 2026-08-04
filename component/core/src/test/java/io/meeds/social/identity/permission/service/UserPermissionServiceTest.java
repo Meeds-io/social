@@ -20,11 +20,13 @@ package io.meeds.social.identity.permission.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +36,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.NestedMembership;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.impl.MembershipImpl;
 
 import io.meeds.social.identity.permission.model.UserPermission;
@@ -49,6 +55,12 @@ public class UserPermissionServiceTest {
 
   @Mock
   private UserPermissionStorage userPermissionStorage;
+
+  @Mock
+  private OrganizationService   organizationService;
+
+  @Mock
+  private GroupHandler          groupHandler;
 
   @InjectMocks
   private UserPermissionService userPermissionService;
@@ -128,6 +140,54 @@ public class UserPermissionServiceTest {
 
     verify(userPermissionStorage, times(1)).deleteByUserName(USER_NAME);
     verify(userPermissionStorage, times(1)).deleteByGroupId("/platform/administrators");
+  }
+
+  @Test
+  public void testCountNestedGroupsAtAnyLevelExcludingParentAndUnrelatedGroups() throws Exception {
+    // Group tree: /company/sales is a path child of /company,
+    // /company/sales/emea is two levels deep, /marketing/design is linked into
+    // /company as a nested group and /platform/users is unrelated to /company
+    when(organizationService.getGroupHandler()).thenReturn(groupHandler);
+    mockGroupWithEnclosing("/company/sales", "/company");
+    mockGroupWithEnclosing("/company/sales/emea", "/company/sales");
+    mockGroupWithEnclosing("/marketing/design", "/marketing", "/company");
+    mockGroupWithEnclosing("/marketing");
+    mockGroupWithEnclosing("/platform/users", "/platform");
+    mockGroupWithEnclosing("/platform");
+    when(userPermissionStorage.getDirectGroupIds(USER_NAME)).thenReturn(List.of("/company",
+                                                                                "/company/sales",
+                                                                                "/company/sales/emea",
+                                                                                "/marketing/design",
+                                                                                "/platform/users"));
+
+    // 3 nested groups: sales, emea (two levels deep), design (via the link);
+    // the direct membership on /company itself is not counted
+    assertEquals(3, userPermissionService.countNestedGroups(USER_NAME, "/company"));
+  }
+
+  @Test
+  public void testCountNestedGroupsSurvivesEnclosingGroupsCycle() throws Exception {
+    // Cycle: each group declares the other as enclosing; the walk must
+    // terminate and conclude that the parent group encloses neither
+    when(organizationService.getGroupHandler()).thenReturn(groupHandler);
+    mockGroupWithEnclosing("/a", "/b");
+    mockGroupWithEnclosing("/b", "/a");
+    when(userPermissionStorage.getDirectGroupIds(USER_NAME)).thenReturn(List.of("/a", "/b"));
+
+    assertEquals(0, userPermissionService.countNestedGroups(USER_NAME, "/unrelated"));
+  }
+
+  private void mockGroupWithEnclosing(String groupId, String... enclosingGroupIds) throws Exception {
+    Group group = mock(Group.class);
+    if (enclosingGroupIds.length > 0) {
+      // Insertion order kept so the walk deterministically visits every mocked group
+      Set<NestedMembership> enclosingMemberships = new java.util.LinkedHashSet<>();
+      for (String enclosingGroupId : enclosingGroupIds) {
+        enclosingMemberships.add(new NestedMembership(null, enclosingGroupId, null, groupId));
+      }
+      when(group.getEnclosingMemberships()).thenReturn(enclosingMemberships);
+    }
+    when(groupHandler.findGroupById(groupId)).thenReturn(group);
   }
 
   private Membership membership(String userName, String groupId, String membershipType, boolean inherited) {

@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import io.meeds.social.identity.permission.entity.UserPermissionEntity;
@@ -38,6 +40,13 @@ import io.meeds.social.identity.permission.entity.UserPermissionEntity;
 public interface UserPermissionDAO extends JpaRepository<UserPermissionEntity, Long> {
 
   List<UserPermissionEntity> findByUserName(String userName);
+
+  /**
+   * Distinct ids of the groups the given user holds a direct (non inherited)
+   * membership on: one indexed lookup, independent of any cache.
+   */
+  @Query("SELECT DISTINCT up.groupId FROM SocUserPermission up WHERE up.userName = :userName AND up.inherited = false")
+  List<String> findDirectGroupIdsByUserName(@Param("userName") String userName);
 
   Optional<UserPermissionEntity> findByUserNameAndGroupIdAndMembershipType(String userName,
                                                                            String groupId,

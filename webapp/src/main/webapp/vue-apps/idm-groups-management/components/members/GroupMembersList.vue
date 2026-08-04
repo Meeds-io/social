@@ -52,6 +52,9 @@
           {{ item.userRoleIcon }}
         </v-icon>
       </template>
+      <template #[`item.nestedMembershipsCount`]="{ item }">
+        <group-members-nested-count :member="item" />
+      </template>
       <template #[`item.actions`]="{ item }">
         <group-members-action-menu :member="item" />
       </template>
@@ -118,6 +121,12 @@ export default {
         {
           text: this.$t('groupsManagement.members.userType'),
           value: 'userType',
+          sortable: false,
+          align: 'center'
+        },
+        {
+          text: this.$t('groupsManagement.members.groups'),
+          value: 'nestedMembershipsCount',
           sortable: false,
           align: 'center'
         },

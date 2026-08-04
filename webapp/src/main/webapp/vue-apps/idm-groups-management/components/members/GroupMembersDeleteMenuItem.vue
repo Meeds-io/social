@@ -81,7 +81,7 @@ export default {
     async getUserMemberships() {
       try {
         const response = await fetch(
-          `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${this.userName}/memberships?groupId=${this.selectedGroupId}`,
+          `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${this.userName}/memberships?groupId=${this.selectedGroupId}&includeNestedGroups=true`,
           {
             method: 'GET',
             credentials: 'include'

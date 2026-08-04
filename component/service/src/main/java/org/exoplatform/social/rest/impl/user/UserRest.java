@@ -139,6 +139,7 @@ import io.meeds.social.core.identity.model.UserExportResult;
 import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
+import io.meeds.social.identity.permission.service.UserPermissionService;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.web.security.service.OtpService;
 
@@ -254,6 +255,8 @@ public class UserRest implements ResourceContainer, Startable {
 
   private OtpService                      otpService;
 
+  private UserPermissionService           userPermissionService;
+
   private ExecutorService                 importExecutorService       = null;
 
   public UserRest(UserACL userACL, // NOSONAR
@@ -270,7 +273,8 @@ public class UserRest implements ResourceContainer, Startable {
                   PasswordRecoveryService passwordRecoveryService,
                   LocaleConfigService localeConfigService,
                   SettingService settingService,
-                  OtpService otpService) {
+                  OtpService otpService,
+                  UserPermissionService userPermissionService) {
     this.userACL = userACL;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
@@ -285,6 +289,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.passwordRecoveryService = passwordRecoveryService;
     this.localeConfigService = localeConfigService;
     this.otpService = otpService;
+    this.userPermissionService = userPermissionService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
     this.settingService = settingService;
 
@@ -650,6 +655,37 @@ public class UserRest implements ResourceContainer, Startable {
       LOG.error("Unable to get users or connections with advanced filter", e);
       return Response.status(HTTPStatus.INTERNAL_ERROR).entity(e.getMessage()).build();
     }
+  }
+
+  @GET
+  @Path("{id}/nestedGroups/count")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
+  @Operation(
+      summary = "Counts how many nested groups of a parent group a user is member of",
+      description = "Counts how many groups nested inside the given parent group the given user is member of."
+          + " A group is considered nested when it is reachable from the parent group at any depth,"
+          + " either as a child group or through an explicit group link (nested membership)."
+          + " Distinct groups are counted, not memberships: a user holding two membership types"
+          + " (ex: member and manager) on the same nested group counts once."
+          + " The parent group itself is excluded, as are inherited memberships"
+          + " computed by nested-group propagation. Response body: {\"nestedCount\": <n>}",
+      method = "GET")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Missing parent group id") })
+  public Response countUserNestedGroups(
+                                        @Parameter(description = "User name of the member", required = true)
+                                        @PathParam("id")
+                                        String userName,
+                                        @Parameter(description = "Parent group id under which the nested groups the user is member of are counted, ex: /platform", required = true)
+                                        @QueryParam("parentGroupId")
+                                        String parentGroupId) {
+    if (StringUtils.isBlank(parentGroupId)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("PARENT_GROUP_ID_MANDATORY").build();
+    }
+    long nestedCount = userPermissionService.countNestedGroups(userName, parentGroupId);
+    return Response.ok("{\"nestedCount\":" + nestedCount + "}").build();
   }
 
   @POST

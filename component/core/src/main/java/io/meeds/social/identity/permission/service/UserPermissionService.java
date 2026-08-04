@@ -12,9 +12,16 @@ package io.meeds.social.identity.permission.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import lombok.SneakyThrows;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +41,8 @@ import io.meeds.social.identity.permission.storage.UserPermissionStorage;
  */
 @Service
 public class UserPermissionService {
+
+  private static final Log      LOG                    = ExoLogger.getLogger(UserPermissionService.class);
 
   public static final String    ANY_MEMBERSHIP_TYPE    = "*";
 
@@ -88,6 +97,49 @@ public class UserPermissionService {
                                                                                                  membership.getGroupId(),
                                                                                                  membership.getMembershipType(),
                                                                                                  true)));
+  }
+
+  /**
+   * Counts how many groups nested inside the given parent group the given
+   * user is member of. A group is considered nested when it is reachable from
+   * the parent group at any depth, either as a child group or through an
+   * explicit group link (nested membership). Distinct groups are counted, not
+   * memberships: a user holding two membership types (ex: member and manager)
+   * on the same nested group counts once. The parent group itself is
+   * excluded, as are inherited memberships computed by nested-group
+   * propagation.
+   *
+   * @param userName user name of the member
+   * @param parentGroupId parent group id under which the nested groups the
+   *          user is member of are counted, ex: /platform
+   * @return number of distinct nested groups the user is member of
+   */
+  public long countNestedGroups(String userName, String parentGroupId) {
+    return userPermissionStorage.getDirectGroupIds(userName)
+                                .stream()
+                                .filter(groupId -> !StringUtils.equals(parentGroupId, groupId))
+                                .filter(groupId -> isNestedInGroup(groupId, parentGroupId, new HashSet<>()))
+                                .count();
+  }
+
+  private boolean isNestedInGroup(String groupId, String targetGroupId, Set<String> visitedGroupIds) {
+    if (!visitedGroupIds.add(groupId)) { // Cycle guard
+      return false;
+    }
+    try {
+      Group group = organizationService.getGroupHandler().findGroupById(groupId);
+      return group != null
+             && CollectionUtils.isNotEmpty(group.getEnclosingMemberships())
+             && group.getEnclosingMemberships()
+                     .stream()
+                     .anyMatch(enclosingMembership -> StringUtils.equals(targetGroupId, enclosingMembership.getGroupId())
+                                                      || isNestedInGroup(enclosingMembership.getGroupId(),
+                                                                         targetGroupId,
+                                                                         visitedGroupIds));
+    } catch (Exception e) {
+      LOG.warn("Error retrieving enclosing groups of group {}", groupId, e);
+      return false;
+    }
   }
 
   public void deleteAllForUser(String userName) {

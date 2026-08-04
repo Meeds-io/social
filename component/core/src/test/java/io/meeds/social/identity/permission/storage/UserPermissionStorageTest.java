@@ -101,7 +101,10 @@ public class UserPermissionStorageTest {
   }
 
   @Test
-  public void testSaveMembershipUpdatesExistingEntityWhenFound() {
+  public void testSaveMembershipInheritedDoesNotDowngradeExistingDirectRow() {
+    // The row holds both facts of its (user, group, membershipType) key: an
+    // inherited save must not flip a direct row, else the direct membership is
+    // deleted by the next inherited-rows recompute
     UserPermissionEntity existing = newEntity(1L);
     when(userPermissionDAO.findByUserNameAndGroupIdAndMembershipType(USER_NAME, GROUP_ID, MEMBERSHIP_TYPE))
                                                                                                             .thenReturn(Optional.of(existing));
@@ -110,7 +113,42 @@ public class UserPermissionStorageTest {
     storage.saveMembership(new UserPermission(0, 101L, USER_NAME, GROUP_ID, MEMBERSHIP_TYPE, true));
 
     verify(userPermissionDAO, times(1)).save(existing);
+    assertFalse(existing.isInherited());
+  }
+
+  @Test
+  public void testSaveMembershipDirectUpgradesExistingInheritedRow() {
+    UserPermissionEntity existing = newEntity(1L);
+    existing.setInherited(true);
+    when(userPermissionDAO.findByUserNameAndGroupIdAndMembershipType(USER_NAME, GROUP_ID, MEMBERSHIP_TYPE))
+                                                                                                            .thenReturn(Optional.of(existing));
+    when(userPermissionDAO.save(existing)).thenReturn(existing);
+
+    storage.saveMembership(new UserPermission(0, 101L, USER_NAME, GROUP_ID, MEMBERSHIP_TYPE, false));
+
+    verify(userPermissionDAO, times(1)).save(existing);
+    assertFalse(existing.isInherited());
+  }
+
+  @Test
+  public void testSaveMembershipInheritedKeepsExistingInheritedRow() {
+    UserPermissionEntity existing = newEntity(1L);
+    existing.setInherited(true);
+    when(userPermissionDAO.findByUserNameAndGroupIdAndMembershipType(USER_NAME, GROUP_ID, MEMBERSHIP_TYPE))
+                                                                                                            .thenReturn(Optional.of(existing));
+    when(userPermissionDAO.save(existing)).thenReturn(existing);
+
+    storage.saveMembership(new UserPermission(0, 101L, USER_NAME, GROUP_ID, MEMBERSHIP_TYPE, true));
+
+    verify(userPermissionDAO, times(1)).save(existing);
     assertTrue(existing.isInherited());
+  }
+
+  @Test
+  public void testGetDirectGroupIdsDelegatesToDao() {
+    when(userPermissionDAO.findDirectGroupIdsByUserName(USER_NAME)).thenReturn(List.of(GROUP_ID));
+
+    assertEquals(List.of(GROUP_ID), storage.getDirectGroupIds(USER_NAME));
   }
 
   @Test

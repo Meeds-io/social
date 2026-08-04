@@ -21,6 +21,7 @@ package org.exoplatform.social.rest.impl.users;
 import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
+import io.meeds.social.identity.permission.service.UserPermissionService;
 import io.meeds.web.security.service.OtpService;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -118,6 +119,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private OtpService                   otpService;
 
+  private UserPermissionService        userPermissionService;
+
   private RelationshipManager          relationshipManager;
 
   private SpaceService                 spaceService;
@@ -188,6 +191,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
     settingService = getContainer().getComponentInstanceOfType(SettingService.class);
     otpService = mock(OtpService.class);
+    userPermissionService = mock(UserPermissionService.class);
     rootIdentity = createIdentity("root");
     johnIdentity = createIdentity("john");
     maryIdentity = createIdentity("mary");
@@ -211,7 +215,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 passwordRecoveryService,
                                                 localeConfigService,
                                                 settingService,
-                                                otpService);
+                                                otpService,
+                                                userPermissionService);
     registry(userRestResourcesV1);
   }
 
@@ -230,6 +235,20 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(4, collections.getEntities().size());
+  }
+
+  public void testCountUserNestedGroups() throws Exception {
+    startSessionAs("root");
+    when(userPermissionService.countNestedGroups("john", "/platform")).thenReturn(3L);
+
+    ContainerResponse response = service("GET", getURLResource("users/john/nestedGroups/count?parentGroupId=/platform"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    assertEquals("{\"nestedCount\":3}", response.getEntity());
+
+    response = service("GET", getURLResource("users/john/nestedGroups/count"), "", null, null);
+    assertNotNull(response);
+    assertEquals(400, response.getStatus());
   }
 
   public void testSearchUsers() throws Exception {
@@ -293,7 +312,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               passwordRecoveryService,
                                               localeConfigService,
                                               settingService,
-                                              otpService);
+                                              otpService,
+                                                userPermissionService);
     registry(userRestResources);
 
     // when

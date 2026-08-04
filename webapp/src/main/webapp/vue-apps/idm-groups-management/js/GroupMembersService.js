@@ -20,13 +20,46 @@ export function buildFetchLink(groupId, keyword, filter) {
 }
 export function getGroupMembers(groupId, keyword, filter, offset, limit) {
   const fetchLink = buildFetchLink(groupId, keyword, filter);
-  return fetch(`${fetchLink}&offset=${offset || 0}&limit=${limit}&returnSize=true`, {
+  return fetch(`${fetchLink}&offset=${offset || 0}&limit=${limit}&includeInheritedMemberships=true&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
   })
     .then(resp => {
       if (!resp || !resp.ok) {
         throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+      } else {
+        return resp.json();
+      }
+    });
+}
+export function getUserNestedGroupsCount(userName, parentGroupId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${userName}/nestedGroups/count?parentGroupId=${parentGroupId}`, {
+    method: 'GET',
+    credentials: 'include',
+  })
+    .then(resp => {
+      if (!resp || !resp.ok) {
+        throw new Error('Error while counting user nested groups');
+      } else {
+        return resp.json();
+      }
+    });
+}
+export function getUserMemberships(userName, parentGroupId, offset, limit, includeNestedGroups, returnSize) {
+  const params = new URLSearchParams({
+    groupId: parentGroupId || '',
+    offset: offset || 0,
+    limit: limit || 0,
+    includeNestedGroups: !!includeNestedGroups,
+    returnSize: !!returnSize,
+  }).toString();
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${userName}/memberships?${params}`, {
+    method: 'GET',
+    credentials: 'include',
+  })
+    .then(resp => {
+      if (!resp || !resp.ok) {
+        throw new Error('Error while fetching user memberships');
       } else {
         return resp.json();
       }
