@@ -45,6 +45,7 @@
         </v-card>
       </div>
       <div
+        v-if="!selectMode"
         :class="$vuetify.rtl && 'l-0' || 'r-0'"
         class="position-absolute t-0 pt-2px me-2 d-none z-index-two d-sm-block"
         @click.stop="0">
@@ -87,7 +88,7 @@
           @contextmenu="showContextMenu">
           <v-checkbox
             v-if="selectMode"
-            class="flex-grow-0 flex-shrink-0 ms-0 me-2 mt-0 pt-0 align-self-center"
+            class="flex-grow-0 flex-shrink-0 ms-2 me-2 mt-0 pt-0 align-self-center"
             color="primary"
             background-color="transparent"
             hide-details
@@ -114,7 +115,9 @@
                 alt="">
             </v-avatar>
           </v-list-item-avatar>
-          <v-list-item-content class="py-0 pe-5 text-color">
+          <v-list-item-content
+            :class="!selectMode && 'pe-5'"
+            class="py-0 text-color">
             <v-list-item-title
               v-sanitized-html="message"
               class="text-wrap text-truncate-2" />
@@ -297,6 +300,9 @@ export default {
     },
     showContextMenu(event) {
       event.preventDefault();
+      if (this.selectMode) {
+        return;
+      }
       this.$refs.menu.showMenu(event.clientX, event.clientY);
     },
     markAsReadMouseDown(event) {
