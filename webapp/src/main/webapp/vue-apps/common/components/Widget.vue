@@ -28,12 +28,12 @@
     <div
       :class="!noMargin && 'pa-5'"
       class="d-flex flex-column flex-grow-1">
-      <div 
+      <div
         v-if="hasHeader"
         :class="headerPadding"
-        class="d-flex align-center widget-text-header">
+        class="d-flex align-center">
         <slot v-if="$slots.title" name="title"></slot>
-        <div v-else-if="title" class="text-truncate">{{ title }}</div> 
+        <div v-else-if="title" class="widget-text-header text-truncate">{{ title }}</div>
         <v-spacer />
         <slot v-if="$slots.action" name="action"></slot>
         <v-btn 
