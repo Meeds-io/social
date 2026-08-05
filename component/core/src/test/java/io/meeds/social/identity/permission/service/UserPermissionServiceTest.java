@@ -58,7 +58,7 @@ public class UserPermissionServiceTest {
     userPermissionService.saveDirectMembership(IDENTITY_ID, USER_NAME, "/platform/administrators", "member");
 
     ArgumentCaptor<UserPermission> captor = ArgumentCaptor.forClass(UserPermission.class);
-    verify(userPermissionStorage, times(1)).saveMembership(captor.capture());
+    verify(userPermissionStorage, times(1)).saveDirectMembership(captor.capture());
     UserPermission saved = captor.getValue();
     assertEquals(IDENTITY_ID, saved.getIdentityId());
     assertEquals(USER_NAME, saved.getUserName());
@@ -84,7 +84,7 @@ public class UserPermissionServiceTest {
     verify(userPermissionStorage, times(1)).deleteInheritedMemberships(USER_NAME);
 
     ArgumentCaptor<UserPermission> captor = ArgumentCaptor.forClass(UserPermission.class);
-    verify(userPermissionStorage, times(1)).saveMembership(captor.capture());
+    verify(userPermissionStorage, times(1)).saveInheritedMembership(captor.capture());
     UserPermission saved = captor.getValue();
     assertEquals("/platform/users", saved.getGroupId());
     assertEquals("*", saved.getMembershipType());
