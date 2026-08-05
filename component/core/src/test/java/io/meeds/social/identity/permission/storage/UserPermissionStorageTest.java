@@ -84,32 +84,77 @@ public class UserPermissionStorageTest {
   }
 
   @Test
-  public void testSaveMembershipCreatesNewEntityWhenNoneExists() {
+  public void testSaveDirectMembershipCreatesNewEntityWhenNoneExists() {
     when(userPermissionDAO.findByUserNameAndGroupIdAndMembershipType(USER_NAME, GROUP_ID, MEMBERSHIP_TYPE))
                                                                                                             .thenReturn(Optional.empty());
     ArgumentCaptor<UserPermissionEntity> savedEntity = ArgumentCaptor.forClass(UserPermissionEntity.class);
     when(userPermissionDAO.save(savedEntity.capture())).thenReturn(newEntity(1L));
 
-    UserPermission result = storage.saveMembership(new UserPermission(0, 101L, USER_NAME, GROUP_ID, MEMBERSHIP_TYPE, true));
+    UserPermission result = storage.saveDirectMembership(new UserPermission(0, 101L, USER_NAME, GROUP_ID, MEMBERSHIP_TYPE,
+                                                                            false));
 
     assertEquals(101L, savedEntity.getValue().getIdentityId().longValue());
     assertEquals(USER_NAME, savedEntity.getValue().getUserName());
     assertEquals(GROUP_ID, savedEntity.getValue().getGroupId());
     assertEquals(MEMBERSHIP_TYPE, savedEntity.getValue().getMembershipType());
-    assertTrue(savedEntity.getValue().isInherited());
+    assertFalse(savedEntity.getValue().isInherited());
     assertEquals(USER_NAME, result.getUserName());
   }
 
   @Test
-  public void testSaveMembershipUpdatesExistingEntityWhenFound() {
+  public void testSaveDirectMembershipUpgradesExistingInheritedRow() {
     UserPermissionEntity existing = newEntity(1L);
+    existing.setInherited(true);
     when(userPermissionDAO.findByUserNameAndGroupIdAndMembershipType(USER_NAME, GROUP_ID, MEMBERSHIP_TYPE))
                                                                                                             .thenReturn(Optional.of(existing));
     when(userPermissionDAO.save(existing)).thenReturn(existing);
 
-    storage.saveMembership(new UserPermission(0, 101L, USER_NAME, GROUP_ID, MEMBERSHIP_TYPE, true));
+    storage.saveDirectMembership(new UserPermission(0, 101L, USER_NAME, GROUP_ID, MEMBERSHIP_TYPE, false));
 
     verify(userPermissionDAO, times(1)).save(existing);
+    assertFalse(existing.isInherited());
+  }
+
+  @Test
+  public void testSaveInheritedMembershipCreatesNewEntityWhenNoneExists() {
+    when(userPermissionDAO.findByUserNameAndGroupIdAndMembershipType(USER_NAME, GROUP_ID, MEMBERSHIP_TYPE))
+                                                                                                            .thenReturn(Optional.empty());
+    ArgumentCaptor<UserPermissionEntity> savedEntity = ArgumentCaptor.forClass(UserPermissionEntity.class);
+    when(userPermissionDAO.save(savedEntity.capture())).thenReturn(newEntity(1L));
+
+    storage.saveInheritedMembership(new UserPermission(0, 101L, USER_NAME, GROUP_ID, MEMBERSHIP_TYPE, true));
+
+    assertEquals(USER_NAME, savedEntity.getValue().getUserName());
+    assertEquals(GROUP_ID, savedEntity.getValue().getGroupId());
+    assertEquals(MEMBERSHIP_TYPE, savedEntity.getValue().getMembershipType());
+    assertTrue(savedEntity.getValue().isInherited());
+  }
+
+  @Test
+  public void testSaveInheritedMembershipDoesNotTouchExistingDirectRow() {
+    // An existing row — direct or inherited — already records the permission:
+    // an inherited save must never downgrade a direct row, else the direct
+    // membership is deleted by the next inherited-rows recompute
+    UserPermissionEntity existing = newEntity(1L);
+    when(userPermissionDAO.findByUserNameAndGroupIdAndMembershipType(USER_NAME, GROUP_ID, MEMBERSHIP_TYPE))
+                                                                                                            .thenReturn(Optional.of(existing));
+
+    storage.saveInheritedMembership(new UserPermission(0, 101L, USER_NAME, GROUP_ID, MEMBERSHIP_TYPE, true));
+
+    verify(userPermissionDAO, never()).save(any());
+    assertFalse(existing.isInherited());
+  }
+
+  @Test
+  public void testSaveInheritedMembershipKeepsExistingInheritedRow() {
+    UserPermissionEntity existing = newEntity(1L);
+    existing.setInherited(true);
+    when(userPermissionDAO.findByUserNameAndGroupIdAndMembershipType(USER_NAME, GROUP_ID, MEMBERSHIP_TYPE))
+                                                                                                            .thenReturn(Optional.of(existing));
+
+    storage.saveInheritedMembership(new UserPermission(0, 101L, USER_NAME, GROUP_ID, MEMBERSHIP_TYPE, true));
+
+    verify(userPermissionDAO, never()).save(any());
     assertTrue(existing.isInherited());
   }
 

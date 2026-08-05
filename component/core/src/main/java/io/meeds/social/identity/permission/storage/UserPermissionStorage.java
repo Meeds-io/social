@@ -46,7 +46,7 @@ public class UserPermissionStorage {
 
   @Transactional
   @CacheEvict(cacheNames = "social.userPermissions", allEntries = true)
-  public UserPermission saveMembership(UserPermission userPermission) {
+  public UserPermission saveDirectMembership(UserPermission userPermission) {
     UserPermissionEntity entity = userPermissionDAO
                                                    .findByUserNameAndGroupIdAndMembershipType(userPermission.getUserName(),
                                                                                               userPermission.getGroupId(),
@@ -56,16 +56,34 @@ public class UserPermissionStorage {
     entity.setUserName(userPermission.getUserName());
     entity.setGroupId(userPermission.getGroupId());
     entity.setMembershipType(userPermission.getMembershipType());
-    // A row holds both the direct and the inherited fact of its (user, group,
-    // membershipType) key: once direct, it stays direct — an inherited save
-    // must not downgrade it, else the direct membership vanishes on the next
-    // inherited-rows recompute
-    if (entity.getId() == null) {
-      entity.setInherited(userPermission.isInherited());
-    } else {
-      entity.setInherited(entity.isInherited() && userPermission.isInherited());
-    }
+    // A direct membership is authoritative for its (user, group,
+    // membershipType) key, whether the row is new or was inherited so far
+    entity.setInherited(false);
     entity = userPermissionDAO.save(entity);
+    return EntityMapper.fromEntity(entity);
+  }
+
+  @Transactional
+  @CacheEvict(cacheNames = "social.userPermissions", allEntries = true)
+  public UserPermission saveInheritedMembership(UserPermission userPermission) {
+    // Insert-only: an existing row — direct or inherited — already records the
+    // permission for this (user, group, membershipType) key, and an inherited
+    // save must never downgrade a direct row, else the direct membership
+    // vanishes on the next inherited-rows recompute
+    UserPermissionEntity entity = userPermissionDAO
+                                                   .findByUserNameAndGroupIdAndMembershipType(userPermission.getUserName(),
+                                                                                              userPermission.getGroupId(),
+                                                                                              userPermission.getMembershipType())
+                                                   .orElse(null);
+    if (entity == null) {
+      entity = new UserPermissionEntity();
+      entity.setIdentityId(userPermission.getIdentityId());
+      entity.setUserName(userPermission.getUserName());
+      entity.setGroupId(userPermission.getGroupId());
+      entity.setMembershipType(userPermission.getMembershipType());
+      entity.setInherited(true);
+      entity = userPermissionDAO.save(entity);
+    }
     return EntityMapper.fromEntity(entity);
   }
 
