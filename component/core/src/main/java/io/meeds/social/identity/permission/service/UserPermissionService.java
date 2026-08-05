@@ -68,7 +68,7 @@ public class UserPermissionService {
   }
 
   public void saveDirectMembership(long identityId, String userName, String groupId, String membershipType) {
-    userPermissionStorage.saveMembership(new UserPermission(0, identityId, userName, groupId, membershipType, false));
+    userPermissionStorage.saveDirectMembership(new UserPermission(0, identityId, userName, groupId, membershipType, false));
   }
 
   public void removeDirectMembership(String userName, String groupId, String membershipType) {
@@ -82,12 +82,12 @@ public class UserPermissionService {
     userPermissionStorage.deleteInheritedMemberships(userName);
     allMemberships.stream()
                   .filter(Membership::isInherited)
-                  .forEach(membership -> userPermissionStorage.saveMembership(new UserPermission(0,
-                                                                                                 identityId,
-                                                                                                 userName,
-                                                                                                 membership.getGroupId(),
-                                                                                                 membership.getMembershipType(),
-                                                                                                 true)));
+                  .forEach(membership -> userPermissionStorage.saveInheritedMembership(new UserPermission(0,
+                                                                                                          identityId,
+                                                                                                          userName,
+                                                                                                          membership.getGroupId(),
+                                                                                                          membership.getMembershipType(),
+                                                                                                          true)));
   }
 
   public void deleteAllForUser(String userName) {
