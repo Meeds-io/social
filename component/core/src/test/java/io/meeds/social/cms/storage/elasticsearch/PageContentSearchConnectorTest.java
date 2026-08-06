@@ -143,7 +143,34 @@ public class PageContentSearchConnectorTest {
       String query = invocation.getArgument(0);
       assertTrue(query.contains("\"term\": {\"permissions\": \"john\"}"));
       assertTrue(query.contains("\"term\": {\"permissions\": \"Everyone\"}"));
-      assertTrue(query.contains("\"regexp\": {\"permissions\": \"manager:/spaces/x|*:/spaces/x\"}"));
+      assertTrue(query.contains("\"regexp\": {\"permissions\": \"manager:/spaces/x|\\\\*:/spaces/x\"}"));
+      return emptyResponse();
+    });
+
+    connector.search("term", 0, 10, Locale.ENGLISH, null);
+  }
+
+  @Test
+  public void shouldBuildAValidRegexpMatchingWildcardMembershipAclForNonWildcardUserMembership() {
+    // Reproduces EXO-89077: a page in the "administration" site is ACL'd
+    // with the wildcard-membership-type convention ("*:/platform/administrators"),
+    // while the current user only holds a concrete-type membership in that
+    // same group ("member:/platform/administrators", not "*:..."). The "*"
+    // in the built regexp must be escaped: unescaped, it is a dangling
+    // quantifier with nothing to repeat, which Elasticsearch rejects
+    // outright (silently returning zero results, not visibly failing).
+    Identity identity = new Identity("john", Arrays.asList(new MembershipEntry("/platform/administrators", "member")));
+    ConversationState.setCurrent(new ConversationState(identity));
+
+    when(client.sendRequest(any(), any())).thenAnswer(invocation -> {
+      String query = invocation.getArgument(0);
+      java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\"regexp\": \\{\"permissions\": \"([^\"]+)\"\\}")
+                                                                .matcher(query);
+      assertTrue(matcher.find());
+      // Undo the JSON-level escaping the way Elasticsearch's own JSON
+      // parser would, to get the actual regexp pattern the automaton sees.
+      String regexpPattern = matcher.group(1).replace("\\\\", "\\");
+      assertTrue(java.util.regex.Pattern.matches(regexpPattern, "*:/platform/administrators"));
       return emptyResponse();
     });
 

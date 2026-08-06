@@ -302,7 +302,16 @@ public class PageContentSearchConnector {
         entries.add(entry.toString().replace("*", ".*"));
       } else {
         entries.add(entry.toString());
-        entries.add("*:" + entry.getGroup());
+        // Matches pages ACL'd with the wildcard-membership-type convention
+        // (e.g. "*:/platform/administrators"); the "*" must be escaped here
+        // since it's a literal character in that ACL string, not a regexp
+        // quantifier — an unescaped "*" right after the "|" alternation has
+        // no preceding token to repeat, which Elasticsearch rejects outright
+        // (silently returning zero results, not an error the caller sees).
+        // Doubled backslash: this string is spliced into a raw JSON text
+        // (not JSON-serialized), so it must itself carry a JSON-escaped
+        // backslash to decode to a single literal "\" for the regexp engine.
+        entries.add("\\\\*:" + entry.getGroup());
       }
     }
     return entries;
