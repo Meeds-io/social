@@ -221,16 +221,7 @@ export default {
     retrieveList() {
       const offset = (this.page - 1) * this.pageSize;
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${this.userName}/memberships?groupId=${this.selectedGroupId}&offset=${offset}&limit=${this.pageSize}&returnSize=${!this.initialized}`, {
-        method: 'GET',
-        credentials: 'include',
-      }).then(resp => {
-        if (!resp || !resp.ok) {
-          throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
-        } else {
-          return resp.json();
-        }
-      }).then(memberships => {
+      return this.$groupMembersService.getUserMemberships(this.userName, this.selectedGroupId, offset, this.pageSize, true, !this.initialized).then(memberships => {
         const sortedMemberships = memberships?.entities || [];
         sortedMemberships?.sort((m1, m2) => m1.groupLabel?.localeCompare(m2.groupLabel));
         this.memberships.push(...sortedMemberships);
