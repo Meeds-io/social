@@ -13,12 +13,10 @@ import UsersManagementFilterDrawer from '../idm-users-management/components/User
 import UsersManagementExportCSVResult from '../idm-users-management/components/UsersManagementExportCSVResult.vue';
 import GroupMembersMembershipDrawer from './components/members/GroupMembersMembershipDrawer.vue';
 import GroupMembersManagementToolbar from './components/members/GroupMembersManagementToolbar.vue';
-import GroupMembersActionMenu from './components/members/GroupMembersActionMenu.vue';
 import NestedGroupsManagement from './components/NestedGroups/NestedGroupsManagement.vue';
 import NestedGroupsList from './components/NestedGroups/NestedGroupsList.vue';
 import NestedGroupsToolbar from './components/NestedGroups/NestedGroupsToolbar.vue';
 import GroupMembersCount from './components/members/GroupMembersCount.vue';
-import GroupMembersDeleteMenuItem from './components/members/GroupMembersDeleteMenuItem.vue';
 import GroupManagementSettingsDrawer from './components/drawer/GroupManagementSettingsDrawer.vue';
 
 
@@ -38,12 +36,10 @@ const components = {
   'group-members-filter-drawer': UsersManagementFilterDrawer,
   'users-management-export-csv-result': UsersManagementExportCSVResult,
   'group-members-membership-drawer': GroupMembersMembershipDrawer,
-  'group-members-action-menu': GroupMembersActionMenu,
   'nested-groups-management': NestedGroupsManagement,
   'nested-groups-list': NestedGroupsList,
   'nested-groups-toolbar': NestedGroupsToolbar,
   'group-members-count': GroupMembersCount,
-  'group-members-delete-menu-item': GroupMembersDeleteMenuItem,
   'group-management-settings-drawer': GroupManagementSettingsDrawer
 };
 
