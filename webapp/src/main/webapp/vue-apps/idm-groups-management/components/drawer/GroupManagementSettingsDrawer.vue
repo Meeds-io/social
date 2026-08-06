@@ -42,10 +42,10 @@
             tooltip="GroupsManagement.organizationalUnit.tooltip"
             drawer-title="GroupsManagement.organizationalUnit.help.title">
             <template #helpContent>
-              <div class="text-title pb-2">
+              <div class="text-body font-weight-bold pb-2">
                 {{ $t('GroupsManagement.organizationalUnit.help.heading') }}
               </div>
-              <p>{{ $t('GroupsManagement.organizationalUnit.help.paragraph1') }}</p>
+              <p class="text-body">{{ $t('GroupsManagement.organizationalUnit.help.paragraph1') }}</p>
               <p class="d-flex align-start">
                 <v-icon
                   size="16"
@@ -53,7 +53,7 @@
                   class="me-1 mt-1">
                   mdi-checkbox-marked
                 </v-icon>
-                <span class="flex-grow-1">{{ $t('GroupsManagement.organizationalUnit.help.bullet1') }}</span>
+                <span class="flex-grow-1 text-body">{{ $t('GroupsManagement.organizationalUnit.help.bullet1') }}</span>
               </p>
               <p class="d-flex align-start">
                 <v-icon
@@ -62,13 +62,13 @@
                   class="me-1 mt-1">
                   mdi-checkbox-marked
                 </v-icon>
-                <span class="flex-grow-1">{{ $t('GroupsManagement.organizationalUnit.help.bullet2') }}</span>
+                <span class="flex-grow-1 text-body">{{ $t('GroupsManagement.organizationalUnit.help.bullet2') }}</span>
               </p>
-              <p class="mb-0">{{ $t('GroupsManagement.organizationalUnit.help.paragraph2') }}</p>
-              <p class="mb-0">- {{ $t('GroupsManagement.organizationalUnit.help.item1') }}</p>
-              <p class="mb-0">- {{ $t('GroupsManagement.organizationalUnit.help.item2') }}</p>
-              <p>- {{ $t('GroupsManagement.organizationalUnit.help.item3') }}</p>
-              <p>{{ $t('GroupsManagement.organizationalUnit.help.paragraph3') }}</p>
+              <p class="mb-0 text-body">{{ $t('GroupsManagement.organizationalUnit.help.paragraph2') }}</p>
+              <p class="mb-0 text-body">- {{ $t('GroupsManagement.organizationalUnit.help.item1') }}</p>
+              <p class="mb-0 text-body">- {{ $t('GroupsManagement.organizationalUnit.help.item2') }}</p>
+              <p class="text-body">- {{ $t('GroupsManagement.organizationalUnit.help.item3') }}</p>
+              <p class="text-body">{{ $t('GroupsManagement.organizationalUnit.help.paragraph3') }}</p>
             </template>
           </help-label>
           <v-progress-circular
