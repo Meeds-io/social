@@ -45,15 +45,40 @@
         </div>
       </template>
       <template #[`item.userType`]="{ item }">
-        <v-icon
-          size="18"
-          class="d-flex justify-center"
-          :title="item.userRoleIconTitle">
-          {{ item.userRoleIcon }}
-        </v-icon>
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+            <v-btn
+                v-on="on"
+                v-bind="attrs"
+                icon>
+              <v-icon
+                  size="18"
+                  class="d-flex justify-center"
+                  :title="item.userRoleIconTitle">
+                {{ item.userRoleIcon }}
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>{{ item.userRoleIconTitle }}</span>
+        </v-tooltip>
       </template>
       <template #[`item.actions`]="{ item }">
-        <group-members-action-menu :member="item" />
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              v-on="on"
+              v-bind="attrs"
+              icon
+              @click="openGroupMembershipDrawer(item)">
+              <v-icon
+                size="18"
+                class="icon-default-color">
+                fa-users
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t('groupsManagement.members.editMembership') }}</span>
+        </v-tooltip>
       </template>
 
       <template #no-data>
@@ -122,7 +147,7 @@ export default {
           align: 'center'
         },
         {
-          text: this.$t('groupsManagement.members.actions'),
+          text: this.$t('groupsManagement.members.memberships'),
           value: 'actions',
           align: 'center',
           sortable: false,
@@ -206,6 +231,9 @@ export default {
     refreshMembers() {
       this.page = 1;
       this.searchGroupMembers();
+    },
+    openGroupMembershipDrawer(member) {
+      this.$root.$emit('open-group-membership-drawer', member);
     },
     getIcon(member) {
       if (member?.isManager) {
