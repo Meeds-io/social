@@ -15,23 +15,25 @@
 -->
 <template>
   <v-app v-if="organizationalUnits.length" class="d-flex align-center">
-    <widget-wrapper>
-      <template v-if="selectedOrganizationalUnit" #title>
-        <v-btn
-          :title="$t('organizationalUnitMembers.back')"
-          icon
-          @click="goBack">
-          <v-icon size="18" class="icon-default-color">
-            {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
-          </v-icon>
-        </v-btn>
-        <span class="text-truncate ms-2">
-          {{ $t('organizationalUnitMembers.title', {0: selectedOrganizationalUnit.label}) }}
+    <v-card class="d-flex flex-column pa-5" flat>
+      <div class="d-flex align-center">
+        <template v-if="selectedOrganizationalUnit">
+          <v-btn
+            :title="$t('organizationalUnitMembers.back')"
+            icon
+            @click="goBack">
+            <v-icon size="18" class="icon-default-color">
+              {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
+            </v-icon>
+          </v-btn>
+          <span class="text-color font-weight-bold text-truncate ms-2 mb-0">
+            {{ $t('organizationalUnitMembers.title', {0: selectedOrganizationalUnit.label}) }}
+          </span>
+        </template>
+        <span v-else class=" widget-text-header mb-2 text-truncate">
+          {{ $t('myOrganizationalUnits.label') }}
         </span>
-      </template>
-      <template v-else #title>
-        {{ $t('myOrganizationalUnits.label') }}
-      </template>
+      </div>
       <v-expand-transition>
         <v-list
           v-if="!selectedOrganizationalUnit"
@@ -78,7 +80,7 @@
             :group-id="selectedOrganizationalUnit.groupId" />
         </div>
       </v-expand-transition>
-    </widget-wrapper>
+    </v-card>
   </v-app>
 </template>
 <script>
