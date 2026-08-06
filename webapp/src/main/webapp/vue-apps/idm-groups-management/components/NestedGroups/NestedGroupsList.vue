@@ -32,8 +32,17 @@
     :footer-props="footerProps"
     :hide-default-footer="isEmpty"
     @update:items-per-page="handleItemsPerPageChange">
-    <template #[`item.usersCount`]="{ item }">
-      <group-members-count :group="item" />
+    <template #item="{ item }">
+      <tr
+        :title="$t('groupsManagement.nestedGroups.accessGroup', {0: item.label})"
+        class="clickable"
+        @click="openGroup(item)">
+        <td>{{ item.label }}</td>
+        <td>{{ item.description }}</td>
+        <td class="text-center">
+          <group-members-count :group="item" />
+        </td>
+      </tr>
     </template>
     <template #no-data>
       <div class="d-flex flex-column align-center justify-center py-8">
@@ -160,6 +169,9 @@ export default {
       if (group?.parentId === this.group.id) {
         this.getNestedGroups();
       }
+    },
+    openGroup(group) {
+      this.$root.$emit('selectGroup', group);
     }
   },
 };
