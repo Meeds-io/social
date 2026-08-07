@@ -225,6 +225,7 @@ export default {
     },
   },
   data: () => ({
+    values: null,
     rememberme: true,
     loading: false,
     username: '',
