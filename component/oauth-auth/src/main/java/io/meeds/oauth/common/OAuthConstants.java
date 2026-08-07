@@ -190,13 +190,15 @@ public class OAuthConstants {
   // open id user info attributes
   public static final String EMAIL_ATTRIBUTE                                     = "email";
 
-  public static final String GIVEN_NAME_ATTRIBUTE                                = "given_name";
+  public static final String GIVEN_NAME_ATTRIBUTE                                =
+                                                    System.getProperty("exo.oauth.openid.scope.firstname", "given_name");
 
   public static final String NAME_ATTRIBUTE                                      = "name";
 
   public static final String PICTURE_ATTRIBUTE                                   = "picture";
 
-  public static final String FAMILY_NAME_ATTRIBUTE                               = "family_name";
+  public static final String FAMILY_NAME_ATTRIBUTE                               =
+                                                    System.getProperty("exo.oauth.openid.scope.lastname", "family_name");
 
 
   public static final String CUSTOM_CLAIMS                               = "custom_claims";

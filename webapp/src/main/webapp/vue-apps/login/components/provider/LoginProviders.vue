@@ -73,19 +73,6 @@ export default {
     extensionType: 'login-provider',
   }),
   computed: {
-    oAuthEnabled() {
-      return this.params?.oAuthEnabled;
-    },
-    oAuthProviderTypes() {
-      return this.params?.oAuthProviderTypes || [];
-    },
-    oAuthProviders() {
-      return this.oAuthEnabled && this.params?.oAuthProviderTypes?.map(key => ({
-        key,
-        url: this.params[`oAuthInitURL-${key}`],
-        rank: 0,
-      })) || [];
-    },
     mainProviders() {
       return this.providers.length > 4 ? this.providers.slice(0, 3) : this.providers;
     },
@@ -104,8 +91,21 @@ export default {
     document.addEventListener(`extension-${this.extensionName}-${this.extensionType}-updated`, this.refreshProviders);
   },
   methods: {
+    oAuthEnabled() {
+      return this.params?.oAuthEnabled;
+    },
+    oAuthProviderTypes() {
+      return this.params?.oAuthProviderTypes || [];
+    },
+    oAuthProviders() {
+      return this.oAuthEnabled() && this.params?.oAuthProviderTypes?.map(key => ({
+        key,
+        url: this.params[`oAuthInitURL-${key}`],
+        rank: 0,
+      })) || [];
+    },
     refreshProviders() {
-      const providers = this.oAuthProviders.slice();
+      const providers = this.oAuthProviders().slice();
       const providerExtensions = extensionRegistry.loadExtensions(this.extensionName, this.extensionType);
       if (providerExtensions?.length) {
         providerExtensions.forEach(extension => {
