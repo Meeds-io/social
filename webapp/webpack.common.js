@@ -71,6 +71,7 @@ let config = {
     peopleSearchResultCard: './src/main/webapp/vue-apps/search-people/main.js',
     spaceSearchResultCard: './src/main/webapp/vue-apps/search-space/main.js',
     activitySearchResultCard: './src/main/webapp/vue-apps/search-activity/main.js',
+    pageSearchResultCard: './src/main/webapp/vue-apps/search-page/main.js',
     activityReactions: './src/main/webapp/vue-apps/activity-reactions/main.js',
     activityStream: './src/main/webapp/vue-apps/activity-stream/main.js',
     topBarLogo: './src/main/webapp/vue-apps/top-bar-logo/main.js',

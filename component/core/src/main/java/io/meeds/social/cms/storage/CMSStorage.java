@@ -48,6 +48,13 @@ public class CMSStorage {
                         .orElse(null);
   }
 
+  public List<CMSSetting> getSettingsByType(String type) {
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObjectType(METADATA_TYPE, type);
+    return metadataItems.stream()
+                        .map(item -> new CMSSetting(type, item.getObjectId(), item.getMetadata().getName(), item.getSpaceId()))
+                        .toList();
+  }
+
   public void saveSetting(String type,
                           String name,
                           String pageReference,
