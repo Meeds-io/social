@@ -18,6 +18,12 @@
  */
 package org.exoplatform.social.core.test;
 
+import io.meeds.social.cms.listener.PageContentBlockIndexingListenerTest;
+import io.meeds.social.cms.service.PageContentBlockPluginServiceImplTest;
+import io.meeds.social.cms.service.PageUrlResolverServiceImplTest;
+import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnectorTest;
+import io.meeds.social.cms.storage.elasticsearch.PageContentSearchConnectorTest;
+import org.exoplatform.social.core.plugin.PageFavoriteACLPluginTest;
 import io.meeds.social.space.invitation.storage.SpaceInvitationLinkLinkStorageTest;
 import io.meeds.social.space.listener.SpaceGroupCacheListenerTest;
 import io.meeds.social.space.listener.SpaceInvitationLinkLinkJoinListenerTest;
@@ -107,7 +113,13 @@ import io.meeds.social.user.plugin.UserAclPluginTest;
     SpaceInvitationLinkLinkJoinListenerTest.class,
     SpaceInvitationLinkLinkStorageTest.class,
     ContentPublicationServiceTest.class,
-    ActivityPublicationPluginTest.class
+    ActivityPublicationPluginTest.class,
+    PageContentBlockPluginServiceImplTest.class,
+    PageUrlResolverServiceImplTest.class,
+    PageContentBlockIndexingListenerTest.class,
+    PageContentIndexingConnectorTest.class,
+    PageContentSearchConnectorTest.class,
+    PageFavoriteACLPluginTest.class
 })
 public class NoContainerTestSuite {
 

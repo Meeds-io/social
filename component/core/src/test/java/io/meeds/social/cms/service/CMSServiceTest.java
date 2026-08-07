@@ -145,6 +145,32 @@ public class CMSServiceTest extends AbstractKernelTest { // NOSONAR
     assertTrue(cmsService.hasEditPermission(registerAdministratorUser(USERNAME), CONTENT_TYPE, settingName));
   }
 
+  public void testGetSettingsByType() throws ObjectAlreadyExistsException {
+    String otherType = "otherContentType" + RANDOM.nextLong();
+    assertTrue(cmsService.getSettingsByType(CONTENT_TYPE).isEmpty());
+
+    String settingName1 = "testGetSettingsByType1" + RANDOM.nextLong();
+    String pageReference1 = createPage("testGetSettingsByType1", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    cmsService.saveSettingName(CONTENT_TYPE, settingName1, pageReference1, SPACE_ID, USER_IDENTITY_ID);
+
+    String settingName2 = "testGetSettingsByType2" + RANDOM.nextLong();
+    String pageReference2 = createPage("testGetSettingsByType2", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    cmsService.saveSettingName(CONTENT_TYPE, settingName2, pageReference2, SPACE_ID, USER_IDENTITY_ID);
+
+    String otherSettingName = "testGetSettingsByTypeOther" + RANDOM.nextLong();
+    String otherPageReference = createPage("testGetSettingsByTypeOther", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    cmsService.saveSettingName(otherType, otherSettingName, otherPageReference, SPACE_ID, USER_IDENTITY_ID);
+
+    assertEquals(2, cmsService.getSettingsByType(CONTENT_TYPE).size());
+    assertTrue(cmsService.getSettingsByType(CONTENT_TYPE)
+                         .stream()
+                         .anyMatch(setting -> settingName1.equals(setting.getName()) && pageReference1.equals(setting.getPageReference())));
+    assertTrue(cmsService.getSettingsByType(CONTENT_TYPE)
+                         .stream()
+                         .anyMatch(setting -> settingName2.equals(setting.getName()) && pageReference2.equals(setting.getPageReference())));
+    assertEquals(1, cmsService.getSettingsByType(otherType).size());
+  }
+
   private String createPage(String pageName, String accessPermission, String editPermission) {
     String siteType = "portal";
     String siteName = "test";
