@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
@@ -234,9 +235,13 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     }
     String verificationState = generateSecureToken();
     String nonce = generateSecureToken();
-    String authorizeUrl = this.authenticationURL + "?" + "response_type=code" + "&client_id=" + this.clientID + "&scope="
-        + this.scopes.stream().collect(Collectors.joining(" ")) + "&redirect_uri=" + this.redirectURL + "&state="
-        + verificationState + "&nonce=" + nonce;
+    String scope = this.scopes.stream().collect(Collectors.joining(" "));
+    String authorizeUrl = this.authenticationURL + "?response_type=code"
+        + "&client_id=" + urlEncode(this.clientID)
+        + "&scope=" + urlEncode(scope)
+        + "&redirect_uri=" + urlEncode(this.redirectURL)
+        + "&state=" + urlEncode(verificationState)
+        + "&nonce=" + urlEncode(nonce);
 
     if (log.isTraceEnabled()) {
       log.trace("Starting OAuth2 interaction with OpenId");
@@ -297,7 +302,10 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
           HttpURLConnection conn = (HttpURLConnection) url.openConnection();
           conn.setRequestMethod("POST");
           conn.setDoOutput(true);
-          String urlParameters = params.keySet().stream().map(s -> s + "=" + params.get(s)).collect(Collectors.joining("&"));
+          String urlParameters = params.entrySet()
+                                        .stream()
+                                        .map(entry -> urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue()))
+                                        .collect(Collectors.joining("&"));
           conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
           conn.setRequestProperty("charset", "utf-8");
           conn.setRequestProperty("Content-Length", Integer.toString(urlParameters.getBytes().length));
@@ -530,6 +538,10 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
   }
 
+  private static String urlEncode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
   protected URL sendAccessTokenRequest() throws IOException {
     if (log.isTraceEnabled())
       log.trace("AccessToken Request=" + this.accessTokenURL);
@@ -647,8 +659,9 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
         String tokenId = new JSONObject(openIdAccessTokenContext.accessToken.getRawResponse()).get("id_token").toString();
         String logoutState = generateSecureToken();
         session.setAttribute(OAuthConstants.ATTRIBUTE_LOGOUT_STATE, logoutState);
-        String logoutUrl = this.endSessionURL + "?" + "id_token_hint="+tokenId+"&post_logout_redirect_uri="+this.redirectURL.replace("openidAuth","logout")
-            + "&state=" + logoutState;
+        String logoutUrl = this.endSessionURL + "?id_token_hint=" + urlEncode(tokenId)
+            + "&post_logout_redirect_uri=" + urlEncode(this.redirectURL.replace("openidAuth", "logout"))
+            + "&state=" + urlEncode(logoutState);
         socialNetworkService.removeOAuthAccessToken(oAuthProviderType,remoteUser);
         response.sendRedirect(logoutUrl);
         return true;
