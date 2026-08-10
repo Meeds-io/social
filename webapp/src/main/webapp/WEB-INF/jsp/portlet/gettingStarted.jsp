@@ -37,7 +37,7 @@
               <div class="flex v-card v-card--flat v-sheet card-border-radius pa-5 theme--light">
                 <div
                   class="pb-5">
-                  <span class="widget-text-header">
+                  <span class="text-header">
                     <%=title%>
                     <% if (canClose) { %>
                       <a title="Close" href="#" rel="tooltip" data-placement="bottom" class="btClose">x</a>
