@@ -607,6 +607,19 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   @Override
   public boolean processLogout(HttpServletRequest request, HttpServletResponse response, OAuthProviderType oAuthProviderType) throws IOException {
+    HttpSession session = request.getSession();
+    String logoutStateFromSession = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_LOGOUT_STATE);
+    if (logoutStateFromSession != null) {
+      // Return leg: the OpenId provider is redirecting back after end-session
+      session.removeAttribute(OAuthConstants.ATTRIBUTE_LOGOUT_STATE);
+      String logoutStateFromRequest = request.getParameter(OAuthConstants.STATE_PARAMETER);
+      if (!logoutStateFromSession.equals(logoutStateFromRequest)) {
+        log.warn("Validation of state parameter failed on OpenId logout callback. expectedState={}, actualState={}",
+                 logoutStateFromSession, logoutStateFromRequest);
+      }
+      return false;
+    }
+
     if (request.getRemoteUser() != null) {
 
 
@@ -632,7 +645,10 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
         }
 
         String tokenId = new JSONObject(openIdAccessTokenContext.accessToken.getRawResponse()).get("id_token").toString();
-        String logoutUrl = this.endSessionURL + "?" + "id_token_hint="+tokenId+"&post_logout_redirect_uri="+this.redirectURL.replace("openidAuth","logout");
+        String logoutState = generateSecureToken();
+        session.setAttribute(OAuthConstants.ATTRIBUTE_LOGOUT_STATE, logoutState);
+        String logoutUrl = this.endSessionURL + "?" + "id_token_hint="+tokenId+"&post_logout_redirect_uri="+this.redirectURL.replace("openidAuth","logout")
+            + "&state=" + logoutState;
         socialNetworkService.removeOAuthAccessToken(oAuthProviderType,remoteUser);
         response.sendRedirect(logoutUrl);
         return true;
