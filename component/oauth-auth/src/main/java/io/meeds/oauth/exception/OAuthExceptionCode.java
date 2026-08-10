@@ -76,6 +76,12 @@ public enum OAuthExceptionCode {
   INVALID_STATE,
 
   /**
+   * Error when nonce claim from id_token, which is sent by OpenId provider, is
+   * not equals to previously sent nonce
+   */
+  INVALID_NONCE,
+
+  /**
    * Error when revoking of accessToken of any provider failed
    */
   TOKEN_REVOCATION_FAILED,
