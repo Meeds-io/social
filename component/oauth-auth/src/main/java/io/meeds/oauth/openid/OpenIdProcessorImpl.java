@@ -69,6 +69,7 @@ import org.exoplatform.web.security.security.SecureRandomService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.IncorrectClaimException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MissingClaimException;
 import io.meeds.oauth.common.OAuthConstants;
@@ -380,6 +381,15 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     } catch (JSONException e) {
       log.error("Unable to parse the accessToken");
       throw new OAuthException(OAuthExceptionCode.ACCESS_TOKEN_ERROR, "Unable to parse the accessToken", e);
+    } catch (JwtException e) {
+      log.error("Unable to verify the token signature", e);
+      if (request != null) {
+        HttpSession session = request.getSession();
+        session.removeAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
+        session.removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
+        session.removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_NONCE);
+      }
+      throw new OAuthException(OAuthExceptionCode.TOKEN_VALIDATION_ERROR, "Unable to verify the token signature", e);
     }
 
     if (request != null) {
@@ -400,9 +410,9 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     if (customClaims != null) {
       accessTokenContext.addCustomClaims(customClaims.entrySet()
                                                      .stream()
-                                                     .filter(element -> element.getKey().equals("given_name")
-                                                         || element.getKey().equals("family_name")
-                                                         || element.getKey().equals("email"))
+                                                     .filter(element -> element.getKey().equals(OAuthConstants.GIVEN_NAME_ATTRIBUTE)
+                                                         || element.getKey().equals(OAuthConstants.FAMILY_NAME_ATTRIBUTE)
+                                                         || element.getKey().equals(OAuthConstants.EMAIL_ATTRIBUTE))
                                                      .collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().toString())));
     }
     return accessTokenContext;
@@ -578,6 +588,13 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     }
   }
 
+  // test-only: bypass the well-known document fetch to reach parseAndVerifySignedJwt() directly
+  void setWellKnownConfigurationForTest(String issuer, RemoteJwkSigningKeyResolver remoteJwkSigningKeyResolver) {
+    this.issuer = issuer;
+    this.remoteJwkSigningKeyResolver = remoteJwkSigningKeyResolver;
+    this.wellKnownConfigurationLoaded = true;
+  }
+
   private void readWellKnownConfiguration() throws MalformedURLException {
     String wellKnownConfigurationContent = readUrl(new URL(this.wellKnownConfigurationUrl));
     if (wellKnownConfigurationContent != null) {
@@ -589,7 +606,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
         this.endSessionURL = json.getString("end_session_endpoint");
       }
       this.issuer = json.getString("issuer");
-      this.remoteJwkSigningKeyResolver = new RemoteJwkSigningKeyResolver(this.wellKnownConfigurationUrl);
+      this.remoteJwkSigningKeyResolver = new RemoteJwkSigningKeyResolver(this.wellKnownConfigurationUrl, this.clientSecret);
       this.wellKnownConfigurationLoaded = true;
     }
   }
