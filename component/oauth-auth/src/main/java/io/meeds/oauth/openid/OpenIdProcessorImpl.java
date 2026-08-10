@@ -232,7 +232,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     if (!this.wellKnownConfigurationLoaded) {
       readWellKnownConfiguration();
     }
-    String verificationState = String.valueOf(secureRandomService.getSecureRandom().nextLong());
+    String verificationState = generateSecureToken();
     String nonce = generateSecureToken();
     String authorizeUrl = this.authenticationURL + "?" + "response_type=code" + "&client_id=" + this.clientID + "&scope="
         + this.scopes.stream().collect(Collectors.joining(" ")) + "&redirect_uri=" + this.redirectURL + "&state="
