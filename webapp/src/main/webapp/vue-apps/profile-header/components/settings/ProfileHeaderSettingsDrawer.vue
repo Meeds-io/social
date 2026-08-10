@@ -25,7 +25,7 @@
     :right="!$vuetify.rtl"
     @closed="reset">
     <template #title>
-      <div class="d-flex my-auto text-header-title font-weight-bold text-color">
+      <div class="d-flex my-auto text-title font-weight-bold text-color">
         {{ $t('profileHeader.edit.settings.title') }}
       </div>
     </template>
