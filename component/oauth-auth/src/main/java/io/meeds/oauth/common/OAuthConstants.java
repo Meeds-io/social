@@ -46,6 +46,8 @@ public class OAuthConstants {
 
   public static final String STATE_PARAMETER                                     = "state";
 
+  public static final String NONCE_PARAMETER                                     = "nonce";
+
   public static final String REDIRECT_URI_PARAMETER                              = "redirect_uri";
 
   public static final String ACCESS_TOKEN_PARAMETER                              = "access_token";
@@ -154,6 +156,8 @@ public class OAuthConstants {
   public static final String ATTRIBUTE_AUTH_STATE                                = "_authState";
 
   public static final String ATTRIBUTE_VERIFICATION_STATE                        = "_verificationState";
+
+  public static final String ATTRIBUTE_VERIFICATION_NONCE                        = "_verificationNonce";
 
   public static final String ATTRIBUTE_REMEMBER_ME                               = "_rememberme";
 
