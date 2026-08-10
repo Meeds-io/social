@@ -159,6 +159,8 @@ public class OAuthConstants {
 
   public static final String ATTRIBUTE_VERIFICATION_NONCE                        = "_verificationNonce";
 
+  public static final String ATTRIBUTE_LOGOUT_STATE                              = "_logoutState";
+
   public static final String ATTRIBUTE_REMEMBER_ME                               = "_rememberme";
 
   // URL
