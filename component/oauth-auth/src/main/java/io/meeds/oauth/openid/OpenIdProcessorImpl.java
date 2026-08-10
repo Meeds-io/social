@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -197,7 +198,8 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   protected InteractionState<OpenIdAccessTokenContext> processOAuthInteractionImpl(HttpServletRequest request,
                                                                                    HttpServletResponse response,
-                                                                                   Set<String> oauthScopes) throws IOException { // NOSONAR method is overridable, oauthScopes isn't used in default IMPL
+
+                                            Set<String> oauthScopes) throws IOException { // NOSONAR method is overridable, oauthScopes isn't used in default IMPL
     HttpSession session = request.getSession();
     String state = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
 
@@ -207,10 +209,11 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
       return initialInteraction(request, response);
     } else if (state.equals(InteractionState.State.AUTH.name())) {
       OAuth2AccessToken tokenResponse = obtainAccessToken(request);
-      OpenIdAccessTokenContext accessTokenContext = validateTokenAndUpdateScopes(new OpenIdAccessTokenContext(tokenResponse));
+      OpenIdAccessTokenContext accessTokenContext = validateTokenAndUpdateScopes(new OpenIdAccessTokenContext(tokenResponse), request);
       // // Clear session attributes
       session.removeAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
       session.removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
+      session.removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_NONCE);
 
       SimpleDateFormat expireFormat = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss zzz");
       expireFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
@@ -230,17 +233,20 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
       readWellKnownConfiguration();
     }
     String verificationState = String.valueOf(secureRandomService.getSecureRandom().nextLong());
+    String nonce = generateSecureToken();
     String authorizeUrl = this.authenticationURL + "?" + "response_type=code" + "&client_id=" + this.clientID + "&scope="
         + this.scopes.stream().collect(Collectors.joining(" ")) + "&redirect_uri=" + this.redirectURL + "&state="
-        + verificationState;
+        + verificationState + "&nonce=" + nonce;
 
     if (log.isTraceEnabled()) {
       log.trace("Starting OAuth2 interaction with OpenId");
-      log.trace("URL to send to OpenId: " + authorizeUrl);
+      log.trace("URL to send to OpenId: "
+ + authorizeUrl);
     }
 
     HttpSession session = request.getSession();
     session.setAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE, verificationState);
+    session.setAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_NONCE, nonce);
     session.setAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE, InteractionState.State.AUTH.name());
     response.sendRedirect(authorizeUrl);
     return new InteractionState<>(InteractionState.State.AUTH, null);
@@ -343,6 +349,11 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   @Override
   public OpenIdAccessTokenContext validateTokenAndUpdateScopes(OpenIdAccessTokenContext accessToken) throws OAuthException {
+    return validateTokenAndUpdateScopes(accessToken, null);
+  }
+
+  public OpenIdAccessTokenContext validateTokenAndUpdateScopes(OpenIdAccessTokenContext accessToken,
+                                                                HttpServletRequest request) throws OAuthException {
     String scope = accessToken.getTokenData().getScope();
     Claims customClaims;
     try {
@@ -369,6 +380,21 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
       log.error("Unable to parse the accessToken");
       throw new OAuthException(OAuthExceptionCode.ACCESS_TOKEN_ERROR, "Unable to parse the accessToken", e);
     }
+
+    if (request != null) {
+      HttpSession session = request.getSession();
+      String expectedNonce = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_NONCE);
+      String nonceFromToken = customClaims.get(OAuthConstants.NONCE_PARAMETER, String.class);
+      if (expectedNonce == null || nonceFromToken == null || !expectedNonce.equals(nonceFromToken)) {
+        session.removeAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
+        session.removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
+        session.removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_NONCE);
+        throw new OAuthException(OAuthExceptionCode.INVALID_NONCE,
+                                 "Validation of nonce claim failed. expectedNonce=" + expectedNonce
+                                     + ", nonceFromToken=" + nonceFromToken);
+      }
+    }
+
     OpenIdAccessTokenContext accessTokenContext = new OpenIdAccessTokenContext(accessToken.getTokenData(), scope);
     if (customClaims != null) {
       accessTokenContext.addCustomClaims(customClaims.entrySet()
@@ -495,6 +521,13 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
   private void addScopesFromString(String scope, Set<String> scopesToBuild) {
     String[] scopesParts = scope.split(" ");
     Collections.addAll(scopesToBuild, scopesParts);
+  }
+
+  // Generate a URL-safe random token with enough entropy for use as an OIDC nonce/state value
+  private String generateSecureToken() {
+    byte[] randomBytes = new byte[32];
+    secureRandomService.getSecureRandom().nextBytes(randomBytes);
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
   }
 
   protected URL sendAccessTokenRequest() throws IOException {
