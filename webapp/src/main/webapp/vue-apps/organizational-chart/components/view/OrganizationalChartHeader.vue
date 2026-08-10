@@ -40,8 +40,8 @@
     class="d-flex mb-2">
     <p
       v-if="hasHeaderTitle"
-      class="my-auto widget-text-header text-truncate">
-      {{ configuredTitle }}
+      class="my-auto text-header">
+      <span class="text-truncate">{{ configuredTitle }}</span>
     </p>
     <div
       class="ms-auto d-flex">
