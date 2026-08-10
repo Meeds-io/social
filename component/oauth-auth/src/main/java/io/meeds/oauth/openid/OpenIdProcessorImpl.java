@@ -589,7 +589,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
         this.endSessionURL = json.getString("end_session_endpoint");
       }
       this.issuer = json.getString("issuer");
-      this.remoteJwkSigningKeyResolver = new RemoteJwkSigningKeyResolver(this.wellKnownConfigurationUrl);
+      this.remoteJwkSigningKeyResolver = new RemoteJwkSigningKeyResolver(this.wellKnownConfigurationUrl, this.clientSecret);
       this.wellKnownConfigurationLoaded = true;
     }
   }

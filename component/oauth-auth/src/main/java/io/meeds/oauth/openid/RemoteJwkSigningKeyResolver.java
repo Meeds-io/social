@@ -26,11 +26,17 @@ import java.io.Reader;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.AlgorithmParameters;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +44,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.crypto.spec.SecretKeySpec;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,23 +63,36 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
 
   private final String     wellKnownUrl;
 
+  private final String     clientSecret;
+
   private final Object     lock   = new Object();
 
   private Map<String, Key> keyMap = new HashMap<>();
 
   private static final Log LOG    = ExoLogger.getLogger(RemoteJwkSigningKeyResolver.class);
 
-  RemoteJwkSigningKeyResolver(String wellKnownUrl) {
+  RemoteJwkSigningKeyResolver(String wellKnownUrl, String clientSecret) {
     this.wellKnownUrl = wellKnownUrl;
+    this.clientSecret = clientSecret;
   }
 
   @Override
   public Key resolveSigningKey(JwsHeader header, Claims claims) {
-    return getKey(header.getKeyId());
+    return resolveSigningKey(header);
   }
 
   @Override
   public Key resolveSigningKey(JwsHeader header, String plaintext) {
+    return resolveSigningKey(header);
+  }
+
+  private Key resolveSigningKey(JwsHeader header) {
+    String algorithm = header.getAlgorithm();
+    // HMAC-signed tokens use the client_secret itself as the shared key,
+    // per the OIDC spec — it is never published in the JWKS
+    if (algorithm != null && algorithm.startsWith("HS")) {
+      return new SecretKeySpec(clientSecret.getBytes(StandardCharsets.UTF_8), "Hmac" + algorithm.replace("HS", "SHA"));
+    }
     return getKey(header.getKeyId());
   }
 
@@ -106,13 +127,17 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
       if (arraylist != null) {
         for (int i = 0; i < arraylist.length(); i++) {
           JSONObject jsonobjects = arraylist.getJSONObject(i);
-          if (("sig".equals(jsonobjects.get("use"))) && ("RSA".equals(jsonobjects.get("kty")))) {
+          if (!"sig".equals(jsonobjects.get("use"))) {
+            continue;
+          }
+          if ("RSA".equals(jsonobjects.get("kty"))) {
             BigInteger modulus = base64ToBigInteger(jsonobjects.getString("n"));
             BigInteger exponent = base64ToBigInteger(jsonobjects.getString("e"));
             RSAPublicKeySpec rsaPublicKeySpec = new RSAPublicKeySpec(modulus, exponent);
-            PublicKey publicKey = null;
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            publicKey = keyFactory.generatePublic(rsaPublicKeySpec);
+            PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(rsaPublicKeySpec);
+            newKeys.put(jsonobjects.getString("kid"), publicKey);
+          } else if ("EC".equals(jsonobjects.get("kty"))) {
+            PublicKey publicKey = parseEcPublicKey(jsonobjects);
             newKeys.put(jsonobjects.getString("kid"), publicKey);
           }
         }
@@ -120,9 +145,29 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
       }
     } catch (JSONException e) {
       LOG.error("can't get keys in JSONObject");
-    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidParameterSpecException e) {
       throw new IllegalStateException("Failed to parse public key");
     }
+  }
+
+  private PublicKey parseEcPublicKey(JSONObject jsonobjects) throws NoSuchAlgorithmException, InvalidKeySpecException,
+                                                              InvalidParameterSpecException {
+    BigInteger x = base64ToBigInteger(jsonobjects.getString("x"));
+    BigInteger y = base64ToBigInteger(jsonobjects.getString("y"));
+    AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance("EC");
+    algorithmParameters.init(new ECGenParameterSpec(mapCurveName(jsonobjects.getString("crv"))));
+    ECParameterSpec ecParameterSpec = algorithmParameters.getParameterSpec(ECParameterSpec.class);
+    ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(new ECPoint(x, y), ecParameterSpec);
+    return KeyFactory.getInstance("EC").generatePublic(ecPublicKeySpec);
+  }
+
+  private String mapCurveName(String jwkCurveName) {
+    return switch (jwkCurveName) {
+    case "P-256" -> "secp256r1";
+    case "P-384" -> "secp384r1";
+    case "P-521" -> "secp521r1";
+    default -> throw new IllegalArgumentException("Unsupported EC curve: " + jwkCurveName);
+    };
   }
 
   public static Map<String, Object> toMap(JSONObject jsonobj) throws JSONException {
