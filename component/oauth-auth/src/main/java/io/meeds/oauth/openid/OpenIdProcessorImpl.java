@@ -366,14 +366,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     Claims customClaims;
     try {
       String tokenId = new JSONObject(accessToken.accessToken.getRawResponse()).get("id_token").toString();
-      customClaims = Jwts.parserBuilder()
-                         .setSigningKeyResolver(remoteJwkSigningKeyResolver)
-                         .requireIssuer(this.issuer)
-                         .requireAudience(this.clientID)
-                         .setAllowedClockSkewSeconds(60)
-                         .build()
-                         .parseClaimsJws(tokenId)
-                         .getBody();
+      customClaims = parseAndVerifySignedJwt(tokenId);
     } catch (IncorrectClaimException e) {
       log.error("Issuer or audience have not the correct value in the token", e);
       throw new OAuthException(OAuthExceptionCode.TOKEN_VALIDATION_ERROR,
@@ -493,7 +486,9 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
       @Override
       protected JSONObject parseResponse(String httpResponse) throws JSONException {
-        JSONObject userInfo = new JSONObject(httpResponse);
+        String trimmedResponse = httpResponse.trim();
+        JSONObject userInfo = trimmedResponse.startsWith("{") ? new JSONObject(trimmedResponse)
+                                                               : new JSONObject(parseAndVerifySignedJwt(trimmedResponse));
         JSONArray customClaimsArray = new JSONArray();
         customClaims.stream().forEach(customClaim -> {
           if (userInfo.has(customClaim)) {
@@ -540,6 +535,17 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   private static String urlEncode(String value) {
     return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
+  private Claims parseAndVerifySignedJwt(String jwt) {
+    return Jwts.parserBuilder()
+               .setSigningKeyResolver(remoteJwkSigningKeyResolver)
+               .requireIssuer(this.issuer)
+               .requireAudience(this.clientID)
+               .setAllowedClockSkewSeconds(60)
+               .build()
+               .parseClaimsJws(jwt)
+               .getBody();
   }
 
   protected URL sendAccessTokenRequest() throws IOException {
