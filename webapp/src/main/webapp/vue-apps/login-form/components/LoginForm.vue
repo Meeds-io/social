@@ -67,7 +67,7 @@
             </v-btn>
           </v-fab-transition>
         </div>
-        <div v-if="registerEnabled && displayWelcomeMessage" class="widget-text-header align-center">
+        <div v-if="registerEnabled && displayWelcomeMessage" class="text-header align-center">
           {{ newHere }}
           <a
             :title="createAccount"
@@ -76,7 +76,7 @@
             {{ createAccount }}
           </a>
         </div>
-        <div v-else-if="displayWelcomeMessage" class="widget-text-header align-center">{{ welcomeBack }}</div>
+        <div v-else-if="displayWelcomeMessage" class="text-header align-center">{{ welcomeBack }}</div>
 
         <portal-login-providers
           :params="values"
