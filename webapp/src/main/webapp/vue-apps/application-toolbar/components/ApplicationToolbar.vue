@@ -159,6 +159,8 @@
               ref="applicationToolbarFilterInput"
               v-model="term"
               :placeholder="rightTextFilter.placeholder"
+              :aria-label="rightTextFilter.ariaLabel || rightTextFilter.placeholder"
+              :title="rightTextFilter.ariaLabel || rightTextFilter.placeholder"
               :disabled="rightTextFilter.disabled"
               :autofocus="autofocusTextFilter"
               :height="isCompact && 24 || 36"
