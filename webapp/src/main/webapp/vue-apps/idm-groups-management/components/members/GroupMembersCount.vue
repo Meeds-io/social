@@ -43,6 +43,11 @@ export default {
     totalSize: 0,
     loading: false,
   }),
+  watch: {
+    group() {
+      this.countGroupMembers();
+    },
+  },
   created() {
     this.countGroupMembers();
   },
