@@ -285,7 +285,13 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
     }
   }
 
-  private long parsePageId(String blockId) {
+  /**
+   * @param  blockId a content block document id ({@code buildBlockId}) or a
+   *                  plain page storage id — either way, the leading
+   *                  {@code page_<numeric DB id>} portion is parsed out.
+   * @return the numeric storage id of the page carrying the block.
+   */
+  public static long parsePageId(String blockId) {
     // PageStorageImpl builds page storage ids as "page_" + <numeric DB id>,
     // this connector appends "_" + <block hash> to that
     String withoutPrefix = StringUtils.removeStart(blockId, PAGE_STORAGE_ID_PREFIX);

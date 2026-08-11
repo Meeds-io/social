@@ -87,4 +87,13 @@ public class PageFavoriteACLPluginTest {
     assertFalse(plugin.canCreateFavorite(userIdentity, STORAGE_ID));
   }
 
+  @Test
+  public void shouldResolvePageWhenObjectIdIsAContentBlockId() {
+    Page page = mock(Page.class);
+    when(layoutService.getPage(139L)).thenReturn(page);
+    when(userACL.hasAccessPermission(page, userIdentity)).thenReturn(true);
+
+    assertTrue(plugin.canCreateFavorite(userIdentity, "page_139_79e18345"));
+  }
+
 }
