@@ -18,19 +18,17 @@
  */
 package org.exoplatform.social.core.plugin;
 
-import org.apache.commons.lang3.StringUtils;
-
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.metadata.FavoriteACLPlugin;
 
+import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnector;
+
 public class PageFavoriteACLPlugin extends FavoriteACLPlugin {
 
   private static final String PAGE_FAVORITE_TYPE     = "page";
-
-  private static final String PAGE_STORAGE_ID_PREFIX  = "page_";
 
   private final LayoutService layoutService;
 
@@ -48,12 +46,8 @@ public class PageFavoriteACLPlugin extends FavoriteACLPlugin {
 
   @Override
   public boolean canCreateFavorite(Identity userIdentity, String objectId) {
-    Page page = layoutService.getPage(parseStorageId(objectId));
+    Page page = layoutService.getPage(PageContentIndexingConnector.parsePageId(objectId));
     return page != null && userACL.hasAccessPermission(page, userIdentity);
-  }
-
-  private long parseStorageId(String storageId) {
-    return Long.parseLong(StringUtils.removeStart(storageId, PAGE_STORAGE_ID_PREFIX));
   }
 
 }
