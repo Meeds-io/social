@@ -50,7 +50,7 @@
           dense
           @click="$emit('select')">
           <v-list-item-icon class="mx-1 justify-center">
-            <v-icon size="14" class="icon-default-color">fa-check-double</v-icon>
+            <v-icon size="14" class="icon-default-color">fa-mouse-pointer</v-icon>
           </v-list-item-icon>
           <v-list-item-title class="pl-0">{{ $t('Notification.select') }}</v-list-item-title>
         </v-list-item>

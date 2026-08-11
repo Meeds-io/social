@@ -26,7 +26,7 @@
     body-classes="hide-scroll"
     allow-expand
     right
-    @closed="$emit('closed')"
+    @closed="onClosed"
     @expand-updated="expanded = $event">
     <template slot="title">
       <div v-if="selectMode" class="d-flex align-center">
@@ -247,7 +247,15 @@ export default {
       this.cancelSelect();
       this.$refs.drawer.close();
     },
+    onClosed() {
+      this.cancelSelect();
+      this.$emit('closed');
+    },
     cancelSelect() {
+      // Reset the root state directly: the drawer is destroyed on close, so the
+      // listener of 'notification-cancel-select' may not be mounted yet on reopen
+      this.$root.selectMode = false;
+      this.$root.selectedNotificationIds = [];
       this.$root.$emit('notification-cancel-select');
     },
     markSelectedAsRead() {
