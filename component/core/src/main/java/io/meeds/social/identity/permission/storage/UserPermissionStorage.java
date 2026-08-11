@@ -56,8 +56,6 @@ public class UserPermissionStorage {
     entity.setUserName(userPermission.getUserName());
     entity.setGroupId(userPermission.getGroupId());
     entity.setMembershipType(userPermission.getMembershipType());
-    // A direct membership is authoritative for its (user, group,
-    // membershipType) key, whether the row is new or was inherited so far
     entity.setInherited(false);
     entity = userPermissionDAO.save(entity);
     return EntityMapper.fromEntity(entity);
@@ -66,10 +64,6 @@ public class UserPermissionStorage {
   @Transactional
   @CacheEvict(cacheNames = "social.userPermissions", allEntries = true)
   public UserPermission saveInheritedMembership(UserPermission userPermission) {
-    // Insert-only: an existing row — direct or inherited — already records the
-    // permission for this (user, group, membershipType) key, and an inherited
-    // save must never downgrade a direct row, else the direct membership
-    // vanishes on the next inherited-rows recompute
     UserPermissionEntity entity = userPermissionDAO
                                                    .findByUserNameAndGroupIdAndMembershipType(userPermission.getUserName(),
                                                                                               userPermission.getGroupId(),

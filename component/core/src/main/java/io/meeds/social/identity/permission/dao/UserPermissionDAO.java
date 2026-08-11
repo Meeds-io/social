@@ -29,10 +29,7 @@ import io.meeds.social.identity.permission.entity.UserPermissionEntity;
 /**
  * Write-side access to {@code SOC_USER_PERMISSION}, the source of truth kept in
  * sync with the organization service by
- * {@code io.meeds.social.identity.permission.listener}. The read path (group
- * member listing/counting) queries this table directly via a native SQL
- * {@code EXISTS} clause in {@code IdentityDAOImpl}, not through this
- * repository.
+ * {@code io.meeds.social.identity.permission.listener}.
  */
 @Repository
 public interface UserPermissionDAO extends JpaRepository<UserPermissionEntity, Long> {

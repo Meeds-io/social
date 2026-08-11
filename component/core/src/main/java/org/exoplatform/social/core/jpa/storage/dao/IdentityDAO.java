@@ -130,12 +130,6 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
     return getIdentityIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, null, null, offset, limit);
   }
 
-  /**
-   * Get identity ids by providerId sorted by sortField, additionally restricted to the members of the
-   * given groupIds (optionally further restricted to a given membershipType - blank/null matches any
-   * type),
-   * backed by the indexed {@code SOC_USER_PERMISSION} table.
-   */
   default List<Long> getIdentityIdsByProviderSorted(String providerId,
                                                     String sortField,
                                                     String sortDirection,
@@ -151,13 +145,6 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
     return getIdentityIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, false, offset, limit);
   }
 
-  /**
-   * Get identity ids by providerId sorted by sortField, additionally restricted to the members of the
-   * given groupIds (optionally further restricted to a given membershipType - blank/null matches any
-   * type),
-   * backed by the indexed {@code SOC_USER_PERMISSION} table. When includeInheritedMemberships
-   * is false, only direct members are matched, excluding members inherited through nested groups.
-   */
   default List<Long> getIdentityIdsByProviderSorted(String providerId,
                                                     String sortField,
                                                     String sortDirection,

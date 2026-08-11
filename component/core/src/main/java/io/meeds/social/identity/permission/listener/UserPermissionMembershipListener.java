@@ -40,7 +40,6 @@ import jakarta.annotation.PreDestroy;
 /**
  * Keeps {@code SOC_USER_PERMISSION} (direct + inherited rows) and the
  * {@code social_user_permission} ES index in sync with every membership change,
- * replacing the group-listing read path's former reliance on a live, unpaged
  */
 @Component
 public class UserPermissionMembershipListener extends MembershipEventListener {
@@ -101,12 +100,6 @@ public class UserPermissionMembershipListener extends MembershipEventListener {
                                                                              .findMembershipsByUser(userName, true));
       indexingService.reindex(UserPermissionService.INDEX_CONNECTOR_NAME, userName);
       indexingService.reindex(ProfileIndexingServiceConnector.TYPE, String.valueOf(identityId));
-      // The group-listing cache
-      // (CachedIdentityStorage.identitiesCache/identitiesCountCache) is keyed
-      // independently of membership state, so a change must explicitly invalidate it
-      // - otherwise a
-      // removed member keeps showing up in cached group-listing results until natural
-      // cache eviction.
       identityStorage.updateIdentityMembership(userName);
     } catch (Exception e) {
       LOG.warn("Error synchronizing user permissions for user {}", userName, e);

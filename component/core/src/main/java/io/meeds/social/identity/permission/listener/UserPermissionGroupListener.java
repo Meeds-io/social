@@ -40,7 +40,7 @@ import jakarta.annotation.PreDestroy;
  * <li>a deleted group must drop its rows;</li>
  * <li>linking/unlinking a nested group affects every member of the child group,
  * so it is handled in batches, via
- * {@link UserPermissionNestedMembershipListener} (see MIP-237 &sect;5).</li>
+ * {@link UserPermissionNestedMembershipListener}.</li>
  * </ul>
  */
 @Component

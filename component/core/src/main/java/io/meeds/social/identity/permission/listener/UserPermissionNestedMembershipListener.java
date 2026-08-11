@@ -47,9 +47,6 @@ import jakarta.annotation.PostConstruct;
  * thread/transaction as the triggering {@code linkGroups}/{@code unlinkGroups}
  * call (deliberately NOT {@code @Asynchronous}): the group/membership graph is
  * read via the same organization-service session as the not-yet-flushed write,
- * which is the only way to observe it before commit - an async hop would run on
- * a different thread/connection and could read a stale, pre-link/pre-unlink
- * view of the graph.
  */
 @Component
 public class UserPermissionNestedMembershipListener extends Listener<NestedMembership, NestedMembership> {
@@ -104,7 +101,6 @@ public class UserPermissionNestedMembershipListener extends Listener<NestedMembe
     if (size > 0) {
       // One invalidation for the whole batch rather than per-user, since it is a full
       // cache clear
-      // (see UserPermissionMembershipListener).
       identityStorage.updateIdentityMembership(null);
     }
   }

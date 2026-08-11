@@ -26,16 +26,6 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 
-/**
- * One-time removal of the legacy '/platform/delegated' group (Delegated
- * Administrators) from existing databases, replaced by the Organizational Unit
- * management perimeter (MIP-237). Removing the group cascades its memberships
- * at the store level and broadcasts the group deletion, so group-level
- * listeners keep dependent data (user permissions, search index) consistent —
- * the same path used when an administrator deletes a group from the UI.
- * Idempotent: when the group no longer exists there is nothing to do; any
- * failure propagates so the plugin is re-attempted on next startup.
- */
 public class DelegatedGroupRemovalUpgradePlugin extends UpgradeProductPlugin {
 
   private static final Log          LOG                = ExoLogger.getExoLogger(DelegatedGroupRemovalUpgradePlugin.class);

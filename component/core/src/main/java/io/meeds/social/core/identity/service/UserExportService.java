@@ -249,14 +249,6 @@ public class UserExportService {
                       .collect(Collectors.joining(";"));
   }
 
-  /**
-   * @return the group ids to list in the CSV 'groups' column when exporting a
-   *         group's members: the exported group ids plus, when inherited
-   *         members are exported too, the groups nested inside them at any
-   *         level (through {@link NestedMembership} links). Empty when no
-   *         group filter is applied, meaning all the user's groups are
-   *         exported.
-   */
   private Set<String> getExportedGroupIds(UserExportFilter exportFilter) {
     List<String> groupIds = exportFilter.getGroupIds();
     if (CollectionUtils.isEmpty(groupIds)) {

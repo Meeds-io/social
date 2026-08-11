@@ -82,7 +82,7 @@ public class ProfileFilter implements Cloneable {
   private List<String> groupIds = null;
 
   /**
-   * Restricts {@link #groupIds} to a given membership type (blank/null matches any type;
+   * Restricts {@link #groupIds} to a given membership type
    */
   private String membershipType;
 
