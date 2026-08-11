@@ -40,7 +40,7 @@
         <td>{{ item.label }}</td>
         <td>{{ item.description }}</td>
         <td class="text-center">
-          <group-members-count :group="item" />
+          <group-members-count :group="item" :key="item.id" />
         </td>
       </tr>
     </template>
