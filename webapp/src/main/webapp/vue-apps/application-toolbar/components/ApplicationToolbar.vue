@@ -128,7 +128,10 @@
             :max-width="rightTextFilter.maxWidth"
             :class="expandFilter && 'flex-grow-1'"
             flat>
-            <v-tooltip :value="showTextTooltip" bottom>
+            <v-tooltip
+              v-if="rightTextFilter.tooltip"
+              :value="showTextTooltip"
+              bottom>
               <template #activator="{on}">
                 <v-text-field
                   id="applicationToolbarFilterInput"
@@ -150,6 +153,23 @@
               </template>
               <span>{{ rightTextFilter.tooltip }}</span>
             </v-tooltip>
+            <v-text-field
+              v-else
+              id="applicationToolbarFilterInput"
+              ref="applicationToolbarFilterInput"
+              v-model="term"
+              :placeholder="rightTextFilter.placeholder"
+              :aria-label="rightTextFilter.ariaLabel || rightTextFilter.placeholder"
+              :title="rightTextFilter.ariaLabel || rightTextFilter.placeholder"
+              :disabled="rightTextFilter.disabled"
+              :autofocus="autofocusTextFilter"
+              :height="isCompact && 24 || 36"
+              :prepend-inner-icon="term && 'fa-filter primary--text' || 'fa-filter icon-default-color'"
+              class="flex-grow-1 full-height pa-0 ms-4"
+              clear-icon="fa-times fa-1x primary--text position-absolute absolute-vertical-center"
+              autocomplete="off"
+              hide-details
+              clearable />
           </v-card>
           <select
             v-if="showSelectBoxFilter"
