@@ -20,17 +20,15 @@
       v-if="initialized"
       id="peopleListBody"
       :class="noMargins && compact && 'pa-0' || (noMargins && 'pt-1 px-3 pb-0') || 'px-4 pb-4'">
-      <v-row v-if="filteredPeople && filteredPeople.length" class="ma-n2 border-box-sizing">
-        <v-col
+      <div
+        v-if="filteredPeople && filteredPeople.length"
+        ref="peopleCardsRow"
+        class="d-flex flex-wrap ma-n2 border-box-sizing">
+        <div
           v-for="user in filteredPeople"
           :key="user.id"
           :id="`peopleCardItem${user.id}`"
-          :sm="$attrs.sm || 6"
-          :md="$attrs.md || 6"
-          :lg="$attrs.lg || 4"
-          :xl="$attrs.xl || 4"
-          :class="noMargins && compact && 'pa-0' || 'pa-2'"
-          cols="12">
+          :class="[noMargins && compact && 'pa-0' || 'pa-2', 'border-box-sizing', `col-${columnSpan}`]">
           <people-card
             :user="user"
             :space-id="spaceId"
@@ -39,8 +37,8 @@
             :profile-action-extensions="profileActionExtensions"
             :compact-display="compactDisplay"
             :mobile-display="mobileDisplay" />
-        </v-col>
-      </v-row>
+        </div>
+      </div>
       <div v-else-if="!displayLoading" class="d-flex text-center noPeopleYetBlock">
         <div class="ma-auto noPeopleYet">
           <p class="noPeopleYetIcons">
@@ -147,6 +145,11 @@ export default {
     loadingPeople: false,
     userCardSettings: null,
     advancedFilterSettings: null,
+    resizeObserver: null,
+    cardsRowWidth: 0,
+    baseCardMinWidth: 200,
+    baseActionIconsCount: 5,
+    actionIconWidth: 36,
   }),
   computed: {
     displayLoading() {
@@ -160,6 +163,31 @@ export default {
     },
     compact() {
       return this.compactDisplay || this.mobileDisplay;
+    },
+    maxColumnsCount() {
+      const smallestSpan = this.$attrs.xl || this.$attrs.lg || this.$attrs.md || this.$attrs.sm || 4;
+      return Math.max(1, Math.floor(12 / smallestSpan));
+    },
+    maxActionIconsCount() {
+      return this.filteredPeople.reduce((max, user) => {
+        const navigationIconsCount = this.userExtensions.filter(extension => extension.enabled(user)).length;
+        const actionIconsCount = this.profileActionExtensions.filter(extension => extension.enabled(user?.dataEntity || user)).length;
+        return Math.max(max, navigationIconsCount + actionIconsCount);
+      }, 0) + (this.spaceId && 1 || 0);
+    },
+    cardMinWidth() {
+      const extraIconsCount = Math.max(0, this.maxActionIconsCount - this.baseActionIconsCount);
+      return this.baseCardMinWidth + extraIconsCount * this.actionIconWidth;
+    },
+    columnsCount() {
+      if (!this.cardsRowWidth) {
+        return this.maxColumnsCount;
+      }
+      const fittingColumnsCount = Math.max(1, Math.floor(this.cardsRowWidth / this.cardMinWidth));
+      return Math.min(this.maxColumnsCount, fittingColumnsCount);
+    },
+    columnSpan() {
+      return 12 / this.columnsCount;
     },
     filteredPeople() {
       if (!this.keyword || !this.loadingPeople) {
@@ -213,13 +241,22 @@ export default {
     this.refreshExtensions();
     this.refreshUserExtensions();
   },
+  mounted() {
+    this.resizeObserver = new ResizeObserver(this.computeCardsRowWidth);
+    this.resizeObserver.observe(this.$el);
+    this.computeCardsRowWidth();
+  },
   beforeDestroy() {
     document.removeEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     document.removeEventListener('extension-space-member-extension-action-updated', this.refreshExtensions);
     document.removeEventListener('user-extension-updated', this.refreshUserExtensions);
     document.removeEventListener('people-list-refresh', this.searchPeopleNoFilters);
+    this.resizeObserver?.disconnect?.();
   },
   methods: {
+    computeCardsRowWidth() {
+      this.cardsRowWidth = this.$refs.peopleCardsRow?.clientWidth || 0;
+    },
     resetFilters() {
       this.$root.$emit('reset-filter');
       this.$root.$emit('reset-advanced-filter');
