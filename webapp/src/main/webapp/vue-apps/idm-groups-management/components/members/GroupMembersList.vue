@@ -209,6 +209,8 @@ export default {
       if (!this.group?.id) {
         return;
       }
+      this.members = [];
+      this.totalSize = 0;
       this.loading = true;
       try {
         const limit = this.itemsPerPage;

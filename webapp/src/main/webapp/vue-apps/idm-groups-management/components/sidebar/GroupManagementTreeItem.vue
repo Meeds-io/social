@@ -34,8 +34,9 @@
         </v-list-item-action>
       </v-list-item>
       <div v-if="displayChildren">
-        <div class="ms-3 d-flex flex-nowrap">
+        <div class="d-flex flex-nowrap overflow-hidden">
           <v-pagination
+            style="max-width: 300px;"
             v-if="pagesCount > 1"
             v-model="page"
             :length="pagesCount"
