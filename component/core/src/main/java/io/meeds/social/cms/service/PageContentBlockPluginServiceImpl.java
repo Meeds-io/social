@@ -24,12 +24,40 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.mop.page.PageKey;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+
+import io.meeds.social.cms.model.CMSSetting;
 import io.meeds.social.cms.plugin.PageContentBlockPlugin;
+import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnector;
 
 @Service
 public class PageContentBlockPluginServiceImpl implements PageContentBlockPluginService {
 
-  private Map<String, PageContentBlockPlugin> plugins = new HashMap<>();
+  /** Class-level logger. */
+  private static final Log LOGGER = ExoLogger.getExoLogger(PageContentBlockPluginServiceImpl.class);
+
+  /** Used to resolve a content type's {@link CMSSetting}. */
+  private final CMSService      cmsService;
+
+  /** Used to resolve the page a {@link CMSSetting} is bound to. */
+  private final LayoutService   layoutService;
+
+  /** Used to trigger a reindex of a content block's ES document. */
+  private final IndexingService indexingService;
+
+  /** Registered {@link PageContentBlockPlugin}s, keyed by content type. */
+  private final Map<String, PageContentBlockPlugin> plugins = new HashMap<>();
+
+  public PageContentBlockPluginServiceImpl(CMSService cmsService, LayoutService layoutService, IndexingService indexingService) {
+    this.cmsService = cmsService;
+    this.layoutService = layoutService;
+    this.indexingService = indexingService;
+  }
 
   @Override
   public void addPlugin(PageContentBlockPlugin plugin) {
@@ -44,6 +72,40 @@ public class PageContentBlockPluginServiceImpl implements PageContentBlockPlugin
   @Override
   public PageContentBlockPlugin getPlugin(String contentType) {
     return plugins.get(contentType);
+  }
+
+  @Override
+  public void reindexContentBlock(String contentType, String settingName) {
+    String blockId = resolveBlockId(contentType, settingName);
+    if (blockId != null) {
+      indexingService.reindex(PageContentIndexingConnector.TYPE, blockId);
+    }
+  }
+
+  @Override
+  public void unindexContentBlock(String contentType, String settingName) {
+    String blockId = resolveBlockId(contentType, settingName);
+    if (blockId != null) {
+      indexingService.unindex(PageContentIndexingConnector.TYPE, blockId);
+    }
+  }
+
+  private String resolveBlockId(String contentType, String settingName) {
+    CMSSetting setting = cmsService.getSetting(contentType, settingName);
+    if (setting == null) {
+      return null;
+    }
+    Page page;
+    try {
+      page = layoutService.getPage(PageKey.parse(setting.getPageReference()));
+    } catch (Exception e) {
+      LOGGER.debug("Cannot parse page reference {}", setting.getPageReference(), e);
+      return null;
+    }
+    if (page == null) {
+      return null;
+    }
+    return PageContentIndexingConnector.buildBlockId(page.getStorageId(), contentType, settingName);
   }
 
 }

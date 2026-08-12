@@ -33,22 +33,31 @@ import lombok.NoArgsConstructor;
 @Data
 public class PageSearchResult {
 
+  /** The storage id of the page (or content block) this result points to. */
   private String       id;
 
-  private String       siteName;
+  /** The resolved label of the site the page belongs to. */
+  private String       siteLabel;
 
+  /** The name of the page. */
   private String       pageName;
 
+  /** The title of the page. */
   private String       pageTitle;
 
+  /** The navigation path of the page, as it was at index time. */
   private String       pagePath;
 
+  /** The username of the page's last content editor. */
   private String       author;
 
+  /** The last content update date, in epoch millis. */
   private long          date;
 
+  /** Highlighted excerpts of the matched content. */
   private List<String> excerpts;
 
+  /** Whether the current user has bookmarked this page. */
   private boolean       favorite;
 
 }

@@ -18,9 +18,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
     <v-card
       flat
       class="pa-0"
-      :aria-label="$t('search.access.to.result', {0: excerptText})"
-      :href="link">
-      <v-list class="pa-0" :class="hover && 'light-grey-background-color no-border-radius' || ''">
+      :aria-label="link && $t('search.access.to.result', {0: excerptText}) || title"
+      :href="link"
+      :disabled="!link">
+      <v-list class="pa-0" :class="hover && link && 'light-grey-background-color no-border-radius' || ''">
         <v-list-item>
           <v-list-item-icon class="me-2 pt-1">
             <v-icon size="24" class="icon-default-color">
@@ -28,7 +29,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
             </v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title class="text-truncate primary--text">
+            <v-list-item-title class="text-truncate" :class="link && 'primary--text' || 'text-color'">
               {{ title }}
             </v-list-item-title>
             <v-list-item-subtitle
@@ -68,7 +69,7 @@ export default {
     },
     title() {
       const name = this.result?.pageTitle || this.result?.pageName || '';
-      const site = this.result?.siteName || '';
+      const site = this.result?.siteLabel || '';
       return site && name && `${name} - ${site}` || name || site;
     },
     link() {

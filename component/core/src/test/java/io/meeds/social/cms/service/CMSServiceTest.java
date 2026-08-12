@@ -171,6 +171,23 @@ public class CMSServiceTest extends AbstractKernelTest { // NOSONAR
     assertEquals(1, cmsService.getSettingsByType(otherType).size());
   }
 
+  public void testGetSettingsByTypeAndPageReference() throws ObjectAlreadyExistsException {
+    String pageReference1 = createPage("testGetSettingsByTypeAndPageReference1", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    String pageReference2 = createPage("testGetSettingsByTypeAndPageReference2", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    assertTrue(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, pageReference1).isEmpty());
+
+    String settingName1 = "testGetSettingsByTypeAndPageReference1" + RANDOM.nextLong();
+    cmsService.saveSettingName(CONTENT_TYPE, settingName1, pageReference1, SPACE_ID, USER_IDENTITY_ID);
+
+    String settingName2 = "testGetSettingsByTypeAndPageReference2" + RANDOM.nextLong();
+    cmsService.saveSettingName(CONTENT_TYPE, settingName2, pageReference2, SPACE_ID, USER_IDENTITY_ID);
+
+    assertEquals(1, cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, pageReference1).size());
+    assertEquals(settingName1, cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, pageReference1).get(0).getName());
+    assertEquals(1, cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, pageReference2).size());
+    assertEquals(settingName2, cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, pageReference2).get(0).getName());
+  }
+
   private String createPage(String pageName, String accessPermission, String editPermission) {
     String siteType = "portal";
     String siteName = "test";

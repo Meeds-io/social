@@ -24,6 +24,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -49,6 +51,8 @@ import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.services.resources.LocaleConfig;
+import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.resources.ResourceBundleManager;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
@@ -57,14 +61,14 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
-import org.exoplatform.social.metadata.favorite.model.Favorite;
+import org.exoplatform.social.metadata.model.MetadataItem;
 
 import io.meeds.social.search.model.PageSearchResult;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PageContentSearchConnectorTest {
 
-  private static final String        QUERY_TEMPLATE = "{\"q\":\"@term@\",\"filter\":[@permissions_filter@ @space_filter@],"
+  private static final String        QUERY_TEMPLATE = "{\"q\":\"@term@\",\"filter\":[\"@filters@\"],"
       + "\"from\":\"@offset@\",\"size\":\"@limit@\"}";
 
   @Mock
@@ -88,11 +92,15 @@ public class PageContentSearchConnectorTest {
   @Mock
   private SpaceService               spaceService;
 
+  @Mock
+  private LocaleConfigService        localeConfigService;
+
   private PageContentSearchConnector connector;
 
   @Before
   public void setup() throws Exception {
     when(configurationManager.getInputStream(anyString())).thenAnswer(invocation -> toStream(QUERY_TEMPLATE));
+    when(localeConfigService.getLocalConfigs()).thenReturn(List.of());
     InitParams params = new InitParams();
     ValueParam queryFileParam = new ValueParam();
     queryFileParam.setName("query.file.path");
@@ -105,6 +113,7 @@ public class PageContentSearchConnectorTest {
                                                favoriteService,
                                                identityManager,
                                                spaceService,
+                                               localeConfigService,
                                                params);
   }
 
@@ -116,7 +125,7 @@ public class PageContentSearchConnectorTest {
   @Test
   public void shouldThrowWhenTermIsBlank() {
     try {
-      connector.search("", 0, 10, Locale.ENGLISH, null);
+      connector.search("", 0, 10, Locale.ENGLISH, null, false);
       fail("IllegalArgumentException should be thrown");
     } catch (IllegalArgumentException e) {
       // Expected
@@ -131,7 +140,7 @@ public class PageContentSearchConnectorTest {
       return emptyResponse();
     });
 
-    connector.search("term", 0, 10, Locale.ENGLISH, null);
+    connector.search("term", 0, 10, Locale.ENGLISH, null, false);
   }
 
   @Test
@@ -147,7 +156,7 @@ public class PageContentSearchConnectorTest {
       return emptyResponse();
     });
 
-    connector.search("term", 0, 10, Locale.ENGLISH, null);
+    connector.search("term", 0, 10, Locale.ENGLISH, null, false);
   }
 
   @Test
@@ -174,7 +183,7 @@ public class PageContentSearchConnectorTest {
       return emptyResponse();
     });
 
-    connector.search("term", 0, 10, Locale.ENGLISH, null);
+    connector.search("term", 0, 10, Locale.ENGLISH, null, false);
   }
 
   @Test
@@ -187,7 +196,21 @@ public class PageContentSearchConnectorTest {
       return emptyResponse();
     });
 
-    connector.search("my+term", 5, 15, Locale.ENGLISH, null);
+    connector.search("my+term", 5, 15, Locale.ENGLISH, null, false);
+  }
+
+  @Test
+  public void shouldEscapeBackslashesOutOfTheTerm() {
+    // The escaped term is spliced into a raw JSON query: a trailing backslash
+    // would escape the template's own closing quote and make the request
+    // unparsable for Elasticsearch
+    when(client.sendRequest(any(), any())).thenAnswer(invocation -> {
+      String query = invocation.getArgument(0);
+      assertTrue(query.contains("\"q\":\"my term\""));
+      return emptyResponse();
+    });
+
+    connector.search("my\\term", 0, 10, Locale.ENGLISH, null, false);
   }
 
   @Test
@@ -216,12 +239,12 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH, null);
+    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH, null, false);
 
     assertEquals(1, results.size());
     PageSearchResult result = results.get(0);
     assertEquals("page_139", result.getId());
-    assertEquals("site", result.getSiteName());
+    assertEquals("site", result.getSiteLabel());
     assertEquals("page", result.getPageName());
     assertEquals("My Page", result.getPageTitle());
     assertEquals("/portal/site/page", result.getPagePath());
@@ -254,7 +277,39 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("term", 0, 10, Locale.FRENCH, null);
+    List<PageSearchResult> results = connector.search("term", 0, 10, Locale.FRENCH, null, false);
+
+    assertEquals(1, results.get(0).getExcerpts().size());
+    assertEquals("extrait en francais", results.get(0).getExcerpts().get(0));
+  }
+
+  @Test
+  public void shouldMatchTheConfiguredBareLanguageWhenRequestLocaleIsRegionQualified() {
+    LocaleConfig frenchConfig = mock(LocaleConfig.class);
+    when(frenchConfig.getLocale()).thenReturn(Locale.FRENCH);
+    when(localeConfigService.getLocalConfigs()).thenReturn(List.of(frenchConfig));
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_139",
+                "_source": {
+                  "content": "default language content",
+                  "content-fr": "contenu en francais"
+                },
+                "highlight": {
+                  "content": ["default language excerpt"],
+                  "content-fr": ["extrait en francais"]
+                }
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    List<PageSearchResult> results = connector.search("term", 0, 10, new Locale("fr", "FR"), null, false);
 
     assertEquals(1, results.get(0).getExcerpts().size());
     assertEquals("extrait en francais", results.get(0).getExcerpts().get(0));
@@ -282,7 +337,7 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("default", 0, 10, Locale.FRENCH, null);
+    List<PageSearchResult> results = connector.search("default", 0, 10, Locale.FRENCH, null, false);
 
     assertTrue(results.isEmpty());
   }
@@ -310,7 +365,7 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("default", 0, 10, Locale.FRENCH, null);
+    List<PageSearchResult> results = connector.search("default", 0, 10, Locale.FRENCH, null, false);
 
     assertEquals(1, results.size());
     assertTrue(results.get(0).getExcerpts().isEmpty());
@@ -338,7 +393,7 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("begriff", 0, 10, Locale.FRENCH, null);
+    List<PageSearchResult> results = connector.search("begriff", 0, 10, Locale.FRENCH, null, false);
 
     assertTrue(results.isEmpty());
   }
@@ -362,7 +417,7 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("term", 0, 10, Locale.FRENCH, null);
+    List<PageSearchResult> results = connector.search("term", 0, 10, Locale.FRENCH, null, false);
 
     assertEquals(1, results.get(0).getExcerpts().size());
     assertEquals("default language excerpt", results.get(0).getExcerpts().get(0));
@@ -391,9 +446,9 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH, null);
+    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH, null, false);
 
-    assertEquals("My Workspace", results.get(0).getSiteName());
+    assertEquals("My Workspace", results.get(0).getSiteLabel());
   }
 
   @Test
@@ -422,9 +477,9 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.FRENCH, null);
+    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.FRENCH, null, false);
 
-    assertEquals("My Workspace FR", results.get(0).getSiteName());
+    assertEquals("My Workspace FR", results.get(0).getSiteLabel());
   }
 
   @Test
@@ -446,9 +501,9 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH, null);
+    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH, null, false);
 
-    assertEquals("unknown", results.get(0).getSiteName());
+    assertEquals("unknown", results.get(0).getSiteLabel());
   }
 
   @Test
@@ -459,7 +514,9 @@ public class PageContentSearchConnectorTest {
                                                                         mock(org.exoplatform.social.core.identity.model.Identity.class);
     when(socialIdentity.getId()).thenReturn("42");
     when(identityManager.getOrCreateUserIdentity("john")).thenReturn(socialIdentity);
-    when(favoriteService.isFavorite(new Favorite("page", "page_139", null, 42L))).thenReturn(true);
+    MetadataItem favoriteItem = new MetadataItem();
+    favoriteItem.setObjectId("page_139");
+    when(favoriteService.getFavoriteItemsByCreatorAndType("page", 42L, 0, -1)).thenReturn(List.of(favoriteItem));
 
     String response = """
         {
@@ -481,7 +538,7 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH, null);
+    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH, null, false);
 
     assertTrue(results.get(0).isFavorite());
   }
@@ -508,9 +565,145 @@ public class PageContentSearchConnectorTest {
         """;
     when(client.sendRequest(any(), any())).thenReturn(response);
 
-    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH, null);
+    List<PageSearchResult> results = connector.search("world", 0, 10, Locale.ENGLISH, null, false);
 
     assertTrue(!results.get(0).isFavorite());
+  }
+
+  @Test
+  public void shouldRestrictResultsToFavoritesWhenFavoritesFilterIsOn() {
+    // The unified search bar appends favorites=true for every connector
+    // declaring favoritesEnabled — ignoring it would list every page under
+    // the "Favorites" filter
+    Identity identity = new Identity("john", Arrays.asList());
+    ConversationState.setCurrent(new ConversationState(identity));
+    org.exoplatform.social.core.identity.model.Identity socialIdentity =
+                                                                        mock(org.exoplatform.social.core.identity.model.Identity.class);
+    when(socialIdentity.getId()).thenReturn("42");
+    when(identityManager.getOrCreateUserIdentity("john")).thenReturn(socialIdentity);
+    MetadataItem favoriteItem = new MetadataItem();
+    favoriteItem.setObjectId("page_139_aaaaaaaa");
+    when(favoriteService.getFavoriteItemsByCreatorAndType("page", 42L, 0, -1)).thenReturn(List.of(favoriteItem));
+
+    when(client.sendRequest(any(), any())).thenAnswer(invocation -> {
+      String query = invocation.getArgument(0);
+      assertTrue(query.contains("\"terms\": {\"_id\": [\"page_139_aaaaaaaa\"]}"));
+      return emptyResponse();
+    });
+
+    connector.search("term", 0, 10, Locale.ENGLISH, null, true);
+  }
+
+  @Test
+  public void shouldReturnNothingWithoutQueryingWhenFavoritesFilterIsOnAndUserHasNone() {
+    Identity identity = new Identity("john", Arrays.asList());
+    ConversationState.setCurrent(new ConversationState(identity));
+    org.exoplatform.social.core.identity.model.Identity socialIdentity =
+                                                                        mock(org.exoplatform.social.core.identity.model.Identity.class);
+    when(socialIdentity.getId()).thenReturn("42");
+    when(identityManager.getOrCreateUserIdentity("john")).thenReturn(socialIdentity);
+    when(favoriteService.getFavoriteItemsByCreatorAndType("page", 42L, 0, -1)).thenReturn(Collections.emptyList());
+
+    assertTrue(connector.search("term", 0, 10, Locale.ENGLISH, null, true).isEmpty());
+
+    verify(client, never()).sendRequest(any(), any());
+  }
+
+  @Test
+  public void shouldNotFilterOnFavoritesWhenFilterIsOff() {
+    when(client.sendRequest(any(), any())).thenAnswer(invocation -> {
+      String query = invocation.getArgument(0);
+      assertTrue(!query.contains("\"terms\": {\"_id\""));
+      return emptyResponse();
+    });
+
+    connector.search("term", 0, 10, Locale.ENGLISH, null, false);
+  }
+
+  @Test
+  public void shouldUseContentLanguagesFieldToDetectTranslationWhenContentIsNotInSource() {
+    // The search query keeps every language's full text out of _source; the
+    // "only excerpt in the user's own language" rule then relies on the
+    // contentLanguages keyword field instead
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_139",
+                "_source": {
+                  "contentLanguages": ["fr"]
+                },
+                "highlight": {
+                  "content": ["default language excerpt"]
+                }
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    // A French translation exists but only the default content matched, so
+    // this isn't a valid result for a French-speaking user
+    assertTrue(connector.search("default", 0, 10, Locale.FRENCH, null, false).isEmpty());
+  }
+
+  @Test
+  public void shouldFallBackToDefaultExcerptWhenContentLanguagesHasNoTranslationForUser() {
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_139",
+                "_source": {
+                  "contentLanguages": ["de"]
+                },
+                "highlight": {
+                  "content": ["default language excerpt"]
+                }
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    List<PageSearchResult> results = connector.search("default", 0, 10, Locale.FRENCH, null, false);
+
+    assertEquals(1, results.size());
+    assertEquals("default language excerpt", results.get(0).getExcerpts().get(0));
+  }
+
+  @Test
+  public void shouldUseTranslatedExcerptWhenContentLanguagesListsTheUserLanguageAsASingleValue() {
+    // A one-value keyword field comes back from Elasticsearch as a plain
+    // string rather than an array
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_139",
+                "_source": {
+                  "contentLanguages": "fr"
+                },
+                "highlight": {
+                  "content": ["default language excerpt"],
+                  "content-fr": ["extrait en francais"]
+                }
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    List<PageSearchResult> results = connector.search("term", 0, 10, Locale.FRENCH, null, false);
+
+    assertEquals(1, results.get(0).getExcerpts().size());
+    assertEquals("extrait en francais", results.get(0).getExcerpts().get(0));
   }
 
   @Test
@@ -554,6 +747,63 @@ public class PageContentSearchConnectorTest {
   }
 
   @Test
+  public void shouldApplyPermissionFilterWhenGettingById() {
+    when(client.sendRequest(any(), any())).thenAnswer(invocation -> {
+      String query = invocation.getArgument(0);
+      assertTrue(query.contains("\"term\": {\"permissions\": \"Everyone\"}"));
+      assertTrue(query.contains("\"terms\": {\"_id\": [\"page_139\"]}"));
+      return emptyResponse();
+    });
+
+    connector.getById("page_139", Locale.ENGLISH);
+  }
+
+  @Test
+  public void shouldRejectIdsNotShapedLikeABlockIdWithoutQueryingElasticsearch() {
+    assertEquals(null, connector.getById("page_139\"}}}}, \"query\": {\"match_all\": {}}, \"x\": {\"a\":{\"b", Locale.ENGLISH));
+
+    verify(client, never()).sendRequest(any(), any());
+  }
+
+  @Test
+  public void shouldFindIndexedBlockIdsMatchingThePageStorageId() {
+    when(client.sendRequest(any(), any())).thenAnswer(invocation -> {
+      String query = invocation.getArgument(0);
+      assertTrue(query.contains("\"term\": {\"pageStorageId\": \"page_139\"}"));
+      return """
+          {
+            "hits": {
+              "hits": [
+                {"_id": "page_139_aaaaaaaa"},
+                {"_id": "page_139_bbbbbbbb"}
+              ]
+            }
+          }
+          """;
+    });
+
+    List<String> ids = connector.findIndexedBlockIds("page_139");
+
+    assertEquals(List.of("page_139_aaaaaaaa", "page_139_bbbbbbbb"), ids);
+  }
+
+  @Test
+  public void shouldReturnEmptyListWhenFindingIndexedBlockIdsForABlankPageId() {
+    List<String> ids = connector.findIndexedBlockIds("");
+
+    assertTrue(ids.isEmpty());
+    verify(client, never()).sendRequest(any(), any());
+  }
+
+  @Test
+  public void shouldReturnEmptyListWhenFindingIndexedBlockIdsForAMalformedPageId() {
+    List<String> ids = connector.findIndexedBlockIds("page_139\"}}}}, \"query\": {\"match_all\": {}}, \"x\": {\"a\":{\"b");
+
+    assertTrue(ids.isEmpty());
+    verify(client, never()).sendRequest(any(), any());
+  }
+
+  @Test
   public void shouldNotFilterBySpaceWhenNoSpaceIdsProvided() {
     when(client.sendRequest(any(), any())).thenAnswer(invocation -> {
       String query = invocation.getArgument(0);
@@ -561,7 +811,7 @@ public class PageContentSearchConnectorTest {
       return emptyResponse();
     });
 
-    connector.search("term", 0, 10, Locale.ENGLISH, Collections.emptyList());
+    connector.search("term", 0, 10, Locale.ENGLISH, Collections.emptyList(), false);
   }
 
   @Test
@@ -579,7 +829,7 @@ public class PageContentSearchConnectorTest {
       return emptyResponse();
     });
 
-    connector.search("term", 0, 10, Locale.ENGLISH, Arrays.asList(1L, 2L));
+    connector.search("term", 0, 10, Locale.ENGLISH, Arrays.asList(1L, 2L), false);
   }
 
   @Test
@@ -592,7 +842,7 @@ public class PageContentSearchConnectorTest {
       return emptyResponse();
     });
 
-    connector.search("term", 0, 10, Locale.ENGLISH, Arrays.asList(1L));
+    connector.search("term", 0, 10, Locale.ENGLISH, Arrays.asList(1L), false);
   }
 
   private String emptyResponse() {

@@ -28,9 +28,13 @@ import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnector;
 
 public class PageFavoriteACLPlugin extends FavoriteACLPlugin {
 
-  private static final String PAGE_FAVORITE_TYPE     = "page";
+  /** The favorite entity type this plugin handles. */
+  private static final String PAGE_FAVORITE_TYPE = "page";
 
+  /** Used to resolve the page a favorited content block belongs to. */
   private final LayoutService layoutService;
+
+  /** Used to check the current user's access permission on the resolved page. */
 
   private final UserACL       userACL;
 
@@ -46,7 +50,19 @@ public class PageFavoriteACLPlugin extends FavoriteACLPlugin {
 
   @Override
   public boolean canCreateFavorite(Identity userIdentity, String objectId) {
-    Page page = layoutService.getPage(PageContentIndexingConnector.parsePageId(objectId));
+    long pageId;
+    try {
+      pageId = PageContentIndexingConnector.parsePageId(objectId);
+    } catch (NumberFormatException e) {
+      return false;
+    }
+    Page page = layoutService.getPage(pageId);
+    // Whether objectId actually designates an indexed content block of the
+    // page isn't checked here: a favorite pointing at nothing degrades the
+    // same way a legitimately-deleted favorited page already does — the
+    // favorites list's hydration step (PageContentSearchConnector#getById)
+    // simply skips it — so it isn't worth an Elasticsearch round trip on
+    // every favorite creation.
     return page != null && userACL.hasAccessPermission(page, userIdentity);
   }
 

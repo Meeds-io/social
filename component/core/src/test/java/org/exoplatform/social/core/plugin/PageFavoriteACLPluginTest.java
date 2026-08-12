@@ -39,18 +39,20 @@ import org.exoplatform.services.security.Identity;
 @RunWith(MockitoJUnitRunner.class)
 public class PageFavoriteACLPluginTest {
 
-  private static final String     STORAGE_ID = "page_139";
+  private static final String   STORAGE_ID = "page_139";
+
+  private static final String   BLOCK_ID   = "page_139_79e18345";
 
   @Mock
-  private LayoutService           layoutService;
+  private LayoutService         layoutService;
 
   @Mock
-  private UserACL                 userACL;
+  private UserACL               userACL;
 
   @InjectMocks
-  private PageFavoriteACLPlugin   plugin;
+  private PageFavoriteACLPlugin plugin;
 
-  private Identity                userIdentity;
+  private Identity              userIdentity;
 
   @Before
   public void setup() {
@@ -70,30 +72,26 @@ public class PageFavoriteACLPluginTest {
   }
 
   @Test
-  public void shouldReturnTrueWhenUserHasAccessToPage() {
-    Page page = mock(Page.class);
-    when(layoutService.getPage(139L)).thenReturn(page);
-    when(userACL.hasAccessPermission(page, userIdentity)).thenReturn(true);
-
-    assertTrue(plugin.canCreateFavorite(userIdentity, STORAGE_ID));
-  }
-
-  @Test
   public void shouldReturnFalseWhenUserHasNoAccessToPage() {
     Page page = mock(Page.class);
     when(layoutService.getPage(139L)).thenReturn(page);
     when(userACL.hasAccessPermission(page, userIdentity)).thenReturn(false);
 
-    assertFalse(plugin.canCreateFavorite(userIdentity, STORAGE_ID));
+    assertFalse(plugin.canCreateFavorite(userIdentity, BLOCK_ID));
   }
 
   @Test
-  public void shouldResolvePageWhenObjectIdIsAContentBlockId() {
+  public void shouldReturnTrueWhenUserHasAccessToThePage() {
     Page page = mock(Page.class);
     when(layoutService.getPage(139L)).thenReturn(page);
     when(userACL.hasAccessPermission(page, userIdentity)).thenReturn(true);
 
-    assertTrue(plugin.canCreateFavorite(userIdentity, "page_139_79e18345"));
+    assertTrue(plugin.canCreateFavorite(userIdentity, BLOCK_ID));
+  }
+
+  @Test
+  public void shouldReturnFalseWhenObjectIdIsNotNumeric() {
+    assertFalse(plugin.canCreateFavorite(userIdentity, "abc"));
   }
 
 }

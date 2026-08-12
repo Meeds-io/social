@@ -23,6 +23,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,10 +46,12 @@ import jakarta.servlet.http.HttpServletRequest;
 @Tag(name = "/social/rest/pages", description = "Searches pages carrying an indexed content block")
 public class PageSearchRest {
 
+  /** Used to search and hydrate indexed page content blocks. */
   @Autowired
   private PageContentSearchConnector pageContentSearchConnector;
 
   @GetMapping(value = "search", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Secured("users")
   @Operation(summary = "Searches pages carrying an indexed content block", method = "GET")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
@@ -65,11 +68,15 @@ public class PageSearchRest {
                                        int limit,
                                        @Parameter(description = "Restrict results to these space ids")
                                        @RequestParam(name = "spaceId", required = false)
-                                       List<Long> spaceIds) {
-    return pageContentSearchConnector.search(term, offset, limit, request.getLocale(), spaceIds);
+                                       List<Long> spaceIds,
+                                       @Parameter(description = "Whether to search in favorites only or not")
+                                       @RequestParam(name = "favorites", required = false, defaultValue = "false")
+                                       boolean favorites) {
+    return pageContentSearchConnector.search(term, offset, limit, request.getLocale(), spaceIds, favorites);
   }
 
   @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Secured("users")
   @Operation(summary = "Retrieves a single indexed page by its storage id", method = "GET")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
