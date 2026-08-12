@@ -23,6 +23,10 @@
           </button>
           <script type="text/javascript">
             require(['PORTLET/social/TopBarNotification'], app => app.init(<%=badge%>));
+            eXo.env.portal.topbarDisplayedApps = eXo.env.portal.topbarDisplayedApps || [];
+            if (!eXo.env.portal.topbarDisplayedApps.includes('notifications')) {
+              eXo.env.portal.topbarDisplayedApps.push('notifications');
+            }
           </script>
         </div>
       </div>
