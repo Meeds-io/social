@@ -77,6 +77,10 @@
             document.dispatchEvent(new CustomEvent('search-open'));
           });
         }));
+        eXo.env.portal.topbarDisplayedApps = eXo.env.portal.topbarDisplayedApps || [];
+        if (!eXo.env.portal.topbarDisplayedApps.includes('search')) {
+          eXo.env.portal.topbarDisplayedApps.push('search');
+        }
       </script>
     </div>
   </div>
