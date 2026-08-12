@@ -30,8 +30,10 @@ import io.meeds.social.cms.storage.model.CMSSettingMetadataObject;
 
 public class CMSStorage {
 
+  /** The metadata type {@link CMSSetting}s are persisted under. */
   public static final String METADATA_TYPE = "CMSSetting";
 
+  /** Backing generic metadata store {@link CMSSetting}s are persisted through. */
   private MetadataService    metadataService;
 
   public CMSStorage(MetadataService metadataService) {
@@ -52,6 +54,17 @@ public class CMSStorage {
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObjectType(METADATA_TYPE, type);
     return metadataItems.stream()
                         .map(item -> new CMSSetting(type, item.getObjectId(), item.getMetadata().getName(), item.getSpaceId()))
+                        .toList();
+  }
+
+  public List<CMSSetting> getSettingsByTypeAndPageReference(String type, String pageReference) {
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(pageReference,
+                                                                                                       METADATA_TYPE,
+                                                                                                       type,
+                                                                                                       0,
+                                                                                                       -1);
+    return metadataItems.stream()
+                        .map(item -> new CMSSetting(type, item.getObjectId(), pageReference, item.getSpaceId()))
                         .toList();
   }
 

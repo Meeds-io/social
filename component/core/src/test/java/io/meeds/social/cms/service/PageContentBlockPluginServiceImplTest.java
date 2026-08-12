@@ -21,28 +21,51 @@ package io.meeds.social.cms.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.mop.page.PageKey;
+import org.exoplatform.portal.mop.service.LayoutService;
 
 import io.meeds.social.cms.model.CMSSetting;
 import io.meeds.social.cms.model.PageContentBlock;
 import io.meeds.social.cms.plugin.PageContentBlockPlugin;
+import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnector;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PageContentBlockPluginServiceImplTest {
 
   private static final String                CONTENT_TYPE = "notePage";
 
+  private static final PageKey                PAGE_KEY     = PageKey.parse("portal::site::page");
+
+  private static final String                 STORAGE_ID   = "page_139";
+
+  @Mock
+  private CMSService                          cmsService;
+
+  @Mock
+  private LayoutService                       layoutService;
+
+  @Mock
+  private IndexingService                     indexingService;
+
   private PageContentBlockPluginServiceImpl   pluginService;
 
   @Before
   public void setup() {
-    pluginService = new PageContentBlockPluginServiceImpl();
+    pluginService = new PageContentBlockPluginServiceImpl(cmsService, layoutService, indexingService);
   }
 
   @Test
@@ -75,6 +98,63 @@ public class PageContentBlockPluginServiceImplTest {
     PageContentBlockPlugin registered = pluginService.getPlugin(CONTENT_TYPE);
 
     assertEquals(content, registered.getContent(setting));
+  }
+
+  @Test
+  public void shouldReindexContentBlockWhenSettingAndPageExist() {
+    CMSSetting setting = new CMSSetting(CONTENT_TYPE, "name", PAGE_KEY.format(), 0);
+    when(cmsService.getSetting(CONTENT_TYPE, "name")).thenReturn(setting);
+    Page page = mock(Page.class);
+    when(page.getStorageId()).thenReturn(STORAGE_ID);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+
+    pluginService.reindexContentBlock(CONTENT_TYPE, "name");
+
+    verify(indexingService).reindex(PageContentIndexingConnector.TYPE,
+                                    PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "name"));
+  }
+
+  @Test
+  public void shouldDoNothingWhenReindexingAnUnknownSetting() {
+    when(cmsService.getSetting(CONTENT_TYPE, "name")).thenReturn(null);
+
+    pluginService.reindexContentBlock(CONTENT_TYPE, "name");
+
+    verify(indexingService, never()).reindex(any(), any());
+  }
+
+  @Test
+  public void shouldDoNothingWhenReindexingABlockWhosePageNoLongerExists() {
+    CMSSetting setting = new CMSSetting(CONTENT_TYPE, "name", PAGE_KEY.format(), 0);
+    when(cmsService.getSetting(CONTENT_TYPE, "name")).thenReturn(setting);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(null);
+
+    pluginService.reindexContentBlock(CONTENT_TYPE, "name");
+
+    verify(indexingService, never()).reindex(any(), any());
+  }
+
+  @Test
+  public void shouldUnindexContentBlockWhenSettingAndPageExist() {
+    CMSSetting setting = new CMSSetting(CONTENT_TYPE, "name", PAGE_KEY.format(), 0);
+    when(cmsService.getSetting(CONTENT_TYPE, "name")).thenReturn(setting);
+    Page page = mock(Page.class);
+    when(page.getStorageId()).thenReturn(STORAGE_ID);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+
+    pluginService.unindexContentBlock(CONTENT_TYPE, "name");
+
+    verify(indexingService).unindex(PageContentIndexingConnector.TYPE,
+                                    PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "name"));
+  }
+
+  @Test
+  public void shouldDoNothingWhenUnindexingAnUnknownSetting() {
+    when(cmsService.getSetting(CONTENT_TYPE, "name")).thenReturn(null);
+
+    pluginService.unindexContentBlock(CONTENT_TYPE, "name");
+
+    verify(indexingService, never()).unindex(any(), any());
   }
 
 }

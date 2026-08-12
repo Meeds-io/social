@@ -18,12 +18,17 @@
  */
 package io.meeds.social.cms.storage.elasticsearch;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +50,7 @@ import io.meeds.social.cms.plugin.PageContentBlockPlugin;
 import io.meeds.social.cms.service.CMSService;
 import io.meeds.social.cms.service.PageContentBlockPluginService;
 import io.meeds.social.cms.service.PageUrlResolverService;
+import io.meeds.social.cms.utils.PageContentBlockUtils;
 
 /**
  * Indexes a portal Page's content blocks bound through a {@link CMSSetting}
@@ -65,12 +71,16 @@ import io.meeds.social.cms.service.PageUrlResolverService;
  */
 public class PageContentIndexingConnector extends ElasticIndexingServiceConnector {
 
+  /** The ES connector/entity type name for indexed page content blocks. */
   public static final String                  TYPE                 = "page";
 
+  /** Prefix a page's storage id is rendered with (e.g. {@code page_139}). */
   private static final String                 PAGE_STORAGE_ID_PREFIX = "page_";
 
+  /** Class-level logger. */
   private static final Log                    LOGGER               = ExoLogger.getExoLogger(PageContentIndexingConnector.class);
 
+  /** ES mapping template for a single per-language content field. */
   private static final String                 CONTENT_MAPPING      = """
         "@field@" : {
           "type" : "text",
@@ -80,9 +90,20 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
         }
       """;
 
+  /**
+   * The ES field listing the language tags a block actually has content for
+   * (the default/no-language content isn't listed — it's always the
+   * {@code content} field). Lets the search side apply its
+   * "only excerpt in the searching user's own language" rule without having
+   * to pull every language's full text back in {@code _source}.
+   */
+  public static final String                  CONTENT_LANGUAGES_FIELD = "contentLanguages";
+
+  /** ES index mapping for the "page" document type. */
   private static final String                 ES_MAPPING           = """
       {
         "properties" : {
+          "pageStorageId" : {"type" : "keyword"},
           "siteName" : {"type" : "keyword"},
           "siteType" : {"type" : "keyword"},
           "pageName" : {"type" : "keyword"},
@@ -90,19 +111,26 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
           "pagePath" : {"type" : "keyword"},
           "author" : {"type" : "keyword"},
           "permissions" : {"type" : "keyword"},
+          "contentLanguages" : {"type" : "keyword"},
+          "lastUpdatedDate" : {"type" : "date", "format" : "epoch_millis"},
           @content_mappings@
         }
       }
       """;
 
+  /** Used to enumerate registered content-block content types and extract their content. */
   private final PageContentBlockPluginService pluginService;
 
+  /** Used to enumerate the {@link io.meeds.social.cms.model.CMSSetting}s of a content type. */
   private final CMSService                   cmsService;
 
+  /** Used to resolve a setting's page and its metadata (site, title, permissions...). */
   private final LayoutService                 layoutService;
 
+  /** Used to enumerate the configured languages a content block can be translated into. */
   private final LocaleConfigService           localeConfigService;
 
+  /** Used to resolve a page's front-end URL, when one exists. */
   private final PageUrlResolverService        urlResolverService;
 
   public PageContentIndexingConnector(PageContentBlockPluginService pluginService,
@@ -139,15 +167,34 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
 
   @Override
   public List<String> getAllIds(int offset, int limit) {
+    // Sorted so that skip/limit page deterministically across calls — the
+    // underlying content types (a Set) and settings carry no natural order
+    // otherwise, which would let a full reindex skip or repeat blocks across
+    // batches.
+    //
+    // Every reason a setting can be disqualified (blank/draft page
+    // reference, page gone, or the widget that created the block no longer
+    // present on the page) is evaluated BEFORE skip/limit, so a disqualified
+    // setting never consumes a slot in the batch:
+    // ElasticIndexingOperationProcessor#reindexAll loops while the returned
+    // batch size equals the batch size it asked for, so a batch coming back
+    // even one id short — after it has already queued a DELETE_ALL — ends
+    // the reindex and leaves every remaining block unindexed.
+    //
+    // Pages are resolved through a per-call memo: re-walking the settings
+    // that precede `offset` on every batch then costs at most one page load
+    // per distinct page reference, not one per setting.
+    Map<String, ResolvedPage> resolvedPages = new HashMap<>();
     return pluginService.getContentTypes()
                         .stream()
+                        .sorted()
                         .flatMap(type -> cmsService.getSettingsByType(type)
                                                    .stream()
                                                    .filter(s -> StringUtils.isNotBlank(s.getPageReference()))
                                                    .filter(s -> isNotDraftPageReference(s.getPageReference()))
-                                                   .map(s -> buildBlockId(type, s)))
+                                                   .sorted(Comparator.comparing(CMSSetting::getName))
+                                                   .map(s -> buildBlockId(type, s, resolvedPages)))
                         .filter(StringUtils::isNotBlank)
-                        .distinct()
                         .skip(offset)
                         .limit(limit)
                         .toList();
@@ -170,13 +217,14 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
         return null;
       }
 
-      PageContentBlock content = findContentBlock(pageKey.format(), parseBlockHash(id));
+      PageContentBlock content = findContentBlock(page, parseBlockHash(id));
       if (content == null) {
         LOGGER.warn("Content block {} doesn't exist anymore on page {}, thus it can't be indexed", id, pageKey);
         return null;
       }
 
       Map<String, String> fields = new HashMap<>();
+      fields.put("pageStorageId", page.getStorageId());
       fields.put("siteName", pageKey.getSite().getName());
       fields.put("siteType", pageKey.getSite().getType().getName());
       fields.put("pageName", pageKey.getName());
@@ -188,8 +236,14 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
         fields.put("pagePath", pagePath);
       }
       fields.put("author", content.getAuthor());
+      Set<String> contentLanguages = new HashSet<>();
       if (content.getContent() != null) {
-        content.getContent().forEach((lang, text) -> fields.put(contentFieldName(lang), text));
+        content.getContent().forEach((lang, text) -> {
+          fields.put(contentFieldName(lang), text);
+          if (StringUtils.isNotBlank(lang)) {
+            contentLanguages.add(lang);
+          }
+        });
       }
 
       Document document = new Document();
@@ -198,6 +252,7 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
       document.setPermissions(page.getAccessPermissions() == null ? new HashSet<>()
                                                                     : new HashSet<>(Arrays.asList(page.getAccessPermissions())));
       document.setFields(fields);
+      document.addListField(CONTENT_LANGUAGES_FIELD, contentLanguages);
       return document;
     } catch (Exception e) {
       LOGGER.warn("Cannot index content block with id {}", id, e);
@@ -221,39 +276,92 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
 
   /**
    * Resolves the single content block identified by {@code blockHash} among
-   * every block bound to {@code pageReference}, across every registered
-   * content type.
+   * every block bound to {@code page}, across every registered content type.
+   * <p>
+   * The block is matched by hash first, and only the one setting it resolves
+   * to is then checked against the page's layout — the widget-presence rule
+   * has to be enforced here, in the single funnel every indexed document goes
+   * through (an explicit reindex request, e.g. Notes reacting to its own
+   * {@code note.updated}, resolves a block id from the {@code CMSSetting}
+   * alone and would otherwise re-add a block whose widget was removed), but
+   * doing it this way around loads one widget's portlet preferences instead of
+   * every widget's on the page.
+   *
+   * @param page the page carrying the block
+   * @param blockHash the block's hash portion, as parsed from its document id
+   * @return the resolved {@link PageContentBlock}, or {@code null} if none matched
    */
-  private PageContentBlock findContentBlock(String pageReference, String blockHash) {
+  private PageContentBlock findContentBlock(Page page, String blockHash) {
+    String pageReference = page.getPageKey().format();
     for (String contentType : pluginService.getContentTypes()) {
       PageContentBlockPlugin plugin = pluginService.getPlugin(contentType);
       if (plugin == null) {
         continue;
       }
-      CMSSetting setting = cmsService.getSettingsByType(contentType)
+      CMSSetting setting = cmsService.getSettingsByTypeAndPageReference(contentType, pageReference)
                                      .stream()
-                                     .filter(s -> StringUtils.equals(s.getPageReference(), pageReference))
                                      .filter(s -> StringUtils.equals(blockHash(contentType, s.getName()), blockHash))
                                      .findFirst()
                                      .orElse(null);
       if (setting != null) {
-        return plugin.getContent(setting);
+        // The hash is built from the content type and the setting name, so a
+        // match identifies this very block: if its widget is gone, no other
+        // content type can provide it either
+        return PageContentBlockUtils.hasWidgetWithSettingName(layoutService, page, setting.getName()) ?
+                                                                                                     plugin.getContent(setting) :
+                                                                                                     null;
       }
     }
     return null;
   }
 
-  private String buildBlockId(String contentType, CMSSetting setting) {
+  /**
+   * A page resolved once per {@link #getAllIds} call: its storage id, plus
+   * the setting names of the content-block widgets it currently carries.
+   *
+   * @param storageId the page's storage id
+   * @param widgetSettingNames setting names of the widgets currently present on the page
+   */
+  private record ResolvedPage(String storageId, Set<String> widgetSettingNames) {
+  }
+
+  /**
+   * @param  contentType the content block's content type
+   * @param  setting the {@link CMSSetting} binding the block to its page
+   * @param  resolvedPages per-call memo of already resolved page references
+   * @return the block's document id, or {@code null} when the setting's page
+   *         is gone or no widget on it carries the setting's name anymore
+   */
+  private String buildBlockId(String contentType, CMSSetting setting, Map<String, ResolvedPage> resolvedPages) {
+    String pageReference = setting.getPageReference();
+    // computeIfAbsent can't be used: an unresolvable page reference has to be
+    // memoized as null too, otherwise it's re-resolved on every batch
+    if (!resolvedPages.containsKey(pageReference)) {
+      resolvedPages.put(pageReference, resolvePage(pageReference));
+    }
+    ResolvedPage resolvedPage = resolvedPages.get(pageReference);
+    if (resolvedPage == null || !resolvedPage.widgetSettingNames().contains(setting.getName())) {
+      return null;
+    }
+    return buildBlockId(resolvedPage.storageId(), contentType, setting.getName());
+  }
+
+  private ResolvedPage resolvePage(String pageReference) {
     try {
-      Page page = layoutService.getPage(PageKey.parse(setting.getPageReference()));
-      return page == null ? null : buildBlockId(page.getStorageId(), contentType, setting.getName());
+      Page page = layoutService.getPage(PageKey.parse(pageReference));
+      return page == null ? null
+                          : new ResolvedPage(page.getStorageId(),
+                                             PageContentBlockUtils.collectWidgetSettingNames(layoutService, page));
     } catch (Exception e) {
-      LOGGER.debug("Cannot resolve storage id of page {}", setting.getPageReference(), e);
+      LOGGER.debug("Cannot resolve storage id of page {}", pageReference, e);
       return null;
     }
   }
 
   /**
+   * @param pageStorageId the storage id of the page carrying the block
+   * @param contentType the content block's content type
+   * @param settingName the content block's setting name
    * @return the document id for the content block named {@code settingName}
    *         (of type {@code contentType}) bound to the page whose storage
    *         id is {@code pageStorageId}.
@@ -262,8 +370,22 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
     return pageStorageId + "_" + blockHash(contentType, settingName);
   }
 
+  /**
+   * @param contentType the content block's content type
+   * @param settingName the content block's setting name
+   * @return a 64-bit hex digest of {@code contentType}/{@code settingName} —
+   *         collision-resistant enough that two distinct blocks on the same
+   *         page won't silently share one document, unlike a 32-bit
+   *         {@link java.util.Objects#hash}.
+   */
   private static String blockHash(String contentType, String settingName) {
-    return Integer.toHexString(Objects.hash(contentType, settingName));
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      byte[] hash = digest.digest((contentType + ' ' + settingName).getBytes(StandardCharsets.UTF_8));
+      return HexFormat.of().formatHex(hash, 0, 8);
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException("SHA-256 algorithm not available", e);
+    }
   }
 
   /**
@@ -271,6 +393,9 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
    * as either a whole draft site ({@link SiteType#DRAFT}) or, within the
    * same site, a page named {@code <original>_draft_<username>} — neither
    * is a published page and must not be indexed.
+   *
+   * @param pageKey the page key to check
+   * @return {@code true} if the page is a draft
    */
   private boolean isDraftPage(PageKey pageKey) {
     return pageKey.getSite().getType() == SiteType.DRAFT || StringUtils.contains(pageKey.getName(), "_draft_");

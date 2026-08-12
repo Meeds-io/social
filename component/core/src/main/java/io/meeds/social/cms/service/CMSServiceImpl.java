@@ -39,14 +39,19 @@ import io.meeds.social.cms.storage.CMSStorage;
 
 public class CMSServiceImpl implements CMSService {
 
+  /** Class-level logger. */
   private static final Log LOG = ExoLogger.getLogger(CMSServiceImpl.class);
 
+  /** Used to resolve the page a setting is bound to. */
   private LayoutService    layoutService;
 
+  /** Used to resolve the space a setting's page belongs to. */
   private SpaceService     spaceService;
 
+  /** Persists and retrieves {@link CMSSetting}s. */
   private CMSStorage       cmsStorage;
 
+  /** Used to check edit access on a setting's page. */
   private UserACL          userACL;
 
   public CMSServiceImpl(LayoutService layoutService,
@@ -67,6 +72,11 @@ public class CMSServiceImpl implements CMSService {
   @Override
   public List<CMSSetting> getSettingsByType(String type) {
     return cmsStorage.getSettingsByType(type);
+  }
+
+  @Override
+  public List<CMSSetting> getSettingsByTypeAndPageReference(String type, String pageReference) {
+    return cmsStorage.getSettingsByTypeAndPageReference(type, pageReference);
   }
 
   @Override

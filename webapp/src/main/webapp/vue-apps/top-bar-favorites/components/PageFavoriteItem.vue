@@ -72,7 +72,7 @@ export default {
     },
     pageTitle() {
       const name = this.page?.pageTitle || this.page?.pageName || '';
-      const site = this.page?.siteName || '';
+      const site = this.page?.siteLabel || '';
       return site && name && `${name} - ${site}` || name || site;
     },
     pageTitleText() {

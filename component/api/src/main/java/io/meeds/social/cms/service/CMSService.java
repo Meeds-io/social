@@ -90,12 +90,13 @@ public interface CMSService {
 
   /**
    * Saves the Page reference and corresponding space identifier to the setting
-   * content type and name
-   * 
+   * content type and name.
+   *
    * @param settingType Setting content type (notes, attachment, links...)
    * @param settingName Setting content name
    * @param pageReference {@link PageKey#format()} of format TYPE::OWNER::NAME
    * @param spaceId {@link Space#getId()} technical identifier
+   * @param userCreatorId identifier of the identity that created the setting
    * @throws ObjectAlreadyExistsException when the setting already exists
    */
   void saveSettingName(String settingType,
@@ -123,5 +124,17 @@ public interface CMSService {
    * @return all {@link CMSSetting} registered for the given content type
    */
   List<CMSSetting> getSettingsByType(String settingType);
+
+  /**
+   * Retrieves only the {@link CMSSetting}s of the given content type bound
+   * to the given page — unlike {@link #getSettingsByType}, this doesn't scan
+   * every setting of the content type, since the page reference is itself
+   * the metadata name settings are indexed by.
+   *
+   * @param settingType Setting content type (notes, attachment, links...)
+   * @param pageReference {@link PageKey#format()} of format TYPE::OWNER::NAME
+   * @return the {@link CMSSetting}s of the given content type bound to the given page
+   */
+  List<CMSSetting> getSettingsByTypeAndPageReference(String settingType, String pageReference);
 
 }

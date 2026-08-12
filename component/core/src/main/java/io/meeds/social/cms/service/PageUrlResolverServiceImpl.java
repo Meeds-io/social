@@ -33,8 +33,10 @@ import io.meeds.social.cms.plugin.PageUrlResolver;
 @Service
 public class PageUrlResolverServiceImpl implements PageUrlResolverService {
 
+  /** Class-level logger. */
   private static final Log      LOGGER    = ExoLogger.getExoLogger(PageUrlResolverServiceImpl.class);
 
+  /** Registered {@link PageUrlResolver}s, tried in registration order. */
   private List<PageUrlResolver> resolvers = new CopyOnWriteArrayList<>();
 
   @Override

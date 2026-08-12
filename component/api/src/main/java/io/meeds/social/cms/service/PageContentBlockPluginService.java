@@ -48,4 +48,34 @@ public interface PageContentBlockPluginService {
    */
   PageContentBlockPlugin getPlugin(String contentType);
 
+  /**
+   * Re-indexes the page content block bound by the {@link io.meeds.social.cms.model.CMSSetting}
+   * identified by {@code contentType}/{@code settingName} — resolves the
+   * page and the Elasticsearch document id internally, so a plugin owner
+   * (e.g. Notes reacting to its own note-content-changed event) never
+   * needs to know Social's index document-id format or depend on its
+   * storage classes to trigger a re-index.
+   *
+   * @param contentType a {@link io.meeds.social.cms.model.CMSSetting} content type
+   * @param settingName the {@link io.meeds.social.cms.model.CMSSetting} name
+   */
+  void reindexContentBlock(String contentType, String settingName);
+
+  /**
+   * Removes the page content block bound by the {@link io.meeds.social.cms.model.CMSSetting}
+   * identified by {@code contentType}/{@code settingName} from the search
+   * index — for when the plugin's underlying content was deleted while the
+   * {@link io.meeds.social.cms.model.CMSSetting} binding itself is still
+   * around. Unlike {@link #reindexContentBlock}, this can't be replaced by
+   * just re-indexing: a connector's {@code create()} returning {@code null}
+   * because the content is gone makes the indexing framework silently skip
+   * the operation rather than delete the existing document, so a caller
+   * that knows the content was actually deleted must ask for the document
+   * to be removed explicitly.
+   *
+   * @param contentType a {@link io.meeds.social.cms.model.CMSSetting} content type
+   * @param settingName the {@link io.meeds.social.cms.model.CMSSetting} name
+   */
+  void unindexContentBlock(String contentType, String settingName);
+
 }

@@ -1,17 +1,20 @@
 {
   "from": "@offset@",
   "size": "@limit@",
+  "_source": {
+    "excludes": ["content", "content-*"]
+  },
   "query": {
     "bool": {
       "must": {
         "query_string": {
-          "fields": ["pageTitle", "pageName", "siteName", "content*"],
+          "fields": ["pageTitle", "pageName", "siteName", "content", "content-*"],
           "default_operator": "AND",
           "query": "@term@"
         }
       },
       "filter": [
-        @permissions_filter@
+        "@filters@"
       ]
     }
   },
@@ -21,7 +24,11 @@
     "no_match_size": 0,
     "order": "score",
     "fields": {
-      "content*": {
+      "content": {
+        "pre_tags": ["<span class='searchMatchExcerpt'>"],
+        "post_tags": ["</span>"]
+      },
+      "content-*": {
         "pre_tags": ["<span class='searchMatchExcerpt'>"],
         "post_tags": ["</span>"]
       }
