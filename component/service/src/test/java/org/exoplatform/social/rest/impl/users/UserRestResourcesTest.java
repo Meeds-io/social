@@ -18,7 +18,9 @@
  */
 package org.exoplatform.social.rest.impl.users;
 
+import io.meeds.portal.plugin.AclPlugin;
 import io.meeds.social.core.identity.model.UserImportResult;
+import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.web.security.service.OtpService;
@@ -1494,5 +1496,86 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(1, ((List<DataEntity>) dataEntity.get("managers")).size());
     assertEquals(0, (int) dataEntity.get("managedUsersCount"));
     endSession();
+  }
+
+  public void testGetUsersByGroupId() throws Exception {
+    AclPlugin previousAclPlugin = userACL.hasAclPlugin(GroupAclPlugin.OBJECT_TYPE) ?
+                                                                                   userACL.getAclPlugin(GroupAclPlugin.OBJECT_TYPE) :
+                                                                                   null;
+    // john is manager of /platform/users only
+    userACL.addAclPlugin(new AclPlugin() {
+      @Override
+      public String getObjectType() {
+        return GroupAclPlugin.OBJECT_TYPE;
+      }
+
+      @Override
+      public boolean hasPermission(String objectId,
+                                   String permissionType,
+                                   org.exoplatform.services.security.Identity identity) {
+        return identity != null
+               && StringUtils.equals("john", identity.getUserId())
+               && StringUtils.equals("/platform/users", objectId);
+      }
+    });
+    try {
+      // A simple user can't list the members of a group he doesn't manage
+      startSessionAs("demo");
+      ContainerResponse response = service("GET",
+                                           getURLResource("users?groupId=/platform/administrators&limit=5&offset=0"),
+                                           "",
+                                           null,
+                                           null,
+                                           "demo");
+      assertNotNull(response);
+      assertEquals(403, response.getStatus());
+
+      // Nor export them
+      response = service("GET",
+                         getURLResource("users?groupId=/platform/administrators&export=true"),
+                         "",
+                         null,
+                         null,
+                         "demo");
+      assertNotNull(response);
+      assertEquals(403, response.getStatus());
+
+      // An organizational unit manager can't list the members of another group
+      startSessionAs("john");
+      response = service("GET",
+                         getURLResource("users?groupId=/platform/administrators&limit=5&offset=0"),
+                         "",
+                         null,
+                         null,
+                         "john");
+      assertNotNull(response);
+      assertEquals(403, response.getStatus());
+
+      // ... but can list the members of a group he manages
+      response = service("GET",
+                         getURLResource("users?groupId=/platform/users&limit=5&offset=0"),
+                         "",
+                         null,
+                         null,
+                         "john");
+      assertNotNull(response);
+      assertEquals(200, response.getStatus());
+
+      // An administrator can list the members of any group
+      startSessionAs("root", true);
+      response = service("GET",
+                         getURLResource("users?groupId=/platform/administrators&limit=5&offset=0"),
+                         "",
+                         null,
+                         null,
+                         "root");
+      assertNotNull(response);
+      assertEquals(200, response.getStatus());
+    } finally {
+      if (previousAclPlugin != null) {
+        userACL.addAclPlugin(previousAclPlugin);
+      }
+      endSession();
+    }
   }
 }

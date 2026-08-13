@@ -95,9 +95,7 @@ public class ProfileFilter implements Cloneable {
   private Sorting sorting;
 
   private Map<String, String> profileSettings;
-  
-  private List<String> spaceIdentityIds;
-  
+
   private boolean isEnabled = true;
 
   private boolean wildcardSearch = true;
@@ -378,14 +376,6 @@ public class ProfileFilter implements Cloneable {
 
   public void setProfileSettings(Map<String, String> profileSettings) {
     this.profileSettings = profileSettings;
-  }
-
-  public List<String> getSpaceIdentityIds() {
-    return spaceIdentityIds;
-  }
-
-  public void setSpaceIdentityIds(List<String> spaceIdentityIds) {
-    this.spaceIdentityIds = spaceIdentityIds;
   }
 
   public boolean isEmpty() {

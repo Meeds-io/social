@@ -51,8 +51,6 @@ public class UserPermissionService {
   @Autowired
   private OrganizationService   organizationService;
 
-  private List<String>          membershipTypes        = null;
-
   public List<String> getPermissionTokens(String userName) {
     return userPermissionStorage.getPermissions(userName).stream().map(permission -> {
       String token = permission.getMembershipType() + ":" + permission.getGroupId();
@@ -88,16 +86,19 @@ public class UserPermissionService {
     userPermissionStorage.deleteByGroupId(groupId);
   }
 
+  /**
+   * @return the names of the existing membership types. Not cached on purpose:
+   *         membership types can be created or deleted at runtime, and a stale
+   *         list would silently hide the members using a newly created type
+   *         from search results.
+   */
   @SneakyThrows
   public Collection<String> getMembershipTypes() {
-    if (membershipTypes == null) {
-      membershipTypes = organizationService.getMembershipTypeHandler()
-                                           .findMembershipTypes()
-                                           .stream()
-                                           .map(MembershipType::getName)
-                                           .toList();
-    }
-    return membershipTypes;
+    return organizationService.getMembershipTypeHandler()
+                              .findMembershipTypes()
+                              .stream()
+                              .map(MembershipType::getName)
+                              .toList();
   }
 
 }

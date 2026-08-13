@@ -45,7 +45,7 @@ public class UserPermissionStorage {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", allEntries = true)
+  @CacheEvict(cacheNames = "social.userPermissions", key = "#userPermission.userName")
   public UserPermission saveDirectMembership(UserPermission userPermission) {
     UserPermissionEntity entity = userPermissionDAO
                                                    .findByUserNameAndGroupIdAndMembershipType(userPermission.getUserName(),
@@ -62,7 +62,7 @@ public class UserPermissionStorage {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", allEntries = true)
+  @CacheEvict(cacheNames = "social.userPermissions", key = "#userPermission.userName")
   public UserPermission saveInheritedMembership(UserPermission userPermission) {
     UserPermissionEntity entity = userPermissionDAO
                                                    .findByUserNameAndGroupIdAndMembershipType(userPermission.getUserName(),
@@ -82,26 +82,26 @@ public class UserPermissionStorage {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", allEntries = true)
+  @CacheEvict(cacheNames = "social.userPermissions", key = "#userName")
   public void deleteMembership(String userName, String groupId, String membershipType) {
     userPermissionDAO.findByUserNameAndGroupIdAndMembershipType(userName, groupId, membershipType)
                      .ifPresent(userPermissionDAO::delete);
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", allEntries = true)
+  @CacheEvict(cacheNames = "social.userPermissions", key = "#userName")
   public void deleteInheritedMemberships(String userName) {
     userPermissionDAO.deleteByUserNameAndInheritedTrue(userName);
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", allEntries = true)
+  @CacheEvict(cacheNames = "social.userPermissions", key = "#userName")
   public void deleteByUserName(String userName) {
     userPermissionDAO.deleteByUserName(userName);
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", allEntries = true)
+  @CacheEvict(cacheNames = "social.userPermissions", allEntries = true) // impacts any user of the group
   public void deleteByGroupId(String groupId) {
     userPermissionDAO.deleteByGroupId(groupId);
   }

@@ -412,9 +412,11 @@ public class EntityBuilder {
     }
     if (CollectionUtils.isNotEmpty(groupIds) && groupIds.size() == 1) {
       UserACL userACL = ExoContainerContext.getService(UserACL.class);
-      userEntity.setIsManager(userACL.isMemberOf(userACL.getUserIdentity(profile.getIdentity().getRemoteId()), MANAGER, groupIds.getFirst()));
-      userEntity.getDataEntity().put("isRedactor", userACL.isMemberOf(userACL.getUserIdentity(profile.getIdentity().getRemoteId()), REDACTOR_MEMBERSHIP, groupIds.getFirst()));
-      userEntity.getDataEntity().put("isPublisher", userACL.isMemberOf(userACL.getUserIdentity(profile.getIdentity().getRemoteId()), PUBLISHER_MEMBERSHIP, groupIds.getFirst()));
+      org.exoplatform.services.security.Identity aclIdentity = userACL.getUserIdentity(profile.getIdentity().getRemoteId());
+      String groupId = groupIds.getFirst();
+      userEntity.setIsManager(userACL.isMemberOf(aclIdentity, MANAGER, groupId));
+      userEntity.getDataEntity().put("isRedactor", userACL.isMemberOf(aclIdentity, REDACTOR_MEMBERSHIP, groupId));
+      userEntity.getDataEntity().put("isPublisher", userACL.isMemberOf(aclIdentity, PUBLISHER_MEMBERSHIP, groupId));
     }
 
     String[] expandArray = StringUtils.split(expand, ",");

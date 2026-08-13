@@ -56,7 +56,7 @@ public class UserPermissionBackfillUpgradePlugin extends UpgradeProductPlugin {
 
   private static final String         PLUGIN_EXECUTED_KEY         = String.format("%sExecuted", PLUGIN_NAME);
 
-  private boolean                     upgradeSacceeded            = false;
+  private boolean                     upgradeSucceeded            = false;
 
   private final OrganizationService   organizationService;
 
@@ -98,7 +98,7 @@ public class UserPermissionBackfillUpgradePlugin extends UpgradeProductPlugin {
 
   @Override
   public void afterUpgrade() {
-    if (upgradeSacceeded) {
+    if (upgradeSucceeded) {
       settingService.set(Context.GLOBAL.id(PLUGIN_NAME),
                          Scope.APPLICATION.id(PLUGIN_NAME),
                          PLUGIN_EXECUTED_KEY,
@@ -149,7 +149,7 @@ public class UserPermissionBackfillUpgradePlugin extends UpgradeProductPlugin {
                  errorCount);
       }
       storeLastProcessedOffset(0);
-      upgradeSacceeded = true;
+      upgradeSucceeded = true;
     } catch (Exception e) {
       errorCount++;
       LOG.warn("Error backfilling SOC_USER_PERMISSION from organization service, will resume from last checkpoint on next run",
