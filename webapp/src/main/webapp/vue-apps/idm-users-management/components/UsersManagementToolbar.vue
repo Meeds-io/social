@@ -12,12 +12,11 @@
     }"
     :filters-count="filtersCount"
     compact
-    @filter-button-click="$root.$emit('advancedFilter')"
+    @filter-button-click="$root.$emit('open-advanced-filter-drawer')"
     @filter-text-input-end-typing="keyword = $event">
     <template #left>
       <div class="d-flex position-absolute zindex-1 mt-n1 t-0">
         <v-menu
-          v-if="!$root.isDelegatedAdministrator"
           v-model="menu"
           offset-y>
           <!-- eslint-disable vue/valid-v-slot -->
@@ -54,7 +53,7 @@
         <v-btn
           v-if="!$root.isMobile"
           :loading="exporting"
-          :class="!$root.isDelegatedAdministrator && 'ms-2'"
+          class="ms-2"
           color="primary"
           elevation="0"
           outlined
@@ -149,12 +148,12 @@ export default {
     },
   },
   created() {
-    this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
+    this.$root.$on('apply-users-filter', this.applyAdvancedFilter);
     document.addEventListener('multiSelect', this.updateSelectedUsers);
   },
   beforeDestroy() {
     document.removeEventListener('multiSelect', this.updateSelectedUsers);
-    this.$root.$off('applyAdvancedFilter', this.applyAdvancedFilter);
+    this.$root.$off('apply-users-filter', this.applyAdvancedFilter);
   },
   methods: {
     updateSelectedUsers(event) {

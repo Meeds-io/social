@@ -1,4 +1,5 @@
 import './initComponents.js';
+import './services.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -17,17 +18,48 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'GroupsManagement';
 
-//should expose the locale ressources as REST API 
-const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
+//should expose the locale resources as REST API
+const urls = [
+  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social/i18n/locale.portlet.UsersManagement?lang=${lang}`,
+];
 
 export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    // init Vue app when locale ressources are ready
+  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
+    // init Vue app when locale resources are ready
     Vue.createApp({
+      data() {
+        return {
+          group: null,
+        };
+      },
+      computed: {
+        selectedGroup() {
+          return this.group;
+        },
+        isMobile() {
+          return this.$vuetify.breakpoint.smAndDown;
+        },
+      },
+      created() {
+        this.$root.$on('selectGroup', this.setSelectedGroup);
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<groups-management id="${appId}" />`,
+      beforeDestroy() {
+        this.$root.$off('selectGroup', this.setSelectedGroup);
+      },
+      methods: {
+        async setSelectedGroup(group) {
+          this.group = group;
+          if (group) {
+            await this.$groupService.isOrganizationalUnit(group.id)
+              .then(organizationalUnit => this.$set(group, 'organizationalUnit', organizationalUnit));
+          }
+        },
+      },
+      template: `<group-management id="${appId}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n,
     }, `#${appId}`, 'Group Management');

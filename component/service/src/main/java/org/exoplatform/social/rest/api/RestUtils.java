@@ -53,6 +53,7 @@ import org.exoplatform.social.rest.entity.DataEntity;
 
 import io.meeds.portal.security.constant.UserRegistrationType;
 import io.meeds.portal.security.service.SecuritySettingService;
+import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
 import io.meeds.social.space.service.SpaceDirectoryService;
 
 public class RestUtils {
@@ -66,8 +67,6 @@ public class RestUtils {
   public static final String     SUPPORT_TYPE    = "json";
 
   public static final String     ADMIN_GROUP     = "/platform/administrators";
-
-  public static final String     DELEGATED_GROUP = "/platform/delegated";
 
   public static final String     INVISIBLE       = "invisible";
 
@@ -142,12 +141,19 @@ public class RestUtils {
   }
 
   /**
-   * Check if the authenticated user is a member of the delegated group
+   * Check if the authenticated user manages each one of the given groups as an
+   * Organizational Unit
    *
-   * @return
+   * @param groupIds group ids to check
+   * @return true if the authenticated user manages all the given groups
    */
-  public static boolean isMemberOfDelegatedGroup() {
-    return ConversationState.getCurrent().getIdentity().isMemberOf(DELEGATED_GROUP);
+  public static boolean isOrganizationalUnitsManager(List<String> groupIds) {
+    UserACL userACL = ExoContainerContext.getService(UserACL.class);
+    return groupIds.stream()
+                   .allMatch(groupId -> userACL.hasPermission(GroupAclPlugin.OBJECT_TYPE,
+                                                              groupId,
+                                                              GroupAclPlugin.LIST_MEMBERS_PERMISSION_TYPE,
+                                                              ConversationState.getCurrent().getIdentity()));
   }
 
   /**

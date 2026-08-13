@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import io.meeds.social.identity.permission.service.UserPermissionService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,16 +49,20 @@ import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.storage.impl.StorageUtils;
 
 public class ProfileSearchConnector {
+
   private static final Log LOG = ExoLogger.getLogger(ProfileSearchConnector.class);
   private final ElasticSearchingClient client;
   private final ProfilePropertyService profilePropertyService;
+  private final UserPermissionService  userPermissionService;
 
   private String index;
   
   public ProfileSearchConnector(InitParams initParams,
                                 ElasticSearchingClient client,
-                                ProfilePropertyService profilePropertyService) {
+                                ProfilePropertyService profilePropertyService,
+                                UserPermissionService userPermissionService) {
     this.profilePropertyService = profilePropertyService;
+    this.userPermissionService = userPermissionService;
     PropertiesParam param = initParams.getPropertiesParam("constructor.params");
     this.index = param.getProperty("index");
     this.client = client;
@@ -182,9 +187,9 @@ public class ProfileSearchConnector {
     List<String> mustNotClauses = new ArrayList<>();
     List<String> filterClauses = new ArrayList<>();
 
-    if (CollectionUtils.isNotEmpty(filter.getSpaceIdentityIds())) {
-      String permissionsQuery = buildSpacePermissionsExpression(filter);
-      mustClauses.add(permissionsQuery);
+    if (CollectionUtils.isNotEmpty(filter.getGroupIds())) {
+      String membershipPermissionsQuery = buildMembershipPermissionsExpression(filter);
+      mustClauses.add(membershipPermissionsQuery);
       subQueryEmpty = false;
     }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
@@ -626,18 +631,43 @@ public class ProfileSearchConnector {
     return string;
   }
 
-  private String buildSpacePermissionsExpression(ProfileFilter filter) {
-    List<String> permissions = filter.getSpaceIdentityIds();
+  private String buildMembershipPermissionsExpression(ProfileFilter filter) {
+    String membershipType = filter.getMembershipType();
+    boolean includeInherited = filter.isIncludeInheritedMemberships();
+    StringBuilder permissions = new StringBuilder();
+    for (String groupId : filter.getGroupIds()) {
+      if (StringUtils.isNotBlank(membershipType)) {
+        appendTypedMembershipToken(permissions, membershipType, groupId, includeInherited);
+        appendTypedMembershipToken(permissions, UserPermissionService.ANY_MEMBERSHIP_TYPE, groupId, includeInherited);
+      } else {
+        userPermissionService.getMembershipTypes().forEach(m -> {
+          appendTypedMembershipToken(permissions, m, groupId, includeInherited);
+        });
+      }
+    }
     StringBuilder query = new StringBuilder();
     query.append("      {\n");
-    query.append("        \"terms\": {\n");
-    query.append("          \"permissions\": [\n");
-    query.append(String.join(",\n", permissions));
-    query.append("\n");
-    query.append("          ]\n");
-    query.append("        }\n");
-    query.append("      }");
+    query.append("        \"terms\" :{\n");
+    query.append("          \"permissions\" : [").append(permissions).append("]\n");
+    query.append("        } \n");
+    query.append("      }\n");
     return query.toString();
+  }
+
+  private void appendTypedMembershipToken(StringBuilder permissions, String membershipType, String groupId, boolean includeInherited) {
+    String token = membershipType + ":" + groupId;
+    appendToken(permissions, token, false);
+    if (includeInherited) {
+      appendToken(permissions, token, true);
+    }
+  }
+
+  private void appendToken(StringBuilder permissions, String token, boolean inherited) {
+    if (permissions.length() > 0) {
+      permissions.append(",");
+    }
+    String prefix = inherited ? UserPermissionService.INHERITED_TOKEN_PREFIX : "";
+    permissions.append("\"").append(prefix).append(token).append("\"");
   }
   private boolean isEmailProfileProperty(String propertyName) {
     return propertyName.equals("email");

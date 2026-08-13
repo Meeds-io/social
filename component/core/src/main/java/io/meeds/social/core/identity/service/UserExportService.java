@@ -27,14 +27,17 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -48,14 +51,11 @@ import org.springframework.stereotype.Service;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.search.UserSearchService;
-import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -79,8 +79,6 @@ public class UserExportService {
 
   public static final String              GUEST                 = "Guest";
 
-  public static final String              DELEGATED_GROUP       = "/platform/delegated";
-
   private static final String             CONNECTED             = "connected";
 
   private static final int                PAGINATION_PAGE_SIZE  = 10;
@@ -95,9 +93,6 @@ public class UserExportService {
 
   @Autowired
   private OrganizationService             organizationService;
-
-  @Autowired
-  private UserACL                         userAcl;
 
   private ExecutorService                 exportExecutorService;
 
@@ -175,6 +170,7 @@ public class UserExportService {
     int offset = 0;
     int limit = PAGINATION_PAGE_SIZE;
     File file = new File(exportResult.retrieveExportPath());
+    Set<String> exportedGroupIds = getExportedGroupIds(exportFilter);
 
     OutputStream outputStream = new FileOutputStream(file);
     try (PrintWriter writer = new PrintWriter(outputStream, true, StandardCharsets.UTF_8);) {
@@ -188,7 +184,6 @@ public class UserExportService {
         } else {
           for (Identity identity : identities) {
             String userName = identity.getRemoteId();
-            Collection<Membership> memberships = organizationService.getMembershipHandler().findMembershipsByUser(userName);
             writer.write(String.format("%s,%s,%s,%s,%s,%s,%s%n",
                                        userName,
                                        identity.getProfile().getProperty(Profile.FIRST_NAME),
@@ -196,7 +191,9 @@ public class UserExportService {
                                        identity.getProfile().getEmail(),
                                        identity.isEnable() ? "TRUE" : "FALSE",
                                        identity.isExternal() ? GUEST : INTERNAL,
-                                       memberships.stream().map(m -> m.getGroupId()).collect(Collectors.joining(";"))));
+                                       getGroupsToExport(userName,
+                                                         exportedGroupIds,
+                                                         exportFilter.isIncludeInheritedMemberships())));
             exportResult.incrementProcessed();
           }
         }
@@ -209,27 +206,17 @@ public class UserExportService {
 
   private Identity[] getUsers(UserExportFilter exportFilter, String username, int offset, int limit) throws Exception {
     Identity viewerIdentity = identityManager.getOrCreateUserIdentity(username);
-    org.exoplatform.services.security.Identity viewerAclIdentity = userAcl.getUserIdentity(username);
 
     ProfileFilter filter = computeFilter(exportFilter, viewerIdentity);
     if (CollectionUtils.isNotEmpty(exportFilter.getIncludeUsers())) {
-      boolean delegatedAdminUser = isDelegatedAdminUser(filter.getUserType(), viewerAclIdentity);
-      List<String> groupIds = delegatedAdminUser ? getDelegatedAdminGroups(viewerAclIdentity) : Collections.emptyList();
       return exportFilter.getIncludeUsers()
                          .stream()
                          .filter(StringUtils::isNotBlank)
                          .map(identityManager::getOrCreateUserIdentity)
                          .filter(Objects::nonNull)
-                         .filter(i -> !delegatedAdminUser || isMemberOf(i.getRemoteId(), groupIds))
                          .skip(offset)
                          .limit(limit)
                          .toArray(Identity[]::new);
-    } else if (isDelegatedAdminUser(filter.getUserType(), viewerAclIdentity)) {
-      return getDelegatedAdminUsers(viewerAclIdentity,
-                                    exportFilter.getQuery(),
-                                    exportFilter.isDisabled(),
-                                    offset,
-                                    limit);
     } else if (exportFilter.isDisabled()
                && StringUtils.isNotBlank(exportFilter.getQuery())) {
       return searchUsers(exportFilter.getQuery(),
@@ -242,11 +229,47 @@ public class UserExportService {
 
   private ProfileFilter computeFilter(UserExportFilter exportFilter, Identity viewerIdentity) {
     ProfileFilter filter = new ProfileFilter();
-    applySpaceIdsFilter(filter, exportFilter, viewerIdentity);
+    applyGroupIdsFilter(filter, exportFilter, viewerIdentity);
     applySortFilter(filter, exportFilter);
     applyExcludeCurrentUserFilter(exportFilter, viewerIdentity, filter);
     applyUserPropertiesFilter(filter, exportFilter);
     return filter;
+  }
+
+  private String getGroupsToExport(String userName,
+                                   Set<String> exportedGroupIds,
+                                   boolean includeInheritedMemberships) throws Exception {
+    Collection<Membership> memberships = organizationService.getMembershipHandler()
+                                                            .findMembershipsByUser(userName, includeInheritedMemberships);
+    return memberships.stream()
+                      .map(Membership::getGroupId)
+                      .distinct()
+                      .filter(groupId -> exportedGroupIds.isEmpty() || exportedGroupIds.contains(groupId))
+                      .collect(Collectors.joining(";"));
+  }
+
+  private Set<String> getExportedGroupIds(UserExportFilter exportFilter) {
+    List<String> groupIds = exportFilter.getGroupIds();
+    if (CollectionUtils.isEmpty(groupIds)) {
+      return Collections.emptySet();
+    }
+    Set<String> exportedGroupIds = new LinkedHashSet<>();
+    if (exportFilter.isIncludeInheritedMemberships()) {
+      groupIds.forEach(groupId -> collectNestedGroupIds(groupId, exportedGroupIds));
+    } else {
+      exportedGroupIds.addAll(groupIds);
+    }
+    return exportedGroupIds;
+  }
+
+  private void collectNestedGroupIds(String groupId, Set<String> collectedGroupIds) {
+    if (!collectedGroupIds.add(groupId)) {
+      return;
+    }
+    organizationService.getGroupHandler()
+                       .getNestedMemberships(groupId)
+                       .forEach(nestedMembership -> collectNestedGroupIds(nestedMembership.getNestedGroupId(),
+                                                                          collectedGroupIds));
   }
 
   private void applyExcludeCurrentUserFilter(UserExportFilter userExportFilter,
@@ -258,11 +281,19 @@ public class UserExportService {
     }
   }
 
-  private void applySpaceIdsFilter(ProfileFilter filter, UserExportFilter userExportFilter, Identity viewerIdentity) {
+  private void applyGroupIdsFilter(ProfileFilter filter, UserExportFilter userExportFilter, Identity viewerIdentity) {
+    Set<String> allGroupIds = new LinkedHashSet<>();
     List<Long> spaceIds = userExportFilter.getSpaceIds();
     if (CollectionUtils.isNotEmpty(spaceIds)) {
       List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
-      filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(viewerIdentity.getRemoteId(), spaceIdsString));
+      allGroupIds.addAll(SpaceUtils.getSpaceGroupIds(viewerIdentity.getRemoteId(), spaceIdsString));
+    }
+    if (CollectionUtils.isNotEmpty(userExportFilter.getGroupIds())) {
+      allGroupIds.addAll(userExportFilter.getGroupIds());
+      filter.setIncludeInheritedMemberships(userExportFilter.isIncludeInheritedMemberships());
+    }
+    if (CollectionUtils.isNotEmpty(allGroupIds)) {
+      filter.setGroupIds(new ArrayList<>(allGroupIds));
     }
   }
 
@@ -319,64 +350,6 @@ public class UserExportService {
     return Arrays.stream(users)
                  .map(user -> identityManager.getOrCreateUserIdentity(user.getUserName()))
                  .toArray(Identity[]::new);
-  }
-
-  private Identity[] getDelegatedAdminUsers(org.exoplatform.services.security.Identity userIdentity,
-                                            String filterText,
-                                            boolean disabledUsers,
-                                            int offset,
-                                            int limit) throws Exception {
-    List<String> groupIds = getDelegatedAdminGroups(userIdentity);
-
-    ListAccess<User> usersListAccess = null;
-    if (CollectionUtils.isNotEmpty(groupIds)) {
-      Query query = new Query();
-      if (StringUtils.isNotBlank(filterText)) {
-        query.setUserName(filterText);
-      }
-      usersListAccess = organizationService.getUserHandler()
-                                           .findUsersByQuery(query,
-                                                             groupIds,
-                                                             disabledUsers ? UserStatus.DISABLED : UserStatus.ENABLED);
-    }
-
-    int totalSize = usersListAccess == null ? 0 : usersListAccess.getSize();
-    int limitToFetch = limit;
-    if (totalSize < (offset + limitToFetch)) {
-      limitToFetch = totalSize - offset;
-    }
-    User[] users;
-    if (limitToFetch <= 0 || usersListAccess == null) {
-      users = new User[0];
-    } else {
-      users = usersListAccess.load(offset, limitToFetch);
-    }
-
-    return Arrays.stream(users)
-                 .map(user -> identityManager.getOrCreateUserIdentity(user.getUserName()))
-                 .toArray(Identity[]::new);
-  }
-
-  private List<String> getDelegatedAdminGroups(org.exoplatform.services.security.Identity userIdentity) {
-    return userIdentity.getMemberships()
-                       .stream()
-                       .filter(m -> m.getMembershipType().equals("manager")
-                                    && !m.getGroup().equals(DELEGATED_GROUP)
-                                    && !m.getGroup().startsWith("/spaces/"))
-                       .map(MembershipEntry::getGroup)
-                       .toList();
-  }
-
-  private boolean isDelegatedAdminUser(String userType, org.exoplatform.services.security.Identity userAclIdentity) {
-    return !userAcl.isAdministrator(userAclIdentity)
-           && userAclIdentity.isMemberOf(DELEGATED_GROUP)
-           && userType != null
-           && !userType.equalsIgnoreCase(INTERNAL);
-  }
-
-  private boolean isMemberOf(String username, List<String> groupIds) {
-    org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
-    return userAclIdentity != null && groupIds.stream().anyMatch(userAclIdentity::isMemberOf);
   }
 
   private void cleanUpOutdated() {

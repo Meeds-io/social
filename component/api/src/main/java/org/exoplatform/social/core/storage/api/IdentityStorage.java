@@ -373,7 +373,16 @@ public interface IdentityStorage {
   default List<Identity> getIdentities(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit) {
     return getIdentities(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, null, offset, limit);
   }
+
   default List<Identity> getIdentities(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, long offset, long limit){
+    return getIdentities(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, null, null, offset, limit);
+  }
+
+  default List<Identity> getIdentities(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, long offset, long limit){
+    return getIdentities(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, false, offset, limit);
+  }
+
+  default List<Identity> getIdentities(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, boolean includeInheritedMemberships, long offset, long limit){ // NOSONAR parameters count
     return Collections.emptyList();
   }
 
@@ -398,6 +407,14 @@ public interface IdentityStorage {
   }
 
   default List<String> getIdentityIds(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, long offset, long limit) { // NOSONAR parameters count
+    return getIdentityIds(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, null, null, offset, limit);
+  }
+
+  default List<String> getIdentityIds(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, long offset, long limit) { // NOSONAR parameters count
+    return getIdentityIds(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, groupIds, membershipType, false, offset, limit);
+  }
+
+  default List<String> getIdentityIds(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, boolean includeInheritedMemberships, long offset, long limit) { // NOSONAR parameters count
     return Collections.emptyList();
   }
 

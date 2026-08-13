@@ -7,13 +7,6 @@
       :ok-label="$t('GroupsManagement.button.ok')"
       :cancel-label="$t('GroupsManagement.button.cancel')"
       @ok="deleteConfirm()" />
-    <v-btn
-      icon
-      text
-      class="groupMenuIcon"
-      @click="openMenu">
-      <v-icon size="21">mdi-dots-vertical</v-icon>
-    </v-btn>
     <v-menu
       ref="actionMenu"
       v-model="displayActionMenu"
@@ -23,29 +16,48 @@
       right
       offset-x
       offset-y>
+      <template #activator="{ on }">
+        <v-btn
+          icon
+          text
+          v-on="on"
+          @blur="closeMenu()">
+          <v-icon size="18">fa-ellipsis-v</v-icon>
+        </v-btn>
+      </template>
       <v-list class="pa-0" dense>
-        <v-list-item @click="emitEvent($event, 'editGroup')">
+        <v-list-item @click="emitEvent($event, 'open-group-settings-drawer')">
+          <v-list-item-icon class="my-auto ms-1 me-2">
+            <v-icon size="18">fa-cog</v-icon>
+          </v-list-item-icon>
           <v-list-item-title>
-            <i class="uiIcon uiIconEdit"></i>
             {{ $t('GroupsManagement.edit') }}
           </v-list-item-title>
         </v-list-item>
-        <v-list-item @click="emitEvent($event, 'addNewGroup')">
+        <v-list-item @click="emitEvent($event, 'add-new-group')">
+          <v-list-item-icon class="my-auto ms-1 me-2">
+            <v-icon size="18">fa-users</v-icon>
+          </v-list-item-icon>
           <v-list-item-title>
-            <i class="uiIcon uiIconGroup"></i>
             {{ $t('GroupsManagement.addSubGroup') }}
           </v-list-item-title>
         </v-list-item>
         <v-list-item @click="emitEvent($event, 'addNewMembership')">
           <v-list-item-title>
-            <i class="uiIcon uiIconSocConnectUser"></i>
+            <v-list-item-icon class="my-auto ms-1 me-2">
+              <v-icon size="18">fa-user-plus</v-icon>
+            </v-list-item-icon>
             {{ $t('GroupsManagement.addMember') }}
           </v-list-item-title>
         </v-list-item>
         <v-list-item @click="deleteGroup">
+          <v-list-item-icon class="my-auto ms-1 me-2">
+            <v-icon class="error-color" size="18">fa-trash</v-icon>
+          </v-list-item-icon>
           <v-list-item-title>
-            <i class="uiIcon uiIconTrash"></i>
-            {{ $t('GroupsManagement.delete') }}
+            <span class="error-color">
+              {{ $t('GroupsManagement.delete') }}
+            </span>
           </v-list-item-title>
         </v-list-item>
       </v-list>
@@ -74,23 +86,13 @@ export default {
         .toString()}`;
     },
   },
-  created() {
-    $(document).on('mousedown', () => {
-      if (this.displayActionMenu) {
-        window.setTimeout(() => {
-          this.displayActionMenu = false;
-          this.displaySecondButton = false;
-        }, this.waitTimeUntilCloseMenu);
-      }
-    });
-  },
   methods: {
-    openMenu(event) {
+    closeMenu(event) {
       if (event) {
         event.preventDefault();
         event.stopPropagation();
       }
-      this.displayActionMenu = true;
+      this.displayActionMenu = false;
     },
     emitEvent(event, eventName) {
       if (event) {

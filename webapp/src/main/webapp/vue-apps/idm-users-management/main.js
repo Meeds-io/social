@@ -28,7 +28,6 @@ export function init() {
     // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
-        isDelegatedAdministrator: false,
         isSuperUser: false,
       },
       computed: {
@@ -37,8 +36,6 @@ export function init() {
         },
       },
       async created() {
-        const d = await this.$userService.isDelegatedAdministrator();
-        this.isDelegatedAdministrator = d.result === 'true';
         const s = await this.$userService.isSuperUser();
         this.isSuperUser = s.isSuperUser === 'true';
       },

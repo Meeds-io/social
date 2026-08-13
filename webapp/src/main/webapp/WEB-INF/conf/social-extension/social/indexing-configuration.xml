@@ -83,9 +83,9 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="profile_alias" />
-          <property name="index_current" value="${meeds.social.index.profile.current:profile_v4}" />
-          <property name="index_previous" value="${meeds.social.index.profile.previous:profile_v1,profile_v2,profile_v3}" />
-          <property name="reindexOnUpgrade" value="${meeds.social.index.profile.reindexOnUpgrade:true}" />
+          <property name="index_current" value="${meeds.social.index.profile.current:profile_v5}" />
+          <property name="index_previous" value="${meeds.social.index.profile.previous:profile_v1,profile_v2,profile_v3,profile_v4}" />
+          <property name="reindexOnUpgrade" value="${meeds.social.index.profile.reindexOnUpgrade:false}" />
         </properties-param>
       </init-params>
     </component-plugin>
@@ -133,6 +133,20 @@
           <property name="index_previous" value="${meeds.social.index.category.previous:category_v1}" />
           <property name="index_current" value="${meeds.social.index.category.current:category_v2}" />
           <property name="reindexOnUpgrade" value="${meeds.social.index.category.reindexOnUpgrade:true}" />
+        </properties-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>UserPermissionIndexingConnector</name>
+      <set-method>addConnector</set-method>
+      <type>io.meeds.social.identity.permission.search.UserPermissionIndexingConnector</type>
+      <description>User Permission ElasticSearch Indexing Connector</description>
+      <init-params>
+        <properties-param>
+          <name>constructor.params</name>
+          <property name="index_alias" value="user_permission_alias" />
+          <property name="index_current" value="${meeds.social.index.userPermission.current:user_permission_v1}" />
+          <property name="reindexOnUpgrade" value="${meeds.social.index.userPermission.reindexOnUpgrade:true}" />
         </properties-param>
       </init-params>
     </component-plugin>

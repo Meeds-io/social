@@ -33,6 +33,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -334,6 +335,13 @@ public class UserRest implements ResourceContainer, Startable {
                            @Parameter(description = "Space id to filter only its members, ex: 1")
                            @QueryParam("spaceId")
                            List<Long> spaceIds,
+                           @Parameter(description = "Group id to filter only its members, ex: /platform")
+                           @QueryParam("groupId")
+                           List<String> groupIds,
+                           @Parameter(description = "When filtering by groupId, whether to also include members inherited through nested groups")
+                           @Schema(defaultValue = "false")
+                           @QueryParam("includeInheritedMemberships")
+                           boolean includeInheritedMemberships,
                            @Parameter(description = "Is disabled users")
                            @Schema(defaultValue = "false")
                            @QueryParam("isDisabled")
@@ -384,9 +392,13 @@ public class UserRest implements ResourceContainer, Startable {
                            String expand) throws Exception {
 
     String username = request.getRemoteUser();
-    if (!userACL.getSuperUser().equals(username)
-        && !RestUtils.isMemberOfAdminGroup()
-        && !RestUtils.isMemberOfDelegatedGroup()
+    boolean isAdministrator = userACL.getSuperUser().equals(username) || RestUtils.isMemberOfAdminGroup();
+    boolean isGroupsManager = CollectionUtils.isNotEmpty(groupIds) && RestUtils.isOrganizationalUnitsManager(groupIds);
+    if (!isAdministrator && CollectionUtils.isNotEmpty(groupIds) && !isGroupsManager) {
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
+    if (!isAdministrator
+        && !isGroupsManager
         && userType != null
         && !userType.equals(INTERNAL)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
@@ -430,6 +442,8 @@ public class UserRest implements ResourceContainer, Startable {
                                                                userType,
                                                                isConnected,
                                                                spaceIds,
+                                                               groupIds,
+                                                               includeInheritedMemberships,
                                                                isDisabled,
                                                                enrollmentStatus,
                                                                excludeCurrentUser,
@@ -471,9 +485,17 @@ public class UserRest implements ResourceContainer, Startable {
       filter.setSearchEmail(searchEmail);
       filter.setSearchUserName(searchUsername);
       filter.setEnabled(!isDisabled);
+      Set<String> allGroupIds = new LinkedHashSet<>();
       if (CollectionUtils.isNotEmpty(spaceIds)) {
         List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
-        filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(target.getRemoteId(), spaceIdsString));
+        allGroupIds.addAll(SpaceUtils.getSpaceGroupIds(target.getRemoteId(), spaceIdsString));
+      }
+      if (CollectionUtils.isNotEmpty(groupIds)) {
+        allGroupIds.addAll(groupIds);
+        filter.setIncludeInheritedMemberships(includeInheritedMemberships);
+      }
+      if (CollectionUtils.isNotEmpty(allGroupIds)) {
+        filter.setGroupIds(new ArrayList<>(allGroupIds));
       }
       if (StringUtils.isNotBlank(sortField)) {
         Sorting.SortBy sortBy = Sorting.SortBy.valueOf(sortField.toUpperCase());
@@ -489,17 +511,6 @@ public class UserRest implements ResourceContainer, Startable {
       filter.setUserType(userType);
       filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
       filter.setEnrollmentStatus(enrollmentStatus);
-      if (!RestUtils.isMemberOfAdminGroup()
-            && RestUtils.isMemberOfDelegatedGroup()) {
-          List<String> groupIds = ConversationState.getCurrent()
-                  .getIdentity()
-                  .getMemberships()
-                  .stream()
-                  .filter(m -> StringUtils.equals("manager", m.getMembershipType()) || StringUtils.equals("*", m.getMembershipType()))
-                  .map(MembershipEntry::getGroup)
-                  .toList();
-          filter.setGroupIds(groupIds);
-      }
       ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
       identities = list.load(offset, limit);
       if (returnSize) {
@@ -508,7 +519,7 @@ public class UserRest implements ResourceContainer, Startable {
     }
     List<DataEntity> profileInfos = new ArrayList<>();
     for (Identity identity : identities) {
-      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), groupIds, expand);
       //
       profileInfos.add(profileInfo.getDataEntity());
     }
@@ -588,7 +599,6 @@ public class UserRest implements ResourceContainer, Startable {
       }
 
       if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup()
-          && !RestUtils.isMemberOfDelegatedGroup()
           && userType != null
           && !userType.equals(INTERNAL)) {
         throw new WebApplicationException(Response.Status.FORBIDDEN);
@@ -1430,7 +1440,7 @@ public class UserRest implements ResourceContainer, Startable {
                                       @Parameter(description = "User name", required = true)
                                       @PathParam("id")
                                       String id) throws Exception {
-    if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
+    if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
     UserHandler userHandler = organizationService.getUserHandler();
@@ -1456,7 +1466,7 @@ public class UserRest implements ResourceContainer, Startable {
                        @Parameter(description = "User List", required = true)
                        List<String> users) throws Exception {
 
-    if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
+    if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
     String currentUsername = request.getRemoteUser();

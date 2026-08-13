@@ -81,12 +81,21 @@ public class ProfileFilter implements Cloneable {
 
   private List<String> groupIds = null;
 
+  /**
+   * Restricts {@link #groupIds} to a given membership type
+   */
+  private String membershipType;
+
+  /**
+   * When true, {@link #groupIds} matches both direct members and members inherited through nested
+   * groups. When false (default), only direct members are matched.
+   */
+  private boolean includeInheritedMemberships = false;
+
   private Sorting sorting;
 
   private Map<String, String> profileSettings;
-  
-  private List<String> spaceIdentityIds;
-  
+
   private boolean isEnabled = true;
 
   private boolean wildcardSearch = true;
@@ -323,6 +332,22 @@ public class ProfileFilter implements Cloneable {
     return groupIds;
   }
 
+  public void setMembershipType(String membershipType) {
+    this.membershipType = membershipType;
+  }
+
+  public String getMembershipType() {
+    return membershipType;
+  }
+
+  public void setIncludeInheritedMemberships(boolean includeInheritedMemberships) {
+    this.includeInheritedMemberships = includeInheritedMemberships;
+  }
+
+  public boolean isIncludeInheritedMemberships() {
+    return includeInheritedMemberships;
+  }
+
   /**
    * @return the isEnabled
    */
@@ -351,14 +376,6 @@ public class ProfileFilter implements Cloneable {
 
   public void setProfileSettings(Map<String, String> profileSettings) {
     this.profileSettings = profileSettings;
-  }
-
-  public List<String> getSpaceIdentityIds() {
-    return spaceIdentityIds;
-  }
-
-  public void setSpaceIdentityIds(List<String> spaceIdentityIds) {
-    this.spaceIdentityIds = spaceIdentityIds;
   }
 
   public boolean isEmpty() {
