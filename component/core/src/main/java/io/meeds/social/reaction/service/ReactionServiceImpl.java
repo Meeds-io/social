@@ -95,11 +95,18 @@ public class ReactionServiceImpl implements ReactionService {
   @Override
   public void setReaction(String objectType, String objectId, String reactionId, String username) throws ObjectNotFoundException,
                                                                                                   IllegalAccessException {
+    ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
+    if (activity.getPublicationStartTime() != null) {
+      // same rule as the like path: reacting isn't allowed on a scheduled
+      // activity which isn't published yet
+      throw new IllegalAccessException(String.format("User %s can't react to the not yet published activity %s",
+                                                     username,
+                                                     objectId));
+    }
     ReactionOption option = getReactionOptionsById().get(reactionId);
     if (option == null || !option.supports(objectType)) {
       throw new IllegalArgumentException("reaction.unknownReactionId");
     }
-    ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
     Identity userIdentity = identityManager.getOrCreateUserIdentity(username);
     long identityId = Long.parseLong(userIdentity.getId());
     MetadataObject object = activity.getMetadataObject();
@@ -112,6 +119,11 @@ public class ReactionServiceImpl implements ReactionService {
     if (sameReaction && alreadyLiker) {
       return;
     }
+    // the like is written first: a failure of the typed decoration then
+    // leaves a benign plain like instead of an orphan typed item
+    if (!alreadyLiker) {
+      activityManager.saveLike(activity, userIdentity);
+    }
     if (existingItem != null && !sameReaction) {
       reactionStorage.deleteReaction(existingItem.getId(), identityId);
     }
@@ -119,11 +131,10 @@ public class ReactionServiceImpl implements ReactionService {
       try {
         reactionStorage.createReaction(object, reactionId, identityId);
       } catch (ObjectAlreadyExistsException e) {
+        // not the uniqueness mechanism (the metadata type allows multiple
+        // items per object); kept only because the API declares it
         LOG.debug("Reaction {} already exists for user {} on object {}/{}", reactionId, username, objectType, objectId, e);
       }
-    }
-    if (!alreadyLiker) {
-      activityManager.saveLike(activity, userIdentity);
     }
     Reaction reaction = new Reaction(identityId, reactionId, objectType, objectId);
     broadcastEvent(alreadyLiker ? REACTION_UPDATED_EVENT_NAME : REACTION_CREATED_EVENT_NAME, reaction, username);
@@ -170,6 +181,12 @@ public class ReactionServiceImpl implements ReactionService {
                             .filter(optionId -> !LIKE_REACTION_ID.equals(optionId))
                             .filter(countsByOption::containsKey)
                             .forEach(optionId -> counts.put(optionId, countsByOption.get(optionId)));
+    // items of no-longer-registered options still deflate the like bucket:
+    // return them as-is so the per-option totals keep matching the reactors
+    countsByOption.entrySet()
+                  .stream()
+                  .filter(entry -> !counts.containsKey(entry.getKey()))
+                  .forEach(entry -> counts.put(entry.getKey(), entry.getValue()));
     return counts;
   }
 
@@ -188,22 +205,69 @@ public class ReactionServiceImpl implements ReactionService {
                             .map(item -> new Reaction(item.getCreatorId(), reactionId, objectType, objectId))
                             .toList();
     }
-    Map<Long, String> reactionIdsByReactor = reactionStorage.getReactionItems(object)
+    String[] likerIds = activity.getLikeIdentityIds() == null ? new String[0] : activity.getLikeIdentityIds();
+    if (LIKE_REACTION_ID.equals(reactionId)) {
+      // plain likers = likers minus typed reactors; the typed items list is
+      // bounded by the typed reactions count, not by the likers count
+      List<Long> typedReactorIds = reactionStorage.getTypedReactionItems(object)
+                                                  .stream()
+                                                  .map(MetadataItem::getCreatorId)
+                                                  .toList();
+      return java.util.Arrays.stream(likerIds)
+                             .map(Long::parseLong)
+                             .filter(likerId -> !typedReactorIds.contains(likerId))
+                             .skip(Math.max(offset, 0))
+                             .limit(limit > 0 ? limit : Long.MAX_VALUE)
+                             .map(likerId -> new Reaction(likerId, LIKE_REACTION_ID, objectType, objectId))
+                             .toList();
+    }
+    // no filter: page over the likers first, then decorate only the page's
+    // reactors with their typed reaction, never loading the full items list
+    List<Long> pagedLikerIds = java.util.Arrays.stream(likerIds)
+                                               .map(Long::parseLong)
+                                               .skip(Math.max(offset, 0))
+                                               .limit(limit > 0 ? limit : Long.MAX_VALUE)
+                                               .toList();
+    Map<Long, String> reactionIdsByReactor = reactionStorage.getReactionItemsByCreators(object, pagedLikerIds)
                                                             .stream()
                                                             .collect(Collectors.toMap(MetadataItem::getCreatorId,
                                                                                       item -> item.getMetadata().getName(),
                                                                                       (first, second) -> first));
-    String[] likerIds = activity.getLikeIdentityIds() == null ? new String[0] : activity.getLikeIdentityIds();
-    return java.util.Arrays.stream(likerIds)
-                           .map(likerId -> new Reaction(Long.parseLong(likerId),
-                                                        reactionIdsByReactor.getOrDefault(Long.parseLong(likerId),
-                                                                                          LIKE_REACTION_ID),
-                                                        objectType,
-                                                        objectId))
-                           .filter(reaction -> reactionId == null || LIKE_REACTION_ID.equals(reaction.getReactionId()))
-                           .skip(Math.max(offset, 0))
-                           .limit(limit > 0 ? limit : Long.MAX_VALUE)
-                           .toList();
+    return pagedLikerIds.stream()
+                        .map(likerId -> new Reaction(likerId,
+                                                     reactionIdsByReactor.getOrDefault(likerId, LIKE_REACTION_ID),
+                                                     objectType,
+                                                     objectId))
+                        .toList();
+  }
+
+  @Override
+  public void deleteReactionItem(String objectType, String objectId, long reactorIdentityId) {
+    if (!StringUtils.equals(objectType, ACTIVITY_OBJECT_TYPE)) {
+      return;
+    }
+    ExoSocialActivity activity = activityManager.getActivity(objectId);
+    if (activity == null) {
+      return;
+    }
+    MetadataObject object = activity.getMetadataObject();
+    MetadataItem existingItem = reactionStorage.getUserReactionItem(object, reactorIdentityId);
+    if (existingItem == null) {
+      return;
+    }
+    try {
+      reactionStorage.deleteReaction(existingItem.getId(), reactorIdentityId);
+      broadcastEvent(REACTION_DELETED_EVENT_NAME,
+                     new Reaction(reactorIdentityId, existingItem.getMetadata().getName(), objectType, objectId),
+                     null);
+    } catch (ObjectNotFoundException e) {
+      LOG.debug("Reaction item {} already deleted for reactor {} on object {}/{}",
+                existingItem.getId(),
+                reactorIdentityId,
+                objectType,
+                objectId,
+                e);
+    }
   }
 
   private Map<String, ReactionOption> getReactionOptionsById() {

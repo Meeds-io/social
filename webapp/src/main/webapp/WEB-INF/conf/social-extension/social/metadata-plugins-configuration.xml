@@ -313,8 +313,12 @@
         </value-param>
         <value-param>
           <name>allowMultipleItemsPerObject</name>
+          <!-- one Metadata row per reaction option shared by every reactor:
+               several users must be able to react with the same option on the
+               same object; the one-reaction-per-user rule is enforced in
+               ReactionService, not here -->
           <description>Whether to allow adding the same object to the same Metadata or not</description>
-          <value>false</value>
+          <value>true</value>
         </value-param>
         <object-param>
           <name>metadataType</name>
