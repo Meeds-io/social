@@ -21,11 +21,13 @@
 import UserSettingSecurity from './components/UserSettingSecurity.vue';
 import UserSettingSecurityEmailDrawer from './components/UserSettingSecurityEmailDrawer.vue';
 import UserSettingSecurityPasswordDrawer from './components/UserSettingSecurityPasswordDrawer.vue';
+import UserSettingDeactivateAccountDrawer from './components/UserSettingDeactivateAccountDrawer.vue';
 
 const components = {
   'user-setting-security': UserSettingSecurity,
   'user-setting-security-email-drawer': UserSettingSecurityEmailDrawer,
   'user-setting-security-password-drawer': UserSettingSecurityPasswordDrawer,
+  'user-setting-deactivate-account-drawer': UserSettingDeactivateAccountDrawer,
 };
 
 for (const key in components) {
