@@ -20,6 +20,7 @@ package io.meeds.social.reaction.storage;
 
 import static io.meeds.social.reaction.service.ReactionService.METADATA_TYPE_NAME;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +38,10 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 @Component
 public class ReactionStorage {
 
+  private static final int CREATORS_QUERY_CHUNK_SIZE = 500;
+
   @Autowired
-  private MetadataService metadataService;
+  private MetadataService  metadataService;
 
   public Map<String, Long> countReactionsByOption(MetadataObject object) {
     return metadataService.countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(METADATA_TYPE_NAME, object);
@@ -54,7 +57,19 @@ public class ReactionStorage {
   }
 
   public List<MetadataItem> getReactionItemsByCreators(MetadataObject object, List<Long> creatorIds) {
-    return metadataService.getMetadataItemsByMetadataTypeAndObjectAndCreators(METADATA_TYPE_NAME, object, creatorIds);
+    if (creatorIds.size() <= CREATORS_QUERY_CHUNK_SIZE) {
+      return metadataService.getMetadataItemsByMetadataTypeAndObjectAndCreators(METADATA_TYPE_NAME, object, creatorIds);
+    }
+    // chunk the IN clause: some databases cap its expression count (Oracle:
+    // 1000) and the Service API accepts unbounded pages (limit <= 0)
+    List<MetadataItem> items = new ArrayList<>();
+    for (int fromIndex = 0; fromIndex < creatorIds.size(); fromIndex += CREATORS_QUERY_CHUNK_SIZE) {
+      int toIndex = Math.min(fromIndex + CREATORS_QUERY_CHUNK_SIZE, creatorIds.size());
+      items.addAll(metadataService.getMetadataItemsByMetadataTypeAndObjectAndCreators(METADATA_TYPE_NAME,
+                                                                                      object,
+                                                                                      creatorIds.subList(fromIndex, toIndex)));
+    }
+    return items;
   }
 
   /**
