@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -186,6 +187,7 @@ public class ReactionServiceImpl implements ReactionService {
     countsByOption.entrySet()
                   .stream()
                   .filter(entry -> !counts.containsKey(entry.getKey()))
+                  .sorted(Map.Entry.comparingByKey())
                   .forEach(entry -> counts.put(entry.getKey(), entry.getValue()));
     return counts;
   }
@@ -209,10 +211,10 @@ public class ReactionServiceImpl implements ReactionService {
     if (LIKE_REACTION_ID.equals(reactionId)) {
       // plain likers = likers minus typed reactors; the typed items list is
       // bounded by the typed reactions count, not by the likers count
-      List<Long> typedReactorIds = reactionStorage.getTypedReactionItems(object)
-                                                  .stream()
-                                                  .map(MetadataItem::getCreatorId)
-                                                  .toList();
+      Set<Long> typedReactorIds = reactionStorage.getTypedReactionItems(object)
+                                                 .stream()
+                                                 .map(MetadataItem::getCreatorId)
+                                                 .collect(Collectors.toSet());
       return java.util.Arrays.stream(likerIds)
                              .map(Long::parseLong)
                              .filter(likerId -> !typedReactorIds.contains(likerId))
@@ -248,6 +250,12 @@ public class ReactionServiceImpl implements ReactionService {
     }
     ExoSocialActivity activity = activityManager.getActivity(objectId);
     if (activity == null) {
+      return;
+    }
+    // the like lifecycle dispatches asynchronously: when the reactor liked or
+    // reacted again before this cleanup runs, keeping the item (restoring the
+    // previous typed reaction) beats deleting a just-restored one
+    if (ArrayUtils.contains(activity.getLikeIdentityIds(), String.valueOf(reactorIdentityId))) {
       return;
     }
     MetadataObject object = activity.getMetadataObject();
