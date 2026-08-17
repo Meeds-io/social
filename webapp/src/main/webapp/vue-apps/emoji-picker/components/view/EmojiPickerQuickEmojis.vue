@@ -20,7 +20,7 @@
 <template>
   <div>
     <v-btn
-      v-for="emoji in quickEmojis"
+      v-for="emoji in emojis"
       :key="emoji.unicode"
       width="28"
       min-width="28"
@@ -38,16 +38,18 @@
 <script>
 
 export default {
-  data() {
-    return {
-      quickEmojis: [
+  props: {
+    // each consumer injects its own list; defaults to the historical chat quick list
+    emojis: {
+      type: Array,
+      default: () => [
         {unicode: '1F44D', data: '&#x1F44D;'},
         {unicode: '2764-FE0F', data: '&#x2764;&#xFE0F;'},
         {unicode: '1F605', data: '&#x1F605;'},
         {unicode: '1F62E', data: '&#x1F62E;'},
         {unicode: '1F622', data: '&#x1F622;'}
       ]
-    };
+    },
   },
   methods: {
     getEmojiChar(unicode) {

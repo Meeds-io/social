@@ -141,6 +141,14 @@ public class MetadataStorage {
     return fromEntity(metadataItemEntity);
   }
 
+  public Map<String, Long> countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(String metadataTypeName,
+                                                                                          MetadataObject object) {
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
+    return metadataItemDAO.countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(metadataType.getId(),
+                                                                                          object.getType(),
+                                                                                          object.getId());
+  }
+
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(String metadataName,
                                                                                                   String metadataTypeName,
                                                                                                   String objectType,
