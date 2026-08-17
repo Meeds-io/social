@@ -246,6 +246,21 @@
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item
+        class="px-0 my-0"
+        dense
+        @click="accountDeactivationEnabled = !accountDeactivationEnabled">
+        <v-list-item-content>
+          <v-list-item-title>
+            {{ $t('generalSettings.access.startSettingPlatform.allowAccountDeactivation') }}
+          </v-list-item-title>
+        </v-list-item-content>
+        <v-list-item-action class="my-0">
+          <v-switch
+            v-model="accountDeactivationEnabled"
+            @click.stop="0" />
+        </v-list-item-action>
+      </v-list-item>
       <v-list-item class="my-0 px-0" dense>
         <v-list-item-content>
           <v-list-item-title>
@@ -361,6 +376,7 @@ export default {
     accessType: 'OPEN',
     externalUserOpenRegistration: false,
     externalUserRestrictedRegistration: false,
+    accountDeactivationEnabled: false,
     defaultSpaceIds: [],
     mountDone: false,
     initialized: false,
@@ -385,6 +401,7 @@ export default {
         externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
         extraGroupIds: this.defaultSpaceIds,
         type: this.accessType,
+        accountDeactivationEnabled: this.accountDeactivationEnabled,
       });
       return JSON.stringify(newSettings) !== JSON.stringify(oldSettings);
     },
@@ -437,6 +454,7 @@ export default {
         await this.$nextTick();
         this.externalUserOpenRegistration = this.accessType === 'OPEN' && this.registrationSettings?.externalUser || false;
         this.externalUserRestrictedRegistration = this.accessType === 'RESTRICTED' && this.registrationSettings?.externalUser || false;
+        this.accountDeactivationEnabled = this.registrationSettings?.accountDeactivationEnabled || false;
         this.defaultSpaceIds = this.registrationSettings?.extraGroupIds || [];
       } finally {
         this.initialized = true;
@@ -444,13 +462,15 @@ export default {
     },
     save() {
       this.$root.loading = true;
+      const accountDeactivationTurnedOn = this.accountDeactivationEnabled && !this.registrationSettings?.accountDeactivationEnabled;
       return this.$registrationService.saveRegistrationSettings({
         type: this.accessType,
         externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
         extraGroupIds: this.defaultSpaceIds,
+        accountDeactivationEnabled: this.accountDeactivationEnabled,
       })
         .then(() => this.$emit('saved'))
-        .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.registrationSavedSuccessfully'), 'success'))
+        .then(() => this.$root.$emit('alert-message', accountDeactivationTurnedOn && this.$t('generalSettings.accountDeactivationEnabledSuccessfully') || this.$t('generalSettings.registrationSavedSuccessfully'), 'success'))
         .catch(e => this.errorMessage = String(e))
         .then(() => this.init())
         .finally(() => this.$root.loading = false);
