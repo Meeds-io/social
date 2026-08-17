@@ -17,6 +17,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 (function() {
+  function setSanitizedHtml(el, html) {
+    el.innerHTML = html && EmojiAccessibility.addAccessibleNameToEmojis(html) || '';
+    if (html && !EmojiAccessibility.isReady()) {
+      EmojiAccessibility.onReady(el, () => {
+        el.innerHTML = EmojiAccessibility.addAccessibleNameToEmojis(html);
+      });
+    }
+  }
   window.Vue.directive('sanitized-html', function (el, binding) {
     let content = binding.value;
     if (content) {
@@ -36,7 +44,7 @@
     if (!el.classList.contains('reset-style-box')) {
       el.classList.add('reset-style-box');
     }
-    el.innerHTML = content && ExtendedDomPurify.purify(content) || '';
+    setSanitizedHtml(el, content && ExtendedDomPurify.purify(content));
   });
   window.Vue.directive('sanitized-html-no-embed', function (el, binding) {
     let content = binding.value;
@@ -54,6 +62,6 @@
       }
 
     }
-    el.innerHTML = content && ExtendedDomPurify.purify(content) || '';
+    setSanitizedHtml(el, content && ExtendedDomPurify.purify(content));
   });
 })();

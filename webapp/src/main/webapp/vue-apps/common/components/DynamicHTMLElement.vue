@@ -1,8 +1,10 @@
 <script>
 export default {
+  mixins: [EmojiAccessibility.readyMixin],
   render: function (createElement) {
     if (this.html) {
-      const formattedHtml = ExtendedDomPurify.purify(`<div>${this.html}</div>`);
+      const purifiedHtml = ExtendedDomPurify.purify(`<div>${this.html}</div>`);
+      const formattedHtml = this.emojiBankReady && EmojiAccessibility.addAccessibleNameToEmojis(purifiedHtml) || purifiedHtml;
       return createElement(this.element || 'div', {
         domProps: {
           innerHTML: formattedHtml
