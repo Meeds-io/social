@@ -61,9 +61,9 @@
             </v-list-item-title>
             <v-list-item-icon
               v-if="hasChildren && childrenHasPage"
-              class="ms-0 ma-auto full-height">
+              class="ms-0 me-n2 ma-auto full-height">
               <span class="d-flex align-center" aria-hidden="true">
-                <v-icon size="18">
+                <v-icon class="pa-3" size="18">
                   {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
                 </v-icon>
               </span>
