@@ -3,6 +3,15 @@
     :class="(isDesktop && !$root.reducedWidth) && 'position-absolute' || ''"
     class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
     <div
+      v-if="reactionEmojisToDisplay.length && !$root.reducedWidth"
+      class="activityReactionsEmojis d-none d-lg-flex align-center me-1 clickable"
+      @click="openDrawer">
+      <span
+        v-for="emoji in reactionEmojisToDisplay"
+        :key="emoji"
+        class="reaction-emoji">{{ emoji }}</span>
+    </div>
+    <div
       v-if="!$root.reducedWidth"
       :style="`min-height:${avatarSize}px`"
       class="reactionsUsersAvatar position-relative d-none d-lg-inline">
@@ -92,9 +101,29 @@ export default {
   },
   data: () => ({
     maxLikersToShow: 4,
-    showAvatarAnimation: false
+    maxReactionEmojisToShow: 3,
+    showAvatarAnimation: false,
+    reactionOptions: [],
   }),
+  created() {
+    this.$reactionService.getReactionOptions('activity')
+      .then(options => this.reactionOptions = options);
+  },
   computed: {
+    reactionEmojisToDisplay() {
+      const reactionItems = this.activity?.metadatas?.reactions || [];
+      const countsByReactionId = {};
+      reactionItems.forEach(item => countsByReactionId[item.name] = (countsByReactionId[item.name] || 0) + 1);
+      const likeCount = Math.max(this.likersNumber - reactionItems.length, 0);
+      if (likeCount) {
+        countsByReactionId.like = likeCount;
+      }
+      return Object.keys(countsByReactionId)
+        .sort((id1, id2) => countsByReactionId[id2] - countsByReactionId[id1])
+        .slice(0, this.maxReactionEmojisToShow)
+        .map(reactionId => this.reactionOptions.find(option => option.id === reactionId)?.emoji)
+        .filter(emoji => !!emoji);
+    },
     seeMoreLikerToDisplay () {
       return this.likersNumber >= this.maxLikersToShow && this.likers[this.maxLikersToShow - 1] || null;
     },

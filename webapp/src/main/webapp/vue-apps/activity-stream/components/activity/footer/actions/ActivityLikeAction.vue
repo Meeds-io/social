@@ -28,7 +28,12 @@
             v-on="on"
             @click="changeLike">
             <div class="d-flex flex-lg-row flex-column">
+              <span
+                v-if="userReactionEmoji"
+                :style="`font-size: ${isMobile && '20' || '16'}px`"
+                class="reaction-emoji baseline-vertical-align">{{ userReactionEmoji }}</span>
               <v-icon
+                v-else
                 :class="likeColorClass"
                 class="baseline-vertical-align"
                 :size="isMobile && '20' || '16'">
@@ -63,6 +68,7 @@ export default {
   data: () => ({
     changingLike: false,
     hasLiked: false,
+    reactionOptions: [],
   }),
   computed: {
     activityId() {
@@ -72,6 +78,12 @@ export default {
       const reactionItems = this.activity?.metadatas?.reactions;
       const userItem = reactionItems?.find?.(item => `${item.creatorId}` === `${eXo.env.portal.userIdentityId}`);
       return userItem?.name || (this.hasLiked && 'like') || null;
+    },
+    userReactionEmoji() {
+      if (!this.userReactionId || this.userReactionId === 'like') {
+        return null;
+      }
+      return this.reactionOptions.find(option => option.id === this.userReactionId)?.emoji;
     },
     likeColorClass() {
       return this.hasLiked && 'primary--text' || 'disabled--text';
@@ -92,6 +104,8 @@ export default {
   },
   created() {
     this.computeLikes();
+    this.$reactionService.getReactionOptions('activity')
+      .then(options => this.reactionOptions = options);
   },
   methods: {
     changeLike() {
