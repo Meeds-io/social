@@ -2,44 +2,49 @@
   <div
     :class="cssClass"
     class="d-inline-flex">
-    <!-- Added for mobile -->
-    <v-tooltip :disabled="isMobile || isScheduled" bottom>
-      <template #activator="{ on, attrs }">
-        <v-btn
-          :id="`LikeLink${activityId}`"
-          :loading="changingLike"
-          :disabled="isScheduled"
-          :class="[likeTextColorClass, isScheduled && 'opacity-5']"
-          :aria-label="isScheduled ? null : (hasLiked ? $t('UIActivity.aria.Like') : $t('UIActivity.msg.LikeActivity'))"
-          class="pa-0 mt-0"
-          text
-          link
-          small
-          v-bind="{
-            ...attrs,
-            role: null,
-            'aria-haspopup': null,
-            'aria-expanded': null,
-            'aria-pressed': hasLiked}"
-          v-on="on"
-          @click="changeLike">
-          <div class="d-flex flex-lg-row flex-column">
-            <v-icon
-              :class="likeColorClass"
-              class="baseline-vertical-align"
-              :size="isMobile && '20' || '16'">
-              fa-thumbs-up
-            </v-icon>
-            <span v-if="!isMobile && !$root.reducedWidth" class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
-              {{ $t('UIActivity.msg.LikeActivity') }}
-            </span>
-          </div>
-        </v-btn>
-      </template>
-      <span>
-        {{ likeButtonTitle }}
-      </span>
-    </v-tooltip>
+    <reaction-chooser
+      :current-reaction-id="userReactionId"
+      object-type="activity"
+      @reaction-select="selectReaction">
+      <!-- Added for mobile -->
+      <v-tooltip :disabled="isMobile || isScheduled" bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            :id="`LikeLink${activityId}`"
+            :loading="changingLike"
+            :disabled="isScheduled"
+            :class="[likeTextColorClass, isScheduled && 'opacity-5']"
+            :aria-label="isScheduled ? null : (hasLiked ? $t('UIActivity.aria.Like') : $t('UIActivity.msg.LikeActivity'))"
+            class="pa-0 mt-0"
+            text
+            link
+            small
+            v-bind="{
+              ...attrs,
+              role: null,
+              'aria-haspopup': null,
+              'aria-expanded': null,
+              'aria-pressed': hasLiked}"
+            v-on="on"
+            @click="changeLike">
+            <div class="d-flex flex-lg-row flex-column">
+              <v-icon
+                :class="likeColorClass"
+                class="baseline-vertical-align"
+                :size="isMobile && '20' || '16'">
+                fa-thumbs-up
+              </v-icon>
+              <span v-if="!isMobile && !$root.reducedWidth" class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
+                {{ $t('UIActivity.msg.LikeActivity') }}
+              </span>
+            </div>
+          </v-btn>
+        </template>
+        <span>
+          {{ likeButtonTitle }}
+        </span>
+      </v-tooltip>
+    </reaction-chooser>
   </div>
 </template>
 
@@ -62,6 +67,11 @@ export default {
   computed: {
     activityId() {
       return this.activity && this.activity.id;
+    },
+    userReactionId() {
+      const reactionItems = this.activity?.metadatas?.reactions;
+      const userItem = reactionItems?.find?.(item => `${item.creatorId}` === `${eXo.env.portal.userIdentityId}`);
+      return userItem?.name || (this.hasLiked && 'like') || null;
     },
     likeColorClass() {
       return this.hasLiked && 'primary--text' || 'disabled--text';
@@ -91,28 +101,58 @@ export default {
       if (this.hasLiked) {
         return this.unlikeActivity();
       } else {
-        return this.likeActivity();
+        return this.applyReaction('like');
       }
     },
-    likeActivity() {
+    selectReaction(option) {
+      if (this.changingLike || (this.hasLiked && option.id === this.userReactionId)) {
+        return;
+      }
+      return this.applyReaction(option.id);
+    },
+    applyReaction(reactionId) {
       this.changingLike = true;
-      return this.$activityService.likeActivity(this.activityId)
-        .then(data => {
+      return this.$reactionService.setReaction('activity', this.activityId, reactionId)
+        .then(() => {
           this.activity.hasLiked = 'true';
-          this.computeLikes(data);
-          this.$root.$emit('activity-liked', this.activityId);
+          this.updateLocalReactionItem(reactionId);
+          return this.refreshLikers();
         })
         .finally(() => this.changingLike = false);
     },
     unlikeActivity() {
       this.changingLike = true;
-      return this.$activityService.unlikeActivity(this.activityId)
-        .then(data => {
+      return this.$reactionService.deleteReaction('activity', this.activityId)
+        .then(() => {
           this.activity.hasLiked = 'false';
-          this.computeLikes(data);
-          this.$root.$emit('activity-liked', this.activityId);
+          this.updateLocalReactionItem(null);
+          return this.refreshLikers();
         })
         .finally(() => this.changingLike = false);
+    },
+    refreshLikers() {
+      return this.$activityService.getActivityLikers(this.activityId, 0, 50)
+        .then(data => {
+          this.computeLikes(data);
+          this.$root.$emit('activity-liked', this.activityId);
+        });
+    },
+    updateLocalReactionItem(reactionId) {
+      if (!this.activity.metadatas) {
+        this.$set(this.activity, 'metadatas', {});
+      }
+      const userIdentityId = `${eXo.env.portal.userIdentityId}`;
+      const reactionItems = (this.activity.metadatas.reactions || [])
+        .filter(item => `${item.creatorId}` !== userIdentityId);
+      if (reactionId && reactionId !== 'like') {
+        reactionItems.push({
+          name: reactionId,
+          objectType: 'activity',
+          objectId: this.activityId,
+          creatorId: eXo.env.portal.userIdentityId,
+        });
+      }
+      this.$set(this.activity.metadatas, 'reactions', reactionItems);
     },
     computeLikes(data) {
       if (data) {
