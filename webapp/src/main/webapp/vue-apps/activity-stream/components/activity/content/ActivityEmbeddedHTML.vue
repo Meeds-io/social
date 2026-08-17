@@ -24,6 +24,7 @@
 
 <script>
 export default {
+  mixins: [EmojiAccessibility.readyMixin],
   props: {
     activity: {
       type: Object,
@@ -41,6 +42,7 @@ export default {
   data: () => ({
     maxWidth: 320,
     elementReady: false,
+    purifiedHtmlCache: null,
   }),
   computed: {
     embeddedHTML() {
@@ -88,8 +90,15 @@ export default {
   },
   methods: {
     computeEmbeddedHTML(htmlElement) {
+      if (!this.purifiedHtmlCache || this.purifiedHtmlCache.source !== htmlElement) {
+        this.purifiedHtmlCache = {
+          source: htmlElement,
+          html: ExtendedDomPurify.purify(htmlElement),
+        };
+      }
       const tempdiv = document.createElement('div');
-      tempdiv.innerHTML = ExtendedDomPurify.purify(htmlElement);
+      const purifiedHtml = this.purifiedHtmlCache.html;
+      tempdiv.innerHTML = this.emojiBankReady && EmojiAccessibility.addAccessibleNameToEmojis(purifiedHtml) || purifiedHtml;
       if (tempdiv.firstElementChild.style.maxWidth) {
         tempdiv.firstElementChild.style.maxWidth = `${this.maxWidth}px`;
       }
