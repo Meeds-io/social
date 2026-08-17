@@ -46,7 +46,7 @@
     </template>
     <template #no-data>
       <div class="d-flex flex-column align-center justify-center py-8">
-        {{ $t('groupsManagement.nestedGroups.emptyTitle') }}
+        {{ $t('groupsManagement.nestedGroup.emptyTitle') }}
       </div>
     </template>
   </v-data-table>
