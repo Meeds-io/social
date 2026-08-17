@@ -297,6 +297,17 @@ public class ReactionServiceImplTest {
   }
 
   @Test
+  public void testDeleteReactionItemSkipsWhenReactorIsLikerAgain() throws Exception {
+    // the like lifecycle dispatches asynchronously: when the reactor reacted
+    // again before the cleanup runs, the item must survive
+    when(activity.getLikeIdentityIds()).thenReturn(new String[] { IDENTITY_ID });
+
+    reactionService.deleteReactionItem(OBJECT_TYPE, OBJECT_ID, 123l);
+
+    verify(reactionStorage, never()).deleteReaction(anyLong(), anyLong());
+  }
+
+  @Test
   public void testDeleteReactionItemIsNoOpWithoutTypedItem() throws Exception {
     reactionService.deleteReactionItem(OBJECT_TYPE, OBJECT_ID, 123l);
 

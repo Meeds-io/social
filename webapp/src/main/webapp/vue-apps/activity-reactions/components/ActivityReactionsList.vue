@@ -188,6 +188,7 @@ export default {
               .catch(() => null)));
         }).then(reactors => {
           this.likers = reactors.filter(reactor => !!reactor);
+          this.updateReactionsTabCount();
         }).catch(e => {
           console.error('error retrieving filtered activity reactions', e);
         }).finally(() => this.loading = false);
@@ -195,7 +196,7 @@ export default {
     updateReactionsTabCount() {
       document.dispatchEvent(new CustomEvent('update-reaction-extension', {
         detail: {
-          numberOfReactions: this.likersSize,
+          numberOfReactions: this.totalCount,
           type: 'like'
         }
       }));
