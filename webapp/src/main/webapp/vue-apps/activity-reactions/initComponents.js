@@ -5,7 +5,9 @@ import ActivityReactionsDrawer from './components/ActivityReactionsDrawer.vue';
 import ActivityReactionsMobile from './components/ActivityReactionsMobile.vue';
 import ActivityLikesList from './components/ActivityLikesList.vue';
 import ActivityLikerItem from './components/ActivityLikerItem.vue';
+import ReactionChooser from './components/ReactionChooser.vue';
 const components = {
+  'reaction-chooser': ReactionChooser,
   'activity-reactions-app': ActivityReactionsApp,
   'activity-reactions': ActivityReactions,
   'activity-reactions-list-items': ActivityReactionsListItems,
