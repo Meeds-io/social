@@ -68,6 +68,10 @@ export default {
       type: String,
       default: null,
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
     hoverDelay: {
       type: Number,
       default: () => 500,
@@ -84,6 +88,7 @@ export default {
     closeTimer: null,
     longPressTimer: null,
     longPressTriggered: false,
+    lastTouchTime: 0,
   }),
   created() {
     this.$reactionService.getReactionOptions(this.objectType)
@@ -96,6 +101,9 @@ export default {
   },
   methods: {
     openChooser(focusFirstOption) {
+      if (this.disabled) {
+        return;
+      }
       this.cancelCloseTimer();
       this.open = true;
       if (focusFirstOption) {
@@ -113,7 +121,10 @@ export default {
     },
     startHoverTimer() {
       this.cancelCloseTimer();
-      if (!this.open && !this.hoverTimer) {
+      // touch devices emulate mouseenter right after touchend: without this
+      // guard, a simple tap would open the chooser hoverDelay ms later
+      const touchRecently = Date.now() - this.lastTouchTime < this.hoverDelay + this.longPressDelay;
+      if (!this.disabled && !touchRecently && !this.open && !this.hoverTimer) {
         this.hoverTimer = window.setTimeout(() => {
           this.hoverTimer = null;
           this.openChooser();
@@ -142,8 +153,10 @@ export default {
       }
     },
     startLongPressTimer() {
+      this.lastTouchTime = Date.now();
       this.longPressTriggered = false;
-      if (!this.longPressTimer) {
+      this.cancelHoverTimer();
+      if (!this.disabled && !this.longPressTimer) {
         this.longPressTimer = window.setTimeout(() => {
           this.longPressTimer = null;
           this.longPressTriggered = true;
@@ -152,6 +165,7 @@ export default {
       }
     },
     cancelLongPressTimer() {
+      this.lastTouchTime = Date.now();
       if (this.longPressTimer) {
         window.clearTimeout(this.longPressTimer);
         this.longPressTimer = null;

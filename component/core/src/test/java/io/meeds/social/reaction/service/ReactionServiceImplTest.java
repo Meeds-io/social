@@ -104,6 +104,7 @@ public class ReactionServiceImplTest {
     lenient().when(identityManager.getOrCreateUserIdentity(USERNAME)).thenReturn(userIdentity);
     lenient().when(userIdentity.getId()).thenReturn(IDENTITY_ID);
     lenient().when(activity.getMetadataObject()).thenReturn(metadataObject);
+    lenient().when(activity.getPublicationStartTime()).thenReturn(null);
     lenient().when(activity.getLikeIdentityIds()).thenReturn(new String[0]);
   }
 
@@ -214,7 +215,8 @@ public class ReactionServiceImplTest {
   public void testGetReactionsDecoratesLikersWithReactionIds() throws Exception {
     when(activity.getLikeIdentityIds()).thenReturn(new String[] { "1", "2", "3" });
     MetadataItem loveItem = metadataItem(77l, "love", 2l);
-    when(reactionStorage.getReactionItems(metadataObject)).thenReturn(List.of(loveItem));
+    when(reactionStorage.getReactionItemsByCreators(eq(metadataObject), any())).thenReturn(List.of(loveItem));
+    when(reactionStorage.getTypedReactionItems(metadataObject)).thenReturn(List.of(loveItem));
 
     List<Reaction> reactions = reactionService.getReactions(OBJECT_TYPE, OBJECT_ID, null, 0, 0, USERNAME);
     assertEquals(3, reactions.size());
@@ -224,6 +226,82 @@ public class ReactionServiceImplTest {
 
     List<Reaction> likeOnly = reactionService.getReactions(OBJECT_TYPE, OBJECT_ID, "like", 0, 0, USERNAME);
     assertEquals(2, likeOnly.size());
+  }
+
+  @Test
+  public void testGetReactionsPagesOverLikersBeforeDecorating() throws Exception {
+    when(activity.getLikeIdentityIds()).thenReturn(new String[] { "1", "2", "3", "4", "5" });
+    when(reactionStorage.getReactionItemsByCreators(eq(metadataObject), eq(List.of(2l, 3l)))).thenReturn(List.of());
+
+    List<Reaction> page = reactionService.getReactions(OBJECT_TYPE, OBJECT_ID, null, 1, 2, USERNAME);
+
+    assertEquals(2, page.size());
+    assertEquals(2l, page.get(0).getReactorIdentityId());
+    assertEquals(3l, page.get(1).getReactorIdentityId());
+    // the typed decoration is fetched for the page's creators only
+    verify(reactionStorage).getReactionItemsByCreators(metadataObject, List.of(2l, 3l));
+  }
+
+  @Test
+  public void testSetReactionOnScheduledActivityRejected() throws Exception {
+    when(activity.getPublicationStartTime()).thenReturn(1L);
+
+    assertThrows(IllegalAccessException.class, () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "love", USERNAME));
+    verify(reactionStorage, never()).createReaction(any(), any(), anyLong());
+    verify(activityManager, never()).saveLike(any(), any());
+  }
+
+  @Test
+  public void testSetReactionLikesBeforeWritingTheTypedItem() throws Exception {
+    reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "love", USERNAME);
+
+    org.mockito.InOrder inOrder = org.mockito.Mockito.inOrder(activityManager, reactionStorage);
+    inOrder.verify(activityManager).saveLike(activity, userIdentity);
+    inOrder.verify(reactionStorage).createReaction(metadataObject, "love", 123l);
+  }
+
+  @Test
+  public void testCountReactionsClampsStaleTypedItems() throws Exception {
+    // stale state: 3 typed items but only 2 likers (an unlike bypassed the
+    // cleanup); the like bucket is clamped at 0, typed counts returned as-is
+    when(activity.getLikeIdentityIds()).thenReturn(new String[] { "1", "2" });
+    when(reactionStorage.countReactionsByOption(metadataObject)).thenReturn(Map.of("love", 3l));
+
+    Map<String, Long> counts = reactionService.countReactionsByOption(OBJECT_TYPE, OBJECT_ID, USERNAME);
+
+    assertEquals(0l, counts.get("like"));
+    assertEquals(3l, counts.get("love"));
+  }
+
+  @Test
+  public void testCountReactionsReturnsUnregisteredOptionNames() throws Exception {
+    when(activity.getLikeIdentityIds()).thenReturn(new String[] { "1", "2", "3" });
+    when(reactionStorage.countReactionsByOption(metadataObject)).thenReturn(Map.of("retiredOption", 2l));
+
+    Map<String, Long> counts = reactionService.countReactionsByOption(OBJECT_TYPE, OBJECT_ID, USERNAME);
+
+    assertEquals(1l, counts.get("like"));
+    assertEquals(2l, counts.get("retiredOption"));
+  }
+
+  @Test
+  public void testDeleteReactionItemCleansUpWithoutTouchingTheLike() throws Exception {
+    MetadataItem existingItem = metadataItem(77l, "love");
+    when(reactionStorage.getUserReactionItem(metadataObject, 123l)).thenReturn(existingItem);
+
+    reactionService.deleteReactionItem(OBJECT_TYPE, OBJECT_ID, 123l);
+
+    verify(reactionStorage).deleteReaction(77l, 123l);
+    verify(activityManager, never()).deleteLike(any(), any());
+    verify(listenerService).broadcast(eq(ReactionService.REACTION_DELETED_EVENT_NAME), any(Reaction.class), eq(null));
+  }
+
+  @Test
+  public void testDeleteReactionItemIsNoOpWithoutTypedItem() throws Exception {
+    reactionService.deleteReactionItem(OBJECT_TYPE, OBJECT_ID, 123l);
+
+    verify(reactionStorage, never()).deleteReaction(anyLong(), anyLong());
+    verify(listenerService, never()).broadcast(any(String.class), any(), any());
   }
 
   private MetadataItem metadataItem(long id, String reactionId) {
