@@ -26,7 +26,8 @@
       <v-list-item class="py-2">
         <a
           :href="profileUri"
-          rel="noopener noreferrer">
+          rel="noopener noreferrer"
+          class="d-inline-flex align-center text-decoration-none">
           <v-badge
             :color="statusColor"
             :value="true"
@@ -50,25 +51,15 @@
                 :alt="fullName" />
             </v-list-item-avatar>
           </v-badge>
+          <v-list-item-content class="pa-0 width-fit-content text-left">
+            <v-list-item-title class="mb-0">
+              <span class="text-color font-weight-bold">{{ fullName }}</span>
+            </v-list-item-title>
+            <v-list-item-subtitle>
+              <span class="text-subtitle">{{ $t('menu.userProfilePageLink') }}</span>
+            </v-list-item-subtitle>
+          </v-list-item-content>
         </a>
-        <v-list-item-content class="pa-0 width-fit-content">
-          <v-list-item-title class="mb-0">
-            <a
-              :href="profileUri"
-              rel="noopener noreferrer"
-              class="text-decoration-none text-color font-weight-bold">
-              {{ fullName }}
-            </a>
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            <a
-              class="text-subtitle"
-              :href="profileUri"
-              rel="noopener noreferrer">
-              {{ $t('menu.userProfilePageLink') }}
-            </a>
-          </v-list-item-subtitle>
-        </v-list-item-content>
       </v-list-item>
     </v-list>
     <div class="mb-4">
