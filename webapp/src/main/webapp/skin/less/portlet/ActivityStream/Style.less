@@ -65,6 +65,15 @@
 }
 
 .activityReactionsContainer {
+  .activityReactionsEmojis {
+    .reaction-emoji {
+      font-size: 14px;
+      line-height: 1;
+      &:not(:first-child) {
+        margin-inline-start: -4px;
+      }
+    }
+  }
   .likersNumber {
     color: @baseColorLight;
     cursor: pointer;
