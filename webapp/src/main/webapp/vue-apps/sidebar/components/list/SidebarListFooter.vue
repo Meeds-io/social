@@ -49,6 +49,7 @@
       <v-spacer v-if="$root.expand" />
       <div v-else class="me-3"></div>
       <v-list-item-action
+        ref="avatarFooter"
         :class="$root.expand && 'mx-0' || 'ms-2'"
         class="my-auto d-flex flex-row user-avatar-footer">
         <v-badge
@@ -63,18 +64,20 @@
           bottom
           overlap
           dot>
-          <v-avatar
+          <a
             :href="profileUri"
+            :aria-label="$t('menu.userProfilePageLink')"
             class="userAvatar clickable"
-            size="24"
-            @click.stop="openMenu($event)">
-            <img
-              :src="avatarUrl"
-              alt=""
-              height="24"
-              width="24"
-              contain>
-          </v-avatar>
+            @click.stop.prevent="openMenu($event)">
+            <v-avatar size="24">
+              <img
+                :src="avatarUrl"
+                alt=""
+                height="24"
+                width="24"
+                contain>
+            </v-avatar>
+          </a>
         </v-badge>
         <v-tooltip v-if="$root.expand" top>
           <template #activator="{ on, attrs }">
@@ -112,8 +115,8 @@
     </v-list-item>
     <sidebar-user-popup
       ref="menu"
-      v-if="$root.expand"
-      attach-to=".user-avatar-footer"
+      v-if="$root.expand && avatarFooterReady"
+      :attach-to="$refs.avatarFooter?.$el"
       position-top="0"
       position-right="20"
       @user-status-updated="statusColor = $event" />
@@ -128,10 +131,14 @@ export default {
     profileUri: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`,
     productName: eXo.env.portal.productName,
     productLink: eXo.env.portal.productLink,
-    statusColor: '#707070'
+    statusColor: '#707070',
+    avatarFooterReady: false
   }),
   created() {
     document.addEventListener('user-status-updated', this.changeStatusColor);
+  },
+  mounted() {
+    this.avatarFooterReady = true;
   },
   beforeDestroy() {
     document.removeEventListener('user-status-updated', this.changeStatusColor);
