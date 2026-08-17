@@ -33,7 +33,7 @@
       v-if="open"
       :aria-label="$t('UIActivity.label.reactions')"
       class="reaction-chooser position-absolute d-flex flex-nowrap align-center pa-1 white rounded-xl elevation-2"
-      style="bottom: calc(100% + 4px); inset-inline-start: 0; z-index: 10; white-space: nowrap;"
+      style="bottom: calc(100% + 4px); inset-inline-start: 0; z-index: 10; width: max-content;"
       role="menu"
       @mouseenter="cancelCloseTimer"
       @mouseleave="startCloseTimer">
