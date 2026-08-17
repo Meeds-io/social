@@ -56,8 +56,12 @@ import jakarta.servlet.http.HttpServletRequest;
 @Tag(name = "/social/rest/reactions", description = "Managing reactions on any type of content")
 public class ReactionRest {
 
+  private static final long DEFAULT_LIMIT = 20;
+
+  private static final long MAX_LIMIT     = 100;
+
   @Autowired
-  private ReactionService reactionService;
+  private ReactionService   reactionService;
 
   @GetMapping("options")
   @Secured("users")
@@ -77,6 +81,7 @@ public class ReactionRest {
              description = "Retrieves the paged reactors list of an object with the reactors count per reaction option")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Bad request"),
     @ApiResponse(responseCode = "404", description = "Not found"),
     @ApiResponse(responseCode = "403", description = "Forbidden"),
   })
@@ -94,10 +99,17 @@ public class ReactionRest {
                                    @Parameter(description = "Query offset")
                                    @RequestParam(name = "offset", required = false, defaultValue = "0")
                                    long offset,
-                                   @Parameter(description = "Query limit")
-                                   @RequestParam(name = "limit", required = false, defaultValue = "0")
+                                   @Parameter(description = "Query limit, defaults to 20")
+                                   @RequestParam(name = "limit", required = false, defaultValue = "20")
                                    long limit) {
     try {
+      if (limit <= 0) {
+        limit = DEFAULT_LIMIT;
+      } else if (limit > MAX_LIMIT) {
+        limit = MAX_LIMIT;
+      }
+      // the activity is loaded and ACL-checked twice (counts + list): accepted
+      // for the drawer-open frequency, both reads ride the activity cache
       Map<String, Long> counts = reactionService.countReactionsByOption(objectType, objectId, request.getRemoteUser());
       List<Reaction> reactions = reactionService.getReactions(objectType,
                                                               objectId,
@@ -154,6 +166,7 @@ public class ReactionRest {
              description = "Deletes the current user reaction on an object (unlikes it as well)")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Bad request"),
     @ApiResponse(responseCode = "404", description = "Not found"),
     @ApiResponse(responseCode = "403", description = "Forbidden"),
   })

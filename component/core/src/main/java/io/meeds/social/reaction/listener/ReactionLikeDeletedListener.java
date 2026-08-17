@@ -1,0 +1,68 @@
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+package io.meeds.social.reaction.listener;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import org.exoplatform.social.core.activity.ActivityLifeCycleEvent;
+import org.exoplatform.social.core.activity.ActivityListenerPlugin;
+import org.exoplatform.social.core.manager.ActivityManager;
+
+import io.meeds.social.reaction.service.ReactionService;
+import io.meeds.social.reaction.service.ReactionServiceImpl;
+
+import jakarta.annotation.PostConstruct;
+
+/**
+ * Glue listener (no business logic): an unlike made through the legacy like
+ * endpoints must not leave the reactor's typed reaction item behind — the
+ * cleanup itself lives in {@link ReactionService}.
+ */
+@Component
+public class ReactionLikeDeletedListener extends ActivityListenerPlugin {
+
+  @Autowired
+  private ActivityManager activityManager;
+
+  @Autowired
+  private ReactionService reactionService;
+
+  @PostConstruct
+  public void init() {
+    activityManager.addActivityEventListener(this);
+  }
+
+  @Override
+  public void deleteLikeActivity(ActivityLifeCycleEvent event) {
+    deleteReactionItem(event);
+  }
+
+  @Override
+  public void deleteLikeComment(ActivityLifeCycleEvent event) {
+    deleteReactionItem(event);
+  }
+
+  private void deleteReactionItem(ActivityLifeCycleEvent event) {
+    reactionService.deleteReactionItem(ReactionServiceImpl.ACTIVITY_OBJECT_TYPE,
+                                       event.getActivity().getId(),
+                                       Long.parseLong(event.getUserId()));
+  }
+
+}
