@@ -54,6 +54,7 @@ import javax.ws.rs.core.UriInfo;
 
 import io.meeds.social.html.model.HtmlTransformerContext;
 import io.meeds.social.html.utils.HtmlUtils;
+import io.meeds.social.reaction.service.ReactionService;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 import io.meeds.social.translation.service.TranslationService;
@@ -174,6 +175,8 @@ public class EntityBuilder {
   public static final int                 COMMENTS_PREVIEW_LIMIT                     = 2;
 
   public static final String              LIKES_TYPE                                 = "likes";
+
+  public static final int                 REACTIONS_PUBLISHED_LIMIT                  = 100;
 
   public static final String              LIKES_COUNT_TYPE                           = "likesCount";
 
@@ -1383,12 +1386,38 @@ public class EntityBuilder {
                                                                                                                                .getAudienceId(),
                                                                                                                    metadataItem.getProperties()))
                                                                        .toList();
+        if (ReactionService.METADATA_TYPE_NAME.equals(metadataType)) {
+          activityMetadataEntities = capReactionItems(activityMetadataEntities, authentiatedUserId);
+        }
         if (CollectionUtils.isNotEmpty(activityMetadataEntities)) {
           activityMetadatasToPublish.put(metadataType, activityMetadataEntities);
         }
       }
     }
     return activityMetadatasToPublish;
+  }
+
+  /**
+   * Bounds the published reactions items to
+   * {@link EntityBuilder#REACTIONS_PUBLISHED_LIMIT} per entity — payload must
+   * not grow with the reactors count on the stream endpoints. The
+   * authenticated user's own item is always kept (the UI derives the user's
+   * current reaction from it).
+   */
+  private static List<MetadataItemEntity> capReactionItems(List<MetadataItemEntity> reactionItems, long authentiatedUserId) {
+    if (reactionItems.size() <= REACTIONS_PUBLISHED_LIMIT) {
+      return reactionItems;
+    }
+    List<MetadataItemEntity> cappedItems = new ArrayList<>();
+    reactionItems.stream()
+                 .filter(item -> item.getCreatorId() == authentiatedUserId)
+                 .findFirst()
+                 .ifPresent(cappedItems::add);
+    reactionItems.stream()
+                 .filter(item -> item.getCreatorId() != authentiatedUserId)
+                 .limit(REACTIONS_PUBLISHED_LIMIT - (long) cappedItems.size())
+                 .forEach(cappedItems::add);
+    return cappedItems;
   }
 
   public static void buildActivityFromEntity(ActivityEntity model, ExoSocialActivity activity) {
