@@ -41,7 +41,7 @@ const appId = 'UserSettingSecurity';
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init(ssoEnabled, isEmailEditable) {
+export function init(ssoEnabled, isEmailEditable, deactivationAllowed) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       const appElement = document.createElement('div');
@@ -51,6 +51,7 @@ export function init(ssoEnabled, isEmailEditable) {
         data: {
           ssoEnabled,
           isEmailEditable,
+          deactivationAllowed,
         },
         mounted() {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
