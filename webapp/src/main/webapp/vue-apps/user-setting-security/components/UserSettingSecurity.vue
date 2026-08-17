@@ -85,12 +85,40 @@
           parent-element="div"
           element="div"
           class=" d-flex flex-column" />
+        <v-list-item v-if="$root.deactivationAllowed" dense>
+          <v-list-item-content>
+            <v-list-item-title class="error--text">
+              {{ $t('UserSettings.security.deleteAccount.title') }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-tooltip bottom>
+              <template #activator="{on, attrs}">
+                <div
+                  v-on="on"
+                  v-bind="attrs">
+                  <v-btn
+                    :aria-label="deleteAccountTooltip"
+                    small
+                    icon
+                    @click="$refs.deactivateAccountDrawer.open()">
+                    <v-icon size="18" class="error--text">fa-trash</v-icon>
+                  </v-btn>
+                </div>
+              </template>
+              <span>{{ deleteAccountTooltip }}</span>
+            </v-tooltip>
+          </v-list-item-action>
+        </v-list-item>
       </v-list>
     </v-card>
     <user-setting-security-email-drawer
       ref="emailDrawer" />
     <user-setting-security-password-drawer
       ref="passwordDrawer" />
+    <user-setting-deactivate-account-drawer
+      v-if="$root.deactivationAllowed"
+      ref="deactivateAccountDrawer" />
   </v-app>
 </template>
 
@@ -110,6 +138,9 @@ export default {
     },
     emailChangeTooltip() {
       return this.$t('UserSettings.security.emailChange.tooltip');
+    },
+    deleteAccountTooltip() {
+      return this.$t('UserSettings.security.deleteAccount.tooltip');
     },
   },
   watch: {
