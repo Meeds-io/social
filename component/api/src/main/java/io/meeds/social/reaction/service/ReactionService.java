@@ -117,4 +117,17 @@ public interface ReactionService {
                               long limit,
                               String username) throws ObjectNotFoundException, IllegalAccessException;
 
+  /**
+   * Deletes the typed reaction item of a reactor on an object without
+   * touching the like. Internal cleanup path (no ACL): called by the glue
+   * listener on the like-deletion lifecycle so an unlike made through the
+   * legacy endpoints doesn't leave an orphan typed reaction behind. No-op
+   * when the reactor holds no typed reaction on the object.
+   *
+   * @param objectType Object type
+   * @param objectId Object technical identifier
+   * @param reactorIdentityId Identity id of the reactor whose item to delete
+   */
+  void deleteReactionItem(String objectType, String objectId, long reactorIdentityId);
+
 }

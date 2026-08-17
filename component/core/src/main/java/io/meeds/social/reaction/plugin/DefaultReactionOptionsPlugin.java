@@ -34,12 +34,12 @@ public class DefaultReactionOptionsPlugin implements ReactionOptionPlugin {
 
   // Emoji glyphs are kept as unicode escapes to stay source-encoding-proof
   private static final List<ReactionOption> DEFAULT_OPTIONS =
-      List.of(option(ReactionService.LIKE_REACTION_ID, "👍", 10), // thumbs up
-              option("applause", "👏", 20), // clapping hands
-              option("support", "🫶", 30), // heart hands
-              option("love", "❤️", 40), // red heart
-              option("insightful", "💡", 50), // light bulb
-              option("funny", "😂", 60)); // face with tears of joy
+      List.of(option(ReactionService.LIKE_REACTION_ID, "\uD83D\uDC4D", 10), // thumbs up
+              option("applause", "\uD83D\uDC4F", 20), // clapping hands
+              option("support", "\uD83E\uDEF6", 30), // heart hands
+              option("love", "\u2764\uFE0F", 40), // red heart
+              option("insightful", "\uD83D\uDCA1", 50), // light bulb
+              option("funny", "\uD83D\uDE02", 60)); // face with tears of joy
 
   @Override
   public List<ReactionOption> getReactionOptions() {
