@@ -542,6 +542,19 @@ public interface MetadataService {
                                                                                    MetadataObject object);
 
   /**
+   * Retrieves the {@link MetadataItem} of an object for a given
+   * {@link Metadata} type, restricted to a set of creators
+   *
+   * @param metadataTypeName {@link Metadata} type
+   * @param object {@link MetadataObject} to retrieve the items of
+   * @param creatorIds {@link MetadataItem} creator identity ids to filter on
+   * @return {@link List} of {@link MetadataItem}
+   */
+  List<MetadataItem> getMetadataItemsByMetadataTypeAndObjectAndCreators(String metadataTypeName,
+                                                                        MetadataObject object,
+                                                                        List<Long> creatorIds);
+
+  /**
    * Count the size of metadata items to a given {@link Metadata} type,
    * {@link MetadataItem} creatorId
    *

@@ -20,6 +20,7 @@ package io.meeds.social.reaction.storage;
 
 import static io.meeds.social.reaction.service.ReactionService.METADATA_TYPE_NAME;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -43,15 +44,26 @@ public class ReactionStorage {
     return metadataService.countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(METADATA_TYPE_NAME, object);
   }
 
-  public List<MetadataItem> getReactionItems(MetadataObject object) {
-    return metadataService.getMetadataItemsByMetadataTypeAndObject(METADATA_TYPE_NAME, object);
+  public MetadataItem getUserReactionItem(MetadataObject object, long identityId) {
+    return metadataService.getMetadataItemsByMetadataTypeAndObjectAndCreators(METADATA_TYPE_NAME,
+                                                                              object,
+                                                                              Collections.singletonList(identityId))
+                          .stream()
+                          .findFirst()
+                          .orElse(null);
   }
 
-  public MetadataItem getUserReactionItem(MetadataObject object, long identityId) {
-    return getReactionItems(object).stream()
-                                   .filter(item -> item.getCreatorId() == identityId)
-                                   .findFirst()
-                                   .orElse(null);
+  public List<MetadataItem> getReactionItemsByCreators(MetadataObject object, List<Long> creatorIds) {
+    return metadataService.getMetadataItemsByMetadataTypeAndObjectAndCreators(METADATA_TYPE_NAME, object, creatorIds);
+  }
+
+  /**
+   * @param object {@link MetadataObject} to retrieve the typed reactors of
+   * @return every typed reaction item of the object — bounded by the typed
+   *         reactions count, used only by the 'like' drawer filter
+   */
+  public List<MetadataItem> getTypedReactionItems(MetadataObject object) {
+    return metadataService.getMetadataItemsByMetadataTypeAndObject(METADATA_TYPE_NAME, object);
   }
 
   public List<MetadataItem> getReactionItemsByOption(String reactionId, MetadataObject object, long offset, long limit) {

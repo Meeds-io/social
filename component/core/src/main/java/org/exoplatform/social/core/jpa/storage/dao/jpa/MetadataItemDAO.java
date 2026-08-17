@@ -131,6 +131,23 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.getResultList();
   }
 
+  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObjectAndCreators(long metadataType,
+                                                                                     String objectType,
+                                                                                     String objectId,
+                                                                                     List<Long> creatorIds) {
+    TypedQuery<MetadataItemEntity> query = getEntityManager().createQuery("SELECT mi FROM SocMetadataItemEntity mi WHERE"
+        + " mi.metadata.type = :metadataType AND"
+        + " mi.objectType = :objectType AND"
+        + " mi.objectId = :objectId AND"
+        + " mi.creatorId IN (:creatorIds)"
+        + " ORDER BY mi.id ASC", MetadataItemEntity.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(OBJECT_ID, objectId);
+    query.setParameter("creatorIds", creatorIds);
+    return query.getResultList();
+  }
+
   public Map<String, Long> countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(long metadataType,
                                                                                           String objectType,
                                                                                           String objectId) {

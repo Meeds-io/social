@@ -4,6 +4,7 @@
     class="d-inline-flex">
     <reaction-chooser
       :current-reaction-id="userReactionId"
+      :disabled="isScheduled"
       object-type="activity"
       @reaction-select="selectReaction">
       <!-- Added for mobile -->
@@ -119,7 +120,7 @@ export default {
       }
     },
     selectReaction(option) {
-      if (this.changingLike || (this.hasLiked && option.id === this.userReactionId)) {
+      if (this.changingLike || this.isScheduled || (this.hasLiked && option.id === this.userReactionId)) {
         return;
       }
       return this.applyReaction(option.id);
