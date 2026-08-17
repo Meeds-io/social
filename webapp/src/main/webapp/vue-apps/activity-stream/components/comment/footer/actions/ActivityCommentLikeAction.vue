@@ -10,6 +10,7 @@
             :id="`LikeLink${commentId}`"
             :loading="changingLike"
             :class="likeTextColorClass"
+            :aria-pressed="!!hasLiked"
             class="px-0 width-auto"
             text
             link
