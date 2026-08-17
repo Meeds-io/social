@@ -55,7 +55,7 @@
 export default {
   props: {
     attachTo: {
-      type: String,
+      type: [String, HTMLElement],
       default: ''
     },
     positionTop: {
@@ -73,6 +73,7 @@ export default {
       profileUri: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`,
       user: null,
       menu: false,
+      triggerElement: null,
       position: {x: 0, y: 0},
       statusMap: {
         available: '#2eb58c',
@@ -89,15 +90,25 @@ export default {
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside);
+    document.addEventListener('keydown', this.handleKeydown, true);
     document.addEventListener('user-status-updated', this.handleStatusChangeEvent);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleClickOutside);
+    document.removeEventListener('keydown', this.handleKeydown, true);
     document.removeEventListener('user-status-updated', this.handleStatusChangeEvent);
   },
   watch: {
     status() {
       this.$emit('user-status-updated', this.statusColor);
+    },
+    menu(opened) {
+      if (opened) {
+        this.focusContent();
+      } else if (this.triggerElement) {
+        this.triggerElement.focus();
+        this.triggerElement = null;
+      }
     }
   },
   computed: {
@@ -109,9 +120,52 @@ export default {
     open(x, y) {
       this.position.x = x;
       this.position.y = y;
+      this.triggerElement = document.activeElement;
       this.$nextTick(() => {
         this.menu = !this.menu;
       });
+    },
+    focusContent() {
+      const [firstEl] = this.getFocusableElements();
+      if (firstEl) {
+        firstEl.focus();
+      } else if (this.menu) {
+        requestAnimationFrame(() => this.focusContent());
+      }
+    },
+    getFocusableElements() {
+      const contentEl = this.$refs.menuContent?.$el;
+      if (!contentEl) {
+        return [];
+      }
+      return Array.from(contentEl.querySelectorAll('a[href], button:not([disabled])'))
+        .filter(el => el.offsetParent !== null);
+    },
+    handleKeydown(event) {
+      if (!this.menu) {
+        return;
+      }
+      if (event.key === 'Escape') {
+        this.menu = false;
+        return;
+      }
+      if (event.key !== 'Tab') {
+        return;
+      }
+      event.stopPropagation();
+      const focusable = this.getFocusableElements();
+      if (!focusable.length) {
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     },
     handleClickOutside(event) {
       if (!this.menu) {
