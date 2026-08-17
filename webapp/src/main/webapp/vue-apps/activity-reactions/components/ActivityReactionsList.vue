@@ -47,16 +47,16 @@
           <span class="text-caption text-sub-title">{{ $t(reactor.reactionOption.activeLabelKey) }}</span>
         </div>
       </div>
-      <v-btn
-        v-if="hasMoreReactors"
-        :loading="loading"
-        :disabled="loading"
-        block
-        class="btn pa-0 mt-2"
-        @click="loadMore">
-        {{ $t('Search.button.loadMore') }}
-      </v-btn>
     </div>
+    <v-btn
+      v-if="hasMoreReactors"
+      :loading="loading"
+      :disabled="loading"
+      block
+      class="btn pa-0 mt-2"
+      @click="loadMore">
+      {{ $t('Search.button.loadMore') }}
+    </v-btn>
   </div>
 </template>
 <script>
@@ -85,19 +85,19 @@ export default {
   },
   computed: {
     reactorsToDisplay() {
-      return this.likers
-        .map(liker => Object.assign({}, liker, {
-          reactionId: this.reactionIdsByReactor[liker.id] || 'like',
-          reactionOption: this.reactionOptions.find(option => option.id === (this.reactionIdsByReactor[liker.id] || 'like')),
-        }))
-        .filter(reactor => !this.selectedReactionId || reactor.reactionId === this.selectedReactionId);
+      return this.likers.map(liker => Object.assign({}, liker, {
+        reactionId: this.reactionIdsByReactor[liker.id] || 'like',
+        reactionOption: this.reactionOptions.find(option => option.id === (this.reactionIdsByReactor[liker.id] || 'like')),
+      }));
+    },
+    totalCount() {
+      return Object.values(this.counts).reduce((sum, count) => sum + count, 0) || this.likersSize;
     },
     filterChips() {
-      const totalCount = Object.values(this.counts).reduce((sum, count) => sum + count, 0);
       const chips = [{
         id: null,
         label: this.$t('UIActivity.label.Show_All_Likers'),
-        count: totalCount,
+        count: this.totalCount,
       }];
       this.reactionOptions.forEach(option => {
         if (this.counts[option.id]) {
@@ -112,7 +112,8 @@ export default {
       return chips;
     },
     hasMoreReactors() {
-      return this.likersSize > this.limit;
+      const selectedCount = this.selectedReactionId ? (this.counts[this.selectedReactionId] || 0) : this.totalCount;
+      return selectedCount > this.limit;
     }
   },
   created() {
@@ -120,24 +121,29 @@ export default {
     this.$reactionService.getReactionOptions('activity')
       .then(options => this.reactionOptions = options);
     this.retrieveReactors();
-    document.addEventListener('check-reactions', event => {
-      if (event?.detail && event.detail === this.activityId) {
-        this.updateReactionsTabCount();
-      }
-    });
+    document.addEventListener('check-reactions', this.handleCheckReactions);
   },
   beforeDestroy() {
     this.$root.$off('activity-liked', this.handleActivityLikesUpdate);
+    document.removeEventListener('check-reactions', this.handleCheckReactions);
   },
   watch: {
     activityId() {
       this.selectedReactionId = null;
+      this.limit = 20;
       this.retrieveReactors();
     }
   },
   methods: {
     selectReaction(reactionId) {
       this.selectedReactionId = this.selectedReactionId === reactionId ? null : reactionId;
+      this.limit = 20;
+      this.retrieveReactors();
+    },
+    handleCheckReactions(event) {
+      if (event?.detail && event.detail === this.activityId) {
+        this.updateReactionsTabCount();
+      }
     },
     handleActivityLikesUpdate(activityId) {
       if (activityId === this.activityId) {
@@ -145,6 +151,9 @@ export default {
       }
     },
     retrieveReactors() {
+      return this.selectedReactionId ? this.retrieveFilteredReactors() : this.retrieveAllReactors();
+    },
+    retrieveAllReactors() {
       this.loading = true;
       return Promise.all([
         this.$activityService.getActivityLikers(this.activityId, 0, this.limit),
@@ -160,6 +169,28 @@ export default {
       }).catch(e => {
         console.error('error retrieving activity reactions', e);
       }).finally(() => this.loading = false);
+    },
+    retrieveFilteredReactors() {
+      // the filter pages server-side over the selected option's reactors, so
+      // a chip with count > 0 always lists its reactors whatever page of
+      // likers is loaded
+      this.loading = true;
+      return this.$reactionService.getReactions('activity', this.activityId, this.selectedReactionId, 0, this.limit)
+        .then(reactionsData => {
+          this.counts = reactionsData.counts || {};
+          const reactions = reactionsData.reactions || [];
+          const reactionIdsByReactor = {};
+          reactions.forEach(reaction => reactionIdsByReactor[`${reaction.reactorIdentityId}`] = reaction.reactionId);
+          this.reactionIdsByReactor = reactionIdsByReactor;
+          return Promise.all(reactions.map(reaction =>
+            this.$identityService.getIdentityById(reaction.reactorIdentityId)
+              .then(identity => Object.assign({}, identity?.profile, {id: `${reaction.reactorIdentityId}`}))
+              .catch(() => null)));
+        }).then(reactors => {
+          this.likers = reactors.filter(reactor => !!reactor);
+        }).catch(e => {
+          console.error('error retrieving filtered activity reactions', e);
+        }).finally(() => this.loading = false);
     },
     updateReactionsTabCount() {
       document.dispatchEvent(new CustomEvent('update-reaction-extension', {
