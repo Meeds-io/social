@@ -20,12 +20,15 @@ package io.meeds.social.security.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import io.meeds.web.security.service.OtpService;
 
@@ -56,6 +59,28 @@ public class OtpRest {
                           @RequestParam("method")
                           String otpMethod) {
     otpService.sendOtpCode(request.getRemoteUser(), otpMethod);
+  }
+
+  @PostMapping(path = "/validate", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  @Secured("users")
+  @ResponseStatus(code = HttpStatus.NO_CONTENT)
+  @Operation(summary = "Validates the OTP code of the current user without consuming it", method = "POST")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "OTP code is valid"),
+    @ApiResponse(responseCode = "403", description = "OTP code is invalid or tentatives are exhausted"),
+  })
+  public void validateOtpCode(HttpServletRequest request,
+                              @Parameter(description = "OTP Method")
+                              @RequestParam("method")
+                              String otpMethod,
+                              @Parameter(description = "OTP Code")
+                              @RequestParam("code")
+                              String otpCode) {
+    try {
+      otpService.validateOtp(request.getRemoteUser(), otpMethod, otpCode);
+    } catch (IllegalAccessException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
   }
 
 }

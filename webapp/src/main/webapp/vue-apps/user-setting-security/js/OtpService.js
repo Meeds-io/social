@@ -28,3 +28,20 @@ export async function sendOtpCode(optMethod) {
     throw new Error(`Server Error: ${msg}`);
   }
 }
+
+export async function validateOtpCode(otpMethod, otpCode) {
+  const resp = await fetch('/social/rest/otp/validate', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      method: otpMethod,
+      code: otpCode,
+    }).toString(),
+  });
+  if (!resp?.ok) {
+    throw new Error('Invalid OTP code');
+  }
+}

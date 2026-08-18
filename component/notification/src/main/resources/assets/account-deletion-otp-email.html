@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="$LANG">
+<head>
+<meta charset="UTF-8">
+<title>${social.accountDeletion.otp.email.title}</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+</style>
+</head>
+<body>
+  <table
+    border="0"
+    cellpadding="0"
+    cellspacing="0"
+    width="600"
+    bgcolor="#ffffff"
+    align="center"
+    style="background-color: #ffffff; font-size: 12px; color: #333333; line-height: 18px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif;">
+    <tr>
+      <td align="center" valign="middle">
+        <table
+          cellpadding="0" cellspacing="0" width="100%"
+          bgcolor="#ffffff" align="center"
+          style="border: 1px solid #d8d8d8;">
+          <tr>
+            <td height="45" valign="middle"
+              style="margin: 0; height: 45px; font-weight: bold; vertical-align: middle;; background-color: #efefef; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif; color: $PRIMARY_COLOR; font-size: 18px; text-align: center">
+              ${social.accountDeletion.otp.email.title}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td bgcolor="#ffffff" style="background-color: #ffffff;">
+        <table cellpadding="0" cellspacing="0" width="100%"
+          bgcolor="#ffffff"
+          style="background-color: #ffffff; border-bottom: 1px solid #d8d8d8; border-left: 1px solid #d8d8d8; border-right: 1px solid #d8d8d8;">
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0"
+                width="92%" bgcolor="#ffffff" align="center"
+                style="background-color: #ffffff; color: #333333; line-height: 20px;">
+                <tr>
+                  <td align="left" bgcolor="#ffffff"
+                    style="background-color: #ffffff; padding: 10px 0;">
+                    <p style="margin: 10px 0;">${Notification.label.SayHello} $USER_FULL_NAME,</p>
+                    <table border="0" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>
+                          <p style="margin: 10px 0;">
+                            ${social.accountDeletion.otp.email.label.deletionReminder}
+                          </p>
+                          <p style="margin: 10px 0;">
+                            ${social.accountDeletion.otp.email.label.confirmMessage}
+                          </p>
+                          <p style="margin: 10px 0;">
+                            <div style="font-size: 1.5em; border: 1px solid #d8d8d8;width: fit-content; padding: 5px 20px; font-weight: bold;">
+                              ####
+                            </div>
+                            <p style="font-size: 0.8em; color: #999999;">
+                              $CODE_EXPIRATION_LABEL
+                            </p>
+                          </p>
+                          <p style="margin: 10px 0;">
+                            ${social.accountDeletion.otp.email.label.thanks}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td bgcolor="$PRIMARY_COLOR" align="center"
+        style="border: 1px solid #456693;">
+        <table
+          border="0"
+          cellpadding="0"
+          cellspacing="0"
+          width="92%"
+          style="font-size: 12px; line-height: 18px; font-family: HelveticaNeue, verdana, arial, tahoma">
+          <tr>
+            <td align="left" valign="top"
+              style="font-family: HelveticaNeue, Helvetica, Arial, sans-serif, serif; color: #ffffff; font-size: 13px;">
+              <h3
+                style="text-align: center; margin: 0; padding: 10px 0;">
+                <a
+                  target="_blank"
+                  style="color: #ffffff; font-size: 13px; font-family: 'HelveticaNeue Bold', arial, tahoma, serif; font-weight: bold; text-decoration: none;"
+                  href="$COMPANY_LINK"
+                  title="$SITE_NAME">
+                  $SITE_NAME
+                </a>
+              </h3>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

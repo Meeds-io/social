@@ -201,7 +201,11 @@ public class EmailOtpPlugin implements OtpPlugin {
   }
 
   private String getEmailSubject(String lang) {
-    return resourceBundleService.getSharedString("otp.email.subject", LocaleUtils.toLocale(lang));
+    return resourceBundleService.getSharedString(getEmailSubjectKey(), LocaleUtils.toLocale(lang));
+  }
+
+  protected String getEmailSubjectKey() {
+    return "otp.email.subject";
   }
 
   private String getEmailBody(String userFullName, String lang, String otpCode) {
@@ -230,7 +234,7 @@ public class EmailOtpPlugin implements OtpPlugin {
   @SneakyThrows
   private String getEmailBody() {
     if (emailBodyTemplate == null) {
-      try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(emailBodyPath)) {
+      try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(getEmailBodyPath())) {
         emailBodyTemplate = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
       }
     }
