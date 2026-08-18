@@ -19,6 +19,7 @@
 package org.exoplatform.social.service.test;
 
 import io.meeds.social.security.rest.LoginRestTest;
+import io.meeds.social.security.rest.OtpRestTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -72,6 +73,7 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
   CategoryLinkRestTest.class,
   ContentLinkRestTest.class,
   LoginRestTest.class,
+  OtpRestTest.class,
 })
 @ConfigTestCase(AbstractServiceTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
