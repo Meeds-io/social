@@ -31,14 +31,27 @@
     </template>
     <template v-if="drawer" #content>
       <div class="ma-5">
-        <div class="font-weight-bold">
+        <div>
           {{ $t('UserSettings.security.deleteAccount.warning') }}
         </div>
-        <div class="mt-4">
+        <v-checkbox
+          :input-value="true"
+          :aria-label="$t('UserSettings.security.deleteAccount.option.deactivateAccount')"
+          class="mt-4"
+          readonly
+          dense
+          hide-details>
+          <template #label>
+            <span class="font-weight-bold">
+              {{ $t('UserSettings.security.deleteAccount.option.deactivateAccount') }}
+            </span>
+          </template>
+        </v-checkbox>
+        <div class="mt-6">
           {{ $t('UserSettings.security.deleteAccount.confirmMessage') }}
         </div>
-        <div class="d-flex flex-column justify-center align-center full-width mt-4">
-          <template v-if="emailSent">
+        <template v-if="emailSent">
+          <div class="d-flex align-center full-width mt-4">
             <v-text-field
               id="deactivateAccountOtpCode"
               ref="otpCode"
@@ -47,7 +60,7 @@
               :placeholder="$t('UserSettings.security.deleteAccount.confirmAccess.inputPlaceholder')"
               :readonly="verifying || codeVerified"
               prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
-              class="border-box-sizing full-width px-0 pt-1 pb-0"
+              class="border-box-sizing flex-grow-1 px-0 pt-1 pb-0 me-2"
               name="otpCode"
               aria-required="true"
               type="text"
@@ -56,38 +69,20 @@
               autofocus="autofocus"
               outlined
               dense
-              @keyup.enter="verify" />
-            <div class="d-flex mt-2">
-              <v-btn
-                :aria-label="$t('UserSettings.security.deleteAccount.resend')"
-                :disabled="sendingCode || verifying || codeVerified"
-                :loading="sendingCode"
-                class="btn"
-                @click="sendOtpCode">
-                {{ $t('UserSettings.security.deleteAccount.resend') }}
-              </v-btn>
-              <div class="px-2"></div>
-              <v-btn
-                v-if="!codeVerified"
-                :aria-label="$t('UserSettings.security.deleteAccount.verify')"
-                :disabled="sendingCode || verifying || !otpCode"
-                :loading="verifying"
-                color="primary"
-                class="btn"
-                @click="verify">
-                {{ $t('UserSettings.security.deleteAccount.verify') }}
-              </v-btn>
-              <div
-                v-else
-                class="d-flex align-center success--text">
-                <v-icon size="16" class="success--text me-1">fa-check</v-icon>
-                {{ $t('UserSettings.security.deleteAccount.codeVerified') }}
-              </div>
-            </div>
-          </template>
-          <div v-else>
-            {{ $t('UserSettings.security.deleteAccount.confirmAccess.sendingEmail') }}
+              @keyup.enter="confirmRequest" />
+            <v-btn
+              :aria-label="$t('UserSettings.security.deleteAccount.resend')"
+              :disabled="sendingCode || verifying || codeVerified"
+              :loading="sendingCode"
+              height="40"
+              class="btn"
+              @click="sendOtpCode">
+              {{ $t('UserSettings.security.deleteAccount.resend') }}
+            </v-btn>
           </div>
+        </template>
+        <div v-else class="mt-4">
+          {{ $t('UserSettings.security.deleteAccount.confirmAccess.sendingEmail') }}
         </div>
       </div>
     </template>
@@ -96,17 +91,16 @@
         <v-spacer />
         <v-btn
           :aria-label="$t('UserSettings.button.cancel')"
-          :disabled="verifying"
           class="btn me-2"
           @click="close">
           {{ $t('UserSettings.button.cancel') }}
         </v-btn>
         <v-btn
           :aria-label="$t('UserSettings.button.confirm')"
-          :disabled="!codeVerified"
-          color="error"
-          class="btn"
-          @click="confirm">
+          :disabled="!otpCode || verifying || sendingCode"
+          :loading="verifying"
+          class="btn btn-danger"
+          @click="confirmRequest">
           {{ $t('UserSettings.button.confirm') }}
         </v-btn>
       </div>
@@ -118,20 +112,13 @@
 export default {
   data: () => ({
     drawer: false,
-    otpMethod: 'accountDeletionEmail',
+    otpMethod: 'accountDeactivationEmail',
     otpCode: null,
     emailSent: false,
     sendingCode: false,
     verifying: false,
     codeVerified: false,
   }),
-  watch: {
-    otpCode() {
-      if (!this.verifying) {
-        this.codeVerified = false;
-      }
-    },
-  },
   methods: {
     open() {
       this.otpCode = null;
@@ -168,8 +155,15 @@ export default {
         this.verifying = false;
       }
     },
-    confirm() {
-      // the confirmation action (options recap + state-changing call) is delivered by EXO-89276
+    confirmRequest() {
+      if (!this.codeVerified) {
+        // first confirmation verifies the entered code (UX gate), then the
+        // drawer switches to the identity-confirmed state
+        this.verify();
+      } else {
+        // the state-changing call carrying the OTP code, validated server-side
+        // at that single authoritative point, is delivered by EXO-89280
+      }
     },
   },
 };

@@ -58,7 +58,7 @@ import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.web.security.security.SecureRandomService;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
-public class AccountDeletionEmailOtpPluginTest {
+public class AccountDeactivationEmailOtpPluginTest {
 
   private static final String           OTP_CODE = "123456";
 
@@ -99,14 +99,14 @@ public class AccountDeletionEmailOtpPluginTest {
   private UserProfile                   userProfile;
 
   @InjectMocks
-  private AccountDeletionEmailOtpPlugin plugin;
+  private AccountDeactivationEmailOtpPlugin plugin;
 
   @Before
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void setUp() throws Exception {
     plugin.setOtpTtl(5);
     plugin.setOtpLength(6);
-    plugin.setAccountDeletionEmailBodyPath("assets/account-deletion-otp-email.html");
+    plugin.setAccountDeactivationEmailBodyPath("assets/account-deactivation-otp-email.html");
     when(cacheService.getCacheInstance("otp.email")).thenReturn((ExoCache) otpCache); // NOSONAR
     when(secureRandomService.getSecureRandom()).thenReturn(secureRandom);
     when(secureRandom.nextLong(anyLong(), anyLong())).thenReturn(123456L);
@@ -133,7 +133,7 @@ public class AccountDeletionEmailOtpPluginTest {
 
   @Test
   public void testGetNameAndCanUse() {
-    assertEquals("accountDeletionEmail", plugin.getName());
+    assertEquals("accountDeactivationEmail", plugin.getName());
     assertTrue(plugin.canUse("anyUser"));
   }
 
@@ -149,10 +149,10 @@ public class AccountDeletionEmailOtpPluginTest {
     plugin.generateOtpCode("john");
 
     verify(otpCache).put(eq("john"), eq(OTP_CODE));
-    verify(resourceBundleService).getSharedString(eq("social.accountDeletion.otp.email.subject"), any());
-    verify(resourceBundleService).getSharedString(eq("social.accountDeletion.otp.email.label.deletionReminder"), any());
-    verify(resourceBundleService).getSharedString(eq("social.accountDeletion.otp.email.label.confirmMessage"), any());
-    verify(resourceBundleService).getSharedString(eq("social.accountDeletion.otp.email.label.thanks"), any());
+    verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.subject"), any());
+    verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.deactivationReminder"), any());
+    verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.confirmMessage"), any());
+    verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.thanks"), any());
 
     ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
     verify(mailService).sendMessage(messageCaptor.capture());

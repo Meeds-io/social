@@ -26,16 +26,16 @@ import lombok.Setter;
 /**
  * Same OTP mechanics as {@link EmailOtpPlugin} (generation, cache, TTL,
  * throttling all inherited and shared), with a dedicated email wording for the
- * account deletion request flow.
+ * account deactivation request flow.
  */
 @Service
-public class AccountDeletionEmailOtpPlugin extends EmailOtpPlugin {
+public class AccountDeactivationEmailOtpPlugin extends EmailOtpPlugin {
 
-  public static final String NAME = "accountDeletionEmail";
+  public static final String NAME = "accountDeactivationEmail";
 
-  @Value("${social.accountDeletion.otp.email.templatePath:assets/account-deletion-otp-email.html}")
+  @Value("${social.accountDeactivation.otp.email.templatePath:assets/account-deactivation-otp-email.html}")
   @Setter
-  private String             accountDeletionEmailBodyPath;
+  private String             accountDeactivationEmailBodyPath;
 
   @Override
   public String getName() {
@@ -44,12 +44,12 @@ public class AccountDeletionEmailOtpPlugin extends EmailOtpPlugin {
 
   @Override
   public String getEmailBodyPath() {
-    return accountDeletionEmailBodyPath;
+    return accountDeactivationEmailBodyPath;
   }
 
   @Override
   protected String getEmailSubjectKey() {
-    return "social.accountDeletion.otp.email.subject";
+    return "social.accountDeactivation.otp.email.subject";
   }
 
 }

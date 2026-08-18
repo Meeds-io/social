@@ -95,7 +95,7 @@ public class OtpRestTest {
   @Test
   @SneakyThrows
   public void testValidateOtpCodeAnonymously() {
-    mockMvc.perform(post("/otp/validate").content("method=email&code=12345")
+    mockMvc.perform(post("/otp/validate").content("method=accountDeactivationEmail&code=12345")
                                          .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
            .andExpect(status().isForbidden());
   }
@@ -103,18 +103,18 @@ public class OtpRestTest {
   @Test
   @SneakyThrows
   public void testValidateOtpCode() {
-    mockMvc.perform(post("/otp/validate").content("method=email&code=12345")
+    mockMvc.perform(post("/otp/validate").content("method=accountDeactivationEmail&code=12345")
                                          .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                                          .with(testUser()))
            .andExpect(status().isNoContent());
-    verify(otpService).validateOtp(USERNAME, "email", "12345");
+    verify(otpService).validateOtp(USERNAME, "accountDeactivationEmail", "12345");
   }
 
   @Test
   @SneakyThrows
   public void testValidateWrongOtpCode() {
-    doThrow(new IllegalAccessException()).when(otpService).validateOtp(USERNAME, "email", "12345");
-    mockMvc.perform(post("/otp/validate").content("method=email&code=12345")
+    doThrow(new IllegalAccessException()).when(otpService).validateOtp(USERNAME, "accountDeactivationEmail", "12345");
+    mockMvc.perform(post("/otp/validate").content("method=accountDeactivationEmail&code=12345")
                                          .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                                          .with(testUser()))
            .andExpect(status().isForbidden());
