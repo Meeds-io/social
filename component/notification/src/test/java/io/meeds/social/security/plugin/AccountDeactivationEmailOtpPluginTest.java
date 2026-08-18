@@ -87,6 +87,9 @@ public class AccountDeactivationEmailOtpPluginTest {
   private ExoCache<String, String>      otpCache;
 
   @Mock
+  private ExoCache<String, String>      otpSendLockCache;
+
+  @Mock
   private UserHandler                   userHandler;
 
   @Mock
@@ -106,8 +109,10 @@ public class AccountDeactivationEmailOtpPluginTest {
   public void setUp() throws Exception {
     plugin.setOtpTtl(5);
     plugin.setOtpLength(6);
+    plugin.setSendInterval(60);
     plugin.setAccountDeactivationEmailBodyPath("assets/account-deactivation-otp-email.html");
     when(cacheService.getCacheInstance("otp.email")).thenReturn((ExoCache) otpCache); // NOSONAR
+    when(cacheService.getCacheInstance("otp.email.sendLock")).thenReturn((ExoCache) otpSendLockCache); // NOSONAR
     when(secureRandomService.getSecureRandom()).thenReturn(secureRandom);
     when(secureRandom.nextLong(anyLong(), anyLong())).thenReturn(123456L);
 
@@ -138,17 +143,25 @@ public class AccountDeactivationEmailOtpPluginTest {
   }
 
   @Test
-  public void testValidateOtpSharesEmailOtpCache() {
-    when(otpCache.get("john")).thenReturn(OTP_CODE);
+  public void testValidateOtpUsesPurposeBoundCacheKey() {
+    when(otpCache.get("accountDeactivationEmail:john")).thenReturn(OTP_CODE);
     assertTrue(plugin.validateOtp("john", OTP_CODE));
     assertFalse(plugin.validateOtp("john", "999999"));
+  }
+
+  @Test
+  public void testValidateOtpIgnoresGenericEmailOtpCode() {
+    when(otpCache.get("email:john")).thenReturn(OTP_CODE);
+    when(otpCache.get("john")).thenReturn(OTP_CODE);
+    assertFalse("A code generated for the generic email OTP purpose must not validate the account deactivation",
+                plugin.validateOtp("john", OTP_CODE));
   }
 
   @Test
   public void testGenerateOtpCodeUsesDedicatedSubjectAndTemplate() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put(eq("john"), eq(OTP_CODE));
+    verify(otpCache).put(eq("accountDeactivationEmail:john"), eq(OTP_CODE));
     verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.subject"), any());
     verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.deactivationReminder"), any());
     verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.confirmMessage"), any());

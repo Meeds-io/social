@@ -94,6 +94,14 @@ public class OtpRestTest {
 
   @Test
   @SneakyThrows
+  public void testSendOtpCodeThrottled() {
+    doThrow(new IllegalStateException()).when(otpService).sendOtpCode(USERNAME, "email");
+    mockMvc.perform(get("/otp?method=email").with(testUser()))
+           .andExpect(status().isTooManyRequests());
+  }
+
+  @Test
+  @SneakyThrows
   public void testValidateOtpCodeAnonymously() {
     mockMvc.perform(post("/otp/validate").content("method=accountDeactivationEmail&code=12345")
                                          .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))

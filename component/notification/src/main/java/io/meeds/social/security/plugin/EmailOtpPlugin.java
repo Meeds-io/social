@@ -63,6 +63,8 @@ public class EmailOtpPlugin implements OtpPlugin {
 
   private static final String      OTP_CACHE_NAME              = "otp.email";
 
+  private static final String      OTP_SEND_LOCK_CACHE_NAME    = "otp.email.sendLock";
+
   private static final String      LANG_PARAM                  = "$LANG";
 
   private static final String      USER_FULL_NAME_PARAM        = "$USER_FULL_NAME";
@@ -111,6 +113,14 @@ public class EmailOtpPlugin implements OtpPlugin {
   @Setter
   private String                   emailBodyPath;
 
+  /**
+   * Minimal delay in seconds between two OTP email sends for a same user
+   */
+  @Value("${meeds.apiKey.otp.email.sendInterval:60}")
+  @Getter
+  @Setter
+  private long                     sendInterval;
+
   private SecureRandom             secureRandom;
 
   @Setter // Used in Tests only
@@ -118,6 +128,9 @@ public class EmailOtpPlugin implements OtpPlugin {
 
   @Setter
   private ExoCache<String, String> otpCache;
+
+  @Setter
+  private ExoCache<String, String> otpSendLockCache;
 
   @Override
   public String getName() {
@@ -131,18 +144,33 @@ public class EmailOtpPlugin implements OtpPlugin {
 
   @Override
   public boolean validateOtp(String userName, String otpCode) {
-    return StringUtils.equals(otpCode, getOtpCache().get(userName));
+    return StringUtils.equals(otpCode, getOtpCache().get(getCacheKey(userName)));
   }
 
   @Override
   @SneakyThrows
   public void generateOtpCode(String userName) {
+    String cacheKey = getCacheKey(userName);
+    if (getOtpSendLockCache().get(cacheKey) != null) {
+      throw new IllegalStateException(String.format("OTP email already sent to user %s less than %s seconds ago",
+                                                    userName,
+                                                    sendInterval));
+    }
     String email = getUserMail(userName);
     String userFullName = getUserFullName(userName);
     String lang = getUserLang(userName);
     String otpCode = generateOtpCode();
-    getOtpCache().put(userName, otpCode);
+    getOtpCache().put(cacheKey, otpCode);
     sendEmail(email, userFullName, String.valueOf(otpCode), lang);
+    getOtpSendLockCache().put(cacheKey, StringUtils.EMPTY);
+  }
+
+  /**
+   * Key under which the OTP code of a user is stored, distinct by plugin so
+   * that a code generated for one purpose can never validate another one
+   */
+  protected String getCacheKey(String userName) {
+    return getName() + ":" + userName;
   }
 
   private void sendEmail(String to, String userFullName, String otpCode, String lang) throws Exception {
@@ -254,6 +282,14 @@ public class EmailOtpPlugin implements OtpPlugin {
       otpCache.setLiveTime(otpTtl * 60);
     }
     return otpCache;
+  }
+
+  private ExoCache<String, String> getOtpSendLockCache() {
+    if (otpSendLockCache == null) {
+      otpSendLockCache = cacheService.getCacheInstance(OTP_SEND_LOCK_CACHE_NAME);
+      otpSendLockCache.setLiveTime(sendInterval);
+    }
+    return otpSendLockCache;
   }
 
 }

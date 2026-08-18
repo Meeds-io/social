@@ -53,12 +53,17 @@ public class OtpRest {
   @Operation(summary = "Sends an OTP code using the designated method (email, app ...)", method = "GET")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "204", description = "Request fullfilled"),
+    @ApiResponse(responseCode = "429", description = "An OTP code was already sent recently, retry later"),
   })
   public void sendOtpCode(HttpServletRequest request,
                           @Parameter(description = "OTP Method")
                           @RequestParam("method")
                           String otpMethod) {
-    otpService.sendOtpCode(request.getRemoteUser(), otpMethod);
+    try {
+      otpService.sendOtpCode(request.getRemoteUser(), otpMethod);
+    } catch (IllegalStateException e) {
+      throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS);
+    }
   }
 
   @PostMapping(path = "/validate", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)

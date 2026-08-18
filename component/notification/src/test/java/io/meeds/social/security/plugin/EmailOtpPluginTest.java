@@ -20,12 +20,14 @@ package io.meeds.social.security.plugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -86,6 +88,9 @@ public class EmailOtpPluginTest {
   private ExoCache<String, String> otpCache;
 
   @Mock
+  private ExoCache<String, String> otpSendLockCache;
+
+  @Mock
   private UserHandler              userHandler;
 
   @Mock
@@ -105,9 +110,11 @@ public class EmailOtpPluginTest {
   public void setUp() throws Exception {
     plugin.setOtpTtl(5);
     plugin.setOtpLength(6);
+    plugin.setSendInterval(60);
     plugin.setEmailBodyPath("fake-path.html");
     plugin.setEmailBodyTemplate("Hello $USER_FULL_NAME, code: ####");
     when(cacheService.getCacheInstance("otp.email")).thenReturn((ExoCache) otpCache); // NOSONAR
+    when(cacheService.getCacheInstance("otp.email.sendLock")).thenReturn((ExoCache) otpSendLockCache); // NOSONAR
     when(secureRandomService.getSecureRandom()).thenReturn(secureRandom);
     when(secureRandom.nextLong(anyLong(), anyLong())).thenReturn(123456L);
 
@@ -139,13 +146,20 @@ public class EmailOtpPluginTest {
 
   @Test
   public void testValidateOtpValid() {
-    when(otpCache.get("john")).thenReturn(OTP_CODE);
+    when(otpCache.get("email:john")).thenReturn(OTP_CODE);
     assertTrue(plugin.validateOtp("john", OTP_CODE));
   }
 
   @Test
   public void testValidateOtpInvalid() {
-    when(otpCache.get("john")).thenReturn("999999");
+    when(otpCache.get("email:john")).thenReturn("999999");
+    assertFalse(plugin.validateOtp("john", OTP_CODE));
+  }
+
+  @Test
+  public void testValidateOtpIgnoresOtherPurposeCode() {
+    when(otpCache.get("john")).thenReturn(OTP_CODE);
+    when(otpCache.get("accountDeactivationEmail:john")).thenReturn(OTP_CODE);
     assertFalse(plugin.validateOtp("john", OTP_CODE));
   }
 
@@ -153,8 +167,18 @@ public class EmailOtpPluginTest {
   public void testGenerateOtpCodeSuccess() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put(eq("john"), eq(OTP_CODE));
+    verify(otpCache).put(eq("email:john"), eq(OTP_CODE));
     verify(mailService).sendMessage(any(MimeMessage.class));
+    verify(otpSendLockCache).put(eq("email:john"), anyString());
+  }
+
+  @Test
+  public void testGenerateOtpCodeThrottled() throws Exception {
+    when(otpSendLockCache.get("email:john")).thenReturn("");
+
+    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
+    verify(otpCache, never()).put(anyString(), anyString());
+    verify(mailService, never()).sendMessage(any(MimeMessage.class));
   }
 
 }

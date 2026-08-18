@@ -80,6 +80,12 @@
               {{ $t('UserSettings.security.deleteAccount.resend') }}
             </v-btn>
           </div>
+          <div
+            v-if="codeVerified"
+            class="d-flex align-center success--text mt-2">
+            <v-icon size="16" class="success--text me-1">fa-check</v-icon>
+            {{ $t('UserSettings.security.deleteAccount.codeVerified') }}
+          </div>
         </template>
         <div v-else class="mt-4">
           {{ $t('UserSettings.security.deleteAccount.confirmAccess.sendingEmail') }}
@@ -136,6 +142,8 @@ export default {
         this.otpCode = null;
         this.codeVerified = false;
         await this.$otpService.sendOtpCode(this.otpMethod);
+      } catch {
+        this.$root.$emit('alert-message', this.$t('UserSettings.security.deleteAccount.otpSendError'), 'error');
       } finally {
         this.sendingCode = false;
         this.emailSent = true;
