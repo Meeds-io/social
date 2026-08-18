@@ -167,7 +167,7 @@ public class EmailOtpPluginTest {
   public void testGenerateOtpCodeSuccess() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put(eq("email:john"), eq(OTP_CODE));
+    verify(otpCache).put("email:john", OTP_CODE);
     verify(mailService).sendMessage(any(MimeMessage.class));
     verify(otpSendLockCache).put(eq("email:john"), anyString());
   }
