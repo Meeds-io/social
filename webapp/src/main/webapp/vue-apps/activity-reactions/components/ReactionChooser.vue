@@ -26,35 +26,45 @@
     @touchend="cancelLongPressTimer"
     @touchmove="cancelLongPressTimer"
     @click.capture="swallowLongPressClick"
-    @keydown="handleActivatorKeydown"
-    @focusout="handleFocusOut">
+    @keydown="handleActivatorKeydown">
     <slot></slot>
-    <v-card
-      v-if="open"
-      :aria-label="$t('UIActivity.label.reactions')"
-      class="reaction-chooser position-absolute d-flex flex-nowrap align-center pa-1 white rounded-xl elevation-2"
-      style="bottom: calc(100% + 4px); inset-inline-start: 0; z-index: 10; width: max-content !important; max-width: none !important;"
-      role="menu"
-      @mouseenter="cancelCloseTimer"
-      @mouseleave="startCloseTimer">
-      <v-btn
-        v-for="(option, index) in options"
-        :key="option.id"
-        :ref="`option-${index}`"
-        :title="$t(option.labelKey)"
-        :aria-label="$t(option.labelKey)"
-        :class="option.id === currentReactionId && 'reaction-chooser-selected light-grey-background'"
-        role="menuitem"
-        min-width="36"
-        width="36"
-        height="36"
-        class="pa-0 me-1"
-        icon
-        @click.prevent.stop="selectOption(option)"
-        @keydown="handleMenuKeydown($event, index)">
-        <span class="reaction-emoji text-h6">{{ option.emoji }}</span>
-      </v-btn>
-    </v-card>
+    <v-menu
+      v-model="open"
+      :position-x="menuX"
+      :position-y="menuY"
+      :close-on-content-click="false"
+      content-class="reaction-chooser rounded-xl"
+      transition="fade-transition"
+      z-index="2000"
+      absolute
+      top
+      allow-overflow>
+      <v-card
+        :aria-label="$t('UIActivity.label.reactions')"
+        class="d-flex flex-nowrap align-center pa-1 white"
+        role="menu"
+        flat
+        @mouseenter="cancelCloseTimer"
+        @mouseleave="startCloseTimer">
+        <v-btn
+          v-for="(option, index) in options"
+          :key="option.id"
+          :ref="`option-${index}`"
+          :title="$t(option.labelKey)"
+          :aria-label="$t(option.labelKey)"
+          :class="option.id === currentReactionId && 'reaction-chooser-selected light-grey-background'"
+          role="menuitem"
+          min-width="36"
+          width="36"
+          height="36"
+          class="pa-0 me-1"
+          icon
+          @click.prevent.stop="selectOption(option)"
+          @keydown="handleMenuKeydown($event, index)">
+          <span class="reaction-emoji text-h6">{{ option.emoji }}</span>
+        </v-btn>
+      </v-card>
+    </v-menu>
   </div>
 </template>
 
@@ -85,12 +95,25 @@ export default {
   data: () => ({
     options: [],
     open: false,
+    menuX: 0,
+    menuY: 0,
     hoverTimer: null,
     closeTimer: null,
     longPressTimer: null,
     longPressTriggered: false,
     lastTouchTime: 0,
   }),
+  watch: {
+    open(opened) {
+      if (opened) {
+        document.addEventListener('scroll', this.closeChooser, true);
+        window.addEventListener('resize', this.closeChooser);
+      } else {
+        document.removeEventListener('scroll', this.closeChooser, true);
+        window.removeEventListener('resize', this.closeChooser);
+      }
+    },
+  },
   created() {
     this.$reactionService.getReactionOptions(this.objectType)
       .then(options => this.options = options);
@@ -99,6 +122,8 @@ export default {
     this.cancelHoverTimer();
     this.cancelCloseTimer();
     this.cancelLongPressTimer();
+    document.removeEventListener('scroll', this.closeChooser, true);
+    window.removeEventListener('resize', this.closeChooser);
   },
   methods: {
     openChooser(focusFirstOption) {
@@ -106,6 +131,10 @@ export default {
         return;
       }
       this.cancelCloseTimer();
+      const anchorRect = this.$el.getBoundingClientRect();
+      const popoverWidth = this.options.length * 40 + 8;
+      this.menuX = Math.max(8, Math.min(anchorRect.left, window.innerWidth - popoverWidth - 8));
+      this.menuY = anchorRect.top - 4;
       this.open = true;
       if (focusFirstOption) {
         this.$nextTick(() => this.focusOption(0));
@@ -122,8 +151,6 @@ export default {
     },
     startHoverTimer() {
       this.cancelCloseTimer();
-      // touch devices emulate mouseenter right after touchend: without this
-      // guard, a simple tap would open the chooser hoverDelay ms later
       const touchRecently = Date.now() - this.lastTouchTime < this.hoverDelay + this.longPressDelay;
       if (!this.disabled && !touchRecently && !this.open && !this.hoverTimer) {
         this.hoverTimer = window.setTimeout(() => {
@@ -173,8 +200,6 @@ export default {
       }
     },
     swallowLongPressClick(event) {
-      // a long-press opened the chooser: the click that follows the touch
-      // release must not toggle the like underneath
       if (this.longPressTriggered) {
         this.longPressTriggered = false;
         event.preventDefault();
@@ -204,11 +229,6 @@ export default {
         event.preventDefault();
         this.closeChooser();
         this.$el.querySelector('button, a, [tabindex]')?.focus?.();
-      }
-    },
-    handleFocusOut(event) {
-      if (this.open && !this.$el.contains(event.relatedTarget)) {
-        this.closeChooser();
       }
     },
     focusOption(index) {
