@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import io.meeds.web.security.service.OtpService;
 
@@ -50,12 +51,17 @@ public class OtpRest {
   @Operation(summary = "Sends an OTP code using the designated method (email, app ...)", method = "GET")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "204", description = "Request fullfilled"),
+    @ApiResponse(responseCode = "429", description = "An OTP code was already sent recently, retry later"),
   })
   public void sendOtpCode(HttpServletRequest request,
                           @Parameter(description = "OTP Method")
                           @RequestParam("method")
                           String otpMethod) {
-    otpService.sendOtpCode(request.getRemoteUser(), otpMethod);
+    try {
+      otpService.sendOtpCode(request.getRemoteUser(), otpMethod);
+    } catch (IllegalStateException e) {
+      throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS);
+    }
   }
 
 }
