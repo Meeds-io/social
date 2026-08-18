@@ -42,8 +42,8 @@
         <activity-liker-item :liker="reactor" />
         <span
           v-if="reactor.reactionOption"
-          :title="$t(reactor.reactionOption.activeLabelKey)"
-          :aria-label="$t(reactor.reactionOption.activeLabelKey)"
+          :title="reactor.reactionOption.activeLabelKey && $t(reactor.reactionOption.activeLabelKey) || reactor.reactionOption.emoji"
+          :aria-label="reactor.reactionOption.activeLabelKey && $t(reactor.reactionOption.activeLabelKey) || reactor.reactionOption.emoji"
           class="reaction-emoji me-4 flex-shrink-0">{{ reactor.reactionOption.emoji }}</span>
       </div>
     </div>
@@ -84,10 +84,13 @@ export default {
   },
   computed: {
     reactorsToDisplay() {
-      return this.likers.map(liker => Object.assign({}, liker, {
-        reactionId: this.reactionIdsByReactor[liker.id] || 'like',
-        reactionOption: this.reactionOptions.find(option => option.id === (this.reactionIdsByReactor[liker.id] || 'like')),
-      }));
+      return this.likers.map(liker => {
+        const reactionId = this.reactionIdsByReactor[liker.id] || 'like';
+        return Object.assign({}, liker, {
+          reactionId,
+          reactionOption: this.resolveReactionOption(reactionId),
+        });
+      });
     },
     totalCount() {
       return Object.values(this.counts).reduce((sum, count) => sum + count, 0) || this.likersSize;
@@ -108,6 +111,19 @@ export default {
           });
         }
       });
+      Object.keys(this.counts)
+        .filter(reactionId => reactionId !== 'like' && !this.reactionOptions.some(option => option.id === reactionId))
+        .forEach(reactionId => {
+          const customOption = this.resolveReactionOption(reactionId);
+          if (customOption) {
+            chips.push({
+              id: reactionId,
+              label: customOption.emoji,
+              emoji: customOption.emoji,
+              count: this.counts[reactionId],
+            });
+          }
+        });
       return chips;
     },
     hasMoreReactors() {
@@ -134,6 +150,13 @@ export default {
     }
   },
   methods: {
+    resolveReactionOption(reactionId) {
+      const option = this.reactionOptions.find(registered => registered.id === reactionId);
+      if (option) {
+        return option;
+      }
+      return /^[a-z0-9_-]+$/i.test(reactionId) ? null : {id: reactionId, emoji: reactionId, activeLabelKey: null};
+    },
     selectReaction(reactionId) {
       this.selectedReactionId = this.selectedReactionId === reactionId ? null : reactionId;
       this.limit = 20;

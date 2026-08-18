@@ -52,7 +52,9 @@ import io.meeds.social.reaction.storage.ReactionStorage;
 @Service
 public class ReactionServiceImpl implements ReactionService {
 
-  public static final String         ACTIVITY_OBJECT_TYPE = "activity";
+  public static final String         ACTIVITY_OBJECT_TYPE       = "activity";
+
+  private static final int           CUSTOM_REACTION_MAX_LENGTH = 16;
 
   private static final Log           LOG                  = ExoLogger.getLogger(ReactionServiceImpl.class);
 
@@ -105,7 +107,7 @@ public class ReactionServiceImpl implements ReactionService {
                                                      objectId));
     }
     ReactionOption option = getReactionOptionsById().get(reactionId);
-    if (option == null || !option.supports(objectType)) {
+    if ((option == null || !option.supports(objectType)) && !isCustomEmojiReaction(reactionId)) {
       throw new IllegalArgumentException("reaction.unknownReactionId");
     }
     Identity userIdentity = identityManager.getOrCreateUserIdentity(username);
@@ -276,6 +278,20 @@ public class ReactionServiceImpl implements ReactionService {
                 objectId,
                 e);
     }
+  }
+
+  private boolean isCustomEmojiReaction(String reactionId) {
+    if (StringUtils.isBlank(reactionId) || reactionId.length() > CUSTOM_REACTION_MAX_LENGTH) {
+      return false;
+    }
+    return reactionId.codePoints()
+                     .allMatch(codePoint -> (codePoint >= 0x1F000 && codePoint <= 0x1FAFF)
+                                            || (codePoint >= 0x2600 && codePoint <= 0x27BF)
+                                            || (codePoint >= 0x2B00 && codePoint <= 0x2BFF)
+                                            || codePoint == 0x200D
+                                            || codePoint == 0xFE0E
+                                            || codePoint == 0xFE0F
+                                            || codePoint == 0x20E3);
   }
 
   private Map<String, ReactionOption> getReactionOptionsById() {
