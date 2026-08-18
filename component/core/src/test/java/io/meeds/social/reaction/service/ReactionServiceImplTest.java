@@ -320,6 +320,58 @@ public class ReactionServiceImplTest {
   }
 
   @Test
+  public void testGetReactionsFilteredByRegisteredOption() throws Exception {
+    MetadataItem loveItem = metadataItem(77l, "love", 2l);
+    when(reactionStorage.getReactionItemsByOption("love", metadataObject, 0, 20)).thenReturn(List.of(loveItem));
+
+    List<Reaction> reactions = reactionService.getReactions(OBJECT_TYPE, OBJECT_ID, "love", 0, 20, USERNAME);
+
+    assertEquals(1, reactions.size());
+    assertEquals(2l, reactions.get(0).getReactorIdentityId());
+    assertEquals("love", reactions.get(0).getReactionId());
+  }
+
+  @Test
+  public void testGetReactionOptionsFilteredByObjectType() {
+    assertEquals(6, reactionService.getReactionOptions(OBJECT_TYPE).size());
+  }
+
+  @Test
+  public void testSetReactionWithTooLongEmojiSequenceRejected() {
+    String tooLongEmojiSequence = "\uD83D\uDD25".repeat(9);
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, tooLongEmojiSequence, USERNAME));
+  }
+
+  @Test
+  public void testDeleteReactionWithoutTypedItemUnlikes() throws Exception {
+    when(activity.getLikeIdentityIds()).thenReturn(new String[] { IDENTITY_ID });
+
+    reactionService.deleteReaction(OBJECT_TYPE, OBJECT_ID, USERNAME);
+
+    verify(reactionStorage, never()).deleteReaction(anyLong(), anyLong());
+    verify(activityManager).deleteLike(activity, userIdentity);
+  }
+
+  @Test
+  public void testDeleteReactionItemIgnoresUnsupportedObjectType() {
+    reactionService.deleteReactionItem("task", OBJECT_ID, 123l);
+
+    verify(activityManager, never()).getActivity(any());
+  }
+
+  @Test
+  public void testBroadcastFailureDoesNotBreakTheWrite() throws Exception {
+    org.mockito.Mockito.doThrow(new IllegalStateException("listener failure"))
+                       .when(listenerService)
+                       .broadcast(any(String.class), any(), any());
+
+    reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "love", USERNAME);
+
+    verify(reactionStorage).createReaction(metadataObject, "love", 123l);
+  }
+
+  @Test
   public void testDeleteReactionItemIsNoOpWithoutTypedItem() throws Exception {
     reactionService.deleteReactionItem(OBJECT_TYPE, OBJECT_ID, 123l);
 
