@@ -26,6 +26,7 @@
     :content-class="`topBar-navigation-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
+    :open-on-click="false"
     :max-height="menuMaxHeight"
     bottom
     offset-y
@@ -164,7 +165,9 @@ export default {
           window.location.href = this.navigationNodeUri;
         }
       } else if (this.hasChildren && this.childrenHasPage) {
-        this.openDropMenu();
+        // a keyboard activation (event detail = 0) only opens the menu, so that a second
+        // Enter activates the highlighted sub page instead of closing the menu again
+        this.openDropMenu(!e.detail);
       }
     },
     openDropMenu(persist) {
