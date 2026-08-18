@@ -40,12 +40,11 @@
         :key="reactor.id"
         class="d-flex align-center justify-space-between">
         <activity-liker-item :liker="reactor" />
-        <div
+        <span
           v-if="reactor.reactionOption"
-          class="d-flex align-center me-4 flex-shrink-0">
-          <span class="reaction-emoji me-1">{{ reactor.reactionOption.emoji }}</span>
-          <span class="text-caption text-sub-title">{{ $t(reactor.reactionOption.activeLabelKey) }}</span>
-        </div>
+          :title="$t(reactor.reactionOption.activeLabelKey)"
+          :aria-label="$t(reactor.reactionOption.activeLabelKey)"
+          class="reaction-emoji me-4 flex-shrink-0">{{ reactor.reactionOption.emoji }}</span>
       </div>
     </div>
     <v-btn
