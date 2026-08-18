@@ -63,6 +63,20 @@
           @keydown="handleMenuKeydown($event, index)">
           <span class="reaction-emoji text-h6">{{ option.emoji }}</span>
         </v-btn>
+        <v-btn
+          :ref="`option-${options.length}`"
+          :title="$t('UIActivity.reaction.selectAnother')"
+          :aria-label="$t('UIActivity.reaction.selectAnother')"
+          role="menuitem"
+          min-width="36"
+          width="36"
+          height="36"
+          class="pa-0 me-1"
+          icon
+          @click.prevent.stop="openEmojiBank"
+          @keydown="handleMenuKeydown($event, options.length)">
+          <v-icon size="16" class="icon-default-color">fas fa-plus</v-icon>
+        </v-btn>
       </v-card>
     </v-menu>
   </div>
@@ -117,6 +131,7 @@ export default {
   created() {
     this.$reactionService.getReactionOptions(this.objectType)
       .then(options => this.options = options);
+    this.$on('select-emoji', this.selectCustomEmoji);
   },
   beforeDestroy() {
     this.cancelHoverTimer();
@@ -148,6 +163,19 @@ export default {
     selectOption(option) {
       this.$emit('reaction-select', option);
       this.closeChooser();
+    },
+    selectCustomEmoji(emoji) {
+      this.$emit('reaction-select', {id: emoji, emoji});
+    },
+    openEmojiBank() {
+      const anchorRect = this.$el.getBoundingClientRect();
+      this.closeChooser();
+      document.dispatchEvent(new CustomEvent('show-emoji-picker', {detail: {
+        top: `${anchorRect.bottom + 8}px`,
+        left: `${anchorRect.left}px`,
+        launcherInstance: this,
+        options: {closeOnEmojiSelect: true},
+      }}));
     },
     startHoverTimer() {
       this.cancelCloseTimer();
@@ -219,12 +247,13 @@ export default {
       }
     },
     handleMenuKeydown(event, index) {
+      const itemsCount = this.options.length + 1;
       if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
         event.preventDefault();
-        this.focusOption((index + 1) % this.options.length);
+        this.focusOption((index + 1) % itemsCount);
       } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
         event.preventDefault();
-        this.focusOption((index - 1 + this.options.length) % this.options.length);
+        this.focusOption((index - 1 + itemsCount) % itemsCount);
       } else if (event.key === 'Escape') {
         event.preventDefault();
         this.closeChooser();
