@@ -1,7 +1,7 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,14 +20,12 @@ package io.meeds.social.security.plugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,6 +39,7 @@ import javax.mail.internet.MimeMessage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -59,51 +58,51 @@ import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.web.security.security.SecureRandomService;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
-public class EmailOtpPluginTest {
+public class AccountDeactivationEmailOtpPluginTest {
 
-  private static final String      OTP_CODE = "123456";
-
-  @Mock
-  private CacheService             cacheService;
+  private static final String           OTP_CODE = "123456";
 
   @Mock
-  private SecureRandomService      secureRandomService;
+  private CacheService                  cacheService;
 
   @Mock
-  private OrganizationService      organizationService;
+  private SecureRandomService           secureRandomService;
 
   @Mock
-  private ResourceBundleService    resourceBundleService;
+  private OrganizationService           organizationService;
 
   @Mock
-  private BrandingService          brandingService;
+  private ResourceBundleService         resourceBundleService;
 
   @Mock
-  private MailService              mailService;
+  private BrandingService               brandingService;
 
   @Mock
-  private SecureRandom             secureRandom;
+  private MailService                   mailService;
 
   @Mock
-  private ExoCache<String, String> otpCache;
+  private SecureRandom                  secureRandom;
 
   @Mock
-  private ExoCache<String, String> otpSendLockCache;
+  private ExoCache<String, String>      otpCache;
 
   @Mock
-  private UserHandler              userHandler;
+  private ExoCache<String, String>      otpSendLockCache;
 
   @Mock
-  private UserProfileHandler       userProfileHandler;
+  private UserHandler                   userHandler;
 
   @Mock
-  private User                     user;
+  private UserProfileHandler            userProfileHandler;
 
   @Mock
-  private UserProfile              userProfile;
+  private User                          user;
+
+  @Mock
+  private UserProfile                   userProfile;
 
   @InjectMocks
-  private EmailOtpPlugin           plugin;
+  private AccountDeactivationEmailOtpPlugin plugin;
 
   @Before
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -111,8 +110,7 @@ public class EmailOtpPluginTest {
     plugin.setOtpTtl(5);
     plugin.setOtpLength(6);
     plugin.setSendInterval(60);
-    plugin.setEmailBodyPath("fake-path.html");
-    plugin.setEmailBodyTemplate("Hello $USER_FULL_NAME, code: ####");
+    plugin.setAccountDeactivationEmailBodyPath("assets/account-deactivation-otp-email.html");
     when(cacheService.getCacheInstance("otp.email")).thenReturn((ExoCache) otpCache); // NOSONAR
     when(cacheService.getCacheInstance("otp.email.sendLock")).thenReturn((ExoCache) otpSendLockCache); // NOSONAR
     when(secureRandomService.getSecureRandom()).thenReturn(secureRandom);
@@ -140,45 +138,41 @@ public class EmailOtpPluginTest {
 
   @Test
   public void testGetNameAndCanUse() {
-    assertEquals("email", plugin.getName());
+    assertEquals("accountDeactivationEmail", plugin.getName());
     assertTrue(plugin.canUse("anyUser"));
   }
 
   @Test
-  public void testValidateOtpValid() {
-    when(otpCache.get("email:john")).thenReturn(OTP_CODE);
-    assertTrue(plugin.validateOtp("john", OTP_CODE));
-  }
-
-  @Test
-  public void testValidateOtpInvalid() {
-    when(otpCache.get("email:john")).thenReturn("999999");
-    assertFalse(plugin.validateOtp("john", OTP_CODE));
-  }
-
-  @Test
-  public void testValidateOtpIgnoresOtherPurposeCode() {
-    when(otpCache.get("john")).thenReturn(OTP_CODE);
+  public void testValidateOtpUsesPurposeBoundCacheKey() {
     when(otpCache.get("accountDeactivationEmail:john")).thenReturn(OTP_CODE);
-    assertFalse(plugin.validateOtp("john", OTP_CODE));
+    assertTrue(plugin.validateOtp("john", OTP_CODE));
+    assertFalse(plugin.validateOtp("john", "999999"));
   }
 
   @Test
-  public void testGenerateOtpCodeSuccess() throws Exception {
+  public void testValidateOtpIgnoresGenericEmailOtpCode() {
+    when(otpCache.get("email:john")).thenReturn(OTP_CODE);
+    when(otpCache.get("john")).thenReturn(OTP_CODE);
+    assertFalse("A code generated for the generic email OTP purpose must not validate the account deactivation",
+                plugin.validateOtp("john", OTP_CODE));
+  }
+
+  @Test
+  public void testGenerateOtpCodeUsesDedicatedSubjectAndTemplate() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put("email:john", OTP_CODE);
-    verify(mailService).sendMessage(any(MimeMessage.class));
-    verify(otpSendLockCache).put(eq("email:john"), anyString());
-  }
+    verify(otpCache).put("accountDeactivationEmail:john", OTP_CODE);
+    verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.subject"), any());
+    verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.deactivationReminder"), any());
+    verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.confirmMessage"), any());
+    verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.thanks"), any());
 
-  @Test
-  public void testGenerateOtpCodeThrottled() throws Exception {
-    when(otpSendLockCache.get("email:john")).thenReturn("");
-
-    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
-    verify(otpCache, never()).put(anyString(), anyString());
-    verify(mailService, never()).sendMessage(any(MimeMessage.class));
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    verify(mailService).sendMessage(messageCaptor.capture());
+    String body = String.valueOf(messageCaptor.getValue().getContent());
+    assertTrue("OTP code should be injected in the email body", body.contains(OTP_CODE));
+    assertTrue("User full name should be injected in the email body", body.contains("John Doe"));
+    assertFalse("All i18n placeholders should be resolved", body.contains("${"));
   }
 
 }
