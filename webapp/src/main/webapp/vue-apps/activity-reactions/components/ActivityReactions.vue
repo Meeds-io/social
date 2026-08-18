@@ -1,12 +1,15 @@
 <template>
   <div
     :class="(isDesktop && !$root.reducedWidth) && 'position-absolute' || ''"
-    class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
+    class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2"
+    @mouseleave="resetHoverState">
     <div
       v-if="!$root.reducedWidth"
       :style="`min-height:${avatarSize}px`"
-      class="reactionsUsersAvatar position-relative d-none d-lg-inline">
-      <div class="d-flex flex-nowrap">
+      class="reactionsUsersAvatar position-relative d-none d-lg-inline"
+      @mouseenter="showSeeMoreOverlay = true"
+      @mouseleave="resetHoverState">
+      <div v-if="!showSeeMoreOverlay || !likersNumber" class="d-flex flex-nowrap">
         <exo-user-avatar
           v-for="(liker, index) in likersToDisplay"
           :key="liker.id"
@@ -20,10 +23,22 @@
           compact
           extra-class="me-1 transition-2s" />
       </div>
+      <v-btn
+        v-else
+        v-ripple="false"
+        :min-width="seeMoreWidth"
+        :min-height="avatarSize"
+        :height="avatarSize"
+        class="caption white--text grey-lighten1-background px-1 ms-n1"
+        text
+        @click.prevent.stop="openDrawer">
+        <span class="text-body white--text text-center text-no-wrap">{{ $t('activity.reactions.seeMore') }}</span>
+      </v-btn>
     </div>
     <div
-      v-if="!$root.reducedWidth"
-      class="activityLikersAndKudosDrawer d-none d-lg-inline ml-n5">
+      v-if="!$root.reducedWidth && !showSeeMoreOverlay"
+      class="activityLikersAndKudosDrawer d-none d-lg-inline ml-n5"
+      @mouseenter="showSeeMoreOverlay = true">
       <div v-if="seeMoreLikerToDisplay" class="seeMoreReactionsContainer">
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
@@ -92,7 +107,8 @@ export default {
   },
   data: () => ({
     maxLikersToShow: 4,
-    showAvatarAnimation: false
+    showAvatarAnimation: false,
+    showSeeMoreOverlay: false
   }),
   computed: {
     seeMoreLikerToDisplay () {
@@ -100,6 +116,10 @@ export default {
     },
     likersToDisplay () {
       return this.likers.slice(0, this.maxLikersToShow-1);
+    },
+    seeMoreWidth() {
+      const avatarsCount = this.likersToDisplay.length + (this.seeMoreLikerToDisplay ? 1 : 0);
+      return this.avatarSize + Math.max(avatarsCount - 1, 0) * 10;
     },
     showMoreLikersNumber() {
       return this.likersNumber - this.maxLikersToShow + 1;
@@ -115,6 +135,10 @@ export default {
     }
   },
   methods: {
+    resetHoverState() {
+      this.showSeeMoreOverlay = false;
+      this.showAvatarAnimation = false;
+    },
     openDrawer() {
       const reactionTabDetails = {
         activityId: this.activityId,
