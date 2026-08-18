@@ -32,6 +32,7 @@
       class="py-0 px-0 transparent"
       @click="checkLink">
       <v-menu
+        ref="menu"
         v-model="showMenu"
         rounded
         :content-class="isTopBarElement && 'layout-top-bar' || ''"
@@ -46,6 +47,7 @@
         <template #activator="{ on }">
           <div
             class="d-flex width-full px-4"
+            tabindex="-1"
             v-on="on"
             @mouseleave="showMenu = false">
             <v-list-item-title
@@ -177,7 +179,26 @@ export default {
           window.location.href = this.navigationNodeUri;
         }
       } else if (this.hasChildren && this.childrenHasPage) {
+        if (!e.detail) {
+          // a keyboard activation (event detail = 0) opens the submenu instead of following
+          // the link, and keeps the parent drop menu open under it
+          e.preventDefault();
+          e.stopPropagation();
+        }
         this.showMenu = !this.showMenu;
+        if (this.showMenu && !e.detail) {
+          this.focusSubMenu();
+        }
+      }
+    },
+    focusSubMenu(retries = 10) {
+      // focusing the first entry hands the arrow keys over to the submenu, Vuetify then
+      // navigates it and opens the highlighted page on Enter
+      const firstItem = this.$refs.menu?.$refs?.content?.querySelector('.v-list-item');
+      if (firstItem?.offsetParent) {
+        firstItem.focus();
+      } else if (this.showMenu && retries) {
+        requestAnimationFrame(() => this.focusSubMenu(retries - 1));
       }
     },
     updateNavigationState(value) {
