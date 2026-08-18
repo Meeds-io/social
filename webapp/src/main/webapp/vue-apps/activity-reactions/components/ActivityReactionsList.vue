@@ -19,19 +19,19 @@
 
 <template>
   <div class="reactions-list">
-    <div v-if="filterChips.length > 2" class="d-flex flex-wrap px-3 pb-2">
+    <div v-if="filterChips.length > 2" class="d-flex flex-nowrap overflow-x-auto px-3 pb-2">
       <v-chip
         v-for="chip in filterChips"
         :key="chip.id"
         :outlined="selectedReactionId !== chip.id"
         :aria-label="chip.label"
         :title="chip.label"
-        class="me-1 mb-1"
+        class="me-1 mb-1 flex-shrink-0"
         small
         @click="selectReaction(chip.id)">
         <span v-if="chip.emoji" class="reaction-emoji me-1">{{ chip.emoji }}</span>
-        <span v-else>{{ chip.label }}</span>
-        <span class="ms-1">{{ chip.count }}</span>
+        <span v-else class="text-subtitle-2">{{ chip.label }}</span>
+        <span class="ms-1">{{ chip.count > 9 ? '9+' : chip.count }}</span>
       </v-chip>
     </div>
     <div v-if="reactorsToDisplay.length" class="likers-list">
