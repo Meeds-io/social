@@ -111,7 +111,7 @@ public class ReactionServiceImplTest {
   @Test
   public void testGetReactionOptionsSortedByRank() {
     List<String> optionIds = reactionService.getReactionOptions().stream().map(option -> option.getId()).toList();
-    assertEquals(List.of("like", "applause", "support", "love", "insightful", "funny"), optionIds);
+    assertEquals(List.of("like", "applause", "love", "insightful", "sad", "funny"), optionIds);
   }
 
   @Test
