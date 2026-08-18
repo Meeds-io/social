@@ -32,14 +32,13 @@ public class DefaultReactionOptionsPlugin implements ReactionOptionPlugin {
 
   private static final String ACTIVE_LABEL_KEY_PREFIX = "UIActivity.reaction.active.";
 
-  // Emoji glyphs are kept as unicode escapes to stay source-encoding-proof
   private static final List<ReactionOption> DEFAULT_OPTIONS =
-      List.of(option(ReactionService.LIKE_REACTION_ID, "\uD83D\uDC4D", 10), // thumbs up
-              option("applause", "\uD83D\uDC4F", 20), // clapping hands
-              option("support", "\uD83E\uDEF6", 30), // heart hands
-              option("love", "\u2764\uFE0F", 40), // red heart
-              option("insightful", "\uD83D\uDCA1", 50), // light bulb
-              option("funny", "\uD83D\uDE02", 60)); // face with tears of joy
+      List.of(option(ReactionService.LIKE_REACTION_ID, "\uD83D\uDC4D", 10),
+              option("applause", "\uD83D\uDC4F", 20),
+              option("love", "\u2764\uFE0F", 30),
+              option("insightful", "\uD83D\uDCA1", 40),
+              option("sad", "\uD83D\uDE22", 50),
+              option("funny", "\uD83D\uDE02", 60));
 
   @Override
   public List<ReactionOption> getReactionOptions() {
