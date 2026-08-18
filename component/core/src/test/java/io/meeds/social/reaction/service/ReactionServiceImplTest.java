@@ -117,6 +117,18 @@ public class ReactionServiceImplTest {
   @Test
   public void testSetReactionWithUnknownIdRejected() {
     assertThrows(IllegalArgumentException.class, () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "hack", USERNAME));
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "a\uD83D\uDD25", USERNAME));
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "<script>", USERNAME));
+  }
+
+  @Test
+  public void testSetReactionWithCustomEmojiAccepted() throws Exception {
+    reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\uD83D\uDD25", USERNAME);
+
+    verify(reactionStorage).createReaction(metadataObject, "\uD83D\uDD25", 123l);
+    verify(activityManager).saveLike(activity, userIdentity);
   }
 
   @Test

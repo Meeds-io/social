@@ -84,7 +84,11 @@ export default {
       if (!this.userReactionId) {
         return null;
       }
-      return this.reactionOptions.find(option => option.id === this.userReactionId)?.emoji;
+      const option = this.reactionOptions.find(registered => registered.id === this.userReactionId);
+      if (option) {
+        return option.emoji;
+      }
+      return /^[a-z0-9_-]+$/i.test(this.userReactionId) ? null : this.userReactionId;
     },
     likeColorClass() {
       return this.hasLiked && 'primary--text' || 'disabled--text';
