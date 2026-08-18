@@ -2680,6 +2680,9 @@
       <path>/js/activityReactions.bundle.js</path>
     </script>
     <depends>
+      <module>emojiPicker</module>
+    </depends>
+    <depends>
       <module>commonVueComponents</module>
     </depends>
     <depends>
