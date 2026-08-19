@@ -18,10 +18,11 @@
  */
 (function() {
   function setSanitizedHtml(el, html) {
-    el.innerHTML = html && EmojiAccessibility.addAccessibleNameToEmojis(html) || '';
-    if (html && !EmojiAccessibility.isReady()) {
-      EmojiAccessibility.onReady(el, () => {
-        el.innerHTML = EmojiAccessibility.addAccessibleNameToEmojis(html);
+    const emojiAccessibility = window.EmojiAccessibility;
+    el.innerHTML = html && (emojiAccessibility ? emojiAccessibility.addAccessibleNameToEmojis(html) : html) || '';
+    if (html && emojiAccessibility && !emojiAccessibility.isReady()) {
+      emojiAccessibility.onReady(el, () => {
+        el.innerHTML = emojiAccessibility.addAccessibleNameToEmojis(html);
       });
     }
   }
