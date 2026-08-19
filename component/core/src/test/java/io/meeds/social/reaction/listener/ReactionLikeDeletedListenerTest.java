@@ -22,12 +22,12 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.social.core.activity.ActivityLifeCycleEvent;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -36,7 +36,7 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import io.meeds.social.reaction.service.ReactionService;
 import io.meeds.social.reaction.service.ReactionServiceImpl;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class ReactionLikeDeletedListenerTest {
 
   @Mock
@@ -54,7 +54,7 @@ public class ReactionLikeDeletedListenerTest {
   @InjectMocks
   private ReactionLikeDeletedListener listener;
 
-  @BeforeEach
+  @Before
   public void setUp() {
     lenient().when(event.getActivity()).thenReturn(activity);
     lenient().when(activity.getId()).thenReturn("55");
