@@ -61,6 +61,7 @@ import io.meeds.social.report.listener.ReportActivityListenerTest;
 import io.meeds.social.report.processor.ReportActivityProcessorTest;
 import io.meeds.social.report.service.ActivityReportServiceImplTest;
 import io.meeds.social.coediting.service.CoeditingServiceTest;
+import io.meeds.social.core.mail.BrandedEmailSenderTest;
 import io.meeds.social.publication.service.ContentPublicationServiceTest;
 import io.meeds.social.security.service.AccountDeactivationServiceTest;
 import io.meeds.social.core.identity.service.UserExportServiceTest;
@@ -157,7 +158,8 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     PageContentIndexingConnectorTest.class,
     PageContentSearchConnectorTest.class,
     PageFavoriteACLPluginTest.class,
-    AccountDeactivationServiceTest.class
+    AccountDeactivationServiceTest.class,
+    BrandedEmailSenderTest.class
 })
 public class NoContainerTestSuite {
 
