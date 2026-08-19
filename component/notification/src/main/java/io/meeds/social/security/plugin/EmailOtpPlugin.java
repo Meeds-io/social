@@ -18,64 +18,39 @@
  */
 package io.meeds.social.security.plugin;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
-import javax.mail.Message.RecipientType;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import org.exoplatform.commons.utils.MailUtils;
-import org.exoplatform.portal.Constants;
-import org.exoplatform.portal.branding.BrandingService;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
-import org.exoplatform.services.mail.MailService;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.resources.ResourceBundleService;
-import org.exoplatform.social.notification.LinkProviderUtils;
 import org.exoplatform.web.security.security.SecureRandomService;
 
+import io.meeds.social.core.mail.BrandedEmailSender;
 import io.meeds.web.security.plugin.OtpPlugin;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
+/**
+ * Generates, caches and validates email OTP codes: the code is stored under a
+ * purpose-bound cache key ({@link #getCacheKey(String)}) and the email is sent
+ * through the common {@link BrandedEmailSender} with a per-plugin content
+ * fragment and subject key.
+ */
 @Service
 public class EmailOtpPlugin implements OtpPlugin {
 
-  private static final Pattern     I18N_LABEL_PATTERN          = Pattern.compile("\\$\\{([a-zA-Z0-9\\.]+)\\}");
+  private static final String      OTP_CACHE_NAME           = "otp.email";
 
-  private static final String      OTP_CACHE_NAME              = "otp.email";
-
-  private static final String      OTP_SEND_LOCK_CACHE_NAME    = "otp.email.sendLock";
-
-  private static final String      LANG_PARAM                  = "$LANG";
-
-  private static final String      USER_FULL_NAME_PARAM        = "$USER_FULL_NAME";
-
-  private static final String      SITE_NAME_PARAM             = "$SITE_NAME";
-
-  private static final String      COMPANY_LINK_PARAM          = "$COMPANY_LINK";
-
-  private static final String      CODE_EXPIRATION_LABEL_PARAM = "$CODE_EXPIRATION_LABEL";
-
-  private static final String      PRIMARY_COLOR_PARAM         = "$PRIMARY_COLOR";
+  private static final String      OTP_SEND_LOCK_CACHE_NAME = "otp.email.sendLock";
 
   @Autowired
   private CacheService             cacheService;
@@ -84,16 +59,11 @@ public class EmailOtpPlugin implements OtpPlugin {
   private SecureRandomService      secureRandomService;
 
   @Autowired
-  private OrganizationService      organizationService;
-
-  @Autowired
   private ResourceBundleService    resourceBundleService;
 
   @Autowired
-  private BrandingService          brandingService;
-
-  @Autowired
-  private MailService              mailService;
+  @Setter // Used in Tests only
+  private BrandedEmailSender       brandedEmailSender;
 
   /**
    * OTP Tentatives Cache in minutes
@@ -108,7 +78,7 @@ public class EmailOtpPlugin implements OtpPlugin {
   @Setter
   private long                     otpLength;
 
-  @Value("${meeds.apiKey.otp.email.templatePath:assets/otp-email.html}")
+  @Value("${meeds.apiKey.otp.email.templatePath:assets/otp-email-content.html}")
   @Getter
   @Setter
   private String                   emailBodyPath;
@@ -122,9 +92,6 @@ public class EmailOtpPlugin implements OtpPlugin {
   private long                     sendInterval;
 
   private SecureRandom             secureRandom;
-
-  @Setter // Used in Tests only
-  private String                   emailBodyTemplate;
 
   @Setter
   private ExoCache<String, String> otpCache;
@@ -156,12 +123,15 @@ public class EmailOtpPlugin implements OtpPlugin {
                                                     userName,
                                                     sendInterval));
     }
-    String email = getUserMail(userName);
-    String userFullName = getUserFullName(userName);
-    String lang = getUserLang(userName);
+    String lang = brandedEmailSender.getUserLang(userName);
+    String emailSubject = resourceBundleService.getSharedString(getEmailSubjectKey(), LocaleUtils.toLocale(lang));
     String otpCode = generateOtpCode();
     getOtpCache().put(cacheKey, otpCode);
-    sendEmail(email, userFullName, String.valueOf(otpCode), lang);
+    brandedEmailSender.sendEmail(userName,
+                                 emailSubject,
+                                 getEmailBodyPath(),
+                                 Map.of("####", otpCode,
+                                        "$CODE_EXPIRATION_LABEL", getCodeExpirationLabel(lang)));
     getOtpSendLockCache().put(cacheKey, StringUtils.EMPTY);
   }
 
@@ -173,85 +143,8 @@ public class EmailOtpPlugin implements OtpPlugin {
     return getName() + ":" + userName;
   }
 
-  private void sendEmail(String to, String userFullName, String otpCode, String lang) throws Exception {
-    String emailSubject = getEmailSubject(lang);
-    String emailBody = getEmailBody(userFullName, lang, otpCode);
-    String from = getSenderFullEmail();
-    MimeMessage mimeMessage = new MimeMessage(mailService.getMailSession());
-    mimeMessage.setFrom(from);
-    mimeMessage.setRecipient(RecipientType.TO, new InternetAddress(to));
-    mimeMessage.setSubject(StringEscapeUtils.unescapeHtml4(emailSubject), "UTF-8");
-    mimeMessage.setSentDate(new Date());
-    mimeMessage.setContent(emailBody, "text/html; charset=utf-8");
-    mailService.sendMessage(mimeMessage);
-  }
-
-  private String getSenderFullEmail() {
-    String senderEmail;
-    try {
-      senderEmail = MailUtils.getSenderEmail();
-    } catch (Exception e) {
-      senderEmail = System.getProperty("gatein.email.smtp.from");
-    }
-    String senderName = brandingService.getCompanyName();
-    return StringUtils.isBlank(senderName) ? senderEmail : senderName + "<" + senderEmail + ">";
-  }
-
-  private String generateOtpCode() {
-    return String.valueOf(getSecureRandom().nextLong((long) Math.pow(10d, otpLength - 1d),
-                                                     (long) Math.pow(10d, otpLength)));
-  }
-
-  private String getUserMail(String userName) throws Exception {
-    User user = organizationService.getUserHandler().findUserByName(userName);
-    if (user == null) {
-      throw new IllegalArgumentException();
-    }
-    return user.getEmail();
-  }
-
-  private String getUserFullName(String userName) throws Exception {
-    User user = organizationService.getUserHandler().findUserByName(userName);
-    if (user == null) {
-      throw new IllegalArgumentException();
-    }
-    return user.getDisplayName();
-  }
-
-  private String getUserLang(String userName) throws Exception {
-    UserProfile userProfile = organizationService.getUserProfileHandler().findUserProfileByName(userName);
-    if (userProfile != null
-        && userProfile.getAttribute(Constants.USER_LANGUAGE) != null) {
-      return userProfile.getAttribute(Constants.USER_LANGUAGE);
-    } else {
-      return ResourceBundleService.DEFAULT_CROWDIN_LANGUAGE;
-    }
-  }
-
-  private String getEmailSubject(String lang) {
-    return resourceBundleService.getSharedString(getEmailSubjectKey(), LocaleUtils.toLocale(lang));
-  }
-
   protected String getEmailSubjectKey() {
     return "otp.email.subject";
-  }
-
-  private String getEmailBody(String userFullName, String lang, String otpCode) {
-    String content = getEmailBody();
-    Matcher matcher = I18N_LABEL_PATTERN.matcher(content);
-    while (matcher.find()) {
-      String i18nKey = matcher.group(1);
-      String label = resourceBundleService.getSharedString(i18nKey, LocaleUtils.toLocale(lang));
-      content = content.replace(matcher.group(), label);
-    }
-    content = content.replace("####", otpCode);
-    content = content.replace(LANG_PARAM, lang);
-    content = content.replace(USER_FULL_NAME_PARAM, userFullName);
-    content = content.replace(SITE_NAME_PARAM, brandingService.getCompanyName());
-    content = content.replace(COMPANY_LINK_PARAM, LinkProviderUtils.getBaseUrl());
-    content = content.replace(CODE_EXPIRATION_LABEL_PARAM, getCodeExpirationLabel(lang));
-    content = content.replace(PRIMARY_COLOR_PARAM, brandingService.getThemeStyle().get("primaryColor"));
-    return content;
   }
 
   private String getCodeExpirationLabel(String lang) {
@@ -259,14 +152,9 @@ public class EmailOtpPlugin implements OtpPlugin {
                                 .replace("{0}", String.valueOf(otpTtl));
   }
 
-  @SneakyThrows
-  private String getEmailBody() {
-    if (emailBodyTemplate == null) {
-      try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(getEmailBodyPath())) {
-        emailBodyTemplate = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-      }
-    }
-    return emailBodyTemplate;
+  private String generateOtpCode() {
+    return String.valueOf(getSecureRandom().nextLong((long) Math.pow(10d, otpLength - 1d),
+                                                     (long) Math.pow(10d, otpLength)));
   }
 
   private SecureRandom getSecureRandom() {
