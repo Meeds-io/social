@@ -24,7 +24,7 @@
 
 <script>
 export default {
-  mixins: [EmojiAccessibility.readyMixin],
+  mixins: window.EmojiAccessibility ? [window.EmojiAccessibility.readyMixin] : [],
   props: {
     activity: {
       type: Object,
@@ -98,7 +98,7 @@ export default {
       }
       const tempdiv = document.createElement('div');
       const purifiedHtml = this.purifiedHtmlCache.html;
-      tempdiv.innerHTML = this.emojiBankReady && EmojiAccessibility.addAccessibleNameToEmojis(purifiedHtml) || purifiedHtml;
+      tempdiv.innerHTML = this.emojiBankReady && window.EmojiAccessibility && window.EmojiAccessibility.addAccessibleNameToEmojis(purifiedHtml) || purifiedHtml;
       if (tempdiv.firstElementChild.style.maxWidth) {
         tempdiv.firstElementChild.style.maxWidth = `${this.maxWidth}px`;
       }
