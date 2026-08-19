@@ -22,24 +22,41 @@ import static io.meeds.social.security.service.AccountDeactivationService.ACCOUN
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+import java.util.Properties;
+
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.exoplatform.portal.Constants;
+import org.exoplatform.portal.branding.BrandingService;
 import org.exoplatform.services.listener.ListenerService;
+import org.exoplatform.services.mail.MailService;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.services.organization.UserProfileHandler;
+import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -92,6 +109,21 @@ public class AccountDeactivationServiceTest {
   @Mock
   private OtpService                 otpService;
 
+  @Mock
+  private MailService                mailService;
+
+  @Mock
+  private BrandingService            brandingService;
+
+  @Mock
+  private ResourceBundleService      resourceBundleService;
+
+  @Mock
+  private UserProfileHandler         userProfileHandler;
+
+  @Mock
+  private UserProfile                userProfile;
+
   @InjectMocks
   private AccountDeactivationService accountDeactivationService;
 
@@ -103,9 +135,19 @@ public class AccountDeactivationServiceTest {
     registrationSetting = new RegistrationSetting();
     when(securitySettingService.getRegistrationSetting()).thenReturn(registrationSetting);
     when(organizationService.getUserHandler()).thenReturn(userHandler);
+    when(organizationService.getUserProfileHandler()).thenReturn(userProfileHandler);
     when(userHandler.findUserByName(USERNAME)).thenReturn(user);
+    when(user.getEmail()).thenReturn("john@example.com");
+    when(user.getDisplayName()).thenReturn("John Doe");
+    when(userProfileHandler.findUserProfileByName(USERNAME)).thenReturn(userProfile);
+    when(userProfile.getAttribute(Constants.USER_LANGUAGE)).thenReturn("en");
     when(identityManager.getOrCreateUserIdentity(USERNAME)).thenReturn(identity);
     when(identity.getId()).thenReturn(IDENTITY_ID);
+    when(resourceBundleService.getSharedString(anyString(), any())).thenReturn("TranslatedText");
+    when(brandingService.getCompanyName()).thenReturn("MyCompany");
+    when(brandingService.getThemeStyle()).thenReturn(Collections.singletonMap("primaryColor", "#123456"));
+    when(mailService.getMailSession()).thenReturn(Session.getInstance(new Properties()));
+    accountDeactivationService.setEmailBodyPath("assets/account-deactivation-confirmation-email.html");
   }
 
   @Test
@@ -184,6 +226,27 @@ public class AccountDeactivationServiceTest {
 
     verify(userHandler, never()).setEnabled(anyString(), anyBoolean(), anyBoolean());
     verify(identityRegistry, never()).unregister(anyString());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testRequestDeactivationSendsConfirmationEmailBeforeDisabling() {
+    allowDeactivation();
+    when(resourceBundleService.getSharedString(eq("social.accountDeactivation.confirmation.email.subject"),
+                                               any())).thenReturn("Your access to {0}");
+    accountDeactivationService.requestDeactivation(USERNAME, OTP_METHOD, OTP_CODE, false);
+
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    InOrder order = inOrder(mailService, userHandler);
+    order.verify(mailService).sendMessage(messageCaptor.capture());
+    order.verify(userHandler).setEnabled(USERNAME, false, true);
+
+    MimeMessage message = messageCaptor.getValue();
+    assertTrue("Email subject should carry the platform name",
+               message.getSubject().contains("MyCompany"));
+    String body = String.valueOf(message.getContent());
+    assertTrue("User full name should be injected in the email body", body.contains("John Doe"));
+    assertFalse("All i18n placeholders should be resolved", body.contains("${"));
   }
 
   private void allowDeactivation() {
