@@ -18,9 +18,9 @@
  */
 package io.meeds.social.reaction.storage;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -35,12 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.LongStream;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
@@ -49,7 +49,7 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 
 import io.meeds.social.reaction.service.ReactionService;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class ReactionStorageTest {
 
   private static final MetadataObject OBJECT = new MetadataObject("activity", "55");
@@ -138,6 +138,36 @@ public class ReactionStorageTest {
     assertEquals(ReactionService.METADATA_TYPE_NAME, keyCaptor.getValue().getType());
     assertEquals("love", keyCaptor.getValue().getName());
     assertEquals(0l, keyCaptor.getValue().getAudienceId());
+  }
+
+  @Test
+  public void testCustomEmojiEncodedToAsciiForStorage() throws Exception {
+    reactionStorage.createReaction(OBJECT, "\uD83D\uDD25", 123l);
+
+    ArgumentCaptor<MetadataKey> keyCaptor = ArgumentCaptor.forClass(MetadataKey.class);
+    verify(metadataService).createMetadataItem(eq(OBJECT), keyCaptor.capture(), anyLong());
+    assertEquals("emoji_1f525", keyCaptor.getValue().getName());
+  }
+
+  @Test
+  public void testEncodeDecodeReactionIdRoundTrip() {
+    assertEquals("like", ReactionStorage.encodeReactionId("like"));
+    assertEquals("like", ReactionStorage.decodeReactionId("like"));
+    assertEquals("emoji_1f525", ReactionStorage.encodeReactionId("\uD83D\uDD25"));
+    assertEquals("\uD83D\uDD25", ReactionStorage.decodeReactionId("emoji_1f525"));
+    String heartWithSelector = "\u2764\uFE0F";
+    assertEquals(heartWithSelector,
+                 ReactionStorage.decodeReactionId(ReactionStorage.encodeReactionId(heartWithSelector)));
+    assertNull(ReactionStorage.encodeReactionId(null));
+    assertNull(ReactionStorage.decodeReactionId(null));
+  }
+
+  @Test
+  public void testCountReactionsByOptionDecodesCustomNames() {
+    when(metadataService.countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(ReactionService.METADATA_TYPE_NAME,
+                                                                                        OBJECT)).thenReturn(Map.of("emoji_1f525",
+                                                                                                                   3l));
+    assertEquals(Map.of("\uD83D\uDD25", 3l), reactionStorage.countReactionsByOption(OBJECT));
   }
 
   @Test
