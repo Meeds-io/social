@@ -41,8 +41,10 @@ import javax.mail.internet.MimeMessage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.portal.Constants;
@@ -57,6 +59,8 @@ import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.web.security.security.SecureRandomService;
+
+import io.meeds.social.core.mail.BrandedEmailSender;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class EmailOtpPluginTest {
@@ -102,6 +106,10 @@ public class EmailOtpPluginTest {
   @Mock
   private UserProfile              userProfile;
 
+  @Spy
+  @InjectMocks
+  private BrandedEmailSender       brandedEmailSender;
+
   @InjectMocks
   private EmailOtpPlugin           plugin;
 
@@ -111,8 +119,8 @@ public class EmailOtpPluginTest {
     plugin.setOtpTtl(5);
     plugin.setOtpLength(6);
     plugin.setSendInterval(60);
-    plugin.setEmailBodyPath("fake-path.html");
-    plugin.setEmailBodyTemplate("Hello $USER_FULL_NAME, code: ####");
+    plugin.setEmailBodyPath("assets/otp-email-content.html");
+    plugin.setBrandedEmailSender(brandedEmailSender);
     when(cacheService.getCacheInstance("otp.email")).thenReturn((ExoCache) otpCache); // NOSONAR
     when(cacheService.getCacheInstance("otp.email.sendLock")).thenReturn((ExoCache) otpSendLockCache); // NOSONAR
     when(secureRandomService.getSecureRandom()).thenReturn(secureRandom);
@@ -167,8 +175,13 @@ public class EmailOtpPluginTest {
   public void testGenerateOtpCodeSuccess() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put("email:john", OTP_CODE);
-    verify(mailService).sendMessage(any(MimeMessage.class));
+    verify(otpCache).put(eq("email:john"), eq(OTP_CODE));
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    verify(mailService).sendMessage(messageCaptor.capture());
+    String body = String.valueOf(messageCaptor.getValue().getContent());
+    assertTrue("OTP code should be injected in the email body", body.contains(OTP_CODE));
+    assertTrue("User full name should be injected in the email body", body.contains("John Doe"));
+    assertFalse("All i18n placeholders should be resolved", body.contains("${"));
     verify(otpSendLockCache).put(eq("email:john"), anyString());
   }
 
