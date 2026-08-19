@@ -18,8 +18,8 @@
  */
 package io.meeds.social.reaction.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,12 +32,12 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
@@ -54,7 +54,7 @@ import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.plugin.DefaultReactionOptionsPlugin;
 import io.meeds.social.reaction.storage.ReactionStorage;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class ReactionServiceImplTest {
 
   private static final String                       USERNAME    = "testuser";
@@ -94,7 +94,7 @@ public class ReactionServiceImplTest {
 
   private MetadataObject                            metadataObject;
 
-  @BeforeEach
+  @Before
   public void setUp() {
     reactionService.addPlugin(new DefaultReactionOptionsPlugin());
     metadataObject = new MetadataObject(OBJECT_TYPE, OBJECT_ID);
@@ -217,9 +217,9 @@ public class ReactionServiceImplTest {
 
     Map<String, Long> counts = reactionService.countReactionsByOption(OBJECT_TYPE, OBJECT_ID, USERNAME);
 
-    assertEquals(2l, counts.get("like"));
-    assertEquals(2l, counts.get("love"));
-    assertEquals(1l, counts.get("funny"));
+    assertEquals(Long.valueOf(2l), counts.get("like"));
+    assertEquals(Long.valueOf(2l), counts.get("love"));
+    assertEquals(Long.valueOf(1l), counts.get("funny"));
     assertEquals(List.of("like", "love", "funny"), List.copyOf(counts.keySet()));
   }
 
@@ -281,8 +281,8 @@ public class ReactionServiceImplTest {
 
     Map<String, Long> counts = reactionService.countReactionsByOption(OBJECT_TYPE, OBJECT_ID, USERNAME);
 
-    assertEquals(0l, counts.get("like"));
-    assertEquals(3l, counts.get("love"));
+    assertEquals(Long.valueOf(0l), counts.get("like"));
+    assertEquals(Long.valueOf(3l), counts.get("love"));
   }
 
   @Test
@@ -292,8 +292,8 @@ public class ReactionServiceImplTest {
 
     Map<String, Long> counts = reactionService.countReactionsByOption(OBJECT_TYPE, OBJECT_ID, USERNAME);
 
-    assertEquals(1l, counts.get("like"));
-    assertEquals(2l, counts.get("retiredOption"));
+    assertEquals(Long.valueOf(1l), counts.get("like"));
+    assertEquals(Long.valueOf(2l), counts.get("retiredOption"));
   }
 
   @Test

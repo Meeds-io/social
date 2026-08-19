@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline-flex pe-1">
+  <div class="d-inline-flex align-center pe-1">
     <reaction-chooser
       :current-reaction-id="userReactionId"
       object-type="activity"
