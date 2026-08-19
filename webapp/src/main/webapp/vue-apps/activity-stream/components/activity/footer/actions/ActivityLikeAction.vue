@@ -28,11 +28,11 @@
               'aria-pressed': hasLiked}"
             v-on="on"
             @click="changeLike">
-            <div class="d-flex flex-lg-row flex-column align-center">
+            <div class="d-flex flex-lg-row flex-column">
               <span
                 v-if="userReactionEmoji"
-                :style="`font-size: ${isMobile && '20' || '16'}px; line-height: 1;`"
-                class="reaction-emoji d-inline-flex align-center">{{ userReactionEmoji }}</span>
+                :style="`font-size: ${isMobile && '20' || '16'}px; height: ${isMobile && '20' || '16'}px; line-height: 1;`"
+                class="reaction-emoji d-inline-flex align-center justify-center me-lg-1 baseline-vertical-align">{{ userReactionEmoji }}</span>
               <v-icon
                 v-else
                 :class="likeColorClass"
