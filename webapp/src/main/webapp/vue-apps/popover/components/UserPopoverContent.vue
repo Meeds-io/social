@@ -46,7 +46,7 @@
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <div v-if="!isCurrentUser" class="d-flex justify-end">
+    <div v-if="displayActions" class="d-flex justify-end">
       <div class="me-auto">
         <v-btn
           v-for="extension in filteredUserNavigationExtensions"
@@ -94,6 +94,7 @@ export default {
     return {
       externalExtensions: [],
       userExtensions: [],
+      ownerEnabled: false,
     };
   },
   computed: {
@@ -125,6 +126,10 @@ export default {
     isCurrentUser() {
       return eXo.env.portal.userName === this.username;
     },
+    displayActions() {
+      // no action is suggested on disabled or deleted users (only the name)
+      return !this.isCurrentUser && this.ownerEnabled;
+    },
   },
   watch: {
     username: {
@@ -132,6 +137,7 @@ export default {
       handler(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.refreshExtensions();
+          this.checkOwnerEnabled();
         }
       },
     },
@@ -141,6 +147,27 @@ export default {
     document.addEventListener('user-extension-updated', this.refreshUserExtensions);
   },
   methods: {
+    async checkOwnerEnabled() {
+      // no action is suggested on a disabled or deleted user: hide on any
+      // negative signal of the hover payload, otherwise display and double
+      // check against the server state which is the only reliable source
+      // (the hover payload is often stale or partial)
+      this.ownerEnabled = !!this.username && !this.isCurrentUser
+          && this.identity?.enabled !== false && !this.identity?.deleted;
+      if (!this.ownerEnabled) {
+        return;
+      }
+      try {
+        const user = await this.$userService.getUser(this.username);
+        if (!user || user.enabled === false || user.enabled === 'false'
+            || user.deleted === true || user.deleted === 'true') {
+          this.ownerEnabled = false;
+        }
+      } catch {
+        // keep the actions displayed: the profile access check and the
+        // backend enforce the real restrictions on disabled users
+      }
+    },
     refreshUserExtensions() {
       this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
       this.userExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
