@@ -141,6 +141,36 @@ public class ReactionStorageTest {
   }
 
   @Test
+  public void testCustomEmojiEncodedToAsciiForStorage() throws Exception {
+    reactionStorage.createReaction(OBJECT, "\uD83D\uDD25", 123l);
+
+    ArgumentCaptor<MetadataKey> keyCaptor = ArgumentCaptor.forClass(MetadataKey.class);
+    verify(metadataService).createMetadataItem(eq(OBJECT), keyCaptor.capture(), anyLong());
+    assertEquals("emoji_1f525", keyCaptor.getValue().getName());
+  }
+
+  @Test
+  public void testEncodeDecodeReactionIdRoundTrip() {
+    assertEquals("like", ReactionStorage.encodeReactionId("like"));
+    assertEquals("like", ReactionStorage.decodeReactionId("like"));
+    assertEquals("emoji_1f525", ReactionStorage.encodeReactionId("\uD83D\uDD25"));
+    assertEquals("\uD83D\uDD25", ReactionStorage.decodeReactionId("emoji_1f525"));
+    String heartWithSelector = "\u2764\uFE0F";
+    assertEquals(heartWithSelector,
+                 ReactionStorage.decodeReactionId(ReactionStorage.encodeReactionId(heartWithSelector)));
+    assertNull(ReactionStorage.encodeReactionId(null));
+    assertNull(ReactionStorage.decodeReactionId(null));
+  }
+
+  @Test
+  public void testCountReactionsByOptionDecodesCustomNames() {
+    when(metadataService.countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(ReactionService.METADATA_TYPE_NAME,
+                                                                                        OBJECT)).thenReturn(Map.of("emoji_1f525",
+                                                                                                                   3l));
+    assertEquals(Map.of("\uD83D\uDD25", 3l), reactionStorage.countReactionsByOption(OBJECT));
+  }
+
+  @Test
   public void testDeleteReactionDelegates() throws Exception {
     reactionStorage.deleteReaction(77l, 123l);
     verify(metadataService).deleteMetadataItem(77l, 123l);

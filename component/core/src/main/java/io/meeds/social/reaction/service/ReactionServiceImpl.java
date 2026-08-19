@@ -115,7 +115,8 @@ public class ReactionServiceImpl implements ReactionService {
     MetadataObject object = activity.getMetadataObject();
 
     MetadataItem existingItem = reactionStorage.getUserReactionItem(object, identityId);
-    String existingReactionId = existingItem == null ? null : existingItem.getMetadata().getName();
+    String existingReactionId = existingItem == null ? null
+                                                    : ReactionStorage.decodeReactionId(existingItem.getMetadata().getName());
     boolean alreadyLiker = ArrayUtils.contains(activity.getLikeIdentityIds(), userIdentity.getId());
     boolean sameReaction = existingItem == null ? LIKE_REACTION_ID.equals(reactionId)
                                                 : StringUtils.equals(existingReactionId, reactionId);
@@ -159,7 +160,8 @@ public class ReactionServiceImpl implements ReactionService {
                                                       objectType,
                                                       objectId));
     }
-    String existingReactionId = existingItem == null ? LIKE_REACTION_ID : existingItem.getMetadata().getName();
+    String existingReactionId = existingItem == null ? LIKE_REACTION_ID
+                                                    : ReactionStorage.decodeReactionId(existingItem.getMetadata().getName());
     if (existingItem != null) {
       reactionStorage.deleteReaction(existingItem.getId(), identityId);
     }
@@ -235,7 +237,7 @@ public class ReactionServiceImpl implements ReactionService {
     Map<Long, String> reactionIdsByReactor = reactionStorage.getReactionItemsByCreators(object, pagedLikerIds)
                                                             .stream()
                                                             .collect(Collectors.toMap(MetadataItem::getCreatorId,
-                                                                                      item -> item.getMetadata().getName(),
+                                                                                      item -> ReactionStorage.decodeReactionId(item.getMetadata().getName()),
                                                                                       (first, second) -> first));
     return pagedLikerIds.stream()
                         .map(likerId -> new Reaction(likerId,
@@ -268,7 +270,10 @@ public class ReactionServiceImpl implements ReactionService {
     try {
       reactionStorage.deleteReaction(existingItem.getId(), reactorIdentityId);
       broadcastEvent(REACTION_DELETED_EVENT_NAME,
-                     new Reaction(reactorIdentityId, existingItem.getMetadata().getName(), objectType, objectId),
+                     new Reaction(reactorIdentityId,
+                                  ReactionStorage.decodeReactionId(existingItem.getMetadata().getName()),
+                                  objectType,
+                                  objectId),
                      null);
     } catch (ObjectNotFoundException e) {
       LOG.debug("Reaction item {} already deleted for reactor {} on object {}/{}",
