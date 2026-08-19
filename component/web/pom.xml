@@ -45,6 +45,15 @@
       <groupId>io.meeds.social</groupId>
       <artifactId>social-component-service</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.meeds.social</groupId>
+      <artifactId>social-component-service</artifactId>
+      <type>test-jar</type>
+      <!--
+        Disable test scope to make a transitive dependency to all
+        dependant test-jar modules
+      -->
+    </dependency>
   </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>
