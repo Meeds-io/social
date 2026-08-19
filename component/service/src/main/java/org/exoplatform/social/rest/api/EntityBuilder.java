@@ -55,6 +55,7 @@ import javax.ws.rs.core.UriInfo;
 import io.meeds.social.html.model.HtmlTransformerContext;
 import io.meeds.social.html.utils.HtmlUtils;
 import io.meeds.social.reaction.service.ReactionService;
+import io.meeds.social.reaction.storage.ReactionStorage;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 import io.meeds.social.translation.service.TranslationService;
@@ -1388,6 +1389,7 @@ public class EntityBuilder {
                                                                        .toList();
         if (ReactionService.METADATA_TYPE_NAME.equals(metadataType)) {
           activityMetadataEntities = capReactionItems(activityMetadataEntities, authentiatedUserId);
+          activityMetadataEntities.forEach(reactionItem -> reactionItem.setName(ReactionStorage.decodeReactionId(reactionItem.getName())));
         }
         if (CollectionUtils.isNotEmpty(activityMetadataEntities)) {
           activityMetadatasToPublish.put(metadataType, activityMetadataEntities);
