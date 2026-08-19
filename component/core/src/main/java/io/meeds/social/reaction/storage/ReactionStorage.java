@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,13 +39,39 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 @Component
 public class ReactionStorage {
 
-  private static final int CREATORS_QUERY_CHUNK_SIZE = 500;
+  private static final int    CREATORS_QUERY_CHUNK_SIZE = 500;
+
+  private static final String CUSTOM_REACTION_PREFIX    = "emoji_";
 
   @Autowired
-  private MetadataService  metadataService;
+  private MetadataService     metadataService;
+
+  public static String encodeReactionId(String reactionId) {
+    if (reactionId == null || reactionId.chars().allMatch(character -> character < 128)) {
+      return reactionId;
+    }
+    return CUSTOM_REACTION_PREFIX
+           + reactionId.codePoints()
+                       .mapToObj(Integer::toHexString)
+                       .collect(Collectors.joining("_"));
+  }
+
+  public static String decodeReactionId(String metadataName) {
+    if (metadataName == null || !metadataName.startsWith(CUSTOM_REACTION_PREFIX)) {
+      return metadataName;
+    }
+    StringBuilder reactionId = new StringBuilder();
+    for (String hexCodePoint : metadataName.substring(CUSTOM_REACTION_PREFIX.length()).split("_")) {
+      reactionId.appendCodePoint(Integer.parseInt(hexCodePoint, 16));
+    }
+    return reactionId.toString();
+  }
 
   public Map<String, Long> countReactionsByOption(MetadataObject object) {
-    return metadataService.countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(METADATA_TYPE_NAME, object);
+    return metadataService.countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(METADATA_TYPE_NAME, object)
+                          .entrySet()
+                          .stream()
+                          .collect(Collectors.toMap(count -> decodeReactionId(count.getKey()), Map.Entry::getValue));
   }
 
   public MetadataItem getUserReactionItem(MetadataObject object, long identityId) {
@@ -82,7 +109,7 @@ public class ReactionStorage {
   }
 
   public List<MetadataItem> getReactionItemsByOption(String reactionId, MetadataObject object, long offset, long limit) {
-    return metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(reactionId,
+    return metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(encodeReactionId(reactionId),
                                                                           METADATA_TYPE_NAME,
                                                                           object.getType(),
                                                                           object.getId(),
@@ -91,7 +118,7 @@ public class ReactionStorage {
   }
 
   public void createReaction(MetadataObject object, String reactionId, long identityId) throws ObjectAlreadyExistsException {
-    metadataService.createMetadataItem(object, new MetadataKey(METADATA_TYPE_NAME, reactionId, 0), identityId);
+    metadataService.createMetadataItem(object, new MetadataKey(METADATA_TYPE_NAME, encodeReactionId(reactionId), 0), identityId);
   }
 
   public void deleteReaction(long itemId, long identityId) throws ObjectNotFoundException {

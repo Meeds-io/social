@@ -54,6 +54,9 @@ import org.exoplatform.social.core.storage.StorageUtilsTest;
 import io.meeds.social.activity.schedule.ActivityPublicationPluginTest;
 import io.meeds.social.authorization.AuthorizationManagerTest;
 import io.meeds.social.category.service.CategoryServiceUnitTest;
+import io.meeds.social.reaction.listener.ReactionLikeDeletedListenerTest;
+import io.meeds.social.reaction.service.ReactionServiceImplTest;
+import io.meeds.social.reaction.storage.ReactionStorageTest;
 import io.meeds.social.coediting.service.CoeditingServiceTest;
 import io.meeds.social.publication.service.ContentPublicationServiceTest;
 import io.meeds.social.core.identity.service.UserExportServiceTest;
@@ -85,6 +88,9 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+    ReactionServiceImplTest.class,
+    ReactionStorageTest.class,
+    ReactionLikeDeletedListenerTest.class,
     GlobalIdTest.class,
     IdentityTest.class,
     ImageUtilsTest.class,

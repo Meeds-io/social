@@ -19,7 +19,7 @@
 
 <template>
   <div
-    class="reaction-chooser-wrapper position-relative d-inline-block"
+    class="reaction-chooser-wrapper position-relative d-inline-flex align-center"
     @mouseenter="startHoverTimer"
     @mouseleave="startCloseTimer"
     @touchstart="startLongPressTimer"
