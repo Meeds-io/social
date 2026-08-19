@@ -37,6 +37,8 @@ public class ReactionOption {
 
   private String      activeLabelKey;
 
+  private String      selectedLabelKey;
+
   private int         rank;
 
   /**

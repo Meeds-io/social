@@ -18,7 +18,7 @@
             v-bind="attrs"
             v-on="on"
             @click="changeLike">
-            {{ $t('UIActivity.msg.LikeActivity') }}
+            {{ likeLabel }}
           </v-btn>
         </template>
         <span>
@@ -59,6 +59,7 @@ export default {
   },
   data: () => ({
     changingLike: false,
+    reactionOptions: [],
   }),
   computed: {
     commentId() {
@@ -88,6 +89,14 @@ export default {
     hasLiked() {
       return this.likers.filter(like => like && like.id === eXo.env.portal.userIdentityId).length;
     },
+    likeLabel() {
+      if (!this.hasLiked || !this.userReactionId) {
+        return this.$t('UIActivity.msg.LikeActivity');
+      }
+      const option = this.reactionOptions.find(registered => registered.id === this.userReactionId);
+      return option?.selectedLabelKey && this.$t(option.selectedLabelKey)
+        || this.$t('UIActivity.reaction.selected.custom');
+    },
     userReactionId() {
       const reactionItems = this.comment?.metadatas?.reactions;
       const userItem = reactionItems?.find?.(item => `${item.creatorId}` === `${eXo.env.portal.userIdentityId}`);
@@ -104,6 +113,8 @@ export default {
     },
   },
   created() {
+    this.$reactionService.getReactionOptions('activity')
+      .then(options => this.reactionOptions = options);
     this.$root.$on('activity-comment-liked', this.updateCommentLikers);
   },
   beforeDestroy() {
