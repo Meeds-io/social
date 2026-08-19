@@ -42,6 +42,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.portal.Constants;
@@ -57,49 +58,55 @@ import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.web.security.security.SecureRandomService;
 
+import io.meeds.social.core.mail.BrandedEmailSender;
+
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class AccountDeactivationEmailOtpPluginTest {
 
-  private static final String           OTP_CODE = "123456";
+  private static final String               OTP_CODE = "123456";
 
   @Mock
-  private CacheService                  cacheService;
+  private CacheService                      cacheService;
 
   @Mock
-  private SecureRandomService           secureRandomService;
+  private SecureRandomService               secureRandomService;
 
   @Mock
-  private OrganizationService           organizationService;
+  private OrganizationService               organizationService;
 
   @Mock
-  private ResourceBundleService         resourceBundleService;
+  private ResourceBundleService             resourceBundleService;
 
   @Mock
-  private BrandingService               brandingService;
+  private BrandingService                   brandingService;
 
   @Mock
-  private MailService                   mailService;
+  private MailService                       mailService;
 
   @Mock
-  private SecureRandom                  secureRandom;
+  private SecureRandom                      secureRandom;
 
   @Mock
-  private ExoCache<String, String>      otpCache;
+  private ExoCache<String, String>          otpCache;
 
   @Mock
-  private ExoCache<String, String>      otpSendLockCache;
+  private ExoCache<String, String>          otpSendLockCache;
 
   @Mock
-  private UserHandler                   userHandler;
+  private UserHandler                       userHandler;
 
   @Mock
-  private UserProfileHandler            userProfileHandler;
+  private UserProfileHandler                userProfileHandler;
 
   @Mock
-  private User                          user;
+  private User                              user;
 
   @Mock
-  private UserProfile                   userProfile;
+  private UserProfile                       userProfile;
+
+  @Spy
+  @InjectMocks
+  private BrandedEmailSender                brandedEmailSender;
 
   @InjectMocks
   private AccountDeactivationEmailOtpPlugin plugin;
@@ -110,7 +117,8 @@ public class AccountDeactivationEmailOtpPluginTest {
     plugin.setOtpTtl(5);
     plugin.setOtpLength(6);
     plugin.setSendInterval(60);
-    plugin.setAccountDeactivationEmailBodyPath("assets/account-deactivation-otp-email.html");
+    plugin.setAccountDeactivationEmailBodyPath("assets/account-deactivation-otp-email-content.html");
+    plugin.setBrandedEmailSender(brandedEmailSender);
     when(cacheService.getCacheInstance("otp.email")).thenReturn((ExoCache) otpCache); // NOSONAR
     when(cacheService.getCacheInstance("otp.email.sendLock")).thenReturn((ExoCache) otpSendLockCache); // NOSONAR
     when(secureRandomService.getSecureRandom()).thenReturn(secureRandom);
@@ -161,7 +169,7 @@ public class AccountDeactivationEmailOtpPluginTest {
   public void testGenerateOtpCodeUsesDedicatedSubjectAndTemplate() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put("accountDeactivationEmail:john", OTP_CODE);
+    verify(otpCache).put(eq("accountDeactivationEmail:john"), eq(OTP_CODE));
     verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.subject"), any());
     verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.deactivationReminder"), any());
     verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.confirmMessage"), any());
