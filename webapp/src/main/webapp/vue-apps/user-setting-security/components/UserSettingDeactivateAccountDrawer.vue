@@ -58,7 +58,7 @@
               v-model="otpCode"
               :title="$t('UserSettings.security.deleteAccount.confirmAccess.inputTitle')"
               :placeholder="$t('UserSettings.security.deleteAccount.confirmAccess.inputPlaceholder')"
-              :readonly="verifying || codeVerified"
+              :readonly="saving"
               prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
               class="border-box-sizing flex-grow-1 px-0 pt-1 pb-0 me-2"
               name="otpCode"
@@ -72,19 +72,13 @@
               @keyup.enter="confirmRequest" />
             <v-btn
               :aria-label="$t('UserSettings.security.deleteAccount.resend')"
-              :disabled="sendingCode || verifying || codeVerified"
+              :disabled="sendingCode || saving"
               :loading="sendingCode"
               height="40"
               class="btn"
               @click="sendOtpCode">
               {{ $t('UserSettings.security.deleteAccount.resend') }}
             </v-btn>
-          </div>
-          <div
-            v-if="codeVerified"
-            class="d-flex align-center success--text mt-2">
-            <v-icon size="16" class="success--text me-1">fa-check</v-icon>
-            {{ $t('UserSettings.security.deleteAccount.codeVerified') }}
           </div>
         </template>
         <div v-else class="mt-4">
@@ -103,8 +97,8 @@
         </v-btn>
         <v-btn
           :aria-label="$t('UserSettings.button.confirm')"
-          :disabled="!otpCode || verifying || sendingCode"
-          :loading="verifying"
+          :disabled="!otpCode || saving || sendingCode"
+          :loading="saving"
           class="btn btn-danger"
           @click="confirmRequest">
           {{ $t('UserSettings.button.confirm') }}
@@ -122,14 +116,12 @@ export default {
     otpCode: null,
     emailSent: false,
     sendingCode: false,
-    verifying: false,
-    codeVerified: false,
+    saving: false,
   }),
   methods: {
     open() {
       this.otpCode = null;
       this.emailSent = false;
-      this.codeVerified = false;
       this.sendOtpCode();
       this.$refs.drawer.open();
     },
@@ -140,7 +132,6 @@ export default {
       this.sendingCode = true;
       try {
         this.otpCode = null;
-        this.codeVerified = false;
         await this.$otpService.sendOtpCode(this.otpMethod);
       } catch {
         this.$root.$emit('alert-message', this.$t('UserSettings.security.deleteAccount.otpSendError'), 'error');
@@ -149,28 +140,23 @@ export default {
         this.emailSent = true;
       }
     },
-    async verify() {
-      if (!this.otpCode || this.codeVerified || this.verifying) {
+    async confirmRequest() {
+      if (!this.otpCode || this.saving) {
         return;
       }
-      this.verifying = true;
+      this.saving = true;
       try {
-        await this.$otpService.validateOtpCode(this.otpMethod, this.otpCode);
-        this.codeVerified = true;
-      } catch {
-        this.$root.$emit('alert-message', this.$t('UserSettings.security.deleteAccount.wrongOtpCode'), 'error');
-      } finally {
-        this.verifying = false;
-      }
-    },
-    confirmRequest() {
-      if (!this.codeVerified) {
-        // first confirmation verifies the entered code (UX gate), then the
-        // drawer switches to the identity-confirmed state
-        this.verify();
-      } else {
-        // the state-changing call carrying the OTP code, validated server-side
-        // at that single authoritative point, is delivered by EXO-89280
+        await this.$accountDeactivationService.requestDeactivation(this.otpMethod, this.otpCode, false);
+        window.location.href = '/portal/logout';
+      } catch (e) {
+        this.saving = false;
+        if (e?.message === '401') {
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.deleteAccount.wrongOtpCode'), 'error');
+        } else if (e?.message === '403') {
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.deleteAccount.notAllowed'), 'error');
+        } else {
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.deleteAccount.deactivationError'), 'error');
+        }
       }
     },
   },

@@ -1,8 +1,8 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
- * 
+ *
+ * Copyright (C) 2026 Meeds Association contact@meeds.io
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -12,23 +12,26 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as otpService from './js/OtpService.js';
-import * as accountDeactivationService from './js/AccountDeactivationService.js';
-
-if (!Vue.prototype.$otpService) {
-  window.Object.defineProperty(Vue.prototype, '$otpService', {
-    value: otpService,
+export async function requestDeactivation(otpMethod, otpCode, deleteAccount) {
+  const resp = await fetch('/social/rest/account/deactivation', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      otpMethod,
+      otpCode,
+      deleteAccount,
+    }),
   });
-}
-
-if (!Vue.prototype.$accountDeactivationService) {
-  window.Object.defineProperty(Vue.prototype, '$accountDeactivationService', {
-    value: accountDeactivationService,
-  });
+  if (!resp?.ok) {
+    throw new Error(String(resp?.status || 'error'));
+  }
 }
