@@ -30,7 +30,9 @@ public class DefaultReactionOptionsPlugin implements ReactionOptionPlugin {
 
   private static final String LABEL_KEY_PREFIX        = "UIActivity.reaction.";
 
-  private static final String ACTIVE_LABEL_KEY_PREFIX = "UIActivity.reaction.active.";
+  private static final String ACTIVE_LABEL_KEY_PREFIX   = "UIActivity.reaction.active.";
+
+  private static final String SELECTED_LABEL_KEY_PREFIX = "UIActivity.reaction.selected.";
 
   private static final List<ReactionOption> DEFAULT_OPTIONS =
       List.of(option(ReactionService.LIKE_REACTION_ID, "\uD83D\uDC4D", 10),
@@ -46,7 +48,7 @@ public class DefaultReactionOptionsPlugin implements ReactionOptionPlugin {
   }
 
   private static ReactionOption option(String id, String emoji, int rank) {
-    return new ReactionOption(id, emoji, LABEL_KEY_PREFIX + id, ACTIVE_LABEL_KEY_PREFIX + id, rank, null);
+    return new ReactionOption(id, emoji, LABEL_KEY_PREFIX + id, ACTIVE_LABEL_KEY_PREFIX + id, SELECTED_LABEL_KEY_PREFIX + id, rank, null);
   }
 
 }

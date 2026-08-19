@@ -41,7 +41,7 @@
                 fa-thumbs-up
               </v-icon>
               <span v-if="!isMobile && !$root.reducedWidth" class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
-                {{ $t('UIActivity.msg.LikeActivity') }}
+                {{ likeLabel }}
               </span>
             </div>
           </v-btn>
@@ -79,6 +79,14 @@ export default {
       const reactionItems = this.activity?.metadatas?.reactions;
       const userItem = reactionItems?.find?.(item => `${item.creatorId}` === `${eXo.env.portal.userIdentityId}`);
       return userItem?.name || (this.hasLiked && 'like') || null;
+    },
+    likeLabel() {
+      if (!this.hasLiked || !this.userReactionId) {
+        return this.$t('UIActivity.msg.LikeActivity');
+      }
+      const option = this.reactionOptions.find(registered => registered.id === this.userReactionId);
+      return option?.selectedLabelKey && this.$t(option.selectedLabelKey)
+        || this.$t('UIActivity.reaction.selected.custom');
     },
     userReactionEmoji() {
       if (!this.userReactionId) {
