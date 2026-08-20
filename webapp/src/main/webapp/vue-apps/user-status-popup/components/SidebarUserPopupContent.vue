@@ -26,6 +26,7 @@
       <v-list-item class="py-2">
         <a
           :href="profileUri"
+          :aria-label="$t('menu.userProfilePageLink')"
           rel="noopener noreferrer"
           class="d-inline-flex align-center text-decoration-none">
           <v-badge
