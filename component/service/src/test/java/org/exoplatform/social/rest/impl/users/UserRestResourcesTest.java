@@ -60,6 +60,7 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -947,6 +948,30 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                         (ArrayList<Map<String, String>>) importedUserProfile.getProperty("custom-multi-property");
     assertNull(customMultiValuedProperty);
 
+  }
+
+  public void testAddUserStampsApiCreationSource() throws Exception {
+    startSessionAs("root");
+
+    byte[] jsonData = ("{\"username\":\"api.created\",\"password\":\"Passw0rd!\",\"email\":\"api.created@exoplatform.com\","
+        + "\"firstname\":\"Api\",\"lastname\":\"Created\"}").getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("content-type", "application/json");
+    headers.putSingle("content-length", "" + jsonData.length);
+
+    ContainerResponse response = service("POST", getURLResource("users"), "", headers, jsonData);
+
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    try {
+      User createdUser = organizationService.getUserHandler().findUserByName("api.created");
+      assertNotNull(createdUser);
+      // accounts provisioned through the API are excluded from the self
+      // service account deactivation, which keys on this source
+      assertEquals(UserRest.CREATION_SOURCE_API, createdUser.getCreationSource());
+    } finally {
+      organizationService.getUserHandler().removeUser("api.created", false);
+    }
   }
 
   public void testImportUsers() throws Exception {
