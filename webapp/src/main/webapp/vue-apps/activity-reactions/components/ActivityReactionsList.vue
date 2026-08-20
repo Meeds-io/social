@@ -31,7 +31,7 @@
         @click="selectReaction(chip.id)">
         <span v-if="chip.emoji" class="reaction-emoji me-1">{{ chip.emoji }}</span>
         <span v-else class="text-subtitle-2">{{ chip.label }}</span>
-        <span class="ms-1">{{ chip.count > 9 ? '9+' : chip.count }}</span>
+        <span :class="!chip.emoji && 'text-subtitle-2'" class="ms-1">{{ chip.count > 9 ? '9+' : chip.count }}</span>
       </v-chip>
     </div>
     <div v-if="reactorsToDisplay.length" class="likers-list">
