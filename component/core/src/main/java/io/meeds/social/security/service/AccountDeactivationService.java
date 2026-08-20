@@ -21,6 +21,7 @@ package io.meeds.social.security.service;
 import java.util.Map;
 
 import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,13 @@ import lombok.SneakyThrows;
 public class AccountDeactivationService {
 
   public static final String   ACCOUNT_DEACTIVATION_REQUESTED_EVENT = "social.account.deactivation.requested";
+
+  /**
+   * The only creation source qualifying an account as managed by the platform
+   * itself, as stamped by the users management UI
+   * (org.exoplatform.portal.rest.UserRestResourcesV1#CREATION_SOURCE_UI).
+   */
+  public static final String   UI_CREATION_SOURCE                   = "ui";
 
   private static final Log     LOG                                  = ExoLogger.getLogger(AccountDeactivationService.class);
 
@@ -84,13 +92,24 @@ public class AccountDeactivationService {
   @Setter
   private String                 emailBodyPath;
 
+  /**
+   * The deactivation is offered only for accounts whose lifecycle belongs to
+   * the platform: externally synchronized accounts (LDAP) are excluded, and
+   * among the others only those created through the platform UI qualify. An
+   * account with no creation source predates the stamping of that attribute:
+   * it keeps the option rather than losing it on an unknown provenance.
+   */
   @SneakyThrows
   public boolean isDeactivationAllowed(String username) {
     if (!securitySettingService.getRegistrationSetting().isAccountDeactivationEnabled()) {
       return false;
     }
     User user = organizationService.getUserHandler().findUserByName(username);
-    return user != null && user.isInternalStore();
+    if (user == null || !user.isInternalStore()) {
+      return false;
+    }
+    String creationSource = user.getCreationSource();
+    return StringUtils.isBlank(creationSource) || StringUtils.equals(creationSource, UI_CREATION_SOURCE);
   }
 
   /**
@@ -98,7 +117,8 @@ public class AccountDeactivationService {
    * code: this is the single authoritative OTP validation of the flow.
    *
    * @throws IllegalStateException when the deactivation isn't allowed for the
-   *           user (admin option off or externally synchronized account)
+   *           user (admin option off, externally synchronized account or
+   *           account whose creation source isn't managed by the platform)
    * @throws IllegalAccessException when the OTP code is blank, invalid or the
    *           validation tentatives are exhausted
    * @throws UnsupportedOperationException when the account deletion is
