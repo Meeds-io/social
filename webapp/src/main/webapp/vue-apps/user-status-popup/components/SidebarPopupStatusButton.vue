@@ -26,6 +26,8 @@
     class="pa-0 text-center">
     <v-btn
       :value="value"
+      :aria-label="label"
+      :aria-pressed="isSelected ? 'true' : 'false'"
       active-class="btn-border-active"
       :class="colorClass"
       class="border-radius border-color-primary-grey pa-0 d-flex flex-column align-center mx-auto"
