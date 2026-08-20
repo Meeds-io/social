@@ -330,6 +330,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    expanded: { // Initially expand the right filter inputs instead of collapsing them behind the cone button
+      type: Boolean,
+      default: false,
+    },
     noTextTruncate: { // Avoid using overflow-hidden/text-truncate on parent elements to allow overflow
       type: Boolean,
       default: false,
@@ -343,8 +347,8 @@ export default {
       default: false,
     },
   },
-  data: () => ({
-    expandFilter: false,
+  data: (vm) => ({
+    expandFilter: vm.expanded,
     toggle: null,
     select: null,
     term: null,
