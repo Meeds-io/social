@@ -806,4 +806,82 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.commons.api.notification.service.setting.PluginSettingService</target-component>
+    <component-plugin>
+      <name>notification.groups</name>
+      <set-method>registerGroupConfig</set-method>
+      <type>org.exoplatform.commons.api.notification.plugin.GroupProviderPlugin</type>
+      <description>Account notifications group</description>
+      <init-params>
+        <object-param>
+          <name>group.account</name>
+          <description>The information of group account</description>
+          <object type="org.exoplatform.commons.api.notification.plugin.config.GroupConfig">
+            <field name="id">
+              <string>account</string>
+            </field>
+            <field name="resourceBundleKey">
+              <string>UINotification.label.group.Account</string>
+            </field>
+            <field name="order">
+              <string>100</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.commons.api.notification.service.setting.PluginContainer</target-component>
+    <component-plugin>
+      <name>notification.plugins</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.social.notification.plugin.AccountDeactivationRequestPlugin</type>
+      <description>Initial information for plugin.</description>
+      <init-params>
+        <object-param>
+          <name>template.AccountDeactivationRequestPlugin</name>
+          <description>The template of AccountDeactivationRequestPlugin</description>
+          <object
+                  type="org.exoplatform.commons.api.notification.plugin.config.PluginConfig">
+            <field name="pluginId">
+              <string>AccountDeactivationRequestPlugin</string>
+            </field>
+            <field name="resourceBundleKey">
+              <string>UINotification.label.AccountDeactivationRequestPlugin</string>
+            </field>
+            <field name="order">
+              <string>1</string>
+            </field>
+            <field name="defaultConfig">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <string>instantly</string>
+                </value>
+              </collection>
+            </field>
+            <field name="groupId">
+              <string>account</string>
+            </field>
+            <field name="bundlePath">
+              <string>locale.notification.template.Notification</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>social.account.deactivation.requested</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.social.notification.listener.AccountDeactivationNotificationListener</type>
+      <description>Notifies platform administrators on account deactivation request</description>
+    </component-plugin>
+  </external-component-plugins>
 </configuration>

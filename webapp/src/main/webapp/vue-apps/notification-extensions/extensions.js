@@ -47,6 +47,19 @@ extensionRegistry.registerExtension('WebNotification', 'notification-group-exten
   ],
   icon: 'fa-stream',
 });
+extensionRegistry.registerExtension('WebNotification', 'notification-group-extension', {
+  rank: 40,
+  name: 'account',
+  plugins: [
+    'AccountDeactivationRequestPlugin'
+  ],
+  icon: 'fa-user-lock',
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'AccountDeactivationRequestPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-account-deactivation-request'],
+});
 extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
   type: 'NewUserPlugin',
   rank: 10,
