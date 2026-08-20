@@ -126,10 +126,10 @@ export default {
   watch: {
     open(opened) {
       if (opened) {
-        document.addEventListener('scroll', this.closeChooser, true);
+        document.addEventListener('scroll', this.handleOutsideScroll, true);
         window.addEventListener('resize', this.closeChooser);
       } else {
-        document.removeEventListener('scroll', this.closeChooser, true);
+        document.removeEventListener('scroll', this.handleOutsideScroll, true);
         window.removeEventListener('resize', this.closeChooser);
       }
     },
@@ -143,7 +143,7 @@ export default {
     this.cancelHoverTimer();
     this.cancelCloseTimer();
     this.cancelLongPressTimer();
-    document.removeEventListener('scroll', this.closeChooser, true);
+    document.removeEventListener('scroll', this.handleOutsideScroll, true);
     window.removeEventListener('resize', this.closeChooser);
   },
   methods: {
@@ -166,11 +166,17 @@ export default {
         const optionRef = this.$refs[`option-${index}`];
         const button = Array.isArray(optionRef) ? optionRef[0] : optionRef;
         if (button?.$el) {
-          button.$el.focus();
+          button.$el.focus({preventScroll: true});
         } else if (remainingAttempts > 0) {
           window.setTimeout(() => this.focusOptionWhenRendered(index, remainingAttempts - 1), 50);
         }
       });
+    },
+    handleOutsideScroll(event) {
+      if (event.target instanceof Element && event.target.closest('.reaction-chooser')) {
+        return;
+      }
+      this.closeChooser();
     },
     closeChooser() {
       this.open = false;
@@ -287,7 +293,7 @@ export default {
     focusOption(index) {
       const optionRef = this.$refs[`option-${index}`];
       const button = Array.isArray(optionRef) ? optionRef[0] : optionRef;
-      button?.$el?.focus?.();
+      button?.$el?.focus?.({preventScroll: true});
     },
   },
 };
