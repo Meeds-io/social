@@ -115,7 +115,11 @@ public class MailTemplateProviderTest extends AbstractCoreTest {
     actual = channel.getTemplateFilePath(PluginKey.key(NewUserPlugin.ID));
     expected = "war:/notification/templates/NewUserPlugin.gtmpl";
     assertEquals(expected, actual);
-    
+
+    actual = channel.getTemplateFilePath(PluginKey.key(AccountDeactivationRequestPlugin.ID));
+    expected = "war:/notification/templates/AccountDeactivationRequestPlugin.gtmpl";
+    assertEquals(expected, actual);
+
     actual = channel.getTemplateFilePath(PluginKey.key(PostActivityPlugin.ID));
     expected = "war:/notification/templates/PostActivityPlugin.gtmpl";
     assertEquals(expected, actual);
@@ -148,6 +152,7 @@ public class MailTemplateProviderTest extends AbstractCoreTest {
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(EditCommentPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(EditActivityPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(NewUserPlugin.ID)));
+    assertTrue(channel.hasTemplateBuilder(PluginKey.key(AccountDeactivationRequestPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(PostActivityPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(PostActivitySpaceStreamPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(RelationshipReceivedRequestPlugin.ID)));
