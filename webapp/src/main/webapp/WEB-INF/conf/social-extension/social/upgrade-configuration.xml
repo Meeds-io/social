@@ -49,6 +49,34 @@
         </value-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>AccountDeactivationRequestPlugin</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>io.meeds.social.notification.upgrade.NotificationUpgradePlugin</type>
+      <description>An upgrade plugin to set a notification plugin </description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.social</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>5</value>
+        </value-param>
+        <value-param>
+          <name>notificationPluginId</name>
+          <description>Notification Plugin Id</description>
+          <value>AccountDeactivationRequestPlugin</value>
+        </value-param>
+        <value-param>
+          <name>notificationChannelId</name>
+          <description>Notification Channel Id, applied to all when empty</description>
+          <value></value>
+        </value-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>
