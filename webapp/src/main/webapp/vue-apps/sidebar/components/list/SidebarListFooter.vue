@@ -64,11 +64,13 @@
           bottom
           overlap
           dot>
-          <a
-            :href="profileUri"
-            :aria-label="$t('menu.userProfilePageLink')"
+          <v-btn
+            :aria-label="$t('menu.openStatusMenu')"
             class="userAvatar clickable"
-            @click.stop.prevent="openMenu($event)">
+            width="24"
+            height="24"
+            icon
+            @click.stop="openMenu($event)">
             <v-avatar size="24">
               <img
                 :src="avatarUrl"
@@ -77,7 +79,7 @@
                 width="24"
                 contain>
             </v-avatar>
-          </a>
+          </v-btn>
         </v-badge>
         <v-tooltip v-if="$root.expand" top>
           <template #activator="{ on, attrs }">
@@ -128,7 +130,6 @@ export default {
   data: () => ({
     settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings`,
     logoutUrl: `${eXo.env.portal.context}/logout`,
-    profileUri: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`,
     productName: eXo.env.portal.productName,
     productLink: eXo.env.portal.productLink,
     statusColor: '#707070',
