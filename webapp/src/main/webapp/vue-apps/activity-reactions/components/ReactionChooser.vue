@@ -52,7 +52,11 @@
           :ref="`option-${index}`"
           :title="$t(option.labelKey)"
           :aria-label="$t(option.labelKey)"
-          :class="option.id === currentReactionId && 'reaction-chooser-selected light-grey-background'"
+          :class="[
+            option.id === currentReactionId && 'reaction-chooser-selected light-grey-background',
+            selectingId === option.id && 'reaction-selected-pop',
+            selectingId && selectingId !== option.id && 'reaction-others-collapse',
+          ]"
           role="menuitem"
           min-width="36"
           width="36"
@@ -67,6 +71,7 @@
           :ref="`option-${options.length}`"
           :title="$t('UIActivity.reaction.selectAnother')"
           :aria-label="$t('UIActivity.reaction.selectAnother')"
+          :class="selectingId && 'reaction-others-collapse'"
           role="menuitem"
           min-width="36"
           width="36"
@@ -116,6 +121,7 @@ export default {
     longPressTimer: null,
     longPressTriggered: false,
     lastTouchTime: 0,
+    selectingId: null,
   }),
   watch: {
     open(opened) {
@@ -168,12 +174,17 @@ export default {
     },
     closeChooser() {
       this.open = false;
+      this.selectingId = null;
       this.cancelHoverTimer();
       this.cancelCloseTimer();
     },
     selectOption(option) {
+      if (this.selectingId) {
+        return;
+      }
       this.$emit('reaction-select', option);
-      this.closeChooser();
+      this.selectingId = option.id;
+      window.setTimeout(() => this.closeChooser(), 450);
     },
     selectCustomEmoji(emoji) {
       this.$emit('reaction-select', {id: emoji, emoji});

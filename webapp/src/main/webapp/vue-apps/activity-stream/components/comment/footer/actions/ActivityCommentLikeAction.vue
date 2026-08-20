@@ -18,7 +18,9 @@
             v-bind="attrs"
             v-on="on"
             @click="changeLike">
-            {{ likeLabel }}
+            <transition name="reaction-morph" mode="out-in">
+              <span :key="likeLabel">{{ likeLabel }}</span>
+            </transition>
           </v-btn>
         </template>
         <span>
