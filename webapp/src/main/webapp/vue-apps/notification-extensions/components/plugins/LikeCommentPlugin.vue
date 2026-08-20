@@ -5,7 +5,8 @@
     :message-text="message"
     :from-identity="fromIdentity"
     message-key="Notification.intranet.message.one.LikeCommentPlugin"
-    icon="fa-thumbs-up" />
+    icon="fa-thumbs-up"
+    @activity-loaded="retrieveLikerReaction" />
 </template>
 <script>
 export default {
@@ -17,6 +18,7 @@ export default {
   },
   data: () => ({
     likerIdentities: [],
+    likerReactionId: null,
     loading: true,
   }),
   computed: {
@@ -29,11 +31,18 @@ export default {
         || (this.notification?.parameters?.likersId && this.notification.parameters.likersId.split(','))
         || [];
     },
+    singleMessageKey() {
+      const reactionKey = this.likerReactionId && `Notification.intranet.message.one.LikeCommentPlugin.${this.likerReactionId}`;
+      if (reactionKey && this.$t(reactionKey) !== reactionKey) {
+        return reactionKey;
+      }
+      return 'Notification.intranet.message.one.LikeCommentPlugin';
+    },
     message() {
       if (!this.likerIdentities?.length) {
         return this.$t('Notification.intranet.message.one.LikeCommentPlugin');
       } else if (this.likerUsernames.length < 2) {
-        return this.$t('Notification.intranet.message.one.LikeCommentPlugin', {
+        return this.$t(this.singleMessageKey, {
           0: `<a class="user-name font-weight-bold">${this.likerIdentities[0].fullname}</a>`,
         });
       } else if (this.likerUsernames.length < 3) {
@@ -59,6 +68,24 @@ export default {
       this.likerIdentities = this.notification.from && [this.notification.from] || [];
       this.loading = false;
     }
+  },
+  methods: {
+    retrieveLikerReaction(activity) {
+      if (this.likerUsernames.length > 1) {
+        return;
+      }
+      const reactionItems = activity?.metadatas?.reactions;
+      const likerUsername = this.likerUsernames[0] || this.notification?.from?.username;
+      if (!reactionItems?.length || !likerUsername) {
+        this.likerReactionId = 'like';
+        return;
+      }
+      this.$identityService.getIdentityByProviderIdAndRemoteId('organization', likerUsername)
+        .then(identity => {
+          const reactionItem = identity && reactionItems.find(item => `${item.creatorId}` === `${identity.id}`);
+          this.likerReactionId = reactionItem?.name || 'like';
+        });
+    },
   },
 };
 </script>

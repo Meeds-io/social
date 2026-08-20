@@ -218,6 +218,7 @@ export default {
     this.$activityService.getActivityById(this.commentId || this.activityId, 'shared')
       .then(activity => {
         this.activity = activity;
+        this.$emit('activity-loaded', activity);
         return this.$nextTick();
       })
       .then(() => {
