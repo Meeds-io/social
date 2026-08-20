@@ -78,6 +78,7 @@ import org.jsoup.Jsoup;
     @TemplateConfig(pluginId = LikePlugin.ID, template = "war:/notification/templates/LikePlugin.gtmpl"),
     @TemplateConfig(pluginId = LikeCommentPlugin.ID, template = "war:/notification/templates/LikeCommentPlugin.gtmpl"),
     @TemplateConfig(pluginId = NewUserPlugin.ID, template = "war:/notification/templates/NewUserPlugin.gtmpl"),
+    @TemplateConfig(pluginId = AccountDeactivationRequestPlugin.ID, template = "war:/notification/templates/AccountDeactivationRequestPlugin.gtmpl"),
     @TemplateConfig(pluginId = PostActivityPlugin.ID, template = "war:/notification/templates/PostActivityPlugin.gtmpl"),
     @TemplateConfig(pluginId = PostActivitySpaceStreamPlugin.ID, template = "war:/notification/templates/PostActivitySpaceStreamPlugin.gtmpl"),
     @TemplateConfig(pluginId = RelationshipReceivedRequestPlugin.ID, template = "war:/notification/templates/RelationshipReceivedRequestPlugin.gtmpl"),
@@ -766,6 +767,77 @@ public class MailTemplateProvider extends TemplateProvider {
     
   };
 
+  /** Defines the template builder for AccountDeactivationRequestPlugin */
+  private AbstractTemplateBuilder accountDeactivationRequest = new AbstractTemplateBuilder() {
+    @Override
+    protected MessageInfo makeMessage(NotificationContext ctx) {
+      NotificationInfo notification = ctx.getNotificationInfo();
+      String language = getLanguage(notification);
+      TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
+      SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
+
+      String remoteId = notification.getValueOwnerParameter(SocialNotificationUtils.REMOTE_ID.getKey());
+      Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, true);
+      if (identity == null) {
+        return null;
+      }
+
+      templateContext.put("USER", identity.getProfile().getFullName());
+      String subject = TemplateUtils.processSubject(templateContext);
+
+      templateContext.put("USERS_MANAGEMENT_URL",
+                          CommonsUtils.getCurrentDomain() + "/portal/administration/home/organisation/users?status=DISABLED");
+      String body = TemplateUtils.processGroovy(templateContext);
+      ctx.setException(templateContext.getException());
+
+      return new MessageInfo().subject(subject).body(body).end();
+    }
+
+    @Override
+    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
+      List<NotificationInfo> notifications = ctx.getNotificationInfos();
+      NotificationInfo first = notifications.get(0);
+
+      String language = getLanguage(first);
+      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
+
+      // deduplicated by username: the same account can be deactivated,
+      // reactivated and deactivated again within one digest period
+      Map<String, String> requesterNames = new LinkedHashMap<>();
+      for (NotificationInfo message : notifications) {
+        String remoteId = message.getValueOwnerParameter(SocialNotificationUtils.REMOTE_ID.getKey());
+        Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, true);
+        if (identity == null || identity.isDeleted()) {
+          continue;
+        }
+        requesterNames.putIfAbsent(remoteId, identity.getProfile().getFullName());
+      }
+      if (requesterNames.isEmpty()) {
+        return false;
+      }
+
+      List<String> names = List.copyOf(requesterNames.values());
+      int count = names.size();
+      if (count == 1) {
+        templateContext.put("USER", names.get(0));
+      } else if (count <= 3) {
+        templateContext.put("USER_LIST", String.join(", ", names));
+      } else {
+        templateContext.put("LAST3_USERS", String.join(", ", names.subList(0, 3)));
+        templateContext.put("COUNT", String.valueOf(count - 3));
+      }
+      try {
+        writer.append("<li style=\"margin: 0 0 13px 14px; font-size: 13px; line-height: 18px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif;\">")
+              .append(TemplateUtils.processDigest(templateContext.digestType(count)))
+              .append("</li>");
+      } catch (IOException e) {
+        ctx.setException(e);
+        return false;
+      }
+      return true;
+    }
+  };
+
   /** Defines the template builder for NewUserPlugin*/
   private AbstractTemplateBuilder newUser = new AbstractTemplateBuilder() {
     @Override
@@ -1332,6 +1404,7 @@ public class MailTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(LikePlugin.ID), like);
     this.templateBuilders.put(PluginKey.key(LikeCommentPlugin.ID), likeComment);
     this.templateBuilders.put(PluginKey.key(NewUserPlugin.ID), newUser);
+    this.templateBuilders.put(PluginKey.key(AccountDeactivationRequestPlugin.ID), accountDeactivationRequest);
     this.templateBuilders.put(PluginKey.key(PostActivityPlugin.ID), postActivity);
     this.templateBuilders.put(PluginKey.key(PostActivitySpaceStreamPlugin.ID), postActivitySpace);
     this.templateBuilders.put(PluginKey.key(SharedActivitySpaceStreamPlugin.ID), shareActivitySpace);
