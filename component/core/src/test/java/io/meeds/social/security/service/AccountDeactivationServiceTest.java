@@ -152,6 +152,32 @@ public class AccountDeactivationServiceTest {
   }
 
   @Test
+  public void testDeactivationAllowedForUiCreatedUser() {
+    registrationSetting.setAccountDeactivationEnabled(true);
+    when(user.isInternalStore()).thenReturn(true);
+    when(user.getCreationSource()).thenReturn(AccountDeactivationService.UI_CREATION_SOURCE);
+    assertTrue(accountDeactivationService.isDeactivationAllowed(USERNAME));
+  }
+
+  @Test
+  public void testDeactivationAllowedWhenCreationSourceIsUnknown() {
+    // accounts created before the creationSource stamping keep the option
+    registrationSetting.setAccountDeactivationEnabled(true);
+    when(user.isInternalStore()).thenReturn(true);
+    when(user.getCreationSource()).thenReturn(null);
+    assertTrue(accountDeactivationService.isDeactivationAllowed(USERNAME));
+  }
+
+  @Test
+  public void testDeactivationNotAllowedForUserCreatedByAnotherSource() {
+    // any known source other than the UI one, e.g. the CSV file importation
+    registrationSetting.setAccountDeactivationEnabled(true);
+    when(user.isInternalStore()).thenReturn(true);
+    when(user.getCreationSource()).thenReturn("fileImportation");
+    assertFalse(accountDeactivationService.isDeactivationAllowed(USERNAME));
+  }
+
+  @Test
   @SneakyThrows
   public void testDeactivationNotAllowedForUnknownUser() {
     registrationSetting.setAccountDeactivationEnabled(true);
