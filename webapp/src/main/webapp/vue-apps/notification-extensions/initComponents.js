@@ -28,6 +28,7 @@ import UserNotificationType from './components/UserNotificationType.vue';
 import UserEmptyNotifications from './components/UserEmptyNotifications.vue';
 
 import NewUser from './components/plugins/NewUser.vue';
+import AccountDeactivationRequest from './components/plugins/AccountDeactivationRequest.vue';
 import RelationshipReceivedRequestPlugin from './components/plugins/RelationshipReceivedRequestPlugin.vue';
 import SpaceInvitationPlugin from './components/plugins/SpaceInvitationPlugin.vue';
 import RequestJoinSpacePlugin from './components/plugins/RequestJoinSpacePlugin.vue';
@@ -58,6 +59,7 @@ const components = {
   'user-notification-template': UserNotificationTemplate,
   'user-notification-menu': UserNotificationMenu,
   'user-notification-new-user': NewUser,
+  'user-notification-account-deactivation-request': AccountDeactivationRequest,
   'user-notification-relationship-received-request': RelationshipReceivedRequestPlugin,
   'user-notification-space-invitation': SpaceInvitationPlugin,
   'user-notification-space-join-request': RequestJoinSpacePlugin,

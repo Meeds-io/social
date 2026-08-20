@@ -117,9 +117,9 @@
 </template>
 <script>
 export default {
-  data: () => ({
+  data: (vm) => ({
     drawer: false,
-    status: 'ENABLED',
+    status: vm.$root.presetStatus,
     type: 'ALL',
     connectionStatus: 'ALL',
     enrollmentStatus: 'ALL',

@@ -34,6 +34,7 @@ import org.exoplatform.social.notification.plugin.*;
     @TemplateConfig(pluginId = EditCommentPlugin.ID, template = "classpath:/notification/templates/EditCommentPlugin.gtmpl"),
     @TemplateConfig(pluginId = LikeCommentPlugin.ID, template = "classpath:/notification/templates/LikeCommentPlugin.gtmpl"),
     @TemplateConfig(pluginId = NewUserPlugin.ID, template = "classpath:/notification/templates/NewUserPlugin.gtmpl"),
+    @TemplateConfig(pluginId = AccountDeactivationRequestPlugin.ID, template = "classpath:/notification/templates/AccountDeactivationRequestPlugin.gtmpl"),
     @TemplateConfig(pluginId = PostActivityPlugin.ID, template = "classpath:/notification/templates/PostActivityPlugin.gtmpl"),
     @TemplateConfig(pluginId = PostActivitySpaceStreamPlugin.ID, template = "classpath:/notification/templates/PostActivitySpaceStreamPlugin.gtmpl"),
     @TemplateConfig(pluginId = RelationshipReceivedRequestPlugin.ID, template = "classpath:/notification/templates/RelationshipReceivedRequestPlugin.gtmpl"),
