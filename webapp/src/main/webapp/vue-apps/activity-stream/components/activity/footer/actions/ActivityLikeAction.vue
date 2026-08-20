@@ -29,17 +29,21 @@
             v-on="on"
             @click="changeLike">
             <div class="d-flex flex-lg-row flex-column">
-              <span
-                v-if="userReactionEmoji"
-                :style="`font-size: ${isMobile && '20' || '16'}px; height: ${isMobile && '20' || '16'}px; line-height: 1;`"
-                class="reaction-emoji d-inline-flex align-center justify-center me-lg-1 baseline-vertical-align">{{ userReactionEmoji }}</span>
-              <v-icon
-                v-else
-                :class="likeColorClass"
-                class="baseline-vertical-align"
-                :size="isMobile && '20' || '16'">
-                fa-thumbs-up
-              </v-icon>
+              <transition name="reaction-morph" mode="out-in">
+                <span
+                  v-if="userReactionEmoji"
+                  :key="userReactionEmoji"
+                  :style="`font-size: ${isMobile && '20' || '16'}px; height: ${isMobile && '20' || '16'}px; line-height: 1;`"
+                  class="reaction-emoji d-inline-flex align-center justify-center me-lg-1 baseline-vertical-align">{{ userReactionEmoji }}</span>
+                <v-icon
+                  v-else
+                  key="like-icon"
+                  :class="likeColorClass"
+                  class="baseline-vertical-align"
+                  :size="isMobile && '20' || '16'">
+                  fa-thumbs-up
+                </v-icon>
+              </transition>
               <span
                 v-if="!isMobile && !$root.reducedWidth"
                 :class="hasLiked && 'primary--text' || ''"
