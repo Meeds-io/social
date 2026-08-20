@@ -86,7 +86,7 @@
 </template>
 <script>
 export default {
-  data: () => ({
+  data: (vm) => ({
     itemsPerPageOptions: [20, 50, 100],
     users: [],
     user: null,
@@ -96,7 +96,7 @@ export default {
     deleteConfirmMessage: null,
     tableMenus: {},
     keyword: null,
-    filter: null,
+    filter: vm.$root.presetStatus === 'DISABLED' ? { status: 'DISABLED' } : null,
     lang: eXo.env.portal.language,
     options: {
       page: 1,
