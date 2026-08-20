@@ -11,6 +11,7 @@
       text: $t('UsersManagement.filterBy')
     }"
     :filters-count="filtersCount"
+    :expanded="$root.presetStatus === 'DISABLED'"
     compact
     @filter-button-click="$root.$emit('open-advanced-filter-drawer')"
     @filter-text-input-end-typing="keyword = $event">
@@ -109,11 +110,11 @@ export default {
       default: () => 0,
     },
   },
-  data: () => ({
+  data: (vm) => ({
     initialized: false,
     keyword: null,
     usersSelected: false,
-    filter: null,
+    filter: vm.$root.presetStatus === 'DISABLED' ? { status: 'DISABLED' } : null,
     menu: false,
     exportId: null,
     exporting: false,

@@ -72,6 +72,8 @@ public class NotificationSettingsRestServiceTest extends BaseRestServicesTestCas
 
   private static final String       GROUP_PROVIDER_ID = "groupId";
 
+  private static final String       ACCOUNT_GROUP_ID  = "account";
+
   private static final String       PLUGIN_ID         = "pluginId";
 
   private static final PluginInfo   PLUGIN_PROVIDER   = new PluginInfo();
@@ -254,6 +256,80 @@ public class NotificationSettingsRestServiceTest extends BaseRestServicesTestCas
 
     // Ensure no error is raised
     testGetSettingsSameUser();
+  }
+
+  public void testGetSettingsFiltersAccountGroupForNonAdministratorOwner() throws Exception {
+    // Given
+    when(pluginSettingService.getGroupPlugins()).thenReturn(Arrays.asList(GROUP_PROVIDER, newAccountGroupProvider()));
+    Identity user1Identity = new Identity(USER_1);
+    when(userACL.getUserIdentity(USER_1)).thenReturn(user1Identity);
+    when(userACL.isAdministrator(user1Identity)).thenReturn(false);
+
+    String path = getPath(USER_1, "");
+    MockHttpServletRequest httpRequest = new MockHttpServletRequest(path,
+                                                                    null,
+                                                                    0,
+                                                                    "GET",
+                                                                    null);
+    EnvironmentContext envctx = new EnvironmentContext();
+    envctx.put(HttpServletRequest.class, httpRequest);
+    startSessionAs(USER_1);
+
+    // When
+    ContainerResponse resp = launcher.service("GET",
+                                              path,
+                                              "",
+                                              null,
+                                              null,
+                                              envctx);
+
+    // Then
+    assertEquals(String.valueOf(resp.getEntity()), 200, resp.getStatus());
+    UserNotificationSettings notificationSettings = (UserNotificationSettings) resp.getEntity();
+    assertNotNull(notificationSettings);
+    assertEquals(1, notificationSettings.getGroups().size());
+    assertEquals(GROUP_PROVIDER_ID, notificationSettings.getGroups().get(0).getGroupId());
+  }
+
+  public void testGetSettingsKeepsAccountGroupForAdministratorOwner() throws Exception {
+    // Given
+    when(pluginSettingService.getGroupPlugins()).thenReturn(Arrays.asList(GROUP_PROVIDER, newAccountGroupProvider()));
+    Identity user1Identity = new Identity(USER_1);
+    when(userACL.getUserIdentity(USER_1)).thenReturn(user1Identity);
+    when(userACL.isAdministrator(user1Identity)).thenReturn(true);
+
+    String path = getPath(USER_1, "");
+    MockHttpServletRequest httpRequest = new MockHttpServletRequest(path,
+                                                                    null,
+                                                                    0,
+                                                                    "GET",
+                                                                    null);
+    EnvironmentContext envctx = new EnvironmentContext();
+    envctx.put(HttpServletRequest.class, httpRequest);
+    startSessionAs(USER_1);
+
+    // When
+    ContainerResponse resp = launcher.service("GET",
+                                              path,
+                                              "",
+                                              null,
+                                              null,
+                                              envctx);
+
+    // Then
+    assertEquals(String.valueOf(resp.getEntity()), 200, resp.getStatus());
+    UserNotificationSettings notificationSettings = (UserNotificationSettings) resp.getEntity();
+    assertNotNull(notificationSettings);
+    assertEquals(2, notificationSettings.getGroups().size());
+    assertTrue(notificationSettings.getGroups().stream().anyMatch(group -> ACCOUNT_GROUP_ID.equals(group.getGroupId())));
+  }
+
+  private static GroupProvider newAccountGroupProvider() {
+    PluginInfo accountPlugin = new PluginInfo();
+    accountPlugin.setType("AccountDeactivationRequestPlugin");
+    GroupProvider accountGroup = new GroupProvider(ACCOUNT_GROUP_ID);
+    accountGroup.setPluginInfos(Collections.singletonList(accountPlugin));
+    return accountGroup;
   }
 
   public void testSaveDisableChannel() throws Exception {

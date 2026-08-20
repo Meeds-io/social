@@ -29,6 +29,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
 import org.exoplatform.commons.testing.ConfigTestCase;
 import org.exoplatform.social.notification.channel.MailTemplateProviderTest;
+import org.exoplatform.social.notification.channel.template.AccountDeactivationRequestMailBuilderTest;
 import org.exoplatform.social.notification.channel.template.ActivityCommentMailBuilderTest;
 import org.exoplatform.social.notification.channel.template.ActivityCommentReplyMailBuilderTest;
 import org.exoplatform.social.notification.channel.template.ActivityMentionMailBuilderTest;
@@ -43,6 +44,8 @@ import org.exoplatform.social.notification.channel.template.ReceiveRequestMailBu
 import org.exoplatform.social.notification.channel.template.RequestJoinSpaceMailBuilderTest;
 import org.exoplatform.social.notification.channel.template.SpaceInvitationMailBuilderTest;
 import org.exoplatform.social.notification.impl.SpaceWebNotificationServiceTest;
+import org.exoplatform.social.notification.listener.AccountDeactivationNotificationListenerTest;
+import org.exoplatform.social.notification.plugin.AccountDeactivationRequestPluginTest;
 import org.exoplatform.social.notification.plugin.SocialNotificationUtilsTest;
 
 import io.meeds.social.report.notification.listener.ReportNotificationListenerTest;
@@ -73,7 +76,10 @@ import io.meeds.social.security.plugin.EmailOtpPluginTest;
   EmailOtpPluginTest.class,
   AccountDeactivationEmailOtpPluginTest.class,
   SpaceMembershipNotificationListenerTest.class,
-  JoinedSpaceByInvitationLinkPluginTest.class
+  JoinedSpaceByInvitationLinkPluginTest.class,
+  AccountDeactivationRequestPluginTest.class,
+  AccountDeactivationNotificationListenerTest.class,
+  AccountDeactivationRequestMailBuilderTest.class
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

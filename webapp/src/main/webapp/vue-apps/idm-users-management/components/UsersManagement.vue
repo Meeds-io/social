@@ -17,10 +17,10 @@
 </template>
 <script>
 export default {
-  data: () => ({
+  data: (vm) => ({
     exportUsersUrl: null,
     totalSize: null,
-    filter: 'ENABLED',
+    filter: vm.$root.presetStatus,
   }),
 };
 </script>

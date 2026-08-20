@@ -63,6 +63,8 @@ public class NotificationSettingsRestService implements ResourceContainer {
 
   private static final String NOTIFICATION_LABEL_CHANNEL_DEFAULT = "UINotification.label.channel.default";
 
+  private static final String ACCOUNT_NOTIFICATIONS_GROUP        = "account";
+
   private static final String   MAIN_RESOURCE_BUNDLE_NAME = "locale.portlet.UserNotificationPortlet";
 
   private static final Log      LOG                       = ExoLogger.getLogger(NotificationSettingsRestService.class);
@@ -485,6 +487,11 @@ public class NotificationSettingsRestService implements ResourceContainer {
     }
   }
 
+  private boolean isAdministrator(String username) {
+    Identity identity = userACL.getUserIdentity(username);
+    return identity != null && userACL.isAdministrator(identity);
+  }
+
   private UserNotificationSettings mapToRestModel(UserSetting setting, boolean activeChannelsOnly) {
     Locale userLocale = LocalizationFilter.getCurrentLocale();
     if (userLocale == null) {
@@ -499,6 +506,13 @@ public class NotificationSettingsRestService implements ResourceContainer {
     List<String> channels = getChannels(activeChannelsOnly);
     Map<String, Boolean> channelStatus = computeChannelStatuses(setting, channels);
     List<GroupProvider> groups = pluginSettingService.getGroupPlugins();
+    if (StringUtils.isNotBlank(setting.getUserId()) && !isAdministrator(setting.getUserId())) {
+      // the account notifications target platform administrators only: other
+      // users don't see the group in their notification settings
+      groups = groups.stream()
+                     .filter(group -> !ACCOUNT_NOTIFICATIONS_GROUP.equals(group.getGroupId()))
+                     .toList();
+    }
     Map<String, String> groupsLabels = groups.stream()
                                              .collect(Collectors.toMap(GroupProvider::getGroupId,
                                                                        group -> context.pluginRes(group.getResourceBundleKey(),
