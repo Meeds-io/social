@@ -175,6 +175,15 @@ public class UserRest implements ResourceContainer, Startable {
 
   private static final String             IMAGE_PNG_MEDIA_TYPE        = "image/png";
 
+  /**
+   * Creation source stamped on accounts provisioned through this API, as
+   * opposed to the "ui" source stamped by the users management screens
+   * (org.exoplatform.portal.rest.UserRestResourcesV1#CREATION_SOURCE_UI). It
+   * marks accounts whose lifecycle is driven by the integrating system, which
+   * excludes them from the self service account deactivation.
+   */
+  public static final String              CREATION_SOURCE_API         = "api";
+
   private static final String             THIRD_USER_FIELD            = "thirdField";
 
   private static final String             USER_DISPLAYED_PHONE        = "displayedPhone";
@@ -725,6 +734,7 @@ public class UserRest implements ResourceContainer, Startable {
     user.setLastName(model.getLastname());
     user.setEmail(model.getEmail());
     user.setPassword(model.getPassword());
+    user.setCreationSource(CREATION_SOURCE_API);
     userHandler.createUser(user, true);
     //
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(model.getUsername(), uriInfo.getPath(), expand),
