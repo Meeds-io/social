@@ -29,6 +29,9 @@ export function init() {
     Vue.createApp({
       data: {
         isSuperUser: false,
+        // the status filter can be preset through the page URL, allowing deep
+        // links such as the account deactivation request notification one
+        presetStatus: new URLSearchParams(window.location.search).get('status') === 'DISABLED' ? 'DISABLED' : 'ENABLED',
       },
       computed: {
         isMobile() {
