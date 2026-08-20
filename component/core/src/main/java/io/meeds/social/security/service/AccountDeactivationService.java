@@ -117,7 +117,8 @@ public class AccountDeactivationService {
    * code: this is the single authoritative OTP validation of the flow.
    *
    * @throws IllegalStateException when the deactivation isn't allowed for the
-   *           user (admin option off or externally synchronized account)
+   *           user (admin option off, externally synchronized account or
+   *           account whose creation source isn't managed by the platform)
    * @throws IllegalAccessException when the OTP code is blank, invalid or the
    *           validation tentatives are exhausted
    * @throws UnsupportedOperationException when the account deletion is
