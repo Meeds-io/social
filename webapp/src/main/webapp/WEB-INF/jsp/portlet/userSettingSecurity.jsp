@@ -1,4 +1,4 @@
-<%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
+<%@page import="io.meeds.social.security.service.AccountDeactivationService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting"%>
 <%@page import="org.exoplatform.social.core.profileproperty.ProfilePropertyService"%>
@@ -8,9 +8,11 @@
   ProfilePropertyService profilePropertyService = ExoContainerContext.getService(ProfilePropertyService.class);
   ProfilePropertySetting profilePropertySetting = profilePropertyService.getProfileSettingByName("email");
   boolean emailEditable = profilePropertySetting == null || profilePropertySetting.isEditable();
-  boolean deactivationAllowed = ExoContainerContext.getService(SecuritySettingService.class)
-                                                   .getRegistrationSetting()
-                                                   .isAccountDeactivationEnabled();
+  // single source of truth: the admin option AND the account being managed by
+  // the platform itself, so externally synchronized users (LDAP) get no
+  // deactivation option at all
+  boolean deactivationAllowed = ExoContainerContext.getService(AccountDeactivationService.class)
+                                                   .isDeactivationAllowed(request.getRemoteUser());
 %>
 <div class="VuetifyApp">
   <div data-app="true"
