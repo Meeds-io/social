@@ -152,8 +152,19 @@ export default {
       this.menuY = anchorRect.top - 4;
       this.open = true;
       if (focusFirstOption) {
-        this.$nextTick(() => this.focusOption(0));
+        this.focusOptionWhenRendered(0, 10);
       }
+    },
+    focusOptionWhenRendered(index, remainingAttempts) {
+      this.$nextTick(() => {
+        const optionRef = this.$refs[`option-${index}`];
+        const button = Array.isArray(optionRef) ? optionRef[0] : optionRef;
+        if (button?.$el) {
+          button.$el.focus();
+        } else if (remainingAttempts > 0) {
+          window.setTimeout(() => this.focusOptionWhenRendered(index, remainingAttempts - 1), 50);
+        }
+      });
     },
     closeChooser() {
       this.open = false;
@@ -258,6 +269,8 @@ export default {
         event.preventDefault();
         this.closeChooser();
         this.$el.querySelector('button, a, [tabindex]')?.focus?.();
+      } else if (event.key === 'Tab') {
+        this.closeChooser();
       }
     },
     focusOption(index) {
