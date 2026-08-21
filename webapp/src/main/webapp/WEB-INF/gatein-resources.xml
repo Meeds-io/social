@@ -443,6 +443,39 @@
   </portlet>
 
   <portlet>
+    <name>AccountDeactivated</name>
+    <module>
+      <load-group>account-deactivated-extensions</load-group>
+      <script>
+        <minify>false</minify>
+        <path>/js/accountDeactivated.bundle.js</path>
+      </script>
+      <depends>
+        <module>loginCommon</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
     <name>InternalOnboarding</name>
     <module>
       <load-group>internal-onboarding-extensions</load-group>
