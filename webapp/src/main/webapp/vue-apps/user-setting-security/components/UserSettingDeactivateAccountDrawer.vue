@@ -147,7 +147,10 @@ export default {
       this.saving = true;
       try {
         await this.$accountDeactivationService.requestDeactivation(this.otpMethod, this.otpCode, false);
-        window.location.href = '/portal/logout';
+        // site-less URL, served to anonymous users against the global site,
+        // the same way as the /portal/forgot-password public page
+        const accountDeactivatedPageUri = `${eXo.env.portal.context}/account-deactivated`;
+        window.location.href = `${eXo.env.portal.context}/logout?initialURI=${encodeURIComponent(accountDeactivatedPageUri)}`;
       } catch (e) {
         this.saving = false;
         if (e?.message === '401') {
