@@ -1406,7 +1406,7 @@ public class EntityBuilder {
    * authenticated user's own item is always kept (the UI derives the user's
    * current reaction from it).
    */
-  private static List<MetadataItemEntity> capReactionItems(List<MetadataItemEntity> reactionItems, long authentiatedUserId) {
+  static List<MetadataItemEntity> capReactionItems(List<MetadataItemEntity> reactionItems, long authentiatedUserId) {
     if (reactionItems.size() <= REACTIONS_PUBLISHED_LIMIT) {
       return reactionItems;
     }

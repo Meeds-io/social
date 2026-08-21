@@ -434,6 +434,7 @@
               <outputDirectory>${project.build.directory}/${project.build.finalName}/skin/css</outputDirectory>
               <compress>false</compress>
               <includes>
+                <include>portlet/ActivityReactions/Style.less</include>
                 <include>portlet/ActivitySearch/Style.less</include>
                 <include>portlet/ActivityStream/Style.less</include>
                 <include>portlet/GettingStarted/Style.less</include>

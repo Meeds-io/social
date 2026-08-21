@@ -18,7 +18,7 @@
             v-bind="attrs"
             v-on="on"
             @click="changeLike">
-            <transition :name="morphEnabled && 'reaction-morph' || 'reaction-still'" mode="out-in">
+            <transition :name="morphEnabled && 'scale-transition' || 'reaction-still'" mode="out-in">
               <span :key="likeLabel">{{ likeLabel }}</span>
             </transition>
           </v-btn>
@@ -178,6 +178,7 @@ export default {
           this.$root.$emit('activity-comment-liked', this.comment);
           this.$root.$emit('activity-liked', this.commentId);
         })
+        .catch(() => this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error'))
         .finally(() => this.changingLike = false);
     },
     unlikeComment() {
@@ -190,6 +191,7 @@ export default {
           this.$root.$emit('activity-comment-liked', this.comment);
           this.$root.$emit('activity-liked', this.commentId);
         })
+        .catch(() => this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error'))
         .finally(() => this.changingLike = false);
     },
     updateLocalReactionItem(reactionId) {

@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,7 +37,7 @@ import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.IdentityRegistry;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManager;
@@ -56,6 +57,11 @@ public class ReactionServiceImpl implements ReactionService {
 
   private static final int           CUSTOM_REACTION_MAX_LENGTH = 16;
 
+  private static final Set<String>   TAGGED_EMOJI_SEQUENCES     =
+      Set.of("\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67\uDB40\uDC7F",
+             "\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC73\uDB40\uDC63\uDB40\uDC74\uDB40\uDC7F",
+             "\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC77\uDB40\uDC6C\uDB40\uDC73\uDB40\uDC7F");
+
   private static final Log           LOG                  = ExoLogger.getLogger(ReactionServiceImpl.class);
 
   @Autowired
@@ -73,8 +79,14 @@ public class ReactionServiceImpl implements ReactionService {
   @Autowired
   private ListenerService            listenerService;
 
+  private final List<ReactionOptionPlugin> reactionOptionPlugins = new CopyOnWriteArrayList<>();
+
   @Autowired(required = false)
-  private List<ReactionOptionPlugin> reactionOptionPlugins = new ArrayList<>();
+  public void setReactionOptionPlugins(List<ReactionOptionPlugin> plugins) {
+    if (plugins != null) {
+      reactionOptionPlugins.addAll(plugins);
+    }
+  }
 
   /**
    * Allows registering options from another Spring context (cross-addon), in
@@ -274,6 +286,9 @@ public class ReactionServiceImpl implements ReactionService {
     if (StringUtils.isBlank(reactionId) || reactionId.length() > CUSTOM_REACTION_MAX_LENGTH) {
       return false;
     }
+    if (reactionId.codePoints().anyMatch(codePoint -> codePoint >= 0xE0020 && codePoint <= 0xE007F)) {
+      return TAGGED_EMOJI_SEQUENCES.contains(reactionId);
+    }
     boolean keycap = reactionId.codePoints().anyMatch(codePoint -> codePoint == 0x20E3);
     boolean hasEmojiBase = false;
     for (int codePoint : reactionId.codePoints().toArray()) {
@@ -303,7 +318,7 @@ public class ReactionServiceImpl implements ReactionService {
   }
 
   private boolean isEmojiBase(int codePoint) {
-    return (codePoint >= 0x1F000 && codePoint <= 0x1FAFF)
+    return (codePoint >= 0x1F000 && codePoint <= 0x1FBFF)
            || (codePoint >= 0x2600 && codePoint <= 0x27BF)
            || (codePoint >= 0x2B00 && codePoint <= 0x2BFF)
            || (codePoint >= 0x2190 && codePoint <= 0x21FF)
@@ -313,8 +328,11 @@ public class ReactionServiceImpl implements ReactionService {
            || codePoint == 0x00AE
            || codePoint == 0x203C
            || codePoint == 0x2049
+           || codePoint == 0x2117
+           || codePoint == 0x2120
            || codePoint == 0x2122
            || codePoint == 0x2139
+           || codePoint == 0x229C
            || codePoint == 0x24C2
            || codePoint == 0x2934
            || codePoint == 0x2935

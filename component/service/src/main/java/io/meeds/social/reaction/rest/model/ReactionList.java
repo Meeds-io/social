@@ -21,6 +21,8 @@ package io.meeds.social.reaction.rest.model;
 import java.util.List;
 import java.util.Map;
 
+import org.exoplatform.social.rest.entity.ProfileEntity;
+
 import io.meeds.social.reaction.model.Reaction;
 
 import lombok.AllArgsConstructor;
@@ -32,8 +34,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReactionList {
 
-  private Map<String, Long> counts;
+  private Map<String, Long>   counts;
 
-  private List<Reaction>    reactions;
+  private List<Reaction>      reactions;
+
+  private List<ProfileEntity> reactorProfiles;
 
 }

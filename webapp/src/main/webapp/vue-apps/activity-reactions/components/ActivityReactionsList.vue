@@ -77,7 +77,7 @@ export default {
       counts: {},
       reactionOptions: [],
       selectedReactionId: null,
-      limit: 20,
+      pageSize: 20,
       likersSize: 0,
       loading: false
     };
@@ -86,10 +86,11 @@ export default {
     reactorsToDisplay() {
       return this.likers.map(liker => {
         const reactionId = this.reactionIdsByReactor[liker.id] || 'like';
-        return Object.assign({}, liker, {
+        return {
+          ...liker,
           reactionId,
           reactionOption: this.resolveReactionOption(reactionId),
-        });
+        };
       });
     },
     totalCount() {
@@ -128,7 +129,7 @@ export default {
     },
     hasMoreReactors() {
       const selectedCount = this.selectedReactionId ? (this.counts[this.selectedReactionId] || 0) : this.totalCount;
-      return selectedCount > this.limit;
+      return selectedCount > this.likers.length;
     }
   },
   created() {
@@ -145,7 +146,7 @@ export default {
   watch: {
     activityId() {
       this.selectedReactionId = null;
-      this.limit = 20;
+      this.likers = [];
       this.retrieveReactors();
     }
   },
@@ -159,7 +160,7 @@ export default {
     },
     selectReaction(reactionId) {
       this.selectedReactionId = this.selectedReactionId === reactionId ? null : reactionId;
-      this.limit = 20;
+      this.likers = [];
       this.retrieveReactors();
     },
     handleCheckReactions(event) {
@@ -172,41 +173,62 @@ export default {
         this.retrieveReactors();
       }
     },
-    retrieveReactors() {
-      return this.selectedReactionId ? this.retrieveFilteredReactors() : this.retrieveAllReactors();
+    retrieveReactors(append) {
+      return this.selectedReactionId ? this.retrieveFilteredReactors(append) : this.retrieveAllReactors(append);
     },
-    retrieveAllReactors() {
+    fetchReactionPages(reactionId, offset, limit) {
+      const requests = [];
+      for (let pageOffset = offset; pageOffset < offset + limit; pageOffset += 100) {
+        requests.push(this.$reactionService.getReactions('activity',
+          this.activityId,
+          reactionId,
+          pageOffset,
+          Math.min(100, offset + limit - pageOffset)));
+      }
+      return Promise.all(requests).then(pages => ({
+        counts: pages[0]?.counts || {},
+        reactions: pages.flatMap(page => page.reactions || []),
+        reactorProfiles: pages.flatMap(page => page.reactorProfiles || []),
+      }));
+    },
+    retrieveAllReactors(append) {
       this.loading = true;
+      const offset = append ? this.likers.length : 0;
+      const limit = append ? this.pageSize : Math.max(this.likers.length, this.pageSize);
       return Promise.all([
-        this.$activityService.getActivityLikers(this.activityId, 0, this.limit),
-        this.$reactionService.getReactions('activity', this.activityId, null, 0, this.limit),
+        this.$activityService.getActivityLikers(this.activityId, offset, limit),
+        this.fetchReactionPages(null, offset, limit),
       ]).then(([likersData, reactionsData]) => {
-        this.likers = likersData.likes || [];
+        const likers = likersData.likes || [];
+        this.likers = append ? this.likers.concat(likers) : likers;
         this.likersSize = likersData.size || 0;
-        this.counts = reactionsData.counts || {};
-        const reactionIdsByReactor = {};
-        (reactionsData.reactions || []).forEach(reaction => reactionIdsByReactor[`${reaction.reactorIdentityId}`] = reaction.reactionId);
+        this.counts = reactionsData.counts;
+        const reactionIdsByReactor = append ? {...this.reactionIdsByReactor} : {};
+        reactionsData.reactions.forEach(reaction => reactionIdsByReactor[`${reaction.reactorIdentityId}`] = reaction.reactionId);
         this.reactionIdsByReactor = reactionIdsByReactor;
         this.updateReactionsTabCount();
       }).catch(e => {
         console.error('error retrieving activity reactions', e);
       }).finally(() => this.loading = false);
     },
-    retrieveFilteredReactors() {
+    retrieveFilteredReactors(append) {
       this.loading = true;
-      return this.$reactionService.getReactions('activity', this.activityId, this.selectedReactionId, 0, this.limit)
+      const offset = append ? this.likers.length : 0;
+      const limit = append ? this.pageSize : Math.max(this.likers.length, this.pageSize);
+      return this.fetchReactionPages(this.selectedReactionId, offset, limit)
         .then(reactionsData => {
-          this.counts = reactionsData.counts || {};
-          const reactions = reactionsData.reactions || [];
-          const reactionIdsByReactor = {};
+          this.counts = reactionsData.counts;
+          const reactions = reactionsData.reactions;
+          const reactionIdsByReactor = append ? {...this.reactionIdsByReactor} : {};
           reactions.forEach(reaction => reactionIdsByReactor[`${reaction.reactorIdentityId}`] = reaction.reactionId);
           this.reactionIdsByReactor = reactionIdsByReactor;
-          return Promise.all(reactions.map(reaction =>
-            this.$identityService.getIdentityById(reaction.reactorIdentityId)
-              .then(identity => Object.assign({}, identity?.profile, {id: `${reaction.reactorIdentityId}`}))
-              .catch(() => null)));
-        }).then(reactors => {
-          this.likers = reactors.filter(reactor => !!reactor);
+          const profilesById = {};
+          reactionsData.reactorProfiles.forEach(profile => profilesById[`${profile.id}`] = profile);
+          const reactors = reactions
+            .map(reaction => profilesById[`${reaction.reactorIdentityId}`])
+            .filter(profile => !!profile)
+            .map(profile => ({...profile, id: `${profile.id}`}));
+          this.likers = append ? this.likers.concat(reactors) : reactors;
           this.updateReactionsTabCount();
         }).catch(e => {
           console.error('error retrieving filtered activity reactions', e);
@@ -221,8 +243,7 @@ export default {
       }));
     },
     loadMore() {
-      this.limit = this.limit + 20;
-      this.retrieveReactors();
+      this.retrieveReactors(true);
     }
   },
 };

@@ -29,7 +29,7 @@
             v-on="on"
             @click="changeLike">
             <div class="d-flex flex-lg-row flex-column">
-              <transition :name="morphEnabled && 'reaction-morph' || 'reaction-still'" mode="out-in">
+              <transition :name="morphEnabled && 'scale-transition' || 'reaction-still'" mode="out-in">
                 <span
                   v-if="userReactionEmoji"
                   :key="userReactionEmoji"
@@ -177,6 +177,7 @@ export default {
           this.updateLocalReactionItem(reactionId);
           return this.refreshLikers();
         })
+        .catch(() => this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error'))
         .finally(() => this.changingLike = false);
     },
     unlikeActivity() {
@@ -187,6 +188,7 @@ export default {
           this.updateLocalReactionItem(null);
           return this.refreshLikers();
         })
+        .catch(() => this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error'))
         .finally(() => this.changingLike = false);
     },
     refreshLikers() {
@@ -194,7 +196,8 @@ export default {
         .then(data => {
           this.computeLikes(data);
           this.$root.$emit('activity-liked', this.activityId);
-        });
+        })
+        .catch(() => null);
     },
     updateLocalReactionItem(reactionId) {
       if (!this.activity.metadatas) {
