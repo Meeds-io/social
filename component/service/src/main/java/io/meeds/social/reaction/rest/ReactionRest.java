@@ -36,6 +36,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.rest.api.EntityBuilder;
+import org.exoplatform.social.rest.entity.ProfileEntity;
 
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
@@ -62,6 +65,19 @@ public class ReactionRest {
 
   @Autowired
   private ReactionService   reactionService;
+
+  @Autowired
+  private IdentityManager   identityManager;
+
+  private List<ProfileEntity> buildReactorProfiles(List<Reaction> reactions) {
+    return reactions.stream()
+                    .map(Reaction::getReactorIdentityId)
+                    .distinct()
+                    .map(identityManager::getIdentity)
+                    .filter(identity -> identity != null && identity.getProfile() != null)
+                    .map(identity -> EntityBuilder.buildEntityProfile(identity.getProfile(), null))
+                    .toList();
+  }
 
   @GetMapping("options")
   @Secured("users")
@@ -115,7 +131,7 @@ public class ReactionRest {
                                                               offset,
                                                               limit,
                                                               request.getRemoteUser());
-      return new ReactionList(counts, reactions);
+      return new ReactionList(counts, reactions, reactionId == null ? null : buildReactorProfiles(reactions));
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
     } catch (ObjectNotFoundException e) {

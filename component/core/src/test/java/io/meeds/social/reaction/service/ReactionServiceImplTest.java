@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -51,6 +52,7 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
 
 import io.meeds.social.reaction.model.Reaction;
+import io.meeds.social.reaction.model.ReactionOption;
 import io.meeds.social.reaction.plugin.DefaultReactionOptionsPlugin;
 import io.meeds.social.reaction.storage.ReactionStorage;
 
@@ -110,7 +112,7 @@ public class ReactionServiceImplTest {
 
   @Test
   public void testGetReactionOptionsSortedByRank() {
-    List<String> optionIds = reactionService.getReactionOptions().stream().map(option -> option.getId()).toList();
+    List<String> optionIds = reactionService.getReactionOptions().stream().map(ReactionOption::getId).toList();
     assertEquals(List.of("like", "applause", "love", "insightful", "sad", "funny"), optionIds);
   }
 
@@ -130,7 +132,14 @@ public class ReactionServiceImplTest {
     assertThrows(IllegalArgumentException.class,
                  () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "emoji_1f44d", USERNAME));
     assertThrows(IllegalArgumentException.class,
-                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\uD83D\uDD25".repeat(9), USERNAME));
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\uDB40\uDC67\uDB40\uDC7F", USERNAME));
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\uD83D\uDD25\uDB40\uDC20\uDB40\uDC21", USERNAME));
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\uD83C\uDFF4\uDB40\uDC20\uDB40\uDC7F", USERNAME));
+    String tooLongEmojiSequence = "\uD83D\uDD25".repeat(9);
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, tooLongEmojiSequence, USERNAME));
   }
 
   @Test
@@ -148,12 +157,23 @@ public class ReactionServiceImplTest {
     reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\u203C\uFE0F", USERNAME);
     reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\u00A9\uFE0F", USERNAME);
     reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "3\uFE0F\u20E3", USERNAME);
+    reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\u2117", USERNAME);
+    reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\uD83E\uDFC5", USERNAME);
+    reactionService.setReaction(OBJECT_TYPE,
+                                OBJECT_ID,
+                                "\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67\uDB40\uDC7F",
+                                USERNAME);
 
     verify(reactionStorage).createReaction(metadataObject, "\u231A", 123l);
     verify(reactionStorage).createReaction(metadataObject, "\u23F0", 123l);
     verify(reactionStorage).createReaction(metadataObject, "\u203C\uFE0F", 123l);
     verify(reactionStorage).createReaction(metadataObject, "\u00A9\uFE0F", 123l);
     verify(reactionStorage).createReaction(metadataObject, "3\uFE0F\u20E3", 123l);
+    verify(reactionStorage).createReaction(metadataObject, "\u2117", 123l);
+    verify(reactionStorage).createReaction(metadataObject, "\uD83E\uDFC5", 123l);
+    verify(reactionStorage).createReaction(metadataObject,
+                                           "\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67\uDB40\uDC7F",
+                                           123l);
   }
 
   @Test
@@ -268,7 +288,7 @@ public class ReactionServiceImplTest {
   @Test
   public void testGetReactionsPagesOverLikersBeforeDecorating() throws Exception {
     when(activity.getLikeIdentityIds()).thenReturn(new String[] { "1", "2", "3", "4", "5" });
-    when(reactionStorage.getReactionItemsByCreators(eq(metadataObject), eq(List.of(2l, 3l)))).thenReturn(List.of());
+    when(reactionStorage.getReactionItemsByCreators(metadataObject, List.of(2l, 3l))).thenReturn(List.of());
 
     List<Reaction> page = reactionService.getReactions(OBJECT_TYPE, OBJECT_ID, null, 1, 2, USERNAME);
 
@@ -387,9 +407,8 @@ public class ReactionServiceImplTest {
 
   @Test
   public void testBroadcastFailureDoesNotBreakTheWrite() throws Exception {
-    org.mockito.Mockito.doThrow(new IllegalStateException("listener failure"))
-                       .when(listenerService)
-                       .broadcast(any(String.class), any(), any());
+    doThrow(new IllegalStateException("listener failure")).when(listenerService)
+                                                           .broadcast(any(String.class), any(), any());
 
     reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "love", USERNAME);
 

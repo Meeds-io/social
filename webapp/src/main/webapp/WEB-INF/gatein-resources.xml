@@ -27,6 +27,14 @@
     <filtered>true</filtered>
   </portal-skin>
 
+  <portal-skin>
+    <skin-name>Enterprise</skin-name>
+    <skin-module>ActivityReactions</skin-module>
+    <css-path>/skin/css/portlet/ActivityReactions/Style.css</css-path>
+    <css-priority>500</css-priority>
+    <filtered>true</filtered>
+  </portal-skin>
+
   <portlet-skin>
     <application-name>social</application-name>
     <portlet-name>GeneralSettings</portlet-name>

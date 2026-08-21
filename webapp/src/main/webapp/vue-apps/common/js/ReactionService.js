@@ -47,8 +47,8 @@ function filterReactionOptions(options, objectType) {
 }
 
 export function getReactions(objectType, objectId, reactionId, offset, limit) {
-  const reactionFilter = reactionId && `&reactionId=${reactionId}` || '';
-  return fetch(`/social/rest/reactions/${objectType}/${objectId}?offset=${offset || 0}&limit=${limit || 0}${reactionFilter}`, {
+  const reactionFilter = reactionId && `&reactionId=${encodeURIComponent(reactionId)}` || '';
+  return fetch(`/social/rest/reactions/${encodeURIComponent(objectType)}/${encodeURIComponent(objectId)}?offset=${offset || 0}&limit=${limit || 0}${reactionFilter}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -60,7 +60,7 @@ export function getReactions(objectType, objectId, reactionId, offset, limit) {
 }
 
 export function setReaction(objectType, objectId, reactionId) {
-  return fetch(`/social/rest/reactions/${objectType}/${objectId}`, {
+  return fetch(`/social/rest/reactions/${encodeURIComponent(objectType)}/${encodeURIComponent(objectId)}`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
@@ -75,7 +75,7 @@ export function setReaction(objectType, objectId, reactionId) {
 }
 
 export function deleteReaction(objectType, objectId) {
-  return fetch(`/social/rest/reactions/${objectType}/${objectId}`, {
+  return fetch(`/social/rest/reactions/${encodeURIComponent(objectType)}/${encodeURIComponent(objectId)}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {

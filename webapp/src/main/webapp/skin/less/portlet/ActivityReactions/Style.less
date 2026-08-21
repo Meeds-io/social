@@ -1,0 +1,56 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@keyframes reaction-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.5); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.reaction-chooser {
+  overflow: visible !important;
+  contain: none;
+  .reaction-selected-pop {
+    animation: reaction-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .reaction-others-collapse {
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reaction-chooser .reaction-selected-pop {
+    animation: none;
+  }
+  .reaction-chooser .reaction-others-collapse {
+    transform: none;
+  }
+  .reaction-chooser-wrapper .scale-transition-enter-active,
+  .reaction-chooser-wrapper .scale-transition-leave-active {
+    transition: opacity 0.2s ease !important;
+  }
+  .reaction-chooser-wrapper .scale-transition-enter,
+  .reaction-chooser-wrapper .scale-transition-leave-to {
+    transform: none !important;
+  }
+}
