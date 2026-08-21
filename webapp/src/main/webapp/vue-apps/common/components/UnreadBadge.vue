@@ -11,6 +11,7 @@
         icon
         height="20"
         width="20"
+        :aria-label="$t('Unread.ariaLabel')"
         text>
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
