@@ -19,6 +19,7 @@
  */
 
 let reactionOptionsPromise = null;
+let reactionOptions = null;
 
 export function getReactionOptions(objectType) {
   if (!reactionOptionsPromise) {
@@ -31,10 +32,18 @@ export function getReactionOptions(objectType) {
         throw new Error('Error while retrieving reaction options');
       }
       return resp.json();
-    });
+    }).then(options => reactionOptions = options);
   }
   return reactionOptionsPromise
-    .then(options => objectType && options.filter(option => !option.objectTypes?.length || option.objectTypes.includes(objectType)) || options);
+    .then(options => filterReactionOptions(options, objectType));
+}
+
+export function getCachedReactionOptions(objectType) {
+  return reactionOptions && filterReactionOptions(reactionOptions, objectType) || null;
+}
+
+function filterReactionOptions(options, objectType) {
+  return objectType && options.filter(option => !option.objectTypes?.length || option.objectTypes.includes(objectType)) || options;
 }
 
 export function getReactions(objectType, objectId, reactionId, offset, limit) {

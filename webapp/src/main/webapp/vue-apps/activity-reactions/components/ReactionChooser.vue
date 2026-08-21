@@ -119,6 +119,8 @@ export default {
     hoverTimer: null,
     closeTimer: null,
     longPressTimer: null,
+    selectTimer: null,
+    focusTimer: null,
     longPressTriggered: false,
     lastTouchTime: 0,
     selectingId: null,
@@ -143,6 +145,8 @@ export default {
     this.cancelHoverTimer();
     this.cancelCloseTimer();
     this.cancelLongPressTimer();
+    window.clearTimeout(this.selectTimer);
+    window.clearTimeout(this.focusTimer);
     document.removeEventListener('scroll', this.handleOutsideScroll, true);
     window.removeEventListener('resize', this.closeChooser);
   },
@@ -168,7 +172,7 @@ export default {
         if (button?.$el) {
           button.$el.focus({preventScroll: true});
         } else if (remainingAttempts > 0) {
-          window.setTimeout(() => this.focusOptionWhenRendered(index, remainingAttempts - 1), 50);
+          this.focusTimer = window.setTimeout(() => this.focusOptionWhenRendered(index, remainingAttempts - 1), 50);
         }
       });
     },
@@ -190,7 +194,7 @@ export default {
       }
       this.$emit('reaction-select', option);
       this.selectingId = option.id;
-      window.setTimeout(() => this.closeChooser(), 450);
+      this.selectTimer = window.setTimeout(() => this.closeChooser(), 450);
     },
     selectCustomEmoji(emoji) {
       this.$emit('reaction-select', {id: emoji, emoji});

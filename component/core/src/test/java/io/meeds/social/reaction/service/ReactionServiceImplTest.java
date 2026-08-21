@@ -121,6 +121,16 @@ public class ReactionServiceImplTest {
                  () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "a\uD83D\uDD25", USERNAME));
     assertThrows(IllegalArgumentException.class,
                  () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "<script>", USERNAME));
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\uFE0F", USERNAME));
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\u200D\u200D", USERNAME));
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "3", USERNAME));
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "emoji_1f44d", USERNAME));
+    assertThrows(IllegalArgumentException.class,
+                 () -> reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\uD83D\uDD25".repeat(9), USERNAME));
   }
 
   @Test
@@ -129,6 +139,21 @@ public class ReactionServiceImplTest {
 
     verify(reactionStorage).createReaction(metadataObject, "\uD83D\uDD25", 123l);
     verify(activityManager).saveLike(activity, userIdentity);
+  }
+
+  @Test
+  public void testSetReactionWithSymbolAndKeycapEmojisAccepted() throws Exception {
+    reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\u231A", USERNAME);
+    reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\u23F0", USERNAME);
+    reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\u203C\uFE0F", USERNAME);
+    reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "\u00A9\uFE0F", USERNAME);
+    reactionService.setReaction(OBJECT_TYPE, OBJECT_ID, "3\uFE0F\u20E3", USERNAME);
+
+    verify(reactionStorage).createReaction(metadataObject, "\u231A", 123l);
+    verify(reactionStorage).createReaction(metadataObject, "\u23F0", 123l);
+    verify(reactionStorage).createReaction(metadataObject, "\u203C\uFE0F", 123l);
+    verify(reactionStorage).createReaction(metadataObject, "\u00A9\uFE0F", 123l);
+    verify(reactionStorage).createReaction(metadataObject, "3\uFE0F\u20E3", 123l);
   }
 
   @Test
