@@ -83,7 +83,8 @@ export default {
         .then(identity => {
           const reactionItem = identity && reactionItems.find(item => `${item.creatorId}` === `${identity.id}`);
           this.likerReactionId = reactionItem?.name || 'like';
-        });
+        })
+        .catch(() => this.likerReactionId = 'like');
     },
   },
 };
