@@ -1326,6 +1326,26 @@
       <keywords>forgot</keywords>
     </portlet-info>
   </portlet>
+
+  <portlet>
+    <portlet-name>AccountDeactivated</portlet-name>
+    <display-name>Account Deactivated</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/accountDeactivated.jsp</value>
+    </init-param>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Login</resource-bundle>
+    <portlet-info>
+      <title>Account Deactivated</title>
+      <keywords>deactivated</keywords>
+    </portlet-info>
+  </portlet>
   <portlet>
     <portlet-name>InternalOnboarding</portlet-name>
     <display-name>Internal Onboarding</display-name>
