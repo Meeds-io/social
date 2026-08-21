@@ -27,6 +27,7 @@ let config = {
     fontIcons: './src/main/webapp/vue-apps/common-font-icon/main.js',
     login: './src/main/webapp/vue-apps/login/main.js',
     forgotPassword: './src/main/webapp/vue-apps/login-forgot-password/main.js',
+    accountDeactivated: './src/main/webapp/vue-apps/login-account-deactivated/main.js',
     internalOnboarding: './src/main/webapp/vue-apps/login-internal-onboarding/main.js',
     externalOnboarding: './src/main/webapp/vue-apps/login-external-onboarding/main.js',
     register: './src/main/webapp/vue-apps/user-register/main.js',
