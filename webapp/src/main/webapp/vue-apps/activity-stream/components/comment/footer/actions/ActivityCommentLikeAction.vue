@@ -18,7 +18,7 @@
             v-bind="attrs"
             v-on="on"
             @click="changeLike">
-            <transition name="reaction-morph" mode="out-in">
+            <transition :name="morphEnabled && 'reaction-morph' || 'reaction-still'" mode="out-in">
               <span :key="likeLabel">{{ likeLabel }}</span>
             </transition>
           </v-btn>
@@ -61,6 +61,8 @@ export default {
   },
   data: () => ({
     changingLike: false,
+    morphEnabled: false,
+    optionsLoaded: false,
     reactionOptions: [],
   }),
   computed: {
@@ -91,9 +93,18 @@ export default {
     hasLiked() {
       return this.likers.filter(like => like && like.id === eXo.env.portal.userIdentityId).length;
     },
+    optionsPending() {
+      return !this.optionsLoaded
+        && this.hasLiked
+        && !!this.userReactionId
+        && /^[a-z0-9_-]+$/i.test(this.userReactionId);
+    },
     likeLabel() {
       if (!this.hasLiked || !this.userReactionId) {
         return this.$t('UIActivity.msg.LikeActivity');
+      }
+      if (this.optionsPending) {
+        return ' ';
       }
       const option = this.reactionOptions.find(registered => registered.id === this.userReactionId);
       return option?.selectedLabelKey && this.$t(option.selectedLabelKey)
@@ -115,8 +126,15 @@ export default {
     },
   },
   created() {
-    this.$reactionService.getReactionOptions('activity')
-      .then(options => this.reactionOptions = options);
+    const cachedOptions = this.$reactionService.getCachedReactionOptions('activity');
+    if (cachedOptions) {
+      this.reactionOptions = cachedOptions;
+      this.optionsLoaded = true;
+    } else {
+      this.$reactionService.getReactionOptions('activity')
+        .then(options => this.reactionOptions = options)
+        .finally(() => this.optionsLoaded = true);
+    }
     this.$root.$on('activity-comment-liked', this.updateCommentLikers);
   },
   beforeDestroy() {
@@ -132,6 +150,7 @@ export default {
       if (this.changingLike) {
         return;
       }
+      this.morphEnabled = true;
       if (this.hasLiked) {
         return this.unlikeComment();
       } else {
@@ -142,6 +161,7 @@ export default {
       if (this.changingLike || (this.hasLiked && option.id === this.userReactionId)) {
         return;
       }
+      this.morphEnabled = true;
       return this.likeComment(option.id);
     },
     likeComment(reactionId) {

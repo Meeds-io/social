@@ -60,18 +60,22 @@ public class ReactionStorage {
     if (metadataName == null || !metadataName.startsWith(CUSTOM_REACTION_PREFIX)) {
       return metadataName;
     }
-    StringBuilder reactionId = new StringBuilder();
-    for (String hexCodePoint : metadataName.substring(CUSTOM_REACTION_PREFIX.length()).split("_")) {
-      reactionId.appendCodePoint(Integer.parseInt(hexCodePoint, 16));
+    try {
+      StringBuilder reactionId = new StringBuilder();
+      for (String hexCodePoint : metadataName.substring(CUSTOM_REACTION_PREFIX.length()).split("_")) {
+        reactionId.appendCodePoint(Integer.parseInt(hexCodePoint, 16));
+      }
+      return reactionId.toString();
+    } catch (IllegalArgumentException e) {
+      return metadataName;
     }
-    return reactionId.toString();
   }
 
   public Map<String, Long> countReactionsByOption(MetadataObject object) {
     return metadataService.countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(METADATA_TYPE_NAME, object)
                           .entrySet()
                           .stream()
-                          .collect(Collectors.toMap(count -> decodeReactionId(count.getKey()), Map.Entry::getValue));
+                          .collect(Collectors.toMap(count -> decodeReactionId(count.getKey()), Map.Entry::getValue, Long::sum));
   }
 
   public MetadataItem getUserReactionItem(MetadataObject object, long identityId) {
@@ -87,8 +91,6 @@ public class ReactionStorage {
     if (creatorIds.size() <= CREATORS_QUERY_CHUNK_SIZE) {
       return metadataService.getMetadataItemsByMetadataTypeAndObjectAndCreators(METADATA_TYPE_NAME, object, creatorIds);
     }
-    // chunk the IN clause: some databases cap its expression count (Oracle:
-    // 1000) and the Service API accepts unbounded pages (limit <= 0)
     List<MetadataItem> items = new ArrayList<>();
     for (int fromIndex = 0; fromIndex < creatorIds.size(); fromIndex += CREATORS_QUERY_CHUNK_SIZE) {
       int toIndex = Math.min(fromIndex + CREATORS_QUERY_CHUNK_SIZE, creatorIds.size());

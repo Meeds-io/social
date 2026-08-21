@@ -100,8 +100,6 @@ public class ReactionServiceImpl implements ReactionService {
                                                                                                   IllegalAccessException {
     ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
     if (activity.getPublicationStartTime() != null) {
-      // same rule as the like path: reacting isn't allowed on a scheduled
-      // activity which isn't published yet
       throw new IllegalAccessException(String.format("User %s can't react to the not yet published activity %s",
                                                      username,
                                                      objectId));
@@ -123,8 +121,6 @@ public class ReactionServiceImpl implements ReactionService {
     if (sameReaction && alreadyLiker) {
       return;
     }
-    // the like is written first: a failure of the typed decoration then
-    // leaves a benign plain like instead of an orphan typed item
     if (!alreadyLiker) {
       activityManager.saveLike(activity, userIdentity);
     }
@@ -135,8 +131,6 @@ public class ReactionServiceImpl implements ReactionService {
       try {
         reactionStorage.createReaction(object, reactionId, identityId);
       } catch (ObjectAlreadyExistsException e) {
-        // not the uniqueness mechanism (the metadata type allows multiple
-        // items per object); kept only because the API declares it
         LOG.debug("Reaction {} already exists for user {} on object {}/{}", reactionId, username, objectType, objectId, e);
       }
     }
@@ -186,8 +180,6 @@ public class ReactionServiceImpl implements ReactionService {
                             .filter(optionId -> !LIKE_REACTION_ID.equals(optionId))
                             .filter(countsByOption::containsKey)
                             .forEach(optionId -> counts.put(optionId, countsByOption.get(optionId)));
-    // items of no-longer-registered options still deflate the like bucket:
-    // return them as-is so the per-option totals keep matching the reactors
     countsByOption.entrySet()
                   .stream()
                   .filter(entry -> !counts.containsKey(entry.getKey()))
@@ -213,8 +205,6 @@ public class ReactionServiceImpl implements ReactionService {
     }
     String[] likerIds = activity.getLikeIdentityIds() == null ? new String[0] : activity.getLikeIdentityIds();
     if (LIKE_REACTION_ID.equals(reactionId)) {
-      // plain likers = likers minus typed reactors; the typed items list is
-      // bounded by the typed reactions count, not by the likers count
       Set<Long> typedReactorIds = reactionStorage.getTypedReactionItems(object)
                                                  .stream()
                                                  .map(MetadataItem::getCreatorId)
@@ -227,8 +217,6 @@ public class ReactionServiceImpl implements ReactionService {
                              .map(likerId -> new Reaction(likerId, LIKE_REACTION_ID, objectType, objectId))
                              .toList();
     }
-    // no filter: page over the likers first, then decorate only the page's
-    // reactors with their typed reaction, never loading the full items list
     List<Long> pagedLikerIds = java.util.Arrays.stream(likerIds)
                                                .map(Long::parseLong)
                                                .skip(Math.max(offset, 0))
@@ -256,9 +244,6 @@ public class ReactionServiceImpl implements ReactionService {
     if (activity == null) {
       return;
     }
-    // the like lifecycle dispatches asynchronously: when the reactor liked or
-    // reacted again before this cleanup runs, keeping the item (restoring the
-    // previous typed reaction) beats deleting a just-restored one
     if (ArrayUtils.contains(activity.getLikeIdentityIds(), String.valueOf(reactorIdentityId))) {
       return;
     }
@@ -289,14 +274,54 @@ public class ReactionServiceImpl implements ReactionService {
     if (StringUtils.isBlank(reactionId) || reactionId.length() > CUSTOM_REACTION_MAX_LENGTH) {
       return false;
     }
-    return reactionId.codePoints()
-                     .allMatch(codePoint -> (codePoint >= 0x1F000 && codePoint <= 0x1FAFF)
-                                            || (codePoint >= 0x2600 && codePoint <= 0x27BF)
-                                            || (codePoint >= 0x2B00 && codePoint <= 0x2BFF)
-                                            || codePoint == 0x200D
-                                            || codePoint == 0xFE0E
-                                            || codePoint == 0xFE0F
-                                            || codePoint == 0x20E3);
+    boolean keycap = reactionId.codePoints().anyMatch(codePoint -> codePoint == 0x20E3);
+    boolean hasEmojiBase = false;
+    for (int codePoint : reactionId.codePoints().toArray()) {
+      if (isEmojiModifier(codePoint)) {
+        continue;
+      }
+      if (isEmojiBase(codePoint) || (keycap && isKeycapBase(codePoint))) {
+        hasEmojiBase = true;
+      } else {
+        return false;
+      }
+    }
+    return hasEmojiBase;
+  }
+
+  private boolean isEmojiModifier(int codePoint) {
+    return codePoint == 0x200D
+           || codePoint == 0xFE0E
+           || codePoint == 0xFE0F
+           || codePoint == 0x20E3;
+  }
+
+  private boolean isKeycapBase(int codePoint) {
+    return codePoint == '#'
+           || codePoint == '*'
+           || (codePoint >= '0' && codePoint <= '9');
+  }
+
+  private boolean isEmojiBase(int codePoint) {
+    return (codePoint >= 0x1F000 && codePoint <= 0x1FAFF)
+           || (codePoint >= 0x2600 && codePoint <= 0x27BF)
+           || (codePoint >= 0x2B00 && codePoint <= 0x2BFF)
+           || (codePoint >= 0x2190 && codePoint <= 0x21FF)
+           || (codePoint >= 0x2300 && codePoint <= 0x23FF)
+           || (codePoint >= 0x25A0 && codePoint <= 0x25FF)
+           || codePoint == 0x00A9
+           || codePoint == 0x00AE
+           || codePoint == 0x203C
+           || codePoint == 0x2049
+           || codePoint == 0x2122
+           || codePoint == 0x2139
+           || codePoint == 0x24C2
+           || codePoint == 0x2934
+           || codePoint == 0x2935
+           || codePoint == 0x3030
+           || codePoint == 0x303D
+           || codePoint == 0x3297
+           || codePoint == 0x3299;
   }
 
   private Map<String, ReactionOption> getReactionOptionsById() {

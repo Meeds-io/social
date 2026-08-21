@@ -108,8 +108,6 @@ public class ReactionRest {
       } else if (limit > MAX_LIMIT) {
         limit = MAX_LIMIT;
       }
-      // the activity is loaded and ACL-checked twice (counts + list): accepted
-      // for the drawer-open frequency, both reads ride the activity cache
       Map<String, Long> counts = reactionService.countReactionsByOption(objectType, objectId, request.getRemoteUser());
       List<Reaction> reactions = reactionService.getReactions(objectType,
                                                               objectId,

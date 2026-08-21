@@ -193,9 +193,6 @@ export default {
       }).finally(() => this.loading = false);
     },
     retrieveFilteredReactors() {
-      // the filter pages server-side over the selected option's reactors, so
-      // a chip with count > 0 always lists its reactors whatever page of
-      // likers is loaded
       this.loading = true;
       return this.$reactionService.getReactions('activity', this.activityId, this.selectedReactionId, 0, this.limit)
         .then(reactionsData => {

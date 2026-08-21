@@ -29,12 +29,17 @@
             v-on="on"
             @click="changeLike">
             <div class="d-flex flex-lg-row flex-column">
-              <transition name="reaction-morph" mode="out-in">
+              <transition :name="morphEnabled && 'reaction-morph' || 'reaction-still'" mode="out-in">
                 <span
                   v-if="userReactionEmoji"
                   :key="userReactionEmoji"
                   :style="`font-size: ${isMobile && '20' || '16'}px; height: ${isMobile && '20' || '16'}px; line-height: 1;`"
                   class="reaction-emoji d-inline-flex align-center justify-center me-lg-1 baseline-vertical-align">{{ userReactionEmoji }}</span>
+                <span
+                  v-else-if="optionsPending"
+                  key="reaction-pending"
+                  :style="`font-size: ${isMobile && '20' || '16'}px; height: ${isMobile && '20' || '16'}px; width: ${isMobile && '20' || '16'}px;`"
+                  class="d-inline-flex me-lg-1 baseline-vertical-align"></span>
                 <v-icon
                   v-else
                   key="like-icon"
@@ -76,6 +81,8 @@ export default {
   data: () => ({
     changingLike: false,
     hasLiked: false,
+    morphEnabled: false,
+    optionsLoaded: false,
     reactionOptions: [],
   }),
   computed: {
@@ -87,9 +94,18 @@ export default {
       const userItem = reactionItems?.find?.(item => `${item.creatorId}` === `${eXo.env.portal.userIdentityId}`);
       return userItem?.name || (this.hasLiked && 'like') || null;
     },
+    optionsPending() {
+      return !this.optionsLoaded
+        && this.hasLiked
+        && !!this.userReactionId
+        && /^[a-z0-9_-]+$/i.test(this.userReactionId);
+    },
     likeLabel() {
       if (!this.hasLiked || !this.userReactionId) {
         return this.$t('UIActivity.msg.LikeActivity');
+      }
+      if (this.optionsPending) {
+        return ' ';
       }
       const option = this.reactionOptions.find(registered => registered.id === this.userReactionId);
       return option?.selectedLabelKey && this.$t(option.selectedLabelKey)
@@ -124,14 +140,22 @@ export default {
   },
   created() {
     this.computeLikes();
-    this.$reactionService.getReactionOptions('activity')
-      .then(options => this.reactionOptions = options);
+    const cachedOptions = this.$reactionService.getCachedReactionOptions('activity');
+    if (cachedOptions) {
+      this.reactionOptions = cachedOptions;
+      this.optionsLoaded = true;
+    } else {
+      this.$reactionService.getReactionOptions('activity')
+        .then(options => this.reactionOptions = options)
+        .finally(() => this.optionsLoaded = true);
+    }
   },
   methods: {
     changeLike() {
       if (this.changingLike) {
         return;
       }
+      this.morphEnabled = true;
       if (this.hasLiked) {
         return this.unlikeActivity();
       } else {
@@ -142,6 +166,7 @@ export default {
       if (this.changingLike || this.isScheduled || (this.hasLiked && option.id === this.userReactionId)) {
         return;
       }
+      this.morphEnabled = true;
       return this.applyReaction(option.id);
     },
     applyReaction(reactionId) {

@@ -163,6 +163,13 @@ public class ReactionStorageTest {
   }
 
   @Test
+  public void testDecodeReactionIdWithMalformedNameReturnsRawName() {
+    assertEquals("emoji_notahex", ReactionStorage.decodeReactionId("emoji_notahex"));
+    assertEquals("emoji_110000", ReactionStorage.decodeReactionId("emoji_110000"));
+    assertEquals("emoji_", ReactionStorage.decodeReactionId("emoji_"));
+  }
+
+  @Test
   public void testCountReactionsByOptionDecodesCustomNames() {
     when(metadataService.countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(ReactionService.METADATA_TYPE_NAME,
                                                                                         OBJECT)).thenReturn(Map.of("emoji_1f525",
