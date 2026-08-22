@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -67,6 +68,12 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   private static final String PARENT_OBJECT_ID     = "parentObjectId";
 
   private static final String OBJECT_ID            = "objectId";
+
+  private static final String OBJECT_IDS           = "objectIds";
+
+  // Oracle refuses an IN list past 1000 literals (ORA-01795); same bound, and same
+  // reason, as IdentityDAOImpl in this package.
+  private static final int    MAX_ITEMS_PER_IN_CLAUSE = 1000;
 
   private static final String SPACE_ID             = "spaceId";
 
@@ -164,6 +171,40 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
                 .stream()
                 .collect(Collectors.toMap(tuple -> tuple.get("name", String.class),
                                           tuple -> tuple.get("itemsCount", Long.class)));
+  }
+
+  /**
+   * The same read for a page of objects at once, so a caller listing rows can ask once
+   * instead of once per row.
+   * <p>
+   * Issued in chunks: Oracle refuses an IN list past 1000 literals (ORA-01795), which a
+   * page of rows can exceed — a mailbox caches a thousand messages by default and may be
+   * configured for five thousand. The chunk size follows {@code IdentityDAOImpl}, which
+   * meets the same limit in this package.
+   *
+   * @param metadataType the metadata type id
+   * @param objectType the object type, e.g. the one a category plugin registers
+   * @param objectIds the object ids to read, in any order
+   * @return the items of those objects, empty when no id is given
+   */
+  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObjectIds(long metadataType,
+                                                                             String objectType,
+                                                                             List<String> objectIds) {
+    if (CollectionUtils.isEmpty(objectIds)) {
+      return Collections.emptyList();
+    }
+    TypedQuery<MetadataItemEntity> query =
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndObjectIds",
+                                                                             MetadataItemEntity.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
+    List<MetadataItemEntity> items = new ArrayList<>();
+    for (int start = 0; start < objectIds.size(); start += MAX_ITEMS_PER_IN_CLAUSE) {
+      int end = Math.min(start + MAX_ITEMS_PER_IN_CLAUSE, objectIds.size());
+      query.setParameter(OBJECT_IDS, objectIds.subList(start, end));
+      items.addAll(query.getResultList());
+    }
+    return items;
   }
 
   public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObject(long metadataType,

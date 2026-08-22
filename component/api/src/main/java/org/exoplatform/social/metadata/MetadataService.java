@@ -380,6 +380,20 @@ public interface MetadataService {
   List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(String metadataType, MetadataObject object);
 
   /**
+   * Retrieves the {@link MetadataItem} of several objects of one type at once, so a
+   * caller listing rows can ask a single question instead of one per row.
+   *
+   * @param metadataType {@link Metadata} type
+   * @param objectType the objects' type identifier, like ACTIVITY, COMMENT, NOTE, FILE
+   * @param objectIds the objects' technical identifiers
+   * @return {@link List} of linked {@link MetadataItem} across all the given objects,
+   *         each carrying the objectId it belongs to
+   */
+  List<MetadataItem> getMetadataItemsByMetadataTypeAndObjectIds(String metadataType,
+                                                                String objectType,
+                                                                List<String> objectIds);
+
+  /**
    * Retrieves the list of Metadata items attached to a given {@link Metadata}
    * type and an object identified by its name and identifier
    *
