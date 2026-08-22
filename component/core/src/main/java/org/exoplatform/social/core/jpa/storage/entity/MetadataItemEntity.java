@@ -69,6 +69,18 @@ import jakarta.persistence.Table;
         + " mi.objectId = :objectId"
         + " ORDER BY mi.id ASC"
 )
+// The same read for a page of objects at once. A caller listing rows and showing what
+// each is filed under would otherwise ask the query above once per row, which is a query
+// per message on a mail folder and per document on a drive. Ordered by object first so a
+// caller can group the answer as it walks it.
+@NamedQuery(
+    name = "SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndObjectIds",
+    query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
+        + " mi.metadata.type = :metadataType AND"
+        + " mi.objectType = :objectType AND"
+        + " mi.objectId IN :objectIds"
+        + " ORDER BY mi.objectId ASC, mi.id ASC"
+)
 @NamedQuery(
     name = "SocMetadataItemEntity.getSortedMetadataItemsByMetadataTypeAndObject",
     query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
