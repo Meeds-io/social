@@ -387,6 +387,32 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
+  /**
+   * The same read for a page of objects of one type, so a caller listing rows asks once
+   * instead of once per row.
+   *
+   * @param metadataTypeName the metadata type name
+   * @param objectType the objects' type
+   * @param objectIds the object ids to read
+   * @return the items of those objects, empty when no id is given
+   */
+  public List<MetadataItem> getMetadataItemsByMetadataTypeAndObjectIds(String metadataTypeName,
+                                                                       String objectType,
+                                                                       List<String> objectIds) {
+    if (CollectionUtils.isEmpty(objectIds)) {
+      return Collections.emptyList();
+    }
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
+    List<MetadataItemEntity> metadataItemEntities =
+                                                  metadataItemDAO.getMetadataItemsByMetadataTypeAndObjectIds(metadataType.getId(),
+                                                                                                             objectType,
+                                                                                                             objectIds);
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
+  }
+
   public List<MetadataItem> getMetadataItemsByMetadataTypeAndObjectType(String metadataTypeName, String objectType) {
     MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
     List<MetadataItemEntity> metadataItemEntities =

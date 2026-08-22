@@ -163,6 +163,34 @@ public class CategoryStorage {
                               .toList();
   }
 
+  /**
+   * The categories each of several objects is filed under, in one query.
+   * <p>
+   * The single-object {@link #getLinkedIds(CategoryObject)} is the right call for a
+   * reader looking at one thing, and the wrong one for a list: a page of rows showing
+   * what each is filed under would ask it once per row, which is a query per message on
+   * a mail folder and per document on a drive. This answers the page, so the caller
+   * decorates its rows by lookup.
+   *
+   * @param objectType the objects' type, as registered by a category plugin
+   * @param objectIds the objects' identifiers
+   * @return the category identifiers of each object, keyed by object id; an object with
+   *         no category is absent from the map rather than present with an empty list
+   */
+  public Map<String, List<Long>> getLinkedIds(String objectType, List<String> objectIds) {
+    if (CollectionUtils.isEmpty(objectIds)) {
+      return Collections.emptyMap();
+    }
+    List<MetadataItem> items = metadataService.getMetadataItemsByMetadataTypeAndObjectIds(METADATA_TYPE.getName(),
+                                                                                          objectType,
+                                                                                          objectIds);
+    return items == null ? Collections.emptyMap() :
+                         items.stream()
+                              .collect(Collectors.groupingBy(MetadataItem::getObjectId,
+                                                             Collectors.mapping(item -> item.getMetadata().getId(),
+                                                                                Collectors.toList())));
+  }
+
   public List<Long> getLinkedIds(String objectType) {
     List<MetadataItem> items = metadataService.getMetadataItemsByMetadataTypeAndObjectType(METADATA_TYPE.getName(), objectType);
     return items == null ? Collections.emptyList() :

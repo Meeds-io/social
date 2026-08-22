@@ -19,6 +19,7 @@
 package io.meeds.social.category.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
@@ -44,6 +46,49 @@ import io.meeds.social.space.plugin.SpaceCategoryPlugin;
 import lombok.SneakyThrows;
 
 public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
+
+
+  /**
+   * The bulk read answers a page of objects at once, and answers it exactly as the
+   * single-object read would have, object by object.
+   * <p>
+   * That equivalence is the whole contract: the bulk call exists only so a caller
+   * listing rows can stop asking once per row, and it is worth nothing if the two can
+   * drift apart. An object with no category is absent from the map rather than present
+   * with an empty list, so a caller can tell "none" from "not asked for".
+   */
+  @Test
+  @SneakyThrows
+  public void testGetLinkedIdsInBulkAgreesWithThePerObjectRead() {
+    Category rootCategory = categoryService.getRootCategory(getAdminGroupIdentityId());
+
+    Space linkedSpace = new Space();
+    linkedSpace.setRegistration(Space.OPEN);
+    linkedSpace.setVisibility(Space.PUBLIC);
+    linkedSpace = spaceService.createSpace(linkedSpace, ROOT_USER);
+    CategoryObject linkedObject = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE,
+                                                     linkedSpace.getId(),
+                                                     linkedSpace.getSpaceId());
+    categoryLinkService.link(rootCategory.getId(), linkedObject);
+
+    Space unlinkedSpace = new Space();
+    unlinkedSpace.setRegistration(Space.OPEN);
+    unlinkedSpace.setVisibility(Space.PUBLIC);
+    unlinkedSpace = spaceService.createSpace(unlinkedSpace, ROOT_USER);
+    CategoryObject unlinkedObject = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE,
+                                                       unlinkedSpace.getId(),
+                                                       unlinkedSpace.getSpaceId());
+
+    Map<String, List<Long>> linkedIds = categoryLinkService.getLinkedIds(SpaceCategoryPlugin.OBJECT_TYPE,
+                                                                         List.of(linkedObject.getId(), unlinkedObject.getId()));
+
+    // what the per-object call says, said for the whole page in one query
+    assertEquals(categoryLinkService.getLinkedIds(linkedObject), linkedIds.get(linkedObject.getId()));
+    assertTrue(linkedIds.get(linkedObject.getId()).contains(rootCategory.getId()));
+    // an object with no category is absent, not empty
+    assertTrue(CollectionUtils.isEmpty(categoryLinkService.getLinkedIds(unlinkedObject)));
+    assertNull(linkedIds.get(unlinkedObject.getId()));
+  }
 
   @Test
   @SneakyThrows
