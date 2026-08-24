@@ -21,6 +21,7 @@
 -->
 <template>
   <v-menu
+    ref="menu"
     v-model="showMenu"
     rounded
     :content-class="`topBar-navigation-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
@@ -34,6 +35,7 @@
     <template #activator="{ on, attrs }">
       <v-tab
         v-if="hasPage || hasChildren && childrenHasPage"
+        ref="tab"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
         :rel="navigationNodeRel"
@@ -44,6 +46,10 @@
         v-on="on"
         v-bind="attrs"
         role="tab"
+        @focus="openDropMenuOnFocus"
+        @keydown.tab="showMenu = false"
+        @keydown.right="focusHighlightedItem"
+        @keydown.left="focusHighlightedItem"
         @click="checkLink"
         @change="updateNavigationState">
         <span
@@ -74,7 +80,9 @@
       :base-site-uri="baseSiteUri"
       :parent-navigation-uri="navigation.uri"
       :selected-path="selectedPath"
+      :highlighted="renderedChildren[highlightedIndex] === children"
       @update-navigation-state="updateNavigationState"
+      @exit-menu="exitMenu"
       @select="updateNavigationState" />
   </v-menu>
 </template>
@@ -98,6 +106,8 @@ export default {
   data () {
     return {
       showMenu: false,
+      exitingMenu: false,
+      highlightedIndex: -1,
       isOpenedOnHover: true,
       menuMaxHeight: '100vh'
     };
@@ -129,7 +139,12 @@ export default {
     },
     isTopBarElement() {
       return this.$root.isTopBarElement;
-    }
+    },
+    renderedChildren() {
+      // the entries the menu actually shows, in the same order as the menu own tiles
+      return this.navigation?.children?.filter(child => !!child.pageKey
+        || child.children?.length && this.checkChildrenHasPage(child)) || [];
+    },
   },
   watch: {
     showMenu() {
@@ -144,6 +159,11 @@ export default {
         }
       }
     },
+  },
+  mounted() {
+    // the arrow keys only add a css class on the highlighted entry, so watch the menu own index
+    // to tell that entry to open its submenu right away, without waiting for a horizontal arrow
+    this.$watch(() => this.$refs.menu?.listIndex, index => this.highlightedIndex = index);
   },
   created() {
     document.addEventListener('click', this.handleCloseMenu);
@@ -164,19 +184,28 @@ export default {
         } else {
           window.location.href = this.navigationNodeUri;
         }
-      } else if (this.hasChildren && this.childrenHasPage) {
-        // a keyboard activation (event detail = 0) only opens the menu, so that a second
-        // Enter activates the highlighted sub page instead of closing the menu again
-        this.openDropMenu(!e.detail);
       }
     },
-    openDropMenu(persist) {
-      if (!persist && this.showMenu) {
-        this.showMenu = false;
-      } else if (!this.showMenu) {
-        this.showMenu = true;
-        this.$root.$emit('close-sibling-drop-menus', this);
+    openDropMenuOnFocus() {
+      if (this.exitingMenu) {
+        // the focus is only passing by on its way out of the menu, don't open it again
+        return;
       }
+      this.showMenu = this.hasChildren && this.childrenHasPage || false;
+    },
+    exitMenu() {
+      // Tab from a sub item must leave the menu instead of walking through the drop menu
+      // contents, which are detached at the end of the document: close the whole menu and
+      // give the focus back to this tab, so the browser default moves on to the next tab
+      this.exitingMenu = true;
+      this.showMenu = false;
+      this.$refs.tab?.$el?.focus();
+      this.$nextTick(() => this.exitingMenu = false);
+    },
+    focusHighlightedItem() {
+      // hand the keyboard over to the sub item the arrow keys highlighted, so that its own
+      // submenu opens on focus and takes the next keys (either arrow, the direction flips in RTL)
+      this.$refs.menu?.$refs?.content?.querySelector('.v-list-item--highlighted')?.focus();
     },
     handleCloseSiblingMenus(emitter) {
       if (this !== emitter && this.showMenu) {
