@@ -19,6 +19,9 @@
 package io.meeds.social.security.service;
 
 import static io.meeds.social.security.service.AccountDeactivationService.ACCOUNT_DEACTIVATION_REQUESTED_EVENT;
+import static io.meeds.social.security.service.AccountDeactivationService.ACCOUNT_DELETION_REQUESTED_EVENT;
+import static io.meeds.social.security.service.AccountDeactivationService.DELETION_REQUEST_SCOPE;
+import static io.meeds.social.security.service.AccountDeactivationService.DELETION_REQUEST_SETTING_NAME;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -26,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -42,6 +46,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.portal.branding.BrandingService;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.organization.OrganizationService;
@@ -100,6 +106,9 @@ public class AccountDeactivationServiceTest {
 
   @Mock
   private OtpService                 otpService;
+
+  @Mock
+  private SettingService             settingService;
 
   @Mock
   private BrandedEmailSender         brandedEmailSender;
@@ -200,15 +209,103 @@ public class AccountDeactivationServiceTest {
 
   @Test
   @SneakyThrows
-  public void testRequestDeactivationWithDeletionRefusedUntilImplemented() {
+  public void testRequestDeactivationWithDeletionRejectedWhenDeletionOptionOff() {
     allowDeactivation();
-    assertThrows(UnsupportedOperationException.class,
+    assertThrows(IllegalStateException.class,
                  () -> accountDeactivationService.requestDeactivation(USERNAME, OTP_METHOD, OTP_CODE, true));
 
     verify(otpService, never()).validateOtp(anyString(), anyString(), anyString());
+    verify(settingService, never()).set(any(), any(), anyString(), any());
     verify(userHandler, never()).setEnabled(anyString(), anyBoolean(), anyBoolean());
     verify(listenerService, never()).broadcast(anyString(), anyString(), anyString());
     verify(identityRegistry, never()).unregister(anyString());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testRequestDeactivationWithDeletionRecordsRequestAndBroadcasts() {
+    allowDeletion();
+    long beforeRequestTime = System.currentTimeMillis();
+    accountDeactivationService.requestDeactivation(USERNAME, OTP_METHOD, OTP_CODE, true);
+
+    verify(settingService).set(eq(Context.USER.id(USERNAME)),
+                               eq(DELETION_REQUEST_SCOPE),
+                               eq(DELETION_REQUEST_SETTING_NAME),
+                               argThat(value -> Long.parseLong(value.getValue().toString()) >= beforeRequestTime));
+    verify(userHandler).setEnabled(USERNAME, false, true);
+    verify(listenerService).broadcast(ACCOUNT_DEACTIVATION_REQUESTED_EVENT, USERNAME, IDENTITY_ID);
+    verify(listenerService).broadcast(ACCOUNT_DELETION_REQUESTED_EVENT, USERNAME, IDENTITY_ID);
+    verify(identityRegistry).unregister(USERNAME);
+    verify(conversationRegistry).unregisterByUserId(USERNAME);
+  }
+
+  @Test
+  @SneakyThrows
+  public void testRequestDeactivationWithDeletionRecordsRequestBeforeDisabling() {
+    allowDeletion();
+    accountDeactivationService.requestDeactivation(USERNAME, OTP_METHOD, OTP_CODE, true);
+
+    InOrder order = inOrder(settingService, userHandler);
+    order.verify(settingService).set(eq(Context.USER.id(USERNAME)),
+                                     eq(DELETION_REQUEST_SCOPE),
+                                     eq(DELETION_REQUEST_SETTING_NAME),
+                                     any());
+    order.verify(userHandler).setEnabled(USERNAME, false, true);
+  }
+
+  @Test
+  @SneakyThrows
+  public void testRequestDeactivationWithoutDeletionClearsMarkerAndSkipsDeletionEvent() {
+    allowDeletion();
+    accountDeactivationService.requestDeactivation(USERNAME, OTP_METHOD, OTP_CODE, false);
+
+    verify(settingService, never()).set(any(), any(), anyString(), any());
+    verify(settingService).remove(Context.USER.id(USERNAME), DELETION_REQUEST_SCOPE, DELETION_REQUEST_SETTING_NAME);
+    verify(listenerService).broadcast(ACCOUNT_DEACTIVATION_REQUESTED_EVENT, USERNAME, IDENTITY_ID);
+    verify(listenerService, never()).broadcast(ACCOUNT_DELETION_REQUESTED_EVENT, USERNAME, IDENTITY_ID);
+    verify(userHandler).setEnabled(USERNAME, false, true);
+  }
+
+  @Test
+  @SneakyThrows
+  public void testRequestDeactivationWithDeletionAbortsWhenRecordingFails() {
+    allowDeletion();
+    doThrow(new RuntimeException("Settings store down")).when(settingService).set(any(), any(), anyString(), any());
+    assertThrows(RuntimeException.class,
+                 () -> accountDeactivationService.requestDeactivation(USERNAME, OTP_METHOD, OTP_CODE, true));
+
+    verify(brandedEmailSender, never()).sendEmail(anyString(), anyString(), anyString(), anyMap());
+    verify(userHandler, never()).setEnabled(anyString(), anyBoolean(), anyBoolean());
+    verify(listenerService, never()).broadcast(anyString(), anyString(), anyString());
+    verify(identityRegistry, never()).unregister(anyString());
+    verify(conversationRegistry, never()).unregisterByUserId(anyString());
+  }
+
+  @Test
+  public void testDeletionAllowedWhenBothOptionsOnForInternalUser() {
+    allowDeletion();
+    assertTrue(accountDeactivationService.isDeletionAllowed(USERNAME));
+  }
+
+  @Test
+  public void testDeletionNotAllowedWhenDeletionOptionOff() {
+    allowDeactivation();
+    assertFalse(accountDeactivationService.isDeletionAllowed(USERNAME));
+  }
+
+  @Test
+  public void testDeletionNotAllowedWhenDeactivationOptionOff() {
+    registrationSetting.setAccountDeactivationEnabled(false);
+    registrationSetting.setAccountDeletionEnabled(true);
+    when(user.isInternalStore()).thenReturn(true);
+    assertFalse(accountDeactivationService.isDeletionAllowed(USERNAME));
+  }
+
+  @Test
+  public void testDeletionNotAllowedForExternalStoreUser() {
+    allowDeletion();
+    when(user.isInternalStore()).thenReturn(false);
+    assertFalse(accountDeactivationService.isDeletionAllowed(USERNAME));
   }
 
   @Test
@@ -271,6 +368,11 @@ public class AccountDeactivationServiceTest {
   private void allowDeactivation() {
     registrationSetting.setAccountDeactivationEnabled(true);
     when(user.isInternalStore()).thenReturn(true);
+  }
+
+  private void allowDeletion() {
+    allowDeactivation();
+    registrationSetting.setAccountDeletionEnabled(true);
   }
 
 }
