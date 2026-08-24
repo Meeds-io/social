@@ -54,8 +54,7 @@ public class AccountDeactivationRest {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "204", description = "Account deactivated and sessions invalidated"),
     @ApiResponse(responseCode = "401", description = "OTP code is blank, invalid or tentatives are exhausted"),
-    @ApiResponse(responseCode = "403", description = "Account deactivation is not allowed for the current user"),
-    @ApiResponse(responseCode = "501", description = "Account deletion request isn't supported yet"),
+    @ApiResponse(responseCode = "403", description = "Account deactivation or deletion is not allowed for the current user"),
   })
   public void requestDeactivation(HttpServletRequest request,
                                   @Parameter(description = "OTP method, code and deletion option")
@@ -70,8 +69,6 @@ public class AccountDeactivationRest {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "OTP_CODE_INVALID");
-    } catch (UnsupportedOperationException e) {
-      throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
     }
   }
 
