@@ -47,6 +47,20 @@
             </span>
           </template>
         </v-checkbox>
+        <v-checkbox
+          v-if="$root.deletionAllowed"
+          v-model="deleteAccount"
+          :aria-label="$t('UserSettings.security.deleteAccount.option.deleteAccount')"
+          :readonly="saving"
+          class="mt-2"
+          dense
+          hide-details>
+          <template #label>
+            <span class="font-weight-bold">
+              {{ $t('UserSettings.security.deleteAccount.option.deleteAccount') }}
+            </span>
+          </template>
+        </v-checkbox>
         <div class="mt-6">
           {{ $t('UserSettings.security.deleteAccount.confirmMessage') }}
         </div>
@@ -114,6 +128,7 @@ export default {
     drawer: false,
     otpMethod: 'accountDeactivationEmail',
     otpCode: null,
+    deleteAccount: false,
     emailSent: false,
     sendingCode: false,
     saving: false,
@@ -121,6 +136,7 @@ export default {
   methods: {
     open() {
       this.otpCode = null;
+      this.deleteAccount = false;
       this.emailSent = false;
       this.sendOtpCode();
       this.$refs.drawer.open();
@@ -146,7 +162,7 @@ export default {
       }
       this.saving = true;
       try {
-        await this.$accountDeactivationService.requestDeactivation(this.otpMethod, this.otpCode, false);
+        await this.$accountDeactivationService.requestDeactivation(this.otpMethod, this.otpCode, this.deleteAccount);
         // site-less URL, served to anonymous users against the global site,
         // the same way as the /portal/forgot-password public page
         const accountDeactivatedPageUri = `${eXo.env.portal.context}/account-deactivated`;
