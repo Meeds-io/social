@@ -246,19 +246,18 @@
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item
-        class="px-0 my-0"
-        dense
-        @click="accountDeactivationEnabled = !accountDeactivationEnabled">
+      <v-list-item class="px-0 my-0" dense>
         <v-list-item-content>
           <v-list-item-title>
-            {{ $t('generalSettings.access.startSettingPlatform.allowAccountDeactivation') }}
+            {{ $t('generalSettings.access.startSettingPlatform.allowAccountDeletion') }}
           </v-list-item-title>
         </v-list-item-content>
         <v-list-item-action class="my-0">
-          <v-switch
-            v-model="accountDeactivationEnabled"
-            @click.stop="0" />
+          <v-btn
+            icon
+            @click="$refs.accountDeletionDrawer.open()">
+            <v-icon size="24" class="icon-default-color">fa-edit</v-icon>
+          </v-btn>
         </v-list-item-action>
       </v-list-item>
       <v-list-item class="my-0 px-0" dense>
@@ -366,6 +365,10 @@
     <portal-general-default-spaces-drawer
       ref="defaultSpaceDrawer"
       v-model="defaultSpaceIds" />
+    <portal-general-account-deletion-drawer
+      ref="accountDeletionDrawer"
+      :value="accountDeletionSettings"
+      @input="applyAccountDeletionDraft" />
   </v-app>
 </template>
 <script>
@@ -377,6 +380,9 @@ export default {
     externalUserOpenRegistration: false,
     externalUserRestrictedRegistration: false,
     accountDeactivationEnabled: false,
+    accountDeletionEnabled: false,
+    accountDeletionAnonymizationEnabled: false,
+    deletedUserLabels: {},
     defaultSpaceIds: [],
     mountDone: false,
     initialized: false,
@@ -392,16 +398,29 @@ export default {
           && this.$t(spacesCount === 1 && 'generalSettings.access.defaultSelectedSpaceTitle' || 'generalSettings.access.defaultSelectedSpacesTitle', {0: `<strong>${this.defaultSpaceIds.length}</strong>`})
           || this.$t('generalSettings.access.noDefaultSpace');
     },
+    accountDeletionSettings() {
+      return {
+        accountDeactivationEnabled: this.accountDeactivationEnabled,
+        accountDeletionEnabled: this.accountDeletionEnabled,
+        accountDeletionAnonymizationEnabled: this.accountDeletionAnonymizationEnabled,
+        deletedUserLabels: this.deletedUserLabels,
+      };
+    },
     changed() {
       if (!this.registrationSettings) {
         return false;
       }
-      const oldSettings = JSON.parse(JSON.stringify(this.registrationSettings));
+      const oldSettings = Object.assign(JSON.parse(JSON.stringify(this.registrationSettings)), {
+        deletedUserLabels: this.normalizeLabels(this.registrationSettings.deletedUserLabels),
+      });
       const newSettings = Object.assign(JSON.parse(JSON.stringify(this.registrationSettings)), {
         externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
         extraGroupIds: this.defaultSpaceIds,
         type: this.accessType,
         accountDeactivationEnabled: this.accountDeactivationEnabled,
+        accountDeletionEnabled: this.accountDeletionEnabled,
+        accountDeletionAnonymizationEnabled: this.accountDeletionAnonymizationEnabled,
+        deletedUserLabels: this.normalizeLabels(this.deletedUserLabels),
       });
       return JSON.stringify(newSettings) !== JSON.stringify(oldSettings);
     },
@@ -455,10 +474,27 @@ export default {
         this.externalUserOpenRegistration = this.accessType === 'OPEN' && this.registrationSettings?.externalUser || false;
         this.externalUserRestrictedRegistration = this.accessType === 'RESTRICTED' && this.registrationSettings?.externalUser || false;
         this.accountDeactivationEnabled = this.registrationSettings?.accountDeactivationEnabled || false;
+        this.accountDeletionEnabled = this.registrationSettings?.accountDeletionEnabled || false;
+        this.accountDeletionAnonymizationEnabled = this.registrationSettings?.accountDeletionAnonymizationEnabled || false;
+        this.deletedUserLabels = Object.assign({}, this.registrationSettings?.deletedUserLabels || {});
         this.defaultSpaceIds = this.registrationSettings?.extraGroupIds || [];
       } finally {
         this.initialized = true;
       }
+    },
+    applyAccountDeletionDraft(draft) {
+      this.accountDeactivationEnabled = draft.accountDeactivationEnabled;
+      this.accountDeletionEnabled = draft.accountDeletionEnabled;
+      this.accountDeletionAnonymizationEnabled = draft.accountDeletionAnonymizationEnabled;
+      this.deletedUserLabels = draft.deletedUserLabels;
+    },
+    normalizeLabels(labels) {
+      const normalizedLabels = {};
+      Object.keys(labels || {})
+        .filter(language => labels[language])
+        .sort()
+        .forEach(language => normalizedLabels[language] = labels[language]);
+      return normalizedLabels;
     },
     save() {
       this.$root.loading = true;
@@ -468,6 +504,9 @@ export default {
         externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
         extraGroupIds: this.defaultSpaceIds,
         accountDeactivationEnabled: this.accountDeactivationEnabled,
+        accountDeletionEnabled: this.accountDeletionEnabled,
+        accountDeletionAnonymizationEnabled: this.accountDeletionAnonymizationEnabled,
+        deletedUserLabels: this.normalizeLabels(this.deletedUserLabels),
       })
         .then(() => this.$emit('saved'))
         .then(() => this.$root.$emit('alert-message', accountDeactivationTurnedOn && this.$t('generalSettings.accountDeactivationEnabledSuccessfully') || this.$t('generalSettings.registrationSavedSuccessfully'), 'success'))
