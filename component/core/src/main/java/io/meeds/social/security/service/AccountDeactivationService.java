@@ -26,6 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.api.settings.data.Context;
+import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.portal.branding.BrandingService;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
@@ -48,6 +52,18 @@ import lombok.SneakyThrows;
 public class AccountDeactivationService {
 
   public static final String   ACCOUNT_DEACTIVATION_REQUESTED_EVENT = "social.account.deactivation.requested";
+
+  public static final String   ACCOUNT_DELETION_REQUESTED_EVENT     = "social.account.deletion.requested";
+
+  /**
+   * Coordinates of the per-user marker recording a confirmed deletion request:
+   * one row per requester under its user context, valued with the request time
+   * in epoch milliseconds. The deletion processing job reads them back through
+   * SettingService#getContextsByTypeAndScopeAndSettingName.
+   */
+  public static final Scope    DELETION_REQUEST_SCOPE               = Scope.APPLICATION.id("AccountDeletion");
+
+  public static final String   DELETION_REQUEST_SETTING_NAME        = "accountDeletionRequestTime";
 
   /**
    * The only creation source qualifying an account as managed by the platform
@@ -78,6 +94,9 @@ public class AccountDeactivationService {
 
   @Autowired
   private OtpService             otpService;
+
+  @Autowired
+  private SettingService         settingService;
 
   @Autowired
   private BrandedEmailSender     brandedEmailSender;
@@ -113,36 +132,59 @@ public class AccountDeactivationService {
   }
 
   /**
+   * The deletion request rides the deactivation one: it is offered only when
+   * the admin enabled it on top of the deactivation, to users already
+   * qualifying for the deactivation.
+   */
+  public boolean isDeletionAllowed(String username) {
+    return securitySettingService.getRegistrationSetting().isAccountDeletionEnabled()
+           && isDeactivationAllowed(username);
+  }
+
+  /**
    * Deactivates the account of the designated user after validating the OTP
-   * code: this is the single authoritative OTP validation of the flow.
+   * code: this is the single authoritative OTP validation of the flow. When
+   * the deletion is also requested, the request time is durably recorded
+   * before the account gets disabled, so a recording failure never silently
+   * downgrades a deletion request to a plain deactivation; without a deletion
+   * request, any stale marker left by a previously re-enabled account is
+   * cleared instead.
    *
    * @throws IllegalStateException when the deactivation isn't allowed for the
    *           user (admin option off, externally synchronized account or
-   *           account whose creation source isn't managed by the platform)
+   *           account whose creation source isn't managed by the platform), or
+   *           when the deletion is requested while the admin deletion option
+   *           is off
    * @throws IllegalAccessException when the OTP code is blank, invalid or the
    *           validation tentatives are exhausted
-   * @throws UnsupportedOperationException when the account deletion is
-   *           requested, until its persistence and processing job are
-   *           delivered
    */
   @SneakyThrows
   public void requestDeactivation(String username,
                                   String otpMethod,
                                   String otpCode,
                                   boolean deleteRequested) throws IllegalAccessException {
-    if (deleteRequested) {
-      // no persistence consumes the deletion request yet: refuse it rather
-      // than silently downgrading it to a plain deactivation
-      throw new UnsupportedOperationException("Account deletion request isn't supported yet");
-    }
     if (!isDeactivationAllowed(username)) {
       throw new IllegalStateException(String.format("Account deactivation isn't allowed for user %s", username));
     }
+    if (deleteRequested && !securitySettingService.getRegistrationSetting().isAccountDeletionEnabled()) {
+      throw new IllegalStateException(String.format("Account deletion isn't allowed for user %s", username));
+    }
     otpService.validateOtp(username, otpMethod, otpCode);
     String identityId = identityManager.getOrCreateUserIdentity(username).getId();
+    if (deleteRequested) {
+      settingService.set(Context.USER.id(username),
+                         DELETION_REQUEST_SCOPE,
+                         DELETION_REQUEST_SETTING_NAME,
+                         SettingValue.create(String.valueOf(System.currentTimeMillis())));
+    } else {
+      settingService.remove(Context.USER.id(username), DELETION_REQUEST_SCOPE, DELETION_REQUEST_SETTING_NAME);
+    }
     sendUserConfirmationEmail(username);
     organizationService.getUserHandler().setEnabled(username, false, true);
     broadcastEvent(ACCOUNT_DEACTIVATION_REQUESTED_EVENT, username, identityId);
+    if (deleteRequested) {
+      broadcastEvent(ACCOUNT_DELETION_REQUESTED_EVENT, username, identityId);
+    }
     identityRegistry.unregister(username);
     conversationRegistry.unregisterByUserId(username);
   }
