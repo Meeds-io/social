@@ -119,13 +119,12 @@ public class AccountDeactivationRestTest {
 
   @Test
   @SneakyThrows
-  public void testRequestDeactivationWithDeletionNotImplemented() {
-    doThrow(new UnsupportedOperationException()).when(accountDeactivationService)
-                                                .requestDeactivation(USERNAME, OTP_METHOD, OTP_CODE, true);
+  public void testRequestDeactivationWithDeletion() {
     mockMvc.perform(post("/account/deactivation").content(REQUEST_BODY)
                                                  .contentType(MediaType.APPLICATION_JSON)
                                                  .with(testUser()))
-           .andExpect(status().isNotImplemented());
+           .andExpect(status().isNoContent());
+    verify(accountDeactivationService).requestDeactivation(USERNAME, OTP_METHOD, OTP_CODE, true);
   }
 
   @Test
