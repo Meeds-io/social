@@ -531,6 +531,30 @@ public interface MetadataService {
   int countMetadataItemsByMetadataTypeAndCreator(String metadataTypeName, long creatorId);
 
   /**
+   * Counts the {@link MetadataItem} of an object for a given {@link Metadata}
+   * type, grouped by {@link Metadata} name
+   *
+   * @param metadataTypeName {@link Metadata} type
+   * @param object {@link MetadataObject} to count the items of
+   * @return {@link Map} of items count by {@link Metadata} name
+   */
+  Map<String, Long> countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(String metadataTypeName,
+                                                                                   MetadataObject object);
+
+  /**
+   * Retrieves the {@link MetadataItem} of an object for a given
+   * {@link Metadata} type, restricted to a set of creators
+   *
+   * @param metadataTypeName {@link Metadata} type
+   * @param object {@link MetadataObject} to retrieve the items of
+   * @param creatorIds {@link MetadataItem} creator identity ids to filter on
+   * @return {@link List} of {@link MetadataItem}
+   */
+  List<MetadataItem> getMetadataItemsByMetadataTypeAndObjectAndCreators(String metadataTypeName,
+                                                                        MetadataObject object,
+                                                                        List<Long> creatorIds);
+
+  /**
    * Count the size of metadata items to a given {@link Metadata} type,
    * {@link MetadataItem} creatorId
    *

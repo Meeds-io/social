@@ -1,7 +1,7 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,31 +16,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package org.exoplatform.social.service.test;
+package io.meeds.social.reaction.rest.model;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.util.List;
+import java.util.Map;
 
-import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
+import org.exoplatform.social.rest.entity.ProfileEntity;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-  UtilTest.class,
-  EntityBuilderReactionsTest.class,
-  })
-public class NoContainerTestSuite {
-  
-  @BeforeClass
-  public static void setUp() throws Exception {
-    
-  }
+import io.meeds.social.reaction.model.Reaction;
 
-  @AfterClass
-  public static void tearDown() {
-  }
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ReactionList {
+
+  private Map<String, Long>   counts;
+
+  private List<Reaction>      reactions;
+
+  private List<ProfileEntity> reactorProfiles;
 
 }

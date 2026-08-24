@@ -1,7 +1,7 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,31 +16,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package org.exoplatform.social.service.test;
+package io.meeds.social.reaction.plugin;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.util.List;
 
-import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
+import io.meeds.social.reaction.model.ReactionOption;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-  UtilTest.class,
-  EntityBuilderReactionsTest.class,
-  })
-public class NoContainerTestSuite {
-  
-  @BeforeClass
-  public static void setUp() throws Exception {
-    
-  }
+/**
+ * SPI allowing any addon to contribute reaction options without touching the
+ * social core: declare a Spring bean implementing this interface, it is
+ * collected by collection injection into the reactions registry.
+ */
+public interface ReactionOptionPlugin {
 
-  @AfterClass
-  public static void tearDown() {
-  }
-
+  List<ReactionOption> getReactionOptions();
 
 }

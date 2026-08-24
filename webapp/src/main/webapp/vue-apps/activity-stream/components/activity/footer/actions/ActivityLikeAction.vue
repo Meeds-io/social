@@ -2,44 +2,67 @@
   <div
     :class="cssClass"
     class="d-inline-flex">
-    <!-- Added for mobile -->
-    <v-tooltip :disabled="isMobile || isScheduled" bottom>
-      <template #activator="{ on, attrs }">
-        <v-btn
-          :id="`LikeLink${activityId}`"
-          :loading="changingLike"
-          :disabled="isScheduled"
-          :class="[likeTextColorClass, isScheduled && 'opacity-5']"
-          :aria-label="isScheduled ? null : (hasLiked ? $t('UIActivity.aria.Like') : $t('UIActivity.msg.LikeActivity'))"
-          class="pa-0 mt-0"
-          text
-          link
-          small
-          v-bind="{
-            ...attrs,
-            role: null,
-            'aria-haspopup': null,
-            'aria-expanded': null,
-            'aria-pressed': hasLiked}"
-          v-on="on"
-          @click="changeLike">
-          <div class="d-flex flex-lg-row flex-column">
-            <v-icon
-              :class="likeColorClass"
-              class="baseline-vertical-align"
-              :size="isMobile && '20' || '16'">
-              fa-thumbs-up
-            </v-icon>
-            <span v-if="!isMobile && !$root.reducedWidth" class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
-              {{ $t('UIActivity.msg.LikeActivity') }}
-            </span>
-          </div>
-        </v-btn>
-      </template>
-      <span>
-        {{ likeButtonTitle }}
-      </span>
-    </v-tooltip>
+    <reaction-chooser
+      :current-reaction-id="userReactionId"
+      :disabled="isScheduled"
+      object-type="activity"
+      @reaction-select="selectReaction">
+      <!-- Added for mobile -->
+      <v-tooltip :disabled="isMobile || isScheduled" bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            :id="`LikeLink${activityId}`"
+            :loading="changingLike"
+            :disabled="isScheduled"
+            :class="[likeTextColorClass, isScheduled && 'opacity-5']"
+            :aria-label="isScheduled ? null : (hasLiked ? $t('UIActivity.aria.Like') : $t('UIActivity.msg.LikeActivity'))"
+            class="pa-0 mt-0"
+            text
+            link
+            small
+            v-bind="{
+              ...attrs,
+              role: null,
+              'aria-haspopup': null,
+              'aria-expanded': null,
+              'aria-pressed': hasLiked}"
+            v-on="on"
+            @click="changeLike">
+            <div class="d-flex flex-lg-row flex-column">
+              <transition :name="morphEnabled && 'scale-transition' || 'reaction-still'" mode="out-in">
+                <span
+                  v-if="userReactionEmoji"
+                  :key="userReactionEmoji"
+                  :style="`font-size: ${isMobile && '20' || '16'}px; height: ${isMobile && '20' || '16'}px; line-height: 1;`"
+                  class="reaction-emoji d-inline-flex align-center justify-center me-lg-1 baseline-vertical-align">{{ userReactionEmoji }}</span>
+                <span
+                  v-else-if="optionsPending"
+                  key="reaction-pending"
+                  :style="`font-size: ${isMobile && '20' || '16'}px; height: ${isMobile && '20' || '16'}px; width: ${isMobile && '20' || '16'}px;`"
+                  class="d-inline-flex me-lg-1 baseline-vertical-align"></span>
+                <v-icon
+                  v-else
+                  key="like-icon"
+                  :class="likeColorClass"
+                  class="baseline-vertical-align"
+                  :size="isMobile && '20' || '16'">
+                  fa-thumbs-up
+                </v-icon>
+              </transition>
+              <span
+                v-if="!isMobile && !$root.reducedWidth"
+                :class="hasLiked && 'primary--text' || ''"
+                class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
+                {{ likeLabel }}
+              </span>
+            </div>
+          </v-btn>
+        </template>
+        <span>
+          {{ likeButtonTitle }}
+        </span>
+      </v-tooltip>
+    </reaction-chooser>
   </div>
 </template>
 
@@ -58,10 +81,45 @@ export default {
   data: () => ({
     changingLike: false,
     hasLiked: false,
+    morphEnabled: false,
+    optionsLoaded: false,
+    reactionOptions: [],
   }),
   computed: {
     activityId() {
       return this.activity && this.activity.id;
+    },
+    userReactionId() {
+      const reactionItems = this.activity?.metadatas?.reactions;
+      const userItem = reactionItems?.find?.(item => `${item.creatorId}` === `${eXo.env.portal.userIdentityId}`);
+      return userItem?.name || (this.hasLiked && 'like') || null;
+    },
+    optionsPending() {
+      return !this.optionsLoaded
+        && this.hasLiked
+        && !!this.userReactionId
+        && /^[a-z0-9_-]+$/i.test(this.userReactionId);
+    },
+    likeLabel() {
+      if (!this.hasLiked || !this.userReactionId) {
+        return this.$t('UIActivity.msg.LikeActivity');
+      }
+      if (this.optionsPending) {
+        return ' ';
+      }
+      const option = this.reactionOptions.find(registered => registered.id === this.userReactionId);
+      return option?.selectedLabelKey && this.$t(option.selectedLabelKey)
+        || this.$t('UIActivity.reaction.selected.custom');
+    },
+    userReactionEmoji() {
+      if (!this.userReactionId) {
+        return null;
+      }
+      const option = this.reactionOptions.find(registered => registered.id === this.userReactionId);
+      if (option) {
+        return option.emoji;
+      }
+      return /^[a-z0-9_-]+$/i.test(this.userReactionId) ? null : this.userReactionId;
     },
     likeColorClass() {
       return this.hasLiked && 'primary--text' || 'disabled--text';
@@ -82,37 +140,81 @@ export default {
   },
   created() {
     this.computeLikes();
+    const cachedOptions = this.$reactionService.getCachedReactionOptions('activity');
+    if (cachedOptions) {
+      this.reactionOptions = cachedOptions;
+      this.optionsLoaded = true;
+    } else {
+      this.$reactionService.getReactionOptions('activity')
+        .then(options => this.reactionOptions = options)
+        .finally(() => this.optionsLoaded = true);
+    }
   },
   methods: {
     changeLike() {
       if (this.changingLike) {
         return;
       }
+      this.morphEnabled = true;
       if (this.hasLiked) {
         return this.unlikeActivity();
       } else {
-        return this.likeActivity();
+        return this.applyReaction('like');
       }
     },
-    likeActivity() {
+    selectReaction(option) {
+      if (this.changingLike || this.isScheduled || (this.hasLiked && option.id === this.userReactionId)) {
+        return;
+      }
+      this.morphEnabled = true;
+      return this.applyReaction(option.id);
+    },
+    applyReaction(reactionId) {
       this.changingLike = true;
-      return this.$activityService.likeActivity(this.activityId)
-        .then(data => {
+      return this.$reactionService.setReaction('activity', this.activityId, reactionId)
+        .then(() => {
           this.activity.hasLiked = 'true';
-          this.computeLikes(data);
-          this.$root.$emit('activity-liked', this.activityId);
+          this.updateLocalReactionItem(reactionId);
+          return this.refreshLikers();
         })
+        .catch(() => this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error'))
         .finally(() => this.changingLike = false);
     },
     unlikeActivity() {
       this.changingLike = true;
-      return this.$activityService.unlikeActivity(this.activityId)
-        .then(data => {
+      return this.$reactionService.deleteReaction('activity', this.activityId)
+        .then(() => {
           this.activity.hasLiked = 'false';
+          this.updateLocalReactionItem(null);
+          return this.refreshLikers();
+        })
+        .catch(() => this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error'))
+        .finally(() => this.changingLike = false);
+    },
+    refreshLikers() {
+      return this.$activityService.getActivityLikers(this.activityId, 0, 50)
+        .then(data => {
           this.computeLikes(data);
           this.$root.$emit('activity-liked', this.activityId);
         })
-        .finally(() => this.changingLike = false);
+        .catch(() => null);
+    },
+    updateLocalReactionItem(reactionId) {
+      if (!this.activity.metadatas) {
+        this.$set(this.activity, 'metadatas', {});
+      }
+      const userIdentityId = `${eXo.env.portal.userIdentityId}`;
+      const reactionItems = (this.activity.metadatas.reactions || [])
+        .filter(item => `${item.creatorId}` !== userIdentityId);
+      if (reactionId && reactionId !== 'like') {
+        reactionItems.push({
+          name: reactionId,
+          objectType: 'activity',
+          objectId: this.activityId,
+          creatorId: eXo.env.portal.userIdentityId,
+        });
+      }
+      this.$set(this.activity.metadatas, 'reactions', reactionItems);
     },
     computeLikes(data) {
       if (data) {

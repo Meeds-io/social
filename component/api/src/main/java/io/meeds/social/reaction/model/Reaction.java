@@ -1,7 +1,7 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,31 +16,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package org.exoplatform.social.service.test;
+package io.meeds.social.reaction.model;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Reaction {
 
-@RunWith(Suite.class)
-@SuiteClasses({
-  UtilTest.class,
-  EntityBuilderReactionsTest.class,
-  })
-public class NoContainerTestSuite {
-  
-  @BeforeClass
-  public static void setUp() throws Exception {
-    
-  }
+  private long   reactorIdentityId;
 
-  @AfterClass
-  public static void tearDown() {
-  }
+  private String reactionId;
 
+  private String objectType;
+
+  private String objectId;
 
 }

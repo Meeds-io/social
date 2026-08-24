@@ -29,6 +29,7 @@ import * as dateUtil from './js/DateUtil.js';
 import * as settingService from './js/SettingService.js';
 import * as featureService from './js/FeatureService.js';
 import * as activityService from './js/ActivityService.js';
+import * as reactionService from './js/ReactionService.js';
 import * as favoriteService from './js/FavoriteService.js';
 import * as observerService from './js/ObserverService.js';
 import * as tagService from './js/TagService.js';
@@ -94,6 +95,9 @@ window.Object.defineProperty(Vue.prototype, '$featureService', {
 });
 window.Object.defineProperty(Vue.prototype, '$activityService', {
   value: activityService,
+});
+window.Object.defineProperty(Vue.prototype, '$reactionService', {
+  value: reactionService,
 });
 window.Object.defineProperty(Vue.prototype, '$favoriteService', {
   value: favoriteService,

@@ -1,25 +1,33 @@
 <template>
-  <div class="d-inline-flex pe-1">
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
-        <v-btn
-          :id="`LikeLink${commentId}`"
-          :loading="changingLike"
-          :class="likeTextColorClass"
-          class="px-0 width-auto"
-          text
-          link
-          x-small
-          v-bind="attrs"
-          v-on="on"
-          @click="changeLike">
-          {{ $t('UIActivity.msg.LikeActivity') }}
-        </v-btn>
-      </template>
-      <span>
-        {{ likeButtonTitle }}
-      </span>
-    </v-tooltip>
+  <div class="d-inline-flex align-center pe-1">
+    <reaction-chooser
+      :current-reaction-id="userReactionId"
+      object-type="activity"
+      @reaction-select="selectReaction">
+      <v-tooltip bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            :id="`LikeLink${commentId}`"
+            :loading="changingLike"
+            :class="likeTextColorClass"
+            :aria-pressed="!!hasLiked"
+            class="px-0 width-auto"
+            text
+            link
+            x-small
+            v-bind="attrs"
+            v-on="on"
+            @click="changeLike">
+            <transition :name="morphEnabled && 'scale-transition' || 'reaction-still'" mode="out-in">
+              <span :key="likeLabel">{{ likeLabel }}</span>
+            </transition>
+          </v-btn>
+        </template>
+        <span>
+          {{ likeButtonTitle }}
+        </span>
+      </v-tooltip>
+    </reaction-chooser>
     <v-tooltip bottom>
       <template #activator="{ on, attrs }">
         <v-btn
@@ -53,6 +61,9 @@ export default {
   },
   data: () => ({
     changingLike: false,
+    morphEnabled: false,
+    optionsLoaded: false,
+    reactionOptions: [],
   }),
   computed: {
     commentId() {
@@ -82,6 +93,28 @@ export default {
     hasLiked() {
       return this.likers.filter(like => like && like.id === eXo.env.portal.userIdentityId).length;
     },
+    optionsPending() {
+      return !this.optionsLoaded
+        && this.hasLiked
+        && !!this.userReactionId
+        && /^[a-z0-9_-]+$/i.test(this.userReactionId);
+    },
+    likeLabel() {
+      if (!this.hasLiked || !this.userReactionId) {
+        return this.$t('UIActivity.msg.LikeActivity');
+      }
+      if (this.optionsPending) {
+        return ' ';
+      }
+      const option = this.reactionOptions.find(registered => registered.id === this.userReactionId);
+      return option?.selectedLabelKey && this.$t(option.selectedLabelKey)
+        || this.$t('UIActivity.reaction.selected.custom');
+    },
+    userReactionId() {
+      const reactionItems = this.comment?.metadatas?.reactions;
+      const userItem = reactionItems?.find?.(item => `${item.creatorId}` === `${eXo.env.portal.userIdentityId}`);
+      return userItem?.name || (this.hasLiked && 'like') || null;
+    },
     likeColorClass() {
       return this.hasLiked && 'primary--text' || 'disabled--text';
     },
@@ -93,6 +126,15 @@ export default {
     },
   },
   created() {
+    const cachedOptions = this.$reactionService.getCachedReactionOptions('activity');
+    if (cachedOptions) {
+      this.reactionOptions = cachedOptions;
+      this.optionsLoaded = true;
+    } else {
+      this.$reactionService.getReactionOptions('activity')
+        .then(options => this.reactionOptions = options)
+        .finally(() => this.optionsLoaded = true);
+    }
     this.$root.$on('activity-comment-liked', this.updateCommentLikers);
   },
   beforeDestroy() {
@@ -108,34 +150,66 @@ export default {
       if (this.changingLike) {
         return;
       }
+      this.morphEnabled = true;
       if (this.hasLiked) {
         return this.unlikeComment();
       } else {
-        return this.likeComment();
+        return this.likeComment('like');
       }
     },
-    likeComment() {
+    selectReaction(option) {
+      if (this.changingLike || (this.hasLiked && option.id === this.userReactionId)) {
+        return;
+      }
+      this.morphEnabled = true;
+      return this.likeComment(option.id);
+    },
+    likeComment(reactionId) {
       this.changingLike = true;
-      return this.$activityService.likeActivity(this.commentId)
+      const alreadyLiker = this.hasLiked;
+      return this.$reactionService.setReaction('activity', this.commentId, reactionId)
         .then(() => {
-          const liker = Object.assign({}, this.$currentUserIdentity, this.$currentUserIdentity.profile);
-          this.comment.likes = [...this.likers, liker];
-          this.comment.likesCount++;
+          if (!alreadyLiker) {
+            const liker = Object.assign({}, this.$currentUserIdentity, this.$currentUserIdentity.profile);
+            this.comment.likes = [...this.likers, liker];
+            this.comment.likesCount++;
+          }
+          this.updateLocalReactionItem(reactionId);
           this.$root.$emit('activity-comment-liked', this.comment);
           this.$root.$emit('activity-liked', this.commentId);
         })
+        .catch(() => this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error'))
         .finally(() => this.changingLike = false);
     },
     unlikeComment() {
       this.changingLike = true;
-      return this.$activityService.unlikeActivity(this.commentId)
+      return this.$reactionService.deleteReaction('activity', this.commentId)
         .then(() => {
           this.comment.likes = this.likers.filter(likeIdentity => likeIdentity.id !== eXo.env.portal.userIdentityId);
           this.comment.likesCount--;
+          this.updateLocalReactionItem(null);
           this.$root.$emit('activity-comment-liked', this.comment);
           this.$root.$emit('activity-liked', this.commentId);
         })
+        .catch(() => this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error'))
         .finally(() => this.changingLike = false);
+    },
+    updateLocalReactionItem(reactionId) {
+      if (!this.comment.metadatas) {
+        this.$set(this.comment, 'metadatas', {});
+      }
+      const userIdentityId = `${eXo.env.portal.userIdentityId}`;
+      const reactionItems = (this.comment.metadatas.reactions || [])
+        .filter(item => `${item.creatorId}` !== userIdentityId);
+      if (reactionId && reactionId !== 'like') {
+        reactionItems.push({
+          name: reactionId,
+          objectType: 'activity',
+          objectId: this.commentId,
+          creatorId: eXo.env.portal.userIdentityId,
+        });
+      }
+      this.$set(this.comment.metadatas, 'reactions', reactionItems);
     },
     openLikesList() {
       document.dispatchEvent(new CustomEvent('open-reaction-drawer-selected-tab', {detail: {

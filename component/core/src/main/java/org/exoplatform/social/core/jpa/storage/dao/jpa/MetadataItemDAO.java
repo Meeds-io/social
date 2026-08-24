@@ -131,6 +131,41 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.getResultList();
   }
 
+  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObjectAndCreators(long metadataType,
+                                                                                     String objectType,
+                                                                                     String objectId,
+                                                                                     List<Long> creatorIds) {
+    TypedQuery<MetadataItemEntity> query = getEntityManager().createQuery("SELECT mi FROM SocMetadataItemEntity mi WHERE"
+        + " mi.metadata.type = :metadataType AND"
+        + " mi.objectType = :objectType AND"
+        + " mi.objectId = :objectId AND"
+        + " mi.creatorId IN (:creatorIds)"
+        + " ORDER BY mi.id ASC", MetadataItemEntity.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(OBJECT_ID, objectId);
+    query.setParameter("creatorIds", creatorIds);
+    return query.getResultList();
+  }
+
+  public Map<String, Long> countMetadataItemsByMetadataTypeAndObjectGroupedByMetadataName(long metadataType,
+                                                                                          String objectType,
+                                                                                          String objectId) {
+    TypedQuery<Tuple> query = getEntityManager().createQuery("SELECT mi.metadata.name AS name, COUNT(mi) AS itemsCount"
+        + " FROM SocMetadataItemEntity mi WHERE"
+        + " mi.metadata.type = :metadataType AND"
+        + " mi.objectType = :objectType AND"
+        + " mi.objectId = :objectId"
+        + " GROUP BY mi.metadata.name", Tuple.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(OBJECT_ID, objectId);
+    return query.getResultList()
+                .stream()
+                .collect(Collectors.toMap(tuple -> tuple.get("name", String.class),
+                                          tuple -> tuple.get("itemsCount", Long.class)));
+  }
+
   public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObject(long metadataType,
                                                                           String objectType,
                                                                           String objectId,

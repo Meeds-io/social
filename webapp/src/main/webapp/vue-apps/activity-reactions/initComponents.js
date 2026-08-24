@@ -3,13 +3,15 @@ import ActivityReactions from './components/ActivityReactions.vue';
 import ActivityReactionsListItems from './components/ActivityReactionsListItems.vue';
 import ActivityReactionsDrawer from './components/ActivityReactionsDrawer.vue';
 import ActivityReactionsMobile from './components/ActivityReactionsMobile.vue';
-import ActivityLikesList from './components/ActivityLikesList.vue';
 import ActivityLikerItem from './components/ActivityLikerItem.vue';
+import ActivityReactionsList from './components/ActivityReactionsList.vue';
+import ReactionChooser from './components/ReactionChooser.vue';
 const components = {
+  'reaction-chooser': ReactionChooser,
+  'activity-reactions-list': ActivityReactionsList,
   'activity-reactions-app': ActivityReactionsApp,
   'activity-reactions': ActivityReactions,
   'activity-reactions-list-items': ActivityReactionsListItems,
-  'activity-likes-list': ActivityLikesList,
   'activity-liker-item': ActivityLikerItem,
   'activity-reactions-drawer': ActivityReactionsDrawer,
   'activity-reactions-mobile': ActivityReactionsMobile
