@@ -19,11 +19,14 @@
 import './initComponents.js';
 
 const lang = eXo && eXo.env.portal.language || 'en';
-const url = `/social/i18n/locale.portlet.PlatformAccess?lang=${lang}`;
+const urls = [
+  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social/i18n/locale.portlet.PlatformAccess?lang=${lang}`,
+];
 const appId = 'PlatformAccess';
 
 export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     Vue.createApp({
       data: {
         loading: false,
