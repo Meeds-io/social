@@ -18,10 +18,12 @@
  */
 import HubAccess from './components/HubAccess.vue';
 import DefaultSpacesDrawer from './components/DefaultSpacesDrawer.vue';
+import AccountDeletionDrawer from './components/AccountDeletionDrawer.vue';
 
 const components = {
   'portal-general-hub-access': HubAccess,
   'portal-general-default-spaces-drawer': DefaultSpacesDrawer,
+  'portal-general-account-deletion-drawer': AccountDeletionDrawer,
 };
 
 for (const key in components) {
