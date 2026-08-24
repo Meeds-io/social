@@ -11,8 +11,9 @@
   // single source of truth: the admin option AND the account being managed by
   // the platform itself, so externally synchronized users (LDAP) get no
   // deactivation option at all
-  boolean deactivationAllowed = ExoContainerContext.getService(AccountDeactivationService.class)
-                                                   .isDeactivationAllowed(request.getRemoteUser());
+  AccountDeactivationService accountDeactivationService = ExoContainerContext.getService(AccountDeactivationService.class);
+  boolean deactivationAllowed = accountDeactivationService.isDeactivationAllowed(request.getRemoteUser());
+  boolean deletionAllowed = deactivationAllowed && accountDeactivationService.isDeletionAllowed(request.getRemoteUser());
 %>
 <div class="VuetifyApp">
   <div data-app="true"
@@ -20,7 +21,7 @@
     id="UserSettingSecurity">
     <v-cacheable-dom-app cache-id="UserSettingSecurity"></v-cacheable-dom-app>
     <script type="text/javascript">
-      require(['PORTLET/social/UserSettingSecurity'], app => app.init(<%=ssoEnabled%>, <%=emailEditable%>, <%=deactivationAllowed%>));
+      require(['PORTLET/social/UserSettingSecurity'], app => app.init(<%=ssoEnabled%>, <%=emailEditable%>, <%=deactivationAllowed%>, <%=deletionAllowed%>));
     </script>
   </div>
 </div>
