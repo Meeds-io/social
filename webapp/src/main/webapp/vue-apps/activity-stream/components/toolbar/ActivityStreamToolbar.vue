@@ -80,6 +80,7 @@
                   height="36px"
                   width="36px"
                   icon
+                  :aria-label="$t('activityStream.settings.ariaLabel')"
                   @click="openStreamSettingsDrawer">
                   <v-icon size="20px">fa-cog</v-icon>
                 </v-btn>
@@ -110,6 +111,7 @@
                   icon
                   v-bind="attrs"
                   v-on="on"
+                  :aria-label="$t('activity.filter.tooltip')"
                   @click="openStreamFilterDrawer">
                   <v-icon
                     :color="filterIconColor"
