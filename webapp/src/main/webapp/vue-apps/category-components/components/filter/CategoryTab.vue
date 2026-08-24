@@ -38,7 +38,8 @@
           ...on,
           click: () => $listeners.click(category),
         } || on"
-        :value="category.id">
+        :value="category.id"
+        @focus="menu = true">
         <v-card
           :title="category.name"
           :max-width="maxWidth"
