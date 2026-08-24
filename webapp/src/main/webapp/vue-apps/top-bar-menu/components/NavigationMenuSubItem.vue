@@ -25,15 +25,23 @@
     dense>
     <v-list-item
       v-if="hasPage || hasChildren && childrenHasPage"
+      ref="row"
       :href="navigationNodeUri"
       :target="navigationNodeTarget"
       :rel="navigationNodeRel"
       :link="!!hasPage"
       class="py-0 px-0 transparent"
-      @click="checkLink">
+      @click="checkLink"
+      @keydown.stop
+      @focus="showMenu = hasChildren && childrenHasPage || false"
+      @keydown.tab="$emit('exit-menu')"
+      @keydown.right="focusHighlightedItem"
+      @keydown.left="focusHighlightedItem">
       <v-menu
         ref="menu"
         v-model="showMenu"
+        :activator="rowElement"
+        :open-on-click="false"
         rounded
         :content-class="isTopBarElement && 'layout-top-bar' || ''"
         :position-x="positionX"
@@ -44,11 +52,9 @@
         absolute
         eager
         offset-x>
-        <template #activator="{ on }">
+        <template #activator>
           <div
             class="d-flex width-full px-4"
-            tabindex="-1"
-            v-on="on"
             @mouseleave="showMenu = false">
             <v-list-item-title
               class="pt-5 pb-5 d-flex"
@@ -80,7 +86,9 @@
           :parent-navigation-uri="parentNavigationUri"
           :base-site-uri="baseSiteUri"
           :selected-path="selectedPath"
+          :highlighted="renderedChildren[highlightedIndex] === children"
           @update-navigation-state="updateNavigationState"
+          @exit-menu="$emit('exit-menu')"
           @select="$emit('select')" />
       </v-menu>
     </v-list-item>
@@ -106,11 +114,17 @@ export default {
       type: String,
       default: null
     },
+    highlighted: {
+      type: Boolean,
+      default: false
+    },
   },
   data() {
     return {
       isOpenedOnHover: true,
       showMenu: false,
+      rowElement: null,
+      highlightedIndex: -1,
       positionX: 0,
       positionY: 0,
     };
@@ -139,7 +153,11 @@ export default {
     },
     isTopBarElement() {
       return this.$root.isTopBarElement;
-    }
+    },
+    renderedChildren() {
+      return this.navigation?.children?.filter(child => !!child.pageKey
+        || child.children?.length && this.checkChildrenHasPage(child)) || [];
+    },
   },
   watch: {
     isSelected: {
@@ -150,6 +168,9 @@ export default {
         }
       }
     },
+    highlighted() {
+      this.showMenu = this.highlighted && (this.hasChildren && this.childrenHasPage || false);
+    },
     showMenu() {
       this.isOpenedOnHover = !this.showMenu;
       this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
@@ -159,6 +180,12 @@ export default {
     hasPage() {
       return !!this.navigation?.pageKey;
     },
+  },
+  mounted() {
+    // the arrow keys only add a css class on the highlighted entry, so watch the menu own index
+    // to tell that entry to open its submenu right away, without waiting for a horizontal arrow
+    this.$watch(() => this.$refs.menu?.listIndex, index => this.highlightedIndex = index);
+    this.rowElement = this.$refs.row?.$el;
   },
   created() {
     window.addEventListener('resize', this.updateSize);
@@ -178,28 +205,13 @@ export default {
         } else {
           window.location.href = this.navigationNodeUri;
         }
-      } else if (this.hasChildren && this.childrenHasPage) {
-        if (!e.detail) {
-          // a keyboard activation (event detail = 0) opens the submenu instead of following
-          // the link, and keeps the parent drop menu open under it
-          e.preventDefault();
-          e.stopPropagation();
-        }
+      } else if (!this.hasPage && this.hasChildren && this.childrenHasPage) {
         this.showMenu = !this.showMenu;
-        if (this.showMenu && !e.detail) {
-          this.focusSubMenu();
-        }
       }
     },
-    focusSubMenu(retries = 10) {
-      // focusing the first entry hands the arrow keys over to the submenu, Vuetify then
-      // navigates it and opens the highlighted page on Enter
-      const firstItem = this.$refs.menu?.$refs?.content?.querySelector('.v-list-item');
-      if (firstItem?.offsetParent) {
-        firstItem.focus();
-      } else if (this.showMenu && retries) {
-        requestAnimationFrame(() => this.focusSubMenu(retries - 1));
-      }
+    focusHighlightedItem() {
+      // same hand-off as the parent level, which makes it work at any depth
+      this.$refs.menu?.$refs?.content?.querySelector('.v-list-item--highlighted')?.focus();
     },
     updateNavigationState(value) {
       this.$emit('update-navigation-state', value);
