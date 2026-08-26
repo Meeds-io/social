@@ -168,6 +168,35 @@ public class IdentityStorageTest extends AbstractCoreTest {
   }
 
   /**
+   * Tests that {@link IdenityStorage#hardDeleteIdentity(Identity)} prefixes
+   * the retained profile email so the address can be reused by a new account,
+   * exactly once whatever the number of deletion calls.
+   */
+  public void testHardDeleteIdentityPrefixesEmail() {
+    final String username = "usernameDeletedEmail";
+    final String email = "username.deleted.email@example.com";
+    Identity identity = new Identity(OrganizationIdentityProvider.NAME, username);
+    identityStorage.saveIdentity(identity);
+    tearDownIdentityList.add(identity);
+
+    Profile profile = identity.getProfile();
+    profile.setProperty(Profile.EMAIL, email);
+    identityStorage.saveProfile(profile);
+
+    identityStorage.deleteIdentity(identity);
+    identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, username);
+    assertTrue(identity.isDeleted());
+    assertEquals(RDBMSIdentityStorageImpl.DELETED_EMAIL_PREFIX + email,
+                 identityStorage.loadProfile(identity.getProfile()).getEmail());
+
+    // a second deletion pass never prefixes twice
+    identityStorage.hardDeleteIdentity(identity);
+    identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, username);
+    assertEquals(RDBMSIdentityStorageImpl.DELETED_EMAIL_PREFIX + email,
+                 identityStorage.loadProfile(identity.getProfile()).getEmail());
+  }
+
+  /**
    * Tests {@link IdenityStorage#findIdentityById(String)}
    *
    */
