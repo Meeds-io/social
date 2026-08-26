@@ -111,6 +111,10 @@ public class AccountDeactivationService {
   @Setter
   private String                 emailBodyPath;
 
+  @Value("${social.accountDeletion.confirmation.email.templatePath:assets/account-deletion-confirmation-email-content.html}")
+  @Setter
+  private String                 deletionEmailBodyPath;
+
   /**
    * The deactivation is offered only for accounts whose lifecycle belongs to
    * the platform: externally synchronized accounts (LDAP) are excluded, and
@@ -179,7 +183,7 @@ public class AccountDeactivationService {
     } else {
       settingService.remove(Context.USER.id(username), DELETION_REQUEST_SCOPE, DELETION_REQUEST_SETTING_NAME);
     }
-    sendUserConfirmationEmail(username);
+    sendUserConfirmationEmail(username, deleteRequested);
     organizationService.getUserHandler().setEnabled(username, false, true);
     broadcastEvent(ACCOUNT_DEACTIVATION_REQUESTED_EVENT, username, identityId);
     if (deleteRequested) {
@@ -191,16 +195,18 @@ public class AccountDeactivationService {
 
   /**
    * Sends the confirmation email to the user, before the account gets
-   * disabled. The sending is best effort: a mail server failure doesn't
-   * prevent the deactivation deliberately requested by the user.
+   * disabled. When the deletion was also requested, the email additionally
+   * reminds that the account will be deleted in 30 days. The sending is best
+   * effort: a mail server failure doesn't prevent the deactivation
+   * deliberately requested by the user.
    */
-  protected void sendUserConfirmationEmail(String username) {
+  protected void sendUserConfirmationEmail(String username, boolean deleteRequested) {
     try {
       String lang = brandedEmailSender.getUserLang(username);
       String emailSubject = resourceBundleService.getSharedString("social.accountDeactivation.confirmation.email.subject",
                                                                   LocaleUtils.toLocale(lang))
                                                  .replace("{0}", brandingService.getCompanyName());
-      brandedEmailSender.sendEmail(username, emailSubject, emailBodyPath, Map.of());
+      brandedEmailSender.sendEmail(username, emailSubject, deleteRequested ? deletionEmailBodyPath : emailBodyPath, Map.of());
     } catch (Exception e) {
       LOG.warn("Error sending the account deactivation confirmation email to user {}", username, e);
     }
