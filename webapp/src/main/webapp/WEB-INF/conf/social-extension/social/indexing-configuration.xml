@@ -83,9 +83,9 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="profile_alias" />
-          <property name="index_current" value="${meeds.social.index.profile.current:profile_v4}" />
-          <property name="index_previous" value="${meeds.social.index.profile.previous:profile_v1,profile_v2,profile_v3}" />
-          <property name="reindexOnUpgrade" value="${meeds.social.index.profile.reindexOnUpgrade:true}" />
+          <property name="index_current" value="${meeds.social.index.profile.current:profile_v5}" />
+          <property name="index_previous" value="${meeds.social.index.profile.previous:profile_v4,profile_v3,profile_v2,profile_v1}" />
+          <property name="reindexOnUpgrade" value="${meeds.social.index.profile.reindexOnUpgrade:false}" />
         </properties-param>
       </init-params>
     </component-plugin>
@@ -98,9 +98,9 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="space_alias" />
-          <property name="index_previous" value="${meeds.social.index.space.previous:space_v8,space_v7,space_v6,space_v5,space_v4,space_v3,space_v2,space_v1}" />
-          <property name="index_current" value="${meeds.social.index.space.current:space_v9}" />
-          <property name="reindexOnUpgrade" value="${meeds.social.index.space.reindexOnUpgrade:true}" />
+          <property name="index_previous" value="${meeds.social.index.space.previous:space_v9,space_v8,space_v7,space_v6,space_v5,space_v4,space_v3,space_v2,space_v1}" />
+          <property name="index_current" value="${meeds.social.index.space.current:space_v10}" />
+          <property name="reindexOnUpgrade" value="${meeds.social.index.space.reindexOnUpgrade:false}" />
         </properties-param>
       </init-params>
     </component-plugin>
@@ -117,7 +117,8 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="activity_alias" />
-          <property name="index_current" value="activity_v1" />
+          <property name="index_current" value="activity_v2" />
+          <property name="index_previous" value="activity_v1" />
         </properties-param>
       </init-params>
     </component-plugin>
@@ -130,8 +131,8 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="category_alias" />
-          <property name="index_previous" value="${meeds.social.index.category.previous:category_v1}" />
-          <property name="index_current" value="${meeds.social.index.category.current:category_v2}" />
+          <property name="index_previous" value="${meeds.social.index.category.previous:category_v2,category_v1}" />
+          <property name="index_current" value="${meeds.social.index.category.current:category_v3}" />
           <property name="reindexOnUpgrade" value="${meeds.social.index.category.reindexOnUpgrade:true}" />
         </properties-param>
       </init-params>
