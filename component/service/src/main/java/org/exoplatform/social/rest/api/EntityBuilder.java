@@ -52,6 +52,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import io.meeds.portal.security.service.SecuritySettingService;
 import io.meeds.social.html.model.HtmlTransformerContext;
 import io.meeds.social.html.utils.HtmlUtils;
 import io.meeds.social.reaction.service.ReactionService;
@@ -421,6 +422,10 @@ public class EntityBuilder {
       userEntity.setIsManager(userACL.isMemberOf(aclIdentity, MANAGER, groupId));
       userEntity.getDataEntity().put("isRedactor", userACL.isMemberOf(aclIdentity, REDACTOR_MEMBERSHIP, groupId));
       userEntity.getDataEntity().put("isPublisher", userACL.isMemberOf(aclIdentity, PUBLISHER_MEMBERSHIP, groupId));
+    }
+
+    if (profile.getIdentity().isDeleted()) {
+      anonymizeDeletedUser(userEntity);
     }
 
     String[] expandArray = StringUtils.split(expand, ",");
@@ -2534,6 +2539,41 @@ public class EntityBuilder {
 
   private static Locale getLocale() {
     return LocalizationFilter.getCurrentLocale();
+  }
+
+  /**
+   * A deleted user always renders with the neutral default avatar, and, when
+   * the platform anonymizes deleted accounts, with the admin-configured label
+   * (resolved against the request locale) in place of any name. The
+   * substitution deliberately happens here, per request, and never in the
+   * storage/cache layers which are locale-unaware and must stay truthful.
+   */
+  private static void anonymizeDeletedUser(ProfileEntity userEntity) {
+    userEntity.setAvatar(LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
+    userEntity.setDefaultAvatar(true);
+    if (getSecuritySettingService().isAccountDeletionAnonymizationEnabled()) {
+      userEntity.setFullname(getSecuritySettingService().getDeletedUserLabel(getLocale()));
+      userEntity.setFirstname(null);
+      userEntity.setLastname(null);
+      userEntity.setEmail(null);
+    }
+  }
+
+  /**
+   * @return a value changing whenever the deleted-users anonymization display
+   *         policy changes, to fold into the ETag of any cached payload
+   *         embedding user profiles
+   */
+  public static int getAnonymizationEtagValue() {
+    SecuritySettingService securitySettingService = getSecuritySettingService();
+    return securitySettingService.isAccountDeletionAnonymizationEnabled() ? 1
+                                                                            + securitySettingService.getDeletedUserLabels()
+                                                                                                    .hashCode() :
+                                                                          0;
+  }
+
+  private static SecuritySettingService getSecuritySettingService() {
+    return ExoContainerContext.getService(SecuritySettingService.class);
   }
 
   private static org.exoplatform.services.security.Identity getCurrentUserIdentity() {
