@@ -43,6 +43,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.portal.application.localization.LocalizationFilter;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -157,7 +158,11 @@ public class IdentityRest implements ResourceContainer {
                                                                                              Long.parseLong(identity.getId()))));
     }
     long cacheTime = identity.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expandedSettings));
+    String eTagValue = String.valueOf(Objects.hash(cacheTime,
+                                                   authenticatedUser,
+                                                   expandedSettings,
+                                                   LocalizationFilter.getCurrentLocale(),
+                                                   EntityBuilder.getAnonymizationEtagValue()));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
@@ -247,7 +252,11 @@ public class IdentityRest implements ResourceContainer {
     String authenticatedUser = authenticatedUserIdentity.getUserId();
 
     long cacheTime = identity.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
+    String eTagValue = String.valueOf(Objects.hash(cacheTime,
+                                                   authenticatedUser,
+                                                   expand,
+                                                   LocalizationFilter.getCurrentLocale(),
+                                                   EntityBuilder.getAnonymizationEtagValue()));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
