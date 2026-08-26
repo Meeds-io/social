@@ -42,13 +42,13 @@
         class="text-truncate my-auto">
         {{ userFullname }}
         <span
-          v-if="!enabled"
-          :title="$t('label.disabled')"
+          v-if="showStatusIcon"
+          :title="statusIconTitle"
           class="muted font-weight-regular">
           <v-icon
             class="primary--text mb-1"
             small>
-            fas fa-user-slash
+            {{ statusIcon }}
           </v-icon>
         </span>
         <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
@@ -88,13 +88,13 @@
           class="text-truncate text-left mb-0">
           {{ userFullname }}
           <span
-            v-if="!enabled"
-            :title="$t('label.disabled')"
+            v-if="showStatusIcon"
+            :title="statusIconTitle"
             class="muted font-weight-regular">
             <v-icon
               class="primary--text mb-1"
               small>
-              fas fa-user-slash
+              {{ statusIcon }}
             </v-icon>
           </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
@@ -153,13 +153,13 @@
         class="text-truncate my-auto">
         {{ userFullname }}
         <span
-          v-if="!enabled"
-          :title="$t('label.disabled')"
+          v-if="showStatusIcon"
+          :title="statusIconTitle"
           class="muted font-weight-regular">
           <v-icon
             class="primary--text mb-1"
             small>
-            fas fa-user-slash
+            {{ statusIcon }}
           </v-icon>
         </span>
         <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
@@ -214,13 +214,13 @@
           class="text-truncate text-left mb-0">
           {{ userFullname }}
           <span
-            v-if="!enabled"
-            :title="$t('label.disabled')"
+            v-if="showStatusIcon"
+            :title="statusIconTitle"
             class="muted font-weight-regular">
             <v-icon
               class="primary--text mb-1"
               small>
-              fas fa-user-slash
+              {{ statusIcon }}
             </v-icon>
           </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
@@ -388,9 +388,18 @@ export default {
     },
     enabled() {
       return this.userIdentity?.enabled || this.identity?.dataEntity?.enabled;
-    },  
+    },
     deleted() {
-      return this.userIdentity?.deleted;
+      return this.userIdentity?.deleted === true || this.userIdentity?.deleted === 'true';
+    },
+    showStatusIcon() {
+      return this.deleted || !this.enabled;
+    },
+    statusIcon() {
+      return this.deleted && 'fas fa-users-slash' || 'fas fa-user-slash';
+    },
+    statusIconTitle() {
+      return this.deleted && this.$t('label.deleted') || this.$t('label.disabled');
     },
     userFullname() {
       return this.userIdentity?.fullname || this.name;
@@ -405,6 +414,9 @@ export default {
       return this.userIdentity?.displayedPhone;
     },
     userAvatarUrl() {
+      if (this.deleted) {
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
+      }
       return this.enabled ? (this.userIdentity.avatar || this.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username || this.profileId}/avatar`) : (this.avatarUrl  || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`);
     },
     profileUrl() {

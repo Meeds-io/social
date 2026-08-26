@@ -56,6 +56,7 @@ import org.exoplatform.web.url.navigation.NodeURL;
 
 import io.meeds.portal.permlink.model.PermanentLinkObject;
 import io.meeds.portal.permlink.service.PermanentLinkService;
+import io.meeds.portal.security.service.SecuritySettingService;
 import io.meeds.social.space.plugin.SpacePermanentLinkPlugin;
 
 import lombok.SneakyThrows;
@@ -175,6 +176,17 @@ public class LinkProvider {
     Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
     Validate.notNull(identity, "Identity must not be null.");
     String lang = getCurrentUserLanguage(username);
+    String fullName = identity.getProfile().getFullName();
+    String avatarUrl = identity.getProfile().getAvatarUrl();
+    if (identity.isDeleted()) {
+      // a deleted user renders with the neutral default avatar and, when the
+      // platform anonymizes deleted accounts, with the admin-configured label
+      avatarUrl = PROFILE_DEFAULT_AVATAR_URL;
+      SecuritySettingService securitySettingService = CommonsUtils.getService(SecuritySettingService.class);
+      if (securitySettingService.isAccountDeletionAnonymizationEnabled()) {
+        fullName = securitySettingService.getDeletedUserLabel(Locale.forLanguageTag(lang));
+      }
+    }
     //
     String configuredDomainUrl;
     try {
@@ -198,10 +210,10 @@ public class LinkProvider {
                .append(identity.getRemoteId())
                .append("',")
                .append("fullName: '")
-               .append(identity.getProfile().getFullName().replace("'", "\\\\'").replace("\"", "&quot;"))
+               .append(fullName.replace("'", "\\\\'").replace("\"", "&quot;"))
                .append("',")
                .append("avatar: '")
-               .append(identity.getProfile().getAvatarUrl())
+               .append(avatarUrl)
                .append("',")
                .append("position: '")
                .append(identity.getProfile().getPosition() == null ? "" : identity.getProfile().getPosition().replace("'", "\\\\'").replace("\"", "&quot;"))
@@ -212,6 +224,9 @@ public class LinkProvider {
                .append("enabled: '")
                .append(identity.isEnable() && !identity.isDeleted())
                .append("',")
+               .append("deleted: '")
+               .append(identity.isDeleted())
+               .append("',")
                .append("displayedEmail: '")
                .append(identity.getProfile().getProperty(Profile.DISPLAYED_EMAIL))
                .append("',")
@@ -220,7 +235,7 @@ public class LinkProvider {
                .append("',")
                .append("}\"")
                .append(">")
-               .append(StringEscapeUtils.escapeHtml4(identity.getProfile().getFullName()));
+               .append(StringEscapeUtils.escapeHtml4(fullName));
     if(identity.getProfile().getProperty("external") != null && identity.getProfile().getProperty("external").equals("true")){
       profileLink = profileLink.append("<span class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(Locale.forLanguageTag(lang), "external.label.tag")).append(")").append("</span>");
     }
