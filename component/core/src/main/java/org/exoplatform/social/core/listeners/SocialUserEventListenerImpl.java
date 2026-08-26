@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
@@ -40,6 +42,8 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
+
+import io.meeds.social.security.service.AccountDeactivationService;
 
 /**
  * Listens to user updating events. Created by hanh.vi@exoplatform.com Jan 17,
@@ -151,6 +155,13 @@ public class SocialUserEventListenerImpl extends UserEventListener {
   @Override
   @ExoTransactional
   public void postSetEnabled(User user) throws Exception {
+    if (user.isEnabled()) {
+      // a re-activation revokes any pending account deletion request
+      CommonsUtils.getService(SettingService.class)
+                  .remove(Context.USER.id(user.getUserName()),
+                          AccountDeactivationService.DELETION_REQUEST_SCOPE,
+                          AccountDeactivationService.DELETION_REQUEST_SETTING_NAME);
+    }
     // Makes sure the user has been synchronized in LDAP, then to enable/disable
     // it.
     IdentityStorage storage = container.getComponentInstanceOfType(IdentityStorage.class);
