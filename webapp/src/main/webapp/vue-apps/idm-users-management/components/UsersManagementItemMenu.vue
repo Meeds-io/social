@@ -105,7 +105,6 @@
         <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.enable') }}</v-list-item-title>
       </v-list-item>
       <v-list-item
-        v-if="$root.isSuperUser"
         :disabled="!item.isInternal"
         class="px-2"
         dense
