@@ -84,6 +84,7 @@ import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.application.localization.LocalizationFilter;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -821,7 +822,12 @@ public class UserRest implements ResourceContainer, Startable {
     }
 
     long cacheTime = identity.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expandedSettings, configuredCardProperties));
+    String eTagValue = String.valueOf(Objects.hash(cacheTime,
+                                                   authenticatedUser,
+                                                   expandedSettings,
+                                                   configuredCardProperties,
+                                                   LocalizationFilter.getCurrentLocale(),
+                                                   EntityBuilder.getAnonymizationEtagValue()));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
@@ -931,7 +937,10 @@ public class UserRest implements ResourceContainer, Startable {
 
     builder = eTag == null ? null : request.evaluatePreconditions(eTag);
     if (builder == null) {
-      if (isDefault || lastUpdated == null) {
+      // a disabled or deleted user always renders with the neutral default
+      // avatar: the stored file (or the generated one carrying the user
+      // initials) must not leak anymore
+      if (isDefault || lastUpdated == null || !identity.isEnable() || identity.isDeleted()) {
         builder = getDefaultAvatarBuilder();
       } else {
         if (RestUtils.isAnonymous() && !LinkProvider.isAttachmentTokenValid(token,
@@ -943,32 +952,30 @@ public class UserRest implements ResourceContainer, Startable {
           return Response.status(Status.NOT_FOUND).build();
         }
 
-        if (identity.isEnable() && !identity.isDeleted()) {
-          int[] dimension = Utils.parseDimension(size);
-          byte[] avatarContent = null;
-          try {
-            FileItem avatarFile = identityManager.getAvatarFile(identity);
-            if (identityManager.getAvatarFile(identity) != null) {
-              if (dimension[0] == 0 || dimension[1] == 0) {
-                avatarContent = avatarFile.getAsByte();
-              } else {
-                FileInfo fileInfo = avatarFile.getFileInfo();
-                FileItem file = imageThumbnailService.getOrCreateThumbnail(FileThumbnailPlugin.FILE_TYPE,
-                                                                           Long.toString(fileInfo.getId()),
-                                                                           fileInfo.getUpdater(),
-                                                                           dimension[0],
-                                                                           dimension[1]);
-                avatarContent = file != null ? file.getAsByte() : avatarFile.getAsByte();
-              }
+        int[] dimension = Utils.parseDimension(size);
+        byte[] avatarContent = null;
+        try {
+          FileItem avatarFile = identityManager.getAvatarFile(identity);
+          if (identityManager.getAvatarFile(identity) != null) {
+            if (dimension[0] == 0 || dimension[1] == 0) {
+              avatarContent = avatarFile.getAsByte();
+            } else {
+              FileInfo fileInfo = avatarFile.getFileInfo();
+              FileItem file = imageThumbnailService.getOrCreateThumbnail(FileThumbnailPlugin.FILE_TYPE,
+                                                                         Long.toString(fileInfo.getId()),
+                                                                         fileInfo.getUpdater(),
+                                                                         dimension[0],
+                                                                         dimension[1]);
+              avatarContent = file != null ? file.getAsByte() : avatarFile.getAsByte();
             }
-          } catch (Exception e) {
-            LOG.error("Error while resizing avatar of user identity with Id {}, original Image will be returned",
-                      identity.getId(),
-                      e);
           }
-          if (avatarContent != null) {
-            builder = Response.ok(avatarContent, IMAGE_PNG_MEDIA_TYPE);
-          }
+        } catch (Exception e) {
+          LOG.error("Error while resizing avatar of user identity with Id {}, original Image will be returned",
+                    identity.getId(),
+                    e);
+        }
+        if (avatarContent != null) {
+          builder = Response.ok(avatarContent, IMAGE_PNG_MEDIA_TYPE);
         }
       }
     }

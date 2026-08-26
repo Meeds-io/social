@@ -37,6 +37,13 @@
     <div class="ms-1 text-truncate">
       {{ fullname }}
     </div>
+    <v-icon
+      v-if="deleted"
+      :title="$t('label.deleted')"
+      class="primary--text ms-1"
+      size="12">
+      fas fa-users-slash
+    </v-icon>
   </div>
 </template>
 <script>
@@ -65,6 +72,9 @@ export default {
     },
     avatarUrl() {
       return this.userIdentity?.avatar;
+    },
+    deleted() {
+      return this.userIdentity?.deleted === true || this.userIdentity?.deleted === 'true';
     },
   },
   created() {
