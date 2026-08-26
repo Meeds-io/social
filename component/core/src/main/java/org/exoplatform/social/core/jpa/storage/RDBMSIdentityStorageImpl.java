@@ -92,6 +92,8 @@ import lombok.SneakyThrows;
 
 public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
+  public static final String               DELETED_EMAIL_PREFIX = "deleted-";
+
   private static final Log                 LOG               = ExoLogger.getLogger(RDBMSIdentityStorageImpl.class);
 
   private static final int                 BATCH_SIZE        = 100;
@@ -453,6 +455,15 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     IdentityEntity entity = getIdentityDAO().find(id);
     if (entity != null) {
       entity.setDeleted(true);
+      if (OrganizationIdentityProvider.NAME.equals(provider)) {
+        // free the email for a possible new account: the profile row survives
+        // the deletion, so the retained address is prefixed (idempotently, the
+        // several deletion paths can reach here more than once)
+        String email = entity.getProperties().get(Profile.EMAIL);
+        if (StringUtils.isNotBlank(email) && !email.startsWith(DELETED_EMAIL_PREFIX)) {
+          entity.getProperties().put(Profile.EMAIL, DELETED_EMAIL_PREFIX + email);
+        }
+      }
       getIdentityDAO().update(entity);
 
       if (entity.getAvatarFileId() != null && entity.getAvatarFileId() > 0) {
