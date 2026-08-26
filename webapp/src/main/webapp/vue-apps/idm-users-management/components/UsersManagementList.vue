@@ -4,8 +4,9 @@
       ref="deleteConfirmDialog"
       :message="deleteConfirmMessage"
       :title="$t('UsersManagement.title.confirmDelete')"
-      :ok-label="$t('UsersManagement.button.ok')"
+      :ok-label="$t('UsersManagement.button.confirm')"
       :cancel-label="$t('UsersManagement.button.cancel')"
+      width="500"
       @ok="deleteUserConfirm()" />
     <exo-confirm-dialog
       ref="currentUserWarningDialog"
@@ -295,7 +296,17 @@ export default {
         return;
       }
       this.selectedUser = user;
-      this.deleteConfirmMessage = this.$t('UsersManagement.message.confirmDelete', {0: this.selectedUser.fullName});
+      this.deleteConfirmMessage = `
+        <p>${this.$t('UsersManagement.message.confirmDelete', {0: `<strong>${this.selectedUser.fullName}</strong>`})}</p>
+        <p class="mb-0">${this.$t('UsersManagement.message.confirmDelete.onceDone')}</p>
+        <ul class="mb-2">
+          <li>${this.$t('UsersManagement.message.confirmDelete.deactivated')}</li>
+          <li>${this.$t('UsersManagement.message.confirmDelete.noAccess')}</li>
+          <li>${this.$t('UsersManagement.message.confirmDelete.contentKept')}</li>
+          <li>${this.$t('UsersManagement.message.confirmDelete.anonymized')}</li>
+        </ul>
+        <p>${this.$t('UsersManagement.message.confirmDelete.usernameReminder', {0: `<strong>${this.selectedUser.userName}</strong>`})}</p>
+        <p class="mb-0">${this.$t('UsersManagement.message.confirmDelete.question')}</p>`;
       this.$refs.deleteConfirmDialog.open();
     },
     deleteUserConfirm() {
@@ -322,7 +333,7 @@ export default {
         .catch(error => {
           error = error.message || String(error);
           const errorI18NKey = `UsersManagement.error.${error}`;
-          const errorI18N = this.$t(errorI18NKey, {0: this.selectedUser.fullname});
+          const errorI18N = this.$t(errorI18NKey, {0: this.selectedUser.fullName});
           if (errorI18N !== errorI18NKey) {
             error = errorI18N;
           }
