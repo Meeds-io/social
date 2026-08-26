@@ -137,6 +137,7 @@ public class AccountDeactivationServiceTest {
     when(brandingService.getCompanyName()).thenReturn("MyCompany");
     when(resourceBundleService.getSharedString(anyString(), any())).thenReturn("TranslatedText");
     accountDeactivationService.setEmailBodyPath("assets/account-deactivation-confirmation-email-content.html");
+    accountDeactivationService.setDeletionEmailBodyPath("assets/account-deletion-confirmation-email-content.html");
   }
 
   @Test
@@ -349,6 +350,18 @@ public class AccountDeactivationServiceTest {
 
     assertTrue("Email subject should carry the platform name",
                subjectCaptor.getValue().contains("MyCompany"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testRequestDeactivationWithDeletionSendsDeletionConfirmationEmail() {
+    allowDeletion();
+    accountDeactivationService.requestDeactivation(USERNAME, OTP_METHOD, OTP_CODE, true);
+
+    verify(brandedEmailSender).sendEmail(eq(USERNAME),
+                                         anyString(),
+                                         eq("assets/account-deletion-confirmation-email-content.html"),
+                                         anyMap());
   }
 
   @Test
