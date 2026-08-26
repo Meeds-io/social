@@ -357,7 +357,11 @@ public class ActivityRest implements ResourceContainer {
     }
 
     long cacheTime = computeCacheTime(activity);
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand, LocalizationFilter.getCurrentLocale()));
+    String eTagValue = String.valueOf(Objects.hash(cacheTime,
+                                                   authenticatedUser,
+                                                   expand,
+                                                   LocalizationFilter.getCurrentLocale(),
+                                                   EntityBuilder.getAnonymizationEtagValue()));
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
