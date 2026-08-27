@@ -2,6 +2,14 @@
   <v-card flat>
     <div class="pt-8 text-title">{{ $t('NotificationAdmin.allowedNotifications.title') }}</div>
     <div class="text-subtitle">{{ $t('NotificationAdmin.allowedNotifications.subtitle') }}</div>
+    <v-switch
+      v-model="digestAllowed"
+      hide-details
+      @change="saveDigestAllowed($event)">
+      <template #label>
+        <span class="text-color">{{ $t('NotificationAdmin.allowDigest.title') }}</span>
+      </template>
+    </v-switch>
     <div v-for="channelId in channelIds" :key="channelId">
       <v-switch
         v-model="channelStatus[channelId]"
@@ -34,7 +42,12 @@ export default {
   },
   data: () => ({
     saving: false,
+    digestAllowed: false,
   }),
+  created() {
+    this.$notificationAdministration.getDigestSettings()
+      .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false);
+  },
   computed: {
     channelIds() {
       return Object.keys(this.settings.channelStatus);
@@ -52,6 +65,15 @@ export default {
     },
   },
   methods: {
+    saveDigestAllowed(allowed) {
+      this.saving = true;
+      return this.$notificationAdministration.saveDigestAllowed(!!allowed)
+        .catch(() => {
+          this.digestAllowed = !allowed;
+          this.$root.$emit('alert-message', this.$t('NotificationAdmin.allowDigest.savingError'), 'error');
+        })
+        .finally(() => this.saving = false);
+    },
     saveChannelStatus(channelId, status) {
       this.saving = true;
       return this.$notificationAdministration.saveChannelStatus(channelId, status)

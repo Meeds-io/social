@@ -30,6 +30,7 @@ import io.meeds.spring.kernel.PortalApplicationContextInitializer;
   SocialApplication.MODULE_NAME,
   SocialApplication.PORTAL_WEB_SECURITY_MODULE_NAME,
   SocialApplication.PORTAL_MODULE_NAME,
+  SocialApplication.COMMONS_DIGEST_MODULE_NAME,
   AvailableIntegration.KERNEL_MODULE,
   AvailableIntegration.JPA_MODULE,
   AvailableIntegration.WEB_MODULE,
@@ -40,6 +41,7 @@ import io.meeds.spring.kernel.PortalApplicationContextInitializer;
   SocialApplication.MODULE_NAME,
   SocialApplication.PORTAL_MODULE_NAME,
   SocialApplication.PORTAL_WEB_SECURITY_MODULE_NAME,
+  SocialApplication.COMMONS_DIGEST_MODULE_NAME,
 })
 @PropertySource("classpath:application.properties")
 @PropertySource("classpath:application-common.properties")
@@ -51,5 +53,7 @@ public class SocialApplication extends PortalApplicationContextInitializer {
   public static final String PORTAL_MODULE_NAME              = "io.meeds.portal";
 
   public static final String PORTAL_WEB_SECURITY_MODULE_NAME = "io.meeds.web.security";
+
+  public static final String COMMONS_DIGEST_MODULE_NAME      = "io.meeds.commons.digest";
 
 }
