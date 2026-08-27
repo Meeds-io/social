@@ -20,10 +20,7 @@
 import * as notificationAdministration from '../notification-administration/js/NotificationAdministration.js';
 
 // The notification administration bundle is not loaded on the user settings
-// page, so its service is bound here as well to be reused as is. The guard
-// keeps both bundles compatible if they ever land on the same page.
-if (!Vue.prototype.$notificationAdministration) {
-  window.Object.defineProperty(Vue.prototype, '$notificationAdministration', {
-    value: notificationAdministration,
-  });
-}
+// page, so its service is bound here as well to be reused as is
+window.Object.defineProperty(Vue.prototype, '$notificationAdministration', {
+  value: notificationAdministration,
+});
