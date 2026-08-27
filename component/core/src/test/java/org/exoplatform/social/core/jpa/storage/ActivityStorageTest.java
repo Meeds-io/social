@@ -173,6 +173,7 @@ public class ActivityStorageTest extends AbstractCoreTest {
         + rootIdentity.getProfile().getFullName() + "',avatar: '" + rootIdentity.getProfile().getAvatarUrl() + "',position: '"
         + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '" + (rootExternal == null ? "false" : rootExternal)
         + "',enabled: '" + (rootIdentity.isEnable() && !rootIdentity.isDeleted())
+        + "',deleted: '" + rootIdentity.isDeleted()
         + "',displayedEmail: '" + rootIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL)
         + "',displayedPhone: '" + rootIdentity.getProfile().getProperty(Profile.DISPLAYED_PHONE)
         + "',}\" rel=\"nofollow\" target=\"_self\">" + rootIdentity.getProfile().getFullName() + "</a> " +
@@ -181,6 +182,7 @@ public class ActivityStorageTest extends AbstractCoreTest {
         + johnIdentity.getProfile().getFullName() + "',avatar: '" + johnIdentity.getProfile().getAvatarUrl() + "',position: '"
         + StringUtils.trimToEmpty(johnIdentity.getProfile().getPosition()) + "',external: '" + (johnExternal == null ? "false" : johnExternal)
         + "',enabled: '" + (johnIdentity.isEnable() && !johnIdentity.isDeleted())
+        + "',deleted: '" + johnIdentity.isDeleted()
         + "',displayedEmail: '" + johnIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL)
         + "',displayedPhone: '" + johnIdentity.getProfile().getProperty(Profile.DISPLAYED_PHONE)
         + "',}\" rel=\"nofollow\" target=\"_self\">" + johnIdentity.getProfile().getFullName() + "</a>";
