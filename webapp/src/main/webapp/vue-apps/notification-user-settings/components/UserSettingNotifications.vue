@@ -135,10 +135,10 @@ export default {
             this.displayed = false;
           }
           this.notificationSettings = settings;
-          return this.$notificationAdministration.getDigestSettings();
+          return this.$notificationAdministration.getDigestSettings()
+            .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false)
+            .catch(() => this.digestAllowed = false);
         })
-        .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false)
-        .catch(() => this.digestAllowed = false)
         .finally(() => {
           this.$nextTick().then(() => this.$root.$applicationLoaded());
         });
