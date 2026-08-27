@@ -1,4 +1,5 @@
 import './initComponents.js';
+import './services.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
