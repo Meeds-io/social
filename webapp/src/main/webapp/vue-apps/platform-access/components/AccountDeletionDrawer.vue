@@ -59,7 +59,7 @@
             {{ $t('generalSettings.accountDeletion.deletionInformation.irreversible') }}
           </div>
           <div>
-            {{ $t('generalSettings.accountDeletion.deletionInformation.anonymized') }}
+            {{ $t('generalSettings.accountDeletion.deletionInformation.usernameNotReusable') }}
           </div>
         </div>
         <v-list-item
