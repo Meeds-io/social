@@ -17,6 +17,8 @@
           </v-list-item-content>
         </v-list-item>
 
+        <user-setting-digest-entry />
+
         <template v-if="notificationSettings && notificationSettings.channels">
           <user-setting-notification-channel
             v-for="channel in notificationSettings.channels"
