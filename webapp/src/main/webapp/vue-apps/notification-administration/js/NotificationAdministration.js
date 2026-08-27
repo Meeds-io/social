@@ -85,6 +85,34 @@ export function saveChannelStatus(channelId, enable) {
   });
 }
 
+export function getDigestSettings() {
+  return fetch('/social/rest/notifications/digest/settings', {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error getting digest settings');
+    }
+  });
+}
+
+export function saveDigestAllowed(allowed) {
+  return fetch('/social/rest/notifications/digest/allowed', {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `allowed=${allowed}`
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Error saving digest allowed setting');
+    }
+  });
+}
+
 export function saveChannelDefaultValue(channelId, enable) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/channel/${channelId}/defaultvalue`, {
     method: 'PATCH',
