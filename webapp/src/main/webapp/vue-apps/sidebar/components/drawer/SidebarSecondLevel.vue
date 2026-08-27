@@ -29,9 +29,13 @@
       ...drawerOffsetStyle,
       'z-index': zIndex,
     }"
+    id="HamburgerMenuSecondLevelPanel"
+    role="region"
+    :aria-label="dialogLabel"
     class="HamburgerMenuSecondLevelParent layout-side-bar border-box-sizing"
     max-width="100%"
-    hide-overlay>
+    hide-overlay
+    @keydown.native="handlePanelKeydown">
     <v-hover v-if="drawer" v-model="$root.hoverSecondLevel">
       <div class="full-width fill-height overflow-x-hidden overflow-y-auto specific-scrollbar">
         <spaces-hamburger-navigation
@@ -54,7 +58,10 @@
   </v-navigation-drawer>
 </template>
 <script>
+import panelFocusTrap from '../../mixins/panelFocusTrap.js';
+
 export default {
+  mixins: [panelFocusTrap],
   props: {
     value: {
       type: Boolean,
@@ -101,6 +108,18 @@ export default {
     },
     expand() {
       return this.$root.expand;
+    },
+    dialogLabel() {
+      if (this.secondLevel === 'site') {
+        // site.name is the technical key ("global"/"intranet"); the visible
+        // heading (and the label a screen reader should announce) is displayName.
+        return this.site?.displayName || this.site?.name || this.$t('menu.spaces.yourSpaces');
+      } else if (this.secondLevel === 'spaceMenu') {
+        return this.openedSpace?.displayName || this.$t('menu.spaces.yourSpaces');
+      }
+      // Spaces panel: announce the actual template/category heading when there
+      // is one, instead of always falling through to the generic label.
+      return this.$root.openedSpaceTemplateName || this.$root.openedSpaceCategoryName || this.$t('menu.spaces.yourSpaces');
     },
   },
   watch: {
