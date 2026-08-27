@@ -30,7 +30,7 @@
             {{ $t('organizationalUnitMembers.title', {0: selectedOrganizationalUnit.label}) }}
           </span>
         </template>
-        <span v-else class=" widget-text-header mb-2 text-truncate">
+        <span v-else class="text-header mb-2 text-truncate">
           {{ $t('myOrganizationalUnits.label') }}
         </span>
       </div>
