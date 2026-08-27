@@ -86,8 +86,6 @@
   </v-app>
 </template>
 <script>
-import { getDigestSettings } from '../../notification-administration/js/NotificationAdministration.js';
-
 export default {
   data: () => ({
     id: `Notifications${parseInt(Math.random() * 10000)
@@ -127,10 +125,7 @@ export default {
   },
   methods: {
     refresh() {
-      const digestSettingsPromise = getDigestSettings()
-        .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false)
-        .catch(() => this.digestAllowed = false);
-      const settingsPromise = fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`, {
         method: 'GET',
         credentials: 'include',
       })
@@ -140,9 +135,10 @@ export default {
             this.displayed = false;
           }
           this.notificationSettings = settings;
-          return this.$nextTick();
-        });
-      return Promise.all([settingsPromise, digestSettingsPromise])
+          return this.$userSettingNotifications.getDigestSettings();
+        })
+        .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false)
+        .catch(() => this.digestAllowed = false)
         .finally(() => {
           this.$nextTick().then(() => this.$root.$applicationLoaded());
         });
