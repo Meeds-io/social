@@ -17,8 +17,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as userSettingNotifications from './js/UserSettingNotifications.js';
+import * as notificationAdministration from '../notification-administration/js/NotificationAdministration.js';
 
-window.Object.defineProperty(Vue.prototype, '$userSettingNotifications', {
-  value: userSettingNotifications,
-});
+// The notification administration bundle is not loaded on the user settings
+// page, so its service is bound here as well to be reused as is. The guard
+// keeps both bundles compatible if they ever land on the same page.
+if (!Vue.prototype.$notificationAdministration) {
+  window.Object.defineProperty(Vue.prototype, '$notificationAdministration', {
+    value: notificationAdministration,
+  });
+}
