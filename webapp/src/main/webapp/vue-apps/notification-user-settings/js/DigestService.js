@@ -17,10 +17,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as digestService from './js/DigestService.js';
-
-if (!Vue.prototype.$digestService) {
-  window.Object.defineProperty(Vue.prototype, '$digestService', {
-    value: digestService,
+export function getDigestSettings() {
+  return fetch('/social/rest/notifications/digest/settings', {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error getting digest settings');
+    }
   });
 }

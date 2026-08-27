@@ -92,7 +92,7 @@ export default {
       .toString()
       .toString()}`,
     notificationSettings: null,
-    digestAllowed: false,
+    digestAllowed: null,
     displayDetails: false,
     displayed: true,
   }),
@@ -135,9 +135,13 @@ export default {
             this.displayed = false;
           }
           this.notificationSettings = settings;
-          return this.$notificationAdministration.getDigestSettings()
-            .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false)
-            .catch(() => this.digestAllowed = false);
+          if (this.digestAllowed === null) {
+            // The administrator switch can't change during the session,
+            // so it is read once and not on each refresh
+            return this.$digestService.getDigestSettings()
+              .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false)
+              .catch(() => this.digestAllowed = false);
+          }
         })
         .finally(() => {
           this.$nextTick().then(() => this.$root.$applicationLoaded());

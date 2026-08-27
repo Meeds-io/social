@@ -28,14 +28,20 @@
         </v-list-item-subtitle>
       </v-list-item-content>
       <v-list-item-action>
-        <v-btn
-          :title="$t('UserSettings.title.digest')"
-          :aria-label="$t('UserSettings.title.digest')"
-          small
-          icon
-          @click="openDigestDrawer">
-          <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
-        </v-btn>
+        <v-tooltip bottom>
+          <template #activator="{on, bind}">
+            <v-btn
+              v-on="on"
+              v-bind="bind"
+              :aria-label="$t('UserSettings.title.digest')"
+              small
+              icon
+              @click="openDigestDrawer">
+              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t('UserSettings.subtitle.digest') }}</span>
+        </v-tooltip>
       </v-list-item-action>
     </v-list-item>
     <v-divider class="mx-4" />
