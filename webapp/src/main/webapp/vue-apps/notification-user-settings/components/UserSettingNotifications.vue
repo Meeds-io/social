@@ -17,6 +17,8 @@
           </v-list-item-content>
         </v-list-item>
 
+        <user-setting-digest-entry v-if="digestAllowed" />
+
         <template v-if="notificationSettings && notificationSettings.channels">
           <user-setting-notification-channel
             v-for="channel in notificationSettings.channels"
@@ -90,6 +92,7 @@ export default {
       .toString()
       .toString()}`,
     notificationSettings: null,
+    digestAllowed: null,
     displayDetails: false,
     displayed: true,
   }),
@@ -132,7 +135,13 @@ export default {
             this.displayed = false;
           }
           this.notificationSettings = settings;
-          return this.$nextTick();
+          if (this.digestAllowed === null) {
+            // The administrator switch can't change during the session,
+            // so it is read once and not on each refresh
+            return this.$digestService.getDigestSettings()
+              .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false)
+              .catch(() => this.digestAllowed = false);
+          }
         })
         .finally(() => {
           this.$nextTick().then(() => this.$root.$applicationLoaded());
