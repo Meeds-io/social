@@ -175,6 +175,13 @@ export default {
     document.addEventListener('click', this.handleCloseMenu);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
+  beforeDestroy() {
+    // the navigation tree is rebuilt on `space-settings-updated`, so these components are
+    // destroyed and recreated: without this, every rebuild leaves a document listener and a
+    // $root handler behind, holding the dead instance alive (EXO-88911 review)
+    document.removeEventListener('click', this.handleCloseMenu);
+    this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
+  },
   methods: {
     updateNavigationState() {
       this.$emit('update-navigation-state', this.navigationNodeUri);

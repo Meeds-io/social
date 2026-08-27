@@ -189,9 +189,6 @@ export default {
       this.positionY = this.$el.getBoundingClientRect().top;
       this.$root.$emit('close-sibling-drop-menus-children', this);
     },
-    hasPage() {
-      return !!this.navigation?.pageKey;
-    },
   },
   mounted() {
     this.rowElement = this.$refs.row?.$el;
@@ -199,6 +196,11 @@ export default {
   created() {
     window.addEventListener('resize', this.updateSize);
     this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
+  },
+  beforeDestroy() {
+    // same as the parent: the tree is rebuilt on `space-settings-updated` (EXO-88911 review)
+    window.removeEventListener('resize', this.updateSize);
+    this.$root.$off('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
   },
   methods: {
     checkLink(e) {
