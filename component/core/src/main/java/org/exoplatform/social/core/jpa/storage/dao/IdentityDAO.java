@@ -41,6 +41,14 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
 
   List<Long> getAllIdsByProvider(String providerId, int offset, int limit);
 
+  /**
+   * @return the non-deleted identity ids of a provider strictly greater than
+   *         lastId, disabled ones included, in ascending id order — keyset
+   *         iteration that never skips a row even when identities are
+   *         soft-deleted while iterating
+   */
+  List<Long> getIdsByProviderAfterId(String providerId, long lastId, int limit);
+
   ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId,
                                                                                            String sortField,
                                                                                            String sortDirection);

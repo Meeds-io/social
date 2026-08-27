@@ -262,6 +262,35 @@ public class IdentityDAOTest extends BaseCoreTest {
     deleteIdentities.add(identitySpace1);
   }
 
+  public void testGetIdsByProviderAfterId() {
+    IdentityEntity identityUser1 = identityDAO.create(createIdentity(OrganizationIdentityProvider.NAME, "keysetUser1"));
+    IdentityEntity identityUser2 = identityDAO.create(createIdentity(OrganizationIdentityProvider.NAME, "keysetUser2"));
+    IdentityEntity disabledUser = createIdentity(OrganizationIdentityProvider.NAME, "keysetUser3");
+    disabledUser.setEnabled(false);
+    disabledUser = identityDAO.create(disabledUser);
+    IdentityEntity identitySpace1 = identityDAO.create(createIdentity(SpaceIdentityProvider.NAME, "keysetSpace1"));
+
+    List<Long> ids = identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 0, 0);
+    assertTrue(ids.contains(identityUser1.getId()));
+    assertTrue(ids.contains(identityUser2.getId()));
+    assertTrue(ids.contains(disabledUser.getId()));
+    assertFalse(ids.contains(identitySpace1.getId()));
+    List<Long> sortedIds = new ArrayList<>(ids);
+    Collections.sort(sortedIds);
+    assertEquals("List '" + ids + "' is not sorted by id", sortedIds, ids);
+
+    List<Long> idsAfterFirstUser = identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME,
+                                                                       identityUser1.getId(),
+                                                                       0);
+    assertFalse(idsAfterFirstUser.contains(identityUser1.getId()));
+    assertTrue(idsAfterFirstUser.contains(identityUser2.getId()));
+
+    deleteIdentities.add(identityUser1);
+    deleteIdentities.add(identityUser2);
+    deleteIdentities.add(disabledUser);
+    deleteIdentities.add(identitySpace1);
+  }
+
   public void testSaveNewIdentity() {
     IdentityEntity entity = createIdentity();
 

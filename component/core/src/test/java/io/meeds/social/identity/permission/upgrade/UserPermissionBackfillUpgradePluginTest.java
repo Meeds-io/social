@@ -1,15 +1,26 @@
 /**
- * This file is part of the Meeds project (https://meeds.io/). Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io This
- * program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version. This program
- * is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. You should
- * have received a copy of the GNU Lesser General Public License along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package io.meeds.social.identity.permission.upgrade;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,7 +59,13 @@ import io.meeds.social.identity.permission.service.UserPermissionService;
 @RunWith(MockitoJUnitRunner.class)
 public class UserPermissionBackfillUpgradePluginTest {
 
-  private static final String                 GROUP_ID = "/platform/test";
+  private static final String                 GROUP_ID            = "/platform/test";
+
+  private static final String                 CHECKPOINT_PARAM    = "lastProcessedIdentityId";
+
+  private static final String                 PLUGIN_EXECUTED_KEY = "UserPermissionBackfillUpgradePluginExecuted_v2";
+
+  private static final int                    BATCH_SIZE          = 250;
 
   @Mock
   private OrganizationService                 organizationService;
@@ -75,7 +92,6 @@ public class UserPermissionBackfillUpgradePluginTest {
 
   @Before
   public void setUp() {
-    when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
     plugin = new UserPermissionBackfillUpgradePlugin(new InitParams(),
                                                      organizationService,
                                                      identityManager,
@@ -87,23 +103,11 @@ public class UserPermissionBackfillUpgradePluginTest {
 
   @Test
   public void testProcessUpgradeBackfillsDirectRowThenRecomputesInheritedAndReindexes() throws Exception {
-    when(identityDAO.getAllIdsCountByProvider(OrganizationIdentityProvider.NAME, null, null, true, null)).thenReturn(1);
-    when(identityDAO.getAllIdsByProviderSorted(OrganizationIdentityProvider.NAME,
-                                               null,
-                                               null,
-                                               true,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               true,
-                                               0,
-                                               1)).thenReturn(List.of("alice"));
+    when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 0, BATCH_SIZE)).thenReturn(List.of(101L));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 101L, BATCH_SIZE)).thenReturn(List.of());
 
-    Identity aliceIdentity = new Identity("101");
-    when(identityManager.getOrCreateUserIdentity("alice")).thenReturn(aliceIdentity);
+    when(identityManager.getIdentity(101L)).thenReturn(identity("101", "alice"));
 
     Membership directMembership = membership("alice", GROUP_ID, "member", false);
     Membership inheritedMembership = membership("alice", "/platform/admin", "member", true);
@@ -120,23 +124,88 @@ public class UserPermissionBackfillUpgradePluginTest {
   }
 
   @Test
-  public void testProcessUpgradeSkipsUserWhenIdentityCannotBeResolved() throws Exception {
-    when(identityDAO.getAllIdsCountByProvider(OrganizationIdentityProvider.NAME, null, null, true, null)).thenReturn(1);
-    when(identityDAO.getAllIdsByProviderSorted(OrganizationIdentityProvider.NAME,
-                                               null,
-                                               null,
-                                               true,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               true,
-                                               0,
-                                               1)).thenReturn(List.of("ghost"));
+  public void testProcessUpgradeMarksExecutedOnlyOnCleanPass() throws Exception {
+    when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 0, BATCH_SIZE)).thenReturn(List.of(101L));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 101L, BATCH_SIZE)).thenReturn(List.of());
+    when(identityManager.getIdentity(101L)).thenReturn(identity("101", "alice"));
+    when(membershipHandler.findMembershipsByUser("alice", true)).thenReturn(List.of());
 
-    when(identityManager.getOrCreateUserIdentity("ghost")).thenReturn(null);
+    plugin.processUpgrade("7.9.0", "8.0.0");
+    plugin.afterUpgrade();
+
+    verify(settingService, times(1)).set(any(Context.class), any(Scope.class), eq(PLUGIN_EXECUTED_KEY), any());
+
+    ArgumentCaptor<SettingValue<?>> storedValues = ArgumentCaptor.forClass(SettingValue.class);
+    verify(settingService, times(2)).set(any(Context.class), any(Scope.class), eq(CHECKPOINT_PARAM), storedValues.capture());
+    List<SettingValue<?>> allStoredValues = storedValues.getAllValues();
+    assertEquals("101", allStoredValues.get(0).getValue());
+    assertEquals("0", allStoredValues.get(1).getValue());
+  }
+
+  @Test
+  public void testProcessUpgradeDoesNotMarkExecutedWhenAUserFails() throws Exception {
+    when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 0, BATCH_SIZE)).thenReturn(List.of(101L, 102L));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 102L, BATCH_SIZE)).thenReturn(List.of());
+    when(identityManager.getIdentity(101L)).thenReturn(identity("101", "alice"));
+    when(identityManager.getIdentity(102L)).thenReturn(null);
+    when(membershipHandler.findMembershipsByUser("alice", true)).thenReturn(List.of());
+
+    plugin.processUpgrade("7.9.0", "8.0.0");
+    plugin.afterUpgrade();
+
+    verify(userPermissionService, times(1)).recomputeInheritedMemberships(101L, "alice", List.of());
+    verify(settingService, never()).set(any(Context.class), any(Scope.class), eq(PLUGIN_EXECUTED_KEY), any());
+    verify(settingService, never()).set(any(Context.class), any(Scope.class), eq(CHECKPOINT_PARAM), any());
+  }
+
+  @Test
+  public void testProcessUpgradeFreezesCheckpointOnceAUserFailed() throws Exception {
+    when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 0, BATCH_SIZE)).thenReturn(List.of(101L, 102L));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 102L, BATCH_SIZE)).thenReturn(List.of(103L));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 103L, BATCH_SIZE)).thenReturn(List.of());
+    when(identityManager.getIdentity(101L)).thenReturn(identity("101", "alice"));
+    when(identityManager.getIdentity(102L)).thenReturn(null);
+    when(identityManager.getIdentity(103L)).thenReturn(identity("103", "carol"));
+    when(membershipHandler.findMembershipsByUser("alice", true)).thenReturn(List.of());
+    when(membershipHandler.findMembershipsByUser("carol", true)).thenReturn(List.of());
+
+    plugin.processUpgrade("7.9.0", "8.0.0");
+    plugin.afterUpgrade();
+
+    verify(userPermissionService, times(1)).recomputeInheritedMemberships(101L, "alice", List.of());
+    verify(userPermissionService, times(1)).recomputeInheritedMemberships(103L, "carol", List.of());
+    verify(settingService, never()).set(any(Context.class), any(Scope.class), eq(PLUGIN_EXECUTED_KEY), any());
+    verify(settingService, never()).set(any(Context.class), any(Scope.class), eq(CHECKPOINT_PARAM), any());
+  }
+
+  @Test
+  public void testProcessUpgradeKeepsCleanCheckpointWhenALaterUserFails() throws Exception {
+    when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 0, BATCH_SIZE)).thenReturn(List.of(101L));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 101L, BATCH_SIZE)).thenReturn(List.of(102L));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 102L, BATCH_SIZE)).thenReturn(List.of());
+    when(identityManager.getIdentity(101L)).thenReturn(identity("101", "alice"));
+    when(identityManager.getIdentity(102L)).thenReturn(null);
+    when(membershipHandler.findMembershipsByUser("alice", true)).thenReturn(List.of());
+
+    plugin.processUpgrade("7.9.0", "8.0.0");
+    plugin.afterUpgrade();
+
+    verify(settingService, never()).set(any(Context.class), any(Scope.class), eq(PLUGIN_EXECUTED_KEY), any());
+
+    ArgumentCaptor<SettingValue<?>> storedValues = ArgumentCaptor.forClass(SettingValue.class);
+    verify(settingService, times(1)).set(any(Context.class), any(Scope.class), eq(CHECKPOINT_PARAM), storedValues.capture());
+    assertEquals("101", storedValues.getValue().getValue());
+  }
+
+  @Test
+  public void testProcessUpgradeSkipsUserWhenIdentityCannotBeResolved() throws Exception {
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 0, BATCH_SIZE)).thenReturn(List.of(999L));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 999L, BATCH_SIZE)).thenReturn(List.of());
+    when(identityManager.getIdentity(999L)).thenReturn(null);
 
     plugin.processUpgrade("7.9.0", "8.0.0");
 
@@ -146,58 +215,45 @@ public class UserPermissionBackfillUpgradePluginTest {
   }
 
   @Test
-  public void testProcessUpgradeResumesFromLastCheckpointOffset() throws Exception {
-    // A prior, crashed run already completed offset 0 (1 user); the checkpoint says
-    // to resume at 1.
+  public void testProcessUpgradeResumesFromLastCheckpointIdentityId() throws Exception {
+    when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
     when(settingService.get(any(Context.class),
                             any(Scope.class),
-                            eq("lastProcessedOffset"))).thenReturn((SettingValue) SettingValue.create("1"));
+                            eq(CHECKPOINT_PARAM))).thenReturn((SettingValue) SettingValue.create("101"));
 
-    when(identityDAO.getAllIdsCountByProvider(OrganizationIdentityProvider.NAME, null, null, true, null)).thenReturn(2);
-    when(identityDAO.getAllIdsByProviderSorted(OrganizationIdentityProvider.NAME,
-                                               null,
-                                               null,
-                                               true,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               true,
-                                               1,
-                                               1)).thenReturn(List.of("resumed"));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 101L, BATCH_SIZE)).thenReturn(List.of(202L));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 202L, BATCH_SIZE)).thenReturn(List.of());
 
-    Identity resumedIdentity = new Identity("202");
-    when(identityManager.getOrCreateUserIdentity("resumed")).thenReturn(resumedIdentity);
+    when(identityManager.getIdentity(202L)).thenReturn(identity("202", "resumed"));
     when(membershipHandler.findMembershipsByUser("resumed", true)).thenReturn(List.of());
 
     plugin.processUpgrade("7.9.0", "8.0.0");
 
-    // The already-processed offset (0) must never be re-loaded.
-    verify(identityDAO, never()).getAllIdsByProviderSorted(OrganizationIdentityProvider.NAME,
-                                                           null,
-                                                           null,
-                                                           true,
-                                                           null,
-                                                           null,
-                                                           null,
-                                                           null,
-                                                           null,
-                                                           null,
-                                                           true,
-                                                           0,
-                                                           1);
-    verify(identityManager, never()).getOrCreateUserIdentity("skipped");
+    verify(identityDAO, never()).getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, 0, BATCH_SIZE);
     verify(userPermissionService, times(1)).recomputeInheritedMemberships(202L, "resumed", List.of());
 
-    // The checkpoint must be advanced past the resumed batch, then reset to 0 on
-    // full completion.
     ArgumentCaptor<SettingValue<?>> storedValues = ArgumentCaptor.forClass(SettingValue.class);
-    verify(settingService, times(2)).set(any(Context.class), any(Scope.class), eq("lastProcessedOffset"), storedValues.capture());
+    verify(settingService, times(2)).set(any(Context.class), any(Scope.class), eq(CHECKPOINT_PARAM), storedValues.capture());
     List<SettingValue<?>> allStoredValues = storedValues.getAllValues();
-    assertEquals("2", allStoredValues.get(0).getValue());
+    assertEquals("202", allStoredValues.get(0).getValue());
     assertEquals("0", allStoredValues.get(1).getValue());
+  }
+
+  @Test
+  public void testShouldProceedToUpgradeUntilExecutedFlagIsStored() {
+    when(settingService.get(any(Context.class), any(Scope.class), eq(PLUGIN_EXECUTED_KEY))).thenReturn(null);
+    assertTrue(plugin.shouldProceedToUpgrade("8.0.0", "7.9.0", null));
+
+    when(settingService.get(any(Context.class),
+                            any(Scope.class),
+                            eq(PLUGIN_EXECUTED_KEY))).thenReturn((SettingValue) SettingValue.create(true));
+    assertFalse(plugin.shouldProceedToUpgrade("8.0.0", "7.9.0", null));
+  }
+
+  private Identity identity(String id, String remoteId) {
+    Identity identity = new Identity(id);
+    identity.setRemoteId(remoteId);
+    return identity;
   }
 
   private Membership membership(String userName, String groupId, String membershipType, boolean inherited) {
