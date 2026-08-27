@@ -17,7 +17,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <user-setting-digest-entry />
+        <user-setting-digest-entry v-if="digestAllowed" />
 
         <template v-if="notificationSettings && notificationSettings.channels">
           <user-setting-notification-channel
@@ -86,12 +86,15 @@
   </v-app>
 </template>
 <script>
+import { getDigestSettings } from '../../notification-administration/js/NotificationAdministration.js';
+
 export default {
   data: () => ({
     id: `Notifications${parseInt(Math.random() * 10000)
       .toString()
       .toString()}`,
     notificationSettings: null,
+    digestAllowed: false,
     displayDetails: false,
     displayed: true,
   }),
@@ -124,7 +127,10 @@ export default {
   },
   methods: {
     refresh() {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`, {
+      const digestSettingsPromise = getDigestSettings()
+        .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false)
+        .catch(() => this.digestAllowed = false);
+      const settingsPromise = fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`, {
         method: 'GET',
         credentials: 'include',
       })
@@ -135,7 +141,8 @@ export default {
           }
           this.notificationSettings = settings;
           return this.$nextTick();
-        })
+        });
+      return Promise.all([settingsPromise, digestSettingsPromise])
         .finally(() => {
           this.$nextTick().then(() => this.$root.$applicationLoaded());
         });

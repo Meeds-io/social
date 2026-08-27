@@ -17,7 +17,7 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 -->
 <template>
-  <div v-if="digestAllowed">
+  <div>
     <v-list-item two-line>
       <v-list-item-content>
         <v-list-item-title class="text-color">
@@ -44,18 +44,6 @@
 
 <script>
 export default {
-  data: () => ({
-    digestAllowed: false,
-  }),
-  created() {
-    fetch('/social/rest/notifications/digest/settings', {
-      method: 'GET',
-      credentials: 'include',
-    })
-      .then(resp => resp?.ok && resp.json())
-      .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false)
-      .catch(() => this.digestAllowed = false);
-  },
   methods: {
     openDigestDrawer() {
       // The digest drawer (US03) lives in this same vue app and listens to
