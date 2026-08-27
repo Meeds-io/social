@@ -44,10 +44,10 @@ export default {
     // is told nothing about which node it belongs to (EXO-88911, QA feedback). Name it after
     // the node that opens it. Set on the DOM rather than passed as a prop because the content
     // is Vuetify's own element, detached to [data-app] at mount.
-    const content = this.$refs.menu?.$refs?.content;
-    if (content && this.navigation?.label) {
-      content.setAttribute('aria-label', this.navigation.label);
-    }
+    // Watched, not set once: the navigation tree is refetched on `space-settings-updated` and the
+    // v-for is keyed on the node id, so a component is REUSED when a page is renamed or the
+    // language changes - a name written only at mount would keep announcing the old label.
+    this.$watch(() => this.navigation?.label, label => this.nameOpenedMenu(label), { immediate: true });
   },
   methods: {
     menuEntries() {
@@ -79,11 +79,20 @@ export default {
       // only one branch stays open: entries the focus leaves behind close their own submenu,
       // whatever opened it - a previous key, or the pointer that hovered them
       entries.filter(other => other !== entry && other.showMenu)
-        .forEach(other => other.showMenu = false);
+        .forEach(other => other.closeSubMenu());
       if (!entry.focusSelf() && (attempt || 0) < 10) {
         // the menu is rendered eagerly but is only focusable once displayed, and it is displayed
         // one transition after showMenu flipped: retry briefly instead of guessing a delay
         window.setTimeout(() => this.focusMenuEntry(index, (attempt || 0) + 1), 30);
+      }
+    },
+    closeSubMenu() {
+      this.showMenu = false;
+    },
+    nameOpenedMenu(label) {
+      const content = this.$refs.menu?.$refs?.content;
+      if (content && label) {
+        content.setAttribute('aria-label', label);
       }
     },
     walkFromEntry(entry, step) {
