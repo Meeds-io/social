@@ -133,6 +133,17 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
+  public List<Long> getIdsByProviderAfterId(String providerId, long lastId, int limit) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SocIdentity.getIdsByProviderAfterId", Long.class);
+    query.setParameter(PROVIDER_ID_PARAM, providerId);
+    query.setParameter("lastId", lastId);
+    if (limit > 0) {
+      query.setMaxResults(limit);
+    }
+    return query.getResultList();
+  }
+
+  @Override
   public ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId, String sortField, String sortDirection) {
     Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, sortField, sortDirection, true, null, null, null, null, null, null, true);
 

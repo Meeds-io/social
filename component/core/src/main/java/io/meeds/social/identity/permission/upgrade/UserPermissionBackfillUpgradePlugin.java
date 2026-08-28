@@ -50,11 +50,11 @@ public class UserPermissionBackfillUpgradePlugin extends UpgradeProductPlugin {
 
   private static final int            USER_BATCH_SIZE             = 250;
 
-  private static final String         LAST_PROCESSED_OFFSET_PARAM = "lastProcessedOffset";
+  private static final String         LAST_PROCESSED_ID_PARAM     = "lastProcessedIdentityId";
 
   private static final String         PLUGIN_NAME                 = "UserPermissionBackfillUpgradePlugin";
 
-  private static final String         PLUGIN_EXECUTED_KEY         = String.format("%sExecuted", PLUGIN_NAME);
+  private static final String         PLUGIN_EXECUTED_KEY         = String.format("%sExecuted_v2", PLUGIN_NAME);
 
   private boolean                     upgradeSucceeded            = false;
 
@@ -109,51 +109,49 @@ public class UserPermissionBackfillUpgradePlugin extends UpgradeProductPlugin {
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
     long startupTime = System.currentTimeMillis();
-    int startOffset = getLastProcessedOffset();
-    LOG.info("Start Upgrade:: Backfill SOC_USER_PERMISSION from organization service, resuming from offset {}", startOffset);
+    long lastProcessedId = getLastProcessedIdentityId();
+    LOG.info("Start Upgrade:: Backfill SOC_USER_PERMISSION from organization service, resuming after identity id {}",
+             lastProcessedId);
 
     int successCount = 0;
     int errorCount = 0;
     try {
-      int size = identityDAO.getAllIdsCountByProvider(OrganizationIdentityProvider.NAME, null, null, true, null);
-      for (int offset = startOffset; offset < size; offset += USER_BATCH_SIZE) {
-        int limit = Math.min(USER_BATCH_SIZE, size - offset);
-        List<String> userNames = identityDAO.getAllIdsByProviderSorted(OrganizationIdentityProvider.NAME,
-                                                                       null,
-                                                                       null,
-                                                                       true,
-                                                                       null,
-                                                                       null,
-                                                                       null,
-                                                                       null,
-                                                                       null,
-                                                                       null,
-                                                                       true,
-                                                                       offset,
-                                                                       limit);
-        for (String userName : userNames) {
-          if (userName == null) {
-            continue;
-          }
-          if (backfillUserMemberships(userName)) {
+      List<Long> identityIds = identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME,
+                                                                   lastProcessedId,
+                                                                   USER_BATCH_SIZE);
+      while (!identityIds.isEmpty()) {
+        for (Long identityId : identityIds) {
+          if (backfillUserMemberships(identityId)) {
             successCount++;
           } else {
             errorCount++;
           }
         }
-        storeLastProcessedOffset(offset + limit);
-        LOG.info("SOC_USER_PERMISSION backfill progress: {}/{} users processed ({} succeeded, {} failed so far)",
-                 Math.min(offset + limit, size),
-                 size,
+        lastProcessedId = identityIds.get(identityIds.size() - 1);
+        if (errorCount == 0) {
+          storeLastProcessedIdentityId(lastProcessedId);
+        }
+        LOG.info("SOC_USER_PERMISSION backfill progress: {} users processed ({} succeeded, {} failed so far), last processed identity id {}",
+                 successCount + errorCount,
                  successCount,
-                 errorCount);
+                 errorCount,
+                 lastProcessedId);
+        identityIds = identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME,
+                                                          lastProcessedId,
+                                                          USER_BATCH_SIZE);
       }
-      storeLastProcessedOffset(0);
-      upgradeSucceeded = true;
+      if (errorCount == 0) {
+        storeLastProcessedIdentityId(0);
+        upgradeSucceeded = true;
+      } else {
+        LOG.error("SOC_USER_PERMISSION backfill completed with {} failed users out of {}: the plugin stays pending and will replay from the last clean checkpoint on next startup",
+                  errorCount,
+                  successCount + errorCount);
+      }
     } catch (Exception e) {
-      errorCount++;
-      LOG.warn("Error backfilling SOC_USER_PERMISSION from organization service, will resume from last checkpoint on next run",
-               e);
+      LOG.error("Error backfilling SOC_USER_PERMISSION from organization service, will resume after identity id {} on next startup",
+                getLastProcessedIdentityId(),
+                e);
     }
 
     LOG.info("End Upgrade:: SOC_USER_PERMISSION backfill finished. {} users succeeded, {} users failed. It took {} ms",
@@ -162,27 +160,30 @@ public class UserPermissionBackfillUpgradePlugin extends UpgradeProductPlugin {
              (System.currentTimeMillis() - startupTime));
   }
 
-  private int getLastProcessedOffset() {
-    String value = getValue(LAST_PROCESSED_OFFSET_PARAM);
-    return StringUtils.isBlank(value) ? 0 : Integer.parseInt(value);
+  private long getLastProcessedIdentityId() {
+    String value = getValue(LAST_PROCESSED_ID_PARAM);
+    return StringUtils.isBlank(value) ? 0 : Long.parseLong(value);
   }
 
-  private void storeLastProcessedOffset(int offset) {
-    storeValueForPlugin(LAST_PROCESSED_OFFSET_PARAM, String.valueOf(offset));
+  private void storeLastProcessedIdentityId(long identityId) {
+    storeValueForPlugin(LAST_PROCESSED_ID_PARAM, String.valueOf(identityId));
   }
 
-  private boolean backfillUserMemberships(String userName) {
+  private boolean backfillUserMemberships(long identityId) {
+    String userName = null;
     try {
-      Identity identity = identityManager.getOrCreateUserIdentity(userName);
-      if (identity == null) {
+      Identity identity = identityManager.getIdentity(identityId);
+      if (identity == null || StringUtils.isBlank(identity.getRemoteId())) {
+        LOG.warn("Error backfilling SOC_USER_PERMISSION for identity id {}: identity not found", identityId);
         return false;
       }
-      long identityId = Long.parseLong(identity.getId());
+      userName = identity.getRemoteId();
+      String backfilledUserName = userName;
       Collection<Membership> allMemberships = organizationService.getMembershipHandler().findMembershipsByUser(userName, true);
       allMemberships.stream()
                     .filter(membership -> !membership.isInherited())
                     .forEach(membership -> userPermissionService.saveDirectMembership(identityId,
-                                                                                      userName,
+                                                                                      backfilledUserName,
                                                                                       membership.getGroupId(),
                                                                                       membership.getMembershipType()));
       userPermissionService.recomputeInheritedMemberships(identityId, userName, allMemberships);
@@ -190,7 +191,7 @@ public class UserPermissionBackfillUpgradePlugin extends UpgradeProductPlugin {
       indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
       return true;
     } catch (Exception e) {
-      LOG.warn("Error backfilling SOC_USER_PERMISSION for user {}", userName, e);
+      LOG.warn("Error backfilling SOC_USER_PERMISSION for user {} (identity id {})", userName, identityId, e);
       return false;
     }
   }

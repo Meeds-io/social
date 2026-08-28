@@ -79,6 +79,10 @@ import jakarta.persistence.TemporalType;
         @NamedQuery(
                 name = "SocIdentity.getAllIdsByProvider",
                 query = "SELECT i.id FROM SocIdentityEntity i WHERE i.deleted = FALSE AND i.enabled = TRUE AND i.providerId = :providerId"
+        ),
+        @NamedQuery(
+                name = "SocIdentity.getIdsByProviderAfterId",
+                query = "SELECT i.id FROM SocIdentityEntity i WHERE i.deleted = FALSE AND i.providerId = :providerId AND i.id > :lastId ORDER BY i.id ASC"
         )
 })
 public class IdentityEntity {
