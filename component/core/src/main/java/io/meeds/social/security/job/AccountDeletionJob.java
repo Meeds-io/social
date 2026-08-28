@@ -44,7 +44,7 @@ public class AccountDeletionJob {
   @Autowired
   private AccountDeletionService accountDeletionService;
 
-  @Scheduled(cron = "${social.AccountDeletionJob.expression:0 15 5 ? * *}")
+  @Scheduled(cron = "${exo.accountDeletion.job.expression:0 15 5 ? * *}")
   @Synchronized
   public void run() {
     accountDeletionService.processPendingDeletionRequests();

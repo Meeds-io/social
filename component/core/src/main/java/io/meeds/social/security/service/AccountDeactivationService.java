@@ -107,11 +107,11 @@ public class AccountDeactivationService {
   @Autowired
   private ResourceBundleService  resourceBundleService;
 
-  @Value("${social.accountDeactivation.confirmation.email.templatePath:assets/account-deactivation-confirmation-email-content.html}")
+  @Value("${exo.accountDeactivation.confirmation.email.templatePath:assets/account-deactivation-confirmation-email-content.html}")
   @Setter
   private String                 emailBodyPath;
 
-  @Value("${social.accountDeletion.confirmation.email.templatePath:assets/account-deletion-confirmation-email-content.html}")
+  @Value("${exo.accountDeletion.confirmation.email.templatePath:assets/account-deletion-confirmation-email-content.html}")
   @Setter
   private String                 deletionEmailBodyPath;
 

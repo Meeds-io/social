@@ -35,7 +35,7 @@ public class AccountDeactivationEmailOtpPlugin extends EmailOtpPlugin {
 
   public static final String NAME = "accountDeactivationEmail";
 
-  @Value("${social.accountDeactivation.otp.email.templatePath:assets/account-deactivation-otp-email-content.html}")
+  @Value("${exo.accountDeactivation.otp.email.templatePath:assets/account-deactivation-otp-email-content.html}")
   @Setter
   private String             accountDeactivationEmailBodyPath;
 
