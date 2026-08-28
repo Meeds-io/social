@@ -20,7 +20,7 @@
 
 -->
 <template>
-  <div class="d-flex flex-column ma-auto">
+  <div class="d-flex flex-column mx-auto mt-15">
     <div class="align-self-center">
       <v-icon size="42" color="tertiary">fa-users</v-icon>
     </div>
