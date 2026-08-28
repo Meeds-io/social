@@ -16,34 +16,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.digest.rest.model;
+package io.meeds.social.digest.plugin;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import io.meeds.commons.digest.plugin.DigestCategoryProvider;
 
 /**
- * Everything the digest settings drawer needs in one call: whether the
- * administrator allows the digest, the categories the installed addons offer,
- * and the choices of the current user.
+ * The space life notifications: invitations and join requests.
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class DigestSettingsEntity {
+@Component
+public class SpacesDigestCategoryProvider implements DigestCategoryProvider {
 
-  private boolean                    digestAllowed;
+  public static final String ID = "spaces";
 
-  private List<DigestCategoryEntity> categories;
+  @Override
+  public String getId() {
+    return ID;
+  }
 
-  private boolean                    daily;
+  @Override
+  public String getLabelKey() {
+    return "digest.category.spaces";
+  }
 
-  private List<String>               dailyCategories;
+  @Override
+  public int getOrder() {
+    return 10;
+  }
 
-  private boolean                    weekly;
-
-  private List<String>               weeklyCategories;
+  @Override
+  public List<String> getPluginIds() {
+    return List.of("SpaceInvitationPlugin", "RequestJoinSpacePlugin", "JoinedSpaceByInvitationLinkPlugin");
+  }
 
 }
