@@ -40,7 +40,7 @@ import io.meeds.social.digest.rest.model.DigestCategoryEntity;
 import io.meeds.social.digest.rest.model.DigestSettingsEntity;
 import io.meeds.social.digest.rest.model.DigestUserSettingsEntity;
 import io.meeds.social.digest.service.DigestCategoryLabelResolver;
-import io.meeds.social.digest.service.DigestTimeZoneResolver;
+import io.meeds.social.timezone.service.UserTimeZoneService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -56,10 +56,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class DigestRest {
 
   @Autowired
-  private DigestService          digestService;
+  private DigestService               digestService;
 
   @Autowired
-  private DigestTimeZoneResolver      timeZoneResolver;
+  private UserTimeZoneService         userTimeZoneService;
 
   @Autowired
   private DigestCategoryLabelResolver labelResolver;
@@ -109,7 +109,7 @@ public class DigestRest {
                                                             settings.getDailyCategories(),
                                                             settings.isWeekly(),
                                                             settings.getWeeklyCategories()),
-                                     timeZoneResolver.getUserTimeZone(username));
+                                     userTimeZoneService.getUserTimeZone(username));
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
     }
