@@ -6,7 +6,7 @@ const webpackCommonConfig = require('./webpack.common.js');
 const app = 'social';
 
 // add the server path to your server location path
-const exoServerPath = "/exo-server";
+const exoServerPath = "E:/eXo/Binairies/platform-7.3.x-experience-SNAPSHOT";
 
 let config = merge(webpackCommonConfig, {
   output: {
