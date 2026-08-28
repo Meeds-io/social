@@ -84,7 +84,7 @@ public class AccountDeletionService {
    * Grace delay, in days, between the confirmed deletion request and its
    * execution.
    */
-  @Value("${social.AccountDeletionJob.delay.days:30}")
+  @Value("${exo.accountDeletion.delay.days:30}")
   @Setter
   private long               delayDays;
 

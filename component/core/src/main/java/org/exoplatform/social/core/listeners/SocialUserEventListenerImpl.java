@@ -145,6 +145,9 @@ public class SocialUserEventListenerImpl extends UserEventListener {
     Identity identity = storage.findIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
     try {
       if (identity != null) {
+        // a deleted account is firstly deactivated: an account deleted by an
+        // admin while still active must never keep surfacing as enabled
+        storage.processEnabledIdentity(identity, false);
         storage.hardDeleteIdentity(identity);
       }
     } catch (Exception e) {

@@ -1396,8 +1396,12 @@ public class UserRest implements ResourceContainer, Startable {
     if (identity == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
+    // a deleted account is firstly deactivated: an account deleted by an
+    // admin while still active must never keep surfacing as enabled
+    identityManager.processEnabledIdentity(id, false);
     identityManager.hardDeleteIdentity(identity);
     identity.setDeleted(true);
+    identity.setEnable(false);
     // Deletes the user on Portal side
     UserHandler userHandler = organizationService.getUserHandler();
     userHandler.removeUser(id, false);
