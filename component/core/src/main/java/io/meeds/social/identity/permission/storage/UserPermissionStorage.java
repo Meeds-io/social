@@ -45,7 +45,7 @@ public class UserPermissionStorage {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", key = "#userPermission.userName")
+  @CacheEvict(cacheNames = "social.userPermissions", key = "#p0.userName")
   public UserPermission saveDirectMembership(UserPermission userPermission) {
     UserPermissionEntity entity = userPermissionDAO
                                                    .findByUserNameAndGroupIdAndMembershipType(userPermission.getUserName(),
@@ -62,7 +62,7 @@ public class UserPermissionStorage {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", key = "#userPermission.userName")
+  @CacheEvict(cacheNames = "social.userPermissions", key = "#p0.userName")
   public UserPermission saveInheritedMembership(UserPermission userPermission) {
     UserPermissionEntity entity = userPermissionDAO
                                                    .findByUserNameAndGroupIdAndMembershipType(userPermission.getUserName(),
@@ -82,20 +82,20 @@ public class UserPermissionStorage {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", key = "#userName")
+  @CacheEvict(cacheNames = "social.userPermissions", key = "#p0")
   public void deleteMembership(String userName, String groupId, String membershipType) {
     userPermissionDAO.findByUserNameAndGroupIdAndMembershipType(userName, groupId, membershipType)
                      .ifPresent(userPermissionDAO::delete);
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", key = "#userName")
+  @CacheEvict(cacheNames = "social.userPermissions", key = "#p0")
   public void deleteInheritedMemberships(String userName) {
     userPermissionDAO.deleteByUserNameAndInheritedTrue(userName);
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "social.userPermissions", key = "#userName")
+  @CacheEvict(cacheNames = "social.userPermissions", key = "#p0")
   public void deleteByUserName(String userName) {
     userPermissionDAO.deleteByUserName(userName);
   }
