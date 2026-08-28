@@ -303,7 +303,7 @@ export default {
           <li>${this.$t('UsersManagement.message.confirmDelete.deactivated')}</li>
           <li>${this.$t('UsersManagement.message.confirmDelete.noAccess')}</li>
           <li>${this.$t('UsersManagement.message.confirmDelete.contentKept')}</li>
-          <li>${this.$t('UsersManagement.message.confirmDelete.anonymized')}</li>
+          <li>${this.$t('UsersManagement.message.confirmDelete.anonymization')}</li>
         </ul>
         <p>${this.$t('UsersManagement.message.confirmDelete.usernameReminder', {0: `<strong>${this.selectedUser.userName}</strong>`})}</p>
         <p class="mb-0">${this.$t('UsersManagement.message.confirmDelete.question')}</p>`;
