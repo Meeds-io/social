@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.manager;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -416,11 +417,25 @@ public interface ActivityManager {
 
   /**
    * Adds an Activity Type options such as activity notification enabling
-   * 
+   *
    * @param plugin {@link ActivityTypePlugin}
    */
   default void addActivityTypePlugin(ActivityTypePlugin plugin) {
     // No operation
+  }
+
+  /**
+   * Retrieves the ids of the activities displaying the given specific Metadata
+   * objects (news, notes...), resolved by the registered
+   * {@link ActivityTypePlugin} declaring this Metadata Object Type
+   * @param  metadataObjectType specific Metadata Object Type
+   * @param  metadataObjectIds  {@link List} of Metadata object ids
+   * @return                    {@link List} of corresponding activity ids,
+   *                            empty when no registered plugin declares the
+   *                            given Metadata Object Type
+   */
+  default List<String> getActivityIdsByMetadataObjects(String metadataObjectType, List<String> metadataObjectIds) {
+    return Collections.emptyList();
   }
 
   void addActivityEventListener(ActivityListenerPlugin activityListenerPlugin);
