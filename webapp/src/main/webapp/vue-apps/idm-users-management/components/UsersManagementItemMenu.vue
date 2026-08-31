@@ -104,18 +104,25 @@
         </v-list-item-icon>
         <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.enable') }}</v-list-item-title>
       </v-list-item>
-      <v-list-item
-        :disabled="!item.isInternal"
-        class="px-2"
-        dense
-        @click="$emit('delete')">
-        <v-list-item-icon class="mx-1 justify-center">
-          <v-icon size="14" color="error">fa-trash</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title class="ps-0">
-          <div class="error--text">{{ $t('UsersManagement.button.deleteUser') }}</div>
-        </v-list-item-title>
-      </v-list-item>
+      <v-tooltip :disabled="item.isInternal" bottom>
+        <template #activator="{on, attrs}">
+          <div v-on="on" v-bind="attrs">
+            <v-list-item
+              :disabled="!item.isInternal"
+              class="px-2"
+              dense
+              @click="$emit('delete')">
+              <v-list-item-icon class="mx-1 justify-center">
+                <v-icon size="14" :color="item.isInternal ? 'error' : null">fa-trash</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="ps-0">
+                <div :class="item.isInternal ? 'error--text' : 'text--disabled'">{{ $t('UsersManagement.button.deleteUser') }}</div>
+              </v-list-item-title>
+            </v-list-item>
+          </div>
+        </template>
+        <span>{{ $t('UsersManagement.tooltip.deleteSynchronizedUser') }}</span>
+      </v-tooltip>
     </v-list>
   </v-menu>
 </template>
