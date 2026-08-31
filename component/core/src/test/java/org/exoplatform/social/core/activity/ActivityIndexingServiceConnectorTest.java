@@ -19,13 +19,16 @@
 package org.exoplatform.social.core.activity;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.Test;
@@ -48,6 +51,13 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
 import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.metadata.model.Metadata;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataObject;
+import org.exoplatform.social.metadata.model.MetadataType;
+import org.exoplatform.social.core.search.DocumentWithMetadata;
+
+import io.meeds.social.report.service.ActivityReportService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ActivityIndexingServiceConnectorTest {
@@ -152,6 +162,69 @@ public class ActivityIndexingServiceConnectorTest {
     assertNotNull(document.getPermissions());
     assertEquals(2, document.getPermissions().size());
     assertEquals("streamOwner", document.getPermissions().iterator().next());
+  }
+
+  @Test
+  public void testReportMetadataItemsNeverIndexed() {
+    activityIndexingServiceConnector = new ActivityIndexingServiceConnector(activitySearchProcessor,
+                                                                            i18nActivityProcessor,
+                                                                            identityManager,
+                                                                            activityManager,
+                                                                            metadataService,
+                                                                            getParams());
+    ExoSocialActivityImpl activity = new ExoSocialActivityImpl();
+    activity.setId("1");
+    activity.setType("type");
+    activity.setPosterId("posterId");
+    activity.setPostedTime(1234L);
+    activity.setUpdated(4321L);
+
+    ActivityStreamImpl activityStream = new ActivityStreamImpl();
+    activity.setActivityStream(activityStream);
+    activityStream.setId("id");
+    activityStream.setPrettyId("prettyId");
+    activityStream.setType(Type.USER);
+
+    when(identityManager.getOrCreateIdentity(Type.USER.getProviderId(), "prettyId")).thenReturn(new Identity("streamOwner"));
+    Identity posterIdentity = new Identity("posterId");
+    Profile posterProfile = new Profile(posterIdentity);
+    posterProfile.setProperty("fullName", "Poster FullName");
+    posterIdentity.setProfile(posterProfile);
+    when(identityManager.getIdentity("posterId")).thenReturn(posterIdentity);
+    when(activityManager.getActivity("1")).thenReturn(activity);
+    activity.setTitleId("titleId");
+    when(i18nActivityProcessor.process(eq(activity), any(Locale.class))).thenAnswer(invocation -> {
+      ExoSocialActivity exoSocialActivity = invocation.getArgument(0, ExoSocialActivity.class);
+      exoSocialActivity.setTitle("a reported post");
+      return exoSocialActivity;
+    });
+
+    MetadataItem reportItem = metadataItem(ActivityReportService.METADATA_TYPE_NAME, 89471L);
+    MetadataItem favoriteItem = metadataItem("favorites", 1L);
+    when(metadataService.getMetadataItemsByObject(any(MetadataObject.class))).thenReturn(List.of(reportItem, favoriteItem));
+
+    Document document = activityIndexingServiceConnector.create("1");
+
+    assertNotNull(document);
+    assertTrue(document instanceof DocumentWithMetadata);
+    List<MetadataItem> indexedItems = ((DocumentWithMetadata) document).getMetadataItems();
+    // ES mirror of the EntityBuilder payload exclusion: a report item's name
+    // and creatorId are the reporter's identity id, so no report data may
+    // exist anywhere a read path, present or future, could pick it up
+    assertFalse("Report metadata items must never be serialized into the activity index document",
+                indexedItems.stream()
+                            .anyMatch(item -> ActivityReportService.METADATA_TYPE_NAME.equals(item.getMetadata()
+                                                                                                  .getTypeName())));
+    assertTrue("Other metadata types must keep being indexed",
+               indexedItems.stream().anyMatch(item -> "favorites".equals(item.getMetadata().getTypeName())));
+  }
+
+  private MetadataItem metadataItem(String typeName, long typeId) {
+    Metadata metadata = new Metadata();
+    metadata.setName("999");
+    metadata.setAudienceId(999L);
+    metadata.setType(new MetadataType(typeId, typeName));
+    return new MetadataItem(1L, metadata, new MetadataObject("activity", "1"), 999L, 1234L, null);
   }
 
   @Test

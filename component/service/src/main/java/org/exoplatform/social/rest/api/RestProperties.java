@@ -68,6 +68,10 @@ public class RestProperties {
 
   public static final String CAN_PIN                = "canPin";
 
+  public static final String CAN_REPORT             = "canReport";
+
+  public static final String HAS_REPORTED           = "hasReported";
+
   public static final String MEMBERS_COUNT          = "membersCount";
 
   public static final String FAVORITE               = "favorite";
