@@ -297,7 +297,7 @@ export default {
       }
       this.selectedUser = user;
       this.deleteConfirmMessage = `
-        <p>${this.$t('UsersManagement.message.confirmDelete', {0: `<strong>${this.selectedUser.fullName}</strong>`})}</p>
+        <p>${this.$t('UsersManagement.message.confirmDelete', {0: `<strong>${this.selectedUser.fullname}</strong>`})}</p>
         <p class="mb-0">${this.$t('UsersManagement.message.confirmDelete.onceDone')}</p>
         <ul class="mb-2">
           <li>${this.$t('UsersManagement.message.confirmDelete.deactivated')}</li>
@@ -333,7 +333,7 @@ export default {
         .catch(error => {
           error = error.message || String(error);
           const errorI18NKey = `UsersManagement.error.${error}`;
-          const errorI18N = this.$t(errorI18NKey, {0: this.selectedUser.fullName});
+          const errorI18N = this.$t(errorI18NKey, {0: this.selectedUser.fullname});
           if (errorI18N !== errorI18NKey) {
             error = errorI18N;
           }
