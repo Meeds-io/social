@@ -910,7 +910,6 @@
           <name>pluginIds</name>
           <value>SpaceInvitationPlugin</value>
           <value>RequestJoinSpacePlugin</value>
-          <value>JoinedSpaceByInvitationLinkPlugin</value>
         </values-param>
       </init-params>
     </component-plugin>
@@ -934,17 +933,8 @@
         </value-param>
         <values-param>
           <name>pluginIds</name>
-          <value>PostActivityPlugin</value>
           <value>PostActivitySpaceStreamPlugin</value>
-          <value>SharedActivitySpaceStreamPlugin</value>
-          <value>EditActivityPlugin</value>
-          <value>ActivityCommentPlugin</value>
-          <value>ActivityReplyToCommentPlugin</value>
           <value>ActivityCommentWatchPlugin</value>
-          <value>EditCommentPlugin</value>
-          <value>ActivityMentionPlugin</value>
-          <value>LikePlugin</value>
-          <value>LikeCommentPlugin</value>
         </values-param>
       </init-params>
     </component-plugin>
