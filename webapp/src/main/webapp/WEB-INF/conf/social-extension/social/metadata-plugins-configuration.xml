@@ -50,6 +50,34 @@
       </init-params>
     </component-plugin>
     <component-plugin>
+      <name>ReportMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>shareable</name>
+          <description>Whether to share metadatas when an associated object has been shared to a different space or to a user</description>
+          <value>false</value>
+        </value-param>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <description>Whether to allow adding the same object to the same Metadata or not</description>
+          <value>false</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <long>89471</long>
+            </field>
+            <field name="name">
+              <string>reports</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
       <name>ObserverMetadataPlugin</name>
       <set-method>addMetadataTypePlugin</set-method>
       <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
@@ -356,6 +384,18 @@
           <name>priority</name>
           <description>priority of this processor (lower are executed first)</description>
           <value>60</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>ReportActivityProcessor</name>
+      <set-method>addProcessorPlugin</set-method>
+      <type>io.meeds.social.report.processor.ReportActivityProcessor</type>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <description>priority of this processor (lower are executed first), must run after MetadataActivityProcessor which replaces the whole metadata map</description>
+          <value>90</value>
         </value-param>
       </init-params>
     </component-plugin>
