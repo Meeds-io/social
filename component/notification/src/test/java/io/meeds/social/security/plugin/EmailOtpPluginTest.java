@@ -175,7 +175,7 @@ public class EmailOtpPluginTest {
   public void testGenerateOtpCodeSuccess() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put(eq("email:john"), eq(OTP_CODE));
+    verify(otpCache).put("email:john", OTP_CODE);
     ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
     verify(mailService).sendMessage(messageCaptor.capture());
     String body = String.valueOf(messageCaptor.getValue().getContent());

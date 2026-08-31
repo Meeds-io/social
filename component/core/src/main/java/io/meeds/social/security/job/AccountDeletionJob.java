@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import io.meeds.common.ContainerTransactional;
 import io.meeds.social.security.service.AccountDeletionService;
 
 import lombok.Synchronized;
@@ -30,12 +31,13 @@ import lombok.Synchronized;
 /**
  * Job executing the account deletion requests whose grace delay elapsed: no
  * business logic, it delegates the whole processing to
- * {@link AccountDeletionService}. Deliberately not transactional: the service
- * opens one container lifecycle per processed account so a failure never
- * poisons the rest of the batch. There is no cluster lock either
- * ({@link Synchronized} only prevents same-node overlaps): the processing is
- * idempotent by construction — each account's request marker is removed in
- * its own committed step before the deletion happens.
+ * {@link AccountDeletionService}. The container lifecycle is started here —
+ * the service is deliberately not transactional — and the service commits one
+ * transaction per processed account, so a failure never poisons the rest of
+ * the batch. There is no cluster lock either ({@link Synchronized} only
+ * prevents same-node overlaps): the processing is idempotent by construction
+ * — each account's request marker is removed within the same committed
+ * transaction as its deletion, so a replayed run finds nothing to do.
  */
 @Configuration
 @EnableScheduling
@@ -46,6 +48,7 @@ public class AccountDeletionJob {
 
   @Scheduled(cron = "${exo.accountDeletion.job.expression:0 15 5 ? * *}")
   @Synchronized
+  @ContainerTransactional
   public void run() {
     accountDeletionService.processPendingDeletionRequests();
   }
