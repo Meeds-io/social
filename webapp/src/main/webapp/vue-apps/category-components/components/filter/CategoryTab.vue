@@ -39,6 +39,9 @@
           click: () => $listeners.click(category),
         } || on"
         :value="category.id"
+        :aria-label="category.name"
+        aria-haspopup="true"
+        :aria-expanded="String(menu)"
         @focus="menu = true">
         <v-card
           :title="category.name"
@@ -69,6 +72,7 @@
         }"
         :key="subItem.id"
         :color="selectedId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
+        :aria-label="subItem.name"
         dense>
         <v-card
           :title="subItem.name"

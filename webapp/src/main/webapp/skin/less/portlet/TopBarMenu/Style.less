@@ -67,3 +67,24 @@
   top: -10%;
   position: absolute;
 }
+
+/* EXO-88911 - walking the menu with the arrow keys must look exactly like hovering it:
+   Vuetify applies its overlay on real pointer hover only, so the focused entry is given the
+   same overlay opacity here rather than a focus border. */
+.navigation-menu-sub-item {
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
+
+  &.theme--light:focus::before,
+  &.theme--light:focus-visible::before {
+    opacity: 0.04;
+  }
+
+  &.theme--dark:focus::before,
+  &.theme--dark:focus-visible::before {
+    opacity: 0.08;
+  }
+}
