@@ -111,9 +111,12 @@
         </v-btn>
         <v-btn
           :aria-label="$t('UserSettings.button.confirm')"
-          :disabled="!otpCode || saving || sendingCode"
+          :disabled="confirmDisabled"
+          :outlined="confirmDisabled"
+          :class="!confirmDisabled && 'error-color-background'"
+          :dark="!confirmDisabled"
           :loading="saving"
-          class="btn btn-danger"
+          elevation="0"
           @click="confirmRequest">
           {{ $t('UserSettings.button.confirm') }}
         </v-btn>
@@ -133,6 +136,11 @@ export default {
     sendingCode: false,
     saving: false,
   }),
+  computed: {
+    confirmDisabled() {
+      return !this.otpCode || this.saving || this.sendingCode;
+    },
+  },
   methods: {
     open() {
       this.otpCode = null;
@@ -149,8 +157,13 @@ export default {
       try {
         this.otpCode = null;
         await this.$otpService.sendOtpCode(this.otpMethod);
-      } catch {
-        this.$root.$emit('alert-message', this.$t('UserSettings.security.deleteAccount.otpSendError'), 'error');
+      } catch (e) {
+        if (e?.message === '429') {
+          // throttled: the previously sent code remains valid until its expiration
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.otpAlreadySent'), 'warning');
+        } else {
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.deleteAccount.otpSendError'), 'error');
+        }
       } finally {
         this.sendingCode = false;
         this.emailSent = true;

@@ -410,10 +410,10 @@ export default {
       if (!this.registrationSettings) {
         return false;
       }
-      const oldSettings = Object.assign(JSON.parse(JSON.stringify(this.registrationSettings)), {
+      const oldSettings = Object.assign(structuredClone(this.registrationSettings), {
         deletedUserLabels: this.normalizeLabels(this.registrationSettings.deletedUserLabels),
       });
-      const newSettings = Object.assign(JSON.parse(JSON.stringify(this.registrationSettings)), {
+      const newSettings = Object.assign(structuredClone(this.registrationSettings), {
         externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
         extraGroupIds: this.defaultSpaceIds,
         type: this.accessType,
@@ -476,7 +476,7 @@ export default {
         this.accountDeactivationEnabled = this.registrationSettings?.accountDeactivationEnabled || false;
         this.accountDeletionEnabled = this.registrationSettings?.accountDeletionEnabled || false;
         this.accountDeletionAnonymizationEnabled = this.registrationSettings?.accountDeletionAnonymizationEnabled || false;
-        this.deletedUserLabels = Object.assign({}, this.registrationSettings?.deletedUserLabels || {});
+        this.deletedUserLabels = { ...this.registrationSettings?.deletedUserLabels };
         this.defaultSpaceIds = this.registrationSettings?.extraGroupIds || [];
       } finally {
         this.initialized = true;
