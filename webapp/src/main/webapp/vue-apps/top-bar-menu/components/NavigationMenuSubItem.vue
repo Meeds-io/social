@@ -20,23 +20,62 @@
 
 -->
 <template>
+  <!-- role="none": one v-list wraps each entry, so without it a generic container sits between
+       the menu (role="menu", set by Vuetify on its content) and its menuitems, and the menu no
+       longer owns its own items - which is what a screen reader counts and announces -->
   <v-list
     class="pa-0"
+    role="none"
     dense>
+    <!-- the keyboard counterpart of @mouseleave is not @blur here: the arrow keys hand focus
+         over to the submenu on purpose, so closing on blur would shut it as it opens. Focus
+         leaving the menu for real is handled by @keydown.tab -> exit-menu. -->
+    <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
     <v-list-item
-      v-if="hasPage || hasChildren && childrenHasPage"
+      v-if="hasPage || hasSubMenu"
       ref="row"
       :href="navigationNodeUri"
       :target="navigationNodeTarget"
       :rel="navigationNodeRel"
       :link="!!hasPage"
-      class="py-0 px-0 transparent"
+      :aria-label="navigation.label"
+      :aria-haspopup="hasSubMenu && 'true' || null"
+      :aria-expanded="hasSubMenu && String(showMenu) || null"
+      class="py-0 px-0 transparent navigation-menu-sub-item"
       @click="checkLink"
       @keydown.stop
-      @focus="showMenu = hasChildren && childrenHasPage || false"
+      @focus="showMenu = hasSubMenu"
+      @mouseleave="showMenu = false"
       @keydown.tab="$emit('exit-menu')"
-      @keydown.right="focusHighlightedItem"
-      @keydown.left="focusHighlightedItem">
+      @keydown.down.prevent="walkNext"
+      @keydown.up.prevent="walkPrevious"
+      @keydown.right.prevent="onForwardKey"
+      @keydown.left.prevent="onBackKey"
+      @keydown.esc.prevent="walkBack"
+      @keydown.enter="onEnterKey">
+      <div
+        class="d-flex width-full px-4">
+        <v-list-item-title
+          class="pt-5 pb-5 d-flex"
+          :class="hasPage && ' ' || ' not-clickable '">
+          <span class="text-body">{{ navigation.label }}</span>
+          <v-icon
+            v-if="navigation.target === 'NEW_TAB'"
+            size="12"
+            class="mx-1">
+            fa-external-link-alt
+          </v-icon>
+        </v-list-item-title>
+        <v-list-item-icon
+          v-if="hasSubMenu"
+          class="ms-0 me-n2 ma-auto full-height">
+          <span class="d-flex align-center" aria-hidden="true">
+            <v-icon class="pa-3" size="18">
+              {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
+            </v-icon>
+          </span>
+        </v-list-item-icon>
+      </div>
       <v-menu
         ref="menu"
         v-model="showMenu"
@@ -50,45 +89,22 @@
         :left="$vuetify.rtl"
         :open-on-hover="isOpenedOnHover"
         absolute
+        disable-keys
         eager
         offset-x>
-        <template #activator>
-          <div
-            class="d-flex width-full px-4"
-            @mouseleave="showMenu = false">
-            <v-list-item-title
-              class="pt-5 pb-5 d-flex"
-              :class="hasPage && ' ' || ' not-clickable '">
-              <span class="text-body">{{ navigation.label }}</span>
-              <v-icon
-                v-if="navigation.target === 'NEW_TAB'"
-                size="12"
-                class="mx-1">
-                fa-external-link-alt
-              </v-icon>
-            </v-list-item-title>
-            <v-list-item-icon
-              v-if="hasChildren && childrenHasPage"
-              class="ms-0 me-n2 ma-auto full-height">
-              <span class="d-flex align-center" aria-hidden="true">
-                <v-icon class="pa-3" size="18">
-                  {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
-                </v-icon>
-              </span>
-            </v-list-item-icon>
-          </div>
-        </template>
         <navigation-menu-sub-item
           v-for="children in navigation.children"
+          ref="entries"
           class="transparent"
           :key="children.id"
           :navigation="children"
           :parent-navigation-uri="parentNavigationUri"
           :base-site-uri="baseSiteUri"
           :selected-path="selectedPath"
-          :highlighted="renderedChildren[highlightedIndex] === children"
           @update-navigation-state="updateNavigationState"
           @exit-menu="$emit('exit-menu')"
+          @walk="walkFromEntry"
+          @leave-level="leaveLevel"
           @select="$emit('select')" />
       </v-menu>
     </v-list-item>
@@ -96,7 +112,10 @@
 </template>
 
 <script>
+import menuKeyboardNavigation from '../menuKeyboardNavigation.js';
+
 export default {
+  mixins: [menuKeyboardNavigation],
   props: {
     navigation: {
       type: Object,
@@ -114,17 +133,12 @@ export default {
       type: String,
       default: null
     },
-    highlighted: {
-      type: Boolean,
-      default: false
-    },
   },
   data() {
     return {
       isOpenedOnHover: true,
       showMenu: false,
       rowElement: null,
-      highlightedIndex: -1,
       positionX: 0,
       positionY: 0,
     };
@@ -138,6 +152,11 @@ export default {
     },
     childrenHasPage() {
       return this.checkChildrenHasPage(this.navigation);
+    },
+    hasSubMenu() {
+      // a node opens a submenu only when it has children that actually lead somewhere;
+      // this is what aria-haspopup/aria-expanded must reflect, so it is computed once
+      return !!(this.hasChildren && this.childrenHasPage);
     },
     navigationNodeUri() {
       return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
@@ -154,10 +173,6 @@ export default {
     isTopBarElement() {
       return this.$root.isTopBarElement;
     },
-    renderedChildren() {
-      return this.navigation?.children?.filter(child => !!child.pageKey
-        || child.children?.length && this.checkChildrenHasPage(child)) || [];
-    },
   },
   watch: {
     isSelected: {
@@ -168,28 +183,24 @@ export default {
         }
       }
     },
-    highlighted() {
-      this.showMenu = this.highlighted && (this.hasChildren && this.childrenHasPage || false);
-    },
     showMenu() {
       this.isOpenedOnHover = !this.showMenu;
       this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
       this.positionY = this.$el.getBoundingClientRect().top;
       this.$root.$emit('close-sibling-drop-menus-children', this);
     },
-    hasPage() {
-      return !!this.navigation?.pageKey;
-    },
   },
   mounted() {
-    // the arrow keys only add a css class on the highlighted entry, so watch the menu own index
-    // to tell that entry to open its submenu right away, without waiting for a horizontal arrow
-    this.$watch(() => this.$refs.menu?.listIndex, index => this.highlightedIndex = index);
     this.rowElement = this.$refs.row?.$el;
   },
   created() {
     window.addEventListener('resize', this.updateSize);
     this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
+  },
+  beforeDestroy() {
+    // same as the parent: the tree is rebuilt on `space-settings-updated` (EXO-88911 review)
+    window.removeEventListener('resize', this.updateSize);
+    this.$root.$off('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
   },
   methods: {
     checkLink(e) {
@@ -205,32 +216,20 @@ export default {
         } else {
           window.location.href = this.navigationNodeUri;
         }
-      } else if (!this.hasPage && this.hasChildren && this.childrenHasPage) {
+      } else if (!this.hasPage && this.hasSubMenu) {
         this.showMenu = !this.showMenu;
       }
     },
-    focusHighlightedItem() {
-      // same hand-off as the parent level, which makes it work at any depth
-      this.$refs.menu?.$refs?.content?.querySelector('.v-list-item--highlighted')?.focus();
+    leaveLevel() {
+      // an entry of the submenu asked to come back to this level: take the focus first, then
+      // collapse the level the focus just left (the row's own @focus reopens it otherwise)
+      if (!this.focusSelf()) {
+        return;
+      }
+      this.showMenu = false;
     },
     updateNavigationState(value) {
       this.$emit('update-navigation-state', value);
-    },
-    checkChildrenHasPage(navigation) {
-      let childrenHasPage = false;
-      navigation.children.forEach(child => {
-        if (childrenHasPage === true) {
-          return;
-        }
-        if (child.pageKey) {
-          childrenHasPage = true;
-        } else if (child.children.length > 0) {
-          childrenHasPage = this.checkChildrenHasPage(child);
-        } else {
-          childrenHasPage = false;
-        }
-      });
-      return childrenHasPage;
     },
     handleCloseSiblingMenus(emitter) {
       if (!this.showMenu || !emitter) {
