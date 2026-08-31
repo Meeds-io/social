@@ -230,10 +230,13 @@
       await new Promise(resolve => window.require(['SHARED/extensionRegistry'], extensionRegistry => {
         const extensions = extensionRegistry.loadExtensions('RichEditor', 'BalloonToolbarButtons');
         if (extensions?.length) {
-          Promise.all(extensions.map(ext => ext.init(editor, items, hideBalloonToolbar)))
-            .then(resolve);
+          Promise.all(extensions.map(ext => Promise.resolve().then(() => ext.init(editor, items, hideBalloonToolbar))))
+            .catch(e => console.warn('Error initializing balloon toolbar extensions', e)) // eslint-disable-line no-console
+            .finally(resolve);
+        } else {
+          resolve();
         }
-      }));
+      }, resolve));
       balloonToolbar.addItems(items);
     }
     if (!noShow) {
