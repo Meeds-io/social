@@ -20,6 +20,7 @@ package org.exoplatform.social.core.manager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -127,6 +128,8 @@ public class ActivityManagerImpl implements ActivityManager {
   private Set<String>                     systemActivityTypes            = new HashSet<>();
 
   private Map<String, ActivityTypePlugin> activityTypePlugins            = new HashMap<>();
+
+  private Map<String, ActivityTypePlugin> activityTypePluginsByMetadataObjectType = new HashMap<>();
 
   private Set<String>                     systemActivityTitleIds         = new HashSet<>(Arrays.asList("has_joined",
                                                                                                        "space_avatar_edited",
@@ -765,6 +768,24 @@ public class ActivityManagerImpl implements ActivityManager {
   @Override
   public void addActivityTypePlugin(ActivityTypePlugin plugin) {
     activityTypePlugins.put(plugin.getActivityType(), plugin);
+    if (StringUtils.isNotBlank(plugin.getMetadataObjectType())) {
+      ActivityTypePlugin replacedPlugin = activityTypePluginsByMetadataObjectType.put(plugin.getMetadataObjectType(), plugin);
+      if (replacedPlugin != null) {
+        LOG.warn("ActivityTypePlugin of activity type {} replaces {} on Metadata Object Type {}",
+                 plugin.getActivityType(),
+                 replacedPlugin.getActivityType(),
+                 plugin.getMetadataObjectType());
+      }
+    }
+  }
+
+  @Override
+  public List<String> getActivityIdsByMetadataObjects(String metadataObjectType, List<String> metadataObjectIds) {
+    ActivityTypePlugin activityTypePlugin = activityTypePluginsByMetadataObjectType.get(metadataObjectType);
+    if (activityTypePlugin == null || CollectionUtils.isEmpty(metadataObjectIds)) {
+      return Collections.emptyList();
+    }
+    return activityTypePlugin.getActivityIds(metadataObjectIds);
   }
 
   /**

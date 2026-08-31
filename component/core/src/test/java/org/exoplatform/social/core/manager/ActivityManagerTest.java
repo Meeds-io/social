@@ -2662,8 +2662,9 @@ public class ActivityManagerTest extends AbstractCoreTest {
                                           null,
                                           Long.parseLong(demoIdentity.getId()));
     favoriteService.createFavorite(favoriteSpace);
+    String demoActivityId = activityManager.getActivitiesWithListAccess(demoIdentity).load(0, 1)[0].getId();
     Favorite favoriteActivity = new Favorite(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
-                                             "1",
+                                             demoActivityId,
                                              null,
                                              Long.parseLong(demoIdentity.getId()));
     favoriteService.createFavorite(favoriteActivity);
@@ -2692,6 +2693,93 @@ public class ActivityManagerTest extends AbstractCoreTest {
     activityFilter.setStreamType(ActivityStreamType.FAVORITE_SPACES_STREAM);
     streamTypeActivities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
     assertEquals(4, streamTypeActivities.load(0, 10).length);
+  }
+
+  @SneakyThrows
+  public void testGetFavoriteActivityOfSpecificMetadataObject() {
+    // Activity redirecting its Metadata facts to a specific object
+    String metadataObjectType = "testContent";
+    String metadataObjectId = "5";
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("content activity");
+    activity.setUserId(demoIdentity.getId());
+    activity.setMetadataObjectType(metadataObjectType);
+    activity.setMetadataObjectId(metadataObjectId);
+    activityManager.saveActivityNoReturn(demoIdentity, activity);
+    restartTransaction();
+
+    // Favorite stored against the specific object, as the favorite button of
+    // such an activity does
+    FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
+    favoriteService.createFavorite(new Favorite(metadataObjectType,
+                                                metadataObjectId,
+                                                null,
+                                                Long.parseLong(demoIdentity.getId())));
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.USER_FAVORITE_STREAM);
+
+    // No ActivityTypePlugin declaring the Metadata Object Type: the favorite
+    // resolves to no activity and doesn't break the listing
+    RealtimeListAccess<ExoSocialActivity> favoriteActivities =
+                                                             activityManager.getActivitiesByFilterWithListAccess(demoIdentity,
+                                                                                                                 activityFilter);
+    String activityId = activity.getId();
+    assertFalse(Arrays.stream(favoriteActivities.load(0, 10)).anyMatch(favorite -> activityId.equals(favorite.getId())));
+
+    // Register the ActivityTypePlugin resolving the specific objects to their
+    // displaying activities. The plugin registry has
+    // no removal API, thus the plugin (with its test-specific activity &
+    // Metadata Object types) stays registered in the shared container for the
+    // whole suite.
+    Map<String, String> activityIdsByObjectId = new HashMap<>();
+    activityIdsByObjectId.put(metadataObjectId, activityId);
+    InitParams initParams = new InitParams();
+    ValueParam typeParam = new ValueParam();
+    typeParam.setName(ActivityTypePlugin.ACTIVITY_TYPE_PARAM);
+    typeParam.setValue("testContentActivityType");
+    initParams.addParameter(typeParam);
+    activityManager.addActivityTypePlugin(new ActivityTypePlugin(initParams) {
+      @Override
+      public String getMetadataObjectType() {
+        return metadataObjectType;
+      }
+
+      @Override
+      public List<String> getActivityIds(List<String> metadataObjectIds) {
+        return metadataObjectIds.stream().map(activityIdsByObjectId::get).filter(StringUtils::isNotBlank).toList();
+      }
+    });
+
+    favoriteActivities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertTrue(Arrays.stream(favoriteActivities.load(0, 10)).anyMatch(favorite -> activityId.equals(favorite.getId())));
+
+    // Space-filtered favorite activities: only the favorites carrying the
+    // space id are returned
+    Space space = getSpaceInstance(18);
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    String spaceMetadataObjectId = "6";
+    ExoSocialActivity spaceActivity = new ExoSocialActivityImpl();
+    spaceActivity.setTitle("space content activity");
+    spaceActivity.setUserId(demoIdentity.getId());
+    spaceActivity.setMetadataObjectType(metadataObjectType);
+    spaceActivity.setMetadataObjectId(spaceMetadataObjectId);
+    activityManager.saveActivityNoReturn(spaceIdentity, spaceActivity);
+    restartTransaction();
+
+    String spaceActivityId = spaceActivity.getId();
+    activityIdsByObjectId.put(spaceMetadataObjectId, spaceActivityId);
+    favoriteService.createFavorite(new Favorite(metadataObjectType,
+                                                spaceMetadataObjectId,
+                                                null,
+                                                Long.parseLong(demoIdentity.getId()),
+                                                Long.parseLong(space.getId())));
+
+    activityFilter.setSpaceIdentityId(Long.parseLong(spaceIdentity.getId()));
+    favoriteActivities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    ExoSocialActivity[] spaceFavoriteActivities = favoriteActivities.load(0, 10);
+    assertTrue(Arrays.stream(spaceFavoriteActivities).anyMatch(favorite -> spaceActivityId.equals(favorite.getId())));
+    assertFalse(Arrays.stream(spaceFavoriteActivities).anyMatch(favorite -> activityId.equals(favorite.getId())));
   }
 
   public void testLoadMoreActivities() throws Exception {
