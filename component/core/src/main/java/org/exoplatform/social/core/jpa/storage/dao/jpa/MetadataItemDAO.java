@@ -72,9 +72,12 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
 
   private static final String OBJECT_IDS           = "objectIds";
 
-  // Oracle's hard limit on IN literals (ORA-01795), as IdentityDAOImpl uses in this
-  // package. ReactionStorage chunks the same table at 500; that is a throughput
-  // choice for a hot path, this one is the dialect bound itself.
+  // A self-imposed bound, not a dialect limit: the platform supports MySQL and
+  // PostgreSQL, and neither refuses an IN list at any particular count. It is here
+  // because an unbounded list still has to be serialised into one statement and
+  // digested by the planner, and a page of rows can be arbitrarily long. 1000 matches
+  // IdentityDAOImpl in this package - which declares the same constant with no stated
+  // reason - so the two agree; ReactionStorage chunks the same table at 500.
   private static final int    MAX_ITEMS_PER_IN_CLAUSE = 1000;
 
   private static final String SPACE_ID             = "spaceId";
@@ -179,10 +182,12 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
    * The same read for a page of objects at once, so a caller listing rows can ask once
    * instead of once per row.
    * <p>
-   * Issued in chunks: Oracle refuses an IN list past 1000 literals (ORA-01795), which a
-   * page of rows can exceed — a mailbox caches a thousand messages by default and may be
-   * configured for five thousand. The chunk size follows {@code IdentityDAOImpl}, which
-   * meets the same limit in this package.
+   * Issued in chunks, because a page of rows can be arbitrarily long — a mailbox caches a
+   * thousand messages by default and may be configured for five thousand — and the whole
+   * list would otherwise go into a single statement. The bound is self-imposed rather than
+   * a dialect limit: on MySQL and PostgreSQL, the databases the platform supports, an IN
+   * list has no fixed maximum count. The size follows {@code IdentityDAOImpl} in this
+   * package.
    *
    * @param metadataType the metadata type id
    * @param objectType the object type, e.g. the one a category plugin registers
