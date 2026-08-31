@@ -86,6 +86,24 @@ public interface FavoriteService {
   }
 
   /**
+   * Retrieves the favorite items attached to a given {@link MetadataItem}
+   * creatorId and {@link MetadataObject} spaceId, whatever the
+   * {@link MetadataObject} type
+   *
+   * @param creatorId {@link MetadataItem} creatorId
+   * @param spaceId {@link MetadataItem} spaceId
+   * @param offset offset of ids to retrieve
+   * @param limit limit of ids to retrieve
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  default List<MetadataItem> getFavoriteItemsByCreatorAndSpaceId(long creatorId,
+                                                                 long spaceId,
+                                                                 long offset,
+                                                                 long limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Count the favorite items attached to a given {@link MetadataItem} creatorId
    *
    * @param creatorId {@link MetadataItem} creatorId
