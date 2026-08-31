@@ -64,6 +64,8 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String IS_INTERNAL             = "isInternal";
 
+  public static final String IS_SUPER_USER           = "isSuperUser";
+
   public static final String COMPANY                 = "company";
 
   public static final String LOCATION                = "location";
@@ -256,6 +258,15 @@ public class ProfileEntity extends BaseEntity {
   public ProfileEntity setIsInternal(boolean isInternal) {
     setProperty(IS_INTERNAL, isInternal);
     return this;
+  }
+
+  public ProfileEntity setIsSuperUser(boolean isSuperUser) {
+    setProperty(IS_SUPER_USER, isSuperUser);
+    return this;
+  }
+
+  public Boolean getIsSuperUser() {
+    return (Boolean) getProperty(IS_SUPER_USER);
   }
 
   public Boolean getIsInternal() {

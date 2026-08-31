@@ -238,7 +238,10 @@ public class PeopleRestService implements ResourceContainer{
         int size = connections.getSize();
         Identity[] identities = connections.load(0, size < SUGGEST_LIMIT ? size : (int)SUGGEST_LIMIT);
         for (Identity id : identities) {
-          addSpaceOrUserToList(Arrays.asList(id), nameList, currentSpace, typeOfRelation, 1, request.getLocale());
+          // a deactivated or deleted connection can't be mentioned anymore
+          if (id.isEnable() && !id.isDeleted()) {
+            addSpaceOrUserToList(Arrays.asList(id), nameList, currentSpace, typeOfRelation, 1, request.getLocale());
+          }
           excludedIdentityList.add(id);
         }
       }
@@ -249,7 +252,9 @@ public class PeopleRestService implements ResourceContainer{
       if (remain > 0) {
         identityFilter.setExcludedIdentityList(excludedIdentityList);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
-        List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
+        List<Identity> identities = Arrays.stream(listAccess.load(0, (int) remain))
+                                          .filter(identity -> identity.isEnable() && !identity.isDeleted())
+                                          .toList();
         addSpaceOrUserToList(identities, nameList, currentSpace, typeOfRelation, 2, request.getLocale());
       }
     } else if (SHARE_DOCUMENT.equals(typeOfRelation)) {
@@ -478,6 +483,11 @@ public class PeopleRestService implements ResourceContainer{
       LOG.warn("Cannot add Identity to suggestion list. Identity with id '"+ userIdentity.getRemoteId() + "' is not of type 'user'");
       return userInfos;
     }
+    // a deactivated or deleted account can't be mentioned anymore, whatever
+    // the path that suggests it (author, commenters, likers, connections...)
+    if (!userIdentity.isEnable() || userIdentity.isDeleted()) {
+      return userInfos;
+    }
     if (userInfos.size() == SUGGEST_LIMIT) {
       return userInfos;
     }
@@ -546,7 +556,7 @@ public class PeopleRestService implements ResourceContainer{
     String[] spaceMembers = getSpaceService().getSpaceByPrettyName(spaceByPrettyName).getMembers();
     for (String spaceMember : spaceMembers) {
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember, false);
-      if (identity != null && identity.isEnable() && !identity.isDeleted()) {
+      if (identity != null) {
         addUserToInfosList(identity, identityFilter, userInfos, currentUser, true, locale);
         if (userInfos.size() >= SUGGEST_LIMIT) {
           break;

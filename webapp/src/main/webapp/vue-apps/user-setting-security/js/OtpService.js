@@ -24,7 +24,6 @@ export async function sendOtpCode(optMethod) {
     credentials: 'include'
   });
   if (!resp?.ok) {
-    const msg = resp ? await resp.text() : 'Unkown error';
-    throw new Error(`Server Error: ${msg}`);
+    throw new Error(String(resp?.status || 'error'));
   }
 }
