@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.metadata.favorite;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,15 @@ public class FavoriteServiceImpl implements FavoriteService {
   @Override
   public List<MetadataItem> getFavoriteItemsByCreatorAndTypeAndSpaceId(String objectType, long creatorId, long spaceId, long offset, long limit) {
     return metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(String.valueOf(creatorId), METADATA_TYPE.getName(), objectType, spaceId, offset, limit);
+  }
+
+  @Override
+  public List<MetadataItem> getFavoriteItemsByCreatorAndSpaceId(long creatorId, long spaceId, long offset, long limit) {
+    return metadataService.getMetadataItemsByMetadataNameAndTypeAndSpaceIds(String.valueOf(creatorId),
+                                                                            METADATA_TYPE.getName(),
+                                                                            Collections.singletonList(spaceId),
+                                                                            offset,
+                                                                            limit);
   }
 
   @Override
