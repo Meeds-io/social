@@ -19,6 +19,7 @@
 package io.meeds.social.category.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -38,6 +39,29 @@ public interface CategoryLinkService {
    * @return {@link List} of linked {@link Category} identifiers
    */
   List<Long> getLinkedIds(CategoryObject object);
+
+  /**
+   * The categories each of several objects is filed under, in one query.
+   * <p>
+   * {@link #getLinkedIds(CategoryObject)} is the right call for a reader looking at one
+   * thing, and the wrong one for a list: a page of rows showing what each is filed under
+   * would ask it once per row. This answers the whole page, so the caller decorates its
+   * rows by lookup instead of by a query each.
+   *
+   * @param objectType {@link CategoryObject} type, example: Space, Activity ...
+   * @param objectIds the objects' identifiers, <strong>in stored form</strong>. Unlike
+   *          {@link #getLinkedIds(CategoryObject)}, this read does not put its ids
+   *          through {@link io.meeds.social.category.service.CategoryPluginService#getObject}
+   *          first, so a plugin that rewrites the object - the space one resolves any id
+   *          form to the space's technical id, the activity one redirects to the
+   *          activity's metadata object and changes the type with it - is not applied
+   *          here. Passing a form the plugin would have normalised returns no categories
+   *          for that id. The keys of the returned map are the ids as given.
+   * @return {@link Map} of linked {@link Category} identifiers keyed by object id; an
+   *         object with no category is absent from the map rather than present with an
+   *         empty list
+   */
+  Map<String, List<Long>> getLinkedIds(String objectType, List<String> objectIds);
 
   /**
    * @param objectType {@link CategoryObject} type, example: Space, Activity ...

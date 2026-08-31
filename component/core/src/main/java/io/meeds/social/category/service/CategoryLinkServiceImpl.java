@@ -19,6 +19,7 @@
 package io.meeds.social.category.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,11 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
   @Override
   public List<Long> getLinkedIds(CategoryObject object) {
     return categoryStorage.getLinkedIds(getObject(object));
+  }
+
+  @Override
+  public Map<String, List<Long>> getLinkedIds(String objectType, List<String> objectIds) {
+    return categoryStorage.getLinkedIds(objectType, objectIds);
   }
 
   @Override

@@ -69,6 +69,22 @@ import jakarta.persistence.Table;
         + " mi.objectId = :objectId"
         + " ORDER BY mi.id ASC"
 )
+// The same read for a page of objects at once. A caller listing rows and showing what
+// each is filed under would otherwise ask getSortedMetadataItemsByMetadataTypeAndObject
+// once per row, which is a query per message on a mail folder and per document on a drive.
+// Grouped by object first, then ordered within an object exactly as that per-object query
+// orders it - most recently touched first - so one object's slice of this result is the
+// same list, in the same order, that asking for it alone would return.
+@NamedQuery(
+    name = "SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndObjectIds",
+    query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
+        + " mi.metadata.type = :metadataType AND"
+        + " mi.objectType = :objectType AND"
+        + " mi.objectId IN (:objectIds)"
+        + " ORDER BY mi.objectId ASC,"
+        + " COALESCE(mi.updatedDate, mi.createdDate) DESC,"
+        + " mi.createdDate DESC, mi.id DESC"
+)
 @NamedQuery(
     name = "SocMetadataItemEntity.getSortedMetadataItemsByMetadataTypeAndObject",
     query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "

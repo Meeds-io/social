@@ -18,8 +18,10 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -67,6 +69,16 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   private static final String PARENT_OBJECT_ID     = "parentObjectId";
 
   private static final String OBJECT_ID            = "objectId";
+
+  private static final String OBJECT_IDS           = "objectIds";
+
+  // A self-imposed bound, not a dialect limit: the platform supports MySQL and
+  // PostgreSQL, and neither refuses an IN list at any particular count. It is here
+  // because an unbounded list still has to be serialised into one statement and
+  // digested by the planner, and a page of rows can be arbitrarily long. 1000 matches
+  // IdentityDAOImpl in this package - which declares the same constant with no stated
+  // reason - so the two agree; ReactionStorage chunks the same table at 500.
+  private static final int    MAX_ITEMS_PER_IN_CLAUSE = 1000;
 
   private static final String SPACE_ID             = "spaceId";
 
@@ -164,6 +176,56 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
                 .stream()
                 .collect(Collectors.toMap(tuple -> tuple.get("name", String.class),
                                           tuple -> tuple.get("itemsCount", Long.class)));
+  }
+
+  /**
+   * The same read for a page of objects at once, so a caller listing rows can ask once
+   * instead of once per row.
+   * <p>
+   * Issued in chunks, because a page of rows can be arbitrarily long — a mailbox caches a
+   * thousand messages by default and may be configured for five thousand — and the whole
+   * list would otherwise go into a single statement. The bound is self-imposed rather than
+   * a dialect limit: on MySQL and PostgreSQL, the databases the platform supports, an IN
+   * list has no fixed maximum count. The size follows {@code IdentityDAOImpl} in this
+   * package.
+   *
+   * @param metadataType the metadata type id
+   * @param objectType the object type, e.g. the one a category plugin registers
+   * @param objectIds the object ids to read; the order they are given in does not
+   *          matter, the result is ordered by object either way
+   * @return the items of those objects, empty when no id is given
+   */
+  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObjectIds(long metadataType,
+                                                                             String objectType,
+                                                                             List<String> objectIds) {
+    if (CollectionUtils.isEmpty(objectIds)) {
+      return Collections.emptyList();
+    }
+    TypedQuery<MetadataItemEntity> query =
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndObjectIds",
+                                                                             MetadataItemEntity.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
+    // SQL IN collapses duplicate literals, so a repeated id costs nothing inside one
+    // chunk - but the chunks partition this list positionally, and a duplicate that
+    // straddles a boundary is asked for twice and its rows added twice, which hands the
+    // caller that object's categories doubled. Distinct once, up front; it also makes
+    // the sort guard below exact rather than approximate.
+    List<String> distinctIds = objectIds.stream().distinct().toList();
+    List<MetadataItemEntity> items = new ArrayList<>();
+    for (int start = 0; start < distinctIds.size(); start += MAX_ITEMS_PER_IN_CLAUSE) {
+      int end = Math.min(start + MAX_ITEMS_PER_IN_CLAUSE, distinctIds.size());
+      query.setParameter(OBJECT_IDS, distinctIds.subList(start, end));
+      items.addAll(query.getResultList());
+    }
+    // Each chunk is ordered, their concatenation is not: object ids ascend within a chunk
+    // and restart at the next one. All the rows of one object sit in a single chunk, so a
+    // stable sort on the object id restores the documented grouping while leaving the
+    // within-object ordering the query established untouched.
+    if (distinctIds.size() > MAX_ITEMS_PER_IN_CLAUSE) {
+      items.sort(Comparator.comparing(MetadataItemEntity::getObjectId));
+    }
+    return items;
   }
 
   public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObject(long metadataType,
