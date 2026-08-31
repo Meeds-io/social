@@ -170,9 +170,10 @@ export default {
       };
     },
     changed() {
-      const oldSettings = Object.assign({}, this.value, {
+      const oldSettings = {
+        ...this.value,
         deletedUserLabels: this.normalizeLabels(this.value?.deletedUserLabels),
-      });
+      };
       return JSON.stringify(this.draft) !== JSON.stringify(oldSettings);
     },
   },
@@ -200,7 +201,7 @@ export default {
       this.deactivationEnabled = this.value?.accountDeactivationEnabled || false;
       this.deletionEnabled = this.value?.accountDeletionEnabled || false;
       this.anonymizationEnabled = this.value?.accountDeletionAnonymizationEnabled || false;
-      this.deletedUserLabels = Object.assign({}, this.value?.deletedUserLabels || {});
+      this.deletedUserLabels = { ...this.value?.deletedUserLabels };
     },
     apply() {
       this.$emit('input', this.draft);

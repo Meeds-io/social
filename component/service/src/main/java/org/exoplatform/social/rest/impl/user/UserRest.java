@@ -1391,6 +1391,21 @@ public class UserRest implements ResourceContainer, Startable {
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
+    // an admin never deletes the account being used to perform the deletion
+    if (StringUtils.equals(id, getCurrentUser())) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+    UserHandler userHandler = organizationService.getUserHandler();
+    User user = userHandler.findUserByName(id, UserStatus.ANY);
+    if (user == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+    // an externally synchronized account (LDAP) can't be deleted from here:
+    // the directory would recreate the user at the next synchronization while
+    // the social identity would stay deleted
+    if (!user.isInternalStore()) {
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
 
     Identity identity = identityManager.getOrCreateUserIdentity(id);
     if (identity == null) {
@@ -1403,7 +1418,6 @@ public class UserRest implements ResourceContainer, Startable {
     identity.setDeleted(true);
     identity.setEnable(false);
     // Deletes the user on Portal side
-    UserHandler userHandler = organizationService.getUserHandler();
     userHandler.removeUser(id, false);
     //
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand),
