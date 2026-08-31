@@ -16,6 +16,8 @@
   import org.exoplatform.portal.branding.BrandingService;
   import org.exoplatform.services.organization.OrganizationService;
   import org.exoplatform.services.organization.UserProfile;
+  import org.exoplatform.social.core.identity.model.Profile;
+  import java.time.ZoneId;
   import java.util.Set;
 
   def rcontext = _ctx.getRequestContext();
@@ -35,10 +37,23 @@
   ProfilePropertyService profilePropertyService = uicomponent.getApplicationComponent(ProfilePropertyService.class);
   ProfilePropertySetting profilePropertySetting = profilePropertyService.getProfileSettingByName("manager");
   // The timezone the platform knows for the user: the userTimeZoneSync script
-  // compares it to the browser one and refreshes it when they differ
+  // compares it to the browser one and refreshes it when they differ. The
+  // module only runs because it is required here.
   OrganizationService organizationService = uicomponent.getApplicationComponent(OrganizationService.class);
   UserProfile organizationUserProfile = userName == null ? null : organizationService.getUserProfileHandler().findUserProfileByName(userName);
-  String userTimezone = organizationUserProfile == null ? null : organizationUserProfile.getAttribute("user.timeZone");
+  String userTimezone = organizationUserProfile == null ? null : organizationUserProfile.getAttribute(Profile.USER_TIME_ZONE);
+  try {
+    // Values saved before this synchronization existed were never validated:
+    // an unknown one must not end up in the script block below
+    if (userTimezone != null) {
+      ZoneId.of(userTimezone);
+    }
+  } catch (Exception e) {
+    userTimezone = null;
+  }
+  if (userName != null) {
+    rcontext.getJavascriptManager().require("SHARED/userTimeZoneSync");
+  }
 %>
 <script type="text/javascript" id="socialHeadScripts">
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
