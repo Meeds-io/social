@@ -71,6 +71,16 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
                                                      linkedSpace.getSpaceId());
     categoryLinkService.link(rootCategory.getId(), linkedObject);
 
+    // A second category on the same object is what makes the equivalence assertion below
+    // bite: with a single link the two calls return one-element lists and any ordering
+    // difference between them is invisible.
+    Category secondCategory = new Category();
+    secondCategory.setOwnerId(getAdminGroupIdentityId());
+    secondCategory.setParentId(rootCategory.getId());
+    secondCategory.setIcon("test-icon");
+    secondCategory = categoryService.createCategory(secondCategory, ROOT_USER);
+    categoryLinkService.link(secondCategory.getId(), linkedObject);
+
     Space unlinkedSpace = new Space();
     unlinkedSpace.setRegistration(Space.OPEN);
     unlinkedSpace.setVisibility(Space.PUBLIC);
@@ -82,9 +92,12 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
     Map<String, List<Long>> linkedIds = categoryLinkService.getLinkedIds(SpaceCategoryPlugin.OBJECT_TYPE,
                                                                          List.of(linkedObject.getId(), unlinkedObject.getId()));
 
-    // what the per-object call says, said for the whole page in one query
+    // what the per-object call says, said for the whole page in one query - same
+    // categories, same order, which only means something now the list has two entries
+    assertEquals(2, linkedIds.get(linkedObject.getId()).size());
     assertEquals(categoryLinkService.getLinkedIds(linkedObject), linkedIds.get(linkedObject.getId()));
     assertTrue(linkedIds.get(linkedObject.getId()).contains(rootCategory.getId()));
+    assertTrue(linkedIds.get(linkedObject.getId()).contains(secondCategory.getId()));
     // an object with no category is absent, not empty
     assertTrue(CollectionUtils.isEmpty(categoryLinkService.getLinkedIds(unlinkedObject)));
     assertNull(linkedIds.get(unlinkedObject.getId()));

@@ -21,6 +21,7 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -73,6 +74,9 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
 
   // Oracle refuses an IN list past 1000 literals (ORA-01795); same bound, and same
   // reason, as IdentityDAOImpl in this package.
+  // Oracle's hard limit on IN literals (ORA-01795), as IdentityDAOImpl uses in this
+  // package. ReactionStorage chunks the same table at 500; that is a throughput
+  // choice for a hot path, this one is the dialect bound itself.
   private static final int    MAX_ITEMS_PER_IN_CLAUSE = 1000;
 
   private static final String SPACE_ID             = "spaceId";
@@ -184,7 +188,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
    *
    * @param metadataType the metadata type id
    * @param objectType the object type, e.g. the one a category plugin registers
-   * @param objectIds the object ids to read, in any order
+   * @param objectIds the object ids to read; the order they are given in does not
+   *          matter, the result is ordered by object either way
    * @return the items of those objects, empty when no id is given
    */
   public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObjectIds(long metadataType,
@@ -203,6 +208,13 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
       int end = Math.min(start + MAX_ITEMS_PER_IN_CLAUSE, objectIds.size());
       query.setParameter(OBJECT_IDS, objectIds.subList(start, end));
       items.addAll(query.getResultList());
+    }
+    // Each chunk is ordered, their concatenation is not: object ids ascend within a chunk
+    // and restart at the next one. All the rows of one object sit in a single chunk, so a
+    // stable sort on the object id restores the documented grouping while leaving the
+    // within-object ordering the query established untouched.
+    if (objectIds.size() > MAX_ITEMS_PER_IN_CLAUSE) {
+      items.sort(Comparator.comparing(MetadataItemEntity::getObjectId));
     }
     return items;
   }
