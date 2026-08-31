@@ -18,6 +18,9 @@
  */
 package org.exoplatform.social.core;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.security.Identity;
@@ -94,12 +97,37 @@ public class ActivityTypePlugin extends BaseComponentPlugin {
 
   /**
    * Return specific activity title
-   * 
+   *
    * @param  activity {@link ExoSocialActivity}
    * @return          activity title to use in notification by example
    */
   public String getActivityTitle(ExoSocialActivity activity) {
     return activity.getTitle();
+  }
+
+  /**
+   * Return the specific Metadata Object Type that the activities of this type
+   * redirect their Metadata facts to (see ExoSocialActivity#hasSpecificMetadataObject)
+   * activities. Used to resolve Metadata items (favorites by example) attached
+   * to the specific object back to their displaying activities.
+   *
+   * @return the specific Metadata Object Type, or null when activities of this
+   *         type hold their Metadata facts themselves (the default)
+   */
+  public String getMetadataObjectType() {
+    return null;
+  }
+
+  /**
+   * Resolve the ids of the activities displaying the given specific Metadata
+   * objects (of type {@link ActivityTypePlugin#getMetadataObjectType()})
+   *
+   * @param  metadataObjectIds {@link List} of Metadata object ids
+   * @return                   {@link List} of corresponding activity ids,
+   *                           omitting objects with no resolvable activity
+   */
+  public List<String> getActivityIds(List<String> metadataObjectIds) {
+    return Collections.emptyList();
   }
 
   private String getParamValue(InitParams params, String paramName, String defaultValue) {
