@@ -54,6 +54,7 @@
           <value>EditCommentPlugin</value>
           <value>LikePlugin</value>
           <value>LikeCommentPlugin</value>
+          <value>PostReportPlugin</value>
         </values-param>
       </init-params>
     </component-plugin>
@@ -65,6 +66,16 @@
       <name>ActivityNotificationImpl</name>
       <set-method>addActivityEventListener</set-method>
       <type>org.exoplatform.social.notification.impl.ActivityNotificationImpl</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>social.activity.reported</name>
+      <set-method>addListener</set-method>
+      <type>io.meeds.social.report.notification.listener.ReportNotificationListener</type>
+      <description>Notifies the space managers when an activity or a comment is reported</description>
     </component-plugin>
   </external-component-plugins>
   

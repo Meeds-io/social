@@ -1,0 +1,76 @@
+<table border="0" cellpadding="0" cellspacing="0" width="600" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 12px;color:#333333;line-height: 18px;font-family: HelveticaNeue, Helvetica, Arial, sans-serif;">
+    <%
+      _templateContext.put("header_title", _ctx.appRes("Notification.title.PostReportPlugin"));
+      _ctx.include("war:/notification/templates/mail/NotificationHeader.gtmpl", _templateContext);
+    %>
+    <tr>
+        <td bgcolor="#ffffff" style="background-color: #ffffff;">
+            <table cellpadding="0" cellspacing="0" width="100%"  bgcolor="#ffffff" style="background-color: #ffffff; border-left:1px solid #d8d8d8;border-right:1px solid #d8d8d8;">
+                <tr>
+                    <td bgcolor="#ffffff" style="background-color: #ffffff;">
+                        <table border="0" cellpadding="0" cellspacing="0" width="92%" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 12px;color:#333333;line-height: 18px;">
+                            <tr>
+                                <td align="left" bgcolor="#ffffff" style="background-color: #ffffff;padding: 10px 0;">
+                                    <p style="margin: 10px 0;"><%=_ctx.appRes("Notification.label.SayHello")%> <%=_ctx.escapeHTML(FIRSTNAME)%>,</p>
+                                    <p style="margin: 10px 0 13px;">
+                                    <%
+                                      String profileUrl = "<strong><a target=\"_blank\" style=\"color: #2f5e92; text-decoration: none; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif\" href=\""+ PROFILE_URL + "\">" + _ctx.escapeHTML(USER) + "</a></strong>";
+                                      String targetLink = "<strong><a target=\"_blank\" style=\"color: #2f5e92; text-decoration: none; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif\" href=\""+ TARGET_URL + "\">" + _ctx.escapeHTML(TARGET) + "</a></strong>";
+                                    %>
+                                    <%=_ctx.appRes("Notification.message.PostReportPlugin", profileUrl, targetLink, _ctx.escapeHTML(REASON))%> :
+                                    </p>
+                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 12px;color:#333333;line-height: 18px;">
+                                        <tbody>
+                                            <tr>
+                                                <td align="left" bgcolor="#ffffff" style="background-color: #f9f9f9; padding: 15px 20px;">
+                                                    <p style="margin: 5px 0; line-height: 16px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif">$ACTIVITY</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <br/>
+                                    <p style="margin: 0 0 20px;">
+                                        <% if (OPEN_URL != null) { %>
+                                            <a target="_blank" style="
+                                            display: inline-block;
+                                            text-decoration: none;
+                                            font-size: 11px;
+                                            font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif;
+                                            color: #ffffff;
+                                            background-color: #567ab6;
+                                            background-image: -moz-linear-gradient(top, #638acd, #426393);
+                                            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#638acd), to(#426393));
+                                            background-image: -webkit-linear-gradient(top, #638acd, #426393);
+                                            background-image: -o-linear-gradient(top, #638acd, #426393);
+                                            background-image: linear-gradient(to bottom, #638acd, #426393);
+                                            background-repeat: repeat-x;
+                                            border-radius: 4px;
+                                            -moz-border-radius: 4px;
+                                            padding: 5px 8px;
+                                            height: 11px;
+                                            line-height: 11px;
+                                            max-height: 11px;
+                                            text-align: center;
+                                            border: 1px solid #224886;
+                                            font-weight: bold;
+                                            -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                            -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                            box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+                                            vertical-align: middle;
+                                            " href="$OPEN_URL" title="<%=_ctx.appRes("Notification.label.PostReportPlugin.Review." + TARGET_TYPE)%>">&#9888;&nbsp;<%=_ctx.appRes("Notification.label.PostReportPlugin.Review")%></a>
+                                        <% } %>
+                                    </p>
+                                    <p style="margin: 0 0 10px; color: #999999">
+                                        <%=_ctx.appRes("Notification.label.footer", FOOTER_LINK)%>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+    </tr><!--end content area-->
+    <% _ctx.include("war:/notification/templates/mail/NotificationFooter.gtmpl", _templateContext);%>
+</table>
