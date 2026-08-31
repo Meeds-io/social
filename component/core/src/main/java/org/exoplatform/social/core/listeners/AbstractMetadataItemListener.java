@@ -40,6 +40,8 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 
+import io.meeds.social.report.service.ActivityReportService;
+
 /**
  * Metadata Item listeners that will be triggered once a metadata is
  * added/delete/updated/shared
@@ -81,10 +83,24 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
         if (isActivityEvent(objectType)) {
           ExoSocialActivity activity = cachedActivityStorage.getActivity(objectId);
           if (activity != null && activity.hasSpecificMetadataObject()) {
-            // Copy Metadata definition into specific MetadataObject instead of
-            // Activity Object itself
-            MetadataObject metadataObject = activity.getMetadataObject();
-            moveMetadataItemToTargetObject(metadataItem, metadataObject);
+            if (isReportMetadataItem(metadataItem)) {
+              // Report items are exempted from the move below: their duplicate
+              // guard and stale sweep query the activity anchor
+              // (ActivityReportService), so moving them to the redirected
+              // content object would silently disable both. A redirected
+              // activity is cached under its redirected metadata object, so
+              // the selector-based eviction of
+              // handleMetadataModification(objectType, objectId) never matches
+              // it: evict it by key here so the derived canReport/hasReported
+              // flags are recomputed on the next read
+              cachedActivityStorage.clearActivityCached(objectId);
+              reindexActivity(objectId);
+            } else {
+              // Copy Metadata definition into specific MetadataObject instead
+              // of Activity Object itself
+              MetadataObject metadataObject = activity.getMetadataObject();
+              moveMetadataItemToTargetObject(metadataItem, metadataObject);
+            }
           }
         } else if (metadataItem.getSpaceId() >= 0 && cachedSpaceStorage != null) {
           Space space = cachedSpaceStorage.getSpaceById(metadataItem.getSpaceId());
@@ -128,6 +144,11 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
 
   protected boolean isSpaceEvent(String objectType) {
     return StringUtils.equals(objectType, Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE);
+  }
+
+  private boolean isReportMetadataItem(MetadataItem metadataItem) {
+    return metadataItem.getMetadata() != null
+           && StringUtils.equals(metadataItem.getMetadata().getTypeName(), ActivityReportService.METADATA_TYPE_NAME);
   }
 
   private void moveMetadataItemToTargetObject(MetadataItem metadataItem, MetadataObject targetMetadataObject) {

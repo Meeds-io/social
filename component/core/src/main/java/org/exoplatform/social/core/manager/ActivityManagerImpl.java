@@ -429,6 +429,14 @@ public class ActivityManagerImpl implements ActivityManager {
       activity.isHidden(true);
     }
     String[] previousMentions = existingActivity.getMentionedIds();
+    // a null title/body means "kept as is" for the storage layer below, so
+    // only a non-null, different value is an actual content change; category
+    // link/unlink, unhide and other content-neutral updates broadcast with
+    // contentChanged = false so listeners reacting to content edits only
+    // (e.g. the report stale flip) can ignore them
+    boolean contentChanged = (activity.getTitle() != null && !StringUtils.equals(activity.getTitle(),
+                                                                                 existingActivity.getTitle()))
+        || (activity.getBody() != null && !StringUtils.equals(activity.getBody(), existingActivity.getBody()));
     activityStorage.updateActivity(activity);
 
     if (previousMentions.length > 0) {
@@ -441,9 +449,9 @@ public class ActivityManagerImpl implements ActivityManager {
     }
     if (broadcast) {
       if (activity.isComment() || StringUtils.isNotBlank(activity.getParentId())) {
-        activityLifeCycle.updateComment(activity);
+        activityLifeCycle.updateComment(activity, contentChanged);
       } else {
-        activityLifeCycle.updateActivity(activity);
+        activityLifeCycle.updateActivity(activity, contentChanged);
       }
       if (CollectionUtils.size(activity.getCategoryIds()) != CollectionUtils.size(existingActivity.getCategoryIds())
           || (CollectionUtils.size(activity.getCategoryIds()) > 0 && !CollectionUtils.isEqualCollection(activity.getCategoryIds(), existingActivity.getCategoryIds()))) {
