@@ -76,6 +76,7 @@ public class ProfileAccessHandlerTest {
     when(controllerContext.getRequest()).thenReturn(request);
     when(controllerContext.getResponse()).thenReturn(response);
     when(request.getRemoteUser()).thenReturn(USERNAME);
+    when(request.getContextPath()).thenReturn("/portal");
     when(portalConfigService.getMetaPortal()).thenReturn("dw");
   }
 
@@ -143,14 +144,12 @@ public class ProfileAccessHandlerTest {
 
   @Test
   @SneakyThrows
-  public void testRedirectsAnonymousViewerToPublicPageNotFound() {
+  public void testLetsAnonymousViewerFallThroughToLoginFlow() {
     when(request.getRemoteUser()).thenReturn(null);
     when(controllerContext.getParameter(REQUEST_PATH)).thenReturn(PROFILE_OWNER);
-    when(identityManager.getOrCreateUserIdentity(PROFILE_OWNER)).thenReturn(identity);
-    when(identity.isEnable()).thenReturn(false);
-    assertTrue(profileAccessHandler.execute(controllerContext));
-    verify(response).sendRedirect("/portal/public/page-not-found");
-    verify(portalConfigService, never()).getMetaPortal();
+    assertFalse(profileAccessHandler.execute(controllerContext));
+    verify(response, never()).sendRedirect(anyString());
+    verify(identityManager, never()).getOrCreateUserIdentity(anyString());
   }
 
 }

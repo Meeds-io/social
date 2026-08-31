@@ -59,7 +59,7 @@ public class AccountDeactivationRequestMailBuilderTest extends AbstractCoreTest 
     assertTrue(message.getBody().contains("/portal/administration/home/organisation/users?status=DISABLED"));
   }
 
-  public void testMakeDigestWithOneRequester() throws Exception {
+  public void testMakeDigestWithOneRequester() {
     NotificationContext ctx = NotificationContextImpl.cloneInstance();
     ctx.setNotificationInfos(List.of(makeNotification(maryIdentity)));
     StringWriter writer = new StringWriter();
@@ -71,7 +71,7 @@ public class AccountDeactivationRequestMailBuilderTest extends AbstractCoreTest 
     assertTrue(digest, digest.contains("has requested to deactivate their account"));
   }
 
-  public void testMakeDigestDeduplicatesSameRequester() throws Exception {
+  public void testMakeDigestDeduplicatesSameRequester() {
     NotificationContext ctx = NotificationContextImpl.cloneInstance();
     // the same account deactivated, reactivated and deactivated again within
     // one digest period counts once
@@ -84,7 +84,7 @@ public class AccountDeactivationRequestMailBuilderTest extends AbstractCoreTest 
     assertTrue(digest, digest.contains("has requested to deactivate their account"));
   }
 
-  public void testMakeDigestWithFewRequesters() throws Exception {
+  public void testMakeDigestWithFewRequesters() {
     NotificationContext ctx = NotificationContextImpl.cloneInstance();
     ctx.setNotificationInfos(Arrays.asList(makeNotification(maryIdentity), makeNotification(johnIdentity)));
     StringWriter writer = new StringWriter();
@@ -97,7 +97,7 @@ public class AccountDeactivationRequestMailBuilderTest extends AbstractCoreTest 
     assertTrue(digest, digest.contains("have requested to deactivate their accounts"));
   }
 
-  public void testMakeDigestWithManyRequesters() throws Exception {
+  public void testMakeDigestWithManyRequesters() {
     NotificationContext ctx = NotificationContextImpl.cloneInstance();
     ctx.setNotificationInfos(Arrays.asList(makeNotification(maryIdentity),
                                            makeNotification(johnIdentity),

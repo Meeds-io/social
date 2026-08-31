@@ -185,6 +185,13 @@ export default {
       this.sendingCode = true;
       try {
         await this.$otpService.sendOtpCode(this.otpMethod);
+      } catch (e) {
+        if (e?.message === '429') {
+          // throttled: the previously sent code remains valid until its expiration
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.otpAlreadySent'), 'warning');
+        } else {
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.otpSendError'), 'error');
+        }
       } finally {
         this.sendingCode = false;
         this.emailSent = true;
