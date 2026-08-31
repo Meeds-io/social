@@ -171,6 +171,10 @@ public class CategoryStorage {
    * what each is filed under would ask it once per row, which is a query per message on
    * a mail folder and per document on a drive. This answers the page, so the caller
    * decorates its rows by lookup.
+   * <p>
+   * It is not a drop-in replacement in one respect: the ids are used as given, where the
+   * single-object call puts its object through the category plugin first. See the caveat
+   * on {@link io.meeds.social.category.service.CategoryLinkService#getLinkedIds(String, java.util.List)}.
    *
    * @param objectType the objects' type, as registered by a category plugin
    * @param objectIds the objects' identifiers

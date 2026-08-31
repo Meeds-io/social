@@ -72,8 +72,6 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
 
   private static final String OBJECT_IDS           = "objectIds";
 
-  // Oracle refuses an IN list past 1000 literals (ORA-01795); same bound, and same
-  // reason, as IdentityDAOImpl in this package.
   // Oracle's hard limit on IN literals (ORA-01795), as IdentityDAOImpl uses in this
   // package. ReactionStorage chunks the same table at 500; that is a throughput
   // choice for a hot path, this one is the dialect bound itself.
@@ -203,17 +201,23 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
                                                                              MetadataItemEntity.class);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(OBJECT_TYPE, objectType);
+    // SQL IN collapses duplicate literals, so a repeated id costs nothing inside one
+    // chunk - but the chunks partition this list positionally, and a duplicate that
+    // straddles a boundary is asked for twice and its rows added twice, which hands the
+    // caller that object's categories doubled. Distinct once, up front; it also makes
+    // the sort guard below exact rather than approximate.
+    List<String> distinctIds = objectIds.stream().distinct().toList();
     List<MetadataItemEntity> items = new ArrayList<>();
-    for (int start = 0; start < objectIds.size(); start += MAX_ITEMS_PER_IN_CLAUSE) {
-      int end = Math.min(start + MAX_ITEMS_PER_IN_CLAUSE, objectIds.size());
-      query.setParameter(OBJECT_IDS, objectIds.subList(start, end));
+    for (int start = 0; start < distinctIds.size(); start += MAX_ITEMS_PER_IN_CLAUSE) {
+      int end = Math.min(start + MAX_ITEMS_PER_IN_CLAUSE, distinctIds.size());
+      query.setParameter(OBJECT_IDS, distinctIds.subList(start, end));
       items.addAll(query.getResultList());
     }
     // Each chunk is ordered, their concatenation is not: object ids ascend within a chunk
     // and restart at the next one. All the rows of one object sit in a single chunk, so a
     // stable sort on the object id restores the documented grouping while leaving the
     // within-object ordering the query established untouched.
-    if (objectIds.size() > MAX_ITEMS_PER_IN_CLAUSE) {
+    if (distinctIds.size() > MAX_ITEMS_PER_IN_CLAUSE) {
       items.sort(Comparator.comparing(MetadataItemEntity::getObjectId));
     }
     return items;
