@@ -17,7 +17,7 @@
         :class="parentContentText && 'my-2' || ''"
         :title="contentText"
         class="text-truncate">
-        <v-icon size="14" class="me-1">{{ notificationIcon }}</v-icon>
+        <v-icon v-if="notificationIcon" size="14" class="me-1">{{ notificationIcon }}</v-icon>
         {{ contentText }}
       </div>
       <div v-if="reply" class="mt-1">

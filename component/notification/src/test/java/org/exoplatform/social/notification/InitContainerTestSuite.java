@@ -38,12 +38,14 @@ import org.exoplatform.social.notification.channel.template.LikeCommentMailBuild
 import org.exoplatform.social.notification.channel.template.LikeMailBuilderTest;
 import org.exoplatform.social.notification.channel.template.NewUserMailBuilderTest;
 import org.exoplatform.social.notification.channel.template.PostActivityMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.PostReportMailBuilderTest;
 import org.exoplatform.social.notification.channel.template.ReceiveRequestMailBuilderTest;
 import org.exoplatform.social.notification.channel.template.RequestJoinSpaceMailBuilderTest;
 import org.exoplatform.social.notification.channel.template.SpaceInvitationMailBuilderTest;
 import org.exoplatform.social.notification.impl.SpaceWebNotificationServiceTest;
 import org.exoplatform.social.notification.plugin.SocialNotificationUtilsTest;
 
+import io.meeds.social.report.notification.listener.ReportNotificationListenerTest;
 import io.meeds.social.security.plugin.EmailOtpPluginTest;
 
 @RunWith(Suite.class)
@@ -58,6 +60,8 @@ import io.meeds.social.security.plugin.EmailOtpPluginTest;
   SpaceInvitationMailBuilderTest.class,
   LikeMailBuilderTest.class,
   LikeCommentMailBuilderTest.class,
+  PostReportMailBuilderTest.class,
+  ReportNotificationListenerTest.class,
   LinkProviderUtilsTest.class,
   MailTemplateProviderTest.class,
   EditActivityMailBuilderTest.class,

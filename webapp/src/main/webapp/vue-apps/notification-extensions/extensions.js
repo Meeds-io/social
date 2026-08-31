@@ -42,6 +42,7 @@ extensionRegistry.registerExtension('WebNotification', 'notification-group-exten
     'SharedActivitySpaceStreamPlugin',
     'EditActivityPlugin',
     'LikePlugin',
+    'PostReportPlugin',
     'EditCommentPlugin',
     'LikeCommentPlugin'
   ],
@@ -112,6 +113,11 @@ extensionRegistry.registerExtension('WebNotification', 'notification-content-ext
   type: 'LikePlugin',
   rank: 10,
   vueComponent: Vue.options.components['user-notification-activity-like'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'PostReportPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-post-report'],
 });
 extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
   type: 'EditCommentPlugin',

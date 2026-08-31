@@ -24,6 +24,8 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.notification.channel.template.MailTemplateProvider;
 import org.exoplatform.social.notification.plugin.*;
 
+import io.meeds.social.report.notification.plugin.PostReportPlugin;
+
 @TemplateConfigs(templates = {
     @TemplateConfig(pluginId = ActivityCommentPlugin.ID, template = "classpath:/notification/templates/ActivityCommentPlugin.gtmpl"),
     @TemplateConfig(pluginId = ActivityReplyToCommentPlugin.ID, template = "classpath:/notification/templates/ActivityReplyToCommentPlugin.gtmpl"),
@@ -38,7 +40,8 @@ import org.exoplatform.social.notification.plugin.*;
     @TemplateConfig(pluginId = PostActivitySpaceStreamPlugin.ID, template = "classpath:/notification/templates/PostActivitySpaceStreamPlugin.gtmpl"),
     @TemplateConfig(pluginId = RelationshipReceivedRequestPlugin.ID, template = "classpath:/notification/templates/RelationshipReceivedRequestPlugin.gtmpl"),
     @TemplateConfig(pluginId = RequestJoinSpacePlugin.ID, template = "classpath:/notification/templates/RequestJoinSpacePlugin.gtmpl"),
-    @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "classpath:/notification/templates/SpaceInvitationPlugin.gtmpl")})
+    @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "classpath:/notification/templates/SpaceInvitationPlugin.gtmpl"),
+    @TemplateConfig(pluginId = PostReportPlugin.ID, template = "classpath:/notification/templates/PostReportPlugin.gtmpl")})
 public class MockMailTemplateProvider extends MailTemplateProvider {
 
   public MockMailTemplateProvider(InitParams initParams) {
