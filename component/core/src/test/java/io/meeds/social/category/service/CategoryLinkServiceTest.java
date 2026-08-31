@@ -56,8 +56,9 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
    * listing rows can stop asking once per row, and it is worth nothing if the two can
    * drift apart. It holds for ids in stored form - the bulk call does not put its ids
    * through the category plugin, as the caveat on CategoryLinkService#getLinkedIds
-   * spells out - which is the form this test uses. An object with no category is absent from the map rather than present
-   * with an empty list, so a caller can tell "none" from "not asked for".
+   * spells out - which is the form this test uses. An object with no category is
+   * absent from the map rather than present with an empty list, so a caller can tell
+   * "none" from "not asked for".
    */
   @Test
   @SneakyThrows
