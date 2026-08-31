@@ -169,7 +169,7 @@ public class AccountDeactivationEmailOtpPluginTest {
   public void testGenerateOtpCodeUsesDedicatedSubjectAndTemplate() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put(eq("accountDeactivationEmail:john"), eq(OTP_CODE));
+    verify(otpCache).put("accountDeactivationEmail:john", OTP_CODE);
     verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.subject"), any());
     verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.deactivationReminder"), any());
     verify(resourceBundleService).getSharedString(eq("social.accountDeactivation.otp.email.label.confirmMessage"), any());

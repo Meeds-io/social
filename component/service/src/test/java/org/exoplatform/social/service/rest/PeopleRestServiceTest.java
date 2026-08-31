@@ -20,6 +20,8 @@ package org.exoplatform.social.service.rest;
 
 import java.util.ArrayList;
 
+import org.exoplatform.social.service.rest.api.models.IdentityNameList;
+
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -151,6 +153,63 @@ public class PeopleRestServiceTest extends AbstractResourceTest {
     assertTrue(((ArrayList) response.getEntity()).size() == 2);
 
     relationshipManager.delete(relationship);
+  }
+
+  public void testDeactivatedUserNotSuggestedForMentionInActivityStream() throws Exception {
+    // Given: a confirmed connection whose account gets deactivated
+    Relationship relationship = new Relationship(rootIdentity, maryIdentity);
+    relationship.setStatus(Relationship.Type.CONFIRMED);
+    relationshipManager.inviteToConnect(rootIdentity, maryIdentity);
+    relationshipManager.confirm(maryIdentity, rootIdentity);
+    identityManager.processEnabledIdentity("mary", false);
+    try {
+      MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+      headers.putSingle("username", "root");
+      // When
+      ContainerResponse response = service("GET",
+                                           "/social/people/suggest.json?nameToSearch=m&currentUser=root&typeOfRelation=mention_activity_stream&activityId=null&spaceURL=null",
+                                           "",
+                                           headers,
+                                           null,
+                                           new ByteArrayContainerResponseWriter());
+      // Then
+      assertEquals(200, response.getStatus());
+      boolean marySuggested = ((ArrayList<?>) response.getEntity()).stream()
+                                                                    .map(IdentityNameList.Option.class::cast)
+                                                                    .anyMatch(option -> "mary".equals(option.getValue()));
+      assertFalse("a deactivated account must not be suggested for a mention", marySuggested);
+    } finally {
+      identityManager.processEnabledIdentity("mary", true);
+      relationshipManager.delete(relationship);
+    }
+  }
+
+  public void testDeactivatedAuthorNotSuggestedForMentionInComment() throws Exception {
+    // Given: an activity whose author gets deactivated afterwards
+    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
+    demoActivity.setTitle("activity of a soon deactivated author");
+    activityStorage.saveActivity(demoIdentity, demoActivity);
+    identityManager.processEnabledIdentity("demo", false);
+    try {
+      MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+      headers.putSingle("username", "root");
+      // When: mentioning in a comment of that activity
+      ContainerResponse response = service("GET",
+                                           "/social/people/suggest.json?nameToSearch=d&currentUser=root&typeOfRelation=mention_comment&activityId="
+                                               + demoActivity.getId() + "&spaceURL=null",
+                                           "",
+                                           headers,
+                                           null,
+                                           new ByteArrayContainerResponseWriter());
+      // Then: the author is not suggested anymore
+      assertEquals(200, response.getStatus());
+      boolean demoSuggested = ((ArrayList<?>) response.getEntity()).stream()
+                                                                    .map(IdentityNameList.Option.class::cast)
+                                                                    .anyMatch(option -> "demo".equals(option.getValue()));
+      assertFalse("a deactivated author must not be suggested for a mention in a comment", demoSuggested);
+    } finally {
+      identityManager.processEnabledIdentity("demo", true);
+    }
   }
 
   public void testSelfUserMentionInActivityStream() throws Exception {

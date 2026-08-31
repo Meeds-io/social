@@ -69,20 +69,22 @@ public class ProfileAccessHandler extends WebRequestHandler {
     String path = controllerContext.getParameter(REQUEST_PATH);
     String profileOwner = StringUtils.isBlank(path) ? null : path.split("/")[0];
     String username = controllerContext.getRequest().getRemoteUser();
-    if (StringUtils.isBlank(profileOwner) || StringUtils.equals(profileOwner, username)) {
+    // an anonymous visitor gets the same login flow whatever the requested
+    // username: answering differently would hand out a username enumeration
+    // oracle before any authentication
+    if (StringUtils.isBlank(username)
+        || StringUtils.isBlank(profileOwner)
+        || StringUtils.equals(profileOwner, username)) {
       return false;
     }
     Identity identity = identityManager.getOrCreateUserIdentity(profileOwner);
     if (identity == null || !identity.isEnable() || identity.isDeleted()) {
-      String pageNotFoundUrl = "/portal/" + getPageNotFoundSite(username) + "/page-not-found";
+      String pageNotFoundUrl = controllerContext.getRequest().getContextPath() + "/" + portalConfigService.getMetaPortal()
+          + "/page-not-found";
       controllerContext.getResponse().sendRedirect(pageNotFoundUrl);
       return true;
     }
     return false;
-  }
-
-  private String getPageNotFoundSite(String username) {
-    return StringUtils.isBlank(username) ? "public" : portalConfigService.getMetaPortal();
   }
 
 }

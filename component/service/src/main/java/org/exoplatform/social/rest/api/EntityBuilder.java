@@ -373,6 +373,9 @@ public class EntityBuilder {
         User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername(), UserStatus.ANY);
         if (user != null) {
           userEntity.setIsInternal(user.isInternalStore());
+          // the super user account can never be deleted nor disabled: the
+          // administration UI must not offer those actions for it
+          userEntity.setIsSuperUser(StringUtils.equals(getUserACL().getSuperUser(), user.getUserName()));
           if (user.getCreatedDate() != null) {
             userEntity.setCreatedDate(String.valueOf(user.getCreatedDate().getTime()));
           }

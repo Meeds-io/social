@@ -33,6 +33,7 @@ import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -43,16 +44,16 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.exoplatform.social.core.manager.IdentityManager;
 
-import io.meeds.common.ContainerTransactional;
-
 import lombok.Setter;
 
 /**
  * Executes the account deletion requests recorded by
- * {@link AccountDeactivationService}, once their grace delay elapsed. The
- * processing is idempotent without any cluster lock: for each due account the
- * request marker is removed in its own committed lifecycle first, so a
- * concurrent or replayed run finds nothing to do, and the deletion itself
+ * {@link AccountDeactivationService}, once their grace delay elapsed. This
+ * service starts no transaction on its own: the caller (the job) owns the
+ * container lifecycle, and the batch commits one transaction per processed
+ * account — marker removal and deletion together — so the processing stays
+ * idempotent without any cluster lock: a concurrent or replayed run finds no
+ * marker once an account's transaction is committed, and the deletion itself
  * (social identity soft-deleted then IDM user removed, mirroring the users
  * administration deletion) is a no-op once the IDM user is gone.
  */
@@ -92,7 +93,10 @@ public class AccountDeletionService {
    * Processes all the recorded deletion requests: collects the pending
    * requesters first (the enumeration must not be paged over while its rows
    * get deleted), then handles each account independently so one failure
-   * never prevents the other deletions.
+   * never prevents the other deletions. The current transaction is committed
+   * and reopened after each account, so the batch never accumulates one big
+   * transaction and a mid-batch failure never rolls back the already
+   * processed accounts.
    */
   public void processPendingDeletionRequests() {
     List<String> usernames = collectPendingRequests();
@@ -101,6 +105,8 @@ public class AccountDeletionService {
         processPendingDeletionRequestOf(username);
       } catch (Exception e) {
         LOG.error("Error processing the account deletion request of user {}, the account is left deactivated", username, e);
+      } finally {
+        RequestLifeCycle.restartTransaction();
       }
     }
   }
@@ -111,7 +117,6 @@ public class AccountDeletionService {
     }
   }
 
-  @ContainerTransactional
   public List<String> collectPendingRequests() {
     List<String> usernames = new ArrayList<>();
     int offset = 0;
@@ -134,9 +139,10 @@ public class AccountDeletionService {
 
   /**
    * Re-checks the eligibility of one recorded request and, when the account
-   * has to be deleted, removes the request marker so the deletion happens at
-   * most once even without any cluster lock. The marker is also cleaned up
-   * for requests that can never execute anymore (revoked by an admin
+   * has to be deleted, removes the request marker — committed together with
+   * the deletion in the per-account transaction controlled by the caller —
+   * so a replayed run finds nothing to do. The marker is also cleaned up for
+   * requests that can never execute anymore (revoked by an admin
    * re-activation, user already gone, externally synchronized account or
    * unreadable marker). Deliberately not re-checked: the admin deletion
    * option — the request was confirmed by its user under an enabled policy,
@@ -144,7 +150,6 @@ public class AccountDeletionService {
    *
    * @return true when the account deletion must proceed
    */
-  @ContainerTransactional
   public boolean prepareDeletion(String username) throws Exception {
     SettingValue<?> settingValue = settingService.get(Context.USER.id(username),
                                                       DELETION_REQUEST_SCOPE,
@@ -193,13 +198,16 @@ public class AccountDeletionService {
    * The user content (activities, comments, documents...) is preserved by
    * design and keeps being displayed.
    */
-  @ContainerTransactional
   public void deleteAccount(String username) throws Exception {
     Identity identity = identityManager.getOrCreateUserIdentity(username);
     identityManager.hardDeleteIdentity(identity);
     organizationService.getUserHandler().removeUser(username, false);
     indexingService.unindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
-    broadcastEvent(username, identity.getId());
+    // hardDeleteIdentity doesn't mutate the passed object: reflect the
+    // deletion on it so the event carries a really deleted identity
+    identity.setDeleted(true);
+    identity.setEnable(false);
+    broadcastEvent(identity);
     LOG.info("Account of user {} deleted following the deletion request confirmed more than {} day(s) ago",
              username,
              delayDays);
@@ -209,11 +217,11 @@ public class AccountDeletionService {
     settingService.remove(Context.USER.id(username), DELETION_REQUEST_SCOPE, DELETION_REQUEST_SETTING_NAME);
   }
 
-  private void broadcastEvent(String username, String identityId) {
+  private void broadcastEvent(Identity identity) {
     try {
-      listenerService.broadcast(ACCOUNT_DELETED_EVENT, username, identityId);
+      listenerService.broadcast(ACCOUNT_DELETED_EVENT, identity.getRemoteId(), identity);
     } catch (Exception e) {
-      LOG.warn("Error broadcasting event {} for user {} with identity id {}", ACCOUNT_DELETED_EVENT, username, identityId, e);
+      LOG.warn("Error broadcasting event {} for user {}", ACCOUNT_DELETED_EVENT, identity.getRemoteId(), e);
     }
   }
 
