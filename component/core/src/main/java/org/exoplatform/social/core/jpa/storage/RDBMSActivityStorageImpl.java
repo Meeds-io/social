@@ -67,6 +67,7 @@ import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ActivityShareActionEntity;
 import org.exoplatform.social.core.jpa.storage.entity.StreamItemEntity;
 import org.exoplatform.social.core.jpa.storage.entity.StreamType;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
@@ -812,26 +813,36 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       Identity spaceIdentity = identityStorage.findIdentityById(String.valueOf(spaceIdentityId));
       if (spaceIdentity != null) {
         Space space = spaceStorage.getSpaceByPrettyName(spaceIdentity.getRemoteId());
-        metadataItems =
-                      favoriteService.getFavoriteItemsByCreatorAndTypeAndSpaceId(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
-                                                                                 userIdentityId,
-                                                                                 Long.parseLong(space.getId()),
-                                                                                 0,
-                                                                                 -1);
+        metadataItems = favoriteService.getFavoriteItemsByCreatorAndSpaceId(userIdentityId,
+                                                                            Long.parseLong(space.getId()),
+                                                                            0,
+                                                                            -1);
       }
 
     } else {
-      metadataItems =
-                    favoriteService.getFavoriteItemsByCreatorAndType(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
-                                                                     userIdentityId,
-                                                                     0,
-                                                                     -1);
+      metadataItems = favoriteService.getFavoriteItemsByCreator(userIdentityId, 0, -1);
     }
 
-    return metadataItems.stream()
-                        .map(metadataItem -> getActivityStorage().getActivity(String.valueOf(metadataItem.getObjectId())))
-                        .sorted(Comparator.comparing(ExoSocialActivity::getUpdated).reversed())
-                        .collect(Collectors.toList());
+    Map<String, List<String>> objectIdsByType =
+        metadataItems.stream()
+                     .collect(Collectors.groupingBy(MetadataItem::getObjectType,
+                                                    Collectors.mapping(MetadataItem::getObjectId,
+                                                                       Collectors.toList())));
+    ActivityManager activityManager = ExoContainerContext.getService(ActivityManager.class);
+    return objectIdsByType.entrySet()
+                          .stream()
+                          .flatMap(objectIds -> StringUtils.equals(objectIds.getKey(),
+                                                                   ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE) ?
+                              objectIds.getValue()
+                                       .stream() :
+                              activityManager.getActivityIdsByMetadataObjects(objectIds.getKey(),
+                                                                              objectIds.getValue())
+                                             .stream())
+                          .distinct()
+                          .map(activityId -> getActivityStorage().getActivity(activityId))
+                          .filter(Objects::nonNull)
+                          .sorted(Comparator.comparing(ExoSocialActivity::getUpdated).reversed())
+                          .collect(Collectors.toList());
   }
 
   @Override
