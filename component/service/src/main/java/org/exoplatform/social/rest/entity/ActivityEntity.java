@@ -303,6 +303,24 @@ public class ActivityEntity extends BaseEntity {
     setProperty(RestProperties.CAN_PIN, canPin);
   }
 
+  public void setCanReport(boolean canReport) {
+    setProperty(RestProperties.CAN_REPORT, String.valueOf(canReport));
+  }
+
+  public boolean isCanReport() {
+    Object canReport = getProperty(RestProperties.CAN_REPORT);
+    return canReport != null && Boolean.parseBoolean(canReport.toString());
+  }
+
+  public void setHasReported(boolean hasReported) {
+    setProperty(RestProperties.HAS_REPORTED, String.valueOf(hasReported));
+  }
+
+  public boolean isHasReported() {
+    Object hasReported = getProperty(RestProperties.HAS_REPORTED);
+    return hasReported != null && Boolean.parseBoolean(hasReported.toString());
+  }
+
   public ActivityEntity setActivityStream(DataEntity activityStream) {
     setProperty("activityStream", activityStream);
     return this;

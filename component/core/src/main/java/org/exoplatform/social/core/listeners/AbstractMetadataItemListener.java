@@ -40,6 +40,8 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 
+import io.meeds.social.report.service.ActivityReportService;
+
 /**
  * Metadata Item listeners that will be triggered once a metadata is
  * added/delete/updated/shared
@@ -80,9 +82,12 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
       if (cachedActivityStorage != null) {
         if (isActivityEvent(objectType)) {
           ExoSocialActivity activity = cachedActivityStorage.getActivity(objectId);
-          if (activity != null && activity.hasSpecificMetadataObject()) {
+          if (activity != null && activity.hasSpecificMetadataObject() && !isReportMetadataItem(metadataItem)) {
             // Copy Metadata definition into specific MetadataObject instead of
-            // Activity Object itself
+            // Activity Object itself. Report items are exempted: their
+            // duplicate guard and stale sweep query the activity anchor
+            // (ActivityReportService), so moving them to the redirected
+            // content object would silently disable both
             MetadataObject metadataObject = activity.getMetadataObject();
             moveMetadataItemToTargetObject(metadataItem, metadataObject);
           }
@@ -128,6 +133,11 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
 
   protected boolean isSpaceEvent(String objectType) {
     return StringUtils.equals(objectType, Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE);
+  }
+
+  private boolean isReportMetadataItem(MetadataItem metadataItem) {
+    return metadataItem.getMetadata() != null
+           && StringUtils.equals(metadataItem.getMetadata().getTypeName(), ActivityReportService.METADATA_TYPE_NAME);
   }
 
   private void moveMetadataItemToTargetObject(MetadataItem metadataItem, MetadataObject targetMetadataObject) {

@@ -56,6 +56,7 @@ import io.meeds.social.html.model.HtmlTransformerContext;
 import io.meeds.social.html.utils.HtmlUtils;
 import io.meeds.social.reaction.service.ReactionService;
 import io.meeds.social.reaction.storage.ReactionStorage;
+import io.meeds.social.report.service.ActivityReportService;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 import io.meeds.social.translation.service.TranslationService;
@@ -1247,6 +1248,8 @@ public class EntityBuilder {
     activityEntity.setCanManage(canManage);
     boolean canPin = getActivityManager().canPinActivity(activity, authentiatedUser);
     activityEntity.setCanPin(canPin);
+    activityEntity.setCanReport(canReportActivity(activity, authentiatedUser));
+    activityEntity.setHasReported(hasReportedActivity(activity, authentiatedUser));
     activityEntity.setCategoryIds(activity.getCategoryIds());
 
     LinkEntity commentLink;
@@ -1363,6 +1366,12 @@ public class EntityBuilder {
     Set<Entry<String, List<MetadataItem>>> metadataEntries = activityMetadatas.entrySet();
     for (Entry<String, List<MetadataItem>> metadataEntry : metadataEntries) {
       String metadataType = metadataEntry.getKey();
+      if (ActivityReportService.METADATA_TYPE_NAME.equals(metadataType)) {
+        // Reports are never published as metadata items, whoever the caller
+        // is, the reporter included: callers only get the derived
+        // canReport/hasReported flags
+        continue;
+      }
       List<MetadataItem> metadataItems = metadataEntry.getValue();
       if (MapUtils.isNotEmpty(activityMetadatas)) {
         List<MetadataItemEntity> activityMetadataEntities =
@@ -1527,6 +1536,8 @@ public class EntityBuilder {
     commentEntity.setCommentsCount(comment.getCommentedIds() == null ? 0 : comment.getCommentedIds().length);
     commentEntity.setHasCommented(ArrayUtils.contains(comment.getCommentedIds(), authentiatedUser.getId()));
     commentEntity.setHasLiked(ArrayUtils.contains(comment.getLikeIdentityIds(), authentiatedUser.getId()));
+    commentEntity.setCanReport(canReportActivity(comment, authentiatedUser));
+    commentEntity.setHasReported(hasReportedActivity(comment, authentiatedUser));
     Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = retrieveMetadataItems(comment, authentiatedUser);
     if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
       commentEntity.setMetadatas(activityMetadatasToPublish);
@@ -1779,6 +1790,29 @@ public class EntityBuilder {
       as.put(RestProperties.ID, owner.getRemoteId());
     }
     return as;
+  }
+
+  private static boolean canReportActivity(ExoSocialActivity activity, Identity authentiatedUser) {
+    if (StringUtils.equals(activity.getPosterId(), authentiatedUser.getId())) {
+      return false;
+    }
+    Identity streamOwner = getStreamOwnerIdentity(activity);
+    return streamOwner != null && streamOwner.isSpace();
+  }
+
+  private static boolean hasReportedActivity(ExoSocialActivity activity, Identity authentiatedUser) {
+    Map<String, List<MetadataItem>> activityMetadatas = activity.getMetadatas();
+    if (MapUtils.isEmpty(activityMetadatas)
+        || CollectionUtils.isEmpty(activityMetadatas.get(ActivityReportService.METADATA_TYPE_NAME))) {
+      return false;
+    }
+    long authentiatedUserId = Long.parseLong(authentiatedUser.getId());
+    return activityMetadatas.get(ActivityReportService.METADATA_TYPE_NAME)
+                            .stream()
+                            .anyMatch(item -> item.getCreatorId() == authentiatedUserId
+                                              && (item.getProperties() == null
+                                                  || !ActivityReportService.STATUS_STALE.equals(item.getProperties()
+                                                                                                    .get(ActivityReportService.STATUS_PROPERTY))));
   }
 
   private static Identity getStreamOwnerIdentity(ExoSocialActivity activity) {

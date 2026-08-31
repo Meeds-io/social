@@ -34,9 +34,11 @@
             <v-list-item
               v-on="action.click && {
                 ...on,
-                click: () => clickOnAction(action),
+                click: () => !isActionDisabled(action) && clickOnAction(action),
               } || on"
               v-bind="attrs"
+              :class="isActionDisabled(action) && 'v-list-item--disabled' || ''"
+              :aria-label="isActionDisabled(action) && actionDisabledTitle(action) || $t(action.labelKey)"
               class="px-3"
               dense>
               <v-list-item-icon class="d-flex align-center justify-center ma-auto">
@@ -63,7 +65,7 @@
                 </v-card>
               </v-list-item-icon>
               <v-list-item-content class="ms-2">
-                <v-list-item-title class="menu-text-color">{{ $t(action.labelKey) }}</v-list-item-title>
+                <v-list-item-title class="menu-text-color">{{ $t(isActionDisabled(action) && action.disabledLabelKey || action.labelKey) }}</v-list-item-title>
               </v-list-item-content>
               <v-list-item-icon
                 v-if="action.children.length"
@@ -139,6 +141,12 @@ export default {
     menu: false,
     loading: false,
   }),
+  created() {
+    document.addEventListener('activity-reported', this.handleActivityReported);
+  },
+  beforeDestroy() {
+    document.removeEventListener('activity-reported', this.handleActivityReported);
+  },
   computed: {
     enabledActions() {
       const enabledActions = this.activityActions && Object.values(this.activityActions).filter(action => action.isEnabled && action.id && !action.parentId && (action.click || action.type === 'group') && action.isEnabled(this.activity, this.activityTypeExtension, this.isActivityDetail)) || [];
@@ -161,6 +169,17 @@ export default {
     },
   },
   methods: {
+    handleActivityReported(event) {
+      if (this.activity && !event?.detail?.isComment && event?.detail?.activityId === this.activity.id) {
+        this.$set(this.activity, 'hasReported', 'true');
+      }
+    },
+    isActionDisabled(action) {
+      return !!(action.disabled && action.disabled(this.activity, this.activityTypeExtension, this.isActivityDetail));
+    },
+    actionDisabledTitle(action) {
+      return this.isActionDisabled(action) && action.disabledTitleKey && this.$t(action.disabledTitleKey) || '';
+    },
     clickOnAction(action) {
       if (action.confirmDialog) {
         this.closeMenu();
