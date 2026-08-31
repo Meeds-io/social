@@ -19,6 +19,7 @@
 package io.meeds.social.core.mail;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.mail.Message.RecipientType;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -90,7 +92,7 @@ public class BrandedEmailSender {
     String lang = getUserLang(username);
     String emailBody = getEmailBody(user.getDisplayName(), lang, emailSubject, contentTemplatePath, customTokens);
     MimeMessage mimeMessage = new MimeMessage(mailService.getMailSession());
-    mimeMessage.setFrom(getSenderFullEmail());
+    mimeMessage.setFrom(getSenderAddress());
     mimeMessage.setRecipient(RecipientType.TO, new InternetAddress(user.getEmail()));
     mimeMessage.setSubject(StringEscapeUtils.unescapeHtml4(emailSubject), "UTF-8");
     mimeMessage.setSentDate(new Date());
@@ -144,7 +146,7 @@ public class BrandedEmailSender {
     return CommonsUtils.getCurrentDomain() + "/" + PortalContainer.getCurrentPortalContainerName();
   }
 
-  private String getSenderFullEmail() {
+  private InternetAddress getSenderAddress() throws UnsupportedEncodingException, AddressException {
     String senderEmail;
     try {
       senderEmail = MailUtils.getSenderEmail();
@@ -152,7 +154,10 @@ public class BrandedEmailSender {
       senderEmail = System.getProperty("gatein.email.smtp.from");
     }
     String senderName = brandingService.getCompanyName();
-    return StringUtils.isBlank(senderName) ? senderEmail : senderName + "<" + senderEmail + ">";
+    // the personal name is encoded by InternetAddress: a company name holding
+    // specials (',', '(' ...) must not produce an invalid From header
+    return StringUtils.isBlank(senderName) ? new InternetAddress(senderEmail)
+                                           : new InternetAddress(senderEmail, senderName, StandardCharsets.UTF_8.name());
   }
 
 }

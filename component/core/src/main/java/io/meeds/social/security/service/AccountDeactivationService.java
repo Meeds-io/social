@@ -124,7 +124,10 @@ public class AccountDeactivationService {
    */
   @SneakyThrows
   public boolean isDeactivationAllowed(String username) {
-    if (!securitySettingService.getRegistrationSetting().isAccountDeactivationEnabled()) {
+    // the admin option is read through the cluster-invalidated setting cache,
+    // not through the node-locally memoized RegistrationSetting: an admin
+    // turning the option off must be honored by every cluster node
+    if (!securitySettingService.isAccountDeactivationEnabled()) {
       return false;
     }
     User user = organizationService.getUserHandler().findUserByName(username);
@@ -141,7 +144,7 @@ public class AccountDeactivationService {
    * qualifying for the deactivation.
    */
   public boolean isDeletionAllowed(String username) {
-    return securitySettingService.getRegistrationSetting().isAccountDeletionEnabled()
+    return securitySettingService.isAccountDeletionEnabled()
            && isDeactivationAllowed(username);
   }
 
@@ -170,7 +173,7 @@ public class AccountDeactivationService {
     if (!isDeactivationAllowed(username)) {
       throw new IllegalStateException(String.format("Account deactivation isn't allowed for user %s", username));
     }
-    if (deleteRequested && !securitySettingService.getRegistrationSetting().isAccountDeletionEnabled()) {
+    if (deleteRequested && !securitySettingService.isAccountDeletionEnabled()) {
       throw new IllegalStateException(String.format("Account deletion isn't allowed for user %s", username));
     }
     otpService.validateOtp(username, otpMethod, otpCode);

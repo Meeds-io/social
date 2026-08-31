@@ -128,7 +128,10 @@ public class AccountDeactivationServiceTest {
   @SneakyThrows
   public void setUp() {
     registrationSetting = new RegistrationSetting();
-    when(securitySettingService.getRegistrationSetting()).thenReturn(registrationSetting);
+    // the service reads the admin flags through the direct (cluster-safe)
+    // readers, not through the memoized RegistrationSetting object
+    when(securitySettingService.isAccountDeactivationEnabled()).thenAnswer(invocation -> registrationSetting.isAccountDeactivationEnabled());
+    when(securitySettingService.isAccountDeletionEnabled()).thenAnswer(invocation -> registrationSetting.isAccountDeletionEnabled());
     when(organizationService.getUserHandler()).thenReturn(userHandler);
     when(userHandler.findUserByName(USERNAME)).thenReturn(user);
     when(identityManager.getOrCreateUserIdentity(USERNAME)).thenReturn(identity);

@@ -109,6 +109,7 @@ public class AccountDeletionServiceTest {
     when(user.isEnabled()).thenReturn(false);
     when(identityManager.getOrCreateUserIdentity(USERNAME)).thenReturn(identity);
     when(identity.getId()).thenReturn(IDENTITY_ID);
+    when(identity.getRemoteId()).thenReturn(USERNAME);
   }
 
   @Test
@@ -156,12 +157,13 @@ public class AccountDeletionServiceTest {
     stubRequestTime(System.currentTimeMillis() - 31 * DAY_IN_MS);
     accountDeletionService.processPendingDeletionRequestOf(USERNAME);
 
-    InOrder order = inOrder(settingService, identityManager, userHandler, indexingService, listenerService);
+    InOrder order = inOrder(settingService, identityManager, userHandler, indexingService, identity, listenerService);
     order.verify(settingService).remove(Context.USER.id(USERNAME), DELETION_REQUEST_SCOPE, DELETION_REQUEST_SETTING_NAME);
     order.verify(identityManager).hardDeleteIdentity(identity);
     order.verify(userHandler).removeUser(USERNAME, false);
     order.verify(indexingService).unindex(ProfileIndexingServiceConnector.TYPE, IDENTITY_ID);
-    order.verify(listenerService).broadcast(ACCOUNT_DELETED_EVENT, USERNAME, IDENTITY_ID);
+    order.verify(identity).setDeleted(true);
+    order.verify(listenerService).broadcast(ACCOUNT_DELETED_EVENT, USERNAME, identity);
   }
 
   @Test
@@ -238,8 +240,9 @@ public class AccountDeletionServiceTest {
 
     verify(userHandler).removeUser("failing", false);
     verify(userHandler).removeUser(USERNAME, false);
-    verify(listenerService).broadcast(ACCOUNT_DELETED_EVENT, USERNAME, IDENTITY_ID);
-    verify(listenerService, never()).broadcast(ACCOUNT_DELETED_EVENT, "failing", IDENTITY_ID);
+    // the failing account aborts before its broadcast: one single event
+    verify(listenerService, times(1)).broadcast(eq(ACCOUNT_DELETED_EVENT), anyString(), any());
+    verify(listenerService).broadcast(ACCOUNT_DELETED_EVENT, USERNAME, identity);
   }
 
   @Test
