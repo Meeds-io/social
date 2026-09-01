@@ -170,9 +170,9 @@ export default {
     menu() {
       if (!this.$root.isMobile) {
         if (this.menu) {
-          document.addEventListener('mousedown', this.closeMenu);
+          document.addEventListener('click', this.closeMenu);
         } else {
-          document.removeEventListener('mousedown', this.closeMenu);
+          document.removeEventListener('click', this.closeMenu);
         }
       }
     },
