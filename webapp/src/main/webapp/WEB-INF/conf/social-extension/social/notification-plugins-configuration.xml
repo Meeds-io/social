@@ -884,4 +884,59 @@
       <description>Notifies platform administrators on account deactivation request</description>
     </component-plugin>
   </external-component-plugins>
+
+  <!-- Digest mail notifications: the categories social owns -->
+  <external-component-plugins>
+    <target-component>io.meeds.commons.digest.DigestCategoryRegistry</target-component>
+    <component-plugin>
+      <name>spaces</name>
+      <set-method>addCategoryProvider</set-method>
+      <type>io.meeds.commons.digest.plugin.DigestCategoryPlugin</type>
+      <description>The space life notifications: invitations and join requests</description>
+      <init-params>
+        <value-param>
+          <name>id</name>
+          <value>spaces</value>
+        </value-param>
+        <value-param>
+          <name>labelKey</name>
+          <value>digest.category.spaces</value>
+        </value-param>
+        <value-param>
+          <name>order</name>
+          <value>10</value>
+        </value-param>
+        <values-param>
+          <name>pluginIds</name>
+          <value>SpaceInvitationPlugin</value>
+          <value>RequestJoinSpacePlugin</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>feed</name>
+      <set-method>addCategoryProvider</set-method>
+      <type>io.meeds.commons.digest.plugin.DigestCategoryPlugin</type>
+      <description>What happens on the activity streams the user follows</description>
+      <init-params>
+        <value-param>
+          <name>id</name>
+          <value>feed</value>
+        </value-param>
+        <value-param>
+          <name>labelKey</name>
+          <value>digest.category.feed</value>
+        </value-param>
+        <value-param>
+          <name>order</name>
+          <value>20</value>
+        </value-param>
+        <values-param>
+          <name>pluginIds</name>
+          <value>PostActivitySpaceStreamPlugin</value>
+          <value>ActivityCommentWatchPlugin</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 </configuration>

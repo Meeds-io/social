@@ -36,7 +36,7 @@
               :aria-label="$t('UserSettings.title.digest')"
               small
               icon
-              @click="openDigestDrawer">
+              @click="$emit('open')">
               <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
             </v-btn>
           </template>
@@ -47,15 +47,3 @@
     <v-divider class="mx-4" />
   </div>
 </template>
-
-<script>
-export default {
-  methods: {
-    openDigestDrawer() {
-      // The digest drawer (US03) lives in this same vue app and listens to
-      // this root event
-      this.$root.$emit('openDigestSettingsDrawer');
-    },
-  },
-};
-</script>

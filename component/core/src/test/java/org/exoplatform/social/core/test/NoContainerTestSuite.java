@@ -76,6 +76,8 @@ import io.meeds.social.space.template.service.SpaceTemplateServiceTest;
 import io.meeds.social.space.template.storage.SpaceTemplateStorageTest;
 import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
 import io.meeds.social.user.plugin.UserAclPluginTest;
+import io.meeds.social.digest.service.DigestCategoryLabelResolverTest;
+import io.meeds.social.timezone.service.UserTimeZoneServiceTest;
 import io.meeds.social.identity.permission.listener.UserPermissionGroupListenerTest;
 import io.meeds.social.identity.permission.listener.UserPermissionMembershipListenerTest;
 import io.meeds.social.identity.permission.listener.UserPermissionNestedMembershipListenerTest;
@@ -90,6 +92,8 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+    DigestCategoryLabelResolverTest.class,
+    UserTimeZoneServiceTest.class,
     ReactionServiceImplTest.class,
     ReactionStorageTest.class,
     ReactionLikeDeletedListenerTest.class,
