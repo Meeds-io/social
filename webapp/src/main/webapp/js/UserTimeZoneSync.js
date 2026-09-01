@@ -1,4 +1,4 @@
-/**
+/*
  * This file is part of the Meeds project (https://meeds.io/).
  *
  * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
@@ -16,34 +16,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.digest.rest.model;
 
-import java.util.List;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-/**
- * Everything the digest settings drawer needs in one call: whether the
- * administrator allows the digest, the categories the installed addons offer,
- * and the choices of the current user.
- */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class DigestSettingsEntity {
-
-  private boolean                    digestAllowed;
-
-  private List<DigestCategoryEntity> categories;
-
-  private boolean                    daily;
-
-  private List<String>               dailyCategories;
-
-  private boolean                    weekly;
-
-  private List<String>               weeklyCategories;
-
-}
+// Keeps the timezone the platform knows for the user aligned on the one his
+// browser lives in, so that everything sent to him on a schedule goes out at
+// the right local hour. This synchronization used to live in the agenda addon.
+(function() {
+  const timeZoneId = new window.Intl.DateTimeFormat().resolvedOptions().timeZone;
+  if (eXo.env.portal.userName && timeZoneId && eXo.env.portal.userTimezone !== timeZoneId) {
+    fetch('/social/rest/timezone', {
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+      method: 'POST',
+      credentials: 'include',
+      body: timeZoneId,
+    }).then(resp => {
+      if (!resp || !resp.ok) {
+        throw new Error('Server Request Error: Cannot update user TimeZone');
+      }
+    });
+  }
+})();
