@@ -130,6 +130,18 @@ export default {
         this.weeklyCategories = this.allCategoryIds.slice();
       }
     },
+    // Unchecking every category of a frequency switches the frequency itself
+    // off (spec §1: unchecking all switches off the option)
+    dailyCategories() {
+      if (this.daily && this.categories.length && !this.dailyCategories.length) {
+        this.daily = false;
+      }
+    },
+    weeklyCategories() {
+      if (this.weekly && this.categories.length && !this.weeklyCategories.length) {
+        this.weekly = false;
+      }
+    },
   },
   methods: {
     open() {
