@@ -88,15 +88,27 @@ export default {
     dailyCategories: [],
     weekly: false,
     weeklyCategories: [],
+    loadedSettings: null,
   }),
   computed: {
     allCategoryIds() {
       return this.categories.map(category => category.id);
     },
-    // An enabled frequency with no category would send an empty digest, the
-    // server refuses it as well
+    changed() {
+      return this.loadedSettings
+        && (this.daily !== this.loadedSettings.daily
+          || this.weekly !== this.loadedSettings.weekly
+          || !this.sameCategories(this.dailyCategories, this.loadedSettings.dailyCategories)
+          || !this.sameCategories(this.weeklyCategories, this.loadedSettings.weeklyCategories));
+    },
+    // Apply stays disabled until the user changes something, then follows the
+    // server rule: an enabled frequency with no category would send an empty
+    // digest, the server refuses it as well. Unchecking everything stays a
+    // change to apply: it is how the user switches his digest off
     disabled() {
       return this.saving
+        || this.loading
+        || !this.changed
         || this.daily && !this.dailyCategories.length
         || this.weekly && !this.weeklyCategories.length;
     },
@@ -130,6 +142,14 @@ export default {
           // categories already loaded to leave the choices of the user alone
           this.daily = settings?.daily || false;
           this.weekly = settings?.weekly || false;
+          // What the server holds right now: Apply wakes up when the choices
+          // differ from it
+          this.loadedSettings = {
+            daily: this.daily,
+            dailyCategories: this.dailyCategories.slice(),
+            weekly: this.weekly,
+            weeklyCategories: this.weeklyCategories.slice(),
+          };
         })
         .catch(() => {
           this.$root.$emit('alert-message', this.$t('UserSettings.digest.error.load'), 'error');
@@ -146,7 +166,12 @@ export default {
       this.dailyCategories = [];
       this.weekly = false;
       this.weeklyCategories = [];
+      this.loadedSettings = null;
       this.saving = false;
+    },
+    sameCategories(categories, loadedCategories) {
+      return categories.length === loadedCategories.length
+        && categories.every(id => loadedCategories.includes(id));
     },
     save() {
       this.saving = true;
