@@ -18,17 +18,31 @@
  */
 package io.meeds.social.digest.rest;
 
+import java.util.List;
+import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import io.meeds.commons.digest.DigestService;
+import io.meeds.commons.digest.model.DigestUserSettings;
+import io.meeds.commons.digest.plugin.DigestCategoryProvider;
+import io.meeds.social.digest.rest.model.DigestCategoryEntity;
 import io.meeds.social.digest.rest.model.DigestSettingsEntity;
+import io.meeds.social.digest.rest.model.DigestUserSettingsEntity;
+import io.meeds.social.digest.service.DigestCategoryLabelResolver;
+import io.meeds.social.timezone.service.UserTimeZoneService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,18 +56,63 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class DigestRest {
 
   @Autowired
-  private DigestService digestService;
+  private DigestService               digestService;
+
+  @Autowired
+  private UserTimeZoneService         userTimeZoneService;
+
+  @Autowired
+  private DigestCategoryLabelResolver labelResolver;
 
   @GetMapping("settings")
   @Secured("users")
   @Operation(summary = "Retrieves the digest mail notification settings", method = "GET",
-             description = "Retrieves the digest mail notification settings, holding the platform-wide administrator switch state")
+             description = "Retrieves the platform-wide administrator switch state, the categories offered by the installed addons and the choices of the current user")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse(responseCode = "403", description = "Forbidden"),
   })
-  public DigestSettingsEntity getSettings() {
-    return new DigestSettingsEntity(digestService.isDigestAllowed());
+  public DigestSettingsEntity getSettings(HttpServletRequest request) {
+    boolean digestAllowed = digestService.isDigestAllowed();
+    if (!digestAllowed) {
+      // Nothing to display, the categories and the user choices are useless
+      return new DigestSettingsEntity(false, List.of(), false, List.of(), false, List.of());
+    }
+    DigestUserSettings userSettings = digestService.getUserSettings(request.getRemoteUser());
+    return new DigestSettingsEntity(true,
+                                    toCategoryEntities(digestService.getCategories(), request.getLocale()),
+                                    userSettings.isDaily(),
+                                    userSettings.getDailyCategories(),
+                                    userSettings.isWeekly(),
+                                    userSettings.getWeeklyCategories());
+  }
+
+  @PatchMapping(path = "settings", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @Secured("users")
+  @Operation(summary = "Saves the digest mail notification choices of the current user", method = "PATCH",
+             description = "Saves the frequencies and the categories the current user chose, and enrolls him in the digest sending")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input"),
+    @ApiResponse(responseCode = "403", description = "Forbidden"),
+  })
+  public void saveUserSettings(HttpServletRequest request,
+                               @RequestBody
+                               DigestUserSettingsEntity settings) {
+    if (!digestService.isDigestAllowed()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Digest mail notifications are not allowed");
+    }
+    String username = request.getRemoteUser();
+    try {
+      digestService.saveUserSettings(username,
+                                     new DigestUserSettings(settings.isDaily(),
+                                                            settings.getDailyCategories(),
+                                                            settings.isWeekly(),
+                                                            settings.getWeeklyCategories()),
+                                     userTimeZoneService.getUserTimeZone(username));
+    } catch (IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
   }
 
   @PatchMapping(path = "allowed", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -68,6 +127,12 @@ public class DigestRest {
                                 @RequestParam("allowed")
                                 boolean allowed) {
     digestService.saveDigestAllowed(allowed);
+  }
+
+  private List<DigestCategoryEntity> toCategoryEntities(List<DigestCategoryProvider> categories, Locale locale) {
+    return categories.stream()
+                     .map(category -> new DigestCategoryEntity(category.getId(), labelResolver.getLabel(category, locale)))
+                     .toList();
   }
 
 }
