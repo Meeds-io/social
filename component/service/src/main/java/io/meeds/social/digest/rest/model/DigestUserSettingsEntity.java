@@ -25,25 +25,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Everything the digest settings drawer needs in one call: whether the
- * administrator allows the digest, the categories the installed addons offer,
- * and the choices of the current user.
+ * The digest choices sent by the settings drawer.
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DigestSettingsEntity {
+public class DigestUserSettingsEntity {
 
-  private boolean                    digestAllowed;
+  private boolean      daily;
 
-  private List<DigestCategoryEntity> categories;
+  private List<String> dailyCategories;
 
-  private boolean                    daily;
+  private boolean      weekly;
 
-  private List<String>               dailyCategories;
-
-  private boolean                    weekly;
-
-  private List<String>               weeklyCategories;
+  private List<String> weeklyCategories;
 
 }

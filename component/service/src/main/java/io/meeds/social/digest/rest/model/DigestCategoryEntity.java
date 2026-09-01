@@ -18,32 +18,22 @@
  */
 package io.meeds.social.digest.rest.model;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Everything the digest settings drawer needs in one call: whether the
- * administrator allows the digest, the categories the installed addons offer,
- * and the choices of the current user.
+ * A category the user can pick in the digest settings drawer. Only the
+ * categories of the installed addons are sent.
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DigestSettingsEntity {
+public class DigestCategoryEntity {
 
-  private boolean                    digestAllowed;
+  private String id;
 
-  private List<DigestCategoryEntity> categories;
-
-  private boolean                    daily;
-
-  private List<String>               dailyCategories;
-
-  private boolean                    weekly;
-
-  private List<String>               weeklyCategories;
+  /** Already translated in the language of the user */
+  private String label;
 
 }
