@@ -1,4 +1,9 @@
 <%
   def rcontext = _ctx.getRequestContext();
   rcontext.getJavascriptManager().require("SHARED/AttachmentPreviewListener", "AttachmentPreviewListener");
+  if (rcontext.getRemoteUser() != null) {
+    // Keeps the platform timezone of the user aligned on his browser one; the
+    // head template prints the known value this script compares against
+    rcontext.getJavascriptManager().require("SHARED/userTimeZoneSync");
+  }
 %>

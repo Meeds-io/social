@@ -58,6 +58,14 @@ public class Profile {
   /** TimeZone key. */
   public static final String  TIME_ZONE               = "timeZone";
 
+  /**
+   * The organization profile attribute holding the timezone the browser of the
+   * user lives in, for example Europe/Paris. It is the source of truth for
+   * everything sent to the user on a schedule, kept up to date on every page
+   * load by the platform timezone synchronization.
+   */
+  public static final String  USER_TIME_ZONE          = "user.timeZone";
+
   /** TimeZone DayLight savings key. */
   public static final String  TIME_ZONE_DST_SAVINGS   = "timeZoneDSTSavings";
 
