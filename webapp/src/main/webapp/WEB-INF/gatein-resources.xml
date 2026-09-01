@@ -2899,9 +2899,6 @@
       <module>ExtendedDomPurify</module>
     </depends>
     <depends>
-      <module>EmojiAccessibility</module>
-    </depends>
-    <depends>
       <module>vue</module>
     </depends>
   </module>
@@ -2919,15 +2916,6 @@
     <depends>
       <module>purify</module>
     </depends>
-  </module>
-
-  <module>
-    <name>EmojiAccessibility</name>
-    <load-group>purifyGRP</load-group>
-    <script>
-      <minify>false</minify>
-      <path>/js/EmojiAccessibility.js</path>
-    </script>
   </module>
 
   <module>
