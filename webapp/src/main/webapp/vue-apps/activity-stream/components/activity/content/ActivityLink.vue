@@ -50,7 +50,7 @@
           </div>
           <dynamic-html-element
             v-if="summary"
-            :child="summaryElement()"
+            :child="summaryElement"
             :class="bodyClass"
             class="text-subtitle mt-3 text-color text-truncate-2 text-wrap text-break reset-style-box rich-editor-content mb-0"
             dir="auto" />
@@ -122,12 +122,12 @@
         class="no-min-width position-relative d-flex flex-column flex-grow-1 mx-3">
         <dynamic-html-element
           v-if="title"
-          :child="titleElement()"
+          :child="titleElement"
           class="text-truncate text-body mb-3 mt-2 font-weight-bold text-color mx-0 mt-0 text-wrap text-break"
           dir="auto" />
         <dynamic-html-element
           v-if="summary"
-          :child="summaryElement()"
+          :child="summaryElement"
           :class="bodyClass"
           class="text-subtitle text-color text-wrap text-break reset-style-box rich-editor-content mb-0"
           dir="auto" />
@@ -153,7 +153,6 @@
 
 <script>
 export default {
-  mixins: [EmojiAccessibility.readyMixin],
   props: {
     activity: {
       type: Object,
@@ -187,10 +186,7 @@ export default {
     useEmbeddedLinkView: true,
     summaryLinesToDisplay: 2,
     isLandscapeThumbnail: false,
-    activityViews: null,
-    summaryElementCache: null,
-    titleElementCache: null,
-    resizeObserver: null,
+    activityViews: null
   }),
   computed: {
     showFooter() {
@@ -307,6 +303,16 @@ export default {
     summaryText() {
       return this.summary && this.$utils.htmlToText(this.summary) || '';
     },
+    summaryElement() {
+      return {
+        template: this.summary && ExtendedDomPurify.purify(`<div>${this.summary}</div>`) || '',
+      };
+    },
+    titleElement() {
+      return {
+        template: this.title && ExtendedDomPurify.purify(`<span>${this.title}</span>`) || '',
+      };
+    },
     bodyClass() {
       return `${this.textTruncate || ''} ${!this.useEllipsisOnSummary && this.collapsed && !this.fullContent && 'text-truncate-4' || ''} ${this.regularFontSizeOnSummary && 'text-font-size' || 'caption'}`;
     },
@@ -367,11 +373,9 @@ export default {
   },
   mounted() {
     this.displayReadMore();
-    this.initResizeObserver();
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.displayReadMore);
-    this.resizeObserver?.disconnect();
   },
   methods: {
     retrieveActivityProperties() {
@@ -408,33 +412,6 @@ export default {
     },
     displayFullContent() {
       this.fullContent = !this.fullContent;
-    },
-    summaryElement() {
-      const purifiedHtml = this.summary && ExtendedDomPurify.purify(`<div>${this.summary}</div>`) || '';
-      const template = this.emojiBankReady && purifiedHtml && EmojiAccessibility.addAccessibleNameToEmojis(purifiedHtml) || purifiedHtml;
-      if (!this.summaryElementCache || this.summaryElementCache.template !== template) {
-        this.summaryElementCache = {template};
-      }
-      return this.summaryElementCache;
-    },
-    titleElement() {
-      const purifiedHtml = this.title && ExtendedDomPurify.purify(`<span>${this.title}</span>`) || '';
-      const template = this.emojiBankReady && purifiedHtml && EmojiAccessibility.addAccessibleNameToEmojis(purifiedHtml) || purifiedHtml;
-      if (!this.titleElementCache || this.titleElementCache.template !== template) {
-        this.titleElementCache = {template};
-      }
-      return this.titleElementCache;
-    },
-    initResizeObserver() {
-      if (this.resizeObserver) {
-        return;
-      }
-      const elem = this.$el?.querySelector?.('.rich-editor-content');
-      if (!elem) {
-        return;
-      }
-      this.resizeObserver = new ResizeObserver(() => this.displayReadMore());
-      this.resizeObserver.observe(elem);
     },
   },
 };
