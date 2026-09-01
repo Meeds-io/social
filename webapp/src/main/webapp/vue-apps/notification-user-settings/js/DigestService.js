@@ -29,3 +29,23 @@ export function getDigestSettings() {
     }
   });
 }
+
+export function saveDigestSettings(daily, dailyCategories, weekly, weeklyCategories) {
+  return fetch('/social/rest/notifications/digest/settings', {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      daily,
+      dailyCategories,
+      weekly,
+      weeklyCategories,
+    }),
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Error saving digest settings');
+    }
+  });
+}
