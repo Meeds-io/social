@@ -17,7 +17,9 @@
           </v-list-item-content>
         </v-list-item>
 
-        <user-setting-digest-entry v-if="digestAllowed" />
+        <user-setting-digest-entry
+          v-if="digestAllowed"
+          @open="$refs.digestDrawer.open()" />
 
         <template v-if="notificationSettings && notificationSettings.channels">
           <user-setting-notification-channel
@@ -83,6 +85,7 @@
       ref="muteSpacesDrawer"
       :settings="notificationSettings"
       @refresh="refresh" />
+    <user-setting-digest-drawer v-if="digestAllowed" ref="digestDrawer" />
   </v-app>
 </template>
 <script>
