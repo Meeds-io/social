@@ -94,12 +94,15 @@ export default {
     allCategoryIds() {
       return this.categories.map(category => category.id);
     },
+    // The comparison is on the effective state: the categories of a frequency
+    // that is off don't count, unchecking a frequency after having played with
+    // its categories is going back to the initial state
     changed() {
       return this.loadedSettings
         && (this.daily !== this.loadedSettings.daily
           || this.weekly !== this.loadedSettings.weekly
-          || !this.sameCategories(this.dailyCategories, this.loadedSettings.dailyCategories)
-          || !this.sameCategories(this.weeklyCategories, this.loadedSettings.weeklyCategories));
+          || this.daily && !this.sameCategories(this.dailyCategories, this.loadedSettings.dailyCategories)
+          || this.weekly && !this.sameCategories(this.weeklyCategories, this.loadedSettings.weeklyCategories));
     },
     // Apply stays disabled until the user changes something, then follows the
     // server rule: an enabled frequency with no category would send an empty
