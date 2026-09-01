@@ -3224,6 +3224,14 @@
   </module>
 
   <module>
+    <name>userTimeZoneSync</name>
+    <load-group>baseGRP</load-group>
+    <script>
+      <path>/js/UserTimeZoneSync.js</path>
+    </script>
+  </module>
+
+  <module>
     <name>bodyScrollListener</name>
     <load-group>baseGRP</load-group>
     <script>
