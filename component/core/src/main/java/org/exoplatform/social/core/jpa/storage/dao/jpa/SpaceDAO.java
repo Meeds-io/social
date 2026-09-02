@@ -84,6 +84,8 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
 
   private static final String                      PARAM_HIDDEN_VISIBILITY     = "hiddenVisibility";
 
+  private static final String                      DISPLAY_NAME_SORT_FIELD     = "s.displayName";
+
   private static final String                      QUERY_FILTER_FIND_PREFIX    = "Space.findSpaces";
 
   private static final String                      QUERY_FILTER_COUNT_PREFIX   = "Space.countSpaces";
@@ -309,7 +311,7 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
                                        List<String> parameterNames,
                                        boolean count) {
     String querySelect = count ? "SELECT COUNT(DISTINCT s.id) FROM SocSpaceEntity s " :
-                               "SELECT DISTINCT(s.id), " + getSortField(spaceFilter) + " FROM SocSpaceEntity s ";
+                               "SELECT DISTINCT(s.id), " + getSelectedSortFields(spaceFilter) + " FROM SocSpaceEntity s ";
     boolean lastAccess = isLastAccess(spaceFilter);
     if (parameterNames.contains(PARAM_USER_ID) || lastAccess) {
       if (StringUtils.isNotBlank(spaceFilter.getRemoteId()) && lastAccess) {
@@ -336,8 +338,7 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       queryContent = querySelect + " WHERE " + StringUtils.join(predicates, " AND ");
     }
     if (!count) {
-      queryContent += " ORDER BY " + getSortField(spaceFilter) +
-          (isSortDescending(spaceFilter) ? " DESC " : " ASC ");
+      queryContent += " ORDER BY " + getOrderByClause(spaceFilter);
     }
     return queryContent;
   }
@@ -491,8 +492,46 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     } else if (sorting.sortBy.equals(SortBy.DATE)) {
       return "s.createdDate";
     } else {
-      return "s.displayName";
+      return DISPLAY_NAME_SORT_FIELD;
     }
+  }
+
+  /**
+   * Gives the fields the query has to select for its own ordering: the sort
+   * field, and the display name it is broken ties with. Both are needed in the
+   * select list because the query is a SELECT DISTINCT, which may only be
+   * ordered by what it selects.
+   *
+   * @param spaceFilter filter the query is built from
+   * @return the sort fields, comma separated, without the ordering direction
+   */
+  private String getSelectedSortFields(XSpaceFilter spaceFilter) {
+    String sortField = getSortField(spaceFilter);
+    return DISPLAY_NAME_SORT_FIELD.equals(sortField) ? sortField : sortField + ", " + DISPLAY_NAME_SORT_FIELD;
+  }
+
+  /**
+   * Builds the ordering of a space list: the requested sort field, then the
+   * display name as a tie-break.
+   * <p>
+   * <strong>The tie-break is what makes a paginated list stable.</strong>
+   * Neither of the other two sort fields is unique across spaces, and the last
+   * visit is the extreme case: every space a user has never opened carries the
+   * same default date, so on the ordering alone the database is free to return
+   * them in any order it likes, and in a different one from one page — or one
+   * refetch — to the next. A caller paging through such a list sees rows move
+   * under it for no reason it can observe. Ordering by the name after the sort
+   * field costs nothing where the field is already unique, and turns the rest
+   * of the list from arbitrary into alphabetical.
+   *
+   * @param spaceFilter filter the query is built from
+   * @return the ORDER BY clause content, directions included
+   */
+  private String getOrderByClause(XSpaceFilter spaceFilter) {
+    String sortField = getSortField(spaceFilter);
+    String direction = isSortDescending(spaceFilter) ? " DESC " : " ASC ";
+    return DISPLAY_NAME_SORT_FIELD.equals(sortField) ? sortField + direction
+                                                     : sortField + direction + ", " + DISPLAY_NAME_SORT_FIELD + " ASC ";
   }
 
   private boolean isSortDescending(XSpaceFilter spaceFilter) {
