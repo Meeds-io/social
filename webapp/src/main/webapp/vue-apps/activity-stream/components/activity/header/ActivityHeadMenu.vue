@@ -31,49 +31,57 @@
           open-on-hover
           offset-x>
           <template #activator="{ on, attrs }">
-            <v-list-item
-              v-on="action.click && {
-                ...on,
-                click: () => !isActionDisabled(action) && clickOnAction(action),
-              } || on"
-              v-bind="attrs"
-              :class="isActionDisabled(action) && 'v-list-item--disabled' || ''"
-              :title="actionDisabledTitle(action)"
-              :aria-label="isActionDisabled(action) && actionDisabledTitle(action) || $t(action.labelKey)"
-              class="px-3"
-              dense>
-              <v-list-item-icon class="d-flex align-center justify-center ma-auto">
-                <v-card
-                  class="d-flex align-center justify-center"
-                  color="transparent"
-                  min-height="24"
-                  min-width="20"
-                  flat>
-                  <v-img
-                    v-if="action.icon?.includes?.('base64') || action.icon?.includes?.('/')"
-                    :src="action.icon"
-                    max-height="16"
-                    height="16"
-                    max-width="16"
-                    contain
-                    eager />
-                  <v-icon
-                    v-else
-                    size="16"
-                    class="icon-default-color">
-                    {{ $t(action.icon) }}
-                  </v-icon>
-                </v-card>
-              </v-list-item-icon>
-              <v-list-item-content class="ms-2">
-                <v-list-item-title class="menu-text-color">{{ $t(isActionDisabled(action) && action.disabledLabelKey || action.labelKey) }}</v-list-item-title>
-              </v-list-item-content>
-              <v-list-item-icon
-                v-if="action.children.length"
-                class="ms-2 me-0 width-auto">
-                <v-icon size="16">{{ $vuetify.rtl ? 'fa-caret-left' : 'fa-caret-right' }}</v-icon>
-              </v-list-item-icon>
-            </v-list-item>
+            <!-- the disabled entry blocks pointer events (Vuetify), so the
+              tooltip activator lives on a wrapper that still receives the hover -->
+            <v-tooltip :disabled="!isActionDisabled(action)" bottom>
+              <template #activator="{ on: tooltipOn }">
+                <div v-on="tooltipOn">
+                  <v-list-item
+                    v-on="action.click && {
+                      ...on,
+                      click: () => !isActionDisabled(action) && clickOnAction(action),
+                    } || on"
+                    v-bind="attrs"
+                    :class="isActionDisabled(action) && 'v-list-item--disabled' || ''"
+                    :aria-label="isActionDisabled(action) && actionDisabledTitle(action) || $t(action.labelKey)"
+                    class="px-3"
+                    dense>
+                    <v-list-item-icon class="d-flex align-center justify-center ma-auto">
+                      <v-card
+                        class="d-flex align-center justify-center"
+                        color="transparent"
+                        min-height="24"
+                        min-width="20"
+                        flat>
+                        <v-img
+                          v-if="action.icon?.includes?.('base64') || action.icon?.includes?.('/')"
+                          :src="action.icon"
+                          max-height="16"
+                          height="16"
+                          max-width="16"
+                          contain
+                          eager />
+                        <v-icon
+                          v-else
+                          size="16"
+                          class="icon-default-color">
+                          {{ $t(action.icon) }}
+                        </v-icon>
+                      </v-card>
+                    </v-list-item-icon>
+                    <v-list-item-content class="ms-2">
+                      <v-list-item-title class="menu-text-color">{{ $t(isActionDisabled(action) && action.disabledLabelKey || action.labelKey) }}</v-list-item-title>
+                    </v-list-item-content>
+                    <v-list-item-icon
+                      v-if="action.children.length"
+                      class="ms-2 me-0 width-auto">
+                      <v-icon size="16">{{ $vuetify.rtl ? 'fa-caret-left' : 'fa-caret-right' }}</v-icon>
+                    </v-list-item-icon>
+                  </v-list-item>
+                </div>
+              </template>
+              <span>{{ actionDisabledTitle(action) }}</span>
+            </v-tooltip>
           </template>
           <v-list
             v-if="action.children.length"
