@@ -28,32 +28,42 @@
       {{ $t('UserSettings.drawer.title.digest') }}
     </template>
     <template #content>
-      <v-flex v-if="!loading" class="pa-4">
-        <div class="d-flex align-center">
-          <span class="text-color">{{ $t('UserSettings.drawer.label.dailyDigest') }}</span>
-          <v-switch
-            v-model="daily"
-            :aria-label="$t('UserSettings.drawer.label.dailyDigest')"
-            class="ms-auto my-auto me-0"
-            hide-details />
-        </div>
+      <v-flex v-if="!loading">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title class="text-color">
+              {{ $t('UserSettings.drawer.label.dailyDigest') }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-switch
+              v-model="daily"
+              :aria-label="$t('UserSettings.drawer.label.dailyDigest')" />
+          </v-list-item-action>
+        </v-list-item>
         <user-setting-digest-categories
           v-if="daily"
           v-model="dailyCategories"
-          :categories="categories" />
+          :categories="categories"
+          class="px-4" />
 
-        <div class="d-flex align-center mt-4">
-          <span class="text-color">{{ $t('UserSettings.drawer.label.weeklyDigest') }}</span>
-          <v-switch
-            v-model="weekly"
-            :aria-label="$t('UserSettings.drawer.label.weeklyDigest')"
-            class="ms-auto my-auto me-0"
-            hide-details />
-        </div>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title class="text-color">
+              {{ $t('UserSettings.drawer.label.weeklyDigest') }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-switch
+              v-model="weekly"
+              :aria-label="$t('UserSettings.drawer.label.weeklyDigest')" />
+          </v-list-item-action>
+        </v-list-item>
         <user-setting-digest-categories
           v-if="weekly"
           v-model="weeklyCategories"
-          :categories="categories" />
+          :categories="categories"
+          class="px-4" />
       </v-flex>
     </template>
     <template #footer>
