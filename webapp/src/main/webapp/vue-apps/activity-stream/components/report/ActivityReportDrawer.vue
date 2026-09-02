@@ -28,6 +28,9 @@
       {{ isComment && $t('activityStream.report.drawer.titleComment') || $t('activityStream.report.drawer.title') }}
     </template>
     <template v-if="drawer" #content>
+      <p class="px-4 pt-4 mb-0 text-color">
+        {{ $t('activityStream.report.selectReason') }}
+      </p>
       <v-radio-group
         v-model="selectedReason"
         class="px-4 pt-2"
