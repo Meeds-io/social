@@ -736,6 +736,51 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(2, collections.getEntities().size());
   }
 
+  public void testGetSpacesOfUserHidesTheHiddenSpacesAConnectionIsNotIn() throws Exception {
+    // john has a public space and a hidden one. mary and demo are both connected
+    // to john; only demo is a member of the hidden space.
+    getSpaceInstance(10, "john");
+    Space hiddenSpace = getSpaceInstance(11, "john");
+    hiddenSpace.setVisibility(Space.HIDDEN);
+    hiddenSpace.setMembers(new String[] { "john", "demo" });
+    spaceService.updateSpace(hiddenSpace);
+
+    relationshipManager.inviteToConnect(maryIdentity, johnIdentity);
+    relationshipManager.confirm(johnIdentity, maryIdentity);
+    relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
+    relationshipManager.confirm(johnIdentity, demoIdentity);
+
+    // A connection who is not a member of the hidden space does not receive it
+    // (eXIP note 50524, Security, point O1): the legacy listing applies the same
+    // visibility rules as GET /social/rest/users/{username}/spaces
+    startSessionAs("mary");
+    ContainerResponse response = service("GET", getURLResource("users/john/spaces?limit=5&offset=0&returnSize=true"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+    assertEquals(1, collections.getSize());
+
+    // A connection who is a member of the hidden space still receives it
+    startSessionAs("demo");
+    response = service("GET", getURLResource("users/john/spaces?limit=5&offset=0&returnSize=true"), "", null, null);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(2, collections.getEntities().size());
+    assertEquals(2, collections.getSize());
+
+    // The owner and the super user keep the whole listing
+    startSessionAs("john");
+    response = service("GET", getURLResource("users/john/spaces?limit=5&offset=0"), "", null, null);
+    assertEquals(200, response.getStatus());
+    assertEquals(2, ((CollectionEntity) response.getEntity()).getEntities().size());
+
+    startSessionAs("root");
+    response = service("GET", getURLResource("users/john/spaces?limit=5&offset=0"), "", null, null);
+    assertEquals(200, response.getStatus());
+    assertEquals(2, ((CollectionEntity) response.getEntity()).getEntities().size());
+  }
+
   public void testGetCommonSpaces() throws Exception {
     Space spaceTest = getSpaceInstance(0, "root");
     Space spaceTest1 = getSpaceInstance(1, "demo");
