@@ -25,6 +25,7 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
+import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -53,6 +54,16 @@ public class URLUtils {
   public static String getStreamOwnerId() {
     PortalRequestContext pcontext = getPortalRequestContext();
     String requestPath = "/" + pcontext.getControllerContext().getParameter(RequestNavigationData.REQUEST_PATH);
+    // Opening one's own profile through the navigation carries no username
+    // segment (/profile, not /profile/{username}): the owner is the viewer —
+    // the fallback Utils.getOwnerRemoteId() has always applied. Scoped by
+    // path shape AND site type: a group/space site whose nav path is also
+    // the single segment "profile" (a space named "Profile") must not gain
+    // an implicit owner.
+    if (("/profile".equals(requestPath) || "/profile/".equals(requestPath))
+        && SiteType.PORTAL == pcontext.getSiteType()) {
+      return pcontext.getRemoteUser();
+    }
     Route route = ExoRouter.route(requestPath);
     if (route == null) {
       return null;
