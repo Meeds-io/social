@@ -222,7 +222,8 @@ extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers',
 
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'report',
-  rank: 28,
+  // just before Delete (rank 100), per the design
+  rank: 90,
   labelKey: 'activityStream.label.report',
   disabledLabelKey: 'activityStream.label.reported',
   disabledTitleKey: 'activityStream.report.alreadyReported',
@@ -239,7 +240,8 @@ extensionRegistry.registerExtension('activity', 'action', {
 
 extensionRegistry.registerExtension('activity', 'comment-action', {
   id: 'report',
-  rank: 28,
+  // just before Delete (rank 100), per the design
+  rank: 90,
   labelKey: 'activityStream.label.report',
   disabledLabelKey: 'activityStream.label.reported',
   disabledTitleKey: 'activityStream.report.alreadyReportedComment',
