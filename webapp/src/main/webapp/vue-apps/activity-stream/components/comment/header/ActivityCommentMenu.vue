@@ -61,14 +61,14 @@
                           eager />
                         <v-icon
                           v-else
-                          size="16"
-                          class="icon-default-color">
+                          :class="isActionDisabled(action) ? 'text-disabled-color' : 'icon-default-color'"
+                          size="16">
                           {{ $t(action.icon) }}
                         </v-icon>
                       </v-card>
                     </v-list-item-icon>
                     <v-list-item-content class="mx-2">
-                      <v-list-item-title class="menu-text-color">{{ $t(isActionDisabled(action) && action.disabledLabelKey || action.labelKey) }}</v-list-item-title>
+                      <v-list-item-title :class="isActionDisabled(action) ? 'text-disabled-color' : 'menu-text-color'">{{ $t(isActionDisabled(action) && action.disabledLabelKey || action.labelKey) }}</v-list-item-title>
                     </v-list-item-content>
                     <v-list-item-icon
                       v-if="action.children.length"
