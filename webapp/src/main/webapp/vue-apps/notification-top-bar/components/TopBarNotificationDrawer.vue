@@ -24,6 +24,7 @@
     :loading="loading > 0"
     class="notifDrawer"
     body-classes="hide-scroll"
+    app-name="notifications"
     allow-expand
     right
     @closed="onClosed"
