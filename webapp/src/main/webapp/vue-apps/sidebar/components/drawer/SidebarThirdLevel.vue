@@ -28,9 +28,13 @@
       ...drawerOffsetStyle,
       'z-index': zIndex,
     }"
+    id="HamburgerMenuThirdLevelPanel"
+    role="region"
+    :aria-label="dialogLabel"
     class="HamburgerMenuThirdLevelParent layout-side-bar border-box-sizing"
     max-width="100%"
-    hide-overlay>
+    hide-overlay
+    @keydown.native="handlePanelKeydown">
     <v-hover v-if="drawer" v-model="$root.hoverThirdLevel">
       <div class="full-width fill-height overflow-x-hidden overflow-x-auto specific-scrollbar">
         <space-panel-hamburger-navigation
@@ -43,7 +47,10 @@
   </v-navigation-drawer>
 </template>
 <script>
+import panelFocusTrap from '../../mixins/panelFocusTrap.js';
+
 export default {
+  mixins: [panelFocusTrap],
   props: {
     value: {
       type: Boolean,
@@ -78,6 +85,9 @@ export default {
     },
     expand() {
       return this.$root.expand;
+    },
+    dialogLabel() {
+      return this.openedSpace?.displayName || this.$t('menu.spaces.yourSpaces');
     },
   },
   watch: {

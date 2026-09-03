@@ -36,7 +36,8 @@
           v-model="thirdLevelDrawer"
           :opened-space="space"
           :home-link="homeLink"
-          :drawer-width="drawerWidth" />
+          :drawer-width="drawerWidth"
+          @keydown.esc.native="closeLevelsDrawer" />
         <sidebar-second-level
           v-if="allowDisplayLevels"
           v-model="secondLevelDrawer"
@@ -45,7 +46,8 @@
           :opened-space="space"
           :home-link="homeLink"
           :drawer-width="drawerWidth"
-          :site="site" />
+          :site="site"
+          @keydown.esc.native="closeLevelsDrawer" />
         <sidebar-first-level
           :first-level-drawer="firstLevelDrawer"
           :second-level-drawer="secondLevelDrawer"
@@ -77,13 +79,15 @@
           :opened-space="space"
           :home-link="homeLink"
           :drawer-width="drawerWidth"
-          :site="site" />
+          :site="site"
+          @keydown.esc.native="closeLevelsDrawer" />
         <sidebar-third-level
           v-if="allowDisplayLevels"
           v-model="thirdLevelDrawer"
           :opened-space="space"
           :home-link="homeLink"
-          :drawer-width="drawerWidth" />
+          :drawer-width="drawerWidth"
+          @keydown.esc.native="closeLevelsDrawer" />
       </template>
     </div>
   </v-app>
@@ -165,6 +169,11 @@ export default {
         this.space = null;
         this.site = null;
         this.secondLevel = null;
+        // Closing the second level by any means (Esc, outside click, auto-close,
+        // navigation) must also clear the "spaces menu" opened-state, otherwise
+        // the SPACES / category / template arrows stay in their opened (back-
+        // pointing) direction and keep aria-expanded="true" while closed.
+        this.resetSpacesMenuState();
       }
     },
     firstLevelDrawer() {
@@ -251,16 +260,6 @@ export default {
         this.secondLevel = null;
         this.secondLevelDrawer = false;
         this.thirdLevelDrawer = false;
-        window.setTimeout(() => {
-          this.$root.openedFirstLevelType = null;
-          this.$root.openedSpaceTemplateId = null;
-          this.$root.openedSpaceCategoryId = null;
-          this.$root.openedSpaceTemplateName = null;
-          this.$root.openedSpaceCategoryName = null;
-          this.$root.openedItem = null;
-          this.$root.openedSpaces = false;
-          this.$root.spacesSortBy = null;
-        }, 50);
       } else {
         if (this.secondLevel) {
           this.secondLevel = null;
@@ -282,6 +281,13 @@ export default {
     },
     changeSpaceMenu(space, thirdLevel) {
       this.site = null;
+      // Opening a space as the second level replaces the spaces list, so clear
+      // its opened-state (otherwise the SPACES / category / template arrow stays
+      // ← while a space/site panel is shown). Skipped for third-level changes,
+      // where the spaces list stays the second level behind it.
+      if (!thirdLevel) {
+        this.resetSpacesMenuState();
+      }
       if (!thirdLevel && this.secondLevel === 'spaces') {
         this.space = space;
         this.secondLevel = 'spaceMenu';
@@ -310,6 +316,9 @@ export default {
     },
     changeSiteMenu(site) {
       this.space = null;
+      // Opening a site as the second level replaces any spaces list, so clear
+      // its opened-state so the spaces arrows don't stay ← behind the site panel.
+      this.resetSpacesMenuState();
       if (this.site?.name === site.name) {
         this.secondLevel = null;
         this.secondLevelDrawer = false;
@@ -365,6 +374,17 @@ export default {
       this.site = null;
       this.secondLevel = null;
     },
+    resetSpacesMenuState() {
+      this.$root.openedFirstLevelType = null;
+      this.$root.openedSpaceTemplateId = null;
+      this.$root.openedSpaceCategoryId = null;
+      this.$root.openedSpaceTemplateName = null;
+      this.$root.openedSpaceCategoryName = null;
+      this.$root.openedItem = null;
+      this.$root.openedSpaces = false;
+      this.$root.openedSpacesUrl = null;
+      this.$root.spacesSortBy = null;
+    },
     closeLevelsDrawer(event) {
       if (event) {
         event.preventDefault();
@@ -372,8 +392,10 @@ export default {
       }
       if (this.thirdLevelDrawer) {
         this.thirdLevelDrawer = false;
+        this.$nextTick(() => this.$root.lastThirdLevelFocusElement?.focus?.());
       } else {
         this.secondLevelDrawer = false;
+        this.$nextTick(() => this.$root.lastSecondLevelFocusElement?.focus?.());
       }
     },
   },
