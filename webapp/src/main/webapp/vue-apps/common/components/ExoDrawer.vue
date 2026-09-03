@@ -364,6 +364,7 @@ export default {
     filterFocused: false,
     placementApplication: null,
     placementsEnabled: false,
+    placementSiteEligible: false,
     stuckSide: null
   }),
   computed: {
@@ -395,7 +396,7 @@ export default {
       return this.expand && this.$t('label.collapse') || this.$t('label.expand');
     },
     canStick() {
-      return this.placementsEnabled && this.placementApplication?.allowStick || false;
+      return this.placementsEnabled && this.placementSiteEligible && this.placementApplication?.allowStick || false;
     },
     canDetach() {
       return this.placementsEnabled && this.placementApplication?.allowDetach || false;
@@ -552,6 +553,7 @@ export default {
       this.$appPlacementService.getPlacements(true)
         .then(placements => {
           this.placementsEnabled = placements?.enabled || false;
+          this.placementSiteEligible = placements?.siteEligible || false;
           if (this.placementsEnabled && !this.placementApplication && this.appName) {
             return this.$appPlacementService.findApplicationByDrawer(this.appName)
               .then(application => this.placementApplication = application || null);
@@ -576,7 +578,7 @@ export default {
       }
       this.$appPlacementService.getPlacements(true)
         .then(placements => {
-          if (!placements?.enabled) {
+          if (!placements?.enabled || !placements?.siteEligible) {
             this.stuckSide = null;
           } else if (placements.left === this.placementApplication.id) {
             this.stuckSide = 'left';
