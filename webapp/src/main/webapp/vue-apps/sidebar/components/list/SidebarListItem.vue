@@ -56,16 +56,20 @@
           </v-list-item-title>
         </v-list-item-content>
         <v-list-item-action
-          v-if="toggleArrow && $root.expand"
-          class="my-auto align-center"
+          v-if="hasArrow && $root.expand"
+          :class="{ 'menu-toggle-arrow-visible': drawerOpened }"
+          class="my-auto align-center menu-toggle-arrow"
           @mousedown.stop.prevent
           @mouseup.stop.prevent>
           <ripple-hover-button
             :active="!drawerOpened"
             :title="$t('menu.accessToSpacesList')"
+            :aria-expanded="drawerOpened ? 'true' : 'false'"
+            :aria-controls="drawerOpened ? 'HamburgerMenuSecondLevelPanel' : null"
             class="ms-2"
             icon
-            @ripple-hover="openSpacesList">
+            @ripple-hover="openSpacesList"
+            @keydown.native="onArrowKeydown">
             <v-icon
               class="me-0 pa-2 icon-default-color"
               small>
@@ -133,16 +137,20 @@
         </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action
-        v-if="toggleArrow && $root.expand"
-        class="my-auto align-center z-index-one position-relative"
+        v-if="hasArrow && $root.expand"
+        :class="{ 'menu-toggle-arrow-visible': drawerOpened }"
+        class="my-auto align-center z-index-one menu-toggle-arrow"
         @mousedown.stop.prevent
         @mouseup.stop.prevent>
         <ripple-hover-button
           :active="!drawerOpened"
           :title="$t('menu.accessToPagesList')"
+          :aria-expanded="drawerOpened ? 'true' : 'false'"
+          :aria-controls="drawerOpened ? 'HamburgerMenuSecondLevelPanel' : null"
           class="ms-2"
           icon
-          @ripple-hover="openOrCloseDrawer()">
+          @ripple-hover="openOrCloseDrawer()"
+          @keydown.native="onArrowKeydown">
           <v-icon
             class="me-0 pa-2 icon-default-color"
             small>
@@ -172,7 +180,8 @@
       </v-list-item-action>
       <space-unread-badge
         v-if="isSpace"
-        v-show="!toggleArrow"
+        :class="{ 'menu-toggle-badge-hidden': drawerOpened }"
+        class="menu-toggle-badge"
         :space-id="spaceId"
         :unread-badge="spaceUnreadCount"
         @refresh="retrieveSpace(true)" />
@@ -180,7 +189,10 @@
   </component>
 </template>
 <script>
+import arrowKeyboardNavigation from '../../mixins/arrowKeyboardNavigation.js';
+
 export default {
+  mixins: [arrowKeyboardNavigation],
   props: {
     item: {
       type: Object,
@@ -304,9 +316,8 @@ export default {
       }
       return actions;
     },
-    toggleArrow() {
-      return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaceCategory || this.isSpaces)
-        && (this.hover || this.drawerOpened);
+    hasArrow() {
+      return this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaceCategory || this.isSpaces;
     },
     tooltip() {
       if (this.isSpace) {
@@ -400,7 +411,16 @@ export default {
         this.openSpacesList();
       }
     },
+    // Which panel this item's arrow opens (used by the shared keyboard mixin).
+    activateArrow() {
+      if (this.isSpaces || this.isSpaceTemplate || this.isSpaceCategory) {
+        this.openSpacesList();
+      } else {
+        this.openOrCloseDrawer();
+      }
+    },
     openSpacesList() {
+      this.storeFocusOrigin('lastSecondLevelFocusElement');
       this.$root.openedItem = this.item;
       this.$root.$emit('change-spaces-menu',
         this.isSpaceTemplate && this.spaceTemplateId,
@@ -411,6 +431,7 @@ export default {
         this.item.type);
     },
     async openOrCloseDrawer() {
+      this.storeFocusOrigin('lastSecondLevelFocusElement');
       if (this.isSite) {
         if (!this.$root.sites) {
           await this.retrieveSites();
