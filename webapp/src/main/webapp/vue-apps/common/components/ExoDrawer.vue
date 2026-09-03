@@ -17,9 +17,9 @@
     :absolute="!fixed"
     :fixed="fixed"
     :width="width"
-    :hide-overlay="!showOverlay || isStuck"
-    :temporary="!isStuck"
-    :permanent="isStuck"
+    :hide-overlay="!showOverlay || isStuck || isStandalone"
+    :temporary="!isStuck && !isStandalone"
+    :permanent="isStuck || isStandalone"
     touchless
     stateless
     height="100%"
@@ -154,13 +154,14 @@
                   </v-list>
                 </v-menu>
                 <v-btn
-                  v-else-if="allowExpand && !isMobile"
+                  v-else-if="allowExpand && !isMobile && !isStandalone"
                   :title="expandTooltip"
                   icon
                   @click="toogleExpand">
                   <v-icon v-text="expandIcon" size="20" />
                 </v-btn>
                 <v-btn
+                  v-if="!isStandalone"
                   :title="isStuck ? $t('label.unstick') : $t('label.close')"
                   icon
                   @click="isStuck ? unstick() : close($event)">
@@ -382,7 +383,7 @@ export default {
       return this.bottom && this.isMobile;
     },
     width() {
-      return this.expand && '100%' || this.drawerWidth;
+      return (this.isStandalone || this.expand) && '100%' || this.drawerWidth;
     },
     isMobile() {
       return this.$vuetify?.breakpoint?.smAndDown;
@@ -400,10 +401,13 @@ export default {
       return this.placementsEnabled && this.placementApplication?.allowDetach || false;
     },
     displayPlacementMenu() {
-      return !this.isMobile && !this.isStuck && (this.canStick || this.canDetach);
+      return !this.isMobile && !this.isStuck && !this.isStandalone && (this.canStick || this.canDetach);
     },
     isStuck() {
       return !!this.stuckSide && !this.isMobile;
+    },
+    isStandalone() {
+      return !!(this.appName && window.eXo?.env?.portal?.standaloneAppName === this.appName);
     },
     resolvedFilterPlaceholder() {
       return this.filterPlaceholder || this.$t('label.filter');
@@ -642,7 +646,7 @@ export default {
       }
     },
     close(event) {
-      if (this.isStuck) {
+      if (this.isStuck || this.isStandalone) {
         return;
       }
       if (this.confirmClose) {
