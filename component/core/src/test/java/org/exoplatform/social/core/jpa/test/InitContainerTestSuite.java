@@ -38,6 +38,7 @@ import org.exoplatform.social.core.jpa.storage.ProfileLabelStorageTest;
 import org.exoplatform.social.core.jpa.storage.ProfileSettingStorageTest;
 import org.exoplatform.social.core.jpa.storage.RelationshipStorageTest;
 import org.exoplatform.social.core.jpa.storage.SpaceStorageTest;
+import org.exoplatform.social.core.jpa.storage.UserSpacesStorageTest;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.ProfileLabelDAOTest;
@@ -67,6 +68,8 @@ import org.exoplatform.social.core.service.ProfileLabelServiceTest;
 import org.exoplatform.social.core.space.SpaceLifeCycleTest;
 import org.exoplatform.social.core.space.SpaceUtilsTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceTest;
+
+import io.meeds.social.space.service.UserSpacesServiceTest;
 import org.exoplatform.social.core.thumbnail.ImageThumbnailServiceImplTest;
 import org.exoplatform.social.core.utils.MentionUtilsTest;
 import org.exoplatform.social.metadata.MetadataServiceTest;
@@ -86,6 +89,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   StreamItemDAOTest.class,
   RelationshipStorageTest.class,
   SpaceStorageTest.class,
+  UserSpacesStorageTest.class,
   IdentityStorageTest.class,
   ProfileSettingStorageTest.class,
   ProfileLabelStorageTest.class,
@@ -101,6 +105,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   ActivityManagerTest.class,
   IdentityManagerTest.class,
   SpaceServiceTest.class,
+  UserSpacesServiceTest.class,
   RelationshipManagerTest.class,
   SpaceUtilsTest.class,
   SpaceLifeCycleTest.class,

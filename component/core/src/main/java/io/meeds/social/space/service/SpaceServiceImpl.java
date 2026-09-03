@@ -81,6 +81,9 @@ import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
+import org.exoplatform.social.core.search.Sorting;
+import org.exoplatform.social.core.search.Sorting.OrderBy;
+import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceException.Code;
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -99,6 +102,7 @@ import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 import io.meeds.social.search.SpaceSearchConnector;
+import io.meeds.social.space.constant.UserSpacesScope;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 
@@ -385,6 +389,87 @@ public class SpaceServiceImpl implements SpaceService {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage, spaceSearchConnector, SpaceListAccessType.COMMON, username, otherUserId);
+  }
+
+  @Override
+  public List<Space> getUserSpaces(String viewerUsername,
+                                   String profileOwnerUsername,
+                                   UserSpacesScope scope,
+                                   long offset,
+                                   long limit) throws ObjectNotFoundException {
+    if (userAcl.isAnonymousUser(viewerUsername)) {
+      return Collections.emptyList();
+    }
+    UserSpacesScope effectiveScope = getEffectiveUserSpacesScope(viewerUsername, profileOwnerUsername, scope);
+    return spaceStorage.getUserSpaces(viewerUsername,
+                                      profileOwnerUsername,
+                                      effectiveScope,
+                                      getUserSpacesSorting(),
+                                      offset,
+                                      limit);
+  }
+
+  @Override
+  public int countUserSpaces(String viewerUsername,
+                             String profileOwnerUsername,
+                             UserSpacesScope scope) throws ObjectNotFoundException {
+    if (userAcl.isAnonymousUser(viewerUsername)) {
+      return 0;
+    }
+    UserSpacesScope effectiveScope = getEffectiveUserSpacesScope(viewerUsername, profileOwnerUsername, scope);
+    return spaceStorage.countUserSpaces(viewerUsername, profileOwnerUsername, effectiveScope);
+  }
+
+  /**
+   * Decides which spaces of a profile owner a viewer may see. The binding axis
+   * is the <b>viewer</b>, never the profile owner: an external viewer visiting
+   * an internal profile gets the restrictive scope, whatever they requested.
+   * <p>
+   * The requested scope is client input. It is narrowed silently when the viewer
+   * may not use it — it is not a cause of denial.
+   *
+   * @param viewerUsername remote id of the user viewing the profile
+   * @param profileOwnerUsername remote id of the profile owner
+   * @param scope requested {@link UserSpacesScope}, may be null
+   * @return the effective {@link UserSpacesScope}
+   * @throws ObjectNotFoundException when the profile owner does not exist
+   */
+  private UserSpacesScope getEffectiveUserSpacesScope(String viewerUsername,
+                                                      String profileOwnerUsername,
+                                                      UserSpacesScope scope) throws ObjectNotFoundException {
+    Identity profileOwnerIdentity = identityManager.getOrCreateUserIdentity(profileOwnerUsername);
+    if (profileOwnerIdentity == null || profileOwnerIdentity.isDeleted()) {
+      throw new ObjectNotFoundException(String.format("Profile owner %s does not exist", profileOwnerUsername));
+    }
+    if (StringUtils.equals(viewerUsername, profileOwnerUsername)) {
+      // Own profile: every space the user is a member of, hidden ones included
+      return UserSpacesScope.ALL;
+    }
+    Identity viewerIdentity = identityManager.getOrCreateUserIdentity(viewerUsername);
+    if (viewerIdentity == null || viewerIdentity.isExternal()) {
+      // An external viewer never widens beyond the spaces they share with the
+      // profile owner. This check is the only discriminator on that axis: the
+      // REST annotation cannot tell an external user apart, since the externals
+      // role always carries the users role too. A viewer whose identity cannot
+      // be resolved takes the same restrictive path — an unresolvable viewer
+      // must not be treated as an internal one.
+      return UserSpacesScope.COMMON;
+    }
+    if (profileOwnerIdentity.isExternal()) {
+      return UserSpacesScope.COMMON;
+    }
+    return scope == null ? UserSpacesScope.ALL : scope;
+  }
+
+  /**
+   * Order of the profile spaces listing: alphabetical, as decided by the PO on
+   * 26/08/2026 (board stories US01, US02 and US05 of eXIP 7.3.0.18). Neutral by
+   * design: ordering by the profile owner's own last visit would disclose their
+   * browsing recency to whoever visits their profile, and would churn the cached
+   * entries on every navigation.
+   */
+  private Sorting getUserSpacesSorting() {
+    return new Sorting(SortBy.TITLE, OrderBy.ASC);
   }
 
   @Override
