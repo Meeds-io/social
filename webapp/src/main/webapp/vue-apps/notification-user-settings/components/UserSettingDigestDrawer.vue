@@ -204,7 +204,11 @@ export default {
       const weeklyCategories = this.weekly && this.weeklyCategories || [];
       return this.$digestService.saveDigestSettings(this.daily, dailyCategories, this.weekly, weeklyCategories)
         .then(() => {
-          this.$root.$emit('alert-message', this.$t('UserSettings.digest.success.save'), 'success');
+          if (this.daily || this.weekly) {
+            // US05: the recap starts collecting from now on. Nothing is shown
+            // when the user switched his digest off: there is nothing to say
+            this.$root.$emit('alert-message', this.$t('UserSettings.digest.success.fromNow'), 'success');
+          }
           this.close();
         })
         .catch(() => this.$root.$emit('alert-message', this.$t('UserSettings.digest.error.save'), 'error'))
