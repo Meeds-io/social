@@ -9,6 +9,7 @@
       'v-navigation-drawer--is-mobile snippet-mobile-menu rounded-tr-xl rounded-tl-xl pt-5': bottom,
       'layout-drawer': isBrandingLayout,
       'z-index-snackbar': increaseZindex,
+      'stuck-app-drawer': isStuck,
     }"
     :style="{
       'z-index': zIndex,
@@ -16,8 +17,9 @@
     :absolute="!fixed"
     :fixed="fixed"
     :width="width"
-    :hide-overlay="!showOverlay"
-    temporary
+    :hide-overlay="!showOverlay || isStuck"
+    :temporary="!isStuck"
+    :permanent="isStuck"
     touchless
     stateless
     height="100%"
@@ -159,9 +161,9 @@
                   <v-icon v-text="expandIcon" size="20" />
                 </v-btn>
                 <v-btn
-                  :title="$t('label.close')"
+                  :title="isStuck ? $t('label.unstick') : $t('label.close')"
                   icon
-                  @click="close()">
+                  @click="isStuck ? unstick() : close($event)">
                   <v-icon
                     class="icon-default-color"
                     size="20">
@@ -360,13 +362,17 @@ export default {
     filterText: '',
     filterFocused: false,
     placementApplication: null,
-    placementsEnabled: false
+    placementsEnabled: false,
+    stuckSide: null
   }),
   computed: {
     zIndex() {
       return this.drawer ? (this.drawerZIndex + (eXo.openedDrawers?.length || 0)) : this.drawerZIndex;
     },
     rightDrawer() {
+      if (this.isStuck) {
+        return this.stuckSide === 'right';
+      }
       return (this.right && eXo.env.portal.orientation === 'ltr') || (this.left && eXo.env.portal.orientation === 'rtl');
     },
     leftDrawer() {
@@ -394,7 +400,10 @@ export default {
       return this.placementsEnabled && this.placementApplication?.allowDetach || false;
     },
     displayPlacementMenu() {
-      return !this.isMobile && (this.canStick || this.canDetach);
+      return !this.isMobile && !this.isStuck && (this.canStick || this.canDetach);
+    },
+    isStuck() {
+      return !!this.stuckSide && !this.isMobile;
     },
     resolvedFilterPlaceholder() {
       return this.filterPlaceholder || this.$t('label.filter');
@@ -421,6 +430,16 @@ export default {
     },
     expand() {
       this.$emit('expand-updated', this.expand);
+    },
+    isStuck() {
+      if (this.isStuck) {
+        this.dockOnLayout();
+      } else {
+        this.undockFromLayout();
+      }
+    },
+    placementApplication() {
+      this.refreshStuckState();
     },
     drawer() {
       if (!this.permanent) {
@@ -472,6 +491,7 @@ export default {
     document.addEventListener('closeAllDrawers', this.close);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     document.addEventListener('close-editor-container', this.closeDisplayedDrawer);
+    document.addEventListener('app-placement-changed', this.refreshStuckState);
   },
   mounted() {
     if (!this.attached) {
@@ -484,13 +504,15 @@ export default {
     document.removeEventListener('closeAllDrawers', this.close);
     document.removeEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     document.removeEventListener('close-editor-container', this.closeDisplayedDrawer);
+    document.removeEventListener('app-placement-changed', this.refreshStuckState);
+    this.undockFromLayout();
     if (this.drawer) {
       this.drawer = false;
     }
   },
   methods: {
     open() {
-      if (!this.attached) {
+      if (!this.attached && !this.isStuck) {
         // Re-append the drawer to open in order
         // to ensure to attribute an adequate z-index
         // Which makes it displayed on top of other already
@@ -538,8 +560,66 @@ export default {
       this.$appPlacementService.openDetached(this.placementApplication);
     },
     stickTo(side) {
-      this.$appPlacementService.stickApplication(this.placementApplication.id, side)
-        .then(() => this.close());
+      this.$appPlacementService.stickApplication(this.placementApplication.id, side);
+    },
+    unstick() {
+      this.$appPlacementService.unstickApplication(this.stuckSide);
+    },
+    refreshStuckState() {
+      if (!this.placementApplication || !this.$appPlacementService) {
+        this.stuckSide = null;
+        return;
+      }
+      this.$appPlacementService.getPlacements(true)
+        .then(placements => {
+          if (!placements?.enabled) {
+            this.stuckSide = null;
+          } else if (placements.left === this.placementApplication.id) {
+            this.stuckSide = 'left';
+          } else if (placements.right === this.placementApplication.id) {
+            this.stuckSide = 'right';
+          } else {
+            this.stuckSide = null;
+          }
+        })
+        .catch(() => this.stuckSide = null);
+    },
+    dockOnLayout() {
+      const parentContainer = document.querySelector('#ParentSiteContainer');
+      const rightContainer = document.querySelector('#ParentSiteRightContainer');
+      if (!parentContainer || !rightContainer) {
+        return;
+      }
+      let host = document.querySelector(`#StuckAppContainer-${this.stuckSide}`);
+      if (!host) {
+        host = document.createElement('div');
+        host.id = `StuckAppContainer-${this.stuckSide}`;
+        host.className = 'stuck-app-container';
+      }
+      if (this.stuckSide === 'left') {
+        parentContainer.insertBefore(host, rightContainer);
+      } else {
+        parentContainer.appendChild(host);
+      }
+      host.style.width = this.drawerWidth;
+      host.style.flexShrink = '0';
+      host.style.flexGrow = '0';
+      host.appendChild(this.$el);
+      this.$el.style.setProperty('position', 'relative', 'important');
+      if (!this.drawer) {
+        this.drawer = true;
+      }
+    },
+    undockFromLayout() {
+      this.$el?.style?.removeProperty?.('position');
+      const host = this.$el?.parentElement;
+      if (host?.classList?.contains('stuck-app-container')) {
+        document.querySelector('#vuetify-apps')?.appendChild(this.$el);
+        host.remove();
+        if (this.drawer) {
+          this.drawer = false;
+        }
+      }
     },
     setModalOpened() {
       this.modalOpened = this.drawer;
@@ -562,6 +642,9 @@ export default {
       }
     },
     close(event) {
+      if (this.isStuck) {
+        return;
+      }
       if (this.confirmClose) {
         if (this.$refs.closeConfirmDialog) {
           if (event) {
