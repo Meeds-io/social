@@ -1,5 +1,5 @@
 <template>
-  <exo-drawer
+  <pinneable-drawer
     id="searchDialog"
     v-model="drawer"
     :loading="loading"
@@ -34,7 +34,7 @@
         </v-card>
       </v-card>
     </template>
-  </exo-drawer>
+  </pinneable-drawer>
 </template>
 <script>
 export default {
