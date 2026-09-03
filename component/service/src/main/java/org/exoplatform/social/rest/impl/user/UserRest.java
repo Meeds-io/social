@@ -140,6 +140,7 @@ import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
+import io.meeds.social.space.constant.UserSpacesScope;
 import io.meeds.web.security.service.OtpService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -1614,10 +1615,18 @@ public class UserRest implements ResourceContainer, Startable {
     return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
+  /**
+   * @deprecated since 7.3.0, use {@code GET /social/rest/users/{username}/spaces}
+   *             (io.meeds.social.space.rest.UserSpacesRest) instead: it applies the
+   *             viewer's visibility rules in the Service layer and takes the scope
+   *             (common spaces or all visible spaces) as a parameter. Kept for the
+   *             integrations that still call it; not scheduled for removal yet.
+   */
+  @Deprecated
   @GET
   @Path("{id}/spaces")
   @RolesAllowed("users")
-  @Operation(summary = "Gets spaces of a specific user", method = "GET", description = "This returns a list of spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(summary = "Gets spaces of a specific user", method = "GET", deprecated = true, description = "Deprecated: use GET /social/rest/users/{username}/spaces. This returns the spaces of the given user to the authenticated user when they are the given user, a member of /platform/administrators or in a confirmed relationship with the given user. For a connection, the listing is restricted to what that connection may see: hidden spaces they are not a member of are left out.")
   public Response getSpacesOfUser(
                                   @Context
                                   UriInfo uriInfo,
@@ -1641,7 +1650,10 @@ public class UserRest implements ResourceContainer, Startable {
                                   String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
-    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
+    // An explicit limit is bounded like the implicit one: the listing below is
+    // served from a first-page cache keyed on the limit, so an unbounded value
+    // would multiply its entries
+    limit = limit > 0 ? Math.min(limit, RestUtils.HARD_LIMIT) : RestUtils.getLimit(uriInfo);
 
     Identity target = identityManager.getOrCreateUserIdentity(id);
     // Check if the given user exists
@@ -1662,26 +1674,50 @@ public class UserRest implements ResourceContainer, Startable {
       }
     }
 
+    // The relationship gate above decides who may ask; what they receive is
+    // decided once, in SpaceService.getUserSpaces: a connection no longer gets
+    // the hidden spaces they are not a member of (eXIP note 50524, Security,
+    // point O1). The super user keeps the unfiltered listing this operation has
+    // always documented for administrators.
+    List<Space> spaces;
+    int size;
+    if (userACL.getSuperUser().equals(authenticatedUser)) {
+      ListAccess<Space> listAccess = spaceService.getMemberSpaces(id);
+      spaces = Arrays.asList(listAccess.load(offset, limit));
+      size = returnSize ? listAccess.getSize() : 0;
+    } else {
+      try {
+        spaces = spaceService.getUserSpaces(authenticatedUser, id, UserSpacesScope.ALL, offset, limit);
+        size = returnSize ? spaceService.countUserSpaces(authenticatedUser, id, UserSpacesScope.ALL) : 0;
+      } catch (ObjectNotFoundException e) {
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
+      }
+    }
     List<DataEntity> spaceInfos = new ArrayList<>();
-    ListAccess<Space> listAccess = spaceService.getMemberSpaces(id);
-
-    for (Space space : listAccess.load(offset, limit)) {
+    for (Space space : spaces) {
       SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, id, uriInfo.getPath(), expand);
-      //
       spaceInfos.add(spaceInfo.getDataEntity());
     }
     CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
     if (returnSize) {
-      collectionSpace.setSize(listAccess.getSize());
+      collectionSpace.setSize(size);
     }
 
     return EntityBuilder.getResponse(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
+  /**
+   * @deprecated since 7.3.0, use {@code GET /social/rest/users/{username}/spaces?scope=COMMON}
+   *             (io.meeds.social.space.rest.UserSpacesRest) instead, which lists the
+   *             spaces shared between the authenticated user and the given profile
+   *             with the visibility rules applied in the Service layer. Kept for the
+   *             integrations that still call it; not scheduled for removal yet.
+   */
+  @Deprecated
   @GET
   @Path("{userId}/spaces/{profileId}")
   @RolesAllowed("users")
-  @Operation(summary = "Gets commons spaces of current user", method = "GET", description = "This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(summary = "Gets commons spaces of current user", method = "GET", deprecated = true, description = "Deprecated: use GET /social/rest/users/{username}/spaces?scope=COMMON. This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
   public Response getCommonSpacesOfUser(
                                         @Context
                                         UriInfo uriInfo,

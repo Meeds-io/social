@@ -25,6 +25,7 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
+import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -37,6 +38,44 @@ import org.exoplatform.web.application.RequestContext;
  * Processes url and returns the some type of result base on url.
  */
 public class URLUtils {
+
+  /**
+   * @return the user carried by the current page URL — the profile owner on a
+   *         profile or activity-stream page — or null when the URL carries
+   *         none. Unlike {@link #getCurrentUser()}, no accessibility filtering
+   *         is applied: this answers "is this page about a user, and which one",
+   *         while what the viewer may see of that user belongs to the service
+   *         consuming the answer. getCurrentUser() returns null for an external
+   *         viewer on a profile it may not access, which conflates "not a
+   *         user-scoped page" with "not accessible" — a widget switching modes
+   *         on that null would silently fall back to its non-profile behaviour
+   *         on a profile page.
+   */
+  public static String getStreamOwnerId() {
+    PortalRequestContext pcontext = getPortalRequestContext();
+    String requestPath = "/" + pcontext.getControllerContext().getParameter(RequestNavigationData.REQUEST_PATH);
+    // Opening one's own profile through the navigation carries no username
+    // segment (/profile, not /profile/{username}): the owner is the viewer —
+    // the fallback Utils.getOwnerRemoteId() has always applied. Scoped by
+    // path shape AND site type: a group/space site whose nav path is also
+    // the single segment "profile" (a space named "Profile") must not gain
+    // an implicit owner.
+    if (("/profile".equals(requestPath) || "/profile/".equals(requestPath))
+        && SiteType.PORTAL == pcontext.getSiteType()) {
+      return pcontext.getRemoteUser();
+    }
+    Route route = ExoRouter.route(requestPath);
+    if (route == null) {
+      return null;
+    }
+    String currentUserName = route.localArgs.get("streamOwnerId");
+    if (currentUserName == null) {
+      return null;
+    }
+    IdentityManager identityManager = ExoContainerContext.getService(IdentityManager.class);
+    Identity identity = identityManager.getOrCreateUserIdentity(currentUserName);
+    return identity == null ? null : identity.getRemoteId();
+  }
 
   /**
    * @return current user name base on analysis of current url
