@@ -20,7 +20,9 @@
 -->
 <template>
   <div class="d-flex align-center">
-    <space-invite-button />
+    <space-invite-button
+      :invitation-link-allowed="invitationLinkAllowed"
+      :go-back-button="goBackButton" />
     <v-badge
       v-if="pendingCount"
       color="white pa-0"
@@ -60,6 +62,7 @@
       v-if="$root.isExternalFeatureEnabled"
       ref="emailInvitationDrawer" />
     <space-invitation-link-drawer
+      v-if="invitationLinkAllowed"
       :space-id="spaceId"
       :go-back-button="goBackButton" />
   </div>
@@ -80,6 +83,9 @@ export default {
     },
     spaceId() {
       return this.$root?.space?.id;
+    },
+    invitationLinkAllowed() {
+      return ['validation', 'open'].includes(this.$root?.space?.subscription);
     }
   }
 };
