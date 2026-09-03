@@ -62,7 +62,17 @@ export default {
   data: () => ({
     selectedNodeUri: eXo.env.portal.selectedNodeUri,
     currentSite: eXo.env.portal.siteKeyName,
+    toggleObservers: [],
   }),
+  mounted() {
+    this.enhanceToggleButtonsAccessibility();
+  },
+  updated() {
+    this.enhanceToggleButtonsAccessibility();
+  },
+  beforeDestroy() {
+    this.teardownToggleButtonsAccessibility();
+  },
   computed: {
     openLevel() {
       if (this.currentSite === this.siteName) {
@@ -109,6 +119,50 @@ export default {
     },
   },
   methods: {
+    enhanceToggleButtonsAccessibility() {
+      this.$nextTick(() => {
+        this.$el.querySelectorAll?.('.v-treeview-node__toggle')?.forEach(toggle => {
+          this.syncToggleAria(toggle);
+          if (toggle.dataset.a11yEnhanced) {
+            return;
+          }
+          toggle.dataset.a11yEnhanced = 'true';
+          toggle.setAttribute('tabindex', '0');
+          toggle.setAttribute('role', 'button');
+          toggle.addEventListener('keydown', this.onToggleKeydown);
+          // v-treeview owns the open state internally and re-renders the node,
+          // not this component, so updated() doesn't fire on expand/collapse.
+          // Watch the toggle's own class (the source of truth) to keep
+          // aria-expanded / aria-label in sync with the actual state.
+          const observer = new MutationObserver(() => this.syncToggleAria(toggle));
+          observer.observe(toggle, { attributes: true, attributeFilter: ['class'] });
+          this.toggleObservers.push({ toggle, observer });
+        });
+      });
+    },
+    onToggleKeydown(event) {
+      if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+        event.preventDefault();
+        event.currentTarget.click();
+      }
+    },
+    // The toggle is an icon-font <i> with no text; give it a name derived from
+    // its sibling node label, and keep aria-expanded truthful to the class.
+    syncToggleAria(toggle) {
+      const open = toggle.classList.contains('v-treeview-node__toggle--open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      const nodeLabel = toggle.parentElement?.querySelector('.v-treeview-node__label')?.textContent?.trim() || '';
+      toggle.setAttribute('aria-label', open
+        ? this.$t('menu.collapseNode', { 0: nodeLabel })
+        : this.$t('menu.expandNode', { 0: nodeLabel }));
+    },
+    teardownToggleButtonsAccessibility() {
+      this.toggleObservers.forEach(({ toggle, observer }) => {
+        observer.disconnect();
+        toggle.removeEventListener('keydown', this.onToggleKeydown);
+      });
+      this.toggleObservers = [];
+    },
     filterNodes(navigations) {
       if (navigations?.length) {
         return navigations.map(n => {
