@@ -9,7 +9,6 @@
       'v-navigation-drawer--is-mobile snippet-mobile-menu rounded-tr-xl rounded-tl-xl pt-5': bottom,
       'layout-drawer': isBrandingLayout,
       'z-index-snackbar': increaseZindex,
-      'stuck-app-drawer': isStuck,
     }"
     :style="{
       'z-index': zIndex,
@@ -17,9 +16,8 @@
     :absolute="!fixed"
     :fixed="fixed"
     :width="width"
-    :hide-overlay="!showOverlay || isStuck || isStandalone"
-    :temporary="!isStuck && !isStandalone"
-    :permanent="isStuck || isStandalone"
+    :hide-overlay="!showOverlay"
+    temporary
     touchless
     stateless
     height="100%"
@@ -123,48 +121,19 @@
                     fa-filter
                   </v-icon>
                 </v-btn>
-                <v-menu
-                  v-if="displayPlacementMenu"
-                  open-on-hover
-                  offset-y
-                  bottom
-                  left>
-                  <template #activator="{ on, attrs }">
-                    <v-btn
-                      :title="$t('label.expandDisplay')"
-                      icon
-                      v-bind="attrs"
-                      v-on="on">
-                      <v-icon v-text="expandIcon" size="20" />
-                    </v-btn>
-                  </template>
-                  <v-list dense>
-                    <v-list-item v-if="allowExpand" @click="toogleExpand">
-                      <v-list-item-title>{{ expandTooltip }}</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item v-if="canDetach" @click="openInNewTab">
-                      <v-list-item-title>{{ $t('label.openInNewTab') }}</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item v-if="canStick" @click="stickTo('right')">
-                      <v-list-item-title>{{ $t('label.stickRight') }}</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item v-if="canStick" @click="stickTo('left')">
-                      <v-list-item-title>{{ $t('label.stickLeft') }}</v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
+                <slot v-if="hasExpandActionSlot" name="expandAction"></slot>
                 <v-btn
-                  v-else-if="allowExpand && !isMobile && !isStandalone"
+                  v-else-if="allowExpand && !isMobile"
                   :title="expandTooltip"
                   icon
                   @click="toogleExpand">
                   <v-icon v-text="expandIcon" size="20" />
                 </v-btn>
                 <v-btn
-                  v-if="!isStandalone"
-                  :title="isStuck ? $t('label.unstick') : $t('label.close')"
+                  v-if="!hideClose"
+                  :title="$t('label.close')"
                   icon
-                  @click="isStuck ? unstick() : close($event)">
+                  @click="close()">
                   <v-icon
                     class="icon-default-color"
                     size="20">
@@ -281,13 +250,9 @@ export default {
       type: Boolean,
       default: false,
     },
-    appName: {
-      type: String,
-      default: () => null,
-    },
-    placementApp: {
-      type: Object,
-      default: () => null,
+    hideClose: {
+      type: Boolean,
+      default: false,
     },
     showOverlay: {
       type: Boolean,
@@ -361,20 +326,13 @@ export default {
     drawerZIndex: 1035,
     showFilter: false,
     filterText: '',
-    filterFocused: false,
-    placementApplication: null,
-    placementsEnabled: false,
-    placementSiteEligible: false,
-    stuckSide: null
+    filterFocused: false
   }),
   computed: {
     zIndex() {
       return this.drawer ? (this.drawerZIndex + (eXo.openedDrawers?.length || 0)) : this.drawerZIndex;
     },
     rightDrawer() {
-      if (this.isStuck) {
-        return this.stuckSide === 'right';
-      }
       return (this.right && eXo.env.portal.orientation === 'ltr') || (this.left && eXo.env.portal.orientation === 'rtl');
     },
     leftDrawer() {
@@ -384,34 +342,19 @@ export default {
       return this.bottom && this.isMobile;
     },
     width() {
-      return (this.isStandalone || this.expand) && '100%' || this.drawerWidth;
+      return this.expand && '100%' || this.drawerWidth;
     },
     isMobile() {
       return this.$vuetify?.breakpoint?.smAndDown;
+    },
+    hasExpandActionSlot() {
+      return !!(this.$scopedSlots.expandAction || this.$slots.expandAction);
     },
     expandIcon() {
       return this.expand && 'fas fa-compress-alt' || 'fas fa-expand-alt';
     },
     expandTooltip() {
       return this.expand && this.$t('label.collapse') || this.$t('label.expand');
-    },
-    canStick() {
-      return this.placementsEnabled && this.placementSiteEligible && this.placementApplication?.allowStick || false;
-    },
-    canDetach() {
-      return this.placementsEnabled && this.placementApplication?.allowDetach || false;
-    },
-    displayPlacementMenu() {
-      return !this.isMobile && !this.isStuck && !this.isStandalone && (this.canStick || this.canDetach);
-    },
-    stuckAllowed() {
-      return (this.$vuetify?.breakpoint?.width || 0) >= (this.$vuetify?.breakpoint?.thresholds?.lg || 1264);
-    },
-    isStuck() {
-      return !!this.stuckSide && this.stuckAllowed;
-    },
-    isStandalone() {
-      return !!(this.appName && window.eXo?.env?.portal?.standaloneAppName === this.appName);
     },
     resolvedFilterPlaceholder() {
       return this.filterPlaceholder || this.$t('label.filter');
@@ -439,29 +382,24 @@ export default {
     expand() {
       this.$emit('expand-updated', this.expand);
     },
-    isStuck() {
-      if (this.isStuck) {
-        this.dockOnLayout();
-      } else {
-        this.undockFromLayout();
-      }
-    },
-    placementApplication() {
-      this.refreshStuckState();
-    },
     drawer() {
-      if (!this.permanent) {
-        if (this.drawer) {
+      // the permanent guard covers only the global overlay registry: a
+      // permanent (e.g. docked) drawer stays out of the drawers overlay
+      // bookkeeping but keeps notifying its own consumer
+      if (this.drawer) {
+        if (!this.permanent) {
           document.dispatchEvent(new CustomEvent('drawerOpened', {detail: this.showOverlay || this.noExternalOverlay}));
-          if (!this.initialized) {
-            this.initialized = true;
-          }
           eXo.openedDrawers.push(this);
-          this.$emit('opened');
-          if (this.disablePullToRefresh) {
-            document.body.style.overscrollBehaviorY = 'contain';
-          }
-        } else {
+        }
+        if (!this.initialized) {
+          this.initialized = true;
+        }
+        this.$emit('opened');
+        if (this.disablePullToRefresh) {
+          document.body.style.overscrollBehaviorY = 'contain';
+        }
+      } else {
+        if (!this.permanent) {
           document.dispatchEvent(new CustomEvent('drawerClosed', {detail: this.showOverlay || this.noExternalOverlay}));
           if (eXo.openedDrawers) {
             const currentOpenedDrawerIndex = eXo.openedDrawers.indexOf(this);
@@ -469,17 +407,17 @@ export default {
               eXo.openedDrawers.splice(currentOpenedDrawerIndex, 1);
             }
           }
-          this.$emit('closed');
-          if (this.disablePullToRefresh) {
-            document.body.style.overscrollBehaviorY = '';
-          }
         }
-      } else if (!this.initialized) {
+        this.$emit('closed');
+        if (this.disablePullToRefresh) {
+          document.body.style.overscrollBehaviorY = '';
+        }
+      }
+      if (this.permanent && !this.initialized) {
         this.initialized = true;
       }
       if (this.drawer) {
         this.increaseZindex = !!document.querySelector('.v-dialog--active');
-        this.initPlacement();
       }
 
       this.$emit('input', this.drawer);
@@ -499,7 +437,6 @@ export default {
     document.addEventListener('closeAllDrawers', this.close);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     document.addEventListener('close-editor-container', this.closeDisplayedDrawer);
-    document.addEventListener('app-placement-changed', this.refreshStuckState);
   },
   mounted() {
     if (!this.attached) {
@@ -512,15 +449,13 @@ export default {
     document.removeEventListener('closeAllDrawers', this.close);
     document.removeEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     document.removeEventListener('close-editor-container', this.closeDisplayedDrawer);
-    document.removeEventListener('app-placement-changed', this.refreshStuckState);
-    this.undockFromLayout();
     if (this.drawer) {
       this.drawer = false;
     }
   },
   methods: {
     open() {
-      if (!this.attached && !this.isStuck) {
+      if (!this.attached) {
         // Re-append the drawer to open in order
         // to ensure to attribute an adequate z-index
         // Which makes it displayed on top of other already
@@ -546,90 +481,6 @@ export default {
       // opened drawers
       document.querySelector('#vuetify-apps').appendChild(this.$el);
     },
-    initPlacement() {
-      if ((!this.appName && !this.placementApp) || !this.$appPlacementService) {
-        return;
-      }
-      if (this.placementApp) {
-        this.placementApplication = this.placementApp;
-      }
-      this.$appPlacementService.getPlacements(true)
-        .then(placements => {
-          this.placementsEnabled = placements?.enabled || false;
-          this.placementSiteEligible = placements?.siteEligible || false;
-          if (this.placementsEnabled && !this.placementApplication && this.appName) {
-            return this.$appPlacementService.findApplicationByDrawer(this.appName)
-              .then(application => this.placementApplication = application || null);
-          }
-          return null;
-        })
-        .catch(() => this.placementsEnabled = false);
-    },
-    openInNewTab() {
-      this.$appPlacementService.openDetached(this.placementApplication);
-    },
-    stickTo(side) {
-      this.$appPlacementService.stickApplication(this.placementApplication.id, side);
-    },
-    unstick() {
-      this.$appPlacementService.unstickApplication(this.stuckSide);
-    },
-    refreshStuckState() {
-      if (!this.placementApplication || !this.$appPlacementService) {
-        this.stuckSide = null;
-        return;
-      }
-      this.$appPlacementService.getPlacements(true)
-        .then(placements => {
-          if (!placements?.enabled || !placements?.siteEligible) {
-            this.stuckSide = null;
-          } else if (placements.left === this.placementApplication.id) {
-            this.stuckSide = 'left';
-          } else if (placements.right === this.placementApplication.id) {
-            this.stuckSide = 'right';
-          } else {
-            this.stuckSide = null;
-          }
-        })
-        .catch(() => this.stuckSide = null);
-    },
-    dockOnLayout() {
-      const parentContainer = document.querySelector('#ParentSiteContainer');
-      const rightContainer = document.querySelector('#ParentSiteRightContainer');
-      if (!parentContainer || !rightContainer) {
-        return;
-      }
-      let host = document.querySelector(`#StuckAppContainer-${this.stuckSide}`);
-      if (!host) {
-        host = document.createElement('div');
-        host.id = `StuckAppContainer-${this.stuckSide}`;
-        host.className = 'stuck-app-container';
-      }
-      if (this.stuckSide === 'left') {
-        parentContainer.insertBefore(host, rightContainer);
-      } else {
-        parentContainer.appendChild(host);
-      }
-      host.style.width = this.drawerWidth;
-      host.style.flexShrink = '0';
-      host.style.flexGrow = '0';
-      host.appendChild(this.$el);
-      this.$el.style.setProperty('position', 'relative', 'important');
-      if (!this.drawer) {
-        this.drawer = true;
-      }
-    },
-    undockFromLayout() {
-      this.$el?.style?.removeProperty?.('position');
-      const host = this.$el?.parentElement;
-      if (host?.classList?.contains('stuck-app-container')) {
-        document.querySelector('#vuetify-apps')?.appendChild(this.$el);
-        host.remove();
-        if (this.drawer) {
-          this.drawer = false;
-        }
-      }
-    },
     setModalOpened() {
       this.modalOpened = this.drawer;
     },
@@ -651,9 +502,6 @@ export default {
       }
     },
     close(event) {
-      if (this.isStuck || this.isStandalone) {
-        return;
-      }
       if (this.confirmClose) {
         if (this.$refs.closeConfirmDialog) {
           if (event) {
