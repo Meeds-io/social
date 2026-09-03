@@ -77,6 +77,8 @@ export function init(
           spaceTemplates: null,
           openedOverlay: false,
           hoverDeferred: false,
+          lastSecondLevelFocusElement: null,
+          lastThirdLevelFocusElement: null,
         },
         computed: {
           isMobile() {
