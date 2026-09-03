@@ -28,6 +28,7 @@ import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+  io.meeds.social.digest.rest.DigestRestTest.class,
   UtilTest.class,
   EntityBuilderReactionsTest.class,
   })

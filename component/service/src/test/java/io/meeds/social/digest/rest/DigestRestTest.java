@@ -18,6 +18,7 @@
  */
 package io.meeds.social.digest.rest;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -25,6 +26,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +49,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import io.meeds.commons.digest.DigestService;
+import io.meeds.commons.digest.model.DigestUserSettings;
+import io.meeds.commons.digest.service.DigestLabelResolver;
+import io.meeds.social.timezone.service.UserTimeZoneService;
 import io.meeds.spring.web.security.PortalAuthenticationManager;
 import io.meeds.spring.web.security.WebSecurityConfiguration;
 
@@ -73,6 +79,12 @@ public class DigestRestTest {
   @MockBean
   private DigestService         digestService;
 
+  @MockBean
+  private DigestLabelResolver   labelResolver;
+
+  @MockBean
+  private UserTimeZoneService   userTimeZoneService;
+
   private MockMvc               mockMvc;
 
   @Before
@@ -90,6 +102,7 @@ public class DigestRestTest {
 
   @Test
   public void getSettingsWithUser() throws Exception {
+    when(digestService.getUserSettings(anyString())).thenReturn(new DigestUserSettings(false, List.of(), false, List.of()));
     when(digestService.isDigestAllowed()).thenReturn(true);
     ResultActions response = mockMvc.perform(get("/notifications/digest/settings").with(testSimpleUser()));
     response.andExpect(status().isOk())
