@@ -51,6 +51,57 @@
     color: @toolbarLightIconColor !important;
     margin: 0 auto;
   }
+
+  // Anchor the absolutely-positioned toggle arrow to its own row. Vuetify only
+  // sets `position: relative` on `.v-list-item` under the `.VuetifyApp` scope,
+  // which this menu is not under, so without this the arrow would anchor to a
+  // wider ancestor (the drawer) and get clipped at its edge.
+  .v-list-item {
+    position: relative;
+  }
+
+  // The submenu toggle arrow stays present in the DOM (and reachable by Tab)
+  // at all times; only its visibility is hover/focus-driven, so keyboard
+  // users can actually tab to it instead of it never existing until hovered.
+  // It is taken out of the flow (absolutely pinned to the row's trailing edge)
+  // so the always-present control doesn't permanently reserve ~44px on every
+  // row and truncate the titles; it stays hit-testable (mouse/touch/keyboard).
+  // `!important` is required: one of the arrows carries the `position-relative`
+  // utility class (also !important), which would otherwise keep it in the flow
+  // and let it reserve ~44px and truncate the title.
+  .menu-toggle-arrow {
+    position: absolute !important;
+    inset-inline-end: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    opacity: 0;
+  }
+  // Reveal on row hover, or when the arrow itself is focused (a keyboard user
+  // tabbing onto it), or while its panel is open — but NOT merely because the
+  // row's name link is focused.
+  .v-list-item:hover .menu-toggle-arrow,
+  .menu-toggle-arrow:focus-within,
+  .menu-toggle-arrow.menu-toggle-arrow-visible {
+    opacity: 1;
+  }
+  .v-list-item:hover .menu-toggle-badge,
+  .v-list-item:focus-within .menu-toggle-badge,
+  .menu-toggle-badge.menu-toggle-badge-hidden {
+    display: none;
+  }
+
+  // Keyboard users navigating the first/second/third level content need a
+  // clearly visible focus indicator; the browser default outline is too thin
+  // against this panel's background. Inset so it isn't clipped by the
+  // scrollable panels' overflow.
+  a:focus-visible,
+  button:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid @primaryColor;
+    outline-offset: -2px;
+  }
 }
 .hamburger-unread-badge {
   border-radius: 100%;
