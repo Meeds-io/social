@@ -19,7 +19,6 @@
 package org.exoplatform.social.service.test;
 
 import io.meeds.social.security.rest.LoginRestTest;
-import io.meeds.social.security.rest.OtpRestTest;
 import io.meeds.social.space.rest.UserSpacesRestTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
