@@ -121,8 +121,38 @@
                     fa-filter
                   </v-icon>
                 </v-btn>
+                <v-menu
+                  v-if="displayPlacementMenu"
+                  open-on-hover
+                  offset-y
+                  bottom
+                  left>
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      :title="$t('label.expandDisplay')"
+                      icon
+                      v-bind="attrs"
+                      v-on="on">
+                      <v-icon v-text="expandIcon" size="20" />
+                    </v-btn>
+                  </template>
+                  <v-list dense>
+                    <v-list-item v-if="allowExpand" @click="toogleExpand">
+                      <v-list-item-title>{{ expandTooltip }}</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item v-if="canDetach" @click="openInNewTab">
+                      <v-list-item-title>{{ $t('label.openInNewTab') }}</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item v-if="canStick" @click="stickTo('right')">
+                      <v-list-item-title>{{ $t('label.stickRight') }}</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item v-if="canStick" @click="stickTo('left')">
+                      <v-list-item-title>{{ $t('label.stickLeft') }}</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
                 <v-btn
-                  v-if="allowExpand && !isMobile"
+                  v-else-if="allowExpand && !isMobile"
                   :title="expandTooltip"
                   icon
                   @click="toogleExpand">
@@ -248,6 +278,14 @@ export default {
       type: Boolean,
       default: false,
     },
+    appName: {
+      type: String,
+      default: () => null,
+    },
+    placementApp: {
+      type: Object,
+      default: () => null,
+    },
     showOverlay: {
       type: Boolean,
       default: false,
@@ -320,7 +358,9 @@ export default {
     drawerZIndex: 1035,
     showFilter: false,
     filterText: '',
-    filterFocused: false
+    filterFocused: false,
+    placementApplication: null,
+    placementsEnabled: false
   }),
   computed: {
     zIndex() {
@@ -346,6 +386,15 @@ export default {
     },
     expandTooltip() {
       return this.expand && this.$t('label.collapse') || this.$t('label.expand');
+    },
+    canStick() {
+      return this.placementsEnabled && this.placementApplication?.allowStick || false;
+    },
+    canDetach() {
+      return this.placementsEnabled && this.placementApplication?.allowDetach || false;
+    },
+    displayPlacementMenu() {
+      return !this.isMobile && (this.canStick || this.canDetach);
     },
     resolvedFilterPlaceholder() {
       return this.filterPlaceholder || this.$t('label.filter');
@@ -403,6 +452,7 @@ export default {
       }
       if (this.drawer) {
         this.increaseZindex = !!document.querySelector('.v-dialog--active');
+        this.initPlacement();
       }
 
       this.$emit('input', this.drawer);
@@ -465,6 +515,31 @@ export default {
       // Which makes it displayed on top of other already
       // opened drawers
       document.querySelector('#vuetify-apps').appendChild(this.$el);
+    },
+    initPlacement() {
+      if ((!this.appName && !this.placementApp) || !this.$appPlacementService) {
+        return;
+      }
+      if (this.placementApp) {
+        this.placementApplication = this.placementApp;
+      }
+      this.$appPlacementService.getPlacements(true)
+        .then(placements => {
+          this.placementsEnabled = placements?.enabled || false;
+          if (this.placementsEnabled && !this.placementApplication && this.appName) {
+            return this.$appPlacementService.findApplicationByDrawer(this.appName)
+              .then(application => this.placementApplication = application || null);
+          }
+          return null;
+        })
+        .catch(() => this.placementsEnabled = false);
+    },
+    openInNewTab() {
+      this.$appPlacementService.openDetached(this.placementApplication);
+    },
+    stickTo(side) {
+      this.$appPlacementService.stickApplication(this.placementApplication.id, side)
+        .then(() => this.close());
     },
     setModalOpened() {
       this.modalOpened = this.drawer;
