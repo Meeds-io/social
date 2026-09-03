@@ -229,7 +229,9 @@ export default {
         && !this.ignoredNavigationExtensions.includes(extension?.id));
     },
     filteredProfileActionExtensions() {
-      return this.profileActionExtensions.filter(extension => extension.enabled(this.user?.dataEntity || this.user));
+      // isCard=true: an extension that opts out of card surfaces reads the third argument.
+      // spaceId stays unforwarded as it always was — the space-scoped actions belong to the menu.
+      return this.profileActionExtensions.filter(extension => extension.enabled(this.user?.dataEntity || this.user, null, true));
     },
     fieldsToDisplay() {
       return this.user?.properties?.filter(property => Object.values(this.preferences).includes(property.propertyName));
