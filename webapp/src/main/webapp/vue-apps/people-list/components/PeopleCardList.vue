@@ -171,7 +171,7 @@ export default {
     maxActionIconsCount() {
       return this.filteredPeople.reduce((max, user) => {
         const navigationIconsCount = this.userExtensions.filter(extension => extension.enabled(user)).length;
-        const actionIconsCount = this.profileActionExtensions.filter(extension => extension.enabled(user?.dataEntity || user)).length;
+        const actionIconsCount = this.profileActionExtensions.filter(extension => extension.enabled(user?.dataEntity || user, null, true)).length;
         return Math.max(max, navigationIconsCount + actionIconsCount);
       }, 0) + (this.spaceId && 1 || 0);
     },
