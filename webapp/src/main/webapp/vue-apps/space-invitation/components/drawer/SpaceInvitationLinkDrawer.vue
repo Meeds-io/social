@@ -83,6 +83,9 @@ export default {
     this.$root.$on('space-settings-invite-link', this.open);
     this.generateInvitationLink();
   },
+  beforeDestroy() {
+    this.$root.$off('space-settings-invite-link', this.open);
+  },
   watch: {
     spaceId() {
       this.generateInvitationLink();
