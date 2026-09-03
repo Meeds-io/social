@@ -37,9 +37,12 @@ import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.notification.Utils;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.social.notification.plugin.RequestJoinSpacePlugin;
 import org.exoplatform.social.notification.plugin.SocialNotificationUtils;
 import org.exoplatform.social.notification.plugin.SpaceInvitationPlugin;
+
+import io.meeds.commons.digest.DigestService;
 
 public class SpaceNotificationImpl extends SpaceListenerPlugin {
 
@@ -118,12 +121,30 @@ public class SpaceNotificationImpl extends SpaceListenerPlugin {
   }
 
   private void removeNotifications(String spaceId, String userId, String pluginId) {
+    discardDigestItems(spaceId, userId, pluginId);
     WebNotificationFilter webNotificationFilter = new WebNotificationFilter(userId);
     webNotificationFilter.setParameter("spaceId", spaceId);
     webNotificationFilter.setPluginKey(new PluginKey(pluginId));
     List<NotificationInfo> webNotifs = getWebNotificationService().getNotificationInfos(webNotificationFilter, 0, -1);
     for (NotificationInfo notificationInfo : webNotifs) {
       getWebNotificationService().remove(notificationInfo.getId());
+    }
+  }
+
+  /**
+   * The digest must not announce an invitation or a request that was undone
+   * before it went out, the same way the on-site notification is removed. The
+   * digest service is a Spring bean looked up lazily; a digest failure never
+   * prevents the on-site removal.
+   */
+  private void discardDigestItems(String spaceId, String userId, String pluginId) {
+    try {
+      DigestService digestService = ExoContainerContext.getService(DigestService.class);
+      if (digestService != null) {
+        digestService.discard(userId, pluginId, "spaceId", spaceId);
+      }
+    } catch (Exception e) {
+      LOG.warn("Error discarding the waiting digest items of user {} about space {}", userId, spaceId, e);
     }
   }
 
