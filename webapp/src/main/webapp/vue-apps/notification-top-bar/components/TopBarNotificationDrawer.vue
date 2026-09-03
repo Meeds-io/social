@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <exo-drawer
+  <pinneable-drawer
     ref="drawer"
     :loading="loading > 0"
     class="notifDrawer"
@@ -174,7 +174,7 @@
         </v-btn>
       </div>
     </template>
-  </exo-drawer>
+  </pinneable-drawer>
 </template>
 <script>
 export default {
