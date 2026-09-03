@@ -20,6 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     v-model="drawer"
     class="favoritesDrawer"
     :loading="loading"
+    app-name="favorites"
     allow-expand
     right
     @expand-updated="expanded = $event">

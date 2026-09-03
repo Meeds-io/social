@@ -3,6 +3,7 @@
     id="searchDialog"
     v-model="drawer"
     :loading="loading"
+    app-name="search"
     expanded
     right>
     <template #title>
