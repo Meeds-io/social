@@ -138,6 +138,30 @@ export function getSpaces(query, offset, limit, filter, expand, templateId, sort
   });
 }
 
+export function getUserSpaces(username, offset, limit, scope, returnSize) {
+  const params = new URLSearchParams({
+    // ?? and not ||: a deliberate 0 must reach the endpoint's own validation
+    // rather than being silently rewritten
+    offset: offset ?? 0,
+    limit: limit ?? 20,
+  });
+  if (scope) {
+    params.append('scope', scope);
+  }
+  if (returnSize) {
+    params.append('returnSize', 'true');
+  }
+  return fetch(`/social/rest/users/${encodeURIComponent(username)}/spaces?${params.toString()}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error(`Error ${resp && resp.status} while listing the spaces of user ${username}`);
+    }
+    return resp.json();
+  });
+}
+
 export function getSpacesByFilter(options) {
   const formData = new FormData();
   if (options.expand) {
