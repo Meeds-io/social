@@ -22,20 +22,38 @@ import java.util.Set;
 
 import org.exoplatform.social.core.space.SpaceFilter;
 
+import io.meeds.social.space.constant.UserSpacesScope;
+
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 public class XSpaceFilter extends SpaceFilter {
 
-  private Set<Long>   ids    = null;
+  private Set<Long>       ids    = null;
 
-  private boolean     includePrivate;
+  private boolean         includePrivate;
 
-  private boolean     notHidden;
+  private boolean         notHidden;
 
-  private boolean     lastAccess;
+  private boolean         lastAccess;
 
-  private boolean     visited;
+  private boolean         visited;
+
+  /**
+   * Remote id of a second user the listed spaces must be shared with, i.e. a
+   * user holding the member role on the same space. Used to express the "common
+   * with the viewer" condition of the profile spaces listing, alongside the
+   * profile owner carried by {@link #getRemoteId()}.
+   */
+  private String          commonWithUserId;
+
+  /**
+   * Scope of the "common with the viewer" condition:
+   * {@link UserSpacesScope#COMMON} keeps only the spaces shared with
+   * {@link #getCommonWithUserId()}, {@link UserSpacesScope#ALL} keeps the shared
+   * ones plus the ones that are not hidden.
+   */
+  private UserSpacesScope commonWithUserScope;
 
   public XSpaceFilter setSpaceFilter(SpaceFilter spaceFilter) {
     if (spaceFilter != null) {
@@ -63,6 +81,8 @@ public class XSpaceFilter extends SpaceFilter {
         this.setNotHidden(filter.isNotHidden());
         this.setLastAccess(filter.isLastAccess());
         this.setVisited(filter.isVisited());
+        this.setCommonWithUserId(filter.getCommonWithUserId());
+        this.setCommonWithUserScope(filter.getCommonWithUserScope());
       }
     }
     return this;
@@ -104,6 +124,24 @@ public class XSpaceFilter extends SpaceFilter {
 
   public Set<Long> getIds() {
     return ids;
+  }
+
+  public String getCommonWithUserId() {
+    return commonWithUserId;
+  }
+
+  public XSpaceFilter setCommonWithUserId(String commonWithUserId) {
+    this.commonWithUserId = commonWithUserId;
+    return this;
+  }
+
+  public UserSpacesScope getCommonWithUserScope() {
+    return commonWithUserScope;
+  }
+
+  public XSpaceFilter setCommonWithUserScope(UserSpacesScope commonWithUserScope) {
+    this.commonWithUserScope = commonWithUserScope;
+    return this;
   }
 
   public void setIds(Set<Long> ids) {
