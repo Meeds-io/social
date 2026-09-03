@@ -22,6 +22,7 @@
     v-model="drawer"
     v-draggable="enabled"
     disable-pull-to-refresh
+    app-name="activityComposer"
     allow-expand
     right
     fixed>
