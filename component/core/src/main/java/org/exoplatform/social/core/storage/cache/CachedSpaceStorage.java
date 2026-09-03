@@ -435,8 +435,8 @@ public class CachedSpaceStorage extends SpaceStorage {
   /**
    * Builds the cache key of the profile spaces listing. The two access-control
    * discriminators are explicit key fields: the viewer is
-   * {@link SpaceFilterKey#getViewerId()} and the effective scope is
-   * {@link SpaceFilterKey#getType()}. Only the sorting rides the folded filter
+   * {@code SpaceFilterKey#getViewerId()} and the effective scope is
+   * {@code SpaceFilterKey#getType()}. Only the sorting rides the folded filter
    * hash, since it does not decide what a viewer may see.
    * <p>
    * The scope goes through {@link #normalizeUserSpacesScope(UserSpacesScope)},

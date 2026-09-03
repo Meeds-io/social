@@ -32,12 +32,12 @@ public enum SpaceType {
   MEMBER_IDS,
   /**
    * A profile owner's spaces, restricted to the ones shared with the viewer
-   * carried by {@link SpaceFilterKey#getViewerId()}.
+   * carried by {@code SpaceFilterKey#getViewerId()}.
    */
   USER_SPACES_COMMON,
   /**
    * A profile owner's spaces, minus the hidden ones the viewer carried by
-   * {@link SpaceFilterKey#getViewerId()} is not a member of.
+   * {@code SpaceFilterKey#getViewerId()} is not a member of.
    */
   USER_SPACES_ALL
 }

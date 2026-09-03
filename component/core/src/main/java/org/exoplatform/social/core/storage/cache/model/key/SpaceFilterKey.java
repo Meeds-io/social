@@ -40,7 +40,7 @@ public class SpaceFilterKey implements CacheKey {
 
   /**
    * Remote id of the user the listing is filtered for, when it differs from
-   * {@link #getUserId()} — the profile spaces listing, where userId is the
+   * {@code getUserId()} — the profile spaces listing, where userId is the
    * profile owner and this is the viewer whose visibility rules were applied.
    * <p>
    * It is an explicit, equals-compared field on purpose: key equality here is
@@ -48,7 +48,7 @@ public class SpaceFilterKey implements CacheKey {
    * colliding filters are the same key. That is a stale-list risk for a
    * viewer-agnostic listing, but an access-control one as soon as the key
    * carries a viewer — a collision would serve one viewer's filtered list to
-   * another. The same reason puts the scope in {@link #getType()} rather than in
+   * another. The same reason puts the scope in {@code getType()} rather than in
    * the hash.
    */
   private final String      viewerId;
