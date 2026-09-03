@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <exo-drawer
+  <pinneable-drawer
     ref="favoritesDrawer"
     v-model="drawer"
     class="favoritesDrawer"
@@ -107,7 +107,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         {{ $t('Search.button.loadMore') }}
       </v-btn>
     </template>
-  </exo-drawer>
+  </pinneable-drawer>
 </template>
 <script>
 export default {
