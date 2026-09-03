@@ -17,6 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import ExoDrawer from './components/ExoDrawer.vue';
+import PinneableDrawer from './components/PinneableDrawer.vue';
 import ConfirmDialog from './components/ConfirmDialog.vue';
 import UserAvatarsList from './components/UserAvatarsList.vue';
 import UserAvatar from './components/UserAvatar.vue';
@@ -67,6 +68,7 @@ const components = {
   'user-avatar': UserAvatar,
   'space-avatar': SpaceAvatar,
   'exo-drawer': ExoDrawer,
+  'pinneable-drawer': PinneableDrawer,
   'activity-share-drawer': ActivityShareDrawer,
   'drawers-overlay': DrawersOverlay,
   'exo-confirm-dialog': ConfirmDialog,
