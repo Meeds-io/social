@@ -51,63 +51,68 @@
       </v-chip>
     </v-list-item-action>
   </v-list-item>
-  <v-hover v-else v-model="showItemActions">
-    <v-list-item
-      :href="spaceLink"
-      :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
-      :arial-label="$t('space.avatar.href.title',{0:space.prettyName})"
-      :title="spaceDisplayName"
-      class="px-2 spaceItem"
-      role="link">
-      <v-list-item-avatar 
-        size="28"
-        class="me-3 ms-2 tile my-0 spaceAvatar"
-        tile>
-        <img
-          :src="spaceAvatar"
-          alt=""
-          class="rounded"
-          width="28"
-          height="28">
-      </v-list-item-avatar>
-      <v-list-item-content>
-        <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
-      </v-list-item-content>
-      <v-list-item-action
-        v-if="toggleArrow"
-        :disabled="loading"
-        :loading="loading"
-        class="me-2 my-auto align-center">
-        <ripple-hover-button
-          :active="!drawerOpened"
-          icon
-          @ripple-hover="openOrCloseDrawer()">
-          <v-icon
-            :id="space.id"
-            class="me-0 pa-2 icon-default-color"
-            small>
-            {{ arrowIcon }} 
-          </v-icon>
-        </ripple-hover-button>
-      </v-list-item-action>
-      <v-list-item-action
-        v-if="!toggleArrow && spaceUnreadCount"
-        class="me-2 my-auto align-center">
-        <v-chip
-          v-if="spaceUnreadCount"
-          color="error-color-background"
-          min-width="22"
-          height="22"
-          dark>
-          {{ spaceUnreadCount }}
-        </v-chip>
-      </v-list-item-action>
-    </v-list-item>
-  </v-hover>
+  <v-list-item
+    v-else
+    :href="spaceLink"
+    :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
+    :aria-label="$t('space.avatar.href.title',{0:space.prettyName})"
+    :title="spaceDisplayName"
+    class="px-2 spaceItem"
+    role="link">
+    <v-list-item-avatar
+      size="28"
+      class="me-3 ms-2 tile my-0 spaceAvatar"
+      tile>
+      <img
+        :src="spaceAvatar"
+        alt=""
+        class="rounded"
+        width="28"
+        height="28">
+    </v-list-item-avatar>
+    <v-list-item-content>
+      <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
+    </v-list-item-content>
+    <v-list-item-action
+      :disabled="loading"
+      :loading="loading"
+      :class="{ 'menu-toggle-arrow-visible': drawerOpened }"
+      class="me-2 my-auto align-center menu-toggle-arrow">
+      <ripple-hover-button
+        :active="!drawerOpened"
+        :aria-expanded="drawerOpened ? 'true' : 'false'"
+        :aria-controls="drawerOpened ? panelId : null"
+        icon
+        @ripple-hover="openOrCloseDrawer()"
+        @keydown.native="onArrowKeydown">
+        <v-icon
+          :id="space.id"
+          class="me-0 pa-2 icon-default-color"
+          small>
+          {{ arrowIcon }}
+        </v-icon>
+      </ripple-hover-button>
+    </v-list-item-action>
+    <v-list-item-action
+      v-if="spaceUnreadCount"
+      :class="{ 'menu-toggle-badge-hidden': drawerOpened }"
+      class="me-2 my-auto align-center menu-toggle-badge">
+      <v-chip
+        v-if="spaceUnreadCount"
+        color="error-color-background"
+        min-width="22"
+        height="22"
+        dark>
+        {{ spaceUnreadCount }}
+      </v-chip>
+    </v-list-item-action>
+  </v-list-item>
 </template>
 <script>
+import arrowKeyboardNavigation from '../../mixins/arrowKeyboardNavigation.js';
 
 export default {
+  mixins: [arrowKeyboardNavigation],
   props: {
     space: {
       type: Object,
@@ -135,7 +140,6 @@ export default {
     },
   },
   data: () => ({
-    showItemActions: false,
     spaceUnreadItems: null,
   }),
   computed: {
@@ -154,9 +158,6 @@ export default {
     spaceUnreadCount() {
       return this.$root?.unreadPerSpace?.[this.space?.id];
     },
-    toggleArrow() {
-      return this.showItemActions || this.drawerOpened;
-    },
     drawerOpened() {
       return this.openedSpace?.id === this.space?.id;
     },
@@ -168,6 +169,9 @@ export default {
     },
     arrowIconRight() {
       return this.$vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
+    },
+    panelId() {
+      return this.thirdLevel ? 'HamburgerMenuThirdLevelPanel' : 'HamburgerMenuSecondLevelPanel';
     },
   },
   watch: {
@@ -182,11 +186,16 @@ export default {
     },
   },
   methods: {
+    // Which panel this item's arrow opens (used by the shared keyboard mixin).
+    activateArrow() {
+      this.openOrCloseDrawer();
+    },
     openOrCloseDrawer(event) {
       if (event) {
         event.preventDefault();
         event.stopPropagation();
       }
+      this.storeFocusOrigin(this.thirdLevel ? 'lastThirdLevelFocusElement' : 'lastSecondLevelFocusElement');
       this.$root.$emit('change-space-menu', this.space, this.thirdLevel);
     },
   },
