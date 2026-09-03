@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import io.meeds.social.space.constant.UserSpacesScope;
 import io.meeds.social.space.invitation.model.SpaceInvitationLink;
 import io.meeds.social.space.model.SpaceCreationInstance;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -1139,6 +1140,60 @@ public interface SpaceService {
    * @return list of common spaces between two users in param
    */
   default ListAccess<Space> getCommonSpaces(String username, String otherUsername) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Lists the spaces of a profile owner, as they are visible to a given viewer.
+   * <p>
+   * This method is the single decision point of the profile spaces listing: it
+   * resolves the viewer's type, decides the effective scope and applies the
+   * visibility filter. The four cases it implements are:
+   * <ol>
+   * <li>internal viewer on their own profile: all their spaces, hidden ones
+   * included;</li>
+   * <li>internal viewer on an internal owner's profile: the owner's spaces,
+   * minus the hidden spaces the viewer is not a member of;</li>
+   * <li>internal viewer on an external owner's profile: common spaces only;</li>
+   * <li>external viewer, whoever the owner is: common spaces only, the
+   * requested scope being overridden.</li>
+   * </ol>
+   * Only the member role is taken into account: invitations and join requests
+   * are excluded. A PRIVATE space the viewer is not a member of is listed; only
+   * HIDDEN spaces are filtered out. Sub spaces are listed flat, alongside their
+   * parent.
+   *
+   * @param viewerUsername The remote user Id of the user viewing the profile
+   * @param profileOwnerUsername The remote user Id of the profile owner
+   * @param scope The requested {@link UserSpacesScope}. Narrowed by this method
+   *          when the viewer may not use it; never a cause of denial
+   * @param offset The starting point
+   * @param limit The maximum number of returned results
+   * @return {@link List} of {@link Space} visible to the viewer
+   * @throws ObjectNotFoundException when the profile owner does not exist
+   */
+  default List<Space> getUserSpaces(String viewerUsername,
+                                    String profileOwnerUsername,
+                                    UserSpacesScope scope,
+                                    long offset,
+                                    long limit) throws ObjectNotFoundException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Counts the spaces of a profile owner, as they are visible to a given viewer,
+   * applying the same rules as
+   * {@link #getUserSpaces(String, String, UserSpacesScope, long, long)}.
+   *
+   * @param viewerUsername The remote user Id of the user viewing the profile
+   * @param profileOwnerUsername The remote user Id of the profile owner
+   * @param scope The requested {@link UserSpacesScope}
+   * @return the number of spaces visible to the viewer
+   * @throws ObjectNotFoundException when the profile owner does not exist
+   */
+  default int countUserSpaces(String viewerUsername,
+                              String profileOwnerUsername,
+                              UserSpacesScope scope) throws ObjectNotFoundException {
     throw new UnsupportedOperationException();
   }
 

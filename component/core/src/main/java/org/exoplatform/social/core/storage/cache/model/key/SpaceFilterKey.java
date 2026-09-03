@@ -38,11 +38,31 @@ public class SpaceFilterKey implements CacheKey {
 
   private final int         hash;
 
+  /**
+   * Remote id of the user the listing is filtered for, when it differs from
+   * {@code getUserId()} — the profile spaces listing, where userId is the
+   * profile owner and this is the viewer whose visibility rules were applied.
+   * <p>
+   * It is an explicit, equals-compared field on purpose: key equality here is
+   * decided on {@link #hash}, an int folded from the whole filter, so two
+   * colliding filters are the same key. That is a stale-list risk for a
+   * viewer-agnostic listing, but an access-control one as soon as the key
+   * carries a viewer — a collision would serve one viewer's filtered list to
+   * another. The same reason puts the scope in {@code getType()} rather than in
+   * the hash.
+   */
+  private final String      viewerId;
+
   public SpaceFilterKey(String userId, SpaceFilter filter, SpaceType type) {
+    this(userId, null, filter, type);
+  }
+
+  public SpaceFilterKey(String userId, String viewerId, SpaceFilter filter, SpaceType type) {
     this.hash = Objects.hash(filter);
     this.templateIds = filter == null ? null : filter.getTemplateIds();
     this.type = type;
     this.userId = userId;
+    this.viewerId = viewerId;
   }
 
 }
