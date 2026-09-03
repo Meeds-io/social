@@ -404,8 +404,11 @@ export default {
     displayPlacementMenu() {
       return !this.isMobile && !this.isStuck && !this.isStandalone && (this.canStick || this.canDetach);
     },
+    stuckAllowed() {
+      return (this.$vuetify?.breakpoint?.width || 0) >= (this.$vuetify?.breakpoint?.thresholds?.lg || 1264);
+    },
     isStuck() {
-      return !!this.stuckSide && !this.isMobile;
+      return !!this.stuckSide && this.stuckAllowed;
     },
     isStandalone() {
       return !!(this.appName && window.eXo?.env?.portal?.standaloneAppName === this.appName);
