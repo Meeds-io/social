@@ -38,7 +38,8 @@
   ProfilePropertySetting profilePropertySetting = profilePropertyService.getProfileSettingByName("manager");
   // The timezone the platform knows for the user: the userTimeZoneSync script
   // compares it to the browser one and refreshes it when they differ. The
-  // module only runs because it is required here.
+  // module is required by UISocialBottomContainer.gtmpl: a require issued
+  // from this head template never reaches the page execution list.
   OrganizationService organizationService = uicomponent.getApplicationComponent(OrganizationService.class);
   UserProfile organizationUserProfile = userName == null ? null : organizationService.getUserProfileHandler().findUserProfileByName(userName);
   String userTimezone = organizationUserProfile == null ? null : organizationUserProfile.getAttribute(Profile.USER_TIME_ZONE);
@@ -50,9 +51,6 @@
     }
   } catch (Exception e) {
     userTimezone = null;
-  }
-  if (userName != null) {
-    rcontext.getJavascriptManager().require("SHARED/userTimeZoneSync");
   }
 %>
 <script type="text/javascript" id="socialHeadScripts">
