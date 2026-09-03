@@ -58,6 +58,8 @@ import org.exoplatform.social.core.storage.cache.selector.LastAccessedSpacesCach
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
+import io.meeds.social.space.constant.UserSpacesScope;
+
 public class CachedSpaceStorage extends SpaceStorage {
 
   private static final SpaceKey                                                                    EMPTY_SPACE_KEY =
@@ -355,6 +357,104 @@ public class CachedSpaceStorage extends SpaceStorage {
       return buildIds(got);
     }, listKey);
     return buildSpaces(keys);
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p>
+   * Only the first page is cached. This listing is the first family of
+   * {@code spacesCache} keyed on a <b>pair</b> of users (owner x viewer x
+   * scope), where every other family is keyed on a single one, and the cache is
+   * shared: {@code exo.cache.social.SpacesCache.MaxNodes} defaults to 5000
+   * entries for every space listing of the instance (defined outside this
+   * repository, in {@code Meeds-io/meeds} ->
+   * {@code services/plf-configuration/src/main/resources/conf/platform/configuration.properties}). Caching the drawer's
+   * subsequent pages as well would let profile browsing evict the listings this
+   * cache exists for — the home spaces widget, the space directory. Bounding the
+   * new family to the page that renders on every profile view is the fallback
+   * the specification states for this cardinality (eXIP 7.3.0.18, note 50524
+   * §4).
+   * <p>
+   * The bypass removes the offset dimension, not the {@code limit} one:
+   * {@link ListSpacesKey} compares both, so a caller varying {@code limit} still
+   * multiplies entries. No caller does today — the widget and the drawer each
+   * pass a fixed page size — but the REST endpoint of WP1b takes {@code limit}
+   * from the client and owes that clamp.
+   */
+  @Override
+  public List<Space> getUserSpaces(String viewerUsername,
+                                   String profileOwnerUsername,
+                                   UserSpacesScope scope,
+                                   Sorting sorting,
+                                   long offset,
+                                   long limit) {
+    validateUserSpacesArguments(viewerUsername, profileOwnerUsername);
+    if (offset > 0) {
+      return super.getUserSpaces(viewerUsername, profileOwnerUsername, scope, sorting, offset, limit);
+    }
+    ListSpacesKey listKey = new ListSpacesKey(getUserSpacesCacheKey(viewerUsername, profileOwnerUsername, scope, sorting),
+                                              offset,
+                                              limit);
+    ListSpacesData keys = spacesFutureCache.get(() -> {
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
+      }
+      return buildIds(CachedSpaceStorage.super.getUserSpaces(viewerUsername,
+                                                             profileOwnerUsername,
+                                                             scope,
+                                                             sorting,
+                                                             offset,
+                                                             limit));
+    }, listKey);
+    return buildSpaces(keys);
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p>
+   * Cached for every page, unlike the listing above: the count carries neither an
+   * offset nor a limit dimension, so it adds at most one entry per (owner,
+   * viewer, scope) — and in {@code social.SpacesCountCache}, a budget of its own,
+   * separate from the listing cache. It is issued by the "See all" drawer only,
+   * never by the widget render (eXIP 7.3.0.18, note 50524 §2 query budget).
+   * Recomputing it means a full {@code COUNT(DISTINCT s.id)} over the membership
+   * scan, reasoned to be the more expensive of the two — not measured here, the
+   * unit suite proves the statement executes, not what it costs.
+   */
+  @Override
+  public int countUserSpaces(String viewerUsername, String profileOwnerUsername, UserSpacesScope scope) {
+    validateUserSpacesArguments(viewerUsername, profileOwnerUsername);
+    SpaceFilterKey key = getUserSpacesCacheKey(viewerUsername, profileOwnerUsername, scope, null);
+    return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.countUserSpaces(viewerUsername,
+                                                                                                     profileOwnerUsername,
+                                                                                                     scope)),
+                                      key)
+                                 .build();
+  }
+
+  /**
+   * Builds the cache key of the profile spaces listing. The two access-control
+   * discriminators are explicit key fields: the viewer is
+   * {@link SpaceFilterKey#getViewerId()} and the effective scope is
+   * {@link SpaceFilterKey#getType()}. Only the sorting rides the folded filter
+   * hash, since it does not decide what a viewer may see.
+   * <p>
+   * The scope goes through {@link #normalizeUserSpacesScope(UserSpacesScope)},
+   * the same method the predicate builder uses, so a missing scope cannot be
+   * restrictive in the query and permissive in the key — that disagreement would
+   * serve the wide listing to a caller whose predicate asked for the narrow one.
+   */
+  private SpaceFilterKey getUserSpacesCacheKey(String viewerUsername,
+                                               String profileOwnerUsername,
+                                               UserSpacesScope scope,
+                                               Sorting sorting) {
+    SpaceFilter sortingFilter = new SpaceFilter();
+    sortingFilter.setSorting(sorting);
+    return new SpaceFilterKey(profileOwnerUsername,
+                              viewerUsername,
+                              sortingFilter,
+                              normalizeUserSpacesScope(scope) == UserSpacesScope.ALL ? SpaceType.USER_SPACES_ALL
+                                                                                     : SpaceType.USER_SPACES_COMMON);
   }
 
   @Override

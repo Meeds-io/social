@@ -52,6 +52,7 @@ import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
+import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
@@ -64,6 +65,7 @@ import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.constant.UserSpacesScope;
 
 import jakarta.persistence.Tuple;
 
@@ -534,6 +536,111 @@ public class SpaceStorage {
 
   public int countExternalMembers(Long spaceId) {
     return spaceMemberDAO.countExternalMembers(spaceId);
+  }
+
+  /**
+   * Lists the spaces where a profile owner has the member role, restricted to
+   * what a viewer is allowed to see. The access decision itself belongs to the
+   * Service layer: this method only translates an already decided scope into a
+   * datastore filter.
+   *
+   * @param viewerUsername remote id of the viewer, mandatory. When it is the
+   *          profile owner themselves, both scopes list every space they are a
+   *          member of, hidden ones included — the viewer is a member of all of
+   *          them by definition
+   * @param profileOwnerUsername remote id of the profile owner
+   * @param scope effective {@link UserSpacesScope}, as decided by the Service
+   * @param sorting the {@link Sorting} to apply
+   * @param offset The starting point
+   * @param limit The maximum number of returned results
+   * @return {@link List} of {@link Space}
+   * @throws IllegalArgumentException when the viewer or the profile owner is
+   *           missing
+   */
+  public List<Space> getUserSpaces(String viewerUsername,
+                                   String profileOwnerUsername,
+                                   UserSpacesScope scope,
+                                   Sorting sorting,
+                                   long offset,
+                                   long limit) {
+    return getSpaces(profileOwnerUsername,
+                     SpaceMembershipStatus.MEMBER,
+                     buildUserSpacesFilter(viewerUsername, profileOwnerUsername, scope, sorting),
+                     offset,
+                     limit);
+  }
+
+  /**
+   * Counts the spaces returned by
+   * {@link #getUserSpaces(String, String, UserSpacesScope, Sorting, long, long)}.
+   *
+   * @param viewerUsername remote id of the viewer, mandatory
+   * @param profileOwnerUsername remote id of the profile owner
+   * @param scope effective {@link UserSpacesScope}, as decided by the Service
+   * @return the number of spaces
+   * @throws IllegalArgumentException when the viewer or the profile owner is
+   *           missing
+   */
+  public int countUserSpaces(String viewerUsername, String profileOwnerUsername, UserSpacesScope scope) {
+    return getSpacesCount(profileOwnerUsername,
+                          SpaceMembershipStatus.MEMBER,
+                          buildUserSpacesFilter(viewerUsername, profileOwnerUsername, scope, null));
+  }
+
+  /**
+   * Refuses a profile spaces listing that carries no viewer. An absent viewer is
+   * a caller error, not a licence to list the owner's hidden spaces, so it must
+   * never degenerate into the unfiltered listing. Validated by the cached
+   * storage before the cache is consulted, so the exception is not raised from
+   * inside a cache loader — which would surface it wrapped.
+   *
+   * @param viewerUsername remote id of the viewer
+   * @param profileOwnerUsername remote id of the profile owner
+   * @throws IllegalArgumentException when either is missing
+   */
+  protected void validateUserSpacesArguments(String viewerUsername, String profileOwnerUsername) {
+    if (StringUtils.isBlank(viewerUsername)) {
+      throw new IllegalArgumentException("space.viewerIsMandatory");
+    }
+    if (StringUtils.isBlank(profileOwnerUsername)) {
+      throw new IllegalArgumentException("space.profileOwnerIsMandatory");
+    }
+  }
+
+  /**
+   * Normalises the scope of a profile spaces listing: a missing scope is the
+   * restrictive one. The effective scope is decided by the Service, and this
+   * layer must never widen when it was not told which scope to apply. Both the
+   * filter and the cached storage's key derive from this single method, so the
+   * predicate and the cache key can never disagree on what a null scope means —
+   * a disagreement there is an access-control defect, not a staleness one.
+   *
+   * @param scope the requested {@link UserSpacesScope}, possibly null
+   * @return the scope to apply, never null
+   */
+  protected UserSpacesScope normalizeUserSpacesScope(UserSpacesScope scope) {
+    return scope == null ? UserSpacesScope.COMMON : scope;
+  }
+
+  /**
+   * Builds the filter of the profile spaces listing. The viewer axis is always
+   * set, own profile included: with the viewer as the profile owner the axis
+   * matches every space of the listing, so the result is the same as it would be
+   * without it, and no scope is ever silently dropped here. Deciding the
+   * effective scope stays the Service's job, in one place.
+   */
+  private XSpaceFilter buildUserSpacesFilter(String viewerUsername,
+                                             String profileOwnerUsername,
+                                             UserSpacesScope scope,
+                                             Sorting sorting) {
+    validateUserSpacesArguments(viewerUsername, profileOwnerUsername);
+    XSpaceFilter filter = new XSpaceFilter();
+    if (sorting != null) {
+      filter.setSorting(sorting);
+    }
+    filter.setCommonWithUserId(viewerUsername);
+    filter.setCommonWithUserScope(normalizeUserSpacesScope(scope));
+    return filter;
   }
 
   public List<Space> getCommonSpaces(String userId, String otherUserId, int offset, int limit) {

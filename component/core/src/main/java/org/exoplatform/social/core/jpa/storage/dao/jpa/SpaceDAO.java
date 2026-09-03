@@ -39,6 +39,7 @@ import org.exoplatform.social.core.space.model.Space;
 
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.space.constant.SpaceVisibility;
+import io.meeds.social.space.constant.UserSpacesScope;
 
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Tuple;
@@ -83,6 +84,8 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
   private static final String                      PARAM_REGISTRATION          = "registration";
 
   private static final String                      PARAM_HIDDEN_VISIBILITY     = "hiddenVisibility";
+
+  private static final String                      PARAM_COMMON_WITH_USER_ID   = "commonWithUserId";
 
   private static final String                      QUERY_FILTER_FIND_PREFIX    = "Space.findSpaces";
 
@@ -263,6 +266,9 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     if (parameterNames.contains(PARAM_USER_ID)) {
       query.setParameter(PARAM_USER_ID, filter.getRemoteId());
     }
+    if (parameterNames.contains(PARAM_COMMON_WITH_USER_ID)) {
+      query.setParameter(PARAM_COMMON_WITH_USER_ID, filter.getCommonWithUserId());
+    }
     if (parameterNames.contains(PARAM_STATUSES)) {
       query.setParameter(PARAM_STATUSES, filter.getStatusList());
     }
@@ -405,8 +411,42 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       parameterNames.add(PARAM_PARENT_SPACE_ID);
     }
 
+    buildCommonWithUserPredicates(spaceFilter, suffixes, predicates, parameterNames);
     buildPermissionPredicates(spaceFilter, suffixes, predicates, parameterNames);
     buildSortSuffixes(spaceFilter, suffixes);
+  }
+
+  /**
+   * Adds the "common with a second user" condition of the profile spaces
+   * listing. The membership axis of {@link XSpaceFilter#getRemoteId()} (the
+   * profile owner) is handled by
+   * {@link #buildPermissionPredicates(XSpaceFilter, List, List, List)}; this one
+   * adds the axis of {@link XSpaceFilter#getCommonWithUserId()} (the viewer) as
+   * an EXISTS sub query, so that no second membership join duplicates rows or
+   * interferes with the sort.
+   */
+  private void buildCommonWithUserPredicates(XSpaceFilter spaceFilter,
+                                             List<String> suffixes,
+                                             List<String> predicates,
+                                             List<String> parameterNames) {
+    if (StringUtils.isBlank(spaceFilter.getCommonWithUserId())) {
+      return;
+    }
+    String commonWithUser = "EXISTS (SELECT smc.id FROM SocSpaceMember smc WHERE smc.space.id = s.id"
+        + " AND smc.userId = :commonWithUserId"
+        + " AND smc.status = io.meeds.social.space.constant.SpaceMembershipStatus.MEMBER)";
+    if (spaceFilter.getCommonWithUserScope() == UserSpacesScope.ALL) {
+      // Every space of the profile owner, minus the hidden ones the viewer is
+      // not a member of
+      suffixes.add("NotHiddenOrCommonWithUser");
+      predicates.add("(s.visibility <> :hiddenVisibility OR " + commonWithUser + ")");
+      parameterNames.add(PARAM_HIDDEN_VISIBILITY);
+    } else {
+      // Only the spaces shared with the viewer
+      suffixes.add("CommonWithUser");
+      predicates.add(commonWithUser);
+    }
+    parameterNames.add(PARAM_COMMON_WITH_USER_ID);
   }
 
   private void buildPermissionPredicates(XSpaceFilter spaceFilter, // NOSONAR
