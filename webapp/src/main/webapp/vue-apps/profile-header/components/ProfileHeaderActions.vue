@@ -129,7 +129,7 @@
         icon="fas fa-user-plus"
         icon-button
         @click="connect" />
-      <div class="profileHeaderActionComponents order-first mb-0">
+      <div class="profileHeaderActionComponents order-first mb-0 d-flex align-center">
         <div
           v-for="action in enabledProfileHeaderActionComponents"
           :key="action.key"
