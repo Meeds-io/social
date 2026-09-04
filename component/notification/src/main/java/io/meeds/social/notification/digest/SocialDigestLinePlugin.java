@@ -30,6 +30,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.notification.LinkProviderUtils;
+import org.exoplatform.social.notification.plugin.SocialNotificationUtils;
 
 import io.meeds.commons.digest.model.DigestItem;
 import io.meeds.commons.digest.model.DigestLine;
@@ -52,16 +53,16 @@ public class SocialDigestLinePlugin extends DigestLinePlugin {
 
   public static final String  ACTIVITY_COMMENT_WATCH_PLUGIN = "ActivityCommentWatchPlugin";
 
-  /** The stored parameters, the same names as in the notifications */
-  static final String         SPACE_ID_PARAM              = "spaceId";
+  /** The stored parameters: the very keys the notification plugins write */
+  static final String         SPACE_ID_PARAM              = SocialNotificationUtils.SPACE_ID.getKey();
 
-  static final String         INVITER_PARAM               = "profile";
+  static final String         INVITER_PARAM               = SocialNotificationUtils.PROFILE.getKey();
 
-  static final String         REQUESTER_PARAM             = "request_from";
+  static final String         REQUESTER_PARAM             = SocialNotificationUtils.REQUEST_FROM.getKey();
 
-  static final String         POSTER_PARAM                = "poster";
+  static final String         POSTER_PARAM                = SocialNotificationUtils.POSTER.getKey();
 
-  static final String         ACTIVITY_ID_PARAM           = "activityId";
+  static final String         ACTIVITY_ID_PARAM           = SocialNotificationUtils.ACTIVITY_ID.getKey();
 
   private static final String LINE_KEY_PREFIX             = "digest.line.";
 
