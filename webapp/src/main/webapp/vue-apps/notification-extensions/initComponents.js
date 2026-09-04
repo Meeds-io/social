@@ -40,6 +40,7 @@ import EditActivityPlugin from './components/plugins/EditActivityPlugin.vue';
 import EditCommentPlugin from './components/plugins/EditCommentPlugin.vue';
 import LikeCommentPlugin from './components/plugins/LikeCommentPlugin.vue';
 import LikePlugin from './components/plugins/LikePlugin.vue';
+import PostReportPlugin from './components/plugins/PostReportPlugin.vue';
 import PostActivityPlugin from './components/plugins/PostActivityPlugin.vue';
 import PostActivitySpaceStreamPlugin from './components/plugins/PostActivitySpaceStreamPlugin.vue';
 import SharedActivitySpaceStreamPlugin from './components/plugins/SharedActivitySpaceStreamPlugin.vue';
@@ -72,6 +73,7 @@ const components = {
   'user-notification-activity-share': SharedActivitySpaceStreamPlugin,
   'user-notification-activity-edit': EditActivityPlugin,
   'user-notification-activity-like': LikePlugin,
+  'user-notification-post-report': PostReportPlugin,
   'user-notification-comment-edit': EditCommentPlugin,
   'user-notification-comment-like': LikeCommentPlugin,
 

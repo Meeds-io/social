@@ -29,46 +29,57 @@
           open-on-hover
           offset-x>
           <template #activator="{ on, attrs }">
-            <v-list-item
-              v-on="action.click && {
-                ...on,
-                click: () => clickOnAction(action),
-              } || on"
-              v-bind="attrs"
-              class="px-3"
-              dense>
-              <v-list-item-icon class="d-flex align-center justify-center ma-auto">
-                <v-card
-                  class="d-flex align-center justify-center"
-                  color="transparent"
-                  min-height="24"
-                  min-width="20"
-                  flat>
-                  <v-img
-                    v-if="action.icon?.includes?.('base64') || action.icon?.includes?.('/')"
-                    :src="action.icon"
-                    max-height="16"
-                    height="16"
-                    max-width="16"
-                    contain
-                    eager />
-                  <v-icon
-                    v-else
-                    size="16"
-                    class="icon-default-color">
-                    {{ $t(action.icon) }}
-                  </v-icon>
-                </v-card>
-              </v-list-item-icon>
-              <v-list-item-content class="mx-2">
-                <v-list-item-title class="menu-text-color">{{ $t(action.labelKey) }}</v-list-item-title>
-              </v-list-item-content>
-              <v-list-item-icon
-                v-if="action.children.length"
-                class="ms-2 me-0 width-auto">
-                <v-icon size="16">{{ $vuetify.rtl ? 'fa-caret-left' : 'fa-caret-right' }}</v-icon>
-              </v-list-item-icon>
-            </v-list-item>
+            <!-- the disabled entry blocks pointer events (Vuetify), so the
+              tooltip activator lives on a wrapper that still receives the hover -->
+            <v-tooltip :disabled="!isActionDisabled(action)" bottom>
+              <template #activator="{ on: tooltipOn }">
+                <div v-on="tooltipOn">
+                  <v-list-item
+                    v-on="action.click && {
+                      ...on,
+                      click: () => !isActionDisabled(action) && clickOnAction(action),
+                    } || on"
+                    v-bind="attrs"
+                    :class="isActionDisabled(action) && 'v-list-item--disabled' || ''"
+                    :aria-label="isActionDisabled(action) && actionDisabledTitle(action) || $t(action.labelKey)"
+                    class="px-3"
+                    dense>
+                    <v-list-item-icon class="d-flex align-center justify-center ma-auto">
+                      <v-card
+                        class="d-flex align-center justify-center"
+                        color="transparent"
+                        min-height="24"
+                        min-width="20"
+                        flat>
+                        <v-img
+                          v-if="action.icon?.includes?.('base64') || action.icon?.includes?.('/')"
+                          :src="action.icon"
+                          max-height="16"
+                          height="16"
+                          max-width="16"
+                          contain
+                          eager />
+                        <v-icon
+                          v-else
+                          :class="isActionDisabled(action) ? 'text-disabled-color' : 'icon-default-color'"
+                          size="16">
+                          {{ $t(action.icon) }}
+                        </v-icon>
+                      </v-card>
+                    </v-list-item-icon>
+                    <v-list-item-content class="mx-2">
+                      <v-list-item-title :class="isActionDisabled(action) ? 'text-disabled-color' : 'menu-text-color'">{{ $t(isActionDisabled(action) && action.disabledLabelKey || action.labelKey) }}</v-list-item-title>
+                    </v-list-item-content>
+                    <v-list-item-icon
+                      v-if="action.children.length"
+                      class="ms-2 me-0 width-auto">
+                      <v-icon size="16">{{ $vuetify.rtl ? 'fa-caret-left' : 'fa-caret-right' }}</v-icon>
+                    </v-list-item-icon>
+                  </v-list-item>
+                </div>
+              </template>
+              <span>{{ actionDisabledTitle(action) }}</span>
+            </v-tooltip>
           </template>
           <v-list
             v-if="action.children.length"
@@ -138,6 +149,14 @@ export default {
     menu: false,
     attachMenu: true,
   }),
+  created() {
+    document.addEventListener('activity-reported', this.handleActivityReported);
+    this.$root.$on('activity-stream-activity-updateComment', this.handleCommentUpdatedByWebSocket);
+  },
+  beforeDestroy() {
+    document.removeEventListener('activity-reported', this.handleActivityReported);
+    this.$root.$off('activity-stream-activity-updateComment', this.handleCommentUpdatedByWebSocket);
+  },
   computed: {
     enabledActions() {
       const enabledActions = this.actions && Object.values(this.actions).filter(action => action.isEnabled && action.id && !action.parentId && (action.click || action.type === 'group') && action.isEnabled(this.activity, this.comment, this.commentTypeExtension));
@@ -165,6 +184,30 @@ export default {
     },
   },
   methods: {
+    handleActivityReported(event) {
+      if (this.comment && event?.detail?.isComment && event?.detail?.activityId === this.comment.id) {
+        this.$set(this.comment, 'hasReported', true);
+      }
+    },
+    handleCommentUpdatedByWebSocket(activityId, spaceId, commentId) {
+      if (this.comment && commentId && commentId === this.comment.id) {
+        // Report flags are computed per viewer: the websocket message carries
+        // no report data, so the comment has to be refetched to refresh them
+        this.$activityService.getActivityById(commentId)
+          .then(comment => {
+            if (comment) {
+              this.$set(this.comment, 'hasReported', comment.hasReported);
+              this.$set(this.comment, 'canReport', comment.canReport);
+            }
+          });
+      }
+    },
+    isActionDisabled(action) {
+      return !!(action.disabled && action.disabled(this.activity, this.comment, this.commentTypeExtension));
+    },
+    actionDisabledTitle(action) {
+      return this.isActionDisabled(action) && action.disabledTitleKey && this.$t(action.disabledTitleKey) || '';
+    },
     clickOnAction(action) {
       this.closeMenu();
       if (action.confirmDialog) {

@@ -47,11 +47,26 @@ public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, St
 
   private String            userId;
 
+  /**
+   * Whether the event carries an actual content (title/body) change. Defaults
+   * to true so that paths which don't compute it keep the historical
+   * behavior; UPDATE_ACTIVITY/UPDATE_COMMENT events broadcast by
+   * ActivityManagerImpl set it from a comparison with the stored activity, so
+   * listeners reacting to content edits only (e.g. the report stale flip) can
+   * ignore content-neutral updates (category link/unlink, unhide).
+   */
+  private boolean           contentChanged = true;
+
   public ActivityLifeCycleEvent(Type type, ExoSocialActivity activity) {
     // temp set source as activityId
     super(activity, activity.getId());
     this.activity = activity;
     this.type = type;
+  }
+
+  public ActivityLifeCycleEvent(Type type, ExoSocialActivity activity, boolean contentChanged) {
+    this(type, activity);
+    this.contentChanged = contentChanged;
   }
 
   public ActivityLifeCycleEvent(Type type, ExoSocialActivity activity, String userId) {
@@ -76,5 +91,9 @@ public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, St
 
   public String getUserId() {
     return userId;
+  }
+
+  public boolean isContentChanged() {
+    return contentChanged;
   }
 }

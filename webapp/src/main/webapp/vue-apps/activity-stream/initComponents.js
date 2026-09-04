@@ -35,6 +35,7 @@ import ActivityCommentsDrawer from './components/comment/list/ActivityCommentsDr
 import ActivityComments from './components/comment/list/ActivityComments.vue';
 import ActivityComment from './components/comment/ActivityComment.vue';
 import ActivityCommentMenu from './components/comment/header/ActivityCommentMenu.vue';
+import ActivityReportDrawer from './components/report/ActivityReportDrawer.vue';
 import ActivityCommentBodyText from './components/comment/content/ActivityCommentBodyText.vue';
 import ActivityCommentRichText from './components/comment/content/ActivityCommentRichText.vue';
 import ActivityCommentTime from './components/comment/footer/ActivityCommentTime.vue';
@@ -90,6 +91,7 @@ const components = {
   'activity-comment-reply-action': ActivityCommentReplyAction,
   'activity-comment-like-action': ActivityCommentLikeAction,
   'activity-comment-menu': ActivityCommentMenu,
+  'activity-report-drawer': ActivityReportDrawer,
 };
 
 for (const key in components) {
