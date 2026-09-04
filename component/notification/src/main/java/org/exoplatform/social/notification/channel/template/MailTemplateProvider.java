@@ -29,6 +29,7 @@ import java.util.Map;
 
 import io.meeds.social.notification.plugin.JoinedSpaceByInvitationLinkPlugin;
 import io.meeds.social.notification.util.NotificationUtils;
+import io.meeds.social.report.notification.plugin.PostReportPlugin;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -85,7 +86,8 @@ import org.jsoup.Jsoup;
     @TemplateConfig(pluginId = SharedActivitySpaceStreamPlugin.ID, template = "war:/notification/templates/SharedActivitySpaceStreamPlugin.gtmpl"),
     @TemplateConfig(pluginId = RequestJoinSpacePlugin.ID, template = "war:/notification/templates/RequestJoinSpacePlugin.gtmpl"),
     @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "war:/notification/templates/SpaceInvitationPlugin.gtmpl"),
-    @TemplateConfig(pluginId = JoinedSpaceByInvitationLinkPlugin.ID, template = "war:/notification/templates/JoinedSpaceByInvitationLinkPlugin.gtmpl")})
+    @TemplateConfig(pluginId = JoinedSpaceByInvitationLinkPlugin.ID, template = "war:/notification/templates/JoinedSpaceByInvitationLinkPlugin.gtmpl"),
+    @TemplateConfig(pluginId = PostReportPlugin.ID, template = "war:/notification/templates/PostReportPlugin.gtmpl")})
 
 public class MailTemplateProvider extends TemplateProvider {
 
@@ -681,6 +683,70 @@ public class MailTemplateProvider extends TemplateProvider {
       return true;
     }
 
+  };
+
+  /** Defines the template builder for PostReportPlugin */
+  private AbstractTemplateBuilder postReport = new AbstractTemplateBuilder() {
+    @Override
+    protected MessageInfo makeMessage(NotificationContext ctx) {
+      MessageInfo messageInfo = new MessageInfo();
+
+      NotificationInfo notification = ctx.getNotificationInfo();
+
+      String language = getLanguage(notification);
+      TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
+      SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
+
+      String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
+      String commentId = notification.getValueOwnerParameter(SocialNotificationUtils.COMMENT_ID.getKey());
+      ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
+      ExoSocialActivity target = StringUtils.isBlank(commentId) ? activity
+                                                                : Utils.getActivityManager().getActivity(commentId);
+      Identity identity = Utils.getIdentityManager()
+                               .getOrCreateIdentity(OrganizationIdentityProvider.NAME,
+                                                    notification.getValueOwnerParameter(PostReportPlugin.REPORTER_PARAM),
+                                                    true);
+      if (activity == null || target == null || identity == null) {
+        return null;
+      }
+      String reason = notification.getValueOwnerParameter(PostReportPlugin.REASON_PARAM);
+      String reasonLabel = TemplateUtils.getResourceBundle("Notification.report.reason." + reason,
+                                                           new Locale(language),
+                                                           "locale.notification.template.Notification");
+      String targetType = notification.getValueOwnerParameter(PostReportPlugin.TARGET_TYPE_PARAM);
+      if (StringUtils.isBlank(targetType)) {
+        targetType = PostReportPlugin.TARGET_TYPE_POST;
+      }
+      String targetTypeLabel = TemplateUtils.getResourceBundle("Notification.report.target." + targetType,
+                                                               new Locale(language),
+                                                               "locale.notification.template.Notification");
+
+      templateContext.put("USER", Utils.addExternalFlag(identity));
+      templateContext.put("REASON", reasonLabel);
+      templateContext.put("TARGET", targetTypeLabel);
+      templateContext.put("TARGET_TYPE", targetType);
+      String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
+      String title = SocialNotificationUtils.processImageTitle(getActivityTitle(target, language), imagePlaceHolder);
+      templateContext.put("SUBJECT", StringEscapeUtils.unescapeHtml4(title));
+      String subject = TemplateUtils.processSubject(templateContext);
+
+      String targetUrl = StringUtils.isBlank(commentId) ? LinkProviderUtils.getRedirectUrl("view_full_activity", activityId)
+                                                        : LinkProviderUtils.getRedirectUrl("view_full_activity_highlight_comment",
+                                                                                           activityId + "-" + commentId);
+      templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
+      templateContext.put("TARGET_URL", targetUrl);
+      templateContext.put("OPEN_URL", targetUrl);
+      String body = SocialNotificationUtils.getBody(ctx, templateContext, target);
+
+      // binding the exception throws by processing template
+      ctx.setException(templateContext.getException());
+      return messageInfo.subject(subject).body(body).end();
+    }
+
+    @Override
+    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
+      return false;
+    }
   };
 
   /** Defines the template builder for LikeCommentPlugin*/
@@ -1412,6 +1478,7 @@ public class MailTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(RequestJoinSpacePlugin.ID), requestJoinSpace);
     this.templateBuilders.put(PluginKey.key(SpaceInvitationPlugin.ID), spaceInvitation);
     this.templateBuilders.put(PluginKey.key(JoinedSpaceByInvitationLinkPlugin.ID), new JoinedSpaceByInvitationLinkTemplateBuilder());
+    this.templateBuilders.put(PluginKey.key(PostReportPlugin.ID), postReport);
   }
 
   private String getActivityTitle(ExoSocialActivity activity, String language) {

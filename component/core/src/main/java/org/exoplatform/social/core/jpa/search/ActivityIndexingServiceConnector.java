@@ -47,6 +47,8 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
 
+import io.meeds.social.report.service.ActivityReportService;
+
 public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
   public static final String            TYPE = "activity";
@@ -219,6 +221,14 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
 
   private void addDocumentMetadata(DocumentWithMetadata document, MetadataObject metadataObject) {
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
+    // reports must not exist anywhere a read path, present or future, could
+    // pick them up: mirror in the indexed document the exclusion the REST
+    // payload applies in EntityBuilder.retrieveMetadataItems (a report item's
+    // name and creatorId are the reporter's identity id)
+    metadataItems = metadataItems.stream()
+                                 .filter(metadataItem -> !ActivityReportService.METADATA_TYPE_NAME.equals(metadataItem.getMetadata()
+                                                                                                                      .getTypeName()))
+                                 .toList();
     document.setMetadataItems(metadataItems);
   }
 

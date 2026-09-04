@@ -25,11 +25,18 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
+import org.exoplatform.social.rest.api.EntityBuilderReportsTest;
+
+import io.meeds.social.report.listener.ReportWebSocketBroadcastListenerTest;
+import io.meeds.social.report.rest.ActivityReportRestTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
   UtilTest.class,
   EntityBuilderReactionsTest.class,
+  EntityBuilderReportsTest.class,
+  ReportWebSocketBroadcastListenerTest.class,
+  ActivityReportRestTest.class,
   })
 public class NoContainerTestSuite {
   
