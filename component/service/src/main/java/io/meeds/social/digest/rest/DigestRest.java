@@ -39,7 +39,7 @@ import io.meeds.commons.digest.plugin.DigestCategoryProvider;
 import io.meeds.social.digest.rest.model.DigestCategoryEntity;
 import io.meeds.social.digest.rest.model.DigestSettingsEntity;
 import io.meeds.social.digest.rest.model.DigestUserSettingsEntity;
-import io.meeds.social.digest.service.DigestCategoryLabelResolver;
+import io.meeds.commons.digest.service.DigestLabelResolver;
 import io.meeds.social.timezone.service.UserTimeZoneService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,7 +62,7 @@ public class DigestRest {
   private UserTimeZoneService         userTimeZoneService;
 
   @Autowired
-  private DigestCategoryLabelResolver labelResolver;
+  private DigestLabelResolver         labelResolver;
 
   @GetMapping("settings")
   @Secured("users")
@@ -131,7 +131,7 @@ public class DigestRest {
 
   private List<DigestCategoryEntity> toCategoryEntities(List<DigestCategoryProvider> categories, Locale locale) {
     return categories.stream()
-                     .map(category -> new DigestCategoryEntity(category.getId(), labelResolver.getLabel(category, locale)))
+                     .map(category -> new DigestCategoryEntity(category.getId(), labelResolver.categoryLabel(category, locale)))
                      .toList();
   }
 

@@ -938,5 +938,21 @@
         </values-param>
       </init-params>
     </component-plugin>
+    <!-- The email lines of these types, built at send time from the stored ids -->
+    <component-plugin>
+      <name>social.digest.lines</name>
+      <set-method>addLineProvider</set-method>
+      <type>io.meeds.social.notification.digest.SocialDigestLinePlugin</type>
+      <description>Builds the digest email lines of the space and feed notifications</description>
+      <init-params>
+        <values-param>
+          <name>pluginIds</name>
+          <value>SpaceInvitationPlugin</value>
+          <value>RequestJoinSpacePlugin</value>
+          <value>PostActivitySpaceStreamPlugin</value>
+          <value>ActivityCommentWatchPlugin</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 </configuration>

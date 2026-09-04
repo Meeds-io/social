@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.notification;
 
+import io.meeds.social.notification.digest.SocialDigestLinePluginTest;
 import io.meeds.social.notification.listener.SpaceMembershipNotificationListenerTest;
 import io.meeds.social.notification.plugin.JoinedSpaceByInvitationLinkPluginTest;
 import org.junit.AfterClass;
@@ -52,6 +53,7 @@ import io.meeds.social.security.plugin.EmailOtpPluginTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+  SocialDigestLinePluginTest.class,
   ActivityMentionMailBuilderTest.class,
   ActivityCommentMailBuilderTest.class,
   ActivityCommentReplyMailBuilderTest.class,
