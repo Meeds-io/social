@@ -1569,6 +1569,66 @@ public class SpaceStorageTest extends AbstractCoreTest {
     assertEquals(space3.getId(), result.get(0).getId());
   }
 
+  /**
+   * The last-visit order alone does not order anything below the spaces the
+   * user has actually opened: every other space carries the same default date,
+   * so on that field alone the database may return them in any order, and in a
+   * different one from one page or one refetch to the next. Rows then move
+   * under a user paging through a long list for no reason they can observe.
+   * <p>
+   * The spaces below are saved in an order that is neither alphabetical nor
+   * the reverse, so a list that came back sorted by name cannot be the
+   * insertion order having survived by chance.
+   *
+   * @throws Exception when the space cannot be saved
+   */
+  public void testLastAccessedSpacesAreOrderedByNameWithinTheSameLastVisit() throws Exception {
+    Space middle = saveSpaceNamed(21, "my space test middle");
+    Space last = saveSpaceNamed(22, "my space test zulu");
+    Space first = saveSpaceNamed(23, "my space test alpha");
+
+    SpaceFilter filter = new SpaceFilter();
+    filter.setRemoteId("ghost");
+
+    restartTransaction();
+    cacheService.getSpacesCache().clearCache();
+
+    List<Space> neverVisited = spaceStorage.getLastAccessedSpace(filter, 0, -1);
+    assertEquals(3, neverVisited.size());
+    assertEquals(first.getId(), neverVisited.get(0).getId());
+    assertEquals(middle.getId(), neverVisited.get(1).getId());
+    assertEquals(last.getId(), neverVisited.get(2).getId());
+
+    // a visited space still comes first: the name only breaks ties
+    spaceStorage.updateSpaceAccessed("ghost", last);
+    restartTransaction();
+    cacheService.getSpacesCache().clearCache();
+
+    List<Space> afterVisit = spaceStorage.getLastAccessedSpace(filter, 0, -1);
+    assertEquals(3, afterVisit.size());
+    assertEquals(last.getId(), afterVisit.get(0).getId());
+    assertEquals(first.getId(), afterVisit.get(1).getId());
+    assertEquals(middle.getId(), afterVisit.get(2).getId());
+  }
+
+  /**
+   * Saves a space whose display name is chosen by the caller, so that a test
+   * can tell the name order apart from the insertion order.
+   *
+   * @param number number the space instance is built from
+   * @param displayName display name to give the space
+   * @return the saved space
+   * @throws Exception when the space cannot be saved
+   */
+  private Space saveSpaceNamed(int number, String displayName) throws Exception {
+    Space space = getSpaceInstance(number);
+    space.setDisplayName(displayName);
+    space.setPrettyName(displayName);
+    space.setUrl(space.getPrettyName());
+    spaceStorage.saveSpace(space, true);
+    return space;
+  }
+
   public void testGetLastAccessedSpace() {
     // create a new space
     Space space = getSpaceInstance(1);
