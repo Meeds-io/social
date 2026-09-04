@@ -250,6 +250,17 @@ export function unlikeActivity(id) {
   });
 }
 
+export function reportActivity(id, reason) {
+  return fetch(`/social/rest/activities/reports/${id}?reason=${encodeURIComponent(reason)}`, {
+    method: 'POST',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error(String(resp && resp.status || 'Response code indicates a server error'));
+    }
+  });
+}
+
 export function createComment(id, parentCommentId, message, files, templateParams, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/comments?expand=${expand || ''}`, {
     headers: {

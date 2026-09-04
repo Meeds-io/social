@@ -214,6 +214,49 @@ extensionRegistry.registerExtension('activity', 'action', {
   },
 });
 
+extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+  id: 'activity-report-drawer',
+  vueComponent: Vue.options.components['activity-report-drawer'],
+  rank: 60,
+});
+
+extensionRegistry.registerExtension('activity', 'action', {
+  id: 'report',
+  // just before Delete (rank 100), per the design
+  rank: 90,
+  labelKey: 'activityStream.label.report',
+  disabledLabelKey: 'activityStream.label.reported',
+  disabledTitleKey: 'activityStream.report.alreadyReported',
+  icon: 'fa-exclamation-triangle',
+  isEnabled: activity => !!activity.canReport,
+  disabled: activity => !!activity.hasReported,
+  click: activity => {
+    document.dispatchEvent(new CustomEvent('activity-report-drawer-open', {detail: {
+      activityId: activity.id,
+      isComment: false,
+    }}));
+  },
+});
+
+extensionRegistry.registerExtension('activity', 'comment-action', {
+  id: 'report',
+  // just before Delete (rank 100), per the design
+  rank: 90,
+  labelKey: 'activityStream.label.report',
+  disabledLabelKey: 'activityStream.label.reported',
+  disabledTitleKey: 'activityStream.report.alreadyReportedComment',
+  icon: 'fa-exclamation-triangle',
+  isEnabled: (activity, comment) => !!comment.canReport,
+  disabled: (activity, comment) => !!comment.hasReported,
+  click: (activity, comment) => {
+    document.dispatchEvent(new CustomEvent('activity-report-drawer-open', {detail: {
+      activityId: comment.id,
+      parentActivityId: activity.id,
+      isComment: true,
+    }}));
+  },
+});
+
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'addCategory',
   rank: 27,

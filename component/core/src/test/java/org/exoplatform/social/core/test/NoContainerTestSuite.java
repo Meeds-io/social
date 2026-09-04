@@ -57,6 +57,9 @@ import io.meeds.social.category.service.CategoryServiceUnitTest;
 import io.meeds.social.reaction.listener.ReactionLikeDeletedListenerTest;
 import io.meeds.social.reaction.service.ReactionServiceImplTest;
 import io.meeds.social.reaction.storage.ReactionStorageTest;
+import io.meeds.social.report.listener.ReportActivityListenerTest;
+import io.meeds.social.report.processor.ReportActivityProcessorTest;
+import io.meeds.social.report.service.ActivityReportServiceImplTest;
 import io.meeds.social.coediting.service.CoeditingServiceTest;
 import io.meeds.social.core.mail.BrandedEmailSenderTest;
 import io.meeds.social.publication.service.ContentPublicationServiceTest;
@@ -91,6 +94,9 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 @RunWith(Suite.class)
 @SuiteClasses({
     ReactionServiceImplTest.class,
+    ActivityReportServiceImplTest.class,
+    ReportActivityProcessorTest.class,
+    ReportActivityListenerTest.class,
     ReactionStorageTest.class,
     ReactionLikeDeletedListenerTest.class,
     GlobalIdTest.class,
