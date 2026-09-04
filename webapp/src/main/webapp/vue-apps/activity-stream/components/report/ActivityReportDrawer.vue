@@ -72,6 +72,8 @@ export default {
     parentActivityId: null,
     isComment: false,
     selectedReason: null,
+    // must mirror ActivityReportService.DEFAULT_REASONS, the authority the
+    // create-report endpoint enforces: an unknown key is rejected with a 400
     reasons: [
       'spam',
       'fakeAccount',
