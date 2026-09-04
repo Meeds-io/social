@@ -37,20 +37,23 @@
     <v-list class="position-relative" dense>
       <v-tooltip :disabled="item.isInternal" bottom>
         <template #activator="{on, attrs}">
-          <v-list-item
+          <div
             v-on="on"
             v-bind="attrs"
-            :disabled="!item.isInternal"
-            class="px-2"
-            dense
-            @click="$root.$emit('editUser', item)">
-            <v-list-item-icon class="mx-1 justify-center">
-              <v-icon size="14">fa-edit</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title class="ps-0">{{ $t('UsersManagement.edit') }}</v-list-item-title>
-          </v-list-item>
+            :class="{'clickable': !item.isInternal}">
+            <v-list-item
+              :disabled="!item.isInternal"
+              class="px-2"
+              dense
+              @click="$root.$emit('editUser', item)">
+              <v-list-item-icon class="mx-1 justify-center">
+                <v-icon size="14" :class="{'text--disabled': !item.isInternal}">fa-edit</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="ps-0">{{ $t('UsersManagement.edit') }}</v-list-item-title>
+            </v-list-item>
+          </div>
         </template>
-        <span>{{ $t('UsersManagement.tooltip.editSynchronzedUser') }}</span>
+        <span>{{ $t('UsersManagement.tooltip.editSynchronizedUser') }}</span>
       </v-tooltip>
       <v-tooltip bottom>
         <template #activator="{on, attrs}">
@@ -113,7 +116,12 @@
               dense
               @click="$emit('delete')">
               <v-list-item-icon class="mx-1 justify-center">
-                <v-icon size="14" :color="item.isInternal ? 'error' : null">fa-trash</v-icon>
+                <v-icon
+                  size="14"
+                  :color="item.isInternal ? 'error' : null"
+                  :class="{'text--disabled': !item.isInternal}">
+                  fa-trash
+                </v-icon>
               </v-list-item-icon>
               <v-list-item-title class="ps-0">
                 <div :class="item.isInternal ? 'error--text' : 'text--disabled'">{{ $t('UsersManagement.button.deleteUser') }}</div>
