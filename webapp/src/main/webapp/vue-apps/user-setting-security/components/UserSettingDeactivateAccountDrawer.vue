@@ -38,7 +38,7 @@
           :input-value="true"
           :aria-label="$t('UserSettings.security.deleteAccount.option.deactivateAccount')"
           class="mt-4"
-          readonly
+          disabled
           dense
           hide-details>
           <template #label>
