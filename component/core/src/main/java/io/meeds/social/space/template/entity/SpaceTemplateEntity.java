@@ -29,10 +29,8 @@ import io.meeds.social.space.constant.SpaceVisibility;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
+import io.meeds.common.persistence.PortableSequence;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -47,8 +45,7 @@ import org.exoplatform.commons.utils.StringMapConverter;
 public class SpaceTemplateEntity {
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_SPACE_TEMPLATE_ID", sequenceName = "SEQ_SOC_SPACE_TEMPLATE_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_SPACE_TEMPLATE_ID")
+  @PortableSequence(name = "SEQ_SOC_SPACE_TEMPLATE_ID")
   @Column(name = "ID")
   private Long                id;
 

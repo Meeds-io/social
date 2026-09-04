@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import org.exoplatform.portal.config.UserACL;
@@ -61,16 +61,16 @@ public class SpaceDirectoryServiceTest {
 
   private static final String SETTING_NAME = "settingName";
 
-  @MockBean
+  @MockitoBean
   private CategoryService        categoryService;
 
-  @MockBean
+  @MockitoBean
   private LayoutService          layoutService;
 
-  @MockBean
+  @MockitoBean
   private SpaceDirectoryStorage  spaceDirectoryStorage;
 
-  @MockBean
+  @MockitoBean
   private SecuritySettingService securitySettingService;
 
   @Autowired

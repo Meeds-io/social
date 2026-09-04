@@ -20,16 +20,15 @@ package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.io.Serializable;
 
+import io.meeds.common.persistence.PortableSequence;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @Entity(name = "SocUserSpaceBinding")
@@ -68,8 +67,7 @@ public class UserSpaceBindingEntity implements Serializable {
   private static final long       serialVersionUID = -3088537806368295223L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_USER_SPACE_BINDING_ID", sequenceName = "SEQ_SOC_USER_SPACE_BINDING_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_USER_SPACE_BINDING_ID")
+  @PortableSequence(name = "SEQ_SOC_USER_SPACE_BINDING_ID")
   @Column(name = "USER_SPACE_BINDING_ID")
   private long                    id;
 

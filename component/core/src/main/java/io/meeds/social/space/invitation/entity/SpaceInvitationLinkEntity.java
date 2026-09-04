@@ -18,8 +18,12 @@
  */
 package io.meeds.social.space.invitation.entity;
 
-import jakarta.persistence.*;
+import io.meeds.common.persistence.PortableSequence;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,8 +36,7 @@ import lombok.NoArgsConstructor;
 public class SpaceInvitationLinkEntity {
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_SPACE_INVITATION_LINK_ID", sequenceName = "SEQ_SOC_SPACE_INVITATION_LINK_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_SPACE_INVITATION_LINK_ID")
+  @PortableSequence(name = "SEQ_SOC_SPACE_INVITATION_LINK_ID")
   @Column(name = "ID")
   private Long id;
 

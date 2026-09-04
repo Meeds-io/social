@@ -20,16 +20,15 @@ package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.util.Date;
 
+import io.meeds.common.persistence.PortableSequence;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 /**
@@ -42,8 +41,7 @@ import jakarta.persistence.Table;
 public class StreamItemEntity {
 
   @Id
-  @SequenceGenerator(name="SEQ_SOC_STREAM_ITEMS_ID", sequenceName="SEQ_SOC_STREAM_ITEMS_ID", allocationSize = 1)
-  @GeneratedValue(strategy=GenerationType.AUTO, generator="SEQ_SOC_STREAM_ITEMS_ID")
+  @PortableSequence(name = "SEQ_SOC_STREAM_ITEMS_ID")
   @Column(name = "STREAM_ITEM_ID")
   private Long id;
 

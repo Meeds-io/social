@@ -22,9 +22,26 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.persistence.*;
-import lombok.*;
 import org.hibernate.annotations.BatchSize;
+
+import io.meeds.common.persistence.PortableSequence;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity(name = "SocProfileSettingEntity")
 @Table(name = "SOC_PROFILE_PROPERTY_SETTING ")
@@ -43,8 +60,7 @@ public class ProfilePropertySettingEntity implements Serializable {
   private static final long                 serialVersionUID = -2657229462239171339L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_PROPERTY_SETTING_ID", sequenceName = "SEQ_SOC_PROPERTY_SETTING_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_PROPERTY_SETTING_ID")
+  @PortableSequence(name = "SEQ_SOC_PROPERTY_SETTING_ID")
   @Column(name = "PROPERTY_SETTING_ID")
   private Long                              id;
 

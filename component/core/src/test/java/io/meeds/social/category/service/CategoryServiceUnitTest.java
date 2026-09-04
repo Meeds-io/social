@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import org.exoplatform.portal.config.UserACL;
@@ -97,22 +97,22 @@ public class CategoryServiceUnitTest {
 
   private static final String   TYPE_B                  = "typeB";
 
-  @MockBean
+  @MockitoBean
   private IdentityManager       identityManager;
 
-  @MockBean
+  @MockitoBean
   private TranslationService    translationService;
 
-  @MockBean
+  @MockitoBean
   private CategoryStorage       categoryStorage;
 
-  @MockBean
+  @MockitoBean
   private SpaceService          spaceService;
 
-  @MockBean
+  @MockitoBean
   private UserACL               userAcl;
 
-  @MockBean
+  @MockitoBean
   private CategoryPluginService categoryPluginService;
 
   @Autowired

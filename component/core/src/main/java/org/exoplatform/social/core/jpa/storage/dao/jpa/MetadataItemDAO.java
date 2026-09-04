@@ -463,7 +463,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsByMetadata");
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(METADATA_NAME, metadataName);
-    query.setFlushMode(FlushModeType.AUTO);
+    query.setFlushMode(FlushModeType.COMMIT);
     query.executeUpdate();
   }
 
@@ -552,7 +552,10 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsByObject");
     query.setParameter(OBJECT_TYPE, objectType);
     query.setParameter(OBJECT_ID, objectId);
-    return query.executeUpdate();
+    query.setFlushMode(FlushModeType.COMMIT);
+    int deleted = query.executeUpdate();
+    getEntityManager().clear();
+    return deleted;
   }
 
   @ExoTransactional
@@ -560,6 +563,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsByParentObject");
     query.setParameter(OBJECT_TYPE, objectType);
     query.setParameter(PARENT_OBJECT_ID, parentObjectId);
+    query.setFlushMode(FlushModeType.COMMIT);
     return query.executeUpdate();
   }
 
@@ -567,6 +571,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   public int deleteMetadataItemById(long id) {
     Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemById");
     query.setParameter("id", id);
+    query.setFlushMode(FlushModeType.COMMIT);
     return query.executeUpdate();
   }
 
@@ -574,6 +579,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   public int deleteMetadataItemsBySpaceId(long spaceId) {
     Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsBySpaceId");
     query.setParameter(SPACE_ID, spaceId);
+    query.setFlushMode(FlushModeType.COMMIT);
     return query.executeUpdate();
   }
 
@@ -623,11 +629,11 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
       query.setParameter(METADATA_TYPE, metadataType);
       query.setParameter("minId", offset);
       query.setParameter("maxId", endId + 1);
-      query.setFlushMode(FlushModeType.AUTO);
+      query.setFlushMode(FlushModeType.COMMIT);
       int updated = query.executeUpdate();
-      LOG.info("'{}' Metadata items deleted in bulk", updated);
       totalUpdated += updated;
       offset = endId;
+      LOG.info("'{}' Metadata items deleted in bulk", updated);
     }
     LOG.info("'{}' Metadata items deleted with type '{}'", totalUpdated, metadataType);
     return totalUpdated;

@@ -24,21 +24,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import io.meeds.common.persistence.PortableSequence;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -88,8 +87,7 @@ import jakarta.persistence.TemporalType;
 public class IdentityEntity {
 
   @Id
-  @SequenceGenerator(name="SEQ_SOC_IDENTITY_ID", sequenceName="SEQ_SOC_IDENTITY_ID", allocationSize = 1)
-  @GeneratedValue(strategy= GenerationType.AUTO, generator="SEQ_SOC_IDENTITY_ID")
+  @PortableSequence(name = "SEQ_SOC_IDENTITY_ID")
   @Column(name="IDENTITY_ID")
   private long id;
 

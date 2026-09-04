@@ -28,8 +28,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import org.exoplatform.container.PortalContainer;
@@ -55,10 +55,10 @@ public class SpaceCategoryPluginUnitTest {
 
   private static final String SPACE_PRETTY_NAME  = "prettyName";
 
-  @MockBean
+  @MockitoBean
   private SpaceService        spaceService;
 
-  @MockBean
+  @MockitoBean
   private IdentityManager     identityManager;
 
   @Autowired

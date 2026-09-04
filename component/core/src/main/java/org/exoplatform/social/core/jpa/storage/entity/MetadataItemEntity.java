@@ -22,20 +22,19 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
+import io.meeds.common.persistence.PortableSequence;
+
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.NamedNativeQuery;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @Entity(name = "SocMetadataItemEntity")
@@ -296,8 +295,7 @@ public class MetadataItemEntity implements Serializable {
   private static final long   serialVersionUID = 5011906982712067379L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_METADATA_ITEM_ID", sequenceName = "SEQ_SOC_METADATA_ITEM_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_METADATA_ITEM_ID")
+  @PortableSequence(name = "SEQ_SOC_METADATA_ITEM_ID")
   @Column(name = "METADATA_ITEM_ID")
   private Long                id;
 

@@ -347,7 +347,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     Claims customClaims;
     try {
       String tokenId = new JSONObject(accessToken.accessToken.getRawResponse()).get("id_token").toString();
-      customClaims = Jwts.parserBuilder()
+      customClaims = Jwts.parser()
                          .setSigningKeyResolver(remoteJwkSigningKeyResolver)
                          .requireIssuer(this.issuer)
                          .requireAudience(this.clientID)

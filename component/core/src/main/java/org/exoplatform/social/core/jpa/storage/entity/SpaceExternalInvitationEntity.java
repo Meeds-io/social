@@ -21,13 +21,12 @@ package org.exoplatform.social.core.jpa.storage.entity;
 import java.io.Serializable;
 import java.time.Instant;
 
+import io.meeds.common.persistence.PortableSequence;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -47,8 +46,7 @@ public class SpaceExternalInvitationEntity implements Serializable {
   private static final long serialVersionUID = -8893364434133832686L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_INVITATION_ID", sequenceName = "SEQ_INVITATION_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_INVITATION_ID")
+  @PortableSequence(name = "SEQ_INVITATION_ID")
   @Column(name = "INVITATION_ID")
   private Long              invitationId;
 

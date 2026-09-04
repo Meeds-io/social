@@ -18,10 +18,25 @@
  */
 package org.exoplatform.social.core.jpa.storage.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.io.Serializable;
+
+import io.meeds.common.persistence.PortableSequence;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity(name = "SocProfilePropertyOptionEntity")
 @Table(name = "SOC_PROFILE_PROPERTY_OPTION")
@@ -34,8 +49,7 @@ import java.io.Serializable;
 public class ProfilePropertyOptionEntity implements Serializable {
 
   @Id
-  @SequenceGenerator(name = "SEQ_SOC_PROFILE_PROPERTY_OPTION_ID", sequenceName = "SEQ_SOC_PROFILE_PROPERTY_OPTION_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_PROFILE_PROPERTY_OPTION_ID")
+  @PortableSequence(name = "SEQ_SOC_PROFILE_PROPERTY_OPTION_ID")
   @Column(name = "PROPERTY_OPTION_ID")
   private Long                         id;
 
