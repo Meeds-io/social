@@ -24,6 +24,7 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import org.exoplatform.commons.api.settings.SettingService;
@@ -31,6 +32,7 @@ import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.portal.branding.BrandingService;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -81,6 +83,9 @@ public class AccountDeactivationService {
   private OrganizationService    organizationService;
 
   @Autowired
+  private UserACL                userAcl;
+
+  @Autowired
   private IdentityManager        identityManager;
 
   @Autowired
@@ -92,7 +97,11 @@ public class AccountDeactivationService {
   @Autowired
   private ConversationRegistry   conversationRegistry;
 
+  // resolved on first use: the OTP service belongs to the portal web-security
+  // module, which contexts loading the social beans without it (addons'
+  // integration tests) must not be forced to provide
   @Autowired
+  @Lazy
   private OtpService             otpService;
 
   @Autowired
@@ -117,7 +126,8 @@ public class AccountDeactivationService {
 
   /**
    * The deactivation is offered only for accounts whose lifecycle belongs to
-   * the platform: externally synchronized accounts (LDAP) are excluded, and
+   * the platform: the super user and externally synchronized accounts (LDAP)
+   * are excluded, and
    * among the others only those created through the platform UI qualify. An
    * account with no creation source predates the stamping of that attribute:
    * it keeps the option rather than losing it on an unknown provenance.
@@ -128,6 +138,11 @@ public class AccountDeactivationService {
     // not through the node-locally memoized RegistrationSetting: an admin
     // turning the option off must be honored by every cluster node
     if (!securitySettingService.isAccountDeactivationEnabled()) {
+      return false;
+    }
+    // the super user is the platform's last-resort account: it is never offered
+    // its own deactivation, whatever the admin option says
+    if (StringUtils.equals(userAcl.getSuperUser(), username)) {
       return false;
     }
     User user = organizationService.getUserHandler().findUserByName(username);
