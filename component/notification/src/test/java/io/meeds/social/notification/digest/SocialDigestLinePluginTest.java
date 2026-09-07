@@ -90,6 +90,16 @@ public class SocialDigestLinePluginTest {
       protected String redirectUrl(String type, String objectId) {
         return "redirect:" + type + ":" + objectId;
       }
+
+      @Override
+      protected String spaceUrl(Space space) {
+        return "space:" + space.getId();
+      }
+
+      @Override
+      protected String spaceMembersUrl(Space space) {
+        return "members:" + space.getId();
+      }
     };
 
     Space space = new Space();
@@ -106,13 +116,13 @@ public class SocialDigestLinePluginTest {
   }
 
   @Test
-  public void testSpaceInvitationLine() {
+  public void testInvitationLinksToTheSpace() {
     DigestLine line = plugin.buildLine(item(SocialDigestLinePlugin.SPACE_INVITATION_PLUGIN, "profile", "john", "spaceId", "42"),
                                        CONTEXT);
     assertNotNull(line);
     assertEquals("digest.line.SpaceInvitationPlugin", line.getLabelKey());
     assertEquals(List.of("John Smith", "Product team"), line.getArgs());
-    assertEquals("redirect:space:42", line.getUrl());
+    assertEquals("space:42", line.getUrl());
   }
 
   @Test
@@ -121,7 +131,7 @@ public class SocialDigestLinePluginTest {
                                        CONTEXT);
     assertNotNull(line);
     assertEquals(List.of("John Smith", "Product team"), line.getArgs());
-    assertEquals("redirect:space_members:42", line.getUrl());
+    assertEquals("members:42", line.getUrl());
   }
 
   @Test
