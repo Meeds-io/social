@@ -21,7 +21,6 @@ package io.meeds.social.notification.digest;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
@@ -94,7 +93,7 @@ public class SocialDigestLinePlugin extends DigestLinePlugin {
   @Override
   public DigestLine buildLine(DigestItem item, DigestLineContext context) {
     return switch (item.getPluginId()) {
-      case SPACE_INVITATION_PLUGIN -> invitationLine(item, context);
+      case SPACE_INVITATION_PLUGIN -> invitationLine(item);
       case REQUEST_JOIN_SPACE_PLUGIN -> requestLine(item);
       case POST_ACTIVITY_SPACE_PLUGIN -> activityLine(item, true);
       case ACTIVITY_COMMENT_WATCH_PLUGIN -> activityLine(item, false);
@@ -103,19 +102,16 @@ public class SocialDigestLinePlugin extends DigestLinePlugin {
   }
 
   /**
-   * "{actor} invited you to join {space}": the link goes to the space once the
-   * invitation is accepted, to the received invitations page while it is not
-   * (EXO-90021)
+   * "{actor} invited you to join {space}", linking to the space page, which
+   * lets the user accept the invitation while it is pending (EXO-90021)
    */
-  private DigestLine invitationLine(DigestItem item, DigestLineContext context) {
+  private DigestLine invitationLine(DigestItem item) {
     Space space = findSpace(item.getParam(SPACE_ID_PARAM));
     if (space == null) {
       return null;
     }
-    String url = getSpaceService().isMember(space, context.getUsername()) ? spaceUrl(space)
-                                                                          : redirectUrl("space_invitation", space.getId());
     return DigestLine.of(LINE_KEY_PREFIX + item.getPluginId(), fullName(item.getParam(INVITER_PARAM)), space.getDisplayName())
-                     .withUrl(url);
+                     .withUrl(spaceUrl(space));
   }
 
   /**
@@ -185,21 +181,14 @@ public class SocialDigestLinePlugin extends DigestLinePlugin {
     return LinkProviderUtils.getRedirectUrl(type, objectId);
   }
 
-  /** The members page of a space, /portal/s/{id}/members */
-  protected String spaceMembersUrl(Space space) {
-    return CommonsUtils.getCurrentDomain() + "/" + LinkProvider.getPortalName(null) + "/s/" + space.getId() + "/members";
+  /** The space page, /portal/s/{id} */
+  protected String spaceUrl(Space space) {
+    return CommonsUtils.getCurrentDomain() + "/" + LinkProvider.getPortalName(null) + "/s/" + space.getId();
   }
 
-  /**
-   * The permanent link of a space, the one the platform resolves for the
-   * current user at click time
-   */
-  protected String spaceUrl(Space space) {
-    try {
-      return CommonsUtils.getCurrentDomain() + LinkProvider.getSpaceLink(space.getId());
-    } catch (ObjectNotFoundException e) {
-      return null;
-    }
+  /** The members page of a space, /portal/s/{id}/members */
+  protected String spaceMembersUrl(Space space) {
+    return spaceUrl(space) + "/members";
   }
 
   private SpaceService getSpaceService() {
