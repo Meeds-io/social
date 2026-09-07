@@ -97,6 +97,11 @@ public class SocialDigestLinePluginTest {
       protected String spaceUrl(Space space) {
         return "space:" + space.getId();
       }
+
+      @Override
+      protected String spaceMembersUrl(Space space) {
+        return "members:" + space.getId();
+      }
     };
 
     Space space = new Space();
@@ -137,7 +142,7 @@ public class SocialDigestLinePluginTest {
                                        CONTEXT);
     assertNotNull(line);
     assertEquals(List.of("John Smith", "Product team"), line.getArgs());
-    assertEquals("redirect:space_members:42", line.getUrl());
+    assertEquals("members:42", line.getUrl());
   }
 
   @Test

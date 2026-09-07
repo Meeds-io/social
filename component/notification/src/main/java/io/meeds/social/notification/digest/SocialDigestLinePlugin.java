@@ -95,7 +95,7 @@ public class SocialDigestLinePlugin extends DigestLinePlugin {
   public DigestLine buildLine(DigestItem item, DigestLineContext context) {
     return switch (item.getPluginId()) {
       case SPACE_INVITATION_PLUGIN -> invitationLine(item, context);
-      case REQUEST_JOIN_SPACE_PLUGIN -> spaceLine(item, item.getParam(REQUESTER_PARAM), "space_members");
+      case REQUEST_JOIN_SPACE_PLUGIN -> requestLine(item);
       case POST_ACTIVITY_SPACE_PLUGIN -> activityLine(item, true);
       case ACTIVITY_COMMENT_WATCH_PLUGIN -> activityLine(item, false);
       default -> null;
@@ -118,14 +118,17 @@ public class SocialDigestLinePlugin extends DigestLinePlugin {
                      .withUrl(url);
   }
 
-  /** "{actor} requested to join {space}", linking to the members of the space */
-  private DigestLine spaceLine(DigestItem item, String actor, String redirectType) {
+  /**
+   * "{actor} requested to join {space}", linking to the members page of the
+   * space where the manager handles the request
+   */
+  private DigestLine requestLine(DigestItem item) {
     Space space = findSpace(item.getParam(SPACE_ID_PARAM));
     if (space == null) {
       return null;
     }
-    return DigestLine.of(LINE_KEY_PREFIX + item.getPluginId(), fullName(actor), space.getDisplayName())
-                     .withUrl(redirectUrl(redirectType, space.getId()));
+    return DigestLine.of(LINE_KEY_PREFIX + item.getPluginId(), fullName(item.getParam(REQUESTER_PARAM)), space.getDisplayName())
+                     .withUrl(spaceMembersUrl(space));
   }
 
   /**
@@ -180,6 +183,11 @@ public class SocialDigestLinePlugin extends DigestLinePlugin {
    */
   protected String redirectUrl(String type, String objectId) {
     return LinkProviderUtils.getRedirectUrl(type, objectId);
+  }
+
+  /** The members page of a space, /portal/s/{id}/members */
+  protected String spaceMembersUrl(Space space) {
+    return CommonsUtils.getCurrentDomain() + "/" + LinkProvider.getPortalName(null) + "/s/" + space.getId() + "/members";
   }
 
   /**
