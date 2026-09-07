@@ -49,6 +49,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.portal.branding.BrandingService;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
@@ -119,6 +120,9 @@ public class AccountDeactivationServiceTest {
   @Mock
   private ResourceBundleService      resourceBundleService;
 
+  @Mock
+  private UserACL                    userAcl;
+
   @InjectMocks
   private AccountDeactivationService accountDeactivationService;
 
@@ -139,6 +143,7 @@ public class AccountDeactivationServiceTest {
     when(brandedEmailSender.getUserLang(USERNAME)).thenReturn("en");
     when(brandingService.getCompanyName()).thenReturn("MyCompany");
     when(resourceBundleService.getSharedString(anyString(), any())).thenReturn("TranslatedText");
+    when(userAcl.getSuperUser()).thenReturn("root");
     accountDeactivationService.setEmailBodyPath("assets/account-deactivation-confirmation-email-content.html");
     accountDeactivationService.setDeletionEmailBodyPath("assets/account-deletion-confirmation-email-content.html");
   }
@@ -188,6 +193,20 @@ public class AccountDeactivationServiceTest {
     when(user.isInternalStore()).thenReturn(true);
     when(user.getCreationSource()).thenReturn("fileImportation");
     assertFalse(accountDeactivationService.isDeactivationAllowed(USERNAME));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testDeactivationNotAllowedForSuperUser() {
+    // the super user never gets the option, even as an internal UI-created user
+    registrationSetting.setAccountDeactivationEnabled(true);
+    registrationSetting.setAccountDeletionEnabled(true);
+    when(userHandler.findUserByName("root")).thenReturn(user);
+    when(user.isInternalStore()).thenReturn(true);
+    assertFalse(accountDeactivationService.isDeactivationAllowed("root"));
+    assertFalse(accountDeactivationService.isDeletionAllowed("root"));
+    assertThrows(IllegalStateException.class,
+                 () -> accountDeactivationService.requestDeactivation("root", OTP_METHOD, OTP_CODE, false));
   }
 
   @Test
