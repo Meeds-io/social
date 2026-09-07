@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -90,6 +92,11 @@ public class SocialDigestLinePluginTest {
       protected String redirectUrl(String type, String objectId) {
         return "redirect:" + type + ":" + objectId;
       }
+
+      @Override
+      protected String spaceUrl(Space space) {
+        return "space:" + space.getId();
+      }
     };
 
     Space space = new Space();
@@ -106,13 +113,22 @@ public class SocialDigestLinePluginTest {
   }
 
   @Test
-  public void testSpaceInvitationLine() {
+  public void testPendingInvitationLinksToTheReceivedInvitations() {
     DigestLine line = plugin.buildLine(item(SocialDigestLinePlugin.SPACE_INVITATION_PLUGIN, "profile", "john", "spaceId", "42"),
                                        CONTEXT);
     assertNotNull(line);
     assertEquals("digest.line.SpaceInvitationPlugin", line.getLabelKey());
     assertEquals(List.of("John Smith", "Product team"), line.getArgs());
-    assertEquals("redirect:space:42", line.getUrl());
+    assertEquals("redirect:space_invitation:42", line.getUrl());
+  }
+
+  @Test
+  public void testAcceptedInvitationLinksToTheSpace() {
+    when(spaceService.isMember(any(Space.class), eq("ayoub"))).thenReturn(true);
+    DigestLine line = plugin.buildLine(item(SocialDigestLinePlugin.SPACE_INVITATION_PLUGIN, "profile", "john", "spaceId", "42"),
+                                       CONTEXT);
+    assertNotNull(line);
+    assertEquals("space:42", line.getUrl());
   }
 
   @Test
