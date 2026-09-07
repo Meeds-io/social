@@ -21,12 +21,14 @@ package io.meeds.social.notification.digest;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.notification.LinkProviderUtils;
@@ -91,22 +93,38 @@ public class SocialDigestLinePlugin extends DigestLinePlugin {
   @Override
   public DigestLine buildLine(DigestItem item, DigestLineContext context) {
     return switch (item.getPluginId()) {
-      case SPACE_INVITATION_PLUGIN -> spaceLine(item, item.getParam(INVITER_PARAM), "space");
-      case REQUEST_JOIN_SPACE_PLUGIN -> spaceLine(item, item.getParam(REQUESTER_PARAM), "space_members");
+      case SPACE_INVITATION_PLUGIN -> invitationLine(item);
+      case REQUEST_JOIN_SPACE_PLUGIN -> requestLine(item);
       case POST_ACTIVITY_SPACE_PLUGIN -> activityLine(item, true);
       case ACTIVITY_COMMENT_WATCH_PLUGIN -> activityLine(item, false);
       default -> null;
     };
   }
 
-  /** "{actor} invited you to join {space}" / "{actor} requested to join {space}" */
-  private DigestLine spaceLine(DigestItem item, String actor, String redirectType) {
+  /**
+   * "{actor} invited you to join {space}", linking to the space page, which
+   * lets the user accept the invitation while it is pending (EXO-90021)
+   */
+  private DigestLine invitationLine(DigestItem item) {
     Space space = findSpace(item.getParam(SPACE_ID_PARAM));
     if (space == null) {
       return null;
     }
-    return DigestLine.of(LINE_KEY_PREFIX + item.getPluginId(), fullName(actor), space.getDisplayName())
-                     .withUrl(redirectUrl(redirectType, space.getId()));
+    return DigestLine.of(LINE_KEY_PREFIX + item.getPluginId(), fullName(item.getParam(INVITER_PARAM)), space.getDisplayName())
+                     .withUrl(spaceUrl(space));
+  }
+
+  /**
+   * "{actor} requested to join {space}", linking to the members page of the
+   * space where the manager handles the request
+   */
+  private DigestLine requestLine(DigestItem item) {
+    Space space = findSpace(item.getParam(SPACE_ID_PARAM));
+    if (space == null) {
+      return null;
+    }
+    return DigestLine.of(LINE_KEY_PREFIX + item.getPluginId(), fullName(item.getParam(REQUESTER_PARAM)), space.getDisplayName())
+                     .withUrl(spaceMembersUrl(space));
   }
 
   /**
@@ -161,6 +179,16 @@ public class SocialDigestLinePlugin extends DigestLinePlugin {
    */
   protected String redirectUrl(String type, String objectId) {
     return LinkProviderUtils.getRedirectUrl(type, objectId);
+  }
+
+  /** The space page, /portal/s/{id} */
+  protected String spaceUrl(Space space) {
+    return CommonsUtils.getCurrentDomain() + "/" + LinkProvider.getPortalName(null) + "/s/" + space.getId();
+  }
+
+  /** The members page of a space, /portal/s/{id}/members */
+  protected String spaceMembersUrl(Space space) {
+    return spaceUrl(space) + "/members";
   }
 
   private SpaceService getSpaceService() {
