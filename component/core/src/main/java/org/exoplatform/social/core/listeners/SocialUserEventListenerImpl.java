@@ -146,8 +146,7 @@ public class SocialUserEventListenerImpl extends UserEventListener {
     try {
       if (identity != null) {
         // a deleted account is firstly deactivated: an account deleted by an
-        // admin while still active must never keep surfacing as enabled. Going
-        // through the manager also evicts the cached spaces of the account.
+        // admin while still active must never keep surfacing as enabled
         IdentityManager identityManager = container.getComponentInstanceOfType(IdentityManager.class);
         identityManager.processEnabledIdentity(user.getUserName(), false);
         identityManager.hardDeleteIdentity(identity);

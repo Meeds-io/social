@@ -20,6 +20,7 @@ package org.exoplatform.social.core.storage.cache;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
@@ -83,6 +84,8 @@ public class CachedIdentityStorage implements IdentityStorage {
   private final FileService                                                                               fileService;
 
   private CachedRelationshipStorage                                                                       cachedRelationshipStorage;
+
+  private CachedSpaceStorage                                                                              cachedSpaceStorage;
 
   public CachedIdentityStorage(final RDBMSIdentityStorageImpl storage,
                                final SocialStorageCacheService cacheService,
@@ -167,10 +170,14 @@ public class CachedIdentityStorage implements IdentityStorage {
 
   @Override
   public void hardDeleteIdentity(final Identity identity) throws IdentityStorageException {
+    // the storage purges the space memberships of the account under this cache
+    // layer: the cached spaces (members list and count) must forget it
+    List<Space> memberSpaces = getMemberSpaces(identity);
     try {
       storage.hardDeleteIdentity(identity);
     } finally {
       clearIdentityCache(identity, true, true);
+      clearSpacesCache(memberSpaces);
     }
   }
 
@@ -515,6 +522,37 @@ public class CachedIdentityStorage implements IdentityStorage {
       cachedRelationshipStorage = PortalContainer.getInstance().getComponentInstanceOfType(CachedRelationshipStorage.class);
     }
     return cachedRelationshipStorage;
+  }
+
+  private CachedSpaceStorage getCachedSpaceStorage() {
+    if (cachedSpaceStorage == null) {
+      cachedSpaceStorage = PortalContainer.getInstance().getComponentInstanceOfType(CachedSpaceStorage.class);
+    }
+    return cachedSpaceStorage;
+  }
+
+  private List<Space> getMemberSpaces(Identity identity) {
+    if (!OrganizationIdentityProvider.NAME.equals(identity.getProviderId())) {
+      return Collections.emptyList();
+    }
+    try {
+      return getCachedSpaceStorage().getMemberSpaces(identity.getRemoteId());
+    } catch (Exception e) {
+      LOG.warn("Error retrieving the spaces of user {} before deleting the identity, their cache won't be evicted",
+               identity.getRemoteId(),
+               e);
+      return Collections.emptyList();
+    }
+  }
+
+  private void clearSpacesCache(List<Space> spaces) {
+    if (spaces.isEmpty()) {
+      return;
+    }
+    CachedSpaceStorage cachedSpaceStorage = getCachedSpaceStorage();
+    for (Space space : spaces) {
+      cachedSpaceStorage.clearSpaceCached(space.getId());
+    }
   }
 
   @Override
