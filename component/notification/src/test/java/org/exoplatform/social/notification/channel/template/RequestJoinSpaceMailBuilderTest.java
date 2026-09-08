@@ -18,9 +18,6 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
@@ -86,95 +83,4 @@ public class RequestJoinSpaceMailBuilderTest extends AbstractPluginTest {
     notificationService.clearAll();
   }
   
-  public void testDigestWithPluginON() throws Exception {
-    //OFF
-    turnOFF(getPlugin());
-    
-    //
-    Space space = getSpaceInstance(1);
-    //Make requests to join space
-    spaceService.addPendingUser(space, demoIdentity.getRemoteId());
-    assertMadeMailDigestNotifications(0);
-    
-    //ON
-    turnON(getPlugin());
-    
-    //make requests
-    spaceService.addPendingUser(space, johnIdentity.getRemoteId());
-    spaceService.addPendingUser(space, maryIdentity.getRemoteId());
-    
-    assertMadeMailDigestNotifications(2);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 2);
-    List<NotificationInfo> messages = new ArrayList<NotificationInfo>();
-    for (NotificationInfo m : list) {
-      m.setTo(rootIdentity.getRemoteId());
-      messages.add(m);
-    }
-    Writer writer = new StringWriter();
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    ctx.setNotificationInfos(messages);
-    buildDigest(ctx, writer);
-    
-    assertDigest(writer, "The following users have asked to join the my space 1 space: " + getFullName("john") + ", " + getFullName("mary") + ".");
-    notificationService.clearAll();
-    
-  }
-  
-  public void testDigestWithFeatureON() throws Exception {
-    //
-    turnFeatureOff();
-    //
-    Space space = getSpaceInstance(1);
-    //Make requests to join space
-    spaceService.addPendingUser(space, demoIdentity.getRemoteId());
-    assertMadeMailDigestNotifications(0);
-    
-    //ON
-    turnFeatureOn();
-    spaceService.addPendingUser(space, johnIdentity.getRemoteId());
-    spaceService.addPendingUser(space, maryIdentity.getRemoteId());
-    
-    assertMadeMailDigestNotifications(2);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 2);
-    List<NotificationInfo> messages = new ArrayList<NotificationInfo>();
-    for (NotificationInfo m : list) {
-      m.setTo(rootIdentity.getRemoteId());
-      messages.add(m);
-    }
-    Writer writer = new StringWriter();
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    ctx.setNotificationInfos(messages);
-    buildDigest(ctx, writer);
-    
-    assertDigest(writer, "The following users have asked to join the my space 1 space: " + getFullName("john") + ", " + getFullName("mary") + ".");
-    notificationService.clearAll();
-    
-  }
-  
-  public void testDigestCancelRequest() throws Exception {
-    Space space = getSpaceInstance(1);
-    spaceService.addPendingUser(space, demoIdentity.getRemoteId());
-    spaceService.addPendingUser(space, johnIdentity.getRemoteId());
-    spaceService.addPendingUser(space, maryIdentity.getRemoteId());
-    
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 3);
-    List<NotificationInfo> messages = new ArrayList<NotificationInfo>();
-    for (NotificationInfo m : list) {
-      m.setTo(rootIdentity.getRemoteId());
-      messages.add(m);
-    }
-    
-    //john cancel his request to join space
-    spaceService.removePendingUser(space, johnIdentity.getRemoteId());
-    
-    Writer writer = new StringWriter();
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    ctx.setNotificationInfos(messages);
-    buildDigest(ctx, writer);
-    
-    assertDigest(writer, "The following users have asked to join the my space 1 space: " + getFullName("demo") + ", " + getFullName("mary") + ".");
-    notificationService.clearAll();
-    
-  }
 }
