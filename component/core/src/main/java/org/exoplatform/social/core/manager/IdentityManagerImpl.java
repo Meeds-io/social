@@ -29,6 +29,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
@@ -50,6 +51,8 @@ import org.exoplatform.social.core.profile.UserProfileComparator;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
 /**
@@ -306,7 +309,36 @@ public class IdentityManagerImpl implements IdentityManager {
       LOG.warn("identity.getId() must not be null of [" + identity + "]");
       return;
     }
+    Space[] memberSpaces = getMemberSpaces(identity);
     identityStorage.hardDeleteIdentity(identity);
+    // the storage purges the space memberships under the cache layer: the
+    // cached spaces (members list and count) must forget the deleted account
+    clearSpacesCache(memberSpaces);
+  }
+
+  private Space[] getMemberSpaces(Identity identity) {
+    if (!OrganizationIdentityProvider.NAME.equals(identity.getProviderId())) {
+      return new Space[0];
+    }
+    try {
+      ListAccess<Space> memberSpaces = CommonsUtils.getService(SpaceService.class).getMemberSpaces(identity.getRemoteId());
+      return memberSpaces.load(0, memberSpaces.getSize());
+    } catch (Exception e) {
+      LOG.warn("Error retrieving the spaces of user {} before deleting the identity, their cache won't be evicted",
+               identity.getRemoteId(),
+               e);
+      return new Space[0];
+    }
+  }
+
+  private void clearSpacesCache(Space[] spaces) {
+    if (spaces.length == 0) {
+      return;
+    }
+    CachedSpaceStorage cachedSpaceStorage = CommonsUtils.getService(CachedSpaceStorage.class);
+    for (Space space : spaces) {
+      cachedSpaceStorage.clearSpaceCached(space.getId());
+    }
   }
 
   @Override
