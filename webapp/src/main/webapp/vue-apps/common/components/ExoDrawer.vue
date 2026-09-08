@@ -38,7 +38,7 @@
                 :width="drawerWidth"
                 :max-width="drawerWidth"
                 min-height="60"
-                class="px-4 border-box-sizing text-header-title d-flex align-center light-grey-background-color"
+                class="px-4 border-box-sizing text-title d-flex align-center light-grey-background-color"
                 flat>
                 <slot name="fullAppLeftTitle"></slot>
               </v-card>
@@ -51,7 +51,7 @@
                   </v-icon>
                 </v-btn>
               </v-list-item-action>
-              <v-list-item-content :class="goBackButton ? 'ps-2' : 'ps-4'" class="drawerTitle align-start text-header-title">
+              <v-list-item-content :class="goBackButton ? 'ps-2' : 'ps-4'" class="drawerTitle align-start text-title">
                 <div
                   v-if="!showFilter"
                   class="text-truncate full-width">

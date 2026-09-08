@@ -225,7 +225,7 @@ export default {
           this.backgroundGradientFrom = null;
           this.backgroundGradientTo = null;
         } else if (this.choice === 'gradient') {
-          if (this.branding.backgroundEffect) {
+          if (this.branding.backgroundEffect && this.branding.backgroundEffect.startsWith('linear-gradient(')) {
             this.backgroundGradientFrom = this.branding.backgroundEffect.replace('linear-gradient(', '').split(',')[0].trim();
             this.backgroundGradientTo = this.branding.backgroundEffect.replace('linear-gradient(', '').split(',')[1].replace(/\)$/g, '').trim();
           } else {
@@ -253,7 +253,7 @@ export default {
         this.backgroundImageStyle = this.branding.backgroundRepeat;
       }
     }
-    if (this.branding.backgroundEffect) {
+    if (this.branding.backgroundEffect && this.branding.backgroundEffect.startsWith('linear-gradient(')) {
       this.choice = 'gradient';
       this.backgroundGradientFrom = this.branding.backgroundEffect.replace('linear-gradient(', '').split(',')[0].trim();
       this.backgroundGradientTo = this.branding.backgroundEffect.replace('linear-gradient(', '').split(',')[1].replace(/\)$/g, '').trim();

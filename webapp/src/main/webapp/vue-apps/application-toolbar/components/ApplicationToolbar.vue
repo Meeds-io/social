@@ -24,7 +24,7 @@
     :dense="dense"
     class="z-index-one px-0"
     flat>
-    <div id="applicationToolbar" class="d-flex flex-grow-1 align-center content-box-sizing position-relative">
+    <div id="applicationToolbar" class="d-flex flex-grow-1 align-center content-box-sizing position-relative max-width-fit">
       <!-- Left Content -->
       <div
         v-if="showLeftContent"
