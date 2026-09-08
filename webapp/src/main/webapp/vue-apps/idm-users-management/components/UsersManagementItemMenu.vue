@@ -107,7 +107,10 @@
         </v-list-item-icon>
         <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.enable') }}</v-list-item-title>
       </v-list-item>
-      <v-tooltip :disabled="item.isInternal" bottom>
+      <v-tooltip
+        v-if="!item.isSuperUser"
+        :disabled="item.isInternal"
+        bottom>
         <template #activator="{on, attrs}">
           <div v-on="on" v-bind="attrs">
             <v-list-item
