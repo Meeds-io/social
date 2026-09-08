@@ -1,5 +1,19 @@
 <template>
   <div class="carousel-top-parent overflow-hidden position-relative">
+    <v-card
+      ref="scrollContainer"
+      :class="!dense && 'px-0 pb-4 pt-2'"
+      class="carousel-middle-parent scrollbar-width-none transparent d-flex overflow-x-scroll"
+      flat
+      @scroll="computeProperties"
+      @resize="computeProperties">
+      <div :class="parentClass" class="carousel-last-parent d-flex ma-auto">
+        <slot></slot>
+      </div>
+    </v-card>
+    <!-- Arrows are kept after the scrollable content in the DOM: slotted cards may
+         hold positioned elements at the same z-index level, and tree order is what
+         keeps both arrows clickable above them -->
     <v-expand-transition>
       <v-btn
         v-show="displayLeftArrow"
@@ -18,16 +32,6 @@
         <v-icon size="25">{{ leftArrowIcon }}</v-icon>
       </v-btn>
     </v-expand-transition>
-    <v-card
-      :class="!dense && 'px-0 pb-4 pt-2'"
-      class="carousel-middle-parent scrollbar-width-none transparent d-flex overflow-x-scroll"
-      flat
-      @scroll="computeProperties"
-      @resize="computeProperties">
-      <div :class="parentClass" class="carousel-last-parent d-flex ma-auto">
-        <slot></slot>
-      </div>
-    </v-card>
     <v-expand-transition>
       <v-btn
         v-show="displayRightArrow"
@@ -84,7 +88,7 @@ export default {
   },
   mounted() {
     if (!this.hideArrows) {
-      this.scrollElement = this.$el && this.$el.children && this.$el.children.length > 1 && this.$el.children[1];
+      this.scrollElement = this.$refs.scrollContainer && this.$refs.scrollContainer.$el;
   
       window.setTimeout(() => {
         this.computeProperties();
