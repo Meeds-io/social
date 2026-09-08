@@ -85,74 +85,125 @@
           @reset="deletebackground" />
       </v-list-item-action>
     </v-list-item>
-    <div v-if="hasFile" class="d-flex">
+    <template v-if="hasFile">
+      <div class="text-subtitle mt-1">{{ $t('generalSettings.imageSizeTitle') }}</div>
       <v-radio-group
-        v-model="backgroundImageStyle"
-        class="my-auto text-no-wrap flex-grow-1 flex-shrink-0"
-        mandatory>
-        <v-radio
-          value="cover"
-          class="mx-0">
-          <template #label>
-            <span>{{ $t('generalSettings.imageSizeCover') }}</span>
-          </template>
-        </v-radio>
-        <v-radio
-          value="contain"
-          class="mx-0">
-          <template #label>
-            <span>{{ $t('generalSettings.imageSizeContain') }}</span>
-          </template>
-        </v-radio>
-        <v-radio
-          value="repeat"
-          class="mx-0">
-          <template #label>
-            <span>{{ $t('generalSettings.imageRepeat') }}</span>
-          </template>
-        </v-radio>
-        <v-radio
-          value="no-repeat"
-          class="mx-0">
-          <template #label>
-            <span>{{ $t('generalSettings.imageNoRepeat') }}</span>
-          </template>
-        </v-radio>
+        v-model="branding.backgroundSize"
+        class="my-0 text-no-wrap"
+        mandatory
+        hide-details>
+        <div class="d-flex flex-wrap">
+          <v-radio
+            value="cover"
+            class="col-6 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imageSizeCover') }}</span>
+            </template>
+          </v-radio>
+          <v-radio
+            value="contain"
+            class="col-6 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imageSizeContain') }}</span>
+            </template>
+          </v-radio>
+        </div>
       </v-radio-group>
+
+      <div class="text-subtitle mt-2">{{ $t('generalSettings.imagePositionTitle') }}</div>
       <v-radio-group
         v-model="branding.backgroundPosition"
-        class="my-auto text-no-wrap flex-grow-1 flex-shrink-0"
-        mandatory>
-        <v-radio
-          value="top left"
-          class="mx-0">
-          <template #label>
-            <span>{{ $t('generalSettings.imagePositionTopLeft') }}</span>
-          </template>
-        </v-radio>
-        <v-radio
-          value="top right"
-          class="mx-0">
-          <template #label>
-            <span>{{ $t('generalSettings.imagePositionTopRight') }}</span>
-          </template>
-        </v-radio>
-        <v-radio
-          value="bottom left"
-          class="mx-0">
-          <template #label>
-            <span>{{ $t('generalSettings.imagePositionBottomLeft') }}</span>
-          </template>
-        </v-radio>
-        <v-radio
-          value="bottom right"
-          class="mx-0">
-          <template #label>
-            <span>{{ $t('generalSettings.imagePositionBottomRight') }}</span>
-          </template>
-        </v-radio>
+        class="my-0 text-no-wrap"
+        mandatory
+        hide-details>
+        <div class="d-flex flex-wrap">
+          <v-radio
+            value="center"
+            class="col-12 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imagePositionCenter') }}</span>
+            </template>
+          </v-radio>
+          <v-radio
+            value="top right"
+            class="col-6 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imagePositionTopRight') }}</span>
+            </template>
+          </v-radio>
+          <v-radio
+            value="top left"
+            class="col-6 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imagePositionTopLeft') }}</span>
+            </template>
+          </v-radio>
+          <v-radio
+            value="bottom right"
+            class="col-6 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imagePositionBottomRight') }}</span>
+            </template>
+          </v-radio>
+          <v-radio
+            value="bottom left"
+            class="col-6 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imagePositionBottomLeft') }}</span>
+            </template>
+          </v-radio>
+        </div>
       </v-radio-group>
-    </div>
+
+      <div v-if="scrolling" class="text-subtitle mt-2">{{ $t('generalSettings.imageScrollingTitle') }}</div>
+      <v-radio-group
+        v-if="scrolling"
+        v-model="branding.backgroundAttachment"
+        class="my-0 text-no-wrap"
+        mandatory
+        hide-details>
+        <div class="d-flex flex-wrap">
+          <v-radio
+            value="fixed"
+            class="col-6 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imageScrollingFixed') }}</span>
+            </template>
+          </v-radio>
+          <v-radio
+            value="scroll"
+            class="col-6 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imageScrollingScroll') }}</span>
+            </template>
+          </v-radio>
+        </div>
+      </v-radio-group>
+
+      <div class="text-subtitle mt-2">{{ $t('generalSettings.imageRepeatTitle') }}</div>
+      <v-radio-group
+        v-model="branding.backgroundRepeat"
+        class="my-0 text-no-wrap"
+        mandatory
+        hide-details>
+        <div class="d-flex flex-wrap">
+          <v-radio
+            value="no-repeat"
+            class="col-6 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imageNoRepeat') }}</span>
+            </template>
+          </v-radio>
+          <v-radio
+            value="repeat"
+            class="col-6 pa-0 mx-0 my-1">
+            <template #label>
+              <span>{{ $t('generalSettings.imageRepeat') }}</span>
+            </template>
+          </v-radio>
+        </div>
+      </v-radio-group>
+    </template>
   </div>
 </template>
 <script>
@@ -166,11 +217,16 @@ export default {
       type: String,
       default: () => '#FFFFFFFF',
     },
+    // Only the page background persists a background-attachment, so the
+    // Scrolling group stays hidden for the top bar / side bar / drawer areas.
+    scrolling: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     branding: null,
     choice: null,
-    backgroundImageStyle: null,
     backgroundGradientFrom: null,
     backgroundGradientTo: null,
     backgroundImageUploadId: null,
@@ -193,14 +249,15 @@ export default {
         }
       },
     },
-    backgroundImageStyle() {
-      if (this.initialized) {
-        if (this.backgroundImageStyle === 'cover' || this.backgroundImageStyle === 'contain') {
-          this.branding.backgroundSize = this.backgroundImageStyle;
-          this.branding.backgroundRepeat = null;
-        } else {
-          this.branding.backgroundSize = null;
-          this.branding.backgroundRepeat = this.backgroundImageStyle;
+    hasFile(newVal) {
+      if (this.initialized && !newVal) {
+        // The 4 image options are meaningless without an image, and a stale
+        // 'fixed'/'repeat' would be re-applied as soon as another one is picked.
+        this.branding.backgroundSize = null;
+        this.branding.backgroundPosition = null;
+        this.branding.backgroundRepeat = null;
+        if (this.scrolling) {
+          this.branding.backgroundAttachment = null;
         }
       }
     },
@@ -245,14 +302,6 @@ export default {
   },
   created() {
     this.branding = this.value;
-    if (this.branding.backgroundSize || this.branding.backgroundRepeat) {
-      if (this.branding.backgroundSize === 'cover'
-          || this.branding.backgroundSize === 'contain') {
-        this.backgroundImageStyle = this.branding.backgroundSize;
-      } else {
-        this.backgroundImageStyle = this.branding.backgroundRepeat;
-      }
-    }
     if (this.branding.backgroundEffect && this.branding.backgroundEffect.startsWith('linear-gradient(')) {
       this.choice = 'gradient';
       this.backgroundGradientFrom = this.branding.backgroundEffect.replace('linear-gradient(', '').split(',')[0].trim();
