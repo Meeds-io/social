@@ -215,6 +215,36 @@ public class IdentityManagerTest extends AbstractCoreTest {
   }
 
   /**
+   * Test {@link IdentityManager#hardDeleteIdentity(Identity)}: the cached
+   * spaces of the deleted account must stop listing (and counting) it
+   */
+  public void testHardDeleteIdentityEvictsCachedMemberSpaces() {
+    final String username = "ghost";
+    Identity ghostIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, false);
+    Space space = new Space();
+    space.setDisplayName("hardDeleteSpace");
+    space.setPrettyName(space.getDisplayName());
+    space.setDescription("space used to check the cache eviction on identity deletion");
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.OPEN);
+    space = spaceService.createSpace(space, "root");
+    spaceService.addMember(space, username);
+    // warms the space cache with the membership
+    assertTrue(Arrays.asList(spaceService.getSpaceById(space.getId()).getMembers()).contains(username));
+
+    // every deletion path deactivates the account before deleting the identity
+    identityManager.processEnabledIdentity(username, false);
+    identityManager.hardDeleteIdentity(ghostIdentity);
+
+    Space reloadedSpace = spaceService.getSpaceById(space.getId());
+    assertFalse("the deleted account must not be listed as a member anymore",
+                Arrays.asList(reloadedSpace.getMembers()).contains(username));
+
+    // restores the identity flags for the other tests of the container
+    createOrUpdateIdentity(username);
+  }
+
+  /**
    * Test order
    * {@link IdentityManager#getIdentitiesByProfileFilter(String, ProfileFilter, boolean)}
    */

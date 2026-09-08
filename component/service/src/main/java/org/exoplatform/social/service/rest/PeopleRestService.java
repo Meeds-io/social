@@ -238,7 +238,10 @@ public class PeopleRestService implements ResourceContainer{
         int size = connections.getSize();
         Identity[] identities = connections.load(0, size < SUGGEST_LIMIT ? size : (int)SUGGEST_LIMIT);
         for (Identity id : identities) {
-          addSpaceOrUserToList(Arrays.asList(id), nameList, currentSpace, typeOfRelation, 1, request.getLocale());
+          // a deactivated or deleted connection can't be mentioned anymore
+          if (id.isEnable() && !id.isDeleted()) {
+            addSpaceOrUserToList(Arrays.asList(id), nameList, currentSpace, typeOfRelation, 1, request.getLocale());
+          }
           excludedIdentityList.add(id);
         }
       }
@@ -249,7 +252,9 @@ public class PeopleRestService implements ResourceContainer{
       if (remain > 0) {
         identityFilter.setExcludedIdentityList(excludedIdentityList);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
-        List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
+        List<Identity> identities = Arrays.stream(listAccess.load(0, (int) remain))
+                                          .filter(identity -> identity.isEnable() && !identity.isDeleted())
+                                          .toList();
         addSpaceOrUserToList(identities, nameList, currentSpace, typeOfRelation, 2, request.getLocale());
       }
     } else if (SHARE_DOCUMENT.equals(typeOfRelation)) {
