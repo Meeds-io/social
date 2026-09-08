@@ -81,7 +81,8 @@
             v-if="initialized"
             v-model="backgroundProperties"
             :default-background-color="defaultPageBackground"
-            class="mt-2 pe-3" />
+            class="mt-2 pe-3"
+            scrolling />
         </div>
         <div class="mt-2 pe-4 d-flex flex-column">
           <span class="text-title">
@@ -169,6 +170,7 @@ export default {
         background: this.pageStylingProperties?.pageBackground || null,
         backgroundRepeat: this.pageStylingProperties?.pageBackgroundRepeat || null,
         backgroundSize: this.pageStylingProperties?.pageBackgroundSize || null,
+        backgroundAttachment: this.pageStylingProperties?.pageBackgroundAttachment || null,
         backgroundEffect: this.getPageBackgroundEffect()
       };
       this.pageWidth = this.pageStylingProperties.pageWidth;
