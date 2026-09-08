@@ -45,7 +45,7 @@
       <v-list-item
         id="InvitePlatformUserToSpaceButton"
         link
-        @click="$root.$emit('space-settings-invite-member', true)">
+        @click="$root.$emit('space-settings-invite-member', goBackButton)">
         <v-list-item-content class="d-inline">
           <v-list-item-title>{{ $t('SpaceSettings.users.button.inviteInternalMembers') }}</v-list-item-title>
           <v-list-item-subtitle class="text-truncate-3 text-wrap">{{ $t('SpaceSettings.users.button.inviteInternalMembers.description') }}</v-list-item-subtitle>
@@ -96,13 +96,17 @@
 
 <script>
 export default {
+  props: {
+    invitationLinkAllowed: {
+      type: Boolean,
+      default: false
+    },
+    goBackButton: {
+      type: Boolean,
+      default: false
+    }
+  },
   computed: {
-    invitationLinkAllowed() {
-      return ['validation', 'open'].includes(this.spaceSubscription);
-    },
-    spaceSubscription() {
-      return this.$root?.space?.subscription;
-    },
     showInviteButton() {
       return this.canEdit || this.invitationLinkAllowed;
     },
@@ -115,8 +119,8 @@ export default {
   },
   methods: {
     openInvite() {
-      if (this.isManager) {
-        this.$root.$emit('space-settings-invite-member');
+      if (this.canEdit) {
+        this.$root.$emit('space-settings-invite-member', this.goBackButton);
       } else {
         this.$root.$emit('space-settings-invite-link');
       }
