@@ -27,27 +27,6 @@
               class="mt-0" />
           </v-col>
         </v-row>
-        <template v-if="pluginOption.channelId === emailChannel && digestMailNotificationEnabled">
-          <v-row class="ma-0">
-            <v-col>
-              <label for="EMAIL_DIGEST" class="align-start">{{ $t('UINotification.label.selectBox-mail') }}</label>
-            </v-col>
-            <v-col class="text-right">
-              <select
-                v-model="digest"
-                :disabled="!pluginOption.channelActive"
-                name="EMAIL_DIGEST"
-                class="col-auto me-2 my-auto px-3 py-0 ignore-vuetify-classes">
-                <option
-                  v-for="digestOption in digestOptions"
-                  :key="digestOption.value"
-                  :value="digestOption.value">
-                  {{ digestOption.text }}
-                </option>
-              </select>
-            </v-col>
-          </v-row>
-        </template>
       </div>
     </template>
     <template slot="footer">
@@ -75,27 +54,15 @@ export default {
       type: Object,
       default: null,
     },
-    digestMailNotificationEnabled: {
-      type: Boolean,
-      default: false,
-    },
   },
   data: () => ({
     drawer: false,
     channels: {},
-    digest: null,
-    emailChannel: null,
     listChannelOptions: [],
     plugin: null,
     group: null,
   }),
   computed: {
-    digestOptions() {
-      return this.settings && Object.keys(this.settings.digestLabels).map(digestLabel => ({
-        value: digestLabel,
-        text: this.settings.digestLabels[digestLabel],
-      }));
-    },
     channelLabels() {
       return this.settings && this.settings.channelLabels;
     },
@@ -110,13 +77,9 @@ export default {
     open(plugin, group) {
       this.plugin = plugin;
       this.group = group;
-      this.emailChannel = this.settings && this.settings.emailChannel;
 
       this.listChannelOptions = this.settings?.channelCheckBoxList?.filter(channelChoice => channelChoice.channelActive && channelChoice.allowed && channelChoice.pluginId === this.plugin.type)
         .map(channelChoice => JSON.parse(JSON.stringify(channelChoice))) || [];
-
-      const digestChoice = this.settings && this.settings.emailDigestChoices && this.settings.emailDigestChoices.find(choice => choice && choice.channelActive && choice.channelId === this.emailChannel && choice.pluginId === this.plugin.type);
-      this.digest = digestChoice && digestChoice.value;
 
       this.channels = {};
       this.listChannelOptions.forEach(option => {
@@ -135,7 +98,7 @@ export default {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: `digest=${this.digest}&channels=${channels}`
+        body: `channels=${channels}`
       }).then(resp => {
         if (resp && resp.ok) {
           this.$root.$emit('refresh');

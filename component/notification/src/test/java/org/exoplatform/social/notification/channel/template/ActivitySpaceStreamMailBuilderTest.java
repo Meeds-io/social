@@ -18,25 +18,14 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.List;
 
-import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.channel.AbstractChannel;
 import org.exoplatform.commons.api.notification.channel.ChannelManager;
 import org.exoplatform.commons.api.notification.channel.template.AbstractTemplateBuilder;
 import org.exoplatform.commons.api.notification.model.ChannelKey;
-import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.model.PluginKey;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.notification.channel.MailChannel;
-import org.exoplatform.commons.notification.impl.NotificationContextImpl;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.AbstractPluginTest;
 import org.exoplatform.social.notification.plugin.PostActivitySpaceStreamPlugin;
 
@@ -68,41 +57,4 @@ public class ActivitySpaceStreamMailBuilderTest extends AbstractPluginTest {
     return pluginService.getPlugin(PluginKey.key(PostActivitySpaceStreamPlugin.ID));
   }
   
-  public void testDigestWithDeletedActivity() throws Exception {
-    Space space = getSpaceInstance(1);
-    spaceService.addMember(space, demoIdentity.getRemoteId());
-    spaceService.addMember(space, johnIdentity.getRemoteId());
-    spaceService.addMember(space, maryIdentity.getRemoteId());
-    
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), true);
-    
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle("demo post activity on space 1");
-    activity.setUserId(demoIdentity.getId());
-    activityManager.saveActivityNoReturn(spaceIdentity, activity);
-    tearDownActivityList.add(activity);
-    
-    ExoSocialActivity activity2 = new ExoSocialActivityImpl();
-    activity2.setTitle("john post activity on space 1");
-    activity2.setUserId(johnIdentity.getId());
-    activityManager.saveActivityNoReturn(spaceIdentity, activity2);
-    tearDownActivityList.add(activity2);
-    
-    //Digest
-    assertMadeMailDigestNotifications(6);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 2);
-    
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    list.set(0, list.get(0).setTo(rootIdentity.getRemoteId()));
-    ctx.setNotificationInfos(list);
-    
-    //demo delete his activity
-    activityManager.deleteActivity(activity);
-    tearDownActivityList.remove(activity);
-    
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("john") + " posted in my space 1.");
-  }
-
 }

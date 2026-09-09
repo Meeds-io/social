@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.model.UserSetting;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
@@ -43,7 +42,6 @@ import org.exoplatform.services.organization.UserProfile;
 
 public class MockNotificationService implements NotificationService {
 
-  private Map<String, List<NotificationInfo>> storedDigest = new HashMap<>();
   private Map<String, List<NotificationInfo>> storeInstantly = new HashMap<>();
   private Map<String, List<NotificationInfo>> storeWebNotifs = new HashMap<>();
 
@@ -55,22 +53,9 @@ public class MockNotificationService implements NotificationService {
     return this.storeWebNotifs.values().stream().mapToInt(List::size).sum();
   }
   
-  public int sizeOfStoredDigest() {
-    return this.storedDigest.values().stream().mapToInt(List::size).sum();
-  }
-
-  public int sizeOfStoredDigest(String username) {
-    return this.storedDigest.containsKey(username) ? this.storedDigest.get(username).size() : 0;
-  }
-  
   public void clearAll() {
-    clearOfStoredDigest();
     clearOfInstantly();
     clearOfWebNotifs();
-  }
-  
-  public void clearOfStoredDigest() {
-    this.storedDigest.clear();
   }
   
   public void clearOfInstantly() {
@@ -81,10 +66,6 @@ public class MockNotificationService implements NotificationService {
     this.storeWebNotifs.clear();
   }
 
-  public List<NotificationInfo> storeDigest(String username) {
-    return this.storedDigest.containsKey(username) ? this.storedDigest.get(username) : Collections.emptyList();
-  }
-  
   public List<NotificationInfo> storeInstantly(String username) {
     return this.storeInstantly.containsKey(username) ? this.storeInstantly.get(username) : Collections.emptyList();
   }
@@ -148,12 +129,6 @@ public class MockNotificationService implements NotificationService {
         }
         this.storeWebNotifs.get(userId).add(notification);
       }
-      if (userSetting.isInDaily(pluginId) || userSetting.isInWeekly(pluginId)) {
-        if (!this.storedDigest.containsKey(userId)) {
-          this.storedDigest.put(userId, new ArrayList<>());
-        }
-        this.storedDigest.get(userId).add(notification);
-      }
     }
   }
 
@@ -163,10 +138,5 @@ public class MockNotificationService implements NotificationService {
     for (NotificationInfo message : messages) {
       process(message);
     }
-  }
-
-  @Override
-  public void digest(NotificationContext context) throws Exception {
-    // TODO Auto-generated method stub
   }
 }
