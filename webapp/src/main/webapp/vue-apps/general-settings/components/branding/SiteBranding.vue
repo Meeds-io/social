@@ -601,7 +601,7 @@ export default {
         pageBackgroundSize: backgroundProperties?.backgroundSize || 'unset',
         pageBackgroundRepeat: backgroundProperties?.backgroundRepeat || 'no-repeat',
         pageBackgroundPosition: backgroundProperties?.backgroundPosition || 'unset',
-        pageBackgroundAttachment: backgroundProperties?.backgroundAttachment || 'scroll',
+        pageBackgroundAttachment: backgroundProperties?.backgroundAttachment || null,
         pageBackgroundColor: backgroundProperties?.backgroundColor ,
         pageBackgroundEffect: backgroundProperties?.backgroundEffect,
         borderRadius: borderRadius,
@@ -635,7 +635,11 @@ export default {
       });
       this.$root.$emit('refresh-body-style-property', {
         name: '--allPagesBackgroundAttachment',
-        value: this.pageStylingProperties.pageBackgroundAttachment || 'scroll',
+        // The site background paints on the scroll container, where 'scroll'
+        // would mean "fixed with regard to that box"; 'local' is what makes it
+        // follow the scrolled content. Mirrors UIPortalApplication.gtmpl.
+        value: this.pageStylingProperties.pageBackgroundAttachment === 'scroll'
+          && 'local' || this.pageStylingProperties.pageBackgroundAttachment || 'scroll',
       });
       this.$root.$emit('refresh-body-style-property', {
         name: 'background-image',
