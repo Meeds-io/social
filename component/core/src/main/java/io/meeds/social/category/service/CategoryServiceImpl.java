@@ -297,7 +297,11 @@ public class CategoryServiceImpl implements CategoryService {
       return category != null && isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username);
     } else {
       org.exoplatform.services.security.Identity identity = StringUtils.isBlank(username) ? null : userAcl.getUserIdentity(username);
-      return userAcl.isMemberOf(identity, StringUtils.join(category.getLinkPermissions(), ","));
+      // Each entry is a single "membershipType:groupId" expression: evaluate them
+      // one by one, a joined string is never a valid expression for UserACL
+      return category.getLinkPermissions()
+                     .stream()
+                     .anyMatch(permission -> userAcl.isMemberOf(identity, permission));
     }
   }
 
