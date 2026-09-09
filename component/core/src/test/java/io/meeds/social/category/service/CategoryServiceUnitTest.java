@@ -343,4 +343,32 @@ public class CategoryServiceUnitTest {
     assertEquals(3, result.getNextOffset());
   }
 
+  @Test
+  public void testCanManageLinkWithSeveralPermissions() {
+    org.exoplatform.services.security.Identity userAclIdentity = mock(org.exoplatform.services.security.Identity.class);
+    when(userAcl.getUserIdentity(TEST_USER)).thenReturn(userAclIdentity);
+    // Member of space2 only
+    when(userAcl.isMemberOf(userAclIdentity, "*:" + SPACE_GROUP_ID_2)).thenReturn(true);
+
+    Category category = new Category();
+    category.setId(CATEGORY_ID);
+    category.setOwnerId(OWNER_ID);
+
+    // EXO-90031: a category shared with several groups must stay linkable
+    // for a member of any one of them
+    category.setLinkPermissions(Arrays.asList("*:" + SPACE_GROUP_ID_1, "*:" + SPACE_GROUP_ID_2));
+    assertTrue(categoryService.canManageLink(category, TEST_USER));
+
+    category.setLinkPermissions(Arrays.asList("*:" + SPACE_GROUP_ID_2, "*:" + SPACE_GROUP_ID_1, "*:" + A_GROUP_ID));
+    assertTrue(categoryService.canManageLink(category, TEST_USER));
+
+    // Not a member of any listed group
+    category.setLinkPermissions(Arrays.asList("*:" + SPACE_GROUP_ID_1, "*:" + A_GROUP_ID));
+    assertFalse(categoryService.canManageLink(category, TEST_USER));
+
+    // Single permission keeps working
+    category.setLinkPermissions(Collections.singletonList("*:" + SPACE_GROUP_ID_2));
+    assertTrue(categoryService.canManageLink(category, TEST_USER));
+  }
+
 }
