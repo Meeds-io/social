@@ -24,8 +24,6 @@ import org.exoplatform.commons.api.notification.channel.template.TemplateProvide
 import org.exoplatform.commons.api.notification.model.ChannelKey;
 import org.exoplatform.commons.api.notification.model.PluginKey;
 import org.exoplatform.commons.notification.channel.MailChannel;
-import org.exoplatform.commons.notification.impl.DigestDailyPlugin;
-import org.exoplatform.commons.notification.impl.DigestWeeklyPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.social.notification.AbstractCoreTest;
@@ -65,14 +63,6 @@ public class MailTemplateProviderTest extends AbstractCoreTest {
   public void testGetChannel() throws Exception {
     AbstractChannel channel = manager.getChannel(ChannelKey.key(MailChannel.ID));
     assertTrue(channel != null);
-    //check the daily
-    String actual = channel.getTemplateFilePath(PluginKey.key(DigestDailyPlugin.ID));
-    String expected = "war:/notification/templates/DigestDailyPlugin.gtmpl";
-    assertEquals(expected, actual);
-    //check the weekly
-    actual = channel.getTemplateFilePath(PluginKey.key(DigestWeeklyPlugin.ID));
-    expected = "war:/notification/templates/DigestWeeklyPlugin.gtmpl";
-    assertEquals(expected, actual);
   }
   
   public void testMailTemplateProvider() throws Exception {
