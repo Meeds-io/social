@@ -311,6 +311,7 @@ export default {
         pageBackgroundSize: this.branding?.pageBackgroundSize || null,
         pageBackgroundRepeat: this.branding?.pageBackgroundRepeat || null,
         pageBackgroundPosition: this.branding?.pageBackgroundPosition || null,
+        pageBackgroundAttachment: this.branding?.pageBackgroundAttachment || null,
         pageBackgroundColor: this.branding?.pageBackgroundColor || null,
         pageBackgroundEffect: this.branding?.pageBackgroundEffect || null,
         borderRadius: this.defaultBorderRadius,
@@ -359,6 +360,7 @@ export default {
         pageBackgroundSize: this.pageStylingProperties.pageBackgroundSize || null,
         pageBackgroundRepeat: this.pageStylingProperties.pageBackgroundRepeat || null,
         pageBackgroundPosition: this.pageStylingProperties.pageBackgroundPosition || null,
+        pageBackgroundAttachment: this.pageStylingProperties.pageBackgroundAttachment || null,
         pageBackgroundColor: this.pageStylingProperties.pageBackgroundColor || null,
         pageBackgroundEffect: this.pageStylingProperties.pageBackgroundEffect || null,
         pageWidth: this.pageStylingProperties.pageWidth,
@@ -599,6 +601,7 @@ export default {
         pageBackgroundSize: backgroundProperties?.backgroundSize || 'unset',
         pageBackgroundRepeat: backgroundProperties?.backgroundRepeat || 'no-repeat',
         pageBackgroundPosition: backgroundProperties?.backgroundPosition || 'unset',
+        pageBackgroundAttachment: backgroundProperties?.backgroundAttachment || null,
         pageBackgroundColor: backgroundProperties?.backgroundColor ,
         pageBackgroundEffect: backgroundProperties?.backgroundEffect,
         borderRadius: borderRadius,
@@ -629,6 +632,14 @@ export default {
       this.$root.$emit('refresh-body-style-property', {
         name: '--allPagesBackgroundPosition',
         value: this.pageStylingProperties.pageBackgroundPosition || 'unset',
+      });
+      this.$root.$emit('refresh-body-style-property', {
+        name: '--allPagesBackgroundAttachment',
+        // The site background paints on the scroll container, where 'scroll'
+        // would mean "fixed with regard to that box"; 'local' is what makes it
+        // follow the scrolled content. Mirrors UIPortalApplication.gtmpl.
+        value: this.pageStylingProperties.pageBackgroundAttachment === 'scroll'
+          && 'local' || this.pageStylingProperties.pageBackgroundAttachment || 'scroll',
       });
       this.$root.$emit('refresh-body-style-property', {
         name: 'background-image',
