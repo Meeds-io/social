@@ -55,7 +55,14 @@ public class Profile {
   /** About me key. */
   public static final String  ABOUT_ME                = "aboutMe";
 
-  /** TimeZone key. */
+  /**
+   * TimeZone key of the legacy profile property, still written by the CSV
+   * users import and read through {@link #getTimeZone()}.
+   *
+   * @deprecated the timezone of the user is {@link #USER_TIME_ZONE}, kept up
+   *             to date by the platform timezone synchronization
+   */
+  @Deprecated(since = "7.3.0")
   public static final String  TIME_ZONE               = "timeZone";
 
   /**

@@ -18,13 +18,6 @@
       </v-list-item-action>
     </v-list-item>
     <v-flex v-if="hasNotificationSettings" class="d-flex flex-wrap">
-      <template v-if="enabledDigestLabel">
-        <v-chip class="ma-2" color="primary">
-          <span class="text-truncate">
-            {{ enabledDigestLabel }}
-          </span>
-        </v-chip>
-      </template>
       <template v-if="enabledNotificationLabels && enabledNotificationLabels.length">
         <v-chip
           v-for="enabledNotificationLabel in enabledNotificationLabels"
@@ -58,26 +51,13 @@ export default {
       type: Object,
       default: null,
     },
-    digestMailNotificationEnabled: {
-      type: Boolean,
-      default: false,
-    },
   },
   computed: {
     label() {
       return this.settings && this.settings.pluginLabels && this.settings.pluginLabels[this.plugin.type];
     },
-    hasInstantNotificationSettings() {
-      return this.enabledNotificationLabels && this.enabledNotificationLabels.length || this.enabledDigest;
-    },
     hasNotificationSettings() {
-      return this.hasInstantNotificationSettings || this.enabledDigest;
-    },
-    enabledDigest() {
-      return this.digestMailNotificationEnabled ? this.settings && this.settings.emailDigestChoices && this.settings.emailDigestChoices.find(choice => choice && choice.channelActive && choice.channelId === this.settings.emailChannel && choice.pluginId === this.plugin.type) : [];
-    },
-    enabledDigestLabel() {
-      return this.enabledDigest && this.settings.digestDescriptions && this.enabledDigest.value && this.enabledDigest.value !== 'Never' && this.settings.digestDescriptions[this.enabledDigest.value];
+      return this.enabledNotificationLabels && this.enabledNotificationLabels.length;
     },
     enabledNotifications() {
       return this.settings && this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.filter(choice => choice.active && choice.channelActive && choice.pluginId === this.plugin.type);

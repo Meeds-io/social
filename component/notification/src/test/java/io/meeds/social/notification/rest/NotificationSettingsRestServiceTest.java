@@ -378,14 +378,13 @@ public class NotificationSettingsRestServiceTest extends BaseRestServicesTestCas
                                               path,
                                               "",
                                               getFormHeaders(),
-                                              ("channels=" + CHANNEL_ID + "=true&digest=Weekly").getBytes(),
+                                              ("channels=" + CHANNEL_ID + "=true").getBytes(),
                                               envctx);
 
     // Then
     assertEquals(String.valueOf(resp.getEntity()), 204, resp.getStatus());
     verify(userSettingService, times(1)).save(argThat(userSetting -> 
-        userSetting.isActive(CHANNEL_ID, PLUGIN_ID) && userSetting.isChannelGloballyActive(CHANNEL_ID)
-            && userSetting.isInWeekly(PLUGIN_ID)));
+        userSetting.isActive(CHANNEL_ID, PLUGIN_ID) && userSetting.isChannelGloballyActive(CHANNEL_ID)));
   }
 
   private MultivaluedMap<String, String> getFormHeaders() {

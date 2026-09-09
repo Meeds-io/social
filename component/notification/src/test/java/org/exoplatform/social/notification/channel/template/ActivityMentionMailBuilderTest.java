@@ -18,9 +18,6 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
@@ -101,105 +98,4 @@ public class ActivityMentionMailBuilderTest extends AbstractPluginTest {
     assertBody(info, "New mention of you");
   }
   
-  public void testDigest() throws Exception {
-    List<NotificationInfo> toJohn = new ArrayList<NotificationInfo>();
-    
-    //mary post activity on root stream and mention john, demo
-    ExoSocialActivity maryActivity = makeActivity(maryIdentity, "mary mention @john and @demo");
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
-    toJohn.add(list.get(0));
-    notificationService.clearAll();
-    
-    //demo add comment to maryActivity and mention john
-    makeComment(maryActivity, demoIdentity, "demo mention @john");
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list1 = assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
-    toJohn.add(list1.get(0));
-    notificationService.clearAll();
-    
-    //root add comment to maryActivity and mention john
-    makeComment(activityManager.getActivity(maryActivity.getId()), rootIdentity, "root mention @john");
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list2 = assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
-    toJohn.add(list2.get(0));
-    notificationService.clearAll();
-
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    toJohn.set(0, toJohn.get(0).setTo(johnIdentity.getRemoteId()));
-    ctx.setNotificationInfos(toJohn);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("mary") + ", " + getFullName("demo") + ", " + getFullName("root") + " have mentioned you in an activity: mary mention " + getFullName("john") + " and " + getFullName("demo") + "");
-  }
-  
-  public void testDigestWithDuplicateUser() throws Exception {
-    List<NotificationInfo> toJohn = new ArrayList<NotificationInfo>();
-    
-    //mary post activity on root stream and mention john, demo
-    ExoSocialActivity maryActivity = makeActivity(maryIdentity, "mary mention @john and @demo");
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
-    toJohn.add(list.get(0));
-    notificationService.clearAll();
-    
-    //demo add comment to maryActivity and mention john
-    makeComment(maryActivity, demoIdentity, "demo mention @john");
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list1 = assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
-    toJohn.add(list1.get(0));
-    notificationService.clearAll();
-    
-    //root add comment to maryActivity and mention john
-    makeComment(activityManager.getActivity(maryActivity.getId()), demoIdentity, "root mention @john");
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list2 = assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
-    toJohn.add(list2.get(0));
-    notificationService.clearAll();
-
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    toJohn.set(0, toJohn.get(0).setTo(johnIdentity.getRemoteId()));
-    ctx.setNotificationInfos(toJohn);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("mary") + ", " + getFullName("demo") + " have mentioned you in an activity: mary mention " + getFullName("john") + " and " + getFullName("demo") + "");
-  }
-  
-  public void testDigestWithDeletedActivity() throws Exception {
-    List<NotificationInfo> toJohn = new ArrayList<NotificationInfo>();
-    
-    //mary post activity on root stream and mention john, demo
-    ExoSocialActivity maryActivity = makeActivity(maryIdentity, "mary mention @john and @demo");
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
-    toJohn.add(list.get(0));
-    notificationService.clearAll();
-    
-    //demo add comment to maryActivity and mention john
-    ExoSocialActivity demoComment = makeComment(maryActivity, demoIdentity, "demo mention @john");
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list1 = assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
-    toJohn.add(list1.get(0));
-    notificationService.clearAll();
-    
-    //root add comment to maryActivity and mention john
-    makeComment(activityManager.getActivity(maryActivity.getId()), rootIdentity, "root mention @john");
-    
-    restartTransaction();
-
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list2 = assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
-    toJohn.add(list2.get(0));
-    notificationService.clearAll();
-    
-    //demo delete his comment
-    activityManager.deleteComment(maryActivity, demoComment);
-    
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    toJohn.set(0, toJohn.get(0).setTo(johnIdentity.getRemoteId()));
-    ctx.setNotificationInfos(toJohn);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("mary") + ", " + getFullName("root") + " have mentioned you in an activity: mary mention " + getFullName("john") + " and " + getFullName("demo") + "");
-  }
 }

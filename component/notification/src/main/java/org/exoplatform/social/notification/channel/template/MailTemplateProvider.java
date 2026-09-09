@@ -18,23 +18,13 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import io.meeds.social.notification.plugin.JoinedSpaceByInvitationLinkPlugin;
 import io.meeds.social.notification.util.NotificationUtils;
 import io.meeds.social.report.notification.plugin.PostReportPlugin;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.annotation.TemplateConfig;
@@ -58,9 +48,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
-import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.utils.MentionUtils;
@@ -128,53 +116,6 @@ public class MailTemplateProvider extends TemplateProvider {
       return messageInfo.subject(subject).body(body).end();
     }
 
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-      SocialNotificationUtils.addFooterAndFirstName(first.getTo(), templateContext);
-      
-      //Store the activity id as key, and the list all identities who posted to the activity.
-      Map<String, List<String>> receiverMap = new LinkedHashMap<String, List<String>>();
-      Map<String, List<Pair<String, String>>> activityUserComments = new LinkedHashMap<String, List<Pair<String, String>>>();
-      
-      try {
-        String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
-        for (NotificationInfo message : notifications) {
-          String commentId = message.getValueOwnerParameter(SocialNotificationUtils.COMMENT_ID.getKey());
-          ExoSocialActivity commentActivity = Utils.getActivityManager().getActivity(commentId);
-          if (commentActivity == null || commentActivity.getParentCommentId() == null) {
-            continue;
-          }
-
-          ExoSocialActivity parentCommentActivity = Utils.getActivityManager().getActivity(commentActivity.getParentCommentId());
-          if (!parentCommentActivity.isComment()) {
-            continue;
-          }
-          Identity identity = Utils.getIdentityManager().getIdentity(parentCommentActivity.getPosterId(), true);
-          if (identity == null || StringUtils.isBlank(message.getTo()) || !message.getTo().equals(identity.getRemoteId())) {
-            continue;
-          }
-          String poster = message.getValueOwnerParameter("poster");
-          String title = SocialNotificationUtils.processImageTitle(getActivityTitle(commentActivity, language), imagePlaceHolder);
-          Pair<String, String> userComment = new ImmutablePair<String, String>(poster, title);
-          ExoSocialActivity parentActivity = Utils.getActivityManager().getParentActivity(commentActivity);
-          //
-          SocialNotificationUtils.processInforSendTo(receiverMap, parentActivity.getId(), poster);
-          SocialNotificationUtils.processInforUserComments(activityUserComments, parentActivity.getId(), userComment);
-        }
-        writer.append(SocialNotificationUtils.getMessageByIds(receiverMap, activityUserComments, templateContext));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-      
-      return true;
-    }
-    
   };
   
   /** Defines the template builder for ActivityCommentPlugin*/
@@ -223,77 +164,6 @@ public class MailTemplateProvider extends TemplateProvider {
       //binding the exception throws by processing template
       ctx.setException(templateContext.getException());
       return messageInfo.subject(subject).body(body).end();
-    }
-
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-      SocialNotificationUtils.addFooterAndFirstName(first.getTo(), templateContext);
-
-      //Store the activity id as key, and the list all identities who posted to the activity.
-      Map<String, List<String>> receiverMap = new LinkedHashMap<String, List<String>>();
-      Map<String, List<Pair<String, String>>> activityUserComments = new LinkedHashMap<String, List<Pair<String, String>>>();
-
-
-      try {
-        String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
-        for (NotificationInfo message : notifications) {
-          String activityId = message.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
-          ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
-          if (activity == null) {
-            continue;
-          }
-          String commentId = message.getValueOwnerParameter(SocialNotificationUtils.COMMENT_ID.getKey());
-          ExoSocialActivity parentActivity = null;
-          if(StringUtils.isBlank(commentId)) {
-            LOG.warn("Attempt to send a mail message with id '{}' and receiver '{}' with empty parameter 'commentId' and activityId = '{}' ",
-                     message.getId(),
-                     message.getTo(),
-                     activityId);
-          } else {
-            parentActivity = activity;
-            activity = Utils.getActivityManager().getActivity(commentId);
-            if (activity == null) {
-              continue;
-            }
-          }
-
-          String poster = message.getValueOwnerParameter("poster");
-          if(message.getTo() != null && poster != null && poster.equals(message.getTo())) {
-            continue;
-          }
-          String title = SocialNotificationUtils.processImageTitle(getActivityTitle(activity, language), imagePlaceHolder);
-          Pair<String, String> userComment = new ImmutablePair<String, String>(poster, title);
-          if (parentActivity.getStreamOwner() != null) {
-            Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, parentActivity.getStreamOwner(), true);
-            if (spaceIdentity == null) {
-              if (message.getTo()!=null && !message.getTo().equals(parentActivity.getStreamOwner())) {
-                continue;
-              }
-            } else if (parentActivity.getPosterId() != null) {
-              Identity identity = Utils.getIdentityManager().getIdentity(parentActivity.getPosterId(), true);
-              if (identity != null) {
-                if (message.getTo() != null && !message.getTo().equals(identity.getRemoteId())) {
-                  continue;
-                }
-              }
-            }
-          }
-          //
-          SocialNotificationUtils.processInforSendTo(receiverMap, parentActivity.getId(), poster);
-          SocialNotificationUtils.processInforUserComments(activityUserComments, parentActivity.getId(), userComment);
-        }
-        writer.append(SocialNotificationUtils.getMessageByIds(receiverMap, activityUserComments, templateContext));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-
-      return true;
     }
 
   };
@@ -346,77 +216,6 @@ public class MailTemplateProvider extends TemplateProvider {
         return messageInfo.subject(subject).body(body).end();
     }
 
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-      SocialNotificationUtils.addFooterAndFirstName(first.getTo(), templateContext);
-
-      //Store the activity id as key, and the list all identities who posted to the activity.
-      Map<String, List<String>> receiverMap = new LinkedHashMap<String, List<String>>();
-      Map<String, List<Pair<String, String>>> activityUserComments = new LinkedHashMap<String, List<Pair<String, String>>>();
-
-
-      try {
-        String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
-        for (NotificationInfo message : notifications) {
-          String activityId = message.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
-          ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
-          if (activity == null) {
-            continue;
-          }
-          String commentId = message.getValueOwnerParameter(SocialNotificationUtils.COMMENT_ID.getKey());
-          ExoSocialActivity parentActivity = activity;
-          if(StringUtils.isBlank(commentId)) {
-            LOG.warn("Attempt to send a mail message with id '{}' and receiver '{}' with empty parameter 'commentId' and activityId = '{}' ",
-                    message.getId(),
-                    message.getTo(),
-                    activityId);
-          } else {
-            parentActivity = activity;
-            activity = Utils.getActivityManager().getActivity(commentId);
-            if (activity == null) {
-              continue;
-            }
-          }
-
-          String poster = message.getValueOwnerParameter("poster");
-          if(message.getTo() != null && poster != null && poster.equals(message.getTo())) {
-            continue;
-          }
-          String title = SocialNotificationUtils.processImageTitle(getActivityTitle(activity, language), imagePlaceHolder);
-          Pair<String, String> userComment = new ImmutablePair<String, String>(poster, title);
-          if (parentActivity.getStreamOwner() != null) {
-            Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, parentActivity.getStreamOwner(), true);
-            if (spaceIdentity == null) {
-              if (message.getTo()!=null && !message.getTo().equals(parentActivity.getStreamOwner())) {
-                continue;
-              }
-            } else if (parentActivity.getPosterId() != null) {
-              Identity identity = Utils.getIdentityManager().getIdentity(parentActivity.getPosterId(), true);
-              if (identity != null) {
-                if (message.getTo() != null && !message.getTo().equals(identity.getRemoteId())) {
-                  continue;
-                }
-              }
-            }
-          }
-          //
-          SocialNotificationUtils.processInforSendTo(receiverMap, parentActivity.getId(), poster);
-          SocialNotificationUtils.processInforUserComments(activityUserComments, parentActivity.getId(), userComment);
-        }
-        writer.append(SocialNotificationUtils.getMessageByIds(receiverMap, activityUserComments, templateContext));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-
-      return true;
-    }
-
   };
 
     /** Defines the template builder for EditActivityPlugin*/
@@ -454,48 +253,6 @@ public class MailTemplateProvider extends TemplateProvider {
             //binding the exception throws by processing template
             ctx.setException(templateContext.getException());
             return messageInfo.subject(subject).body(body).end();
-        }
-
-        @Override
-        protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-            List<NotificationInfo> notifications = ctx.getNotificationInfos();
-            NotificationInfo first = notifications.get(0);
-
-            String language = getLanguage(first);
-            TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-            SocialNotificationUtils.addFooterAndFirstName(first.getTo(), templateContext);
-
-            //Store the activity id as key, and the list all identities who posted to the activity.
-            Map<String, List<String>> receiverMap = new LinkedHashMap<String, List<String>>();
-            Map<String, List<Pair<String, String>>> activityUserComments = new LinkedHashMap<String, List<Pair<String, String>>>();
-
-
-            try {
-                String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
-                for (NotificationInfo message : notifications) {
-                    String activityId = message.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
-                    ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
-                    if (activity == null) {
-                        continue;
-                    }
-
-                    String poster = message.getValueOwnerParameter("poster");
-                    if(message.getTo() != null && poster != null && poster.equals(message.getTo())) {
-                        continue;
-                    }
-                    String title = SocialNotificationUtils.processImageTitle(getActivityTitle(activity, language), imagePlaceHolder);
-                    Pair<String, String> userComment = new ImmutablePair<String, String>(poster, title);
-
-                    SocialNotificationUtils.processInforSendTo(receiverMap, activity.getId(), poster);
-                    SocialNotificationUtils.processInforUserComments(activityUserComments, activity.getId(), userComment);
-                }
-                writer.append(SocialNotificationUtils.getMessageByIds(receiverMap, activityUserComments, templateContext));
-            } catch (IOException e) {
-                ctx.setException(e);
-                return false;
-            }
-
-            return true;
         }
 
     };
@@ -547,53 +304,6 @@ public class MailTemplateProvider extends TemplateProvider {
       return messageInfo.subject(subject).body(body).end();
     }
 
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-
-      Map<String, List<String>> receiverMap = new LinkedHashMap<String, List<String>>();
-      try {
-        for (NotificationInfo notification : notifications) {
-          String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
-          ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
-          if (activity == null) {
-            continue;
-          }
-          List<String> mentionedUsers = new LinkedList<String>();
-          for (String id : activity.getMentionedIds()) {
-            if (id.contains("@")) {
-              id = id.substring(0, id.length() - 2);
-            }
-            Identity identity = Utils.getIdentityManager().getIdentity(id, true);
-            if (identity != null) {
-              mentionedUsers.add(identity.getRemoteId());
-            }
-          }
-          if (notification.getTo() != null && !mentionedUsers.contains(notification.getTo())) {
-            continue;
-          }
-          Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
-
-          if (activity.isComment()) {
-            activity = Utils.getActivityManager().getParentActivity(activity);
-          }
-
-          //make the list receivers who will send mail to them.
-          SocialNotificationUtils.processInforSendTo(receiverMap, activity.getId(), identity.getRemoteId());
-        }
-        writer.append(SocialNotificationUtils.getMessageByIds(receiverMap, templateContext));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-
-      return true;
-    }
-
   };
 
   /** Defines the template builder for LikePlugin*/
@@ -631,56 +341,6 @@ public class MailTemplateProvider extends TemplateProvider {
       //binding the exception throws by processing template
       ctx.setException(templateContext.getException());
       return messageInfo.subject(subject).body(body).end();
-    }
-
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-
-      Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
-
-      try {
-        for (NotificationInfo message : notifications) {
-          String activityId = message.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
-
-          ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
-
-          //
-          if (activity == null) {
-            continue;
-          }
-
-          if (activity.getPosterId() != null) {
-            Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
-            if (identity != null) {
-              if (message.getTo() != null && !message.getTo().equals(identity.getRemoteId())) {
-                continue;
-              }
-            }
-          }
-
-          //
-          String fromUser = message.getValueOwnerParameter("likersId");
-
-          Identity identityFrom = Utils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, fromUser, false);
-          if (identityFrom == null || !Arrays.asList(activity.getLikeIdentityIds()).contains(identityFrom.getId())) {
-            continue;
-          }
-          //
-          SocialNotificationUtils.processInforSendTo(map, activityId, message.getValueOwnerParameter("likersId"));
-        }
-        writer.append(SocialNotificationUtils.getMessageByIds(map, templateContext));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-
-
-      return true;
     }
 
   };
@@ -743,10 +403,6 @@ public class MailTemplateProvider extends TemplateProvider {
       return messageInfo.subject(subject).body(body).end();
     }
 
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      return false;
-    }
   };
 
   /** Defines the template builder for LikeCommentPlugin*/
@@ -791,46 +447,6 @@ public class MailTemplateProvider extends TemplateProvider {
       return messageInfo.subject(subject).body(body).end();
     }
 
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-      Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
-      try {
-        for (NotificationInfo message : notifications) {
-          String activityId = message.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
-          ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
-          //
-          if (activity == null) {
-            continue;
-          }
-          if (activity.getPosterId() != null) {
-            Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
-            if (identity != null) {
-              if (message.getTo() != null && !message.getTo().equals(identity.getRemoteId())) {
-                continue;
-              }
-            }
-          }
-          //
-          String fromUser = message.getValueOwnerParameter("likersId");
-          Identity identityFrom = Utils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, fromUser, false);
-          if (identityFrom == null || !Arrays.asList(activity.getLikeIdentityIds()).contains(identityFrom.getId())) {
-            continue;
-          }
-          //
-          SocialNotificationUtils.processInforSendTo(map, activityId, message.getValueOwnerParameter("likersId"));
-        }
-        writer.append(SocialNotificationUtils.getMessageByIds(map, templateContext));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-      return true;
-    }
-    
   };
 
   /** Defines the template builder for AccountDeactivationRequestPlugin */
@@ -859,49 +475,6 @@ public class MailTemplateProvider extends TemplateProvider {
       return new MessageInfo().subject(subject).body(body).end();
     }
 
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-
-      // deduplicated by username: the same account can be deactivated,
-      // reactivated and deactivated again within one digest period
-      Map<String, String> requesterNames = new LinkedHashMap<>();
-      for (NotificationInfo message : notifications) {
-        String remoteId = message.getValueOwnerParameter(SocialNotificationUtils.REMOTE_ID.getKey());
-        Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, true);
-        if (identity == null || identity.isDeleted()) {
-          continue;
-        }
-        requesterNames.putIfAbsent(remoteId, identity.getProfile().getFullName());
-      }
-      if (requesterNames.isEmpty()) {
-        return false;
-      }
-
-      List<String> names = List.copyOf(requesterNames.values());
-      int count = names.size();
-      if (count == 1) {
-        templateContext.put("USER", names.get(0));
-      } else if (count <= 3) {
-        templateContext.put("USER_LIST", String.join(", ", names));
-      } else {
-        templateContext.put("LAST3_USERS", String.join(", ", names.subList(0, 3)));
-        templateContext.put("COUNT", String.valueOf(count - 3));
-      }
-      try {
-        writer.append("<li style=\"margin: 0 0 13px 14px; font-size: 13px; line-height: 18px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif;\">")
-              .append(TemplateUtils.processDigest(templateContext.digestType(count)))
-              .append("</li>");
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-      return true;
-    }
   };
 
   /** Defines the template builder for NewUserPlugin*/
@@ -936,43 +509,6 @@ public class MailTemplateProvider extends TemplateProvider {
       ctx.setException(templateContext.getException());
 
       return messageInfo.subject(subject).body(body).end();
-    }
-
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-
-      Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
-      try {
-        for (NotificationInfo message : notifications) {
-          String remoteId = message.getValueOwnerParameter(SocialNotificationUtils.REMOTE_ID.getKey());
-
-          Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId);
-          if (identity == null) {
-            continue;
-          }
-          //
-          if (identity.isDeleted() == true) {
-            continue;
-          }
-
-          SocialNotificationUtils.processInforSendTo(map, first.getKey().getId(), remoteId);
-        }
-
-        templateContext.put("PORTAL_NAME", NotificationPluginUtils.getBrandingPortalName());
-        templateContext.put("PORTAL_HOME", SocialNotificationUtils.buildRedirecUrl("portal_home", "home", ""));
-
-        writer.append(SocialNotificationUtils.getMessageByIds(map, templateContext, "new_user"));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-
-      return true;
     }
 
   };
@@ -1010,34 +546,6 @@ public class MailTemplateProvider extends TemplateProvider {
       ctx.setException(templateContext.getException());
 
       return messageInfo.subject(subject).body(body).end();
-    }
-
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-      String sendToUser = first.getTo();
-      String language = getLanguage(first);
-
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-      Map<String, List<String>> receiverMap = new LinkedHashMap<String, List<String>>();
-
-      try {
-        for (NotificationInfo message : notifications) {
-          ExoSocialActivity activity = Utils.getActivityManager().getActivity(message.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey()));
-
-          //Case of activity was deleted, ignore this notification
-          if (activity == null || !activity.getStreamOwner().equals(message.getTo())) {
-            continue;
-          }
-          SocialNotificationUtils.processInforSendTo(receiverMap, sendToUser, message.getValueOwnerParameter(SocialNotificationUtils.POSTER.getKey()));
-        }
-        writer.append(SocialNotificationUtils.getMessageByIds(receiverMap, templateContext, "user"));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-      return true;
     }
 
   };
@@ -1086,45 +594,6 @@ public class MailTemplateProvider extends TemplateProvider {
       ctx.setException(templateContext.getException());
 
       return messageInfo.subject(subject).body(body).end();
-    }
-
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-
-      Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
-
-      try {
-        for (NotificationInfo message : notifications) {
-          String poster = message.getValueOwnerParameter(SocialNotificationUtils.POSTER.getKey());
-          String activityId = message.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
-          ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
-          if (activity == null) {
-            continue;
-          }
-          Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());
-          if (space == null) {
-            continue;
-          }
-          if (!Arrays.asList(space.getMembers()).contains(message.getTo())) {
-            continue;
-          }
-          if(message.getTo() != null && poster != null && poster.equals(message.getTo())) {
-            continue;
-          }
-          //
-          SocialNotificationUtils.processInforSendTo(map, space.getId(), poster);
-        }
-        writer.append(SocialNotificationUtils.getMessageInSpace(map, templateContext));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-      return true;
     }
 
   };
@@ -1176,42 +645,6 @@ public class MailTemplateProvider extends TemplateProvider {
       return messageInfo.subject(subject).body(body).end();
     }
 
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-
-      Map<String, List<String>> map = new LinkedHashMap<>();
-
-      try {
-        for (NotificationInfo message : notifications) {
-          String poster = message.getValueOwnerParameter(SocialNotificationUtils.POSTER.getKey());
-          String activityId = message.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
-          ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
-          if (activity != null) {
-            Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());
-            if (space != null) {
-              if (!Arrays.asList(space.getMembers()).contains(message.getTo())) {
-                continue;
-              }
-              if(message.getTo() != null && poster != null && poster.equals(message.getTo())) {
-                continue;
-              }
-              SocialNotificationUtils.processInforSendTo(map, space.getId(), poster);
-            }
-          }
-        }
-        writer.append(SocialNotificationUtils.getMessageInSpace(map, templateContext));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-      return true;
-    }
-
   };
 
 
@@ -1244,31 +677,6 @@ public class MailTemplateProvider extends TemplateProvider {
       //binding the exception throws by processing template
       ctx.setException(templateContext.getException());
       return messageInfo.subject(subject).body(body).end();
-    }
-
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-      String language = getLanguage(first);
-
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-      Map<String, List<String>> receiverMap = new LinkedHashMap<String, List<String>>();
-
-      try {
-        for (NotificationInfo message : notifications) {
-          Relationship relationship = Utils.getRelationshipManager().get(message.getValueOwnerParameter(SocialNotificationUtils.RELATIONSHIP_ID.getKey()));
-          if (relationship == null || relationship.getStatus().name().equals("PENDING") == false || !relationship.getReceiver().getRemoteId().equals(message.getTo())) {
-            continue;
-          }
-          SocialNotificationUtils.processInforSendTo(receiverMap, first.getTo(), message.getValueOwnerParameter(SocialNotificationUtils.SENDER.getKey()));
-        }
-        writer.append(SocialNotificationUtils.getMessageByIds(receiverMap, templateContext, "connections_request"));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-      return true;
     }
 
   };
@@ -1312,38 +720,6 @@ public class MailTemplateProvider extends TemplateProvider {
       return messageInfo.subject(subject).body(body).end();
     }
 
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-
-      String language = getLanguage(first);
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-
-      Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
-
-      try {
-        for (NotificationInfo message : notifications) {
-          String spaceId = message.getValueOwnerParameter(SocialNotificationUtils.SPACE_ID.getKey());
-          String fromUser = message.getValueOwnerParameter("request_from");
-          Space space = Utils.getSpaceService().getSpaceById(spaceId);
-          if (space == null) {
-            continue;
-          }
-          if (ArrayUtils.contains(space.getPendingUsers(), fromUser) == false || !ArrayUtils.contains(space.getManagers(), message.getTo())) {
-            continue;
-          }
-          //
-          SocialNotificationUtils.processInforSendTo(map, spaceId, fromUser);
-        }
-        writer.append(SocialNotificationUtils.getMessageInSpace(map, templateContext));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-      return true;
-    }
-
   };
 
   /** Defines the template builder for SpaceInvitationPlugin*/
@@ -1376,38 +752,6 @@ public class MailTemplateProvider extends TemplateProvider {
       ctx.setException(templateContext.getException());
 
       return messageInfo.subject(subject).body(body).end();
-    }
-
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      List<NotificationInfo> notifications = ctx.getNotificationInfos();
-      NotificationInfo first = notifications.get(0);
-      String language = getLanguage(first);
-
-      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
-      Map<String, List<String>> receiverMap = new LinkedHashMap<String, List<String>>();
-
-      try {
-        for (NotificationInfo message : notifications) {
-          String spaceId = message.getValueOwnerParameter(SocialNotificationUtils.SPACE_ID.getKey());
-          Space space = Utils.getSpaceService().getSpaceById(spaceId);
-          if(space == null) {
-            LOG.info("Can't find space with id '{}'. Mail notification with id '{}' will not be sent", spaceId, message.getId());
-            continue;
-          }
-          if (ArrayUtils.contains(space.getInvitedUsers(), first.getTo()) == false) {
-            continue;
-          }
-
-          SocialNotificationUtils.processInforSendTo(receiverMap, first.getTo(), spaceId);
-        }
-        writer.append(SocialNotificationUtils.getMessageByIds(receiverMap, templateContext, "space"));
-      } catch (IOException e) {
-        ctx.setException(e);
-        return false;
-      }
-
-      return true;
     }
 
   };
@@ -1444,10 +788,6 @@ public class MailTemplateProvider extends TemplateProvider {
     return messageInfo.subject(subject).body(body).end();
   }
 
-    @Override
-    protected boolean makeDigest(NotificationContext notificationContext, Writer writer) {
-      return false;
-    }
   }
 
   protected ExoSocialActivity getI18N(ExoSocialActivity activity,Locale locale) {

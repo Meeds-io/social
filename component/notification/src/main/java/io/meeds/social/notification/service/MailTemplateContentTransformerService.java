@@ -53,12 +53,6 @@ public class MailTemplateContentTransformerService extends TemplateContentTransf
   }
 
   @Override
-  public String processDigest(TemplateContext ctx) {
-    String digest = super.processDigest(ctx);
-    return transform(digest, ctx);
-  }
-
-  @Override
   protected String transform(String value, TemplateContext ctx) {
     if (value == null) {
       return null;
