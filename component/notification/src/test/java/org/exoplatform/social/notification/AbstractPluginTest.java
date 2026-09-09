@@ -20,7 +20,6 @@ package org.exoplatform.social.notification;
 
 import static org.exoplatform.commons.notification.template.TemplateUtils.getExcerptSubject;
 
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -130,13 +129,13 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
    * @return
    */
   protected NotificationInfo getNotificationInfo(String username) {
-    List<NotificationInfo> list = notificationService.storeDigest(username);
+    List<NotificationInfo> list = notificationService.storeInstantly(username);
     assertTrue(list.size() > 0);
     return list.get(0);
   }
 
   protected List<NotificationInfo> getNotificationInfos(String username) {
-    return notificationService.storeDigest(username);
+    return notificationService.storeInstantly(username);
   }
 
   /**
@@ -161,24 +160,14 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
   }
 
   /**
-   * Validate the digest email
-   * 
-   * @param writer
-   * @param includedString
-   */
-  protected void assertDigest(Writer writer, String includedString) {
-    assertEquals(includedString, writer.toString().replaceAll("\\<.*?>", ""));
-  }
-
-  /**
    * Asserts the number of notification what made by the plugins.
    * 
    * @param number
    */
   protected void assertMadeMailDigestNotifications(int number) {
     UserSetting setting = userSettingService.get(rootIdentity.getRemoteId());
-    if (setting.isInDaily(getPlugin().getKey().getId())) {
-      assertEquals(number, notificationService.sizeOfStoredDigest());
+    if (setting.isActive(MailChannel.ID, getPlugin().getKey().getId())) {
+      assertEquals(number, notificationService.sizeOfInstantly());
     }
   }
 
@@ -189,9 +178,8 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
    */
   protected List<NotificationInfo> assertMadeMailDigestNotifications(String username, int number) {
     UserSetting setting = userSettingService.get(username);
-    List<NotificationInfo> got = notificationService.storeDigest(username);
+    List<NotificationInfo> got = notificationService.storeInstantly(username);
     if (setting.isActive(MailChannel.ID, getPlugin().getKey().getId())) {
-      got = notificationService.storeInstantly(username);
       assertEquals(number, got.size());
     }
     return got;
@@ -372,44 +360,6 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     userSettingService.save(userSetting);
   }
 
-  /**
-   * Make Daily setting
-   * 
-   * @param userId
-   * @param settings
-   */
-  protected void setDailySetting(String userId, List<String> settings) {
-    UserSetting userSetting = userSettingService.get(userId);
-
-    if (userSetting == null) {
-      userSetting = UserSetting.getInstance();
-      userSetting.setUserId(userId);
-    }
-    userSetting.setChannelActive(MailChannel.ID);
-
-    userSetting.setDailyPlugins(settings);
-    userSettingService.save(userSetting);
-  }
-
-  /**
-   * Make Weekly setting
-   * 
-   * @param userId
-   * @param settings
-   */
-  protected void setWeeklySetting(String userId, List<String> settings) {
-    UserSetting userSetting = userSettingService.get(userId);
-
-    if (userSetting == null) {
-      userSetting = UserSetting.getInstance();
-      userSetting.setUserId(userId);
-    }
-    userSetting.setChannelActive(MailChannel.ID);
-
-    userSetting.setWeeklyPlugins(settings);
-    userSettingService.save(userSetting);
-  }
-
   private void initUsersSetting() {
     initSettings(rootIdentity.getRemoteId());
     initSettings(maryIdentity.getRemoteId());
@@ -420,26 +370,19 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
   private void initSettings(String username) {
     List<String> instantly = new ArrayList<>(PLUGIN_IDS);
     instantly.add(NewUserPlugin.ID);
-    List<String> daily = new ArrayList<>(PLUGIN_IDS);
-    daily.add(NewUserPlugin.ID);
-    List<String> weekly = new ArrayList<>(PLUGIN_IDS);
     List<String> webNotifs = new ArrayList<>(PLUGIN_IDS);
     webNotifs.add(NewUserPlugin.ID);
 
     // root
-    saveSetting(instantly, daily, weekly, webNotifs, username);
+    saveSetting(instantly, webNotifs, username);
   }
 
   private void saveSetting(List<String> instantly,
-                           List<String> daily,
-                           List<String> weekly,
                            List<String> webNotifs,
                            String userId) {
     UserSetting model = UserSetting.getInstance();
     model.setUserId(userId);
     model.setChannelActives(new HashSet<>(Arrays.asList(MailChannel.ID, WebChannel.ID)));
-    model.setDailyPlugins(daily);
-    model.setWeeklyPlugins(weekly);
     model.setChannelPlugins(MailChannel.ID, instantly);
     model.setChannelPlugins(WebChannel.ID, webNotifs);
     userSettingService.save(model);
@@ -467,14 +410,6 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     MessageInfo massage = templateBuilder.buildMessage(ctx);
     assertNotNull(massage);
     return massage;
-  }
-
-  protected void buildDigest(NotificationContext ctx, Writer writer) {
-    AbstractTemplateBuilder templateBuilder = getTemplateBuilder();
-    if (templateBuilder == null) {
-      templateBuilder = getTemplateBuilder(ctx);
-    }
-    templateBuilder.buildDigest(ctx, writer);
   }
 
   public abstract AbstractTemplateBuilder getTemplateBuilder();

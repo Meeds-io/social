@@ -18,9 +18,6 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
@@ -78,98 +75,6 @@ public class ReceiveRequestMailBuilderTest extends AbstractPluginTest {
     
     assertBody(message, "New connection request");
     assertSubject(message, demoIdentity.getProfile().getFullName() +" wants to connect with you on " + MailUtils.getSenderName());
-    notificationService.clearAll();
-  }
-  
-  public void testDigestWithPluginON() throws Exception {
-    //
-    turnOFF(getPlugin());
-    //
-    makeRelationship(johnIdentity, rootIdentity);
-    assertMadeMailDigestNotifications(0);
-    
-    //ON
-    turnON(getPlugin());
-    
-    //Make more relationship
-    makeRelationship(demoIdentity, rootIdentity);
-    makeRelationship(maryIdentity, rootIdentity);
-    //
-    List<NotificationInfo> messages = new ArrayList<NotificationInfo>();
-    assertMadeMailDigestNotifications(2);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 2);
-    for (NotificationInfo m : list) {
-      m.setTo(rootIdentity.getRemoteId());
-      messages.add(m);
-    }
-    
-    Writer writer = new StringWriter();
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    ctx.setNotificationInfos(messages);
-    buildDigest(ctx, writer);
-    
-    assertDigest(writer, "You've received a connection request from " + getFullName("demo") + ", " + getFullName("mary") + ".");
-    notificationService.clearAll();
-    
-  }
-  
-  public void testDigestWithFeatureON() throws Exception {
-    //
-    turnFeatureOff();
-    //
-    makeRelationship(demoIdentity, rootIdentity);
-    assertMadeMailDigestNotifications(0);
-    
-    //ON
-    turnFeatureOn();
-    
-    //Make more relationship
-    makeRelationship(johnIdentity, rootIdentity);
-    makeRelationship(maryIdentity, rootIdentity);
-    //
-    List<NotificationInfo> messages = new ArrayList<NotificationInfo>();
-    assertMadeMailDigestNotifications(2);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 2);
-    for (NotificationInfo m : list) {
-      m.setTo(rootIdentity.getRemoteId());
-      messages.add(m);
-    }
-    
-    Writer writer = new StringWriter();
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    ctx.setNotificationInfos(messages);
-    buildDigest(ctx, writer);
-    
-    assertDigest(writer, "You've received a connection request from " + getFullName("john") + ", " + getFullName("mary") + ".");
-    notificationService.clearAll();
-    
-  }
-  
-  public void testDigestCancelRequest() throws Exception {
-    //Make more relationship
-    makeRelationship(demoIdentity, rootIdentity);
-    makeRelationship(maryIdentity, rootIdentity);
-    makeRelationship(johnIdentity, rootIdentity);
-    
-    //
-    List<NotificationInfo> messages = new ArrayList<NotificationInfo>();
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 3);
-    for (NotificationInfo m : list) {
-      m.setTo(rootIdentity.getRemoteId());
-      messages.add(m);
-    }
-    
-    //cancel 2 request
-    cancelRelationship(rootIdentity, demoIdentity);
-    cancelRelationship(rootIdentity, johnIdentity);
-    
-    Writer writer = new StringWriter();
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    ctx.setNotificationInfos(messages);
-    buildDigest(ctx, writer);
-    
-    assertDigest(writer, "You've received a connection request from " + getFullName("mary") + ".");
     notificationService.clearAll();
   }
   

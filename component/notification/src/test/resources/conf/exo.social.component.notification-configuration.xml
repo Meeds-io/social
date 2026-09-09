@@ -55,11 +55,6 @@
   </component>
   
   <component>
-    <key>org.exoplatform.commons.api.notification.service.template.DigestorService</key>
-    <type>org.exoplatform.commons.notification.impl.service.template.DigestorServiceImpl</type>
-  </component>
-  
-  <component>
     <key>org.exoplatform.commons.api.notification.service.setting.PluginContainer</key>
     <type>org.exoplatform.commons.notification.impl.setting.NotificationPluginContainer</type>
   </component>

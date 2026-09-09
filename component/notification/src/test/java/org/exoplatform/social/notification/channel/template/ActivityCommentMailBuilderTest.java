@@ -18,9 +18,6 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
@@ -152,68 +149,4 @@ public class ActivityCommentMailBuilderTest extends AbstractPluginTest {
     assertBody(info, "New comment on your activity");
   }
   
-  public void testDigest() throws Exception {
-    //mary post activity on root stream ==> notify to root
-    ExoSocialActivity maryActivity = makeActivity(maryIdentity, ACTIVITY_TITLE);
-    assertMadeMailDigestNotifications(1);
-    notificationService.clearAll();
-    
-    List<NotificationInfo> toRoot = new ArrayList<NotificationInfo>();
-
-    //demo add comment to maryActivity ==> notify to root and mary
-    makeComment(maryActivity, demoIdentity, "demo add comment");
-    assertMadeMailDigestNotifications(2);
-    List<NotificationInfo> list1 = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
-    toRoot.add(list1.get(0));
-    notificationService.clearAll();
-    
-    makeComment(activityManager.getActivity(maryActivity.getId()), johnIdentity, "john add comment");
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list2 = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
-    toRoot.add(list2.get(0));
-    notificationService.clearAll();
-
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    toRoot.set(0, toRoot.get(0).setTo(rootIdentity.getRemoteId()));
-    ctx.setNotificationInfos(toRoot);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("demo") + ", " + getFullName("john") + " have commented on your activity: my activity's title post today.demo : demo add comment...");
-  }
-  
-  public void testDigestWithDeletedComment() throws Exception {
-    //mary post activity on root stream ==> notify to root
-    ExoSocialActivity maryActivity = makeActivity(maryIdentity, ACTIVITY_TITLE);
-    assertMadeMailDigestNotifications(1);
-    notificationService.clearAll();
-    
-    List<NotificationInfo> toRoot = new ArrayList<NotificationInfo>();
-
-    //demo add comment to maryActivity ==> notify to root and mary
-    makeComment(maryActivity, demoIdentity, "demo add comment");
-    assertMadeMailDigestNotifications(2);
-    List<NotificationInfo> list1 = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
-    toRoot.add(list1.get(0));
-    notificationService.clearAll();
-    
-    //john add comment to maryActivity ==> notify to root, mary and demo
-    ExoSocialActivity johnComment = makeComment(activityManager.getActivity(maryActivity.getId()), johnIdentity, "john add comment");
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list2 = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
-    toRoot.add(list2.get(0));
-
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    ctx.setNotificationInfos(toRoot);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("demo") + ", " + getFullName("john") + " have commented on your activity: my activity's title post today.demo : demo add comment...");
-    
-    notificationService.clearAll();
-    
-    //john delete his comment
-    activityManager.deleteComment(maryActivity, johnComment);
-    
-    assertMadeMailDigestNotifications(0);
-    
-  }
 }

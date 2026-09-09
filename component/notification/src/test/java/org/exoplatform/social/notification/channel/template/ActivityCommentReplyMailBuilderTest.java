@@ -18,9 +18,6 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
@@ -94,31 +91,4 @@ public class ActivityCommentReplyMailBuilderTest extends AbstractPluginTest {
     assertBody(info, "New reply on your comment");
   }
 
-  public void testDigest() throws Exception {
-    //mary post activity on root stream ==> notify to root
-    ExoSocialActivity maryActivity = makeActivity(maryIdentity, ACTIVITY_TITLE);
-    assertMadeMailDigestNotifications(1);
-    notificationService.clearAll();
-
-    List<NotificationInfo> toRoot = new ArrayList<NotificationInfo>();
-
-    //root add comment to maryActivity ==> notify mary
-    ExoSocialActivity comment = makeComment(maryActivity, rootIdentity, "root add comment");
-
-    //demo add comment reply to maryActivity ==> notify to root and mary
-    makeCommentReply(maryActivity, demoIdentity, "demo add reply", comment.getId());
-
-    restartTransaction();
-
-    List<NotificationInfo> list1 = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
-    toRoot.add(list1.get(0));
-    notificationService.clearAll();
-
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    toRoot.set(0, toRoot.get(0).setTo(rootIdentity.getRemoteId()));
-    ctx.setNotificationInfos(toRoot);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("demo") + " has replied to your comment: my activity title post today.demo add reply");
-  }
 }
