@@ -196,6 +196,45 @@ public class UserSpacesServiceTest extends AbstractCoreTest {
                  () -> spaceService.countUserSpaces(VIEWER, "notauser", UserSpacesScope.ALL));
   }
 
+  public void testLegacyListingAccessIsGrantedToTheOwnerAndTheSuperUser() throws Exception {
+    spaceService.checkUserSpacesAccess(OWNER, OWNER);
+    spaceService.checkUserSpacesAccess("root", OWNER);
+  }
+
+  public void testLegacyListingAccessIsGrantedToAConfirmedConnection() throws Exception {
+    Identity owner = identityManager.getOrCreateUserIdentity(OWNER);
+    Identity viewer = identityManager.getOrCreateUserIdentity(VIEWER);
+    relationshipManager.inviteToConnect(viewer, owner);
+    relationshipManager.confirm(owner, viewer);
+    restartTransaction();
+
+    spaceService.checkUserSpacesAccess(VIEWER, OWNER);
+    spaceService.checkUserSpacesAccess(OWNER, VIEWER);
+  }
+
+  public void testLegacyListingAccessIsRefusedWithoutAConfirmedRelationship() {
+    // No relationship at all
+    assertThrows(IllegalAccessException.class, () -> spaceService.checkUserSpacesAccess(VIEWER, OWNER));
+
+    // A pending invitation is not a connection
+    Identity owner = identityManager.getOrCreateUserIdentity(OWNER);
+    Identity viewer = identityManager.getOrCreateUserIdentity(VIEWER);
+    relationshipManager.inviteToConnect(viewer, owner);
+    restartTransaction();
+    assertThrows(IllegalAccessException.class, () -> spaceService.checkUserSpacesAccess(VIEWER, OWNER));
+    assertThrows(IllegalAccessException.class, () -> spaceService.checkUserSpacesAccess(OWNER, VIEWER));
+
+    // Neither is an anonymous or unresolvable viewer
+    assertThrows(IllegalAccessException.class,
+                 () -> spaceService.checkUserSpacesAccess(IdentityConstants.ANONIM, OWNER));
+    assertThrows(IllegalAccessException.class, () -> spaceService.checkUserSpacesAccess("notauser", OWNER));
+  }
+
+  public void testLegacyListingAccessOnAnUnknownOwnerIsNotFound() {
+    assertThrows(ObjectNotFoundException.class, () -> spaceService.checkUserSpacesAccess(VIEWER, "notauser"));
+    assertThrows(ObjectNotFoundException.class, () -> spaceService.checkUserSpacesAccess("root", "notauser"));
+  }
+
   public void testExternalFlagIsEffectivelySetOnTheFixture() {
     assertTrue(identityManager.getOrCreateUserIdentity(EXTERNAL_VIEWER).isExternal());
     assertTrue(identityManager.getOrCreateUserIdentity(EXTERNAL_OWNER).isExternal());

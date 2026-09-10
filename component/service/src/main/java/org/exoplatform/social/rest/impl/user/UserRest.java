@@ -109,7 +109,6 @@ import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
-import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -1662,25 +1661,22 @@ public class UserRest implements ResourceContainer, Startable {
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    // Check permission of authenticated user : he must be an admin or he is the
-    // given user
+    // Who may ask is decided in the Service (eXIP note 50524, Security): the
+    // profile owner, the super user or a confirmed connection of the owner.
+    // This layer only maps the outcome to a status
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(id)) {
-      // Check permission of spaces to retrieve owner : authenticated user must
-      // be in a confirmed relationship with spaces to retrieve's owner
-      Identity authenticatedUserIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
-      Identity userIdentity = identityManager.getOrCreateUserIdentity(id);
-      Relationship relationship = relationshipManager.get(authenticatedUserIdentity, userIdentity);
-      if (relationship == null || relationship.getStatus() != Relationship.Type.CONFIRMED) {
-        throw new WebApplicationException(Response.Status.FORBIDDEN);
-      }
+    try {
+      spaceService.checkUserSpacesAccess(authenticatedUser, id);
+    } catch (ObjectNotFoundException e) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    } catch (IllegalAccessException e) {
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
-    // The relationship gate above decides who may ask; what they receive is
-    // decided once, in SpaceService.getUserSpaces: a connection no longer gets
-    // the hidden spaces they are not a member of (eXIP note 50524, Security,
-    // point O1). The super user keeps the unfiltered listing this operation has
-    // always documented for administrators.
+    // What they receive is decided once, in SpaceService.getUserSpaces: a
+    // connection no longer gets the hidden spaces they are not a member of
+    // (eXIP note 50524, Security, point O1). The super user keeps the
+    // unfiltered listing this operation has always documented.
     List<Space> spaces;
     int size;
     if (userACL.getSuperUser().equals(authenticatedUser)) {
