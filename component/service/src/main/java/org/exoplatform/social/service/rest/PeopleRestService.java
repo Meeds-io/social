@@ -483,6 +483,11 @@ public class PeopleRestService implements ResourceContainer{
       LOG.warn("Cannot add Identity to suggestion list. Identity with id '"+ userIdentity.getRemoteId() + "' is not of type 'user'");
       return userInfos;
     }
+    // a deactivated or deleted account can't be mentioned anymore, whatever
+    // the path that suggests it (author, commenters, likers, connections...)
+    if (!userIdentity.isEnable() || userIdentity.isDeleted()) {
+      return userInfos;
+    }
     if (userInfos.size() == SUGGEST_LIMIT) {
       return userInfos;
     }
@@ -551,7 +556,7 @@ public class PeopleRestService implements ResourceContainer{
     String[] spaceMembers = getSpaceService().getSpaceByPrettyName(spaceByPrettyName).getMembers();
     for (String spaceMember : spaceMembers) {
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember, false);
-      if (identity != null && identity.isEnable() && !identity.isDeleted()) {
+      if (identity != null) {
         addUserToInfosList(identity, identityFilter, userInfos, currentUser, true, locale);
         if (userInfos.size() >= SUGGEST_LIMIT) {
           break;
