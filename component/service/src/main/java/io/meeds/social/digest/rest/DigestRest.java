@@ -19,7 +19,6 @@
 package io.meeds.social.digest.rest;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,12 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.meeds.commons.digest.DigestService;
+import io.meeds.commons.digest.model.DigestCategory;
 import io.meeds.commons.digest.model.DigestUserSettings;
-import io.meeds.commons.digest.plugin.DigestCategoryProvider;
 import io.meeds.social.digest.rest.model.DigestCategoryEntity;
 import io.meeds.social.digest.rest.model.DigestSettingsEntity;
 import io.meeds.social.digest.rest.model.DigestUserSettingsEntity;
-import io.meeds.commons.digest.service.DigestLabelResolver;
 import io.meeds.social.timezone.service.UserTimeZoneService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -61,9 +59,6 @@ public class DigestRest {
   @Autowired
   private UserTimeZoneService         userTimeZoneService;
 
-  @Autowired
-  private DigestLabelResolver         labelResolver;
-
   @GetMapping("settings")
   @Secured("users")
   @Operation(summary = "Retrieves the digest mail notification settings", method = "GET",
@@ -80,7 +75,7 @@ public class DigestRest {
     }
     DigestUserSettings userSettings = digestService.getUserSettings(request.getRemoteUser());
     return new DigestSettingsEntity(true,
-                                    toCategoryEntities(digestService.getCategories(), request.getLocale()),
+                                    toCategoryEntities(digestService.getCategories(request.getLocale())),
                                     userSettings.isDaily(),
                                     userSettings.getDailyCategories(),
                                     userSettings.isWeekly(),
@@ -94,14 +89,11 @@ public class DigestRest {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse(responseCode = "400", description = "Invalid query input"),
-    @ApiResponse(responseCode = "403", description = "Forbidden"),
+    @ApiResponse(responseCode = "403", description = "Forbidden, or digest mail notifications not allowed by the administrator"),
   })
   public void saveUserSettings(HttpServletRequest request,
                                @RequestBody
                                DigestUserSettingsEntity settings) {
-    if (!digestService.isDigestAllowed()) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Digest mail notifications are not allowed");
-    }
     String username = request.getRemoteUser();
     try {
       digestService.saveUserSettings(username,
@@ -110,6 +102,8 @@ public class DigestRest {
                                                             settings.isWeekly(),
                                                             settings.getWeeklyCategories()),
                                      userTimeZoneService.getUserTimeZone(username));
+    } catch (IllegalAccessException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
     }
@@ -129,9 +123,9 @@ public class DigestRest {
     digestService.saveDigestAllowed(allowed);
   }
 
-  private List<DigestCategoryEntity> toCategoryEntities(List<DigestCategoryProvider> categories, Locale locale) {
+  private List<DigestCategoryEntity> toCategoryEntities(List<DigestCategory> categories) {
     return categories.stream()
-                     .map(category -> new DigestCategoryEntity(category.getId(), labelResolver.categoryLabel(category, locale)))
+                     .map(category -> new DigestCategoryEntity(category.getId(), category.getLabel()))
                      .toList();
   }
 

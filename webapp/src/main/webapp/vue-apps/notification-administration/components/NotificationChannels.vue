@@ -46,7 +46,8 @@ export default {
   }),
   created() {
     this.$notificationAdministration.getDigestSettings()
-      .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false);
+      .then(digestSettings => this.digestAllowed = digestSettings?.digestAllowed || false)
+      .catch(() => this.digestAllowed = false);
   },
   computed: {
     channelIds() {
