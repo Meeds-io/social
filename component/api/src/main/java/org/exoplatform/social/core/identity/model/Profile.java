@@ -59,10 +59,13 @@ public class Profile {
    * TimeZone key of the legacy profile property, still written by the CSV
    * users import and read through {@link #getTimeZone()}.
    *
-   * @deprecated the timezone of the user is {@link #USER_TIME_ZONE}, kept up
-   *             to date by the platform timezone synchronization
+   * @deprecated since 7.3.0, not for removal: the timezone of the user is
+   *             {@link #USER_TIME_ZONE}, kept up to date by the platform
+   *             timezone synchronization; this key stays for the CSV import
+   *             and its readers, which nothing has written since the sync
+   *             moved to {@link #USER_TIME_ZONE}
    */
-  @Deprecated(since = "7.3.0")
+  @Deprecated(since = "7.3.0", forRemoval = false)
   public static final String  TIME_ZONE               = "timeZone";
 
   /**

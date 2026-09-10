@@ -18,7 +18,11 @@
  */
 package io.meeds.social.digest.rest;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -49,8 +53,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import io.meeds.commons.digest.DigestService;
+import io.meeds.commons.digest.model.DigestCategory;
 import io.meeds.commons.digest.model.DigestUserSettings;
-import io.meeds.commons.digest.service.DigestLabelResolver;
 import io.meeds.social.timezone.service.UserTimeZoneService;
 import io.meeds.spring.web.security.PortalAuthenticationManager;
 import io.meeds.spring.web.security.WebSecurityConfiguration;
@@ -70,6 +74,8 @@ public class DigestRestTest {
 
   private static final String   TEST_PASSWORD = "testPassword";
 
+  private static final String   SETTINGS_BODY = "{\"daily\":true,\"dailyCategories\":[\"spaces\"],\"weekly\":false,\"weeklyCategories\":[]}";
+
   @Autowired
   private SecurityFilterChain   filterChain;
 
@@ -78,9 +84,6 @@ public class DigestRestTest {
 
   @MockitoBean
   private DigestService         digestService;
-
-  @MockitoBean
-  private DigestLabelResolver   labelResolver;
 
   @MockitoBean
   private UserTimeZoneService   userTimeZoneService;
@@ -103,15 +106,64 @@ public class DigestRestTest {
   @Test
   public void getSettingsWithUser() throws Exception {
     when(digestService.getUserSettings(anyString())).thenReturn(new DigestUserSettings(false, List.of(), false, List.of()));
+    when(digestService.getCategories(any())).thenReturn(List.of(new DigestCategory("spaces", "Spaces")));
     when(digestService.isDigestAllowed()).thenReturn(true);
     ResultActions response = mockMvc.perform(get("/notifications/digest/settings").with(testSimpleUser()));
     response.andExpect(status().isOk())
-            .andExpect(jsonPath("$.digestAllowed").value(true));
+            .andExpect(jsonPath("$.digestAllowed").value(true))
+            .andExpect(jsonPath("$.categories[0].id").value("spaces"))
+            .andExpect(jsonPath("$.categories[0].label").value("Spaces"));
 
     when(digestService.isDigestAllowed()).thenReturn(false);
     response = mockMvc.perform(get("/notifications/digest/settings").with(testSimpleUser()));
     response.andExpect(status().isOk())
             .andExpect(jsonPath("$.digestAllowed").value(false));
+  }
+
+  @Test
+  public void saveUserSettingsAnonymously() throws Exception {
+    ResultActions response = mockMvc.perform(patch("/notifications/digest/settings").contentType(MediaType.APPLICATION_JSON)
+                                                                                    .content(SETTINGS_BODY));
+    response.andExpect(status().isForbidden());
+    verify(digestService, never()).saveUserSettings(anyString(), any(), any());
+  }
+
+  @Test
+  public void saveUserSettingsWithUserEnrollsTheCallerWithHisProfileTimeZone() throws Exception {
+    // The owner is the authenticated user, the timezone comes from his profile,
+    // never from the request
+    when(userTimeZoneService.getUserTimeZone(SIMPLE_USER)).thenReturn("Europe/Paris");
+
+    ResultActions response = mockMvc.perform(patch("/notifications/digest/settings").contentType(MediaType.APPLICATION_JSON)
+                                                                                    .content(SETTINGS_BODY)
+                                                                                    .with(testSimpleUser()));
+
+    response.andExpect(status().isOk());
+    verify(digestService).saveUserSettings(eq(SIMPLE_USER),
+                                           eq(new DigestUserSettings(true, List.of("spaces"), false, List.of())),
+                                           eq("Europe/Paris"));
+  }
+
+  @Test
+  public void saveUserSettingsRefusedByTheAdministratorSwitchIs403() throws Exception {
+    doThrow(new IllegalAccessException("digest.notAllowed")).when(digestService).saveUserSettings(anyString(), any(), any());
+
+    ResultActions response = mockMvc.perform(patch("/notifications/digest/settings").contentType(MediaType.APPLICATION_JSON)
+                                                                                    .content(SETTINGS_BODY)
+                                                                                    .with(testSimpleUser()));
+
+    response.andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void saveUserSettingsWithAFrequencyAndNoCategoryIs400() throws Exception {
+    doThrow(new IllegalArgumentException("digest.noCategory")).when(digestService).saveUserSettings(anyString(), any(), any());
+
+    ResultActions response = mockMvc.perform(patch("/notifications/digest/settings").contentType(MediaType.APPLICATION_JSON)
+                                                                                    .content("{\"daily\":true,\"dailyCategories\":[],\"weekly\":false,\"weeklyCategories\":[]}")
+                                                                                    .with(testSimpleUser()));
+
+    response.andExpect(status().isBadRequest());
   }
 
   @Test
