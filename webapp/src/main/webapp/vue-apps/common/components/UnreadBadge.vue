@@ -50,6 +50,15 @@ export default {
       type: Number,
       default: () => 1,
     },
+    /**
+     * Item field compared to objectId when applicationName/applicationItemId
+     * name another object. Value only, objectType ignored: the named field
+     * must identify this badge's own object.
+     */
+    alternateIdField: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     textLength: 0,
@@ -74,6 +83,17 @@ export default {
     },
   },
   watch: {
+    isUnread() {
+      // Follows the displayed badge, not the event: a consumer may decline
+      // one, and reopening the guard there marks the item read unseen
+      this.isMarkedAsRead = !this.isUnread;
+      if (this.isUnread && this.isReading) {
+        // Already reading: isMarkedAsRead did not change, so its watcher will
+        // not run. Re-arm directly - toggling isReading here would not do it,
+        // Vue collapses the pair into no edge
+        this.armReadTimer();
+      }
+    },
     isMarkedAsRead() {
       if (this.isMarkedAsRead) {
         this.uninstallBodyScrollListener();
@@ -89,11 +109,7 @@ export default {
     },
     isReading(newVal, oldVal) {
       if (newVal && !oldVal) {
-        this.displayTimeout = window.setTimeout(() => {
-          if (this.computeIsReading()) {
-            this.markAsRead();
-          }
-        }, this.waitTimeToMarkAsRead);
+        this.armReadTimer();
       } else if (this.displayTimeout) {
         window.clearTimeout(this.displayTimeout);
         this.displayTimeout = false;
@@ -113,6 +129,16 @@ export default {
     document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
   },
   methods: {
+    armReadTimer() {
+      // Every arming path sizes the window on the text actually displayed
+      this.countText();
+      window.clearTimeout(this.displayTimeout);
+      this.displayTimeout = window.setTimeout(() => {
+        if (this.computeIsReading()) {
+          this.markAsRead();
+        }
+      }, this.waitTimeToMarkAsRead);
+    },
     installBodyScrollListener() {
       const siteBodyElement = document.querySelector('.site-scroll-parent');
       siteBodyElement.addEventListener('scroll', this.computePagePosition, false);
@@ -133,19 +159,25 @@ export default {
       const objectType = spaceWebNotificationItem?.applicationName;
       const objectId = spaceWebNotificationItem?.applicationItemId;
       const spaceId = spaceWebNotificationItem?.spaceId;
+      const alternateId = this.alternateIdField && spaceWebNotificationItem?.[this.alternateIdField];
       if (Number(this.spaceId) === Number(spaceId)) {
         if (wsEventName === 'notification.read.allItems') {
           this.$emit('read');
-        } else {
-          if (objectType === this.objectType && objectId === this.objectId) {
-            if (wsEventName === 'notification.unread.item') {
-              this.$emit('unread');
-            } else if (wsEventName === 'notification.read.item') {
-              this.$emit('read');
-            }
+        } else if (this.matchesNotificationItem(objectType, objectId, alternateId)) {
+          if (wsEventName === 'notification.unread.item') {
+            this.$emit('unread', spaceWebNotificationItem);
+          } else if (wsEventName === 'notification.read.item') {
+            this.$emit('read');
           }
         }
       }
+    },
+    matchesNotificationItem(objectType, objectId, alternateId) {
+      if (objectType === this.objectType && objectId === this.objectId) {
+        return true;
+      }
+      // A redirected item (a news backed activity) names the content object
+      return !!alternateId && alternateId === this.objectId;
     },
     countText() {
       if (!this.isMarkedAsRead) {
