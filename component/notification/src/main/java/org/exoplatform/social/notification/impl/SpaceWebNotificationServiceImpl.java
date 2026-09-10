@@ -36,6 +36,8 @@ import org.picocontainer.Startable;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.config.PluginConfig;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -55,6 +57,8 @@ import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
+
+import io.meeds.social.activity.plugin.ActivityPermanentLinkPlugin;
 
 @SuppressWarnings("removal")
 public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationService, Startable {
@@ -84,6 +88,13 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
   private IdentityManager                  identityManager;
 
   private SpaceService                     spaceService;
+
+  /**
+   * Resolved lazily: {@link ActivityManager} depends (through the activity
+   * storage) on this service, so a constructor injection would create a
+   * Kernel dependency cycle.
+   */
+  private ActivityManager                  activityManager;
 
   private List<SpaceWebNotificationPlugin> plugins                       = new ArrayList<>();
 
@@ -200,12 +211,15 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
                                                        notificationItem.getApplicationItemId(),
                                                        null,
                                                        notificationItem.getSpaceId());
-
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataAndObject(metadataKey, metadataObject);
-    if (CollectionUtils.isNotEmpty(metadataItems)) {
-      for (MetadataItem metadataItem : metadataItems) {
-        metadataService.deleteMetadataItem(metadataItem.getId(), true);
-      }
+    deleteUnreadItems(metadataKey, metadataObject);
+    // The unread item of a content-backed activity (news, note...) is stored
+    // on the content object the activity redirects to, while the browser
+    // marks the activity as read: delete it as well, before the single
+    // broadcast, so that consumers counting unread items on the event
+    // (sidebar badge, analytics) read a consistent state
+    MetadataObject redirectedMetadataObject = getRedirectedMetadataObject(notificationItem);
+    if (redirectedMetadataObject != null) {
+      deleteUnreadItems(metadataKey, redirectedMetadataObject);
     }
     listenerService.broadcast(NOTIFICATION_READ_EVENT_NAME, notificationItem, userIdentityId);
   }
@@ -307,6 +321,43 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
       throw new IllegalAccessException(String.format(USER_NOT_MEMBER_OF_SPACE, username, spaceId));
     }
     return countUnreadActivityIds(Collections.singletonList(spaceIdString), userIdentity);
+  }
+
+  private void deleteUnreadItems(MetadataKey metadataKey, MetadataObject metadataObject) throws ObjectNotFoundException {
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataAndObject(metadataKey, metadataObject);
+    if (CollectionUtils.isNotEmpty(metadataItems)) {
+      for (MetadataItem metadataItem : metadataItems) {
+        metadataService.deleteMetadataItem(metadataItem.getId(), true);
+      }
+    }
+  }
+
+  /**
+   * @param  notificationItem item marked as read by the user
+   * @return                  the {@link MetadataObject} the activity redirects
+   *                          its metadata to (e.g. a news), when the item is
+   *                          an activity having a specific metadata object,
+   *                          else null
+   */
+  private MetadataObject getRedirectedMetadataObject(SpaceWebNotificationItem notificationItem) {
+    if (!ActivityPermanentLinkPlugin.OBJECT_TYPE.equals(notificationItem.getApplicationName())) {
+      return null;
+    }
+    ExoSocialActivity activity = getActivityManager().getActivity(notificationItem.getApplicationItemId());
+    if (activity == null || !activity.hasSpecificMetadataObject()) {
+      return null;
+    }
+    return new MetadataObject(activity.getMetadataObjectType(),
+                              activity.getMetadataObjectId(),
+                              null,
+                              notificationItem.getSpaceId());
+  }
+
+  protected ActivityManager getActivityManager() {
+    if (activityManager == null) {
+      activityManager = container.getComponentInstanceOfType(ActivityManager.class);
+    }
+    return activityManager;
   }
 
   private void mergeExistingUnreadProperties(SpaceWebNotificationItem notificationItem,
