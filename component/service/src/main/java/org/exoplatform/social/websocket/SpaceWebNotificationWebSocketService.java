@@ -22,6 +22,9 @@ import static org.exoplatform.social.notification.service.SpaceWebNotificationSe
 import static org.exoplatform.social.notification.service.SpaceWebNotificationService.NOTIFICATION_READ_EVENT_NAME;
 import static org.exoplatform.social.notification.service.SpaceWebNotificationService.NOTIFICATION_UNREAD_EVENT_NAME;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.cometd.bayeux.server.ServerChannel;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
@@ -40,7 +43,20 @@ import org.exoplatform.ws.frameworks.cometd.ContinuationService;
 
 public class SpaceWebNotificationWebSocketService implements Startable {
 
-  public static final String          COMETD_CHANNEL = "/SpaceWebNotification";
+  public static final String          COMETD_CHANNEL                      = "/SpaceWebNotification";
+
+  /**
+   * Key of the {@link SpaceWebNotificationItem} inside the outbound WebSocket
+   * message (server to browser). It has to be stable whatever the runtime
+   * class of the item (a {@link SpaceWebNotificationItem} built by the server
+   * or a
+   * {@link org.exoplatform.social.notification.model.SpaceWebNotificationItemUpdate}
+   * received from the browser), since frontend components read this key to
+   * refresh the unread badges. Not to be confused with the inbound key
+   * (browser to server, camel case) read by
+   * {@link SpaceWebNotificationWebSocketServerListener}.
+   */
+  public static final String          OUTBOUND_ITEM_KEY                   = "spacewebnotificationitem";
 
   private PortalContainer             container;
 
@@ -93,7 +109,8 @@ public class SpaceWebNotificationWebSocketService implements Startable {
     Identity identity = identityManager.getIdentity(String.valueOf(userId));
     if (identity != null && !identity.isDeleted() && identity.isEnable()
         && continuationService.isPresent(identity.getRemoteId())) {
-      String wsMessage = new WebSocketMessage(eventName, spaceWebNotificationItem).toJsonString();
+      Map<String, Object> message = Collections.singletonMap(OUTBOUND_ITEM_KEY, spaceWebNotificationItem);
+      String wsMessage = new WebSocketMessage(eventName, message).toJsonString();
       continuationService.sendMessage(identity.getRemoteId(), COMETD_CHANNEL, wsMessage);
     }
   }
