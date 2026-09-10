@@ -1198,6 +1198,26 @@ public interface SpaceService {
   }
 
   /**
+   * Checks that a viewer may ask for the spaces of a profile owner through the
+   * legacy listing {@code GET /v1/social/users/{id}/spaces}, which is gated on
+   * the relationship between the two users: the profile owner themselves, the
+   * super user, or a user in a CONFIRMED relationship with the profile owner.
+   * What the viewer then receives is decided by
+   * {@link #getUserSpaces(String, String, UserSpacesScope, long, long)}.
+   *
+   * @param viewerUsername The remote user Id of the user asking for the listing
+   * @param profileOwnerUsername The remote user Id of the profile owner
+   * @throws ObjectNotFoundException when the profile owner does not exist
+   * @throws IllegalAccessException when the viewer is neither the profile
+   *           owner, nor the super user, nor a confirmed connection of the
+   *           profile owner
+   */
+  default void checkUserSpacesAccess(String viewerUsername,
+                                     String profileOwnerUsername) throws ObjectNotFoundException, IllegalAccessException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Gets a {@link List} of Space technical identifiers where the user has the
    * "member" role.
    *
