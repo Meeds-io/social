@@ -79,8 +79,10 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
+import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
@@ -134,6 +136,8 @@ public class SpaceServiceImpl implements SpaceService {
 
   private IdentityManager             identityManager;
 
+  private RelationshipManager         relationshipManager;
+
   private UserACL                     userAcl;
 
   private ResourceBundleService       resourceBundleService;
@@ -160,6 +164,7 @@ public class SpaceServiceImpl implements SpaceService {
                           GroupSpaceBindingStorage groupSpaceBindingStorage,
                           SpaceSearchConnector spaceSearchConnector,
                           IdentityManager identityManager,
+                          RelationshipManager relationshipManager,
                           UserACL userAcl,
                           ResourceBundleService resourceBundleService,
                           LocaleConfigService localeConfigService,
@@ -170,6 +175,7 @@ public class SpaceServiceImpl implements SpaceService {
     this.groupSpaceBindingStorage = groupSpaceBindingStorage;
     this.spaceSearchConnector = spaceSearchConnector;
     this.identityManager = identityManager;
+    this.relationshipManager = relationshipManager;
     this.userAcl = userAcl;
     this.resourceBundleService = resourceBundleService;
     this.localeConfigService = localeConfigService;
@@ -418,6 +424,31 @@ public class SpaceServiceImpl implements SpaceService {
     }
     UserSpacesScope effectiveScope = getEffectiveUserSpacesScope(viewerUsername, profileOwnerUsername, scope);
     return spaceStorage.countUserSpaces(viewerUsername, profileOwnerUsername, effectiveScope);
+  }
+
+  @Override
+  public void checkUserSpacesAccess(String viewerUsername,
+                                    String profileOwnerUsername) throws ObjectNotFoundException, IllegalAccessException {
+    Identity profileOwnerIdentity = identityManager.getOrCreateUserIdentity(profileOwnerUsername);
+    if (profileOwnerIdentity == null || profileOwnerIdentity.isDeleted()) {
+      throw new ObjectNotFoundException(String.format("Profile owner %s does not exist", profileOwnerUsername));
+    }
+    if (StringUtils.equals(viewerUsername, profileOwnerUsername)
+        || StringUtils.equals(userAcl.getSuperUser(), viewerUsername)) {
+      return;
+    }
+    // The legacy listing is gated on the relationship, not on the viewer's type:
+    // only a confirmed connection of the profile owner may ask for it. The
+    // viewer's identity is resolved here rather than trusted from the caller,
+    // so an unresolvable viewer is refused like a stranger
+    Identity viewerIdentity = userAcl.isAnonymousUser(viewerUsername) ? null :
+                                                                        identityManager.getOrCreateUserIdentity(viewerUsername);
+    Relationship relationship = viewerIdentity == null ? null : relationshipManager.get(viewerIdentity, profileOwnerIdentity);
+    if (relationship == null || relationship.getStatus() != Relationship.Type.CONFIRMED) {
+      throw new IllegalAccessException(String.format("User %s is not a confirmed connection of %s",
+                                                     viewerUsername,
+                                                     profileOwnerUsername));
+    }
   }
 
   /**
