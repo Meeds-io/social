@@ -27,6 +27,7 @@
     :permanent="docked || standalone"
     :attached="docked || standalone"
     :no-external-overlay="docked || standalone"
+    :autofocus="!docked && !standalone"
     :hide-close="standalone"
     @expand-updated="expandState = $event">
     <template v-for="(unusedSlot, name) in $slots" #[name]>
