@@ -379,9 +379,9 @@ public class CachedSpaceStorage extends SpaceStorage {
    * <p>
    * The bypass removes the offset dimension, not the {@code limit} one:
    * {@link ListSpacesKey} compares both, so a caller varying {@code limit} still
-   * multiplies entries. No caller does today — the widget and the drawer each
-   * pass a fixed page size — but the REST endpoint of WP1b takes {@code limit}
-   * from the client and owes that clamp.
+   * multiplies entries. The widget and the drawer each pass a fixed page size,
+   * and the REST endpoint bounds {@code limit} to
+   * {@code UserSpacesRest.MAX_LIMIT}.
    */
   @Override
   public List<Space> getUserSpaces(String viewerUsername,
