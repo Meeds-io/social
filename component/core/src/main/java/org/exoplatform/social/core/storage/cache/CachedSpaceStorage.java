@@ -365,15 +365,17 @@ public class CachedSpaceStorage extends SpaceStorage {
    * Only the first page is cached. This listing is the first family of
    * {@code spacesCache} keyed on a <b>pair</b> of users (owner x viewer x
    * scope), where every other family is keyed on a single one, and the cache is
-   * shared: {@code exo.cache.social.SpacesCache.MaxNodes} defaults to 5000
-   * entries for every space listing of the instance (defined outside this
-   * repository, in {@code Meeds-io/meeds} ->
-   * {@code services/plf-configuration/src/main/resources/conf/platform/configuration.properties}). Caching the drawer's
-   * subsequent pages as well would let profile browsing evict the listings this
-   * cache exists for — the home spaces widget, the space directory. Bounding the
-   * new family to the page that renders on every profile view is the fallback
-   * the specification states for this cardinality (eXIP 7.3.0.18, note 50524
-   * §4).
+   * shared: the region is registered outside this repository, in
+   * {@code Meeds-io/meeds} ->
+   * {@code webapps/plf-meeds-extension/src/main/webapp/WEB-INF/conf/meeds/cache-configuration.xml},
+   * as {@code ${meeds.cache.social.SpacesCache.MaxNodes:4000}} entries for every
+   * space listing of the instance, with no implementation or strategy set, so
+   * eviction is FIFO: the oldest entry goes first, however hot it is. Caching
+   * the drawer's subsequent pages as well would let profile browsing evict the
+   * listings this cache exists for — the home spaces widget, the space
+   * directory. Bounding the new family to the page that renders on every
+   * profile view is the fallback the specification states for this cardinality
+   * (eXIP 7.3.0.18, note 50524 §4).
    * <p>
    * The bypass removes the offset dimension, not the {@code limit} one:
    * {@link ListSpacesKey} compares both, so a caller varying {@code limit} still
