@@ -782,6 +782,50 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(2, ((CollectionEntity) response.getEntity()).getEntities().size());
   }
 
+  public void testGetSpacesOfUserNarrowsAnExternalConnectionToCommonSpaces() throws Exception {
+    // john has a public space shared with demo and a public space of his own.
+    // mary and demo are both confirmed connections of john; demo is external.
+    Space commonSpace = getSpaceInstance(12, "john");
+    commonSpace.setMembers(new String[] { "john", "demo" });
+    spaceService.updateSpace(commonSpace);
+    getSpaceInstance(13, "john");
+
+    relationshipManager.inviteToConnect(maryIdentity, johnIdentity);
+    relationshipManager.confirm(johnIdentity, maryIdentity);
+    relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
+    relationshipManager.confirm(johnIdentity, demoIdentity);
+    markExternal(demoIdentity, true);
+    try {
+      // The viewer-axis matrix applies to this endpoint too (eXIP note 50524,
+      // Security): an external connection receives the spaces it has in common
+      // with the owner only, whatever the relationship grants an internal one
+      startSessionAs("demo");
+      ContainerResponse response = service("GET", getURLResource("users/john/spaces?limit=5&offset=0&returnSize=true"), "", null, null);
+      assertEquals(200, response.getStatus());
+      CollectionEntity collections = (CollectionEntity) response.getEntity();
+      assertEquals(1, collections.getEntities().size());
+      assertEquals(1, collections.getSize());
+
+      // The same relationship, held by an internal connection, gets the whole
+      // visible listing — the external flag is the only discriminator here
+      startSessionAs("mary");
+      response = service("GET", getURLResource("users/john/spaces?limit=5&offset=0&returnSize=true"), "", null, null);
+      assertEquals(200, response.getStatus());
+      collections = (CollectionEntity) response.getEntity();
+      assertEquals(2, collections.getEntities().size());
+      assertEquals(2, collections.getSize());
+    } finally {
+      // The profile property outlives this test in the shared test database
+      markExternal(demoIdentity, false);
+    }
+  }
+
+  private void markExternal(Identity identity, boolean external) {
+    Profile profile = identityManager.getOrCreateUserIdentity(identity.getRemoteId()).getProfile();
+    profile.setProperty(Profile.EXTERNAL, String.valueOf(external));
+    identityManager.updateProfile(profile);
+  }
+
   public void testGetCommonSpaces() throws Exception {
     Space spaceTest = getSpaceInstance(0, "root");
     Space spaceTest1 = getSpaceInstance(1, "demo");
