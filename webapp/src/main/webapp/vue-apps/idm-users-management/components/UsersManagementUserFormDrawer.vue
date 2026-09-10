@@ -23,7 +23,8 @@
             type="text"
             class="ignore-vuetify-classes flex-grow-1"
             maxlength="2000"
-            required>
+            required
+            @input="clearCustomValidity">
         </v-card-text>
 
         <v-card-text class="d-flex firstNameLabel flex-grow-1 text-no-wrap pb-2">
@@ -37,7 +38,8 @@
             type="text"
             class="ignore-vuetify-classes flex-grow-1"
             maxlength="2000"
-            required>
+            required
+            @input="clearCustomValidity">
         </v-card-text>
 
         <v-card-text class="d-flex lastNameLabel flex-grow-1 text-no-wrap pb-2">
@@ -51,7 +53,8 @@
             type="text"
             class="ignore-vuetify-classes flex-grow-1"
             maxlength="2000"
-            required>
+            required
+            @input="clearCustomValidity">
         </v-card-text>
 
         <v-card-text class="d-flex emailLabel flex-grow-1 text-no-wrap pb-2">
@@ -65,7 +68,8 @@
             type="email"
             class="ignore-vuetify-classes flex-grow-1"
             maxlength="2000"
-            required>
+            required
+            @input="clearCustomValidity">
         </v-card-text>
 
         <v-card-text class="d-flex newPasswordLabel flex-grow-1 text-no-wrap pb-2">
@@ -79,7 +83,8 @@
             :required="newUser"
             type="password"
             autocomplete="new-password"
-            class="ignore-vuetify-classes flex-grow-1">
+            class="ignore-vuetify-classes flex-grow-1"
+            @input="clearCustomValidity">
         </v-card-text>
 
         <v-card-text class="d-flex confirmPasswordLabel flex-grow-1 text-no-wrap pb-2">
@@ -93,7 +98,8 @@
             :required="newUser"
             type="password"
             autocomplete="new-password"
-            class="ignore-vuetify-classes flex-grow-1">
+            class="ignore-vuetify-classes flex-grow-1"
+            @input="clearCustomValidity">
         </v-card-text>
       </v-form>
     </template>
@@ -166,6 +172,10 @@ export default {
     this.$root.$on('editUser', this.editUser);
   },
   methods: {
+    clearCustomValidity(event) {
+      // a server-side error stays attached to a field until its value changes
+      event.target.setCustomValidity('');
+    },
     resetCustomValidity() {
       this.$refs.userNameInput.setCustomValidity('');
       this.$refs.firstNameInput.setCustomValidity('');

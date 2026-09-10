@@ -184,6 +184,34 @@ public class PeopleRestServiceTest extends AbstractResourceTest {
     }
   }
 
+  public void testDeactivatedAuthorNotSuggestedForMentionInComment() throws Exception {
+    // Given: an activity whose author gets deactivated afterwards
+    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
+    demoActivity.setTitle("activity of a soon deactivated author");
+    activityStorage.saveActivity(demoIdentity, demoActivity);
+    identityManager.processEnabledIdentity("demo", false);
+    try {
+      MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+      headers.putSingle("username", "root");
+      // When: mentioning in a comment of that activity
+      ContainerResponse response = service("GET",
+                                           "/social/people/suggest.json?nameToSearch=d&currentUser=root&typeOfRelation=mention_comment&activityId="
+                                               + demoActivity.getId() + "&spaceURL=null",
+                                           "",
+                                           headers,
+                                           null,
+                                           new ByteArrayContainerResponseWriter());
+      // Then: the author is not suggested anymore
+      assertEquals(200, response.getStatus());
+      boolean demoSuggested = ((ArrayList<?>) response.getEntity()).stream()
+                                                                    .map(IdentityNameList.Option.class::cast)
+                                                                    .anyMatch(option -> "demo".equals(option.getValue()));
+      assertFalse("a deactivated author must not be suggested for a mention in a comment", demoSuggested);
+    } finally {
+      identityManager.processEnabledIdentity("demo", true);
+    }
+  }
+
   public void testSelfUserMentionInActivityStream() throws Exception {
     // Given
     MultivaluedMap<String, String> h3 = new MultivaluedMapImpl();
