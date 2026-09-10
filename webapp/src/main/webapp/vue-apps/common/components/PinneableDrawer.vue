@@ -273,8 +273,11 @@ export default {
         // the relative anchor at a page-level stacking context
         anchor.style.position = 'relative';
         anchor.style.flex = `0 0 ${this.panelWidth}`;
+        // the anchor opens its own stacking context so the drawer's Vuetify
+        // z-index stays confined to it: the expanded sidebar and the global
+        // overlays keep painting above the docked panel
+        anchor.style.zIndex = '0';
         drawerElement.style.setProperty('position', 'relative', 'important');
-        drawerElement.style.setProperty('z-index', 'auto', 'important');
         // Vuetify elevates open temporary drawers; a docked panel is part of
         // the page layout and must sit flat next to the content
         drawerElement.style.setProperty('box-shadow', 'none', 'important');
@@ -297,6 +300,7 @@ export default {
           anchor.classList.remove('stuck-app-panel');
           anchor.style.removeProperty('flex');
           anchor.style.removeProperty('position');
+          anchor.style.removeProperty('z-index');
         }
       }
     },
