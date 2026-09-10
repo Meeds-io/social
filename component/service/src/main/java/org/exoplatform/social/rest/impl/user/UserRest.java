@@ -1662,7 +1662,7 @@ public class UserRest implements ResourceContainer, Startable {
   @GET
   @Path("{id}/spaces")
   @RolesAllowed("users")
-  @Operation(summary = "Gets spaces of a specific user", method = "GET", deprecated = true, description = "Deprecated: use GET /social/rest/users/{username}/spaces. This returns the spaces of the given user to the authenticated user when they are the given user, the super user or in a confirmed relationship with the given user. For a connection, the listing is restricted to what that connection may see: hidden spaces they are not a member of are left out, and an external connection receives the spaces it has in common with the given user only. A deleted user yields 404. An explicit limit is capped at 500.")
+  @Operation(summary = "Gets spaces of a specific user", method = "GET", deprecated = true, description = "Deprecated: use GET /social/rest/users/{username}/spaces. This returns the spaces of the given user to the authenticated user when they are the given user, the super user or in a confirmed relationship with the given user. For a connection, the listing is restricted to what that connection may see: hidden spaces they are not a member of are left out, and an external connection receives the spaces it has in common with the given user only. A deleted user yields 404; an unknown username keeps answering 400, as this operation always has, for compatibility with existing integrations. An explicit limit is capped at 500.")
   public Response getSpacesOfUser(
                                   @Context
                                   UriInfo uriInfo,
@@ -1692,7 +1692,12 @@ public class UserRest implements ResourceContainer, Startable {
     limit = limit > 0 ? Math.min(limit, RestUtils.HARD_LIMIT) : RestUtils.getLimit(uriInfo);
 
     Identity target = identityManager.getOrCreateUserIdentity(id);
-    // Check if the given user exists
+    // Deliberately kept in front of the Service gate (eXIP note 50524, decision
+    // D3 - existing behaviour preserved): an unknown username has always
+    // answered 400 here, and turning it into the Service's 404 would change a
+    // live integrator-facing contract. A deleted user, which this check lets
+    // through, answers 404 from the Service below. The asymmetry is documented
+    // on the operation and recorded as a confirmed divergence in the spec.
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
