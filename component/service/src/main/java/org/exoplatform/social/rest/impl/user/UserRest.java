@@ -74,6 +74,7 @@ import org.json.JSONObject;
 import org.picocontainer.Startable;
 
 import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Scope;
@@ -1658,10 +1659,11 @@ public class UserRest implements ResourceContainer, Startable {
    *             integrations that still call it; not scheduled for removal yet.
    */
   @Deprecated
+  @DeprecatedAPI(value = "Use GET /social/rest/users/{username}/spaces (io.meeds.social.space.rest.UserSpacesRest) instead", insist = true)
   @GET
   @Path("{id}/spaces")
   @RolesAllowed("users")
-  @Operation(summary = "Gets spaces of a specific user", method = "GET", deprecated = true, description = "Deprecated: use GET /social/rest/users/{username}/spaces. This returns the spaces of the given user to the authenticated user when they are the given user, a member of /platform/administrators or in a confirmed relationship with the given user. For a connection, the listing is restricted to what that connection may see: hidden spaces they are not a member of are left out.")
+  @Operation(summary = "Gets spaces of a specific user", method = "GET", deprecated = true, description = "Deprecated: use GET /social/rest/users/{username}/spaces. This returns the spaces of the given user to the authenticated user when they are the given user, the super user or in a confirmed relationship with the given user. For a connection, the listing is restricted to what that connection may see: hidden spaces they are not a member of are left out. An explicit limit is capped at 500.")
   public Response getSpacesOfUser(
                                   @Context
                                   UriInfo uriInfo,
@@ -1749,10 +1751,11 @@ public class UserRest implements ResourceContainer, Startable {
    *             integrations that still call it; not scheduled for removal yet.
    */
   @Deprecated
+  @DeprecatedAPI(value = "Use GET /social/rest/users/{username}/spaces?scope=COMMON (io.meeds.social.space.rest.UserSpacesRest) instead", insist = true)
   @GET
   @Path("{userId}/spaces/{profileId}")
   @RolesAllowed("users")
-  @Operation(summary = "Gets commons spaces of current user", method = "GET", deprecated = true, description = "Deprecated: use GET /social/rest/users/{username}/spaces?scope=COMMON. This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  @Operation(summary = "Gets commons spaces of current user", method = "GET", deprecated = true, description = "Deprecated: use GET /social/rest/users/{username}/spaces?scope=COMMON. This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is the super user</li></ul>")
   public Response getCommonSpacesOfUser(
                                         @Context
                                         UriInfo uriInfo,
