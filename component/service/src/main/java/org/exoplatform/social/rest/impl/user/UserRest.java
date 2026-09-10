@@ -1662,7 +1662,7 @@ public class UserRest implements ResourceContainer, Startable {
   @GET
   @Path("{id}/spaces")
   @RolesAllowed("users")
-  @Operation(summary = "Gets spaces of a specific user", method = "GET", deprecated = true, description = "Deprecated: use GET /social/rest/users/{username}/spaces. This returns the spaces of the given user to the authenticated user when they are the given user, the super user or in a confirmed relationship with the given user. For a connection, the listing is restricted to what that connection may see: hidden spaces they are not a member of are left out. An explicit limit is capped at 500.")
+  @Operation(summary = "Gets spaces of a specific user", method = "GET", deprecated = true, description = "Deprecated: use GET /social/rest/users/{username}/spaces. This returns the spaces of the given user to the authenticated user when they are the given user, the super user or in a confirmed relationship with the given user. For a connection, the listing is restricted to what that connection may see: hidden spaces they are not a member of are left out, and an external connection receives the spaces it has in common with the given user only. A deleted user yields 404. An explicit limit is capped at 500.")
   public Response getSpacesOfUser(
                                   @Context
                                   UriInfo uriInfo,

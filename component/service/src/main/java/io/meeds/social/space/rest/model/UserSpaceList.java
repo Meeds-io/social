@@ -27,8 +27,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  *
  * @param spaces the page of spaces
  * @param size the total number of spaces the viewer may see, null unless it was
- *          requested — the widget displays no total and must not pay for the
- *          count query, the "See all" drawer does (eXIP 7.3.0.18, note 50524 §2)
+ *          requested with {@code returnSize} — the widget displays no total and
+ *          the "See all" drawer paginates with an extra row, so no product
+ *          screen pays for the count query today (eXIP 7.3.0.18, note 50524 §2)
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record UserSpaceList(List<UserSpace> spaces, Integer size) {

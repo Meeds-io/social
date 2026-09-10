@@ -417,8 +417,10 @@ public class CachedSpaceStorage extends SpaceStorage {
    * Cached for every page, unlike the listing above: the count carries neither an
    * offset nor a limit dimension, so it adds at most one entry per (owner,
    * viewer, scope) — and in {@code social.SpacesCountCache}, a budget of its own,
-   * separate from the listing cache. It is issued by the "See all" drawer only,
-   * never by the widget render (eXIP 7.3.0.18, note 50524 §2 query budget).
+   * separate from the listing cache. It is offered to REST callers through the
+   * {@code returnSize} parameter; no product screen issues it today — the widget
+   * displays no total and the "See all" drawer paginates with an extra row
+   * instead (eXIP 7.3.0.18, note 50524 §2 query budget).
    * Recomputing it means a full {@code COUNT(DISTINCT s.id)} over the membership
    * scan, reasoned to be the more expensive of the two — not measured here, the
    * unit suite proves the statement executes, not what it costs.
