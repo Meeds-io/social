@@ -79,8 +79,13 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
+import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.search.Sorting;
+import org.exoplatform.social.core.search.Sorting.OrderBy;
+import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceException.Code;
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -99,6 +104,7 @@ import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 import io.meeds.social.search.SpaceSearchConnector;
+import io.meeds.social.space.constant.UserSpacesScope;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 
@@ -130,6 +136,8 @@ public class SpaceServiceImpl implements SpaceService {
 
   private IdentityManager             identityManager;
 
+  private RelationshipManager         relationshipManager;
+
   private UserACL                     userAcl;
 
   private ResourceBundleService       resourceBundleService;
@@ -156,6 +164,7 @@ public class SpaceServiceImpl implements SpaceService {
                           GroupSpaceBindingStorage groupSpaceBindingStorage,
                           SpaceSearchConnector spaceSearchConnector,
                           IdentityManager identityManager,
+                          RelationshipManager relationshipManager,
                           UserACL userAcl,
                           ResourceBundleService resourceBundleService,
                           LocaleConfigService localeConfigService,
@@ -166,6 +175,7 @@ public class SpaceServiceImpl implements SpaceService {
     this.groupSpaceBindingStorage = groupSpaceBindingStorage;
     this.spaceSearchConnector = spaceSearchConnector;
     this.identityManager = identityManager;
+    this.relationshipManager = relationshipManager;
     this.userAcl = userAcl;
     this.resourceBundleService = resourceBundleService;
     this.localeConfigService = localeConfigService;
@@ -385,6 +395,112 @@ public class SpaceServiceImpl implements SpaceService {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage, spaceSearchConnector, SpaceListAccessType.COMMON, username, otherUserId);
+  }
+
+  @Override
+  public List<Space> getUserSpaces(String viewerUsername,
+                                   String profileOwnerUsername,
+                                   UserSpacesScope scope,
+                                   long offset,
+                                   long limit) throws ObjectNotFoundException {
+    if (userAcl.isAnonymousUser(viewerUsername)) {
+      return Collections.emptyList();
+    }
+    UserSpacesScope effectiveScope = getEffectiveUserSpacesScope(viewerUsername, profileOwnerUsername, scope);
+    return spaceStorage.getUserSpaces(viewerUsername,
+                                      profileOwnerUsername,
+                                      effectiveScope,
+                                      getUserSpacesSorting(),
+                                      offset,
+                                      limit);
+  }
+
+  @Override
+  public int countUserSpaces(String viewerUsername,
+                             String profileOwnerUsername,
+                             UserSpacesScope scope) throws ObjectNotFoundException {
+    if (userAcl.isAnonymousUser(viewerUsername)) {
+      return 0;
+    }
+    UserSpacesScope effectiveScope = getEffectiveUserSpacesScope(viewerUsername, profileOwnerUsername, scope);
+    return spaceStorage.countUserSpaces(viewerUsername, profileOwnerUsername, effectiveScope);
+  }
+
+  @Override
+  public void checkUserSpacesAccess(String viewerUsername,
+                                    String profileOwnerUsername) throws ObjectNotFoundException, IllegalAccessException {
+    Identity profileOwnerIdentity = identityManager.getOrCreateUserIdentity(profileOwnerUsername);
+    if (profileOwnerIdentity == null || profileOwnerIdentity.isDeleted()) {
+      throw new ObjectNotFoundException(String.format("Profile owner %s does not exist", profileOwnerUsername));
+    }
+    if (StringUtils.equals(viewerUsername, profileOwnerUsername)
+        || StringUtils.equals(userAcl.getSuperUser(), viewerUsername)) {
+      return;
+    }
+    // The legacy listing is gated on the relationship, not on the viewer's type:
+    // only a confirmed connection of the profile owner may ask for it. The
+    // viewer's identity is resolved here rather than trusted from the caller,
+    // so an unresolvable viewer is refused like a stranger
+    Identity viewerIdentity = userAcl.isAnonymousUser(viewerUsername) ? null :
+                                                                        identityManager.getOrCreateUserIdentity(viewerUsername);
+    Relationship relationship = viewerIdentity == null ? null : relationshipManager.get(viewerIdentity, profileOwnerIdentity);
+    if (relationship == null || relationship.getStatus() != Relationship.Type.CONFIRMED) {
+      throw new IllegalAccessException(String.format("User %s is not a confirmed connection of %s",
+                                                     viewerUsername,
+                                                     profileOwnerUsername));
+    }
+  }
+
+  /**
+   * Decides which spaces of a profile owner a viewer may see. The binding axis
+   * is the <b>viewer</b>, never the profile owner: an external viewer visiting
+   * an internal profile gets the restrictive scope, whatever they requested.
+   * <p>
+   * The requested scope is client input. It is narrowed silently when the viewer
+   * may not use it — it is not a cause of denial.
+   *
+   * @param viewerUsername remote id of the user viewing the profile
+   * @param profileOwnerUsername remote id of the profile owner
+   * @param scope requested {@link UserSpacesScope}, may be null
+   * @return the effective {@link UserSpacesScope}
+   * @throws ObjectNotFoundException when the profile owner does not exist
+   */
+  private UserSpacesScope getEffectiveUserSpacesScope(String viewerUsername,
+                                                      String profileOwnerUsername,
+                                                      UserSpacesScope scope) throws ObjectNotFoundException {
+    Identity profileOwnerIdentity = identityManager.getOrCreateUserIdentity(profileOwnerUsername);
+    if (profileOwnerIdentity == null || profileOwnerIdentity.isDeleted()) {
+      throw new ObjectNotFoundException(String.format("Profile owner %s does not exist", profileOwnerUsername));
+    }
+    if (StringUtils.equals(viewerUsername, profileOwnerUsername)) {
+      // Own profile: every space the user is a member of, hidden ones included
+      return UserSpacesScope.ALL;
+    }
+    Identity viewerIdentity = identityManager.getOrCreateUserIdentity(viewerUsername);
+    if (viewerIdentity == null || viewerIdentity.isExternal()) {
+      // An external viewer never widens beyond the spaces they share with the
+      // profile owner. This check is the only discriminator on that axis: the
+      // REST annotation cannot tell an external user apart, since the externals
+      // role always carries the users role too. A viewer whose identity cannot
+      // be resolved takes the same restrictive path — an unresolvable viewer
+      // must not be treated as an internal one.
+      return UserSpacesScope.COMMON;
+    }
+    if (profileOwnerIdentity.isExternal()) {
+      return UserSpacesScope.COMMON;
+    }
+    return scope == null ? UserSpacesScope.ALL : scope;
+  }
+
+  /**
+   * Order of the profile spaces listing: alphabetical, as decided by the PO on
+   * 26/08/2026 (board stories US01, US02 and US05 of eXIP 7.3.0.18). Neutral by
+   * design: ordering by the profile owner's own last visit would disclose their
+   * browsing recency to whoever visits their profile, and would churn the cached
+   * entries on every navigation.
+   */
+  private Sorting getUserSpacesSorting() {
+    return new Sorting(SortBy.TITLE, OrderBy.ASC);
   }
 
   @Override
