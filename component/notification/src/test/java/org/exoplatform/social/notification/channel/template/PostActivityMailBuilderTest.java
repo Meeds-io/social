@@ -18,9 +18,6 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Arrays;
 import java.util.List;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
@@ -31,12 +28,9 @@ import org.exoplatform.commons.api.notification.model.ChannelKey;
 import org.exoplatform.commons.api.notification.model.MessageInfo;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.model.PluginKey;
-import org.exoplatform.commons.api.notification.model.UserSetting;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.notification.channel.MailChannel;
 import org.exoplatform.commons.notification.impl.NotificationContextImpl;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.notification.AbstractPluginTest;
 import org.exoplatform.social.notification.plugin.PostActivityPlugin;
 
@@ -85,69 +79,4 @@ public class PostActivityMailBuilderTest extends AbstractPluginTest {
     assertBody(info, "demo post activity on activity stream of root");
   }
   
-  public void testDigest() throws Exception {
-    //config setting of root to receive notification daily
-    UserSetting rootSetting = new UserSetting();
-    rootSetting.setUserId(rootIdentity.getRemoteId());
-    rootSetting.setDailyPlugins(Arrays.asList(getPlugin().getId()));
-    userSettingService.save(rootSetting);
-    
-    //create new user
-    Identity ghostIdentity = identityManager.getOrCreateUserIdentity("ghost");
-    notificationService.clearAll();
-    
-    makeActivity(demoIdentity, "demo post activity on activity stream of root");
-    makeActivity(maryIdentity, "mary post activity on activity stream of root");
-    makeActivity(johnIdentity, "john post activity on activity stream of root");
-    makeActivity(ghostIdentity, "ghost post activity on activity stream of root");
-    
-    //Digest
-    assertMadeMailDigestNotifications(4);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 4);
-    
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    list.set(0, list.get(0).setTo(rootIdentity.getRemoteId()));
-    ctx.setNotificationInfos(list);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("demo") + ", " + getFullName("mary") + ", " + getFullName("john") + " and 1 others posted on your activity stream.");
-    
-    tearDownIdentityList.add(ghostIdentity);
-  }
-  
-  public void testDigestWithSameUser() throws Exception {
-    makeActivity(demoIdentity, "demo post activity on activity stream of root");
-    makeActivity(demoIdentity, "mary post activity on activity stream of root");
-    makeActivity(johnIdentity, "john post activity on activity stream of root");
-    
-    //Digest
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 3);
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    list.set(0, list.get(0).setTo(rootIdentity.getRemoteId()));
-    ctx.setNotificationInfos(list);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("demo") + ", " + getFullName("john") + " posted on your activity stream.");
-  }
-
-  public void testDigestWithDeletedActivity() throws Exception {
-    ExoSocialActivity demoActivity = makeActivity(demoIdentity, "demo post activity on activity stream of root");
-    makeActivity(johnIdentity, "john post activity on activity stream of root");
-    
-    //Digest
-    assertMadeMailDigestNotifications(2);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 2);
-    
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    list.set(0, list.get(0).setTo(rootIdentity.getRemoteId()));
-    ctx.setNotificationInfos(list);
-    
-    //demo delete his activity
-    activityManager.deleteActivity(demoActivity);
-    tearDownActivityList.remove(demoActivity);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("john") + " posted on your activity stream.");
-  }
 }

@@ -13,7 +13,6 @@
       :plugin="plugin"
       :key="plugin.type"
       :settings="settings"
-      :digest-mail-notification-enabled="digestMailNotificationEnabled"
       @edit="$emit('edit', plugin, group)" />
   </div>
 </template>
@@ -28,10 +27,6 @@ export default {
     settings: {
       type: Object,
       default: null,
-    },
-    digestMailNotificationEnabled: {
-      type: Boolean,
-      default: false,
     },
   },
   data: () => ({
