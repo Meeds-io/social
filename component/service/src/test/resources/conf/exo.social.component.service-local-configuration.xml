@@ -68,7 +68,6 @@
             <field name="defaultConfig">
               <collection type="java.util.ArrayList">
                 <value><string>Instantly</string></value>
-                <value><string>weekly</string></value>
               </collection>
             </field>
             <field name="groupId">
@@ -107,7 +106,6 @@
             <field name="defaultConfig">
               <collection type="java.util.ArrayList">
                 <value><string>Instantly</string></value>
-                <value><string>weekly</string></value>
               </collection>
             </field>
             <field name="groupId">
@@ -146,7 +144,6 @@
             <field name="defaultConfig">
               <collection type="java.util.ArrayList">
                 <value><string>Instantly</string></value>
-                <value><string>weekly</string></value>
               </collection>
             </field>
             <field name="groupId">
