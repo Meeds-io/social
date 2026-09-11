@@ -36,10 +36,10 @@
   String ownerIdentityId = Utils.getOwnerIdentityId();
   ProfilePropertyService profilePropertyService = uicomponent.getApplicationComponent(ProfilePropertyService.class);
   ProfilePropertySetting profilePropertySetting = profilePropertyService.getProfileSettingByName("manager");
-  // The timezone the platform knows for the user: the userTimeZoneSync script
-  // compares it to the browser one and refreshes it when they differ. The
-  // module is required by UISocialBottomContainer.gtmpl: a require issued
-  // from this head template never reaches the page execution list.
+  // The timezone the platform knows for the user: the userTimeZoneBaseExtension
+  // module compares it to the browser one and refreshes it when they differ.
+  // The module is loaded by the portal BaseExtension hook, which requires every
+  // defined module whose name carries that suffix: no page template requires it.
   OrganizationService organizationService = uicomponent.getApplicationComponent(OrganizationService.class);
   UserProfile organizationUserProfile = userName == null ? null : organizationService.getUserProfileHandler().findUserProfileByName(userName);
   String userTimezone = organizationUserProfile == null ? null : organizationUserProfile.getAttribute(Profile.USER_TIME_ZONE);
