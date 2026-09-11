@@ -3212,7 +3212,7 @@
   </module>
 
   <module>
-    <name>userTimeZoneSync</name>
+    <name>userTimeZoneBaseExtension</name>
     <load-group>baseGRP</load-group>
     <script>
       <path>/js/UserTimeZoneSync.js</path>
