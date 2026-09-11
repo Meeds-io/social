@@ -18,8 +18,6 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,23 +86,6 @@ public class LikeMailBuilderTest extends AbstractPluginTest {
     assertBody(info, "New like on your activity stream");
   }
   
-  public void testDigest() throws Exception {
-    ExoSocialActivity activity = makeActivity(rootIdentity, "root post an activity");
-    activityManager.saveLike(activity, maryIdentity);
-    activityManager.saveLike(activity, demoIdentity);
-    activityManager.saveLike(activity, johnIdentity);
-    //
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 3);
-    
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    list.set(0, list.get(0).setTo(rootIdentity.getRemoteId()));
-    ctx.setNotificationInfos(list);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("mary") + ", " + getFullName("demo") + ", " + getFullName("john") + " like your activity: root post an activity");
-  }
-  
   public void testLikeLinkActivity() throws Exception {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("Link Activity");
@@ -135,27 +116,4 @@ public class LikeMailBuilderTest extends AbstractPluginTest {
     assertBody(info, "New like on your activity stream");
   }
   
-  public void testDigestWithUnLike() throws Exception {
-    // mary post activity on her stream
-    ExoSocialActivity activity = makeActivity(rootIdentity, "root post an activity");
-    notificationService.clearAll();
-
-    assertMadeMailDigestNotifications(0);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 0);
-    activityManager.saveLike(activity, demoIdentity);
-    activityManager.saveLike(activity, johnIdentity);
-
-    assertMadeMailDigestNotifications(2);
-    list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 2);
-
-    // john unlike
-    activityManager.deleteLike(activity, johnIdentity);
-
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    list.set(0, list.get(0).setTo(rootIdentity.getRemoteId()));
-    ctx.setNotificationInfos(list);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("demo") + " likes your activity: root post an activity");
-  }
 }

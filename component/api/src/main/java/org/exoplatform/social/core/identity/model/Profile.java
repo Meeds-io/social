@@ -55,8 +55,26 @@ public class Profile {
   /** About me key. */
   public static final String  ABOUT_ME                = "aboutMe";
 
-  /** TimeZone key. */
+  /**
+   * TimeZone key of the legacy profile property, still written by the CSV
+   * users import and read through {@link #getTimeZone()}.
+   *
+   * @deprecated since 7.3.0, not for removal: the timezone of the user is
+   *             {@link #USER_TIME_ZONE}, kept up to date by the platform
+   *             timezone synchronization; this key stays for the CSV import
+   *             and its readers, which nothing has written since the sync
+   *             moved to {@link #USER_TIME_ZONE}
+   */
+  @Deprecated(since = "7.3.0", forRemoval = false)
   public static final String  TIME_ZONE               = "timeZone";
+
+  /**
+   * The organization profile attribute holding the timezone the browser of the
+   * user lives in, for example Europe/Paris. It is the source of truth for
+   * everything sent to the user on a schedule, kept up to date on every page
+   * load by the platform timezone synchronization.
+   */
+  public static final String  USER_TIME_ZONE          = "user.timeZone";
 
   /** TimeZone DayLight savings key. */
   public static final String  TIME_ZONE_DST_SAVINGS   = "timeZoneDSTSavings";

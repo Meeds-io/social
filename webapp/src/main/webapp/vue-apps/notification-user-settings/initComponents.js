@@ -5,6 +5,9 @@ import UserSettingNotificationGroup from './components/UserSettingNotificationGr
 import UserSettingNotificationPlugin from './components/UserSettingNotificationPlugin.vue';
 import UserSettingNotificationDrawer from './components/UserSettingNotificationDrawer.vue';
 import UserSettingNotificationMuteSpacesDrawer from './components/UserSettingNotificationMuteSpacesDrawer.vue';
+import UserSettingDigestEntry from './components/UserSettingDigestEntry.vue';
+import UserSettingDigestDrawer from './components/UserSettingDigestDrawer.vue';
+import UserSettingDigestCategories from './components/UserSettingDigestCategories.vue';
 
 const components = {
   'user-setting-notifications': UserSettingNotifications,
@@ -14,6 +17,9 @@ const components = {
   'user-setting-notification-plugin': UserSettingNotificationPlugin,
   'user-setting-notification-drawer': UserSettingNotificationDrawer,
   'user-setting-notification-mute-spaces-drawer': UserSettingNotificationMuteSpacesDrawer,
+  'user-setting-digest-entry': UserSettingDigestEntry,
+  'user-setting-digest-drawer': UserSettingDigestDrawer,
+  'user-setting-digest-categories': UserSettingDigestCategories,
 };
 
 for (const key in components) {
