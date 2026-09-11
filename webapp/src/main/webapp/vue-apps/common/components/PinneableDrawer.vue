@@ -87,15 +87,6 @@
             </v-list-item-icon>
             <v-list-item-title class="pl-0">{{ $t('label.stickRight') }}</v-list-item-title>
           </v-list-item>
-          <v-list-item
-            v-if="canStick"
-            dense
-            @click="stickTo('left')">
-            <v-list-item-icon class="mx-1 justify-center">
-              <v-icon size="14" class="icon-default-color">far fa-window-maximize fa-rotate-270</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title class="pl-0">{{ $t('label.stickLeft') }}</v-list-item-title>
-          </v-list-item>
         </v-list>
       </v-menu>
       <v-btn
