@@ -156,9 +156,6 @@ export default {
     dockedAppName() {
       return this.appName || `app-${this.placementApp?.id || ''}`;
     },
-    panelWidth() {
-      return this.$attrs['drawer-width'] || this.$attrs.drawerWidth || '420px';
-    },
   },
   watch: {
     docked() {
@@ -258,16 +255,9 @@ export default {
         drawerElement.dataset.stuckApp = this.dockedAppName;
         anchor.appendChild(drawerElement);
         anchor.classList.add('stuck-app-panel');
-        // the anchor is what reserves the space in the page body flex row:
-        // a v-navigation-drawer never participates in flex flow (the skin
-        // even forces position: fixed), so the shell is positioned inside
-        // the relative anchor at a page-level stacking context
-        anchor.style.position = 'relative';
-        anchor.style.flex = `0 0 ${this.panelWidth}`;
-        // the anchor opens its own stacking context so the drawer's Vuetify
-        // z-index stays confined to it: the expanded sidebar and the global
-        // overlays keep painting above the docked panel
-        anchor.style.zIndex = '0';
+        // the anchor owns its geometry (width reservation, sticky position,
+        // stacking context) through the layout app's own style binding: the
+        // drawer only neutralizes the Vuetify positioning of its shell
         drawerElement.style.setProperty('position', 'relative', 'important');
         // Vuetify elevates open temporary drawers; a docked panel is part of
         // the page layout and must sit flat next to the content
@@ -289,9 +279,6 @@ export default {
         document.querySelector('#vuetify-apps')?.appendChild(drawerElement);
         if (!anchor.querySelector('[data-stuck-app]')) {
           anchor.classList.remove('stuck-app-panel');
-          anchor.style.removeProperty('flex');
-          anchor.style.removeProperty('position');
-          anchor.style.removeProperty('z-index');
         }
       }
     },
