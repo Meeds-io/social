@@ -28,7 +28,7 @@
     :attached="docked || standalone"
     :no-external-overlay="docked || standalone"
     :autofocus="!docked && !standalone"
-    :hide-close="standalone"
+    :hide-close="docked || standalone"
     @expand-updated="expandState = $event">
     <template v-for="(unusedSlot, name) in $slots" #[name]>
       <slot :name="name"></slot>
@@ -230,6 +230,11 @@ export default {
       } else {
         this.stuckSide = null;
       }
+      if (this.docked) {
+        // the anchor is created by the placement host on the same event:
+        // re-dock once the DOM settles, dock() is idempotent on its target
+        this.$nextTick(this.dock);
+      }
     },
     matchesPlacement(placementApplication) {
       if (!placementApplication) {
@@ -257,7 +262,7 @@ export default {
           return;
         }
         drawerElement.dataset.stuckApp = this.dockedAppName;
-        anchor.appendChild(drawerElement);
+        (anchor.querySelector('.v-application--wrap') || anchor).appendChild(drawerElement);
         anchor.classList.add('stuck-app-panel');
         // the anchor owns its geometry (width reservation, sticky position,
         // stacking context) through the layout app's own style binding: the
