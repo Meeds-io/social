@@ -115,6 +115,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    placementDisabled: {
+      type: Boolean,
+      default: false,
+    },
     expanded: {
       type: Boolean,
       default: false,
@@ -145,7 +149,7 @@ export default {
       return !!this.provider && !!this.eligibility?.allowDetach;
     },
     displayPlacementMenu() {
-      return !this.standalone && (this.canStick || this.canDetach);
+      return !this.standalone && !this.placementDisabled && (this.canStick || this.canDetach);
     },
     expandIcon() {
       return this.expandState && 'fas fa-compress-alt' || 'fas fa-expand-alt';
