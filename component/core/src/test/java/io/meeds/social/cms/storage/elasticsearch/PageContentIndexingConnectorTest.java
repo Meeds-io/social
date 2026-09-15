@@ -102,6 +102,9 @@ public class PageContentIndexingConnectorTest {
   private PageUrlResolverService        urlResolverService;
 
   @Mock
+  private PageContentSearchConnector    searchConnector;
+
+  @Mock
   private PageContentBlockPlugin        plugin;
 
   private PageContentIndexingConnector  connector;
@@ -116,6 +119,7 @@ public class PageContentIndexingConnectorTest {
                                                   layoutService,
                                                   localeConfigService,
                                                   urlResolverService,
+                                                  searchConnector,
                                                   getParams());
     page = mock(Page.class);
     when(page.getPageKey()).thenReturn(PAGE_KEY);
@@ -505,6 +509,27 @@ public class PageContentIndexingConnectorTest {
     assertNull(connector.update(STORAGE_ID));
 
     verify(pluginService).reindexContentBlock(CONTENT_TYPE, "summary");
+    verify(pluginService).reindexContentBlock(CONTENT_TYPE, "description");
+  }
+
+  @Test
+  public void shouldNotRequeueLiveContentBlocksTheIndexAlreadyHolds() {
+    // The layout editor's save reaches the connector twice for one edit: the
+    // Layout event listener reindexes the live blocks directly, the portal
+    // event listener queues the bare page document that lands here. The
+    // indexing queue executes duplicates as they come, so only the blocks
+    // the index lacks may be queued from here — the others are being
+    // refreshed by the listener that owns them
+    CMSSetting summary = new CMSSetting(CONTENT_TYPE, "summary", PAGE_KEY.format(), 0);
+    CMSSetting description = new CMSSetting(CONTENT_TYPE, "description", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, PAGE_KEY.format())).thenReturn(List.of(summary, description));
+    mockActiveWidget("summary");
+    mockActiveWidget("description");
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of(blockId("summary")));
+
+    assertNull(connector.create(STORAGE_ID));
+
+    verify(pluginService, never()).reindexContentBlock(CONTENT_TYPE, "summary");
     verify(pluginService).reindexContentBlock(CONTENT_TYPE, "description");
   }
 
