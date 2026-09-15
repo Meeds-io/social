@@ -18,7 +18,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
     <v-card
       flat
       class="pa-0"
-      :aria-label="link && $t('search.access.to.result', {0: excerptText}) || title"
+      :aria-label="link && $t('search.access.to.result', {0: excerptText || title}) || title"
       :href="link"
       :disabled="!link">
       <v-list class="pa-0" :class="hover && link && 'light-grey-background-color no-border-radius' || ''">

@@ -18,6 +18,7 @@
  */
 package io.meeds.social.cms.listener;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -90,7 +91,7 @@ public class PageContentBlockIndexingListenerTest {
     when(page.getStorageId()).thenReturn(STORAGE_ID);
     when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
     when(pluginService.getContentTypes()).thenReturn(Set.of(CONTENT_TYPE));
-    when(searchConnector.findIndexedBlockIds(STORAGE_ID)).thenReturn(Collections.emptyList());
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(Collections.emptyList());
   }
 
   /**
@@ -159,13 +160,55 @@ public class PageContentBlockIndexingListenerTest {
   }
 
   @Test
-  public void shouldDoNothingWhenPageNoLongerCarriesAnyContentBlock() throws Exception {
+  public void shouldIndexBarePageDocumentWhenPageCarriesNoContentBlock() throws Exception {
+    // Without any live block, the page is represented by a bare page document
+    // whose id is the page's own storage id, so that it stays findable by name
     when(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, PAGE_KEY.format())).thenReturn(Collections.emptyList());
 
     listener.onEvent(new Event<>("layout.page.permissions.updated", "user", PAGE_KEY.format()));
 
-    verify(indexingService, never()).unindex(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
-    verify(indexingService, never()).reindex(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    verify(indexingService).reindex(PageContentIndexingConnector.TYPE, STORAGE_ID);
+    verify(indexingService, never()).unindex(any(), any());
+  }
+
+  @Test
+  public void shouldUnindexBarePageDocumentWhenPageReceivesItsFirstContentBlock() throws Exception {
+    // The block documents carry the page's title/name/site too: keeping the
+    // bare page document would duplicate every one of its name matches
+    CMSSetting setting = new CMSSetting(CONTENT_TYPE, "name", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, PAGE_KEY.format())).thenReturn(List.of(setting));
+    mockActiveWidget("name");
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of(STORAGE_ID));
+
+    listener.onEvent(new Event<>("layout.page.updated", "user", PAGE_KEY.format()));
+
+    verify(indexingService).reindex(PageContentIndexingConnector.TYPE,
+                                    PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "name"));
+    verify(indexingService).unindex(PageContentIndexingConnector.TYPE, STORAGE_ID);
+  }
+
+  @Test
+  public void shouldFallBackToBarePageDocumentWhenPageLosesItsLastContentBlock() throws Exception {
+    when(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, PAGE_KEY.format())).thenReturn(Collections.emptyList());
+    String detachedBlockId = PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "removed");
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of(detachedBlockId));
+
+    listener.onEvent(new Event<>("layout.page.updated", "user", PAGE_KEY.format()));
+
+    verify(indexingService).reindex(PageContentIndexingConnector.TYPE, STORAGE_ID);
+    verify(indexingService).unindex(PageContentIndexingConnector.TYPE, detachedBlockId);
+    verify(indexingService, never()).unindex(PageContentIndexingConnector.TYPE, STORAGE_ID);
+  }
+
+  @Test
+  public void shouldIgnoreDraftPages() throws Exception {
+    // The layout editor stores its draft copy on every change and the
+    // connector never indexes a draft: nothing to reconcile, nothing to load
+    listener.onEvent(new Event<>("layout.page.updated", "user", "portal::site::page_draft_john"));
+
+    verify(layoutService, never()).getPage(any(PageKey.class));
+    verify(indexingService, never()).reindex(any(), any());
+    verify(indexingService, never()).unindex(any(), any());
   }
 
   @Test
@@ -175,7 +218,7 @@ public class PageContentBlockIndexingListenerTest {
     mockActiveWidget("name");
     String currentBlockId = PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "name");
     String detachedBlockId = PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "removed");
-    when(searchConnector.findIndexedBlockIds(STORAGE_ID)).thenReturn(List.of(currentBlockId, detachedBlockId));
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of(currentBlockId, detachedBlockId));
 
     listener.onEvent(new Event<>("layout.page.updated", "user", PAGE_KEY.format()));
 
@@ -191,7 +234,7 @@ public class PageContentBlockIndexingListenerTest {
     // No widget on the page carries the "orphaned" setting name — the
     // CMSSetting survived, but the widget that created it didn't.
     String orphanedBlockId = PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "orphaned");
-    when(searchConnector.findIndexedBlockIds(STORAGE_ID)).thenReturn(List.of(orphanedBlockId));
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of(orphanedBlockId));
 
     listener.onEvent(new Event<>("layout.page.updated", "user", PAGE_KEY.format()));
 

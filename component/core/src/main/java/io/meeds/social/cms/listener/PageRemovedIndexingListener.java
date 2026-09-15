@@ -36,10 +36,12 @@ import io.meeds.social.cms.storage.elasticsearch.PageContentSearchConnector;
 import jakarta.annotation.PostConstruct;
 
 /**
- * Unindexes every content block still indexed under a page that stopped
- * being searchable — the gap {@link PageContentBlockIndexingListener}
- * documents it cannot cover, since that listener only reacts to a page that
- * still exists and is still reachable.
+ * Unindexes every document still indexed under a page that stopped being
+ * searchable — its content blocks as well as its bare page document (see
+ * {@link PageContentIndexingConnector}) — the gap
+ * {@link PageContentBlockIndexingListener} documents it cannot cover, since
+ * that listener only reacts to a page that still exists and is still
+ * reachable.
  * <p>
  * Two distinct events lead here, and they are deliberately not conflated by
  * their broadcasters:
@@ -68,11 +70,11 @@ public class PageRemovedIndexingListener implements ListenerBase<Object, Page> {
   @Autowired
   private ListenerService            listenerService;
 
-  /** Used to unindex the removed page's content block documents. */
+  /** Used to unindex the removed page's documents. */
   @Autowired
   private IndexingService            indexingService;
 
-  /** Used to enumerate the blocks currently indexed under the removed page's storage id. */
+  /** Used to enumerate the documents currently indexed under the removed page's storage id. */
   @Autowired
   private PageContentSearchConnector searchConnector;
 
@@ -89,7 +91,7 @@ public class PageRemovedIndexingListener implements ListenerBase<Object, Page> {
     if (page == null) {
       return;
     }
-    searchConnector.findIndexedBlockIds(page.getStorageId())
+    searchConnector.findIndexedDocumentIds(page.getStorageId())
                    .forEach(id -> indexingService.unindex(PageContentIndexingConnector.TYPE, id));
   }
 
