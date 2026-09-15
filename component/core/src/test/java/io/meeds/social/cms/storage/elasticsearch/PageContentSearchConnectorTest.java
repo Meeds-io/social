@@ -44,6 +44,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
@@ -766,7 +770,7 @@ public class PageContentSearchConnectorTest {
   }
 
   @Test
-  public void shouldFindIndexedBlockIdsMatchingThePageStorageId() {
+  public void shouldFindIndexedDocumentIdsMatchingThePageStorageId() {
     when(client.sendRequest(any(), any())).thenAnswer(invocation -> {
       String query = invocation.getArgument(0);
       assertTrue(query.contains("\"term\": {\"pageStorageId\": \"page_139\"}"));
@@ -782,14 +786,14 @@ public class PageContentSearchConnectorTest {
           """;
     });
 
-    List<String> ids = connector.findIndexedBlockIds("page_139");
+    List<String> ids = connector.findIndexedDocumentIds("page_139");
 
     assertEquals(List.of("page_139_aaaaaaaa", "page_139_bbbbbbbb"), ids);
   }
 
   @Test
   public void shouldReturnEmptyListWhenFindingIndexedBlockIdsForABlankPageId() {
-    List<String> ids = connector.findIndexedBlockIds("");
+    List<String> ids = connector.findIndexedDocumentIds("");
 
     assertTrue(ids.isEmpty());
     verify(client, never()).sendRequest(any(), any());
@@ -797,7 +801,7 @@ public class PageContentSearchConnectorTest {
 
   @Test
   public void shouldReturnEmptyListWhenFindingIndexedBlockIdsForAMalformedPageId() {
-    List<String> ids = connector.findIndexedBlockIds("page_139\"}}}}, \"query\": {\"match_all\": {}}, \"x\": {\"a\":{\"b");
+    List<String> ids = connector.findIndexedDocumentIds("page_139\"}}}}, \"query\": {\"match_all\": {}}, \"x\": {\"a\":{\"b");
 
     assertTrue(ids.isEmpty());
     verify(client, never()).sendRequest(any(), any());
@@ -843,6 +847,139 @@ public class PageContentSearchConnectorTest {
     });
 
     connector.search("term", 0, 10, Locale.ENGLISH, Arrays.asList(1L), false);
+  }
+
+  @Test
+  public void shouldKeepResultWhenNameMatchedEvenIfContentOnlyMatchedInAnotherLanguage() {
+    // The term matched the page's title AND its default-language content,
+    // while the page has a French translation the term didn't match: the
+    // content rule alone would drop the page for a French user, but a name
+    // match makes it a valid result whatever language its content matched in
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_139",
+                "_source": {
+                  "pageTitle": "Default meeting notes",
+                  "contentLanguages": ["fr"]
+                },
+                "highlight": {
+                  "pageTitle": ["<em>Default</em> meeting notes"],
+                  "content": ["<span>default</span> content"]
+                }
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    List<PageSearchResult> results = connector.search("default", 0, 10, Locale.FRENCH, null, false);
+
+    assertEquals(1, results.size());
+    assertTrue(results.get(0).getExcerpts().isEmpty());
+  }
+
+  @Test
+  public void shouldBuildResultForABarePageDocumentWithoutAnyExcerpt() {
+    // A page carrying no content block is indexed as a bare document: no
+    // content, no author, no date — found by its name only
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_139",
+                "_source": {
+                  "siteType": "portal",
+                  "siteName": "global",
+                  "pageName": "all-spaces",
+                  "pageTitle": "All Spaces",
+                  "pagePath": "/portal/global/spaces"
+                },
+                "highlight": {
+                  "pageTitle": ["All <em>Spaces</em>"]
+                }
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    List<PageSearchResult> results = connector.search("spaces", 0, 10, Locale.ENGLISH, null, false);
+
+    assertEquals(1, results.size());
+    PageSearchResult result = results.get(0);
+    assertEquals("page_139", result.getId());
+    assertEquals("All Spaces", result.getPageTitle());
+    assertEquals("all-spaces", result.getPageName());
+    assertEquals("/portal/global/spaces", result.getPagePath());
+    assertEquals(0L, result.getDate());
+    assertEquals(null, result.getAuthor());
+    assertTrue(result.getExcerpts().isEmpty());
+  }
+
+  @Test
+  public void shouldBuildAValidTieredQueryFromTheShippedTemplate() throws Exception {
+    // The template under test resources mirrors the one the WAR ships, and
+    // the Java side's assumptions rest on its shape: once the placeholders
+    // are spliced in, the request must still parse, carry the three tiers as
+    // bool.should clauses (name+content, name, content) and highlight the
+    // name fields, which is how a name match is told apart from a content one
+    when(configurationManager.getInputStream(anyString())).thenAnswer(invocation -> getClass().getResourceAsStream("/page-search-query.json"));
+    connector = new PageContentSearchConnector(configurationManager,
+                                               client,
+                                               layoutService,
+                                               resourceBundleManager,
+                                               favoriteService,
+                                               identityManager,
+                                               spaceService,
+                                               localeConfigService,
+                                               getParams());
+    Identity identity = new Identity("john", Arrays.asList(new MembershipEntry("/spaces/x", "member")));
+    ConversationState.setCurrent(new ConversationState(identity));
+
+    when(client.sendRequest(any(), any())).thenAnswer(invocation -> {
+      String query = invocation.getArgument(0);
+      JSONObject json = (JSONObject) new JSONParser().parse(query);
+      assertEquals("5", json.get("from"));
+      assertEquals("15", json.get("size"));
+      JSONObject bool = (JSONObject) ((JSONObject) json.get("query")).get("bool");
+      JSONArray should = (JSONArray) bool.get("should");
+      assertEquals(3, should.size());
+      assertEquals(1L, bool.get("minimum_should_match"));
+      JSONObject nameTier = (JSONObject) ((JSONObject) should.get(0)).get("constant_score");
+      assertEquals(10000L, nameTier.get("boost"));
+      JSONObject contentTier = (JSONObject) ((JSONObject) should.get(1)).get("constant_score");
+      assertEquals(1000L, contentTier.get("boost"));
+      JSONObject relevance = (JSONObject) ((JSONObject) should.get(2)).get("query_string");
+      assertEquals("all spaces", relevance.get("query"));
+      // The permission filter replaced the placeholder with a real clause
+      JSONArray filters = (JSONArray) bool.get("filter");
+      assertEquals(1, filters.size());
+      assertTrue(((JSONObject) filters.get(0)).containsKey("bool"));
+      JSONObject highlightFields = (JSONObject) ((JSONObject) json.get("highlight")).get("fields");
+      assertTrue(highlightFields.containsKey("pageTitle"));
+      assertTrue(highlightFields.containsKey("pageName"));
+      assertTrue(highlightFields.containsKey("content"));
+      return emptyResponse();
+    });
+
+    connector.search("all spaces", 5, 15, Locale.ENGLISH, null, false);
+
+    verify(client).sendRequest(any(), any());
+  }
+
+  private InitParams getParams() {
+    InitParams params = new InitParams();
+    ValueParam queryFileParam = new ValueParam();
+    queryFileParam.setName("query.file.path");
+    queryFileParam.setValue("query.json");
+    params.addParameter(queryFileParam);
+    return params;
   }
 
   private String emptyResponse() {

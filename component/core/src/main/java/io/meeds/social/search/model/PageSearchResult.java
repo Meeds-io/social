@@ -25,15 +25,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * A page carrying an indexed content block, as displayed in the unified
- * search result list.
+ * A page as displayed in the unified search result list — either one of its
+ * indexed content blocks, or the page itself when it carries none (found by
+ * name only: no excerpt, no author, no date).
  */
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 public class PageSearchResult {
 
-  /** The storage id of the page (or content block) this result points to. */
+  /** The indexed document id: the page's storage id, or a content block id. */
   private String       id;
 
   /** The resolved label of the site the page belongs to. */
@@ -48,13 +49,13 @@ public class PageSearchResult {
   /** The navigation path of the page, as it was at index time. */
   private String       pagePath;
 
-  /** The username of the page's last content editor. */
+  /** The username of the content block's last editor, {@code null} for a bare page. */
   private String       author;
 
-  /** The last content update date, in epoch millis. */
+  /** The content block's last update date, in epoch millis, {@code 0} for a bare page. */
   private long          date;
 
-  /** Highlighted excerpts of the matched content. */
+  /** Highlighted excerpts of the matched content, empty when the page matched by name only. */
   private List<String> excerpts;
 
   /** Whether the current user has bookmarked this page. */

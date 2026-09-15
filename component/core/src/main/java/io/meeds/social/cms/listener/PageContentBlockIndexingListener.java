@@ -45,15 +45,21 @@ import jakarta.annotation.PostConstruct;
 
 /**
  * Reacts to Layout's {@code layout.page.updated} / {@code layout.page.permissions.updated}
- * events to keep the "page" search index in sync with whether a page
- * currently carries a content block backed by any registered
- * {@link io.meeds.social.cms.plugin.PageContentBlockPlugin}.
+ * events to keep the "page" search index in sync with how a page is
+ * represented there (see {@link PageContentIndexingConnector}): by one
+ * document per content block backed by a registered
+ * {@link io.meeds.social.cms.plugin.PageContentBlockPlugin} currently on its
+ * layout, or — when it carries none — by a bare page document. Whichever
+ * applies is (re)indexed, whatever the other kind left behind is removed.
  * <p>
  * A page that is deleted outright never fires either event — that case is
  * covered separately by {@link PageRemovedIndexingListener}, since by the
  * time it would fire, {@link LayoutService#getPage} can no longer resolve
- * the page. This listener only detects a block detached from a page that
- * still exists.
+ * the page. And a page stored outside the Layout addon's services (imported
+ * from a template, saved through the portal API) fires neither: those are
+ * {@link PageSavedIndexingListener}'s and
+ * {@link SiteTemplateInstantiatedIndexingListener}'s. This listener only
+ * reconciles a page that still exists and was edited through Layout.
  */
 @Component
 @Asynchronous
@@ -69,7 +75,7 @@ public class PageContentBlockIndexingListener implements ListenerBase<String, St
   @Autowired
   private ListenerService             listenerService;
 
-  /** Used to reindex/unindex content block documents. */
+  /** Used to reindex/unindex page documents. */
   @Autowired
   private IndexingService             indexingService;
 
@@ -85,7 +91,7 @@ public class PageContentBlockIndexingListener implements ListenerBase<String, St
   @Autowired
   private LayoutService               layoutService;
 
-  /** Used to enumerate the blocks currently indexed under a page's storage id. */
+  /** Used to enumerate the documents currently indexed under a page's storage id. */
   @Autowired
   private PageContentSearchConnector  searchConnector;
 
@@ -102,15 +108,24 @@ public class PageContentBlockIndexingListener implements ListenerBase<String, St
     if (StringUtils.isBlank(pageRef)) {
       return;
     }
-    Page page = layoutService.getPage(PageKey.parse(pageRef));
+    PageKey pageKey = PageKey.parse(pageRef);
+    if (PageContentIndexingConnector.isDraftPage(pageKey)) {
+      // The layout editor saves its draft copy on every change; the connector
+      // never indexes a draft, so there is nothing to reconcile for it
+      return;
+    }
+    Page page = layoutService.getPage(pageKey);
     if (page == null) {
       return;
     }
     String storageId = page.getStorageId();
     Set<String> activeWidgetNames = PageContentBlockUtils.collectWidgetSettingNames(layoutService, page);
     List<String> currentBlockIds = findContentBlockIds(pageRef, storageId, activeWidgetNames);
-    currentBlockIds.forEach(id -> indexingService.reindex(PageContentIndexingConnector.TYPE, id));
-    unindexDetachedBlocks(storageId, currentBlockIds);
+    // Without any live block, the page is represented by its bare page
+    // document, whose id is the page's storage id itself
+    List<String> currentIds = currentBlockIds.isEmpty() ? List.of(storageId) : currentBlockIds;
+    currentIds.forEach(id -> indexingService.reindex(PageContentIndexingConnector.TYPE, id));
+    unindexStaleDocuments(storageId, currentIds);
   }
 
   /**
@@ -142,19 +157,21 @@ public class PageContentBlockIndexingListener implements ListenerBase<String, St
   }
 
   /**
-   * A content block can be detached from a page (removed from its layout,
-   * or its content-block portlet preference repointed elsewhere) without
-   * the page itself being deleted — any block previously indexed under
-   * this page's storage id that is no longer among its current blocks is
-   * stale and must be removed from the index.
+   * Whatever is indexed under this page's storage id and isn't among its
+   * current documents is stale and must go: a content block detached from
+   * the page (removed from its layout, or its content-block portlet
+   * preference repointed elsewhere) without the page itself being deleted,
+   * or the bare page document of a page that just received its first
+   * content block — and, the other way round, the last block's document
+   * once the page falls back to a bare page document.
    *
    * @param storageId the page's storage id
-   * @param currentBlockIds document ids of the blocks currently bound to the page
+   * @param currentIds document ids representing the page from now on
    */
-  private void unindexDetachedBlocks(String storageId, List<String> currentBlockIds) {
-    searchConnector.findIndexedBlockIds(storageId)
+  private void unindexStaleDocuments(String storageId, List<String> currentIds) {
+    searchConnector.findIndexedDocumentIds(storageId)
                    .stream()
-                   .filter(id -> !currentBlockIds.contains(id))
+                   .filter(id -> !currentIds.contains(id))
                    .forEach(id -> indexingService.unindex(PageContentIndexingConnector.TYPE, id));
   }
 

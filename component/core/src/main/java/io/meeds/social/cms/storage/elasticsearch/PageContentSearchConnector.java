@@ -69,7 +69,17 @@ import io.meeds.social.search.model.PageSearchResult;
 
 /**
  * Searches pages previously indexed by {@link PageContentIndexingConnector}
- * (index alias {@code page_content_alias}) for the unified search bar.
+ * (index alias {@code page_content_alias}) for the unified search bar —
+ * content block documents and bare page documents alike, both carrying the
+ * page's title, name and site.
+ * <p>
+ * Results come back in three tiers, decided by the query template
+ * ({@code page-search-query.json}) rather than here so that paging stays
+ * consistent across calls: pages whose <em>name</em> (title or name) and
+ * <em>content</em> both match the term, then pages matched by name only,
+ * then pages matched by content only. Each tier is a {@code constant_score}
+ * clause whose boost dwarfs the relevance score, which only orders results
+ * within a tier.
  */
 public class PageContentSearchConnector {
 
@@ -91,11 +101,22 @@ public class PageContentSearchConnector {
   /** Query template placeholder for the permission and space filters. */
   private static final String        FILTERS_REPLACEMENT       = "\"@filters@\"";
 
-  /** Matches the document id shape produced by {@code PageContentIndexingConnector#buildBlockId}. */
+  /**
+   * Matches both document id shapes {@link PageContentIndexingConnector}
+   * produces: a content block's ({@code buildBlockId}, page storage id plus
+   * block hash) and a bare page document's (the page storage id alone).
+   */
   private static final Pattern       BLOCK_ID_PATTERN          = Pattern.compile("^page_\\d+(_[0-9a-fA-F]+)?$");
 
-  /** Upper bound on the content blocks {@link #findIndexedBlockIds} reports for one page. */
-  private static final int           INDEXED_BLOCKS_PER_PAGE_LIMIT = 1000;
+  /** Upper bound on the documents {@link #findIndexedDocumentIds} reports for one page. */
+  private static final int           INDEXED_DOCUMENTS_PER_PAGE_LIMIT = 1000;
+
+  /**
+   * The highlight fields telling that the term matched the page's own title
+   * or name — listed in the query template's highlight section for that very
+   * purpose, their fragments are never displayed.
+   */
+  private static final Set<String>   NAME_FIELDS               = Set.of("pageTitle", "pageName");
 
   /** Used to load the query template resource. */
   private final ConfigurationManager configurationManager;
@@ -219,17 +240,20 @@ public class PageContentSearchConnector {
 
   /**
    * @param pageStorageId the storage id of the page to look up
-   * @return the ids of every content block currently indexed under the
-   *         given page, regardless of whether a {@link io.meeds.social.cms.model.CMSSetting} still
-   *         binds them — used to detect blocks that were detached from the
-   *         page (or the page itself renamed/never re-saved) so the caller
-   *         can unindex them. Returns an empty list, without ever querying
-   *         Elasticsearch, when {@code pageStorageId} isn't shaped like one
-   *         (defends the same way {@link #getById} does, in case this public
-   *         method is ever reached with untrusted input).
+   * @return the ids of every document currently indexed under the given
+   *         page — its content blocks, regardless of whether a
+   *         {@link io.meeds.social.cms.model.CMSSetting} still binds them,
+   *         and its bare page document when it has one — used to detect
+   *         what no longer represents the page (a block detached from it,
+   *         the bare document of a page that received a block, the page
+   *         itself removed or never re-saved) so the caller can unindex it.
+   *         Returns an empty list, without ever querying Elasticsearch, when
+   *         {@code pageStorageId} isn't shaped like one (defends the same
+   *         way {@link #getById} does, in case this public method is ever
+   *         reached with untrusted input).
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public List<String> findIndexedBlockIds(String pageStorageId) {
+  public List<String> findIndexedDocumentIds(String pageStorageId) {
     if (StringUtils.isBlank(pageStorageId) || !BLOCK_ID_PATTERN.matcher(pageStorageId).matches()) {
       return Collections.emptyList();
     }
@@ -239,7 +263,7 @@ public class PageContentSearchConnector {
           "_source": false,
           "size": %s
         }
-        """.formatted(pageStorageId, INDEXED_BLOCKS_PER_PAGE_LIMIT);
+        """.formatted(pageStorageId, INDEXED_DOCUMENTS_PER_PAGE_LIMIT);
     String jsonResponse = client.sendRequest(esQuery, INDEX);
     JSONParser parser = new JSONParser();
     Map json;
@@ -256,13 +280,13 @@ public class PageContentSearchConnector {
     if (jsonHits == null) {
       return Collections.emptyList();
     }
-    if (jsonHits.size() >= INDEXED_BLOCKS_PER_PAGE_LIMIT) {
+    if (jsonHits.size() >= INDEXED_DOCUMENTS_PER_PAGE_LIMIT) {
       // Callers use this list to unindex whatever isn't bound to the page
       // anymore, so a truncated list silently leaves stale documents behind
-      LOG.warn("Page {} has at least {} indexed content blocks, the list is truncated: stale blocks beyond that count"
+      LOG.warn("Page {} has at least {} indexed documents, the list is truncated: stale documents beyond that count"
           + " won't be unindexed",
                pageStorageId,
-               INDEXED_BLOCKS_PER_PAGE_LIMIT);
+               INDEXED_DOCUMENTS_PER_PAGE_LIMIT);
     }
     List<String> ids = new ArrayList<>();
     for (Object jsonHit : jsonHits) {
@@ -530,12 +554,14 @@ public class PageContentSearchConnector {
    * @param jsonHit a single ES hit from the search response
    * @param locale the user's locale, used to pick the excerpt's language
    * @param favoriteIds ids of the pages the current user has bookmarked
-   * @return the built result, or {@code null} when the page only matched
-   *         through content in a language that shouldn't be shown to this
-   *         user (see {@link #extractExcerpts}) — such a page isn't a valid
-   *         result for this user at all, it isn't merely missing an
-   *         excerpt. A page matching through its title/name/site instead is
-   *         still a valid result even without any content excerpt.
+   * @return the built result, or {@code null} when the page <em>only</em>
+   *         matched through content in a language that shouldn't be shown
+   *         to this user (see {@link #extractExcerpts}) — such a page isn't
+   *         a valid result for this user at all, it isn't merely missing an
+   *         excerpt. A page matching through its title/name (see
+   *         {@link #matchedName}) or its site is a valid result whatever
+   *         language its content matched in, and so is shown, with or
+   *         without an excerpt — a bare page document never has one.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private PageSearchResult buildResult(JSONObject jsonHit, Locale locale, Set<String> favoriteIds) {
@@ -543,7 +569,7 @@ public class PageContentSearchConnector {
     JSONObject source = (JSONObject) jsonHit.get("_source");
     JSONObject highlight = (JSONObject) jsonHit.get("highlight");
     List<String> excerpts = extractExcerpts(source, highlight, locale);
-    if (excerpts.isEmpty() && matchedContentInAnyLanguage(highlight)) {
+    if (excerpts.isEmpty() && !matchedName(highlight) && matchedContentInAnyLanguage(highlight)) {
       return null;
     }
     Object dateValue = source == null ? null : source.get("lastUpdatedDate");
@@ -662,6 +688,22 @@ public class PageContentSearchConnector {
       return false;
     }
     return highlight.keySet().stream().anyMatch(key -> StringUtils.startsWith((String) key, "content"));
+  }
+
+  /**
+   * @param highlight the hit's {@code highlight}, or {@code null} if none
+   * @return whether the term matched the page's title or name, i.e. one of
+   *         the highlight fields of {@link #NAME_FIELDS}. Such a match makes
+   *         the page a valid result for every user, whatever language its
+   *         content matched in — the reason those fields are highlighted at
+   *         all, since their fragments are never displayed.
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private boolean matchedName(JSONObject highlight) {
+    if (highlight == null) {
+      return false;
+    }
+    return highlight.keySet().stream().anyMatch(NAME_FIELDS::contains);
   }
 
   /**
