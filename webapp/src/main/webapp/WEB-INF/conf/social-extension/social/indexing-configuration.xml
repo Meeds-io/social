@@ -72,6 +72,34 @@
     </component-plugin>
   </external-component-plugins>
 
+  <!--
+    Kernel-registered on purpose (not Spring @Components like the other page
+    indexing listeners): the Spring contexts finish booting after every Kernel
+    Startable, including the site import of a fresh installation, so a Spring
+    listener would miss the very page events these two exist for.
+  -->
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>org.exoplatform.portal.mop.service.LayoutService.pageCreated</name>
+      <set-method>addListener</set-method>
+      <type>io.meeds.social.cms.listener.PageSavedIndexingListener</type>
+      <description>Indexes a page for the unified search once stored, whatever path stored it</description>
+    </component-plugin>
+    <component-plugin>
+      <name>org.exoplatform.portal.mop.service.LayoutService.pageUpdated</name>
+      <set-method>addListener</set-method>
+      <type>io.meeds.social.cms.listener.PageSavedIndexingListener</type>
+      <description>Re-indexes a page for the unified search once re-stored, whatever path stored it</description>
+    </component-plugin>
+    <component-plugin>
+      <name>site.template.instantiated</name>
+      <set-method>addListener</set-method>
+      <type>io.meeds.social.cms.listener.SiteTemplateInstantiatedIndexingListener</type>
+      <description>Indexes the pages of a site created from a template once its navigation exists</description>
+    </component-plugin>
+  </external-component-plugins>
+
   <external-component-plugins>
     <target-component>org.exoplatform.commons.search.index.IndexingOperationProcessor</target-component>
     <component-plugin>
@@ -160,7 +188,8 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="page_content_alias" />
-          <property name="index_current" value="${meeds.social.index.page.current:page_content}" />
+          <property name="index_previous" value="${meeds.social.index.page.previous:page_content}" />
+          <property name="index_current" value="${meeds.social.index.page.current:page_content_v2}" />
           <property name="reindexOnUpgrade" value="${meeds.social.index.page.reindexOnUpgrade:true}" />
         </properties-param>
       </init-params>
