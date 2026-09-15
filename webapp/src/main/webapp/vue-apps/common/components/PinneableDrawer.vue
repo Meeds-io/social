@@ -99,7 +99,8 @@
             :title="$t('label.expandDisplay')"
             icon
             v-bind="attrs"
-            v-on="on">
+            v-on="on"
+            @click="allowExpand && toogleExpand()">
             <v-icon v-text="expandIcon" size="20" />
           </v-btn>
         </template>
