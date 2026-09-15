@@ -24,7 +24,12 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -47,7 +52,12 @@ import org.exoplatform.portal.config.model.Application;
 import org.exoplatform.portal.config.model.ApplicationState;
 import org.exoplatform.portal.config.model.ModelObject;
 import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.mop.QueryResult;
+import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.SiteType;
+import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageKey;
+import org.exoplatform.portal.mop.page.PageState;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
 import org.exoplatform.services.resources.LocaleConfig;
@@ -354,6 +364,169 @@ public class PageContentIndexingConnectorTest {
     assertTrue(blockId1.matches("^" + STORAGE_ID + "_[0-9a-f]{16}$"));
     assertTrue(blockId2.matches("^" + STORAGE_ID + "_[0-9a-f]{16}$"));
     assertNotEquals(blockId1, blockId2);
+  }
+
+  @Test
+  public void shouldListContentBlockIdsThenPageIdsAcrossBatches() {
+    // The two id lists are laid end to end, the page portion paged by the
+    // store itself: a batch spanning the boundary comes back full, and the
+    // next batch resumes the page portion exactly where the previous one
+    // stopped
+    CMSSetting first = new CMSSetting(CONTENT_TYPE, "first", PAGE_KEY.format(), 0);
+    CMSSetting second = new CMSSetting(CONTENT_TYPE, "second", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(List.of(first, second));
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    mockActiveWidget("first");
+    mockActiveWidget("second");
+    QueryResult<PageContext> firstPages = pages("page_1");
+    QueryResult<PageContext> nextPages = pages("page_2", "page_3", "page_4");
+    when(layoutService.findPages(0, 1, null, null, null, null)).thenReturn(firstPages);
+    when(layoutService.findPages(1, 3, null, null, null, null)).thenReturn(nextPages);
+
+    assertEquals(List.of(blockId("first"), blockId("second"), "page_1"), connector.getAllIds(0, 3));
+    assertEquals(List.of("page_2", "page_3", "page_4"), connector.getAllIds(3, 3));
+  }
+
+  @Test
+  public void shouldNotAskTheStoreForPagesWhenContentBlocksFillTheBatch() {
+    CMSSetting first = new CMSSetting(CONTENT_TYPE, "first", PAGE_KEY.format(), 0);
+    CMSSetting second = new CMSSetting(CONTENT_TYPE, "second", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(List.of(first, second));
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    mockActiveWidget("first");
+    mockActiveWidget("second");
+
+    assertEquals(List.of(blockId("first"), blockId("second")), connector.getAllIds(0, 2));
+
+    verify(layoutService, never()).findPages(anyInt(), anyInt(), isNull(), isNull(), isNull(), isNull());
+  }
+
+  @Test
+  public void shouldBuildBarePageDocumentWhenPageCarriesNoContentBlock() {
+    when(page.getTitle()).thenReturn("All Spaces");
+    when(page.getAccessPermissions()).thenReturn(new String[] { "*:/platform/users" });
+    when(urlResolverService.resolvePath(PAGE_KEY)).thenReturn("/portal/site/page");
+
+    Document document = connector.create(STORAGE_ID);
+
+    assertEquals(STORAGE_ID, document.getId());
+    assertNull(document.getLastUpdatedDate());
+    assertEquals(Set.of("*:/platform/users"), document.getPermissions());
+    Map<String, String> fields = document.getFields();
+    assertEquals(STORAGE_ID, fields.get("pageStorageId"));
+    assertEquals("site", fields.get("siteName"));
+    assertEquals("portal", fields.get("siteType"));
+    assertEquals("page", fields.get("pageName"));
+    assertEquals("All Spaces", fields.get("pageTitle"));
+    assertEquals("/portal/site/page", fields.get("pagePath"));
+    // No content of any kind: such a document is only ever found by name
+    assertFalse(fields.containsKey("content"));
+    assertFalse(fields.containsKey("author"));
+    verify(pluginService, never()).reindexContentBlock(any(), any());
+  }
+
+  @Test
+  public void shouldNotBuildBarePageDocumentWhenPageCarriesALiveContentBlock() {
+    // A page with a live block is represented by its block documents, which
+    // carry the same title/name/site: a bare page document would duplicate
+    // every one of its name matches
+    CMSSetting setting = new CMSSetting(CONTENT_TYPE, "name", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, PAGE_KEY.format())).thenReturn(List.of(setting));
+    mockActiveWidget("name");
+
+    assertNull(connector.create(STORAGE_ID));
+
+    verify(urlResolverService, never()).resolvePath(any());
+  }
+
+  @Test
+  public void shouldQueueTheLiveContentBlocksWhenABarePageDocumentIsRequestedForThem() {
+    // A reindex-on-upgrade enumerates ids at Kernel start, before the
+    // content-block plugins register from their addon's Spring context: it
+    // then finds no block at all and queues a bare document for every page.
+    // By the time that document is built the plugins are there — so the
+    // blocks the page really carries are queued from here, or nothing would
+    // ever index them again after the DELETE_ALL the reindex began with
+    CMSSetting summary = new CMSSetting(CONTENT_TYPE, "summary", PAGE_KEY.format(), 0);
+    CMSSetting orphaned = new CMSSetting(CONTENT_TYPE, "orphaned", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, PAGE_KEY.format())).thenReturn(List.of(summary, orphaned));
+    mockActiveWidget("summary");
+
+    assertNull(connector.create(STORAGE_ID));
+
+    verify(pluginService).reindexContentBlock(CONTENT_TYPE, "summary");
+    // A setting whose widget is gone isn't a live block: nothing to queue
+    verify(pluginService, never()).reindexContentBlock(CONTENT_TYPE, "orphaned");
+  }
+
+  @Test
+  public void shouldBuildBarePageDocumentWhenTheOnlySettingHasNoWidgetLeftOnThePage() {
+    // Same structural "live block" rule as everywhere else: a CMSSetting
+    // whose widget was removed doesn't represent the page anymore, so the
+    // page falls back to its bare document
+    CMSSetting orphaned = new CMSSetting(CONTENT_TYPE, "orphaned", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, PAGE_KEY.format())).thenReturn(List.of(orphaned));
+    mockActiveWidget("other");
+    when(urlResolverService.resolvePath(PAGE_KEY)).thenReturn("/portal/site/page");
+
+    Document document = connector.create(STORAGE_ID);
+
+    assertEquals(STORAGE_ID, document.getId());
+  }
+
+  @Test
+  public void shouldNotBuildBarePageDocumentWhenPageIsNotReachableFromAnyNavigationNode() {
+    // A search result that leads nowhere is worse than none
+    when(urlResolverService.resolvePath(PAGE_KEY)).thenReturn(null);
+
+    assertNull(connector.create(STORAGE_ID));
+  }
+
+  @Test
+  public void shouldNotBuildBarePageDocumentForAPageOfASiteNobodyNavigates() {
+    when(page.getPageKey()).thenReturn(new PageKey(new SiteKey(SiteType.GROUP_TEMPLATE, "/spaces/template"), "home"));
+
+    assertNull(connector.create(STORAGE_ID));
+
+    verify(urlResolverService, never()).resolvePath(any());
+  }
+
+  @Test
+  public void shouldNotBuildBarePageDocumentForADraftPage() {
+    when(page.getPageKey()).thenReturn(PageKey.parse("portal::site::page_draft_john"));
+
+    assertNull(connector.create(STORAGE_ID));
+  }
+
+  @Test
+  public void shouldTellBarePageDocumentIdsFromContentBlockIds() {
+    assertTrue(PageContentIndexingConnector.isPageDocumentId(STORAGE_ID));
+    assertFalse(PageContentIndexingConnector.isPageDocumentId(blockId("name")));
+    assertFalse(PageContentIndexingConnector.isPageDocumentId("139"));
+    assertFalse(PageContentIndexingConnector.isPageDocumentId(null));
+  }
+
+  @Test
+  public void shouldOnlyConsiderPortalAndGroupSitesIndexable() {
+    assertTrue(PageContentIndexingConnector.isIndexableSite(new SiteKey(SiteType.PORTAL, "global")));
+    assertTrue(PageContentIndexingConnector.isIndexableSite(new SiteKey(SiteType.GROUP, "/spaces/x")));
+    assertFalse(PageContentIndexingConnector.isIndexableSite(new SiteKey(SiteType.DRAFT, "global")));
+    assertFalse(PageContentIndexingConnector.isIndexableSite(new SiteKey(SiteType.GROUP_TEMPLATE, "/spaces/template")));
+    assertFalse(PageContentIndexingConnector.isIndexableSite(new SiteKey(SiteType.PORTAL_TEMPLATE, "template")));
+    assertFalse(PageContentIndexingConnector.isIndexableSite(new SiteKey(SiteType.USER, "john")));
+    assertFalse(PageContentIndexingConnector.isIndexableSite(null));
+  }
+
+  private QueryResult<PageContext> pages(String... storageIds) {
+    List<PageContext> pages = new ArrayList<>();
+    for (String storageId : storageIds) {
+      PageContext pageContext = mock(PageContext.class);
+      PageState state = mock(PageState.class);
+      when(pageContext.getState()).thenReturn(state);
+      when(state.getStorageId()).thenReturn(storageId);
+      pages.add(pageContext);
+    }
+    return new QueryResult<>(0, pages.size(), pages);
   }
 
   private InitParams getParams() {
