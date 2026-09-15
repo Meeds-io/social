@@ -75,7 +75,7 @@ public class PageRemovedIndexingListenerTest {
     Page page = mock(Page.class);
     when(page.getStorageId()).thenReturn(STORAGE_ID);
     String blockId = PageContentIndexingConnector.buildBlockId(STORAGE_ID, "notePage", "name1");
-    when(searchConnector.findIndexedBlockIds(STORAGE_ID)).thenReturn(List.of(blockId));
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of(blockId));
 
     listener.onEvent(new Event<>(PageRemovedIndexingListener.PAGE_UNREACHABLE_EVENT, "source", page));
 
@@ -88,7 +88,7 @@ public class PageRemovedIndexingListenerTest {
     when(page.getStorageId()).thenReturn(STORAGE_ID);
     String blockId1 = PageContentIndexingConnector.buildBlockId(STORAGE_ID, "notePage", "name1");
     String blockId2 = PageContentIndexingConnector.buildBlockId(STORAGE_ID, "notePage", "name2");
-    when(searchConnector.findIndexedBlockIds(STORAGE_ID)).thenReturn(List.of(blockId1, blockId2));
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of(blockId1, blockId2));
 
     listener.onEvent(new Event<>(LayoutService.PAGE_REMOVED, "source", page));
 
@@ -97,10 +97,23 @@ public class PageRemovedIndexingListenerTest {
   }
 
   @Test
+  public void shouldUnindexTheBarePageDocumentOfAPageNoLongerReachable() throws Exception {
+    // A page carrying no content block is indexed as a bare document under
+    // its own storage id: it goes away with the page's reachability too
+    Page page = mock(Page.class);
+    when(page.getStorageId()).thenReturn(STORAGE_ID);
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of(STORAGE_ID));
+
+    listener.onEvent(new Event<>(PageRemovedIndexingListener.PAGE_UNREACHABLE_EVENT, "source", page));
+
+    verify(indexingService).unindex(PageContentIndexingConnector.TYPE, STORAGE_ID);
+  }
+
+  @Test
   public void shouldDoNothingWhenNoBlockIsIndexedUnderTheRemovedPage() throws Exception {
     Page page = mock(Page.class);
     when(page.getStorageId()).thenReturn(STORAGE_ID);
-    when(searchConnector.findIndexedBlockIds(STORAGE_ID)).thenReturn(Collections.emptyList());
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(Collections.emptyList());
 
     listener.onEvent(new Event<>(LayoutService.PAGE_REMOVED, "source", page));
 
@@ -112,7 +125,7 @@ public class PageRemovedIndexingListenerTest {
     listener.onEvent(new Event<>(LayoutService.PAGE_REMOVED, "source", null));
 
     verify(indexingService, never()).unindex(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
-    verify(searchConnector, never()).findIndexedBlockIds(org.mockito.ArgumentMatchers.any());
+    verify(searchConnector, never()).findIndexedDocumentIds(org.mockito.ArgumentMatchers.any());
   }
 
 }
