@@ -28,6 +28,9 @@
   <packaging>war</packaging>
   <name>Meeds:: PLF:: Social Webapp</name>
   <description>Meeds Social Webapp</description>
+  <properties>
+    <exo.test.coverage.ratio>0.1</exo.test.coverage.ratio>
+  </properties>
   <dependencies>
     <!-- Portal and Core dependencies -->
     <dependency>
