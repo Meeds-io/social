@@ -22,7 +22,7 @@
     ref="drawer"
     v-bind="$attrs"
     v-on="$listeners"
-    :allow-expand="allowExpand && !docked && !standalone"
+    :allow-expand="allowExpand && !standalone"
     :expanded="expanded || standalone"
     :permanent="docked || standalone"
     :attached="docked || standalone"
@@ -34,13 +34,21 @@
       <slot :name="name"></slot>
     </template>
     <template #expandAction>
-      <v-btn
-        v-if="docked"
-        :title="$t('label.unstick')"
-        icon
-        @click="unstick">
-        <v-icon size="20">fas fa-thumbtack</v-icon>
-      </v-btn>
+      <template v-if="docked">
+        <v-btn
+          v-if="allowExpand"
+          :title="dockedExpanded && $t('label.collapse') || $t('label.expand')"
+          icon
+          @click="toggleDockedExpand">
+          <v-icon v-text="dockedExpanded && 'fas fa-compress-alt' || 'fas fa-expand-alt'" size="20" />
+        </v-btn>
+        <v-btn
+          :title="$t('label.unstick')"
+          icon
+          @click="unstick">
+          <v-icon size="20">fas fa-thumbtack</v-icon>
+        </v-btn>
+      </template>
       <v-menu
         v-else-if="displayPlacementMenu"
         open-on-hover
@@ -130,6 +138,7 @@ export default {
     stuckSide: null,
     standalone: false,
     expandState: false,
+    dockedExpanded: false,
     // held as data and re-synced from the global on each placement change:
     // eXo.env.portal.appPlacements is not reactive, a computed reading it
     // would be evaluated once and cached forever
@@ -190,6 +199,33 @@ export default {
     onPageLayoutRendered() {
       if (this.docked) {
         this.dock();
+      }
+    },
+    toggleDockedExpand() {
+      // the docked expand is the standard drawer expand: the shell floats
+      // back over the page at full width, collapse returns it to its panel
+      const drawerElement = this.$refs.drawer?.$el;
+      if (!drawerElement) {
+        return;
+      }
+      this.dockedExpanded = !this.dockedExpanded;
+      if (this.dockedExpanded) {
+        document.querySelector('#vuetify-apps')?.appendChild(drawerElement);
+        drawerElement.style.removeProperty('position');
+        drawerElement.style.removeProperty('box-shadow');
+        if (!this.expandState) {
+          this.$refs.drawer.toogleExpand();
+        }
+      } else {
+        if (this.expandState) {
+          this.$refs.drawer.toogleExpand();
+        }
+        const anchor = document.querySelector(`#pageBody${this.stuckSide === 'left' && 'Left' || 'Right'}Panel`);
+        if (anchor) {
+          (anchor.querySelector('.v-application--wrap') || anchor).appendChild(drawerElement);
+          drawerElement.style.setProperty('position', 'relative', 'important');
+          drawerElement.style.setProperty('box-shadow', 'none', 'important');
+        }
       }
     },
     resolveProvider() {
@@ -275,6 +311,10 @@ export default {
       });
     },
     undock() {
+      if (this.dockedExpanded && this.expandState) {
+        this.$refs.drawer.toogleExpand();
+      }
+      this.dockedExpanded = false;
       const drawerElement = this.$refs.drawer?.$el;
       if (drawerElement?.dataset?.stuckApp) {
         delete drawerElement.dataset.stuckApp;
