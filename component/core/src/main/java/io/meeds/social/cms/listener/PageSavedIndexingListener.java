@@ -56,6 +56,20 @@ import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnector;
  * is the connector's decision (a page carrying content blocks, or not
  * reachable from any navigation node, yields none), and a page's content
  * block documents are reconciled by the Layout events.
+ * <p>
+ * The portal events also fire for the saves the Layout addon performs
+ * itself — the layout editor's own save, a page creation, a layout restore
+ * — right before Layout broadcasts {@code layout.page.updated} for the same
+ * page, so on those paths both this listener and
+ * {@link PageContentBlockIndexingListener} run for one edit. This is
+ * accepted deliberately, and its cost is bounded: the indexing queue
+ * executes duplicates, but what this listener adds is one bare page
+ * document operation, whose build stops at a lookup of the page's indexed
+ * documents once it finds the live blocks the other listener already
+ * refreshes (see {@code PageContentIndexingConnector#queueMissingBlockDocuments}).
+ * The two Layout saves that broadcast no {@code layout.page.*} event at all
+ * (a section clone, a page link update) are what keeps {@code PAGE_UPDATED}
+ * in this listener's scope.
  */
 @Asynchronous
 public class PageSavedIndexingListener extends Listener<Object, Page> {
