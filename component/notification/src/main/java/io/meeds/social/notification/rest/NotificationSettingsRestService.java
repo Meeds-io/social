@@ -37,10 +37,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.exoplatform.commons.api.notification.channel.AbstractChannel;
 import org.exoplatform.commons.api.notification.channel.ChannelManager;
 import org.exoplatform.commons.api.notification.model.*;
-import org.exoplatform.commons.api.notification.model.UserSetting.FREQUENCY;
 import org.exoplatform.commons.api.notification.plugin.config.PluginConfig;
 import io.meeds.social.notification.rest.model.ChannelActivationChoice;
-import io.meeds.social.notification.rest.model.EmailDigestChoice;
 import io.meeds.social.notification.rest.model.UserNotificationSettings;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
 import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
@@ -69,11 +67,13 @@ public class NotificationSettingsRestService implements ResourceContainer {
 
   private static final Log      LOG                       = ExoLogger.getLogger(NotificationSettingsRestService.class);
 
-  private static final String   DAILY                     = "Daily";
-
-  private static final String   WEEKLY                    = "Weekly";
-
-  private static final String   NEVER                     = "Never";
+  /**
+   * The notification bundle of commons, holding the default labels of the
+   * notification groups (UINotification.label.group.*). It is the last resort
+   * when neither the plugin nor the plugins of its group declare a bundle
+   * holding the key.
+   */
+  private static final String   DEFAULT_PLUGIN_RESOURCE_BUNDLE_NAME = "locale.notification.template.CommonsNotification";
 
   private ResourceBundleService resourceBundleService;
 
@@ -192,7 +192,7 @@ public class NotificationSettingsRestService implements ResourceContainer {
                                     @Parameter(description = "Notification plugin Id", required = true)
                                     @PathParam("pluginId")
                                     String pluginId,
-                                    @Parameter(description = "Notification digest to use for corresponding plugin Id", required = true)
+                                    @Parameter(description = "Channels statuses for corresponding plugin Id, such as MAIL_CHANNEL=true,WEB_CHANNEL=false", required = true)
                                     @FormParam("channels")
                                     String channels) {
     String[] channelsArray = StringUtils.split(channels, ',');
@@ -231,13 +231,9 @@ public class NotificationSettingsRestService implements ResourceContainer {
                                   required = true
                               ) @PathParam("pluginId") String pluginId,
                               @Parameter(
-                                  description = "Notification digest to use for corresponding plugin Id",
+                                  description = "Channels statuses for corresponding plugin Id, such as MAIL_CHANNEL=true,WEB_CHANNEL=false",
                                   required = true
-                              ) @FormParam("channels") String channels,
-                              @Parameter(
-                                  description = "Notification digest to use for corresponding plugin Id",
-                                  required = true
-                              ) @FormParam("digest") String digest) {
+                              ) @FormParam("channels") String channels) {
 
     Identity identity = ConversationState.getCurrent().getIdentity();
     boolean isAdmin = userACL.isAdministrator(identity);
@@ -248,16 +244,6 @@ public class NotificationSettingsRestService implements ResourceContainer {
 
     try {
       UserSetting setting = userSettingService.get(username);
-
-      // digest
-      if (WEEKLY.equals(digest)) {
-        setting.addPlugin(pluginId, FREQUENCY.WEEKLY);
-      } else if (DAILY.equals(digest)) {
-        setting.addPlugin(pluginId, FREQUENCY.DAILY);
-      } else {
-        setting.removePlugin(pluginId, FREQUENCY.WEEKLY);
-        setting.removePlugin(pluginId, FREQUENCY.DAILY);
-      }
 
       // channels
       String[] channelsArray = StringUtils.split(channels, ',');
@@ -411,21 +397,6 @@ public class NotificationSettingsRestService implements ResourceContainer {
     return Response.noContent().build();
   }
 
-  private Map<String, String> buildDigestDescriptions(Context context) {
-    Map<String, String> options = new HashMap<>();
-    options.put(DAILY, context.appRes("UINotification.description.Daily"));
-    options.put(WEEKLY, context.appRes("UINotification.description.Weekly"));
-    return options;
-  }
-
-  private Map<String, String> buildDigestLabels(Context context) {
-    Map<String, String> options = new HashMap<>();
-    options.put(DAILY, context.appRes("UINotification.label.Daily"));
-    options.put(WEEKLY, context.appRes("UINotification.label.Weekly"));
-    options.put(NEVER, context.appRes("UINotification.label.Never"));
-    return options;
-  }
-
   private List<String> getChannels(boolean activeChannelsOnly) {
     List<String> channels = new ArrayList<>();
     for (AbstractChannel channel : channelManager.getChannels()) {
@@ -449,7 +420,6 @@ public class NotificationSettingsRestService implements ResourceContainer {
                                  List<String> channels,
                                  List<GroupProvider> groups,
                                  Map<String, Boolean> channelStatus,
-                                 List<EmailDigestChoice> emailDigestChoices,
                                  List<ChannelActivationChoice> channelCheckBoxList) {
     boolean hasActivePlugin = false;
     for (GroupProvider groupProvider : groups) {
@@ -465,26 +435,10 @@ public class NotificationSettingsRestService implements ResourceContainer {
                                                               pluginSettingService.isAllowed(channelId, pluginId),
                                                               isChannelActive && userSetting.isActive(channelId, pluginId),
                                                               isChannelActive));
-          if (UserSetting.EMAIL_CHANNEL.equals(channelId)) {
-            emailDigestChoices.add(new EmailDigestChoice(channelId,
-                                                         pluginId,
-                                                         getValue(userSetting, pluginId),
-                                                         isChannelActive));
-          }
         }
       }
     }
     return hasActivePlugin;
-  }
-
-  private String getValue(UserSetting setting, String pluginId) {
-    if (setting != null && setting.isInWeekly(pluginId)) {
-      return WEEKLY;
-    } else if (setting != null && setting.isInDaily(pluginId)) {
-      return DAILY;
-    } else {
-      return NEVER;
-    }
   }
 
   private boolean isAdministrator(String username) {
@@ -543,21 +497,15 @@ public class NotificationSettingsRestService implements ResourceContainer {
       return StringUtils.EMPTY;
     }));
 
-    Map<String, String> digestLabels = buildDigestLabels(context);
-    Map<String, String> digestDescriptions = buildDigestDescriptions(context);
-    List<EmailDigestChoice> emailDigestChoices = new ArrayList<>();
     List<ChannelActivationChoice> channelCheckBoxList = new ArrayList<>();
-    boolean hasActivePlugin = computeChoices(setting, channels, groups, channelStatus, emailDigestChoices, channelCheckBoxList);
+    boolean hasActivePlugin = computeChoices(setting, channels, groups, channelStatus, channelCheckBoxList);
 
     return new UserNotificationSettings(groups,
                                         groupsLabels,
                                         pluginLabels,
                                         channelLabels,
                                         channelDescriptions,
-                                        digestLabels,
-                                        digestDescriptions,
                                         hasActivePlugin,
-                                        emailDigestChoices,
                                         channelCheckBoxList,
                                         channelStatus,
                                         setting.getChannelDefaultValue(),
@@ -612,8 +560,7 @@ public class NotificationSettingsRestService implements ResourceContainer {
         }
       }
 
-      PluginConfig defaultPluginConfig = pluginSettingService.getPluginConfig("DigestDailyPlugin");
-      return defaultPluginConfig == null ? null : defaultPluginConfig.getBundlePath();
+      return DEFAULT_PLUGIN_RESOURCE_BUNDLE_NAME;
     }
 
     public String pluginRes(String key, String id) {

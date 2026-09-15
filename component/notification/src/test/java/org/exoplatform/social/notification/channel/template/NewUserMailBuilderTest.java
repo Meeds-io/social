@@ -18,10 +18,6 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
@@ -156,35 +152,6 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
     assertMadeMailDigestNotifications(demoIdentity.getRemoteId(), 1);
     notificationService.clearAll();
     removeUser("user_234");
-  }
-  
-  public void testDigest() throws Exception {
-    createUser("user_111");
-    createUser("user_222");
-    createUser("user_333");
-    
-    //Digest will sent 12 mails to 4 users existing.
-    assertMadeMailDigestNotifications("root", 3);
-    assertMadeMailDigestNotifications("john", 3);
-    assertMadeMailDigestNotifications("mary", 3);
-    assertMadeMailDigestNotifications("demo", 3);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 3);
-
-    //
-    removeUser("user_111");
-
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    // remove duplicate message
-    list = new ArrayList<NotificationInfo>(new LinkedHashSet<NotificationInfo>(list));
-
-    list.get(0).setTo(rootIdentity.getRemoteId());
-    
-    ctx.setNotificationInfos(list);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, "USER_222 gtn, USER_333 gtn have joined " + MailUtils.getSenderName() + ".");
-    removeUser("user_222");
-    removeUser("user_333");
   }
   
   private void createUser(String userName) throws Exception {

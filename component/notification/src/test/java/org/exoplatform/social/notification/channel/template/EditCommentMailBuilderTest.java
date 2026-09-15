@@ -18,8 +18,6 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.List;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
@@ -87,24 +85,4 @@ public class EditCommentMailBuilderTest extends AbstractPluginTest {
         assertBody(info, "edited comment");
     }
 
-    public void testDigest() throws Exception {
-        //STEP 1 post activity
-        ExoSocialActivity activity = makeActivity(rootIdentity, "root post an activity");
-        ExoSocialActivity comment = makeComment(activity, demoIdentity, "comment");
-        comment.setTitle("edited comment");
-
-        //STEP 2 Edit activity
-        activityManager.saveComment(activity, comment);
-
-        //
-        assertMadeMailDigestNotifications(1);
-        List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
-
-        NotificationContext ctx = NotificationContextImpl.cloneInstance();
-        list.set(0, list.get(0).setTo(rootIdentity.getRemoteId()));
-        ctx.setNotificationInfos(list);
-        Writer writer = new StringWriter();
-        buildDigest(ctx, writer);
-        assertDigest(writer, "Demo exo edited comment:edited comment");
-    }
 }

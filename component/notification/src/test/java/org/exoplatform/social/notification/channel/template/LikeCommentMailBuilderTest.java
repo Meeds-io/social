@@ -18,8 +18,6 @@
  */
 package org.exoplatform.social.notification.channel.template;
 
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.List;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
@@ -86,46 +84,4 @@ public class LikeCommentMailBuilderTest extends AbstractPluginTest {
     assertBody(info, "New like on your activity stream");
   }
   
-  public void testDigest() throws Exception {
-    ExoSocialActivity activity = makeActivity(rootIdentity, "root post an activity");
-    ExoSocialActivity comment = makeComment(activity, rootIdentity, getName());
-    activityManager.saveLike(comment, maryIdentity);
-    activityManager.saveLike(comment, demoIdentity);
-    activityManager.saveLike(comment, johnIdentity);
-    //
-    assertMadeMailDigestNotifications(3);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 3);
-    
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    list.set(0, list.get(0).setTo(rootIdentity.getRemoteId()));
-    ctx.setNotificationInfos(list);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("mary") + ", " + getFullName("demo") + ", " + getFullName("john") + " have liked your comment: testDigest");
-  }
-  
-  public void testDigestWithUnLike() throws Exception {
-    // mary post activity on her stream
-    ExoSocialActivity activity = makeActivity(rootIdentity, "root post an activity");
-    ExoSocialActivity comment = makeComment(activity, rootIdentity, getName());
-    notificationService.clearAll();
-
-    assertMadeMailDigestNotifications(0);
-    List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 0);
-    activityManager.saveLike(comment, demoIdentity);
-    activityManager.saveLike(comment, johnIdentity);
-
-    assertMadeMailDigestNotifications(2);
-    list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 2);
-
-    // john unlike
-    activityManager.deleteLike(comment, johnIdentity);
-
-    NotificationContext ctx = NotificationContextImpl.cloneInstance();
-    list.set(0, list.get(0).setTo(rootIdentity.getRemoteId()));
-    ctx.setNotificationInfos(list);
-    Writer writer = new StringWriter();
-    buildDigest(ctx, writer);
-    assertDigest(writer, getFullName("demo") + " has liked your comment: testDigestWithUnLike");
-  }
 }

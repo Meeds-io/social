@@ -38,13 +38,7 @@ public class UserNotificationSettings {
 
   private Map<String, String>           channelDescriptions;
 
-  private Map<String, String>           digestLabels;
-
-  private Map<String, String>           digestDescriptions;
-
   private boolean                       hasActivePlugin     = false;
-
-  private List<EmailDigestChoice>       emailDigestChoices  = null;
 
   private List<ChannelActivationChoice> channelCheckBoxList = null;
 
@@ -71,10 +65,7 @@ public class UserNotificationSettings {
                                   Map<String, String> pluginLabels,
                                   Map<String, String> channelLabels,
                                   Map<String, String> channelDescriptions,
-                                  Map<String, String> digestLabels,
-                                  Map<String, String> digestDescriptions,
                                   boolean hasActivePlugin,
-                                  List<EmailDigestChoice> emailDigestChoices,
                                   List<ChannelActivationChoice> channelCheckBoxList,
                                   Map<String, Boolean> channelStatus,
                                   Map<String, Boolean> channelDefaultValue,
@@ -85,10 +76,7 @@ public class UserNotificationSettings {
     this.pluginLabels = pluginLabels;
     this.channelLabels = channelLabels;
     this.channelDescriptions = channelDescriptions;
-    this.digestLabels = digestLabels;
-    this.digestDescriptions = digestDescriptions;
     this.hasActivePlugin = hasActivePlugin;
-    this.emailDigestChoices = emailDigestChoices;
     this.channelCheckBoxList = channelCheckBoxList;
     this.channelStatus = channelStatus;
     this.channels = channels;
@@ -120,36 +108,12 @@ public class UserNotificationSettings {
     this.channelDescriptions = channelDescriptions;
   }
 
-  public Map<String, String> getDigestLabels() {
-    return digestLabels;
-  }
-
-  public void setDigestLabels(Map<String, String> digestLabels) {
-    this.digestLabels = digestLabels;
-  }
-
-  public Map<String, String> getDigestDescriptions() {
-    return digestDescriptions;
-  }
-
-  public void setDigestDescriptions(Map<String, String> digestDescriptions) {
-    this.digestDescriptions = digestDescriptions;
-  }
-
   public boolean isHasActivePlugin() {
     return hasActivePlugin;
   }
 
   public void setHasActivePlugin(boolean hasActivePlugin) {
     this.hasActivePlugin = hasActivePlugin;
-  }
-
-  public List<EmailDigestChoice> getEmailDigestChoices() {
-    return emailDigestChoices;
-  }
-
-  public void setEmailDigestChoices(List<EmailDigestChoice> emailDigestChoices) {
-    this.emailDigestChoices = emailDigestChoices;
   }
 
   public Map<String, String> getGroupsLabels() {
