@@ -1186,6 +1186,39 @@
   </portlet>
 
   <portlet>
+    <description>List subspaces associated to a parent space. Only useful when this is added into a parent space's page</description>
+    <portlet-name>SubspacesList</portlet-name>
+    <display-name>Subspaces List</display-name>
+    <portlet-class>io.meeds.social.portlet.SubspacesListPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/subspacesList.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Portlets</resource-bundle>
+    <portlet-info>
+      <title>Subspaces List</title>
+    </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>headerTranslations</name>
+        <value>{}</value>
+      </preference>
+      <preference>
+        <name>showHiddenSubspaces</name>
+        <value>false</value>
+      </preference>
+      <preference>
+        <name>subspacesLimit</name>
+        <value>4</value>
+      </preference>
+    </portlet-preferences>
+  </portlet>
+
+  <portlet>
     <portlet-name>PlatformName</portlet-name>
     <display-name>Platform Name</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
