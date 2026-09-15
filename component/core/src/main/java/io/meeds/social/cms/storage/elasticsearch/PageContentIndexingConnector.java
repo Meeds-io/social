@@ -571,6 +571,212 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
   }
 
   /**
+   * @param  id an indexed document id
+   * @return whether {@code id} designates a bare page document (a page
+   *         storage id carrying no block hash) rather than a content block
+   *         one
+   */
+  public static boolean isPageDocumentId(String id) {
+    return id != null && PAGE_DOCUMENT_ID_PATTERN.matcher(id).matches();
+  }
+
+  /**
+   * A page currently being edited as a draft is cloned by the Layout addon
+   * as either a whole draft site ({@link SiteType#DRAFT}) or, within the
+   * same site, a page named {@code <original>_draft_<username>} — neither
+   * is a published page and must not be indexed.
+   *
+   * @param pageKey the page key to check
+   * @return {@code true} if the page is a draft
+   */
+  public static boolean isDraftPage(PageKey pageKey) {
+    return pageKey.getSite().getType() == SiteType.DRAFT || StringUtils.contains(pageKey.getName(), "_draft_");
+  }
+
+  /**
+   * @param  siteKey a site key
+   * @return whether the site is one users reach through a navigation, i.e.
+   *         whose pages may surface as bare page documents
+   */
+  public static boolean isIndexableSite(SiteKey siteKey) {
+    return siteKey != null && INDEXABLE_SITE_TYPES.contains(siteKey.getType());
+  }
+
+  /**
+   * Every content block document id, in a deterministic order: the
+   * underlying content types (a Set) and settings carry no natural order
+   * otherwise, which would let a full reindex skip or repeat blocks across
+   * batches.
+   * <p>
+   * Every reason a setting can be disqualified (blank/draft page reference,
+   * page gone, or the widget that created the block no longer present on the
+   * page) is evaluated here, before {@link #getAllIds} applies skip/limit,
+   * so a disqualified setting never consumes a slot in a batch — the block
+   * portion of the ids has no store-side paging to lean on, unlike the page
+   * portion.
+   * <p>
+   * Pages are resolved through a per-call memo: re-walking the settings that
+   * precede {@code offset} on every batch then costs at most one page load
+   * per distinct page reference, not one per setting.
+   */
+  private List<String> getAllBlockIds() {
+    Map<String, ResolvedPage> resolvedPages = new HashMap<>();
+    return pluginService.getContentTypes()
+                        .stream()
+                        .sorted()
+                        .flatMap(type -> cmsService.getSettingsByType(type)
+                                                   .stream()
+                                                   .filter(s -> StringUtils.isNotBlank(s.getPageReference()))
+                                                   .filter(s -> isNotDraftPageReference(s.getPageReference()))
+                                                   .sorted(Comparator.comparing(CMSSetting::getName))
+                                                   .map(s -> buildBlockId(type, s, resolvedPages)))
+                        .filter(StringUtils::isNotBlank)
+                        .toList();
+  }
+
+  /**
+   * @param  offset the offset within the store's own page ordering
+   * @param  limit  the number of pages to return at most
+   * @return the storage ids of the pages of every site, as the store pages
+   *         them — see {@link #getAllIds} for why nothing is filtered here
+   */
+  private List<String> getPageIds(int offset, int limit) {
+    QueryResult<PageContext> pages = layoutService.findPages(offset, limit, null, null, null, null);
+    if (pages == null) {
+      return List.of();
+    }
+    return StreamSupport.stream(pages.spliterator(), false)
+                        .map(PageContext::getState)
+                        .filter(Objects::nonNull)
+                        .map(PageState::getStorageId)
+                        .filter(StringUtils::isNotBlank)
+                        .toList();
+  }
+
+  /**
+   * @param  id   the bare page document id
+   * @param  page the page it designates
+   * @return the bare page document, or {@code null} when the page is
+   *         represented by its content block documents instead, belongs to
+   *         a site nobody navigates, or can't be reached from any navigation
+   *         node (a result leading nowhere is worse than none)
+   */
+  private Document createPageDocument(String id, Page page) {
+    PageKey pageKey = page.getPageKey();
+    if (!isIndexableSite(pageKey.getSite())) {
+      LOGGER.debug("Page {} belongs to a {} site which users don't navigate, thus it isn't indexed",
+                   pageKey,
+                   pageKey.getSite().getType());
+      return null;
+    }
+    List<CMSSetting> liveBlocks = findLiveContentBlockSettings(page);
+    if (!liveBlocks.isEmpty()) {
+      // The block documents represent this page — and this very request may
+      // be the only one that ever reaches it: a full reindex enumerates
+      // block ids through the content-block plugins, which other addons
+      // register once their Spring context has finished booting, i.e. after
+      // the Kernel start a reindex-on-upgrade runs at, so that enumeration
+      // can have found none; and a page stored outside the Layout services
+      // broadcasts nothing for its blocks. Queuing them here makes both
+      // paths converge on the right documents one indexing cycle later.
+      liveBlocks.forEach(setting -> pluginService.reindexContentBlock(setting.getType(), setting.getName()));
+      LOGGER.debug("Page {} carries {} content block(s) which are indexed on their own (queued), thus no bare page document is indexed",
+                   pageKey,
+                   liveBlocks.size());
+      return null;
+    }
+    String pagePath = urlResolverService.resolvePath(pageKey);
+    if (StringUtils.isBlank(pagePath)) {
+      LOGGER.debug("Page {} isn't reachable from any navigation node, thus it isn't indexed", pageKey);
+      return null;
+    }
+    return buildDocument(id, page, pagePath);
+  }
+
+  /**
+   * @param  id   the content block document id
+   * @param  page the page carrying the block
+   * @return the content block document, or {@code null} when the block
+   *         doesn't exist on the page anymore
+   */
+  private Document createBlockDocument(String id, Page page) {
+    PageKey pageKey = page.getPageKey();
+    PageContentBlock content = findContentBlock(page, parseBlockHash(id));
+    if (content == null) {
+      LOGGER.warn("Content block {} doesn't exist anymore on page {}, thus it can't be indexed", id, pageKey);
+      return null;
+    }
+    Document document = buildDocument(id, page, urlResolverService.resolvePath(pageKey));
+    document.setLastUpdatedDate(content.getDate());
+    document.getFields().put("author", content.getAuthor());
+    Set<String> contentLanguages = new HashSet<>();
+    if (content.getContent() != null) {
+      content.getContent().forEach((lang, text) -> {
+        document.getFields().put(contentFieldName(lang), text);
+        if (StringUtils.isNotBlank(lang)) {
+          contentLanguages.add(lang);
+        }
+      });
+    }
+    document.addListField(CONTENT_LANGUAGES_FIELD, contentLanguages);
+    return document;
+  }
+
+  /**
+   * The fields both document kinds share: what identifies the page, what
+   * the search result displays about it, and who may see it.
+   *
+   * @param  id       the document id
+   * @param  page     the page the document describes
+   * @param  pagePath the page's front-end path, or {@code null}/blank if none
+   * @return the document, with a mutable field map callers can complete
+   */
+  private Document buildDocument(String id, Page page, String pagePath) {
+    PageKey pageKey = page.getPageKey();
+    Map<String, String> fields = new HashMap<>();
+    fields.put("pageStorageId", page.getStorageId());
+    fields.put("siteName", pageKey.getSite().getName());
+    fields.put("siteType", pageKey.getSite().getType().getName());
+    fields.put("pageName", pageKey.getName());
+    if (StringUtils.isNotBlank(page.getTitle())) {
+      fields.put("pageTitle", page.getTitle());
+    }
+    if (StringUtils.isNotBlank(pagePath)) {
+      fields.put("pagePath", pagePath);
+    }
+    Document document = new Document();
+    document.setId(id);
+    document.setPermissions(page.getAccessPermissions() == null ? new HashSet<>()
+                                                                : new HashSet<>(Arrays.asList(page.getAccessPermissions())));
+    document.setFields(fields);
+    return document;
+  }
+
+  /**
+   * The same "live block" rule as {@link #getAllBlockIds} and the indexing
+   * listener: a {@link CMSSetting} counts only while a widget carrying its
+   * name still sits on the page's layout — whether that widget's content
+   * currently resolves is deliberately not part of it (see the class
+   * javadoc).
+   *
+   * @param  page the page to check
+   * @return the {@link CMSSetting}s of the page's live content blocks, of
+   *         any registered content type — empty when it carries none
+   */
+  private List<CMSSetting> findLiveContentBlockSettings(Page page) {
+    Set<String> widgetSettingNames = PageContentBlockUtils.collectWidgetSettingNames(layoutService, page);
+    if (widgetSettingNames.isEmpty()) {
+      return List.of();
+    }
+    String pageReference = page.getPageKey().format();
+    return pluginService.getContentTypes()
+                        .stream()
+                        .flatMap(type -> cmsService.getSettingsByTypeAndPageReference(type, pageReference).stream())
+                        .filter(setting -> widgetSettingNames.contains(setting.getName()))
+                        .toList();
+  }
+
+  /**
    * Resolves the single content block identified by {@code blockHash} among
    * every block bound to {@code page}, across every registered content type.
    * <p>
