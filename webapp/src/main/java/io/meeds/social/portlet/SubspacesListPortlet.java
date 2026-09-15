@@ -75,9 +75,6 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
                                                                                SHOW_HIDDEN_SUBSPACES_PREFERENCE,
                                                                                SUBSPACES_LIMIT_PREFERENCE);
 
-  /** Resolved lazily from the container: the portlet is instantiated by the portlet container, not by Spring. */
-  private SpaceService              spaceService;
-
   @Override
   public void processAction(ActionRequest request, ActionResponse response) throws IOException, PortletException {
     if (!canModifySettings(request.getRemoteUser())) {
@@ -126,13 +123,9 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
 
   private boolean canModifySettings(String username) {
     Space space = SpaceUtils.getSpaceByContext();
-    return getSpaceService().canManageSpace(space, username);
-  }
-
-  private SpaceService getSpaceService() {
-    if (spaceService == null) {
-      spaceService = CommonsUtils.getService(SpaceService.class);
-    }
-    return spaceService;
+    // resolved per call, as the sibling ParentSpaceListingPortlet does: the
+    // portlet instance is not Spring-managed and must not pin a container
+    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+    return spaceService.canManageSpace(space, username);
   }
 }

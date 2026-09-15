@@ -47,9 +47,6 @@ const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 export function init(settings) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
-      if (!settings.headerTranslations) {
-        settings.headerTranslations = {};
-      }
       Vue.createApp({
         data: {
           settings,
