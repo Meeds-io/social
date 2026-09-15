@@ -181,6 +181,10 @@ export default {
     placementApp() {
       this.refreshEligibility();
     },
+    appName() {
+      this.refreshPlacementState();
+      this.refreshEligibility();
+    },
   },
   created() {
     this.standalone = !!(this.appName && window.eXo?.env?.portal?.standaloneAppName === this.appName);
