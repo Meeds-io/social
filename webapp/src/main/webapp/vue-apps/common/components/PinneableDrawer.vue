@@ -185,7 +185,6 @@ export default {
     provider: null,
     eligibility: null,
     stuckSide: null,
-    standalone: false,
     expandState: false,
     dockedExpanded: false,
     // held as data and re-synced from the global on each placement change:
@@ -194,6 +193,9 @@ export default {
     payload: null,
   }),
   computed: {
+    standalone() {
+      return !!(this.appName && window.eXo?.env?.portal?.standaloneAppName === this.appName);
+    },
     stuckAllowed() {
       return (this.$vuetify?.breakpoint?.width || 0) >= (this.$vuetify?.breakpoint?.thresholds?.lg || 1264);
     },
@@ -236,7 +238,6 @@ export default {
     },
   },
   created() {
-    this.standalone = !!(this.appName && window.eXo?.env?.portal?.standaloneAppName === this.appName);
     document.addEventListener('extension-Drawer-placementProvider-updated', this.resolveProvider);
     document.addEventListener('app-placement-changed', this.refreshPlacementState);
     document.addEventListener('page-layout-rendered', this.onPageLayoutRendered);
@@ -303,6 +304,8 @@ export default {
             siteEligible: this.payload?.siteEligible || false,
           } || null)
           .catch(() => this.eligibility = null);
+      } else {
+        this.eligibility = null;
       }
     },
     refreshPlacementState() {
@@ -326,7 +329,9 @@ export default {
       }
     },
     matchesPlacement(placementApplication) {
-      if (!placementApplication) {
+      if (!placementApplication || placementApplication.type === 'PORTLET') {
+        // a stuck portlet instance is rendered by the placement host into
+        // its own panel: its preview drawer must never dock for it
         return false;
       } else if (this.placementApp) {
         return `${placementApplication.id}` === `${this.placementApp.id}`;
@@ -369,19 +374,20 @@ export default {
       }
       this.dockedExpanded = false;
       const drawerElement = this.$refs.drawer?.$el;
-      if (drawerElement?.dataset?.stuckApp) {
-        delete drawerElement.dataset.stuckApp;
+      if (!drawerElement?.dataset?.stuckApp) {
+        return;
       }
-      const anchor = drawerElement?.closest?.('#pageBodyLeftPanel, #pageBodyRightPanel');
-      if (anchor) {
-        drawerElement.style.removeProperty('position');
-        drawerElement.style.removeProperty('z-index');
-        drawerElement.style.removeProperty('box-shadow');
-        this.$refs.drawer.close();
-        document.querySelector('#vuetify-apps')?.appendChild(drawerElement);
-        if (!anchor.querySelector('[data-stuck-app]')) {
-          anchor.classList.remove('stuck-app-panel');
-        }
+      // the placement host may already have taken the anchor back (a side
+      // switching to another application): clean the shell wherever it is
+      delete drawerElement.dataset.stuckApp;
+      const anchor = drawerElement.closest?.('#pageBodyLeftPanel, #pageBodyRightPanel');
+      drawerElement.style.removeProperty('position');
+      drawerElement.style.removeProperty('z-index');
+      drawerElement.style.removeProperty('box-shadow');
+      this.$refs.drawer.close();
+      document.querySelector('#vuetify-apps')?.appendChild(drawerElement);
+      if (anchor && !anchor.querySelector('[data-stuck-app]')) {
+        anchor.classList.remove('stuck-app-panel');
       }
     },
     stickTo(side) {
