@@ -19,11 +19,12 @@
 
 -->
 <template>
-  <exo-drawer
+  <pinneable-drawer
     ref="drawer"
     :loading="loading > 0"
     class="notifDrawer"
     body-classes="hide-scroll"
+    app-name="notifications"
     allow-expand
     right
     @closed="onClosed"
@@ -173,7 +174,7 @@
         </v-btn>
       </div>
     </template>
-  </exo-drawer>
+  </pinneable-drawer>
 </template>
 <script>
 export default {

@@ -15,13 +15,14 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <exo-drawer
+  <pinneable-drawer
     id="activityComposerDrawer"
     ref="activityComposerDrawer"
     v-if="singleton"
     v-model="drawer"
     v-draggable="enabled"
     disable-pull-to-refresh
+    app-name="activityComposer"
     allow-expand
     right
     fixed>
@@ -273,7 +274,7 @@
         </v-menu>
       </div>
     </template>
-  </exo-drawer>
+  </pinneable-drawer>
 </template>
 
 <script>
