@@ -34,21 +34,52 @@
       <slot :name="name"></slot>
     </template>
     <template #expandAction>
-      <template v-if="docked">
-        <v-btn
-          v-if="allowExpand"
-          :title="dockedExpanded && $t('label.collapse') || $t('label.expand')"
-          icon
-          @click="toggleDockedExpand">
-          <v-icon v-text="dockedExpanded && 'fas fa-compress-alt' || 'fas fa-expand-alt'" size="20" />
-        </v-btn>
-        <v-btn
-          :title="$t('label.unstick')"
-          icon
-          @click="unstick">
-          <v-icon size="20">fas fa-thumbtack</v-icon>
-        </v-btn>
-      </template>
+      <v-menu
+        v-if="docked"
+        open-on-hover
+        offset-y
+        bottom
+        left>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            :title="$t('label.unstick')"
+            icon
+            v-bind="attrs"
+            v-on="on"
+            @click="unstick">
+            <v-icon size="20">fas fa-thumbtack</v-icon>
+          </v-btn>
+        </template>
+        <v-list dense class="pa-0">
+          <v-list-item
+            v-if="allowExpand"
+            dense
+            @click="toggleDockedExpand">
+            <v-list-item-icon class="mx-1 justify-center">
+              <v-icon
+                v-text="dockedExpanded && 'fas fa-compress-alt' || 'fas fa-expand-alt'"
+                size="14"
+                class="icon-default-color" />
+            </v-list-item-icon>
+            <v-list-item-title class="pl-0 text-start">{{ dockedExpanded && $t('label.collapse') || $t('label.expand') }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            v-if="canDetach"
+            dense
+            @click="openInNewTab">
+            <v-list-item-icon class="mx-1 justify-center">
+              <v-icon size="14" class="icon-default-color">fas fa-external-link-alt</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="pl-0 text-start">{{ $t('label.openInNewTab') }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item dense @click="unstick">
+            <v-list-item-icon class="mx-1 justify-center">
+              <v-icon size="14" class="icon-default-color">fas fa-thumbtack</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="pl-0 text-start">{{ $t('label.unstick') }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
       <v-menu
         v-else-if="displayPlacementMenu"
         open-on-hover
