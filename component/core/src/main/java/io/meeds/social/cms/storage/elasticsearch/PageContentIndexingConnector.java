@@ -85,11 +85,13 @@ import io.meeds.social.cms.utils.PageContentBlockUtils;
  * appears, the block documents take over (they carry the same title, name
  * and site fields, so the page stays findable by name) and the bare page
  * document is removed — and a bare page document requested for a page that
- * turns out to carry live blocks queues those blocks' own indexing instead,
- * so that a full reindex started before the content-block plugins were
- * registered (a reindex-on-upgrade runs at Kernel start, the plugins arrive
- * with their addon's Spring context) still ends up with every block
- * indexed. "Live" is a purely structural rule — a
+ * turns out to carry live blocks queues the indexing of those of its blocks
+ * the index lacks instead ({@link #queueMissingBlockDocuments}), so that a
+ * full reindex started before the content-block plugins were registered (a
+ * reindex-on-upgrade runs at Kernel start, the plugins arrive with their
+ * addon's Spring context) still ends up with every block indexed, without
+ * re-queuing blocks another listener is already refreshing. "Live" is a
+ * purely structural rule — a
  * {@link CMSSetting} whose widget still sits on the page's layout, see
  * {@link PageContentBlockUtils} — so that every path deciding what the index
  * holds evaluates it identically, from layout alone. Its one blind spot: a
@@ -176,11 +178,15 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
   /** Used to resolve a page's front-end URL, when one exists. */
   private final PageUrlResolverService        urlResolverService;
 
+  /** Used to tell which of a page's documents the index already holds. */
+  private final PageContentSearchConnector    searchConnector;
+
   public PageContentIndexingConnector(PageContentBlockPluginService pluginService,
                                       CMSService cmsService,
                                       LayoutService layoutService,
                                       LocaleConfigService localeConfigService,
                                       PageUrlResolverService urlResolverService,
+                                      PageContentSearchConnector searchConnector,
                                       InitParams initParams) {
     super(initParams);
     this.pluginService = pluginService;
@@ -188,6 +194,7 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
     this.layoutService = layoutService;
     this.localeConfigService = localeConfigService;
     this.urlResolverService = urlResolverService;
+    this.searchConnector = searchConnector;
   }
 
   @Override
@@ -376,16 +383,8 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
     }
     List<CMSSetting> liveBlocks = findLiveContentBlockSettings(page);
     if (!liveBlocks.isEmpty()) {
-      // The block documents represent this page — and this very request may
-      // be the only one that ever reaches it: a full reindex enumerates
-      // block ids through the content-block plugins, which other addons
-      // register once their Spring context has finished booting, i.e. after
-      // the Kernel start a reindex-on-upgrade runs at, so that enumeration
-      // can have found none; and a page stored outside the Layout services
-      // broadcasts nothing for its blocks. Queuing them here makes both
-      // paths converge on the right documents one indexing cycle later.
-      liveBlocks.forEach(setting -> pluginService.reindexContentBlock(setting.getType(), setting.getName()));
-      LOGGER.debug("Page {} carries {} content block(s) which are indexed on their own (queued), thus no bare page document is indexed",
+      queueMissingBlockDocuments(page, liveBlocks);
+      LOGGER.debug("Page {} carries {} content block(s) which are indexed on their own, thus no bare page document is indexed",
                    pageKey,
                    liveBlocks.size());
       return null;
@@ -396,6 +395,43 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
       return null;
     }
     return buildDocument(id, page, pagePath);
+  }
+
+  /**
+   * The block documents represent a page carrying live blocks — and the bare
+   * page document request that lands here may be the only one that ever
+   * reaches the page: a full reindex enumerates block ids through the
+   * content-block plugins, which other addons register once their Spring
+   * context has finished booting, i.e. after the Kernel start a
+   * reindex-on-upgrade runs at, so that enumeration can have found none;
+   * and a page stored outside the Layout services broadcasts nothing for its
+   * blocks. Queuing them here makes both paths converge on the right
+   * documents one indexing cycle later.
+   * <p>
+   * Only the blocks the index does <em>not</em> hold yet are queued, though:
+   * a page saved through the Layout addon reaches this connector twice for
+   * one edit — {@code layout.page.updated} makes
+   * {@link io.meeds.social.cms.listener.PageContentBlockIndexingListener}
+   * reindex the live blocks directly, while the portal's own
+   * {@code PAGE_UPDATED} makes
+   * {@link io.meeds.social.cms.listener.PageSavedIndexingListener} queue
+   * the bare page document that ends here — and the indexing queue
+   * executes every queued operation, duplicates included. One lookup of
+   * what is indexed under the page (the query
+   * {@link PageContentSearchConnector#findIndexedDocumentIds} already runs
+   * for reconciliation) keeps that second pass from re-queuing every block a
+   * second time; a block whose document is present is left to the listener
+   * that owns its refresh.
+   *
+   * @param page       the page carrying the blocks
+   * @param liveBlocks the page's live content block settings
+   */
+  private void queueMissingBlockDocuments(Page page, List<CMSSetting> liveBlocks) {
+    String storageId = page.getStorageId();
+    Set<String> indexedIds = new HashSet<>(searchConnector.findIndexedDocumentIds(storageId));
+    liveBlocks.stream()
+              .filter(setting -> !indexedIds.contains(buildBlockId(storageId, setting.getType(), setting.getName())))
+              .forEach(setting -> pluginService.reindexContentBlock(setting.getType(), setting.getName()));
   }
 
   /**
