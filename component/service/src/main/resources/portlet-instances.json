@@ -18,6 +18,24 @@
         "*:/platform/web-contributors"
       ],
       "system":true
+    },
+    {
+      "nameId":"SubspacesList",
+      "categoryNameId":"spaceTools",
+      "portletName":"SubspacesList",
+      "names":{
+        "en":"layout.portletInstance.SubspacesList.name"
+      },
+      "descriptions":{
+        "en":"layout.portletInstance.SubspacesList.description"
+      },
+      "illustrationPath":"war:/../images/subspacesList.webp",
+      "preferences":[
+      ],
+      "permissions":[
+        "Everyone"
+      ],
+      "system":true
     }
   ]
 }
