@@ -71,8 +71,13 @@ public class PageSearchRest {
                                        List<Long> spaceIds,
                                        @Parameter(description = "Whether to search in favorites only or not")
                                        @RequestParam(name = "favorites", required = false, defaultValue = "false")
-                                       boolean favorites) {
-    return pageContentSearchConnector.search(term, offset, limit, request.getLocale(), spaceIds, favorites);
+                                       boolean favorites,
+                                       @Parameter(description = "Name of the portal site the user searches from: a page of the"
+                                           + " global site, which every portal site's menu carries, is then presented as an"
+                                           + " entry of that site")
+                                       @RequestParam(name = "site", required = false)
+                                       String site) {
+    return pageContentSearchConnector.search(term, offset, limit, request.getLocale(), spaceIds, favorites, site);
   }
 
   @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
