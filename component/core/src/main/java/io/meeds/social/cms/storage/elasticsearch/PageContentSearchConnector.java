@@ -47,8 +47,10 @@ import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -142,6 +144,9 @@ public class PageContentSearchConnector {
   /** Used to normalize a request locale to a configured content language. */
   private final LocaleConfigService  localeConfigService;
 
+  /** Used to know the global site, whose pages every portal site's menu carries. */
+  private final UserPortalConfigService portalConfigService;
+
   /** Classpath location of the query template resource. */
   private final String               queryFilePath;
 
@@ -156,6 +161,7 @@ public class PageContentSearchConnector {
                                     IdentityManager identityManager,
                                     SpaceService spaceService,
                                     LocaleConfigService localeConfigService,
+                                    UserPortalConfigService portalConfigService,
                                     InitParams initParams) {
     this.configurationManager = configurationManager;
     this.client = client;
@@ -165,6 +171,7 @@ public class PageContentSearchConnector {
     this.identityManager = identityManager;
     this.spaceService = spaceService;
     this.localeConfigService = localeConfigService;
+    this.portalConfigService = portalConfigService;
     ValueParam queryFileParam = initParams.getValueParam("query.file.path");
     this.queryFilePath = queryFileParam.getValue();
     this.query = retrieveQueryFromFile();
@@ -184,6 +191,25 @@ public class PageContentSearchConnector {
    * @return the matching {@link PageSearchResult}s
    */
   public List<PageSearchResult> search(String term, int offset, int limit, Locale locale, List<Long> spaceIds, boolean favorites) {
+    return search(term, offset, limit, locale, spaceIds, favorites, null);
+  }
+
+  /**
+   * Same as {@link #search(String, int, int, Locale, List, boolean)}, with
+   * the portal site the user searches from: a page of the global site, whose
+   * navigation the portal appends to every portal site's own, is then
+   * presented as an entry of that site (see {@link #isPresentedInSite}).
+   *
+   * @param site the name of the portal site the user searches from, or
+   *          {@code null}/blank when unknown
+   */
+  public List<PageSearchResult> search(String term,
+                                       int offset,
+                                       int limit,
+                                       Locale locale,
+                                       List<Long> spaceIds,
+                                       boolean favorites,
+                                       String site) {
     if (StringUtils.isBlank(term)) {
       throw new IllegalArgumentException("Term is mandatory");
     }
@@ -198,7 +224,7 @@ public class PageContentSearchConnector {
                                     .replace(OFFSET_REPLACEMENT, String.valueOf(Math.max(offset, 0)))
                                     .replace(LIMIT_REPLACEMENT, String.valueOf(limit < 1 ? 20 : limit));
     String jsonResponse = client.sendRequest(esQuery, INDEX);
-    return buildResults(jsonResponse, locale == null ? Locale.getDefault() : locale, favoriteIds);
+    return buildResults(jsonResponse, locale == null ? Locale.getDefault() : locale, favoriteIds, site);
   }
 
   /**
@@ -520,7 +546,7 @@ public class PageContentSearchConnector {
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private List<PageSearchResult> buildResults(String jsonResponse, Locale locale, Set<String> favoriteIds) {
+  private List<PageSearchResult> buildResults(String jsonResponse, Locale locale, Set<String> favoriteIds, String site) {
     JSONParser parser = new JSONParser();
     Map json;
     try {
@@ -539,7 +565,7 @@ public class PageContentSearchConnector {
     List<PageSearchResult> results = new ArrayList<>();
     for (Object jsonHit : jsonHits) {
       try {
-        PageSearchResult result = buildResult((JSONObject) jsonHit, locale, favoriteIds);
+        PageSearchResult result = buildResult((JSONObject) jsonHit, locale, favoriteIds, site);
         if (result != null) {
           results.add(result);
         }
@@ -564,7 +590,7 @@ public class PageContentSearchConnector {
    *         without an excerpt — a bare page document never has one.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private PageSearchResult buildResult(JSONObject jsonHit, Locale locale, Set<String> favoriteIds) {
+  private PageSearchResult buildResult(JSONObject jsonHit, Locale locale, Set<String> favoriteIds, String site) {
     String id = (String) jsonHit.get("_id");
     JSONObject source = (JSONObject) jsonHit.get("_source");
     JSONObject highlight = (JSONObject) jsonHit.get("highlight");
@@ -575,15 +601,69 @@ public class PageContentSearchConnector {
     Object dateValue = source == null ? null : source.get("lastUpdatedDate");
     String siteType = source == null ? null : (String) source.get("siteType");
     String siteName = source == null ? null : (String) source.get("siteName");
+    String pagePath = source == null ? null : (String) source.get("pagePath");
+    if (isPresentedInSite(siteType, siteName, site)) {
+      pagePath = relocatePath(pagePath, siteName, site);
+      siteName = site;
+    }
     return new PageSearchResult(id,
                                 resolveSiteLabel(siteType, siteName, locale),
                                 source == null ? null : (String) source.get("pageName"),
                                 source == null ? null : (String) source.get("pageTitle"),
-                                source == null ? null : (String) source.get("pagePath"),
+                                pagePath,
                                 source == null ? null : (String) source.get("author"),
                                 dateValue == null ? 0L : ((Number) dateValue).longValue(),
                                 excerpts,
                                 favoriteIds.contains(id));
+  }
+
+  /**
+   * The portal appends the global site's navigation to the navigation of
+   * every other portal site ({@code UserPortalImpl#loadUserNavigation}), so
+   * a page of the global site is what a user reaches through the menu of the
+   * site they are in: the "Spaces" entry of a Digital Workplace is the global
+   * "All Spaces" page, served under the workplace's own URL. Such a page is
+   * therefore presented as the searching user's site's entry — its path
+   * relocated under that site ({@link #relocatePath}), its label that site's
+   * — rather than as a page of a "Global" site the user never sees, and it
+   * is presented once: the global entry is the same page under a technical
+   * URL, not a second result.
+   * <p>
+   * Only a portal site other than the global one qualifies, since the portal
+   * appends the global navigation to portal sites only: within a space (a
+   * group site), or without a site to prefer, the page keeps its own.
+   *
+   * @param  siteType the hit's site type
+   * @param  siteName the hit's site name
+   * @param  site     the name of the portal site the user searches from, or
+   *                  {@code null}/blank when unknown
+   * @return whether the hit is a global site page to present as an entry of
+   *         {@code site}
+   */
+  private boolean isPresentedInSite(String siteType, String siteName, String site) {
+    if (StringUtils.isBlank(site) || !StringUtils.equals(siteType, SiteType.PORTAL.getName())) {
+      return false;
+    }
+    String globalPortal = portalConfigService.getGlobalPortal();
+    return StringUtils.isNotBlank(globalPortal)
+           && StringUtils.equals(siteName, globalPortal)
+           && !StringUtils.equals(site, globalPortal)
+           && layoutService.getPortalConfig(new SiteKey(SiteType.PORTAL, site)) != null;
+  }
+
+  /**
+   * @param  pagePath the page's indexed path, built for its own site (e.g.
+   *                  {@code /portal/global/spaces})
+   * @param  fromSite the page's own portal site
+   * @param  toSite   the portal site to present the page under
+   * @return the same navigation path under {@code toSite} (e.g.
+   *         {@code /portal/dw/spaces}), or {@code pagePath} verbatim when it
+   *         doesn't carry {@code fromSite} as its site segment
+   */
+  private String relocatePath(String pagePath, String fromSite, String toSite) {
+    String fromPrefix = "/portal/" + fromSite + "/";
+    return StringUtils.startsWith(pagePath, fromPrefix) ? "/portal/" + toSite + "/" + pagePath.substring(fromPrefix.length())
+                                                       : pagePath;
   }
 
   /**
