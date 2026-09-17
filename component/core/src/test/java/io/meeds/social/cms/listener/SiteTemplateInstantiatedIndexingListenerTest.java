@@ -72,8 +72,8 @@ public class SiteTemplateInstantiatedIndexingListenerTest {
 
     listener.onEvent(new Event<>(UserPortalConfigService.SITE_TEMPLATE_INSTANTIATED, TEMPLATE_SITE_KEY, SPACE_SITE_KEY));
 
-    verify(indexingService).reindex(PageContentIndexingConnector.TYPE, "page_1");
-    verify(indexingService).reindex(PageContentIndexingConnector.TYPE, "page_2");
+    verify(indexingService).index(PageContentIndexingConnector.TYPE, "page_1");
+    verify(indexingService).index(PageContentIndexingConnector.TYPE, "page_2");
   }
 
   @Test
@@ -86,7 +86,7 @@ public class SiteTemplateInstantiatedIndexingListenerTest {
     listener.onEvent(new Event<>(UserPortalConfigService.SITE_TEMPLATE_INSTANTIATED, TEMPLATE_SITE_KEY, TEMPLATE_SITE_KEY));
 
     verify(layoutService, never()).findPages(any(SiteKey.class));
-    verify(indexingService, never()).reindex(any(), any());
+    verify(indexingService, never()).index(any(), any());
   }
 
   @Test
@@ -94,7 +94,7 @@ public class SiteTemplateInstantiatedIndexingListenerTest {
     listener.onEvent(new Event<>(UserPortalConfigService.SITE_TEMPLATE_INSTANTIATED, TEMPLATE_SITE_KEY, null));
 
     verify(layoutService, never()).findPages(any(SiteKey.class));
-    verify(indexingService, never()).reindex(any(), any());
+    verify(indexingService, never()).index(any(), any());
   }
 
   @Test
@@ -105,8 +105,8 @@ public class SiteTemplateInstantiatedIndexingListenerTest {
 
     listener.onEvent(new Event<>(UserPortalConfigService.SITE_TEMPLATE_INSTANTIATED, TEMPLATE_SITE_KEY, SPACE_SITE_KEY));
 
-    verify(indexingService).reindex(PageContentIndexingConnector.TYPE, "page_2");
-    verify(indexingService, never()).reindex(PageContentIndexingConnector.TYPE, null);
+    verify(indexingService).index(PageContentIndexingConnector.TYPE, "page_2");
+    verify(indexingService, never()).index(PageContentIndexingConnector.TYPE, null);
   }
 
   private PageContext pageContext(String storageId) {

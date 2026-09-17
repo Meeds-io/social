@@ -233,7 +233,7 @@
               <string>page</string>
             </field>
             <field name="uri">
-              <string><![CDATA[/social/rest/pages/search?q={keyword}&limit={limit}]]></string>
+              <string><![CDATA[/social/rest/pages/search?q={keyword}&limit={limit}&site={portalName}]]></string>
             </field>
             <field name="enabled">
               <boolean>${search.page.enabled:true}</boolean>
