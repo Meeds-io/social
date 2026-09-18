@@ -84,9 +84,18 @@ export default {
   },
   watch: {
     isUnread() {
+      if (this.isUnread && !this.isMarkedAsRead) {
+        // Lit while the timer was already running: restart its window on the
+        // text that is now displayed, instead of keeping the mount deadline
+        window.clearTimeout(this.displayTimeout);
+        this.displayTimeout = false;
+        this.isReading = false;
+        this.countText();
+      }
       // Follows the displayed badge, not the event: a consumer may decline
       // one, and reopening the guard there marks the item read unseen
       this.isMarkedAsRead = !this.isUnread;
+      this.computeIsReading();
     },
     isMarkedAsRead() {
       if (this.isMarkedAsRead) {
@@ -165,7 +174,7 @@ export default {
         return true;
       }
       // A redirected item (a news backed activity) names the content object
-      return !!alternateId && String(alternateId) === String(this.objectId);
+      return !!alternateId && alternateId === this.objectId;
     },
     countText() {
       if (!this.isMarkedAsRead) {

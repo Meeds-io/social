@@ -26,7 +26,6 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
 import org.exoplatform.social.rest.api.EntityBuilderReportsTest;
-
 import org.exoplatform.social.websocket.SpaceWebNotificationWebSocketServiceTest;
 
 import io.meeds.social.report.listener.ReportWebSocketBroadcastListenerTest;
