@@ -5,8 +5,10 @@
     :space-id="spaceId"
     :object-id="activityId"
     object-type="activity"
+    alternate-id-field="activityId"
     class="application-background-color application-border application-border-radius activity-detail flex flex-column"
-    @read="markAsRead">
+    @read="markAsRead"
+    @unread="markAsUnread">
     <div v-if="displayLoading" class="d-flex">
       <v-progress-circular
         color="primary"
@@ -350,6 +352,20 @@ export default {
     markAsRead() {
       this.unreadMetadata = null;
       this.$root.$emit('activity-read', this.activityId);
+    },
+    markAsUnread(notificationItem) {
+      // Known gap: an unread arriving while a read is in flight is lost
+      // until the next event, dropping this guard would not close it
+      if (this.isActivityShared || this.unreadMetadata) {
+        return;
+      }
+      // Badge local, not refetched: only properties.actionType is read back
+      this.unreadMetadata = {
+        properties: {
+          actionType: notificationItem?.activityActionType || '',
+        },
+      };
+      this.$root.$emit('activity-unread', this.activityId, this.unreadMetadata);
     },
     scrollTo(element) {
       window.setTimeout(() => {
