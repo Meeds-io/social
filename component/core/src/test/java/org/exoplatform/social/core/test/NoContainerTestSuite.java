@@ -44,6 +44,7 @@ import org.exoplatform.social.core.identity.IdentityResultTest;
 import org.exoplatform.social.core.identity.model.GlobalIdTest;
 import org.exoplatform.social.core.identity.model.IdentityTest;
 import org.exoplatform.social.core.image.ImageUtilsTest;
+import org.exoplatform.social.core.jpa.storage.entity.PortableSequenceChangelogCoverageTest;
 import org.exoplatform.social.core.plugin.ActivityAttachmentPluginTest;
 import org.exoplatform.social.core.processor.ActivityResourceBundlePluginTest;
 import org.exoplatform.social.core.profile.UserProfileComparatorTest;
@@ -161,7 +162,8 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     PageContentSearchConnectorTest.class,
     PageFavoriteACLPluginTest.class,
     AccountDeactivationServiceTest.class,
-    BrandedEmailSenderTest.class
+    BrandedEmailSenderTest.class,
+    PortableSequenceChangelogCoverageTest.class
 })
 public class NoContainerTestSuite {
 
