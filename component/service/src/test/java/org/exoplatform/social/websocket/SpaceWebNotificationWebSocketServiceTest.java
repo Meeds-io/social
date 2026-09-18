@@ -136,6 +136,29 @@ public class SpaceWebNotificationWebSocketServiceTest {
     assertEquals("42", sentItem.getElement("applicationItemId").getStringValue());
   }
 
+  /**
+   * Regression pin, serialization leg only: activityId and
+   * activityActionType must survive JsonGeneratorImpl under those exact keys,
+   * the badge of a news backed activity matches on activityId. The item is
+   * built by hand, so the producers are pinned elsewhere —
+   * ActivitySpaceWebNotificationPluginTest here, content's not yet.
+   */
+  @Test
+  public void testSendMessageCarriesActivityIdOfRedirectedItem() throws Exception {
+    SpaceWebNotificationItem item = new SpaceWebNotificationItem("news", "42", USER_IDENTITY_ID, SPACE_ID);
+    item.setActivityId("100");
+    item.setActivityActionType("ActivityComment");
+
+    webSocketService.sendMessage(NOTIFICATION_UNREAD_EVENT_NAME, item);
+
+    JsonValue sentItem = captureSentMessage(NOTIFICATION_UNREAD_EVENT_NAME).getElement(OUTBOUND_ITEM_KEY);
+    assertNotNull(sentItem);
+    assertNotNull("activityId must reach the browser: the badge of a news backed activity matches on it",
+                  sentItem.getElement("activityId"));
+    assertEquals("100", sentItem.getElement("activityId").getStringValue());
+    assertEquals("ActivityComment", sentItem.getElement("activityActionType").getStringValue());
+  }
+
   @Test
   public void testSendMessageIgnoresOfflineUser() {
     when(continuationService.isPresent(USERNAME)).thenReturn(false);
