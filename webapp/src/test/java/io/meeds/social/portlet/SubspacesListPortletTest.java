@@ -19,14 +19,20 @@
 package io.meeds.social.portlet;
 
 import static io.meeds.social.portlet.SubspacesListPortlet.HEADER_TRANSLATIONS_INVALID_MESSAGE;
+import static io.meeds.social.portlet.SubspacesListPortlet.LIMIT_PARAMETER;
+import static io.meeds.social.portlet.SubspacesListPortlet.MAX_RESOURCE_LIMIT;
 import static io.meeds.social.portlet.SubspacesListPortlet.HEADER_TRANSLATIONS_PREFERENCE;
 import static io.meeds.social.portlet.SubspacesListPortlet.LIMIT_OUT_OF_RANGE_MESSAGE;
 import static io.meeds.social.portlet.SubspacesListPortlet.SHOW_HIDDEN_SUBSPACES_INVALID_MESSAGE;
 import static io.meeds.social.portlet.SubspacesListPortlet.SHOW_HIDDEN_SUBSPACES_PREFERENCE;
 import static io.meeds.social.portlet.SubspacesListPortlet.SUBSPACES_LIMIT_PREFERENCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -36,7 +42,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
@@ -60,6 +70,8 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.PortletPreferences;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
 /**
  * Pins the trust boundary of the widget preferences: only a user who can
@@ -86,6 +98,14 @@ class SubspacesListPortletTest {
   @Mock
   private PortletPreferences        preferences;
 
+  @Mock
+  private ResourceRequest           resourceRequest;
+
+  @Mock
+  private ResourceResponse          resourceResponse;
+
+  private StringWriter              responseBody;
+
   private MockedStatic<SpaceUtils>  spaceUtils;
 
   private MockedStatic<CommonsUtils> commonsUtils;
@@ -104,6 +124,25 @@ class SubspacesListPortletTest {
     lenient().when(request.getPreferences()).thenReturn(preferences);
     lenient().when(request.getParameter(anyString())).thenAnswer(invocation -> parameters.get(invocation.getArgument(0)));
     portlet = new SubspacesListPortlet();
+  }
+
+  private void givenAResourceRequest() throws Exception {
+    responseBody = new StringWriter();
+    lenient().when(resourceRequest.getRemoteUser()).thenReturn(USERNAME);
+    lenient().when(resourceRequest.getPreferences()).thenReturn(preferences);
+    lenient().when(resourceRequest.getLocale()).thenReturn(Locale.ENGLISH);
+    lenient().when(resourceResponse.getWriter()).thenReturn(new PrintWriter(responseBody, true));
+    lenient().when(preferences.getValue(eq(SHOW_HIDDEN_SUBSPACES_PREFERENCE), anyString()))
+             .thenReturn("false");
+  }
+
+  private Space subspace(long id, String displayName, String visibility) {
+    Space subspace = new Space();
+    subspace.setId(id);
+    subspace.setDisplayName(displayName);
+    subspace.setPrettyName(displayName);
+    subspace.setVisibility(visibility);
+    return subspace;
   }
 
   @AfterEach
@@ -239,5 +278,145 @@ class SubspacesListPortletTest {
 
     assertEquals(HEADER_TRANSLATIONS_INVALID_MESSAGE, exception.getMessage());
     verify(preferences, never()).store();
+  }
+
+  @Test
+  void serveResourceAnswersNotAParentSpaceWithoutAnyListingQuery() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(false);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    assertTrue(responseBody.toString().contains("\"parentSpace\":false"));
+    verify(spaceService, never()).getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong());
+    verify(spaceService, never()).canCreateSubspace(any(), anyString(), any());
+  }
+
+  @Test
+  void serveResourceAnswersNotAParentSpaceOutsideAnySpaceContext() throws Exception {
+    givenAResourceRequest();
+    spaceUtils.when(SpaceUtils::getSpaceByContext).thenReturn(null);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    assertTrue(responseBody.toString().contains("\"parentSpace\":false"));
+    verifyNoInteractions(spaceService);
+  }
+
+  @Test
+  void serveResourceReadsTheHiddenFlagFromThePreferencesNeverFromTheRequest() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(preferences.getValue(eq(SHOW_HIDDEN_SUBSPACES_PREFERENCE), anyString())).thenReturn("true");
+    // a caller forging the flag on the query string must change nothing —
+    // lenient because the portlet is expected never to read it
+    lenient().when(resourceRequest.getParameter(SHOW_HIDDEN_SUBSPACES_PREFERENCE)).thenReturn("false");
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), eq(true), eq(0L), anyLong());
+  }
+
+  @Test
+  void serveResourceKeepsTheHiddenFlagOffWhenThePreferenceIsAbsent() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    lenient().when(resourceRequest.getParameter(SHOW_HIDDEN_SUBSPACES_PREFERENCE)).thenReturn("true");
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), eq(false), eq(0L), anyLong());
+    verify(resourceRequest, never()).getParameter(SHOW_HIDDEN_SUBSPACES_PREFERENCE);
+  }
+
+  @Test
+  void serveResourceAsksTheLimitTheWidgetRequested() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(resourceRequest.getParameter(LIMIT_PARAMETER)).thenReturn("5");
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(spaceService).getSubspaces(anyLong(), anyString(), anyBoolean(), eq(0L), eq(5L));
+  }
+
+  @Test
+  void serveResourceCapsTheLimitAndDefaultsToTheCap() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(resourceRequest.getParameter(LIMIT_PARAMETER)).thenReturn("100000");
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+    verify(spaceService).getSubspaces(anyLong(), anyString(), anyBoolean(), eq(0L), eq((long) MAX_RESOURCE_LIMIT));
+
+    givenAResourceRequest();
+    when(resourceRequest.getParameter(LIMIT_PARAMETER)).thenReturn(null);
+    portlet.serveResource(resourceRequest, resourceResponse);
+    verify(spaceService, org.mockito.Mockito.times(2))
+                                            .getSubspaces(anyLong(), anyString(), anyBoolean(), eq(0L), eq((long) MAX_RESOURCE_LIMIT));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "0", "-1", "notANumber" })
+  void serveResourceAnswers400OnAnInvalidLimit(String limit) throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(resourceRequest.getParameter(LIMIT_PARAMETER)).thenReturn(limit);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "400");
+    assertEquals(LIMIT_OUT_OF_RANGE_MESSAGE, responseBody.toString().trim());
+    verify(spaceService, never()).getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong());
+  }
+
+  @Test
+  void serveResourceAnswers403WhenTheViewerCannotViewTheParent() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong()))
+                                                                                              .thenThrow(new IllegalAccessException("refused"));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "403");
+  }
+
+  @Test
+  void serveResourceAnswers404WhenTheParentIsGone() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong()))
+                                                                                              .thenThrow(new org.exoplatform.commons.exception.ObjectNotFoundException("gone"));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "404");
+  }
+
+  @Test
+  void serveResourceWritesTheEnvelopeTheWidgetRendersFrom() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(spaceService.canManageSpace(space, USERNAME)).thenReturn(true);
+    when(spaceService.canCreateSubspace(eq(space), eq(USERNAME), any())).thenReturn(true);
+    Space hidden = subspace(7L, "Secret team", Space.HIDDEN);
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong()))
+                                                                                              .thenReturn(List.of(hidden));
+    when(spaceService.isMember(hidden, USERNAME)).thenReturn(false);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    String body = responseBody.toString();
+    assertTrue(body.contains("\"parentSpace\":true"));
+    assertTrue(body.contains("\"canManageSpace\":true"));
+    assertTrue(body.contains("\"canCreateSubspace\":true"));
+    assertTrue(body.contains("\"displayName\":\"Secret team\""));
+    assertTrue(body.contains("\"visibility\":\"hidden\""));
+    // the shared <space-avatar> reads this exact field name to decide how a
+    // hidden space is rendered to a viewer who is not a member of it
+    assertTrue(body.contains("\"isMember\":false"));
+    assertFalse(body.contains("\"size\""));
+    verify(resourceResponse).setContentType("application/json");
   }
 }

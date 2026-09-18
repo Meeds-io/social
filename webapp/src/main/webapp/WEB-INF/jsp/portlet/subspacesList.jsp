@@ -29,7 +29,11 @@
     <script type="text/javascript">
       require(['PORTLET/social/SubspacesList'], app => app.init({
         appId: '<%=appId%>',
-        // a preference imported through the layout editor bypasses processAction: never let a bad value block the widget
+        <%-- Never a // comment inside this script: the layout renderer strips newlines before
+             injecting it (commonLayoutComponents re()/ie()), so a line comment swallows the rest
+             of the script and the require() call never parses. Use a JSP comment instead. --%>
+        <%-- A preference imported through the layout editor bypasses processAction: never let a
+             bad value block the widget. --%>
         headerTranslations: (() => {
           try {
             const value = JSON.parse(decodeURIComponent(document.getElementById('<%=headerTranslationsDomId%>').value.replace(/\+/g, '%20')));
