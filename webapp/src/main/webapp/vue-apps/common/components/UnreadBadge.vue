@@ -84,18 +84,16 @@ export default {
   },
   watch: {
     isUnread() {
-      if (this.isUnread && !this.isMarkedAsRead) {
-        // Lit while the timer was already running: restart its window on the
-        // text that is now displayed, instead of keeping the mount deadline
-        window.clearTimeout(this.displayTimeout);
-        this.displayTimeout = false;
-        this.isReading = false;
-        this.countText();
-      }
       // Follows the displayed badge, not the event: a consumer may decline
       // one, and reopening the guard there marks the item read unseen
       this.isMarkedAsRead = !this.isUnread;
-      this.computeIsReading();
+      if (this.isUnread && this.isReading) {
+        // Already reading: isMarkedAsRead did not change, so its watcher will
+        // not run. Re-arm directly on the text now displayed - toggling
+        // isReading here would not do it, Vue collapses the pair into no edge
+        this.countText();
+        this.armReadTimer();
+      }
     },
     isMarkedAsRead() {
       if (this.isMarkedAsRead) {
@@ -112,11 +110,7 @@ export default {
     },
     isReading(newVal, oldVal) {
       if (newVal && !oldVal) {
-        this.displayTimeout = window.setTimeout(() => {
-          if (this.computeIsReading()) {
-            this.markAsRead();
-          }
-        }, this.waitTimeToMarkAsRead);
+        this.armReadTimer();
       } else if (this.displayTimeout) {
         window.clearTimeout(this.displayTimeout);
         this.displayTimeout = false;
@@ -136,6 +130,14 @@ export default {
     document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
   },
   methods: {
+    armReadTimer() {
+      window.clearTimeout(this.displayTimeout);
+      this.displayTimeout = window.setTimeout(() => {
+        if (this.computeIsReading()) {
+          this.markAsRead();
+        }
+      }, this.waitTimeToMarkAsRead);
+    },
     installBodyScrollListener() {
       const siteBodyElement = document.querySelector('.site-scroll-parent');
       siteBodyElement.addEventListener('scroll', this.computePagePosition, false);
