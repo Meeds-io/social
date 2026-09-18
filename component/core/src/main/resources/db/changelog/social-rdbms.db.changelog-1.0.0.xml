@@ -1408,4 +1408,16 @@
       <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
     </modifySql>
   </changeSet>
+
+  <!-- EXO-90302: 1.0.0-123 created this sequence for hsqldb only. SOC_USER_BINDINGS_QUEUE (1.0.0-122) has no
+       identity column where autoIncrement is false (oracle, postgresql), so the entity's @PortableSequence needs
+       the sequence there too. The precondition keeps a database where it was created by hand from failing. -->
+  <changeSet author="social" id="1.0.0-132" dbms="oracle,postgresql">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <sequenceExists sequenceName="SEQ_SOC_USER_BINDINGS_QUEUE_ID"/>
+      </not>
+    </preConditions>
+    <createSequence sequenceName="SEQ_SOC_USER_BINDINGS_QUEUE_ID" startValue="1"/>
+  </changeSet>
 </databaseChangeLog>
