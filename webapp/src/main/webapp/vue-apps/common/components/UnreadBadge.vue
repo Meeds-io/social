@@ -89,9 +89,8 @@ export default {
       this.isMarkedAsRead = !this.isUnread;
       if (this.isUnread && this.isReading) {
         // Already reading: isMarkedAsRead did not change, so its watcher will
-        // not run. Re-arm directly on the text now displayed - toggling
-        // isReading here would not do it, Vue collapses the pair into no edge
-        this.countText();
+        // not run. Re-arm directly - toggling isReading here would not do it,
+        // Vue collapses the pair into no edge
         this.armReadTimer();
       }
     },
@@ -131,6 +130,8 @@ export default {
   },
   methods: {
     armReadTimer() {
+      // Every arming path sizes the window on the text actually displayed
+      this.countText();
       window.clearTimeout(this.displayTimeout);
       this.displayTimeout = window.setTimeout(() => {
         if (this.computeIsReading()) {
