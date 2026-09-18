@@ -49,6 +49,7 @@ import org.exoplatform.social.notification.channel.template.SpaceInvitationMailB
 import org.exoplatform.social.notification.impl.SpaceWebNotificationServiceTest;
 import org.exoplatform.social.notification.listener.AccountDeactivationNotificationListenerTest;
 import org.exoplatform.social.notification.plugin.AccountDeactivationRequestPluginTest;
+import org.exoplatform.social.notification.plugin.ActivitySpaceWebNotificationPluginTest;
 import org.exoplatform.social.notification.plugin.SocialNotificationUtilsTest;
 
 import io.meeds.social.report.notification.listener.ReportNotificationListenerTest;
@@ -58,6 +59,7 @@ import io.meeds.social.security.plugin.EmailOtpPluginTest;
 @RunWith(Suite.class)
 @SuiteClasses({
   SocialDigestLinePluginTest.class,
+  ActivitySpaceWebNotificationPluginTest.class,
   SpaceWebNotificationCleanupJobTest.class,
   WebNotificationRestEntityBuilderTest.class,
   ActivityMentionMailBuilderTest.class,
