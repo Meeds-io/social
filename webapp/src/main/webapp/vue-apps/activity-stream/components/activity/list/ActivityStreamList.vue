@@ -169,6 +169,7 @@ export default {
     this.$root.$on('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
     this.$root.$on('activities-refresh', this.refreshActivities);
     this.$root.$on('activity-read', this.markActivityAsRead);
+    this.$root.$on('activity-unread', this.markActivityAsUnread);
     this.$root.$on('activity-loaded', this.refreshUnreadCount);
     this.$root.$on('set-activity-comment-size', this.setActivityCommentSize);
     document.addEventListener('categories-updated', this.refreshActivitiesByCategories);
@@ -195,6 +196,7 @@ export default {
     this.$root.$off('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
     this.$root.$off('activities-refresh', this.refreshActivities);
     this.$root.$off('activity-read', this.markActivityAsRead);
+    this.$root.$off('activity-unread', this.markActivityAsUnread);
     this.$root.$off('activity-loaded', this.refreshUnreadCount);
     this.$root.$off('set-activity-comment-size', this.setActivityCommentSize);
     document.removeEventListener('categories-updated', this.refreshActivitiesByCategories);
@@ -454,6 +456,16 @@ export default {
       const activity = this.activities?.find?.(a => a.id === activityId);
       if (activity?.metadatas?.unread) {
         activity.metadatas.unread = null;
+      }
+      this.refreshUnreadCount();
+    },
+    markActivityAsUnread(activityId, unreadMetadata) {
+      const activity = this.activities?.find?.(a => a.id === activityId);
+      if (activity && !activity.metadatas?.unread?.length) {
+        if (!activity.metadatas) {
+          this.$set(activity, 'metadatas', {});
+        }
+        this.$set(activity.metadatas, 'unread', [unreadMetadata]);
       }
       this.refreshUnreadCount();
     },

@@ -27,6 +27,8 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
 import org.exoplatform.social.rest.api.EntityBuilderReportsTest;
 
+import org.exoplatform.social.websocket.SpaceWebNotificationWebSocketServiceTest;
+
 import io.meeds.social.report.listener.ReportWebSocketBroadcastListenerTest;
 import io.meeds.social.report.rest.ActivityReportRestTest;
 
@@ -36,6 +38,7 @@ import io.meeds.social.report.rest.ActivityReportRestTest;
   EntityBuilderReactionsTest.class,
   EntityBuilderReportsTest.class,
   ReportWebSocketBroadcastListenerTest.class,
+  SpaceWebNotificationWebSocketServiceTest.class,
   ActivityReportRestTest.class,
   })
 public class NoContainerTestSuite {
