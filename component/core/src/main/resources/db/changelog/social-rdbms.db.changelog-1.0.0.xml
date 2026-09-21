@@ -1408,4 +1408,20 @@
       <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
     </modifySql>
   </changeSet>
+  <!--
+    SOC_SPACES.PARENT_SPACE_ID was added by changeset 1.0.0-mip-227-02 with the
+    foreign key FK_SOC_SPACES_PARENT and no index. The Subspaces List portlet
+    runs the parentSpaceId predicate on every render of every parent space's
+    page, so the column needs one.
+    Scoped to postgresql and hsqldb on purpose: on MySQL/MariaDB InnoDB already
+    keeps an implicit index for the foreign key, and an explicit index would
+    replace it — its rollback (DROP INDEX) would then be refused with error
+    1553 "Cannot drop index: needed in a foreign key constraint", making this
+    changeset irreversible on that dialect.
+  -->
+  <changeSet author="social" id="1.0.0-132" dbms="postgresql,hsqldb">
+    <createIndex tableName="SOC_SPACES" indexName="IDX_SOC_SPACES_PARENT_01">
+      <column name="PARENT_SPACE_ID"/>
+    </createIndex>
+  </changeSet>
 </databaseChangeLog>
