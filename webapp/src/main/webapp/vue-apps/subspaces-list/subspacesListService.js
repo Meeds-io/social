@@ -18,6 +18,59 @@
  */
 
 /**
+ * Asks the portlet resource URL for everything the widget renders from.
+ *
+ * The envelope is computed server-side: whether the hosting space is a parent
+ * space at all, what the viewer may do on it, and the sub-spaces they may see.
+ * Whether hidden sub-spaces are part of that list is decided by the portlet
+ * preference, never by this call — there is deliberately no parameter for it.
+ *
+ * @param {string} resourceUrl the portlet resource URL
+ * @param {number} limit maximum number of sub-spaces to return; omitted to get
+ *        the whole list (the server caps it)
+ * @returns {Promise<object>} {parentSpace, canManageSpace, canCreateSubspace,
+ *          subspaces[]}
+ */
+export function getSubspaces(resourceUrl, limit) {
+  const url = new URL(resourceUrl.replaceAll('&amp;', '&'), window.location.origin);
+  if (limit) {
+    url.searchParams.append('limit', limit);
+  }
+  return fetch(url, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp.ok) {
+      throw new Error('Error while retrieving subspaces list');
+    }
+    return resp.json();
+  });
+}
+
+/**
+ * Builds the URL of a sub-space avatar served by the portlet itself. Used for
+ * a HIDDEN sub-space the viewer is not a member of: the space avatar REST
+ * endpoint may refuse them, while the portlet serves the avatar of any
+ * sub-space it lists to the viewer.
+ *
+ * Total by construction: an absent resource URL (an older JSP that does not
+ * declare it yet) returns nothing rather than throwing, so the caller falls
+ * back to the standard avatar URL instead of losing the row.
+ *
+ * @param {string} avatarResourceUrl the portlet resource URL with id 'avatar'
+ * @param {string|number} spaceId the sub-space identifier
+ * @returns {string} the image URL, or an empty string when it cannot be built
+ */
+export function getSubspaceAvatarUrl(avatarResourceUrl, spaceId) {
+  if (!avatarResourceUrl || !spaceId) {
+    return '';
+  }
+  const url = new URL(avatarResourceUrl.replaceAll('&amp;', '&'), window.location.origin);
+  url.searchParams.append('spaceId', spaceId);
+  return url.toString();
+}
+
+/**
  * Posts the widget preferences to the portlet action URL. The server stores
  * only headerTranslations, showHiddenSubspaces and subspacesLimit, under the
  * parent space management guard.

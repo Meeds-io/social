@@ -1,9 +1,8 @@
 <template>
   <div
-    class="profile-popover space-avatar-wrapper"
-    v-if="popover"
-    :class="extraClass"
-    v-identity-popover="space">
+    :class="[extraClass, popover && 'profile-popover' || '']"
+    v-identity-popover="popoverIdentity"
+    class="space-avatar-wrapper">
     <a
       v-if="notAccessibleSpace"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar not-clickable-link">
@@ -45,11 +44,12 @@
         tile
         class="my-auto">
         <img
-          :src="avatarUrl"
+          :src="displayedAvatarUrl"
           :class="avatarClass"
           alt=""
           class="object-fit-cover ma-auto"
-          loading="lazy">
+          loading="lazy"
+          @error="avatarFailed = true">
       </v-avatar>
     </a>
     <a
@@ -91,11 +91,12 @@
         tile
         class="my-auto">
         <img
-          :src="avatarUrl"
+          :src="displayedAvatarUrl"
           :class="avatarClass"
           alt=""
           class="object-fit-cover ma-auto"
-          loading="lazy">
+          loading="lazy"
+          @error="avatarFailed = true">
       </v-avatar>
       <div
         v-if="displayName || $slots.subTitle"
@@ -172,6 +173,19 @@ export default {
       type: Boolean,
       default: () => true,
     },
+    /**
+     * Renders a HIDDEN space the viewer is not a member of as its normal
+     * link (avatar, name) instead of the anonymous "Hidden space"
+     * placeholder. The link leads to /s/{id}; where that lands (the space
+     * access page, or page-not-found for a closed hidden space the viewer is
+     * not invited to) is the platform's decision. Only for lists whose server
+     * already decided the space may be shown to this viewer, e.g. sub-spaces
+     * listed under 'show hidden subspaces'.
+     */
+    linkHiddenSpace: {
+      type: Boolean,
+      default: () => false,
+    },
     popoverLeftPosition: {
       type: Boolean,
       default: () => false,
@@ -190,7 +204,23 @@ export default {
       id: `spaceAvatar${parseInt(Math.random() * randomMax)
         .toString()
         .toString()}`,
+      avatarFailed: false,
     };
+  },
+  watch: {
+    /**
+     * The same instance may display several spaces over its life (popover
+     * menu, administration drawers): a failed load must not pin the default
+     * image onto the next space. Keyed on the URL so a re-render of the same
+     * space does not retry a known-failing load. No shipped path reaches a
+     * failure today (the popover is off for the rows that could 404); this
+     * is a guard for the next link-hidden-space consumer.
+     *
+     * @returns {void}
+     */
+    avatarUrl() {
+      this.avatarFailed = false;
+    },
   },
   computed: {
     displayName() {
@@ -204,6 +234,18 @@ export default {
     },
     avatarUrl() {
       return this.space?.avatarUrl || (this.prettyName && `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.prettyName}/avatar`);
+    },
+    /**
+     * What the linked branches actually display. The avatar endpoint answers
+     * 404 for a HIDDEN and CLOSED space to a viewer who is neither member nor
+     * invited (SpaceRest.getSpaceAvatarById): rather than predicting that
+     * rule here, the image falls back to the default one when it fails to
+     * load, so the real avatar shows whenever the server serves it.
+     *
+     * @returns {string} the avatar URL, or the default image after a failure
+     */
+    displayedAvatarUrl() {
+      return this.avatarFailed && this.defaultAvatarUrl || this.avatarUrl;
     },
     url() {
       if (!this.space?.id) {
@@ -227,8 +269,21 @@ export default {
         || this.space?.members?.includes(eXo.env.portal.userName)
         || this.space?.managers?.includes(eXo.env.portal.userName);
     },
+    /**
+     * The identity bound to the hover popover: none when the popover is off,
+     * which the identity-popover directive treats as "no popover" — the
+     * avatar and its link still render.
+     *
+     * @returns {object|null} the space, or null when the popover is disabled
+     */
+    popoverIdentity() {
+      return this.popover && this.space || null;
+    },
+    hiddenToViewer() {
+      return !!this.space && this.space.visibility === 'hidden' && !this.canAccessSpace;
+    },
     notAccessibleSpace() {
-      return this.space && this.space.visibility === 'hidden' && !this.canAccessSpace;
+      return this.hiddenToViewer && !this.linkHiddenSpace;
     },
     defaultAvatarUrl() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/default-image/avatar`;
