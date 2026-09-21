@@ -366,7 +366,8 @@ export default {
         this.searching++;
         let uri = searchConnector.uri
           .replace('{keyword}', window.encodeURIComponent(this.term || ''))
-          .replace('{limit}', this.limit);
+          .replace('{limit}', this.limit)
+          .replace('{portalName}', window.encodeURIComponent(eXo?.env?.portal?.portalName || ''));
         if (this.favorites) {
           if (uri.includes('?')) {
             uri += '&favorites=true';

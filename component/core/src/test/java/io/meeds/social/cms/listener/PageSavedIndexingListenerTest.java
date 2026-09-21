@@ -70,7 +70,10 @@ public class PageSavedIndexingListenerTest {
 
     listener.onEvent(new Event<>(LayoutService.PAGE_CREATED, "source", broadcastPage));
 
-    verify(indexingService).reindex(PageContentIndexingConnector.TYPE, STORAGE_ID);
+    // A creation: the connector then also queues the content blocks the new
+    // page may carry, which nothing else would index
+    verify(indexingService).index(PageContentIndexingConnector.TYPE, STORAGE_ID);
+    verify(indexingService, never()).reindex(any(), any());
   }
 
   @Test
@@ -83,7 +86,10 @@ public class PageSavedIndexingListenerTest {
 
     listener.onEvent(new Event<>(LayoutService.PAGE_UPDATED, "source", broadcastPage));
 
+    // A refresh: the Layout event listener refreshes the page's blocks on the
+    // same edit, so the connector must not re-queue them from this operation
     verify(indexingService).reindex(PageContentIndexingConnector.TYPE, STORAGE_ID);
+    verify(indexingService, never()).index(any(), any());
   }
 
   @Test

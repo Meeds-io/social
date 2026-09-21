@@ -63,10 +63,10 @@ import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnector;
  * page, so on those paths both this listener and
  * {@link PageContentBlockIndexingListener} run for one edit. This is
  * accepted deliberately, and its cost is bounded: the indexing queue
- * executes duplicates, but what this listener adds is one bare page
- * document operation, whose build stops at a lookup of the page's indexed
- * documents once it finds the live blocks the other listener already
- * refreshes (see {@code PageContentIndexingConnector#queueMissingBlockDocuments}).
+ * executes duplicates, but what this listener adds for an update is one
+ * bare page document <em>refresh</em>, which the connector builds without
+ * re-queuing the live blocks the other listener already refreshes (see
+ * {@code PageContentIndexingConnector#update}). Only a creation queues them.
  * The two Layout saves that broadcast no {@code layout.page.*} event at all
  * (a section clone, a page link update) are what keeps {@code PAGE_UPDATED}
  * in this listener's scope.
@@ -102,7 +102,17 @@ public class PageSavedIndexingListener extends Listener<Object, Page> {
     // The broadcast instance is the caller's own, whose storage id isn't
     // necessarily set when the page was just created: the stored page is
     String storageId = resolveStorageId(pageKey);
-    if (StringUtils.isNotBlank(storageId)) {
+    if (StringUtils.isBlank(storageId)) {
+      return;
+    }
+    if (LayoutService.PAGE_CREATED.equals(event.getEventName())) {
+      // A creation: the connector also queues every content block the new
+      // page may already carry, which nothing else would ever index
+      indexingService.index(PageContentIndexingConnector.TYPE, storageId);
+    } else {
+      // A refresh: the connector queues only the content blocks the index
+      // lacks — the ones it holds are refreshed by the Layout event listener
+      // when the save came through the Layout addon
       indexingService.reindex(PageContentIndexingConnector.TYPE, storageId);
     }
   }
