@@ -87,6 +87,9 @@ public class PageContentIndexingConnectorTest {
   private PageContentBlockPluginService pluginService;
 
   @Mock
+  private PageContentSearchConnector    searchConnector;
+
+  @Mock
   private CMSService                    cmsService;
 
   @Mock
@@ -99,9 +102,6 @@ public class PageContentIndexingConnectorTest {
   private PageUrlResolverService        urlResolverService;
 
   @Mock
-  private PageContentSearchConnector    searchConnector;
-
-  @Mock
   private PageContentBlockPlugin        plugin;
 
   private PageContentIndexingConnector  connector;
@@ -111,11 +111,11 @@ public class PageContentIndexingConnectorTest {
   @Before
   public void setup() {
     connector = new PageContentIndexingConnector(pluginService,
+                                                  searchConnector,
                                                   cmsService,
                                                   layoutService,
                                                   localeConfigService,
                                                   urlResolverService,
-                                                  searchConnector,
                                                   getParams());
     page = mock(Page.class);
     when(page.getPageKey()).thenReturn(PAGE_KEY);
@@ -461,16 +461,20 @@ public class PageContentIndexingConnectorTest {
     verify(pluginService).reindexContentBlock(CONTENT_TYPE, "summary");
     // A setting whose widget is gone isn't a live block: nothing to queue
     verify(pluginService, never()).reindexContentBlock(CONTENT_TYPE, "orphaned");
+    // The reindex began with a _delete_by_query the index hasn't refreshed
+    // yet: asked now, it would still report the deleted blocks as present
+    // and nothing would be queued — a creation must never ask it
+    verify(searchConnector, never()).findIndexedDocumentIds(any());
   }
 
   @Test
-  public void shouldNotRequeueLiveContentBlocksTheIndexAlreadyHolds() {
+  public void shouldNotRequeueLiveContentBlocksTheIndexAlreadyHoldsWhenABarePageDocumentIsRefreshed() {
     // The layout editor's save reaches the connector twice for one edit: the
     // Layout event listener reindexes the live blocks directly, the portal
-    // event listener queues the bare page document that lands here. The
-    // indexing queue executes duplicates as they come, so only the blocks
-    // the index lacks may be queued from here — the others are being
-    // refreshed by the listener that owns them
+    // event listener refreshes the bare page document that lands here. The
+    // indexing queue executes duplicates as they come, so a refresh queues
+    // only the blocks the index lacks — the others are being refreshed by
+    // the listener that owns them
     CMSSetting summary = new CMSSetting(CONTENT_TYPE, "summary", PAGE_KEY.format(), 0);
     CMSSetting description = new CMSSetting(CONTENT_TYPE, "description", PAGE_KEY.format(), 0);
     when(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, PAGE_KEY.format())).thenReturn(List.of(summary, description));
@@ -478,9 +482,29 @@ public class PageContentIndexingConnectorTest {
     mockActiveWidget("description");
     when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of(blockId("summary")));
 
-    assertNull(connector.create(STORAGE_ID));
+    assertNull(connector.update(STORAGE_ID));
 
     verify(pluginService, never()).reindexContentBlock(CONTENT_TYPE, "summary");
+    verify(pluginService).reindexContentBlock(CONTENT_TYPE, "description");
+  }
+
+  @Test
+  public void shouldQueueTheLiveContentBlocksTheIndexLacksWhenAPageSavedOutsideLayoutIsRefreshed() {
+    // A page saved through LayoutService alone — a PageImporter re-import, a
+    // site template applied again — broadcasts the portal's PAGE_UPDATED and
+    // nothing for its blocks: the refresh of its bare page document is the
+    // only request that ever reaches them, so the ones the index lacks are
+    // queued from here or they would wait for the next full reindex
+    CMSSetting summary = new CMSSetting(CONTENT_TYPE, "summary", PAGE_KEY.format(), 0);
+    CMSSetting description = new CMSSetting(CONTENT_TYPE, "description", PAGE_KEY.format(), 0);
+    when(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, PAGE_KEY.format())).thenReturn(List.of(summary, description));
+    mockActiveWidget("summary");
+    mockActiveWidget("description");
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of());
+
+    assertNull(connector.update(STORAGE_ID));
+
+    verify(pluginService).reindexContentBlock(CONTENT_TYPE, "summary");
     verify(pluginService).reindexContentBlock(CONTENT_TYPE, "description");
   }
 

@@ -77,12 +77,14 @@ public class SiteTemplateInstantiatedIndexingListener extends Listener<SiteKey, 
     if (pages == null) {
       return;
     }
+    // Creations, not refreshes: the connector then also queues the content
+    // blocks a template may have placed on those pages
     pages.stream()
          .map(PageContext::getState)
          .filter(Objects::nonNull)
          .map(PageState::getStorageId)
          .filter(StringUtils::isNotBlank)
-         .forEach(storageId -> indexingService.reindex(PageContentIndexingConnector.TYPE, storageId));
+         .forEach(storageId -> indexingService.index(PageContentIndexingConnector.TYPE, storageId));
   }
 
 }
