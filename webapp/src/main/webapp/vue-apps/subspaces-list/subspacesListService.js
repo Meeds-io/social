@@ -48,6 +48,29 @@ export function getSubspaces(resourceUrl, limit) {
 }
 
 /**
+ * Builds the URL of a sub-space avatar served by the portlet itself. Used for
+ * a HIDDEN sub-space the viewer is not a member of: the space avatar REST
+ * endpoint may refuse them, while the portlet serves the avatar of any
+ * sub-space it lists to the viewer.
+ *
+ * Total by construction: an absent resource URL (an older JSP that does not
+ * declare it yet) returns nothing rather than throwing, so the caller falls
+ * back to the standard avatar URL instead of losing the row.
+ *
+ * @param {string} avatarResourceUrl the portlet resource URL with id 'avatar'
+ * @param {string|number} spaceId the sub-space identifier
+ * @returns {string} the image URL, or an empty string when it cannot be built
+ */
+export function getSubspaceAvatarUrl(avatarResourceUrl, spaceId) {
+  if (!avatarResourceUrl || !spaceId) {
+    return '';
+  }
+  const url = new URL(avatarResourceUrl.replaceAll('&amp;', '&'), window.location.origin);
+  url.searchParams.append('spaceId', spaceId);
+  return url.toString();
+}
+
+/**
  * Posts the widget preferences to the portlet action URL. The server stores
  * only headerTranslations, showHiddenSubspaces and subspacesLimit, under the
  * parent space management guard.

@@ -44,7 +44,7 @@ const urls = [
 /**
  * Bootstraps the widget from the portlet preferences and URLs the JSP
  * passes: {appId, headerTranslations, showHiddenSubspaces, subspacesLimit,
- * saveSettingsUrl, resourceUrl}. Every business decision (parent space or
+ * saveSettingsUrl, resourceUrl, avatarResourceUrl}. Every business decision (parent space or
  * not, what to list, who may create or manage) comes from the portlet
  * resource call, never from here.
  *

@@ -29,13 +29,20 @@ import org.json.JSONObject;
 
 import org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.commons.file.model.FileInfo;
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.thumbnail.ImageThumbnailService;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
+import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.social.util.JsonUtils;
 
 import javax.portlet.ActionRequest;
@@ -75,6 +82,30 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
   public static final String        SHOW_HIDDEN_SUBSPACES_INVALID_MESSAGE = "subspacesList.showHiddenSubspaces.invalid";
 
   public static final String        LIMIT_PARAMETER                  = "limit";
+
+  /**
+   * Resource id of the second resource this portlet serves: the avatar of one
+   * listed sub-space ({@code <portlet:resourceURL id="avatar">} in the JSP).
+   */
+  public static final String        AVATAR_RESOURCE_ID               = "avatar";
+
+  public static final String        SPACE_ID_PARAMETER               = "spaceId";
+
+  public static final String        SPACE_ID_INVALID_MESSAGE         = "subspacesList.spaceId.invalid";
+
+  /**
+   * Browser cache of a widget-served avatar. The URL carries no
+   * last-modified marker, so the cache is short and private.
+   */
+  public static final String        AVATAR_CACHE_CONTROL             = "private, max-age=3600";
+
+  /**
+   * Same thumbnail size as the space avatar REST endpoint's default, so both
+   * paths serve the same bytes for the same space.
+   */
+  public static final int           AVATAR_THUMBNAIL_SIZE            = 100;
+
+  public static final String        DEFAULT_AVATAR_MIME_TYPE         = "image/png";
 
   /**
    * Hard bound of one resource call. The 'see more' drawer lists every
@@ -168,6 +199,10 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
    */
   @Override
   public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+    if (AVATAR_RESOURCE_ID.equals(request.getResourceID())) {
+      serveSubspaceAvatar(request, response);
+      return;
+    }
     response.setContentType("application/json");
     String username = request.getRemoteUser();
     Space space = SpaceUtils.getSpaceByContext();
@@ -198,6 +233,98 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
       sendError(response, STATUS_FORBIDDEN, e.getMessage());
     } catch (IllegalArgumentException e) {
       sendError(response, STATUS_BAD_REQUEST, e.getMessage());
+    }
+  }
+
+  /**
+   * Streams the avatar of one sub-space the widget lists. The space avatar
+   * REST endpoint answers 404 for a HIDDEN and CLOSED space to a viewer who is
+   * neither member nor invited, so a hidden sub-space exposed through
+   * {@code showHiddenSubspaces} could not show its image otherwise.
+   * <p>
+   * No access rule is written here: the sub-space is served if and only if
+   * {@link SpaceService#getSubspaces} lists it to this viewer under the same
+   * preference the listing uses — the Service's decision, applied a second
+   * time. Statuses follow the platform contract: 404 when the page hosts no
+   * parent space, when the id is not one of the viewer's sub-spaces or when
+   * the space has no avatar (the client then shows the default image), 403
+   * when the viewer cannot view the parent, 400 on an unusable id.
+   * <p>
+   * Cost: one listing query per image, bounded by {@link #MAX_RESOURCE_LIMIT}
+   * rows, for at most the widget's {@code subspacesLimit + 1} hidden rows per
+   * viewer per hour (browser cache). Acceptable for the widget; a "see more"
+   * listing every sub-space would need a Service method answering "is this
+   * sub-space listed to this viewer" for one row instead of the whole list —
+   * a Service API addition, recorded as a follow-up.
+   */
+  private void serveSubspaceAvatar(ResourceRequest request, ResourceResponse response) throws IOException {
+    String username = request.getRemoteUser();
+    Space parentSpace = SpaceUtils.getSpaceByContext();
+    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+    if (parentSpace == null || !spaceService.isParentSpace(parentSpace)) {
+      sendError(response, STATUS_NOT_FOUND, null);
+      return;
+    }
+    long subspaceId = NumberUtils.toLong(request.getParameter(SPACE_ID_PARAMETER), -1);
+    if (subspaceId <= 0) {
+      sendError(response, STATUS_BAD_REQUEST, SPACE_ID_INVALID_MESSAGE);
+      return;
+    }
+    try {
+      boolean showHiddenSubspaces = Boolean.parseBoolean(request.getPreferences()
+                                                                .getValue(SHOW_HIDDEN_SUBSPACES_PREFERENCE, "false"));
+      Space subspace = spaceService.getSubspaces(parentSpace.getSpaceId(), username, showHiddenSubspaces, 0, MAX_RESOURCE_LIMIT)
+                                   .stream()
+                                   .filter(listed -> listed.getSpaceId() == subspaceId)
+                                   .findFirst()
+                                   .orElse(null);
+      if (subspace == null) {
+        sendError(response, STATUS_NOT_FOUND, null);
+        return;
+      }
+      IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+      Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, subspace.getPrettyName());
+      FileItem avatarFile = spaceIdentity == null ? null : identityManager.getAvatarFile(spaceIdentity);
+      if (avatarFile == null) {
+        sendError(response, STATUS_NOT_FOUND, null);
+        return;
+      }
+      FileInfo fileInfo = avatarFile.getFileInfo();
+      response.setContentType(StringUtils.defaultIfBlank(fileInfo == null ? null : fileInfo.getMimetype(),
+                                                         DEFAULT_AVATAR_MIME_TYPE));
+      response.setProperty("Cache-Control", AVATAR_CACHE_CONTROL);
+      response.getPortletOutputStream().write(getThumbnailOrOriginal(avatarFile));
+    } catch (ObjectNotFoundException e) {
+      LOG.debug("Parent space {} not found while serving a subspace avatar", parentSpace.getSpaceId(), e);
+      sendError(response, STATUS_NOT_FOUND, e.getMessage());
+    } catch (IllegalAccessException e) {
+      LOG.debug("User {} isn't allowed to list subspaces of space {}", username, parentSpace.getSpaceId(), e);
+      sendError(response, STATUS_FORBIDDEN, e.getMessage());
+    }
+  }
+
+  /**
+   * The {@value #AVATAR_THUMBNAIL_SIZE}px thumbnail of an avatar, as the space
+   * avatar REST endpoint serves by default; the original bytes when the file
+   * carries no id or the thumbnail cannot be produced (same fall-back as the
+   * endpoint), so an uploaded logo is not streamed whole for a 37px avatar.
+   */
+  private byte[] getThumbnailOrOriginal(FileItem avatarFile) {
+    FileInfo fileInfo = avatarFile.getFileInfo();
+    if (fileInfo == null) {
+      return avatarFile.getAsByte();
+    }
+    try {
+      FileItem thumbnail = CommonsUtils.getService(ImageThumbnailService.class)
+                                       .getOrCreateThumbnail(FileThumbnailPlugin.FILE_TYPE,
+                                                             Long.toString(fileInfo.getId()),
+                                                             fileInfo.getUpdater(),
+                                                             AVATAR_THUMBNAIL_SIZE,
+                                                             AVATAR_THUMBNAIL_SIZE);
+      return thumbnail == null ? avatarFile.getAsByte() : thumbnail.getAsByte();
+    } catch (Exception e) {
+      LOG.warn("Error while resizing avatar file {}, original image will be returned", fileInfo.getId(), e);
+      return avatarFile.getAsByte();
     }
   }
 

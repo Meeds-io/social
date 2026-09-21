@@ -7,6 +7,7 @@
 <portlet:defineObjects />
 <portlet:actionURL var="saveSettingsUrl" />
 <portlet:resourceURL var="resourceUrl" />
+<portlet:resourceURL var="avatarResourceUrl" id="<%=SubspacesListPortlet.AVATAR_RESOURCE_ID%>" />
 <%
   PortletPreferences preferences = renderRequest.getPreferences();
   String headerTranslations = preferences.getValue(SubspacesListPortlet.HEADER_TRANSLATIONS_PREFERENCE, "{}");
@@ -45,7 +46,8 @@
         showHiddenSubspaces: <%=showHiddenSubspaces%>,
         subspacesLimit: <%=subspacesLimit%>,
         saveSettingsUrl: '<%=saveSettingsUrl%>',
-        resourceUrl: '<%=resourceUrl%>'
+        resourceUrl: '<%=resourceUrl%>',
+        avatarResourceUrl: '<%=avatarResourceUrl%>'
       }));
     </script>
   </div>

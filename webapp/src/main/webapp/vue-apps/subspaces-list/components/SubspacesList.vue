@@ -20,31 +20,55 @@
 -->
 <template>
   <v-app>
-    <widget-wrapper
-      v-if="parentSpace"
-      :title="headerTitle"
-      :loading="$root.loading"
-      extra-class="application-body">
-      <template #default>
-        <div v-if="hasSubspaces" class="d-flex flex-column">
-          <subspaces-list-item
-            v-for="subspace in displayedSubspaces"
-            :key="subspace.id"
-            :space="subspace" />
-        </div>
-        <div v-else class="d-flex flex-column align-center justify-center text-center">
-          <span>{{ $t('subspacesList.label.noSubspaces') }}</span>
-          <space-creation-button
-            v-if="canCreateSubspace"
-            :parent-space-id="$root.spaceId"
-            :color="'primary'"
-            class="mt-4"
-            require-form-drawer
-            display-label
-            outlined />
-        </div>
-      </template>
-    </widget-wrapper>
+    <v-hover v-if="parentSpace" v-model="hover">
+      <widget-wrapper
+        :title="headerTitle"
+        :loading="$root.loading"
+        extra-class="application-body">
+        <template v-if="canManageSpace" #action>
+          <div class="d-flex align-center justify-center">
+            <v-btn
+              v-show="hover"
+              :title="$t('subspacesList.settings.drawer.title')"
+              height="27"
+              width="27"
+              class="pa-0"
+              min-width="auto"
+              text
+              icon
+              @click="openSettingsDrawer">
+              <v-icon size="18">
+                fa-cog
+              </v-icon>
+            </v-btn>
+          </div>
+        </template>
+        <template #default>
+          <div v-if="hasSubspaces" class="d-flex flex-column">
+            <subspaces-list-item
+              v-for="subspace in displayedSubspaces"
+              :key="subspace.id"
+              :space="subspace" />
+          </div>
+          <div v-else class="d-flex flex-column align-center justify-center text-center">
+            <span>{{ $t('subspacesList.label.noSubspaces') }}</span>
+            <space-creation-button
+              v-if="canCreateSubspace"
+              :parent-space-id="$root.spaceId"
+              :color="'primary'"
+              class="mt-4"
+              require-form-drawer
+              :display-icon="false"
+              display-label
+              outlined />
+          </div>
+        </template>
+      </widget-wrapper>
+    </v-hover>
+    <subspaces-list-settings-drawer
+      v-if="settingsDrawer"
+      ref="settingsDrawer"
+      @saved="refresh" />
   </v-app>
 </template>
 <script>
@@ -56,6 +80,11 @@ export default {
     canCreateSubspace: false,
     canManageSpace: false,
     subspaces: [],
+    hover: false,
+    // the drawer is mounted on first use only, and kept from then on: most
+    // viewers never manage the space and never see the action, and tearing
+    // it down on close would cut the drawer's slide-out short
+    settingsDrawer: false,
   }),
   computed: {
     headerTitle() {
@@ -80,6 +109,18 @@ export default {
     this.refresh();
   },
   methods: {
+    /**
+     * Opens the preferences drawer. The action is offered from the resource
+     * envelope's canManageSpace, and the portlet re-checks the same guard on
+     * save: showing the button is a convenience, never the decision.
+     *
+     * @returns {Promise<void>} resolved once the drawer is open
+     */
+    async openSettingsDrawer() {
+      this.settingsDrawer = true;
+      await this.$nextTick();
+      this.$refs.settingsDrawer.open();
+    },
     refresh() {
       this.$root.loading = true;
       const limit = this.$root.settings.subspacesLimit + 1;

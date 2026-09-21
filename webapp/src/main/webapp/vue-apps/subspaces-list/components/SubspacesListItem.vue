@@ -21,7 +21,9 @@
 <template>
   <div class="d-flex align-center py-2">
     <space-avatar
-      :space="space"
+      :space="displayedSpace"
+      :popover="!hiddenToViewer"
+      link-hidden-space
       link-style />
   </div>
 </template>
@@ -30,13 +32,48 @@ export default {
   props: {
     /**
      * One sub-space of the resource envelope: {id, displayName, prettyName,
-     * avatarUrl, visibility, isMember}. The shared <space-avatar> reads
-     * visibility and isMember itself to decide how a HIDDEN space is rendered
-     * to a viewer who is not a member of it.
+     * avatarUrl, visibility, isMember}. A HIDDEN sub-space reaches a
+     * non-member only because the server decided to list it (invited user, or
+     * 'show hidden subspaces' on), so it is rendered as a normal link. Where
+     * /s/{id} lands is the platform's decision, not this widget's: the space
+     * access page (join, request to join, invitation) for an OPEN or
+     * VALIDATION space or an invited viewer; the space's public site when it
+     * has one the viewer may see; "page not found" for a CLOSED hidden space
+     * the viewer is not invited to (SpacePermanentLinkHandler).
      */
     space: {
       type: Object,
       default: () => null,
+    },
+  },
+  computed: {
+    /**
+     * The hover popover fetches the space over REST, which a non-member of a
+     * HIDDEN space is refused: keep it off for those rows. An administrator
+     * is served like a member (same rule as <space-avatar>'s canAccessSpace).
+     *
+     * @returns {boolean} whether the space is hidden to this viewer
+     */
+    hiddenToViewer() {
+      return this.space?.visibility === 'hidden'
+        && !this.space?.isMember
+        && !eXo.env.portal.isAdministrator;
+    },
+    /**
+     * The space as handed to <space-avatar>. For a row hidden to the viewer,
+     * the avatar is served by the portlet (which lists the space to them)
+     * instead of the space avatar endpoint, which refuses a non-member of a
+     * hidden closed space.
+     *
+     * @returns {object} the space, with the avatar URL the viewer can load
+     */
+    displayedSpace() {
+      if (!this.hiddenToViewer || !this.space) {
+        return this.space;
+      }
+      const avatarUrl = this.$subspacesListService.getSubspaceAvatarUrl(this.$root.settings?.avatarResourceUrl, this.space.id);
+      // no portlet-served URL: keep the standard one rather than lose the row
+      return avatarUrl && {...this.space, avatarUrl} || this.space;
     },
   },
 };

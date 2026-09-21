@@ -18,6 +18,7 @@
  */
 package io.meeds.social.portlet;
 
+import static io.meeds.social.portlet.SubspacesListPortlet.AVATAR_RESOURCE_ID;
 import static io.meeds.social.portlet.SubspacesListPortlet.HEADER_TRANSLATIONS_INVALID_MESSAGE;
 import static io.meeds.social.portlet.SubspacesListPortlet.LIMIT_PARAMETER;
 import static io.meeds.social.portlet.SubspacesListPortlet.MAX_RESOURCE_LIMIT;
@@ -25,7 +26,10 @@ import static io.meeds.social.portlet.SubspacesListPortlet.HEADER_TRANSLATIONS_P
 import static io.meeds.social.portlet.SubspacesListPortlet.LIMIT_OUT_OF_RANGE_MESSAGE;
 import static io.meeds.social.portlet.SubspacesListPortlet.SHOW_HIDDEN_SUBSPACES_INVALID_MESSAGE;
 import static io.meeds.social.portlet.SubspacesListPortlet.SHOW_HIDDEN_SUBSPACES_PREFERENCE;
+import static io.meeds.social.portlet.SubspacesListPortlet.SPACE_ID_INVALID_MESSAGE;
+import static io.meeds.social.portlet.SubspacesListPortlet.SPACE_ID_PARAMETER;
 import static io.meeds.social.portlet.SubspacesListPortlet.SUBSPACES_LIMIT_PREFERENCE;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,6 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -61,10 +66,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.json.JSONObject;
 
+import org.exoplatform.commons.file.model.FileInfo;
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.services.thumbnail.ImageThumbnailService;
+
+import io.meeds.social.image.plugin.FileThumbnailPlugin;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -86,6 +99,18 @@ class SubspacesListPortletTest {
 
   @Mock
   private SpaceService              spaceService;
+
+  @Mock
+  private IdentityManager           identityManager;
+
+  @Mock
+  private FileItem                  avatarFile;
+
+  @Mock
+  private FileItem                  thumbnailFile;
+
+  @Mock
+  private ImageThumbnailService     imageThumbnailService;
 
   private final Space               space      = new Space();
 
@@ -120,6 +145,8 @@ class SubspacesListPortletTest {
     commonsUtils = mockStatic(CommonsUtils.class);
     spaceUtils.when(SpaceUtils::getSpaceByContext).thenReturn(space);
     commonsUtils.when(() -> CommonsUtils.getService(SpaceService.class)).thenReturn(spaceService);
+    commonsUtils.when(() -> CommonsUtils.getService(IdentityManager.class)).thenReturn(identityManager);
+    commonsUtils.when(() -> CommonsUtils.getService(ImageThumbnailService.class)).thenReturn(imageThumbnailService);
     lenient().when(request.getRemoteUser()).thenReturn(USERNAME);
     lenient().when(request.getPreferences()).thenReturn(preferences);
     lenient().when(request.getParameter(anyString())).thenAnswer(invocation -> parameters.get(invocation.getArgument(0)));
@@ -134,6 +161,15 @@ class SubspacesListPortletTest {
     lenient().when(resourceResponse.getWriter()).thenReturn(new PrintWriter(responseBody, true));
     lenient().when(preferences.getValue(eq(SHOW_HIDDEN_SUBSPACES_PREFERENCE), anyString()))
              .thenReturn("false");
+  }
+
+  private ByteArrayOutputStream givenAnAvatarRequest(String spaceId) throws Exception {
+    givenAResourceRequest();
+    ByteArrayOutputStream imageBody = new ByteArrayOutputStream();
+    when(resourceRequest.getResourceID()).thenReturn(AVATAR_RESOURCE_ID);
+    lenient().when(resourceRequest.getParameter(SPACE_ID_PARAMETER)).thenReturn(spaceId);
+    lenient().when(resourceResponse.getPortletOutputStream()).thenReturn(imageBody);
+    return imageBody;
   }
 
   private Space subspace(long id, String displayName, String visibility) {
@@ -418,5 +454,145 @@ class SubspacesListPortletTest {
     assertTrue(body.contains("\"isMember\":false"));
     assertFalse(body.contains("\"size\""));
     verify(resourceResponse).setContentType("application/json");
+  }
+
+  @Test
+  void serveAvatarStreamsTheAvatarOfASubspaceListedToTheViewer() throws Exception {
+    ByteArrayOutputStream imageBody = givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    Space hidden = subspace(7L, "Secret team", Space.HIDDEN);
+    when(spaceService.getSubspaces(anyLong(), eq(USERNAME), anyBoolean(), eq(0L), eq((long) MAX_RESOURCE_LIMIT)))
+                                                                                                                 .thenReturn(List.of(hidden));
+    Identity spaceIdentity = new Identity(SpaceIdentityProvider.NAME, "secret_team");
+    when(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, "secret_team")).thenReturn(spaceIdentity);
+    when(identityManager.getAvatarFile(spaceIdentity)).thenReturn(avatarFile);
+    FileInfo fileInfo = new FileInfo(42L, "avatar.jpg", "image/jpeg", "social", 3L, null, "john", null, false);
+    when(avatarFile.getFileInfo()).thenReturn(fileInfo);
+    byte[] thumbnail = new byte[] { 1, 2, 3 };
+    when(imageThumbnailService.getOrCreateThumbnail(FileThumbnailPlugin.FILE_TYPE, "42", "john", 100, 100)).thenReturn(thumbnailFile);
+    when(thumbnailFile.getAsByte()).thenReturn(thumbnail);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    // the same 100x100 thumbnail the space avatar endpoint serves by default
+    assertArrayEquals(thumbnail, imageBody.toByteArray());
+    verify(avatarFile, never()).getAsByte();
+    verify(resourceResponse).setContentType("image/jpeg");
+    verify(resourceResponse, never()).setProperty(eq(ResourceResponse.HTTP_STATUS_CODE), anyString());
+  }
+
+  @Test
+  void serveAvatarFallsBackToTheOriginalWhenNoThumbnailCanBeProduced() throws Exception {
+    ByteArrayOutputStream imageBody = givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    Space hidden = subspace(7L, "Secret team", Space.HIDDEN);
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong())).thenReturn(List.of(hidden));
+    Identity spaceIdentity = new Identity(SpaceIdentityProvider.NAME, "secret_team");
+    when(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, "secret_team")).thenReturn(spaceIdentity);
+    when(identityManager.getAvatarFile(spaceIdentity)).thenReturn(avatarFile);
+    when(avatarFile.getFileInfo()).thenReturn(new FileInfo(42L, "avatar", null, "social", 3L, null, "john", null, false));
+    when(imageThumbnailService.getOrCreateThumbnail(anyString(), anyString(), anyString(), eq(100), eq(100)))
+                                                                                                          .thenThrow(new IllegalStateException("no thumbnail"));
+    byte[] original = new byte[] { 9, 8 };
+    when(avatarFile.getAsByte()).thenReturn(original);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    assertArrayEquals(original, imageBody.toByteArray());
+    verify(resourceResponse).setContentType("image/png");
+  }
+
+  @Test
+  void serveAvatarAnswers404WhenTheSpaceIdentityIsUnknown() throws Exception {
+    givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    Space hidden = subspace(7L, "Secret team", Space.HIDDEN);
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong())).thenReturn(List.of(hidden));
+    when(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, "secret_team")).thenReturn(null);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "404");
+    verify(identityManager, never()).getAvatarFile(any());
+  }
+
+  @Test
+  void serveAvatarAsksTheListingUnderTheStoredHiddenPreference() throws Exception {
+    givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(preferences.getValue(eq(SHOW_HIDDEN_SUBSPACES_PREFERENCE), anyString())).thenReturn("true");
+    // forging the flag on the query string must change nothing
+    lenient().when(resourceRequest.getParameter(SHOW_HIDDEN_SUBSPACES_PREFERENCE)).thenReturn("false");
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), eq(true), eq(0L), eq((long) MAX_RESOURCE_LIMIT));
+  }
+
+  @Test
+  void serveAvatarAnswers404ForASubspaceTheViewerIsNotListed() throws Exception {
+    ByteArrayOutputStream imageBody = givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong()))
+                                                                                              .thenReturn(List.of(subspace(8L, "Other", Space.PRIVATE)));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "404");
+    verifyNoInteractions(identityManager);
+    assertEquals(0, imageBody.size());
+  }
+
+  @Test
+  void serveAvatarAnswers404WhenTheSubspaceHasNoAvatarFile() throws Exception {
+    givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    Space hidden = subspace(7L, "Secret team", Space.HIDDEN);
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong())).thenReturn(List.of(hidden));
+    Identity spaceIdentity = new Identity(SpaceIdentityProvider.NAME, "secret_team");
+    when(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, "secret_team")).thenReturn(spaceIdentity);
+    when(identityManager.getAvatarFile(spaceIdentity)).thenReturn(null);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "404");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "0", "-3", "seven" })
+  void serveAvatarAnswers400OnAnUnusableId(String spaceId) throws Exception {
+    givenAnAvatarRequest(spaceId);
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "400");
+    assertEquals(SPACE_ID_INVALID_MESSAGE, responseBody.toString().trim());
+    verify(spaceService, never()).getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong());
+  }
+
+  @Test
+  void serveAvatarAnswers404OutsideAParentSpaceWithoutAnyListingQuery() throws Exception {
+    givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(false);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "404");
+    verify(spaceService, never()).getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong());
+    verifyNoInteractions(identityManager);
+  }
+
+  @Test
+  void serveAvatarAnswers403WhenTheViewerCannotViewTheParent() throws Exception {
+    givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong()))
+                                                                                              .thenThrow(new IllegalAccessException("refused"));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "403");
+    verifyNoInteractions(identityManager);
   }
 }
