@@ -69,6 +69,7 @@ import org.exoplatform.social.core.space.SpaceLifeCycleTest;
 import org.exoplatform.social.core.space.SpaceUtilsTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceTest;
 
+import io.meeds.social.space.service.SubspacesServiceTest;
 import io.meeds.social.space.service.UserSpacesServiceTest;
 import org.exoplatform.social.core.thumbnail.ImageThumbnailServiceImplTest;
 import org.exoplatform.social.core.utils.MentionUtilsTest;
@@ -106,6 +107,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   IdentityManagerTest.class,
   SpaceServiceTest.class,
   UserSpacesServiceTest.class,
+  SubspacesServiceTest.class,
   RelationshipManagerTest.class,
   SpaceUtilsTest.class,
   SpaceLifeCycleTest.class,
