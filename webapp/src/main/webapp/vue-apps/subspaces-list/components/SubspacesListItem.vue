@@ -32,7 +32,7 @@ export default {
   props: {
     /**
      * One sub-space of the resource envelope: {id, displayName, prettyName,
-     * avatarUrl, visibility, isMember}. A HIDDEN sub-space reaches a
+     * avatarUrl, visibility, isMember, isInvited}. A HIDDEN sub-space reaches a
      * non-member only because the server decided to list it (invited user, or
      * 'show hidden subspaces' on), so it is rendered as a normal link. Where
      * /s/{id} lands is the platform's decision, not this widget's: the space
@@ -48,15 +48,19 @@ export default {
   },
   computed: {
     /**
-     * The hover popover fetches the space over REST, which a non-member of a
-     * HIDDEN space is refused: keep it off for those rows. An administrator
-     * is served like a member (same rule as <space-avatar>'s canAccessSpace).
+     * The hover popover fetches the space over REST, which a viewer with no
+     * relationship to a HIDDEN space is refused: keep it off for those rows
+     * only. An invited user is served exactly like a member (the platform
+     * rule of canListSpace), so their row keeps both the popover and the
+     * standard avatar URL; an administrator likewise (same rule as
+     * <space-avatar>'s canAccessSpace).
      *
      * @returns {boolean} whether the space is hidden to this viewer
      */
     hiddenToViewer() {
       return this.space?.visibility === 'hidden'
         && !this.space?.isMember
+        && !this.space?.isInvited
         && !eXo.env.portal.isAdministrator;
     },
     /**

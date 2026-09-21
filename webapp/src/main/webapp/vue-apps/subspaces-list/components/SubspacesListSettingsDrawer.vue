@@ -96,6 +96,21 @@
 const PREFERENCE_NAMES = ['headerTranslations', 'showHiddenSubspaces', 'subspacesLimit'];
 
 export default {
+  props: {
+    /**
+     * Reloads the widget from the portlet resource and re-seats
+     * {@code $root.settings} on the stored preferences, asking for the number
+     * of rows given as its argument. Awaited after a save, because it is what
+     * tells whether the save was applied.
+     *
+     * The default is the function itself, not a factory: Vue 2 only calls a
+     * default when the declared type is not Function.
+     */
+    refresh: {
+      type: Function,
+      default: () => Promise.resolve(),
+    },
+  },
   data: () => ({
     // the same bounds as SubspacesListPortlet.MIN/MAX_SUBSPACES_LIMIT: the
     // portlet refuses a value outside them with a PortletException the
@@ -116,17 +131,21 @@ export default {
     loading: false,
   }),
   computed: {
-    hasHeaderTitle() {
-      return Object.values(this.settings.headerTranslations || {})
-        .some(value => typeof value === 'string' && value.trim().length > 0);
-    },
     changed() {
       return JSON.stringify(this.settings) !== JSON.stringify(this.originalSettings);
     },
+    /**
+     * An empty header is a valid choice, not an incomplete form: the board
+     * gives the header a default value rather than making it mandatory, and
+     * the widget falls back to the 'Subspaces' label when the translations
+     * hold nothing. Only the limit can actually be out of what the portlet
+     * accepts.
+     *
+     * @returns {boolean} whether the form may be posted
+     */
     canSave() {
       return !this.loading
         && this.changed
-        && this.hasHeaderTitle
         && this.isValidLimit(this.settings.subspacesLimit);
     },
   },
@@ -160,9 +179,16 @@ export default {
       this.$refs.drawer.close();
     },
     /**
-     * Posts the three preferences, then refreshes the root settings the
-     * widget renders from and tells the list to reload with the new limit
-     * and hidden flag.
+     * Posts the three preferences, then reloads the widget and reports what
+     * the server actually stored.
+     *
+     * The action URL cannot be trusted to say so: a refusal by the portlet
+     * (role revoked since the envelope was computed, or a value the portlet
+     * rejects) is a PortletException the portal logs and answers with a 200,
+     * so a save that changed nothing is indistinguishable from a save that
+     * worked — at the transport. The reload's envelope carries the stored
+     * preferences, and those are compared with what was posted: the snackbar
+     * follows the preferences, never the HTTP status.
      *
      * @returns {Promise<void>|undefined} the save request, or nothing when the
      *          form is not savable
@@ -175,16 +201,46 @@ export default {
       const toSave = {};
       PREFERENCE_NAMES.forEach(name => toSave[name] = this.settings[name]);
       return this.$subspacesListService.saveSettings(this.$root.settings.saveSettingsUrl, toSave)
+        // the posted limit, not the stored one: the reload must bring back
+        // enough rows for the limit this save is establishing
+        .then(() => this.refresh(toSave.subspacesLimit))
         .then(() => {
-          // the root settings are what the widget renders from: the header
-          // title, the displayed slice and the next resource call's limit
-          PREFERENCE_NAMES.forEach(name => this.$set(this.$root.settings, name, toSave[name]));
-          this.$root.$emit('alert-message', this.$t('subspacesList.settings.saved.success'), 'success');
-          this.$emit('saved', toSave);
-          this.close();
+          // $root.settings now holds what the reload read back from the
+          // preferences, whatever was posted
+          if (this.isStored(toSave)) {
+            this.$root.$emit('alert-message', this.$t('subspacesList.settings.saved.success'), 'success');
+            this.close();
+          } else {
+            this.$root.$emit('alert-message', this.$t('subspacesList.settings.saved.error'), 'error');
+          }
         })
         .catch(() => this.$root.$emit('alert-message', this.$t('subspacesList.settings.saved.error'), 'error'))
         .finally(() => this.loading = false);
+    },
+    /**
+     * Whether the reloaded preferences are the ones that were posted.
+     *
+     * @param {object} toSave the posted preference values, by name
+     * @returns {boolean} true when the server stored every one of them
+     */
+    isStored(toSave) {
+      const stored = this.$root.settings || {};
+      return PREFERENCE_NAMES.every(name => this.canonical(stored[name]) === this.canonical(toSave[name]));
+    },
+    /**
+     * A value as a string that does not depend on key order: the stored
+     * translations come back from a Java map, whose iteration order is not
+     * the one they were posted in, and a plain JSON.stringify would then call
+     * an applied save a failure.
+     *
+     * @param {*} value the value to render comparable
+     * @returns {string} its order-independent representation
+     */
+    canonical(value) {
+      if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+        return JSON.stringify(value);
+      }
+      return JSON.stringify(Object.keys(value).sort().map(key => [key, this.canonical(value[key])]));
     },
   },
 };

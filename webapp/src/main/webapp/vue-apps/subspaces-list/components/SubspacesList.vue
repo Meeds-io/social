@@ -20,7 +20,7 @@
 -->
 <template>
   <v-app>
-    <v-hover v-if="parentSpace" v-model="hover">
+    <v-hover v-if="parentSpace || !loaded" v-model="hover">
       <widget-wrapper
         :title="headerTitle"
         :loading="$root.loading"
@@ -50,7 +50,7 @@
               :key="subspace.id"
               :space="subspace" />
           </div>
-          <div v-else class="d-flex flex-column align-center justify-center text-center">
+          <div v-else-if="loaded" class="d-flex flex-column align-center justify-center text-center">
             <span>{{ $t('subspacesList.label.noSubspaces') }}</span>
             <space-creation-button
               v-if="canCreateSubspace"
@@ -68,15 +68,20 @@
     <subspaces-list-settings-drawer
       v-if="settingsDrawer"
       ref="settingsDrawer"
-      @saved="refresh" />
+      :refresh="refresh" />
   </v-app>
 </template>
 <script>
 export default {
   data: () => ({
     // until the resource call answers, the application stays as the page
-    // rendered it: nothing is shown and nothing is hidden
+    // rendered it: the cell is neither shown nor hidden by this widget
     parentSpace: null,
+    // whether that first answer has arrived. The widget renders its loading
+    // state until it does — the empty state stays out, it would otherwise
+    // read as 'no subspace' before anything was asked — and then either
+    // renders the list or removes itself
+    loaded: false,
     canCreateSubspace: false,
     canManageSpace: false,
     subspaces: [],
@@ -121,15 +126,35 @@ export default {
       await this.$nextTick();
       this.$refs.settingsDrawer.open();
     },
-    refresh() {
+    /**
+     * Reloads the envelope and re-seats the widget on it, preferences
+     * included: the envelope's settings are what the portlet preferences
+     * hold, so they are the answer to "was the save applied", which the
+     * action URL's own 200 cannot give.
+     *
+     * The caller passes the limit when it already knows the widget is about
+     * to show a different number of rows: after a save, {@code $root.settings}
+     * still carries the <em>previous</em> limit — the echo that replaces it
+     * arrives in this very response — so reading it here would ask for too
+     * few rows and the slice below would come up short until the next page
+     * load. Over-fetching when a save was in fact refused is harmless: the
+     * slice follows the echoed stored value, not the requested one.
+     *
+     * @param {number} limit the number of rows to show, defaulting to the
+     *        currently stored one
+     * @returns {Promise<void>} resolved once the widget reflects the server
+     */
+    refresh(limit = this.$root.settings.subspacesLimit) {
       this.$root.loading = true;
-      const limit = this.$root.settings.subspacesLimit + 1;
-      return this.$subspacesListService.getSubspaces(this.$root.settings.resourceUrl, limit)
+      return this.$subspacesListService.getSubspaces(this.$root.settings.resourceUrl, limit + 1)
         .then(envelope => {
           this.parentSpace = envelope.parentSpace;
           this.canManageSpace = envelope.canManageSpace;
           this.canCreateSubspace = envelope.canCreateSubspace;
           this.subspaces = envelope.subspaces || [];
+          if (envelope.settings) {
+            Object.keys(envelope.settings).forEach(name => this.$set(this.$root.settings, name, envelope.settings[name]));
+          }
         })
         .catch(() => {
           // the page hosts no parent space, or the viewer may not list it:
@@ -137,6 +162,7 @@ export default {
           this.parentSpace = false;
         })
         .finally(() => {
+          this.loaded = true;
           this.$root.loading = false;
           // outside a parent space the cell disappears in view mode and keeps
           // the layout editor's toolbar in edit mode

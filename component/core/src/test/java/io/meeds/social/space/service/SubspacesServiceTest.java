@@ -52,12 +52,14 @@ import lombok.SneakyThrows;
  * outside a container either.
  * <p>
  * The load-bearing case is {@link #testHiddenSubspaceIsListedToAnInvitedUser()}:
- * it is the one where {@code SpaceStorage.getVisibleSpaces} (MEMBER plus extra
- * status INVITED) and {@code SpaceStorage.getVisibleSpacesCount} (MEMBER only)
- * disagree, which is why the widget derives its 'see more' from an extra row
- * and never from a count. {@link #testVisibleCountDisagreesWithTheVisibleList()}
- * pins that disagreement itself, so that a later "simplification" back to a
- * count query fails here rather than in production.
+ * the board's invited-user rule is the one the listing path was chosen for.
+ * The Tech Spec's D6 derived the 'see more' extra-row design from a supposed
+ * disagreement between {@code SpaceStorage.getVisibleSpaces} and
+ * {@code SpaceStorage.getVisibleSpacesCount}; measured, they agree — both lose
+ * {@code extraStatus} and are MEMBER-only, which
+ * {@link #testVisibleCountAgreesWithTheVisibleListToday()} pins. The extra-row
+ * design stands regardless, because a list cannot disagree with itself, but it
+ * does not stand on that reason.
  */
 public class SubspacesServiceTest extends AbstractCoreTest {
 
@@ -207,13 +209,24 @@ public class SubspacesServiceTest extends AbstractCoreTest {
   }
 
   /**
+   * <strong>Witness of a platform defect, not a rule this code wants.</strong>
+   * The defect: {@code XSpaceFilter.setSpaceFilter} does not copy
+   * {@code extraStatus} ({@code SpaceStorage:743-744}), so the VISIBLE list
+   * and count are both MEMBER-only and drop the invited user.
+   * <p>
    * The Tech Spec's D6 says the VISIBLE list and the VISIBLE count disagree on
    * an invited user, and derives the 'see more' extra-row design from it.
    * Measured, they agree: both lose {@code extraStatus} in
    * {@code XSpaceFilter.setSpaceFilter} (see the divergence above), so both are
-   * MEMBER-only. The extra-row design is kept — it cannot disagree with its own
-   * query whatever the filter does — but its stated reason is pinned here as
-   * what the code really does.
+   * MEMBER-only — the invited user is missing from both. The extra-row design
+   * is kept, because a list cannot disagree with itself whatever the filter
+   * does; only its stated reason was wrong.
+   * <p>
+   * What is asserted here is the defect, so <strong>the day
+   * {@code setSpaceFilter} copies {@code extraStatus} this test goes red, and
+   * it is this test that must be updated, never the production code</strong>:
+   * the invited user will then appear in the list, the count will follow or
+   * not, and the numbers below change.
    */
   public void testVisibleCountAgreesWithTheVisibleListToday() {
     SpaceFilter filter = new SpaceFilter();
@@ -222,8 +235,12 @@ public class SubspacesServiceTest extends AbstractCoreTest {
     int listed = spaceStorage.getVisibleSpaces(PARENT_MEMBER, filter, 0, 20).size();
     int counted = spaceStorage.getVisibleSpacesCount(PARENT_MEMBER, filter);
 
-    assertEquals(3, listed);
-    assertEquals(listed, counted);
+    assertEquals("witness of the setSpaceFilter/extraStatus defect: the VISIBLE access is MEMBER-only,"
+        + " so the invited user's hidden sub-space is missing."
+        + " When that is fixed, update this test, not the production code", 3, listed);
+    assertEquals("witness of the setSpaceFilter/extraStatus defect: list and count agree only because"
+        + " both lose extraStatus."
+        + " When that is fixed, update this test, not the production code", listed, counted);
   }
 
   public void testListingIsRefusedToAViewerWhoCannotViewTheParent() {
@@ -308,8 +325,10 @@ public class SubspacesServiceTest extends AbstractCoreTest {
    * <p>
    * Today {@code getSubspaces} asks the VISIBLE access, which loses
    * {@code extraStatus} in {@code XSpaceFilter.setSpaceFilter}
-   * ({@code SpaceStorage:743-744}) and so lists MEMBER-only &mdash; see
-   * {@link #testHiddenSubspaceIsNotListedToAnInvitedUserBecauseExtraStatusIsDropped()}.
+   * ({@code SpaceStorage:743-744}) and so lists MEMBER-only &mdash; the first
+   * assertion below measures exactly that, and
+   * {@link #testVisibleCountAgreesWithTheVisibleListToday()} shows the count
+   * side of it.
    * The DAO has a second branch: when the filter carries <em>no</em> status but
    * <em>does</em> carry a {@code remoteId}, the predicate binds the hardcoded
    * {@code SpaceDAO.VISIBLE_STATUSES} = {MEMBER, INVITED} to
@@ -341,7 +360,9 @@ public class SubspacesServiceTest extends AbstractCoreTest {
     List<String> throughAllFilter = names(spaceStorage.getSpacesByFilter(remoteIdFilter, 0, 20));
 
     // Bravo is HIDDEN and PARENT_MEMBER is only invited to it
-    assertFalse("the VISIBLE access is expected to still lose the invited user",
+    assertFalse("witness of the setSpaceFilter/extraStatus defect: the VISIBLE access loses the invited"
+        + " user, which is why this listing does not use it."
+        + " When that is fixed, update this test, not the production code",
                 throughVisibleAccess.contains("Bravo subspace"));
     assertTrue("the remoteId path must list the hidden sub-space the viewer is invited to",
                throughAllFilter.contains("Bravo subspace"));
@@ -364,12 +385,6 @@ public class SubspacesServiceTest extends AbstractCoreTest {
     return spaces.stream().map(Space::getDisplayName).toList();
   }
 
-  /**
-   * Templates are written through the Kernel DAO rather than the storage: in
-   * this container the storage's Spring Data repository does not commit the row
-   * before the space inserts that carry a foreign key to it
-   * (FK_SOC_SPACE_TEMPLATES_ID_01). Same workaround as SpaceServiceTest.
-   */
   /**
    * The container replaces {@code SpaceTemplateStorage} with a mock holding one
    * single template, so the fixture configures that template rather than

@@ -18,7 +18,10 @@
  */
 package io.meeds.social.portlet;
 
+import static io.meeds.social.portlet.SubspacesListPortlet.ACCESS_DENIED_MESSAGE;
 import static io.meeds.social.portlet.SubspacesListPortlet.AVATAR_RESOURCE_ID;
+import static io.meeds.social.portlet.SubspacesListPortlet.PARENT_SPACE_NOT_FOUND_MESSAGE;
+import static io.meeds.social.portlet.SubspacesListPortlet.DEFAULT_SUBSPACES_LIMIT;
 import static io.meeds.social.portlet.SubspacesListPortlet.HEADER_TRANSLATIONS_INVALID_MESSAGE;
 import static io.meeds.social.portlet.SubspacesListPortlet.LIMIT_PARAMETER;
 import static io.meeds.social.portlet.SubspacesListPortlet.MAX_RESOURCE_LIMIT;
@@ -59,6 +62,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -96,6 +100,12 @@ import javax.portlet.ResourceResponse;
 class SubspacesListPortletTest {
 
   private static final String       USERNAME = "john";
+
+  /**
+   * Rows the avatar resource looks through: the widget's own stored limit
+   * plus the 'see more' row, not the 500-row cap of the listing resource.
+   */
+  private static final long         AVATAR_LISTING_BOUND = DEFAULT_SUBSPACES_LIMIT + 1L;
 
   @Mock
   private SpaceService              spaceService;
@@ -161,6 +171,10 @@ class SubspacesListPortletTest {
     lenient().when(resourceResponse.getWriter()).thenReturn(new PrintWriter(responseBody, true));
     lenient().when(preferences.getValue(eq(SHOW_HIDDEN_SUBSPACES_PREFERENCE), anyString()))
              .thenReturn("false");
+    lenient().when(preferences.getValue(eq(HEADER_TRANSLATIONS_PREFERENCE), anyString()))
+             .thenReturn("{}");
+    lenient().when(preferences.getValue(eq(SUBSPACES_LIMIT_PREFERENCE), any()))
+             .thenReturn(String.valueOf(DEFAULT_SUBSPACES_LIMIT));
   }
 
   private ByteArrayOutputStream givenAnAvatarRequest(String spaceId) throws Exception {
@@ -411,11 +425,14 @@ class SubspacesListPortletTest {
     givenAResourceRequest();
     when(spaceService.isParentSpace(space)).thenReturn(true);
     when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong()))
-                                                                                              .thenThrow(new IllegalAccessException("refused"));
+                                                                                              .thenThrow(new IllegalAccessException("User john isn't allowed to view space 42"));
 
     portlet.serveResource(resourceRequest, resourceResponse);
 
     verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "403");
+    // a fixed message code, not the Service's sentence: that one names the
+    // acting user and the space id, which belongs in LOG.debug
+    assertEquals(ACCESS_DENIED_MESSAGE, responseBody.toString().trim());
   }
 
   @Test
@@ -423,11 +440,12 @@ class SubspacesListPortletTest {
     givenAResourceRequest();
     when(spaceService.isParentSpace(space)).thenReturn(true);
     when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong()))
-                                                                                              .thenThrow(new org.exoplatform.commons.exception.ObjectNotFoundException("gone"));
+                                                                                              .thenThrow(new org.exoplatform.commons.exception.ObjectNotFoundException("Space with id 42 wasn't found"));
 
     portlet.serveResource(resourceRequest, resourceResponse);
 
     verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "404");
+    assertEquals(PARENT_SPACE_NOT_FOUND_MESSAGE, responseBody.toString().trim());
   }
 
   @Test
@@ -457,11 +475,64 @@ class SubspacesListPortletTest {
   }
 
   @Test
+  void serveResourceEchoesTheStoredPreferencesSoASaveCanBeConfirmed() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(preferences.getValue(eq(HEADER_TRANSLATIONS_PREFERENCE), anyString())).thenReturn("{\"en\":\"Teams\"}");
+    when(preferences.getValue(eq(SHOW_HIDDEN_SUBSPACES_PREFERENCE), anyString())).thenReturn("true");
+    when(preferences.getValue(eq(SUBSPACES_LIMIT_PREFERENCE), any())).thenReturn("9");
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong())).thenReturn(List.of());
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    // the action phase answers 200 even when it refused the write, so the
+    // drawer can only tell a stored value from a refused one by reading the
+    // preferences back from here
+    JSONObject settings = new JSONObject(responseBody.toString()).getJSONObject("settings");
+    assertEquals("Teams", settings.getJSONObject("headerTranslations").getString("en"));
+    assertTrue(settings.getBoolean("showHiddenSubspaces"));
+    assertEquals(9, settings.getInt("subspacesLimit"));
+  }
+
+  @Test
+  void serveResourceAnswersUnreadableStoredTranslationsWithNoneRatherThanFailing() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(preferences.getValue(eq(HEADER_TRANSLATIONS_PREFERENCE), anyString())).thenReturn("not json");
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong())).thenReturn(List.of());
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    JSONObject settings = new JSONObject(responseBody.toString()).getJSONObject("settings");
+    assertTrue(settings.getJSONObject("headerTranslations").isEmpty());
+    // the widget still renders, on its default label
+    assertTrue(new JSONObject(responseBody.toString()).getBoolean("parentSpace"));
+  }
+
+  @Test
+  void serveResourceCarriesTheInvitedFlagOfEachRow() throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    Space hidden = subspace(7L, "Secret team", Space.HIDDEN);
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong())).thenReturn(List.of(hidden));
+    when(spaceService.isMember(hidden, USERNAME)).thenReturn(false);
+    when(spaceService.isInvitedUser(hidden, USERNAME)).thenReturn(true);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    // an invited viewer is served by the space REST endpoints exactly like a
+    // member, so the row keeps its popover and the standard avatar URL
+    JSONObject item = new JSONObject(responseBody.toString()).getJSONArray("subspaces").getJSONObject(0);
+    assertFalse(item.getBoolean("isMember"));
+    assertTrue(item.getBoolean("isInvited"));
+  }
+
+  @Test
   void serveAvatarStreamsTheAvatarOfASubspaceListedToTheViewer() throws Exception {
     ByteArrayOutputStream imageBody = givenAnAvatarRequest("7");
     when(spaceService.isParentSpace(space)).thenReturn(true);
     Space hidden = subspace(7L, "Secret team", Space.HIDDEN);
-    when(spaceService.getSubspaces(anyLong(), eq(USERNAME), anyBoolean(), eq(0L), eq((long) MAX_RESOURCE_LIMIT)))
+    when(spaceService.getSubspaces(anyLong(), eq(USERNAME), anyBoolean(), eq(0L), eq(AVATAR_LISTING_BOUND)))
                                                                                                                  .thenReturn(List.of(hidden));
     Identity spaceIdentity = new Identity(SpaceIdentityProvider.NAME, "secret_team");
     when(identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, "secret_team")).thenReturn(spaceIdentity);
@@ -526,7 +597,54 @@ class SubspacesListPortletTest {
 
     portlet.serveResource(resourceRequest, resourceResponse);
 
-    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), eq(true), eq(0L), eq((long) MAX_RESOURCE_LIMIT));
+    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), eq(true), eq(0L), eq(AVATAR_LISTING_BOUND));
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "-5, 1", "0, 1", "100000, 25", "notANumber, 4", "12, 12" })
+  void storedLimitIsBroughtBackInsideTheBoundsWhateverWroteIt(String stored, int expected) throws Exception {
+    givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    // processAction refuses these, but a preference imported through the
+    // layout editor never went through it
+    when(preferences.getValue(eq(SUBSPACES_LIMIT_PREFERENCE), any())).thenReturn(stored);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    // a huge value would put a huge listing on the render path, and a
+    // negative one would make the Service throw IllegalArgumentException,
+    // which this method does not catch — it would escape as a 500
+    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), anyBoolean(), eq(0L), eq(expected + 1L));
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "-5, 1", "100000, 25", "notANumber, 4" })
+  void envelopeEchoesTheClampedLimitSoTheWidgetNeverSlicesOnAnUnusableOne(String stored, int expected) throws Exception {
+    givenAResourceRequest();
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(preferences.getValue(eq(SUBSPACES_LIMIT_PREFERENCE), any())).thenReturn(stored);
+    when(spaceService.getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong())).thenReturn(List.of());
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    // the widget re-seats $root.settings on this value and slices with it:
+    // a negative one would drop rows from the end of its own list
+    JSONObject settings = new JSONObject(responseBody.toString()).getJSONObject("settings");
+    assertEquals(expected, settings.getInt("subspacesLimit"));
+  }
+
+  @Test
+  void serveAvatarLooksOnlyThroughTheRowsTheWidgetRenders() throws Exception {
+    givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(preferences.getValue(eq(SUBSPACES_LIMIT_PREFERENCE), any())).thenReturn("12");
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    // the stored limit plus the 'see more' row, never the 500-row cap of the
+    // listing resource: this runs on the render path, once per hidden image
+    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), anyBoolean(), eq(0L), eq(13L));
+    verify(spaceService, never()).getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), eq((long) MAX_RESOURCE_LIMIT));
   }
 
   @Test

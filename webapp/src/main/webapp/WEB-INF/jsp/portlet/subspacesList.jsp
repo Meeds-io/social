@@ -1,5 +1,4 @@
 <%@ page import="io.meeds.social.portlet.SubspacesListPortlet" %>
-<%@ page import="org.apache.commons.lang3.math.NumberUtils" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.nio.charset.StandardCharsets" %>
 <%@ page import="javax.portlet.PortletPreferences" %>
@@ -12,11 +11,9 @@
   PortletPreferences preferences = renderRequest.getPreferences();
   String headerTranslations = preferences.getValue(SubspacesListPortlet.HEADER_TRANSLATIONS_PREFERENCE, "{}");
   boolean showHiddenSubspaces = Boolean.parseBoolean(preferences.getValue(SubspacesListPortlet.SHOW_HIDDEN_SUBSPACES_PREFERENCE, "false"));
-  // a preference imported through the layout editor bypasses processAction: clamp it so the widget always asks a usable limit
-  int subspacesLimit = Math.min(SubspacesListPortlet.MAX_SUBSPACES_LIMIT,
-                                Math.max(SubspacesListPortlet.MIN_SUBSPACES_LIMIT,
-                                         NumberUtils.toInt(preferences.getValue(SubspacesListPortlet.SUBSPACES_LIMIT_PREFERENCE, null),
-                                                           SubspacesListPortlet.DEFAULT_SUBSPACES_LIMIT)));
+  // a preference imported through the layout editor bypasses processAction: the portlet's own reader clamps it,
+  // and is shared here so that the JSP and the resource envelope cannot answer two different limits
+  int subspacesLimit = SubspacesListPortlet.storedLimit(preferences);
 
   String portletId = (String) request.getAttribute("portletStorageId");
   String appId = "subspacesList" + portletId;

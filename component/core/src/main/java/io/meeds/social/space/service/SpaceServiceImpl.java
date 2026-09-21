@@ -1795,7 +1795,9 @@ public class SpaceServiceImpl implements SpaceService {
       // not copy extraStatus, so the invited half is dropped before the DAO and
       // the listing is MEMBER-only. Neither :userId nor :visibleStatuses passes
       // through getStatusList(), so neither can be lost that way. The platform
-      // defect is real and filed separately; this call does not depend on it.
+      // defect is real and left untouched here; this call does not depend on
+      // it, and SubspacesServiceTest witnesses it in three assertions that say
+      // so and say what to do when it is fixed.
       // Measured in SubspacesServiceTest#testAllFilterPathWithARemoteIdHonoursTheInvitedUser.
       spaceFilter.setRemoteId(username);
     }
