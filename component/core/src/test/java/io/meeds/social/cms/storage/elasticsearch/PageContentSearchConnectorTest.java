@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -959,11 +960,14 @@ public class PageContentSearchConnectorTest {
       assertEquals(1L, bool.get("minimum_should_match"));
       JSONObject nameTier = (JSONObject) ((JSONObject) should.get(0)).get("constant_score");
       assertEquals(10000L, nameTier.get("boost"));
-      // The name tier tolerates one typo ("setting" finds "Settings"), the
-      // content tier and the relevance clause stay exact
+      // The name tier tolerates typos scaled to the term's length — none
+      // under 4 letters ("dev" would otherwise rank "Des", "Deb" and "DV"
+      // pages first), one from 4 to 6, two from 7 ("setting" finds
+      // "Settings") — the content tier and the relevance clause stay exact
       JSONObject nameMatch = (JSONObject) ((JSONObject) nameTier.get("filter")).get("multi_match");
       assertEquals("all spaces", nameMatch.get("query"));
-      assertEquals(1L, nameMatch.get("fuzziness"));
+      assertEquals("AUTO:4,7", nameMatch.get("fuzziness"));
+      assertEquals(1L, nameMatch.get("prefix_length"));
       assertEquals("and", nameMatch.get("operator"));
       JSONObject contentTier = (JSONObject) ((JSONObject) should.get(1)).get("constant_score");
       assertEquals(1000L, contentTier.get("boost"));
@@ -1003,6 +1007,46 @@ public class PageContentSearchConnectorTest {
     assertEquals(1, results.size());
     assertEquals("/portal/dw/spaces", results.get(0).getPagePath());
     assertEquals("Digital Workplace", results.get(0).getSiteLabel());
+  }
+
+  @Test
+  public void shouldResolveTheSiteToPresentGlobalPagesInOncePerSearch() {
+    // Which site the global pages are presented in depends on the request
+    // alone, so the lookups it takes are made once, however many hits the
+    // response carries (the presented site's label is still resolved per
+    // hit, as any hit's site label is)
+    when(portalConfigService.getGlobalPortal()).thenReturn("global");
+    PortalConfig workplace = mock(PortalConfig.class);
+    when(workplace.getLabel()).thenReturn("Digital Workplace");
+    when(layoutService.getPortalConfig(new SiteKey("portal", "dw"))).thenReturn(workplace);
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_9",
+                "_source": {"siteType": "portal", "siteName": "global", "pageName": "all-spaces",
+                            "pageTitle": "All Spaces", "pagePath": "/portal/global/spaces"},
+                "highlight": {"pageTitle": ["All <em>Spaces</em>"]}
+              },
+              {
+                "_id": "page_10",
+                "_source": {"siteType": "portal", "siteName": "global", "pageName": "my-spaces",
+                            "pageTitle": "My Spaces", "pagePath": "/portal/global/my-spaces"},
+                "highlight": {"pageTitle": ["My <em>Spaces</em>"]}
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    List<PageSearchResult> results = connector.search("spaces", 0, 10, Locale.ENGLISH, null, false, "dw");
+
+    assertEquals(2, results.size());
+    assertEquals("/portal/dw/spaces", results.get(0).getPagePath());
+    assertEquals("/portal/dw/my-spaces", results.get(1).getPagePath());
+    verify(portalConfigService, times(1)).getGlobalPortal();
   }
 
   @Test

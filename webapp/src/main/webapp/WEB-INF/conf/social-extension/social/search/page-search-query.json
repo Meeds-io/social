@@ -14,7 +14,7 @@
                 "query": "@term@",
                 "fields": ["pageTitle", "pageName"],
                 "operator": "and",
-                "fuzziness": 1,
+                "fuzziness": "AUTO:4,7",
                 "prefix_length": 1
               }
             },

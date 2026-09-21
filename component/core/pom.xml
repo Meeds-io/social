@@ -54,6 +54,18 @@
   </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <!-- The shipped search query template is what the connector test exercises: one copy, no drift -->
+      <testResource>
+        <directory>${project.basedir}/../../webapp/src/main/webapp/WEB-INF/conf/social-extension/social/search</directory>
+        <includes>
+          <include>page-search-query.json</include>
+        </includes>
+      </testResource>
+    </testResources>
     <plugins>
       <!-- Always cleanup generated sources before compiling -->
       <plugin>

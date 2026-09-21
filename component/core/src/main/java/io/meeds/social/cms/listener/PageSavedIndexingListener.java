@@ -106,12 +106,13 @@ public class PageSavedIndexingListener extends Listener<Object, Page> {
       return;
     }
     if (LayoutService.PAGE_CREATED.equals(event.getEventName())) {
-      // A creation: the connector also queues the content blocks the new
+      // A creation: the connector also queues every content block the new
       // page may already carry, which nothing else would ever index
       indexingService.index(PageContentIndexingConnector.TYPE, storageId);
     } else {
-      // A refresh: the page's content blocks, if any, are refreshed by the
-      // Layout event listener, not re-queued from here
+      // A refresh: the connector queues only the content blocks the index
+      // lacks — the ones it holds are refreshed by the Layout event listener
+      // when the save came through the Layout addon
       indexingService.reindex(PageContentIndexingConnector.TYPE, storageId);
     }
   }

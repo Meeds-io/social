@@ -562,10 +562,13 @@ public class PageContentSearchConnector {
     if (jsonHits == null) {
       return Collections.emptyList();
     }
+    // Whether the global site's pages are presented as entries of the site
+    // searched from depends on the request alone: resolved once, not per hit
+    String globalSite = globalSitePresentedAs(site);
     List<PageSearchResult> results = new ArrayList<>();
     for (Object jsonHit : jsonHits) {
       try {
-        PageSearchResult result = buildResult((JSONObject) jsonHit, locale, favoriteIds, site);
+        PageSearchResult result = buildResult((JSONObject) jsonHit, locale, favoriteIds, globalSite, site);
         if (result != null) {
           results.add(result);
         }
@@ -580,6 +583,11 @@ public class PageContentSearchConnector {
    * @param jsonHit a single ES hit from the search response
    * @param locale the user's locale, used to pick the excerpt's language
    * @param favoriteIds ids of the pages the current user has bookmarked
+   * @param globalSite the global site's name when its pages are to be
+   *          presented as entries of {@code site}
+   *          ({@link #globalSitePresentedAs}), {@code null} otherwise
+   * @param site the name of the portal site the user searches from, or
+   *          {@code null}/blank when unknown
    * @return the built result, or {@code null} when the page <em>only</em>
    *         matched through content in a language that shouldn't be shown
    *         to this user (see {@link #extractExcerpts}) — such a page isn't
@@ -590,7 +598,11 @@ public class PageContentSearchConnector {
    *         without an excerpt — a bare page document never has one.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private PageSearchResult buildResult(JSONObject jsonHit, Locale locale, Set<String> favoriteIds, String site) {
+  private PageSearchResult buildResult(JSONObject jsonHit,
+                                       Locale locale,
+                                       Set<String> favoriteIds,
+                                       String globalSite,
+                                       String site) {
     String id = (String) jsonHit.get("_id");
     JSONObject source = (JSONObject) jsonHit.get("_source");
     JSONObject highlight = (JSONObject) jsonHit.get("highlight");
@@ -602,7 +614,7 @@ public class PageContentSearchConnector {
     String siteType = source == null ? null : (String) source.get("siteType");
     String siteName = source == null ? null : (String) source.get("siteName");
     String pagePath = source == null ? null : (String) source.get("pagePath");
-    if (isPresentedInSite(siteType, siteName, site)) {
+    if (isPresentedInSite(siteType, siteName, globalSite)) {
       pagePath = relocatePath(pagePath, siteName, site);
       siteName = site;
     }
@@ -633,22 +645,35 @@ public class PageContentSearchConnector {
    * appends the global navigation to portal sites only: within a space (a
    * group site), or without a site to prefer, the page keeps its own.
    *
-   * @param  siteType the hit's site type
-   * @param  siteName the hit's site name
-   * @param  site     the name of the portal site the user searches from, or
-   *                  {@code null}/blank when unknown
-   * @return whether the hit is a global site page to present as an entry of
-   *         {@code site}
+   * @param  site the name of the portal site the user searches from, or
+   *              {@code null}/blank when unknown
+   * @return the global site's name when its pages are to be presented as
+   *         entries of {@code site}, {@code null} when they keep their own
    */
-  private boolean isPresentedInSite(String siteType, String siteName, String site) {
-    if (StringUtils.isBlank(site) || !StringUtils.equals(siteType, SiteType.PORTAL.getName())) {
-      return false;
+  private String globalSitePresentedAs(String site) {
+    if (StringUtils.isBlank(site)) {
+      return null;
     }
     String globalPortal = portalConfigService.getGlobalPortal();
-    return StringUtils.isNotBlank(globalPortal)
-           && StringUtils.equals(siteName, globalPortal)
-           && !StringUtils.equals(site, globalPortal)
-           && layoutService.getPortalConfig(new SiteKey(SiteType.PORTAL, site)) != null;
+    boolean presented = StringUtils.isNotBlank(globalPortal)
+                        && !StringUtils.equals(site, globalPortal)
+                        && layoutService.getPortalConfig(new SiteKey(SiteType.PORTAL, site)) != null;
+    return presented ? globalPortal : null;
+  }
+
+  /**
+   * @param  siteType   the hit's site type
+   * @param  siteName   the hit's site name
+   * @param  globalSite the global site's name when its pages are to be
+   *                    presented as the searched-from site's entries
+   *                    ({@link #globalSitePresentedAs}), {@code null}
+   *                    otherwise
+   * @return whether the hit is a global site page to present that way
+   */
+  private boolean isPresentedInSite(String siteType, String siteName, String globalSite) {
+    return globalSite != null
+           && StringUtils.equals(siteType, SiteType.PORTAL.getName())
+           && StringUtils.equals(siteName, globalSite);
   }
 
   /**
