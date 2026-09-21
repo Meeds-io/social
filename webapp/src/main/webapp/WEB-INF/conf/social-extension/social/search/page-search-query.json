@@ -10,10 +10,12 @@
         {
           "constant_score": {
             "filter": {
-              "query_string": {
+              "multi_match": {
+                "query": "@term@",
                 "fields": ["pageTitle", "pageName"],
-                "default_operator": "AND",
-                "query": "@term@"
+                "operator": "and",
+                "fuzziness": "AUTO:4,7",
+                "prefix_length": 1
               }
             },
             "boost": 10000

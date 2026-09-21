@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,6 +53,7 @@ import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.service.LayoutService;
@@ -99,6 +101,9 @@ public class PageContentSearchConnectorTest {
   @Mock
   private LocaleConfigService        localeConfigService;
 
+  @Mock
+  private UserPortalConfigService    portalConfigService;
+
   private PageContentSearchConnector connector;
 
   @Before
@@ -118,6 +123,7 @@ public class PageContentSearchConnectorTest {
                                                identityManager,
                                                spaceService,
                                                localeConfigService,
+                                               portalConfigService,
                                                params);
   }
 
@@ -938,6 +944,7 @@ public class PageContentSearchConnectorTest {
                                                identityManager,
                                                spaceService,
                                                localeConfigService,
+                                               portalConfigService,
                                                getParams());
     Identity identity = new Identity("john", Arrays.asList(new MembershipEntry("/spaces/x", "member")));
     ConversationState.setCurrent(new ConversationState(identity));
@@ -953,6 +960,15 @@ public class PageContentSearchConnectorTest {
       assertEquals(1L, bool.get("minimum_should_match"));
       JSONObject nameTier = (JSONObject) ((JSONObject) should.get(0)).get("constant_score");
       assertEquals(10000L, nameTier.get("boost"));
+      // The name tier tolerates typos scaled to the term's length — none
+      // under 4 letters ("dev" would otherwise rank "Des", "Deb" and "DV"
+      // pages first), one from 4 to 6, two from 7 ("setting" finds
+      // "Settings") — the content tier and the relevance clause stay exact
+      JSONObject nameMatch = (JSONObject) ((JSONObject) nameTier.get("filter")).get("multi_match");
+      assertEquals("all spaces", nameMatch.get("query"));
+      assertEquals("AUTO:4,7", nameMatch.get("fuzziness"));
+      assertEquals(1L, nameMatch.get("prefix_length"));
+      assertEquals("and", nameMatch.get("operator"));
       JSONObject contentTier = (JSONObject) ((JSONObject) should.get(1)).get("constant_score");
       assertEquals(1000L, contentTier.get("boost"));
       JSONObject relevance = (JSONObject) ((JSONObject) should.get(2)).get("query_string");
@@ -971,6 +987,142 @@ public class PageContentSearchConnectorTest {
     connector.search("all spaces", 5, 15, Locale.ENGLISH, null, false);
 
     verify(client).sendRequest(any(), any());
+  }
+
+  @Test
+  public void shouldPresentAGlobalSitePageAsTheCurrentPortalSiteEntry() {
+    // The portal appends the global site's navigation to every portal site's
+    // own: the "Spaces" entry of the Digital Workplace is the global "All
+    // Spaces" page, served under the workplace's URL. Searching from that
+    // workplace must present the page as its entry, once, not as a page of a
+    // "Global" site the user never sees
+    when(portalConfigService.getGlobalPortal()).thenReturn("global");
+    PortalConfig workplace = mock(PortalConfig.class);
+    when(workplace.getLabel()).thenReturn("Digital Workplace");
+    when(layoutService.getPortalConfig(new SiteKey("portal", "dw"))).thenReturn(workplace);
+    when(client.sendRequest(any(), any())).thenReturn(globalSpacesPageResponse());
+
+    List<PageSearchResult> results = connector.search("spaces", 0, 10, Locale.ENGLISH, null, false, "dw");
+
+    assertEquals(1, results.size());
+    assertEquals("/portal/dw/spaces", results.get(0).getPagePath());
+    assertEquals("Digital Workplace", results.get(0).getSiteLabel());
+  }
+
+  @Test
+  public void shouldResolveTheSiteToPresentGlobalPagesInOncePerSearch() {
+    // Which site the global pages are presented in depends on the request
+    // alone, so the lookups it takes are made once, however many hits the
+    // response carries (the presented site's label is still resolved per
+    // hit, as any hit's site label is)
+    when(portalConfigService.getGlobalPortal()).thenReturn("global");
+    PortalConfig workplace = mock(PortalConfig.class);
+    when(workplace.getLabel()).thenReturn("Digital Workplace");
+    when(layoutService.getPortalConfig(new SiteKey("portal", "dw"))).thenReturn(workplace);
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_9",
+                "_source": {"siteType": "portal", "siteName": "global", "pageName": "all-spaces",
+                            "pageTitle": "All Spaces", "pagePath": "/portal/global/spaces"},
+                "highlight": {"pageTitle": ["All <em>Spaces</em>"]}
+              },
+              {
+                "_id": "page_10",
+                "_source": {"siteType": "portal", "siteName": "global", "pageName": "my-spaces",
+                            "pageTitle": "My Spaces", "pagePath": "/portal/global/my-spaces"},
+                "highlight": {"pageTitle": ["My <em>Spaces</em>"]}
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    List<PageSearchResult> results = connector.search("spaces", 0, 10, Locale.ENGLISH, null, false, "dw");
+
+    assertEquals(2, results.size());
+    assertEquals("/portal/dw/spaces", results.get(0).getPagePath());
+    assertEquals("/portal/dw/my-spaces", results.get(1).getPagePath());
+    verify(portalConfigService, times(1)).getGlobalPortal();
+  }
+
+  @Test
+  public void shouldKeepAGlobalSitePageAsIsWithoutACurrentSiteOrFromTheGlobalSiteItself() {
+    when(portalConfigService.getGlobalPortal()).thenReturn("global");
+    when(client.sendRequest(any(), any())).thenReturn(globalSpacesPageResponse());
+
+    assertEquals("/portal/global/spaces", connector.search("spaces", 0, 10, Locale.ENGLISH, null, false).get(0).getPagePath());
+    assertEquals("/portal/global/spaces",
+                 connector.search("spaces", 0, 10, Locale.ENGLISH, null, false, "global").get(0).getPagePath());
+  }
+
+  @Test
+  public void shouldKeepAGlobalSitePageAsIsWhenSearchingFromAGroupSite() {
+    // The global navigation is appended to portal sites only: a space's site
+    // carries no such entry, so the page keeps its own path there
+    when(portalConfigService.getGlobalPortal()).thenReturn("global");
+    when(layoutService.getPortalConfig(new SiteKey("portal", "/spaces/x"))).thenReturn(null);
+    when(client.sendRequest(any(), any())).thenReturn(globalSpacesPageResponse());
+
+    List<PageSearchResult> results = connector.search("spaces", 0, 10, Locale.ENGLISH, null, false, "/spaces/x");
+
+    assertEquals("/portal/global/spaces", results.get(0).getPagePath());
+    assertEquals("global", results.get(0).getSiteLabel());
+  }
+
+  @Test
+  public void shouldNotRelocateAPageOfAnotherPortalSite() {
+    when(portalConfigService.getGlobalPortal()).thenReturn("global");
+    String response = """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_140",
+                "_source": {
+                  "siteType": "portal",
+                  "siteName": "administration",
+                  "pageName": "manage",
+                  "pageTitle": "Spaces Administration",
+                  "pagePath": "/portal/administration/home/spaces/manage"
+                },
+                "highlight": {"pageTitle": ["<em>Spaces</em> Administration"]}
+              }
+            ]
+          }
+        }
+        """;
+    when(client.sendRequest(any(), any())).thenReturn(response);
+
+    List<PageSearchResult> results = connector.search("spaces", 0, 10, Locale.ENGLISH, null, false, "dw");
+
+    assertEquals("/portal/administration/home/spaces/manage", results.get(0).getPagePath());
+    assertEquals("administration", results.get(0).getSiteLabel());
+  }
+
+  private String globalSpacesPageResponse() {
+    return """
+        {
+          "hits": {
+            "hits": [
+              {
+                "_id": "page_9",
+                "_source": {
+                  "siteType": "portal",
+                  "siteName": "global",
+                  "pageName": "all-spaces",
+                  "pageTitle": "All Spaces",
+                  "pagePath": "/portal/global/spaces"
+                },
+                "highlight": {"pageTitle": ["All <em>Spaces</em>"]}
+              }
+            ]
+          }
+        }
+        """;
   }
 
   private InitParams getParams() {
