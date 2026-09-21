@@ -2697,12 +2697,9 @@ public class EntityBuilder {
   }
 
   private static boolean isParentSpace(Space space) {
-    if (space.getParentSpaceId() != null && space.getParentSpaceId() > 0) {
-      return false;
-    }
-    SpaceTemplate spaceTemplate = ExoContainerContext.getService(SpaceTemplateService.class)
-                                                     .getSpaceTemplate(space.getTemplateId());
-    return spaceTemplate != null && CollectionUtils.isNotEmpty(spaceTemplate.getAllowedSubspaceTemplates());
+    // one predicate, two callers: the REST builder and the Subspaces List
+    // portlet, which decides from it whether it has anything to show
+    return ExoContainerContext.getService(SpaceService.class).isParentSpace(space);
   }
 
 }

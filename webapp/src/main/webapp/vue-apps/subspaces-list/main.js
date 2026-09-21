@@ -31,13 +31,20 @@ if (extensionRegistry) {
 //getting language of user
 const lang = eXo?.env?.portal?.language || 'en';
 
-//should expose the locale ressources as REST API
-const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
+// Portlets carries this widget's own labels; the two others are the bundles of
+// the shared components it reuses — <space-avatar> reads spacesList.* and
+// <space-creation-button> reads spacesList.button.add and
+// menu.spaces.addNewSpaceTooltip.
+const urls = [
+  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`,
+  `/social/i18n/locale.portal.HamburgerMenu?lang=${lang}`,
+];
 
 /**
  * Bootstraps the widget from the portlet preferences and URLs the JSP
  * passes: {appId, headerTranslations, showHiddenSubspaces, subspacesLimit,
- * saveSettingsUrl, resourceUrl}. Every business decision (parent space or
+ * saveSettingsUrl, resourceUrl, avatarResourceUrl}. Every business decision (parent space or
  * not, what to list, who may create or manage) comes from the portlet
  * resource call, never from here.
  *
@@ -45,7 +52,7 @@ const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
  * @returns {void}
  */
 export function init(settings) {
-  exoi18n.loadLanguageAsync(lang, url)
+  exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => {
       Vue.createApp({
         data: {
