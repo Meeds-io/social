@@ -19,7 +19,9 @@
 package io.meeds.social.portlet;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -27,15 +29,29 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.commons.file.model.FileInfo;
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+import org.exoplatform.services.thumbnail.ImageThumbnailService;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+
+import io.meeds.social.image.plugin.FileThumbnailPlugin;
+import io.meeds.social.util.JsonUtils;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.PortletPreferences;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
 /**
  * Portlet listing the sub-spaces of the space whose page hosts it. The class
@@ -65,6 +81,65 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
   public static final String        HEADER_TRANSLATIONS_INVALID_MESSAGE = "subspacesList.headerTranslations.invalid";
 
   public static final String        SHOW_HIDDEN_SUBSPACES_INVALID_MESSAGE = "subspacesList.showHiddenSubspaces.invalid";
+
+  public static final String        LIMIT_PARAMETER                  = "limit";
+
+  /**
+   * Resource id of the second resource this portlet serves: the avatar of one
+   * listed sub-space ({@code <portlet:resourceURL id="avatar">} in the JSP).
+   */
+  public static final String        AVATAR_RESOURCE_ID               = "avatar";
+
+  public static final String        SPACE_ID_PARAMETER               = "spaceId";
+
+  public static final String        SPACE_ID_INVALID_MESSAGE         = "subspacesList.spaceId.invalid";
+
+  /**
+   * Bodies of the 404 and 403 answers. A fixed message code per status, as
+   * {@code backend-spring.md} §5 asks: the Service's own sentence names the
+   * acting user and the space id, which is troubleshooting detail for
+   * {@code LOG.debug}, not something to hand a client.
+   */
+  public static final String        PARENT_SPACE_NOT_FOUND_MESSAGE   = "subspacesList.parentSpace.notFound";
+
+  public static final String        ACCESS_DENIED_MESSAGE            = "subspacesList.accessDenied";
+
+  /**
+   * Browser cache of a widget-served avatar. The URL carries no
+   * last-modified marker, so the cache is short and private.
+   */
+  public static final String        AVATAR_CACHE_CONTROL             = "private, max-age=3600";
+
+  /**
+   * Same thumbnail size as the space avatar REST endpoint's default, so both
+   * paths serve the same bytes for the same space.
+   */
+  public static final int           AVATAR_THUMBNAIL_SIZE            = 100;
+
+  public static final String        DEFAULT_AVATAR_MIME_TYPE         = "image/png";
+
+  /**
+   * Hard bound of one resource call. The 'see more' drawer lists every
+   * sub-space at once (no pagination yet), so the cap is what keeps one parent
+   * with an unexpected number of sub-spaces from making the call unbounded. A
+   * constant rather than a property: the real bound is the parent template's
+   * subspacesMaxLimit, and beyond this the answer is pagination, not a bigger
+   * number.
+   */
+  public static final int           MAX_RESOURCE_LIMIT               = 500;
+
+  /**
+   * Statuses of the resource phase, following the platform's exception to
+   * status contract: not found, then access, then parameter validation.
+   * Declared here because this module has no servlet API on its classpath.
+   */
+  private static final int          STATUS_BAD_REQUEST               = 400;
+
+  private static final int          STATUS_FORBIDDEN                 = 403;
+
+  private static final int          STATUS_NOT_FOUND                 = 404;
+
+  private static final Log          LOG                              = ExoLogger.getLogger(SubspacesListPortlet.class);
 
   /**
    * The only preference names {@link #processAction} stores. Any other posted
@@ -119,6 +194,298 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
         throw new PortletException(HEADER_TRANSLATIONS_INVALID_MESSAGE, e);
       }
     }
+  }
+
+  /**
+   * Answers the widget with everything it needs to render, in one envelope:
+   * whether the hosting space is a parent space at all, what the viewer may do
+   * on it, and the sub-spaces they may see. Every decision is the
+   * {@link SpaceService}'s; this method only reads the trusted preference and
+   * the page context.
+   * <p>
+   * The space is resolved from the page ({@link SpaceUtils#getSpaceByContext()}),
+   * never from a request parameter, and {@code showHiddenSubspaces} is read
+   * from the portlet preferences, never from the request: a client value must
+   * not be able to widen what is listed.
+   */
+  @Override
+  public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+    if (AVATAR_RESOURCE_ID.equals(request.getResourceID())) {
+      serveSubspaceAvatar(request, response);
+      return;
+    }
+    response.setContentType("application/json");
+    String username = request.getRemoteUser();
+    Space space = SpaceUtils.getSpaceByContext();
+    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+
+    if (space == null || !spaceService.isParentSpace(space)) {
+      // no space context, a sub-space, or a template allowing no sub-space:
+      // nothing to show and no listing query
+      writeJson(response, SubspacesEnvelope.notParentSpace());
+      return;
+    }
+
+    try {
+      int limit = parseLimit(request.getParameter(LIMIT_PARAMETER));
+      boolean showHiddenSubspaces = Boolean.parseBoolean(request.getPreferences()
+                                                                .getValue(SHOW_HIDDEN_SUBSPACES_PREFERENCE, "false"));
+      List<Space> subspaces = spaceService.getSubspaces(space.getSpaceId(), username, showHiddenSubspaces, 0, limit);
+      writeJson(response,
+                new SubspacesEnvelope(true,
+                                      spaceService.canManageSpace(space, username),
+                                      spaceService.canCreateSubspace(space, username, request.getLocale()),
+                                      subspaces.stream().map(subspace -> toItem(spaceService, subspace, username)).toList(),
+                                      storedSettings(request.getPreferences())));
+    } catch (ObjectNotFoundException e) {
+      LOG.debug("Parent space {} not found while listing its subspaces", space.getSpaceId(), e);
+      sendError(response, STATUS_NOT_FOUND, PARENT_SPACE_NOT_FOUND_MESSAGE);
+    } catch (IllegalAccessException e) {
+      LOG.debug("User {} isn't allowed to list subspaces of space {}", username, space.getSpaceId(), e);
+      sendError(response, STATUS_FORBIDDEN, ACCESS_DENIED_MESSAGE);
+    } catch (IllegalArgumentException e) {
+      sendError(response, STATUS_BAD_REQUEST, e.getMessage());
+    }
+  }
+
+  /**
+   * Streams the avatar of one sub-space the widget lists. The space avatar
+   * REST endpoint answers 404 for a HIDDEN and CLOSED space to a viewer who is
+   * neither member nor invited, so a hidden sub-space exposed through
+   * {@code showHiddenSubspaces} could not show its image otherwise.
+   * <p>
+   * No access rule is written here: the sub-space is served if and only if
+   * {@link SpaceService#getSubspaces} lists it to this viewer under the same
+   * preference the listing uses — the Service's decision, applied a second
+   * time. Statuses follow the platform contract: 404 when the page hosts no
+   * parent space, when the id is not one of the viewer's sub-spaces or when
+   * the space has no avatar (the client then shows the default image), 403
+   * when the viewer cannot view the parent, 400 on an unusable id.
+   * <p>
+   * Cost: one listing query per image, bounded by the widget's own
+   * {@code subspacesLimit + 1} — the same rows the widget renders, so the
+   * query this makes is the one the listing already made, not a 500-row scan
+   * on the render path. A sub-space past that bound is answered 404 and the
+   * client shows the default image; that is invisible today (the widget
+   * renders no such row) and becomes visible with the "see more" list of
+   * US01.05, which is what the single-row Service method below is for.
+   * <p>
+   * The proper fix is a Service method answering "is this one sub-space
+   * listed to this viewer" instead of a list — same filter, restricted to the
+   * one id. It is not done here because {@code SpaceFilter} carries no id set
+   * and {@code XSpaceFilter.setSpaceFilter} would drop one added to it, the
+   * same copy that already drops {@code extraStatus}: reaching it means
+   * changing shared listing code, which does not belong in this diff. Recorded
+   * as a follow-up with US01.05.
+   */
+  private void serveSubspaceAvatar(ResourceRequest request, ResourceResponse response) throws IOException {
+    String username = request.getRemoteUser();
+    Space parentSpace = SpaceUtils.getSpaceByContext();
+    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+    if (parentSpace == null || !spaceService.isParentSpace(parentSpace)) {
+      sendError(response, STATUS_NOT_FOUND, null);
+      return;
+    }
+    long subspaceId = NumberUtils.toLong(request.getParameter(SPACE_ID_PARAMETER), -1);
+    if (subspaceId <= 0) {
+      sendError(response, STATUS_BAD_REQUEST, SPACE_ID_INVALID_MESSAGE);
+      return;
+    }
+    try {
+      PortletPreferences preferences = request.getPreferences();
+      boolean showHiddenSubspaces = Boolean.parseBoolean(preferences.getValue(SHOW_HIDDEN_SUBSPACES_PREFERENCE, "false"));
+      // the rows the widget renders, and no more: the extra one is the same
+      // 'see more' row the listing asks for
+      long bound = storedLimit(preferences) + 1L;
+      Space subspace = spaceService.getSubspaces(parentSpace.getSpaceId(), username, showHiddenSubspaces, 0, bound)
+                                   .stream()
+                                   .filter(listed -> listed.getSpaceId() == subspaceId)
+                                   .findFirst()
+                                   .orElse(null);
+      if (subspace == null) {
+        sendError(response, STATUS_NOT_FOUND, null);
+        return;
+      }
+      IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+      Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, subspace.getPrettyName());
+      FileItem avatarFile = spaceIdentity == null ? null : identityManager.getAvatarFile(spaceIdentity);
+      if (avatarFile == null) {
+        sendError(response, STATUS_NOT_FOUND, null);
+        return;
+      }
+      FileInfo fileInfo = avatarFile.getFileInfo();
+      response.setContentType(StringUtils.defaultIfBlank(fileInfo == null ? null : fileInfo.getMimetype(),
+                                                         DEFAULT_AVATAR_MIME_TYPE));
+      response.setProperty("Cache-Control", AVATAR_CACHE_CONTROL);
+      response.getPortletOutputStream().write(getThumbnailOrOriginal(avatarFile));
+    } catch (ObjectNotFoundException e) {
+      LOG.debug("Parent space {} not found while serving a subspace avatar", parentSpace.getSpaceId(), e);
+      sendError(response, STATUS_NOT_FOUND, PARENT_SPACE_NOT_FOUND_MESSAGE);
+    } catch (IllegalAccessException e) {
+      LOG.debug("User {} isn't allowed to list subspaces of space {}", username, parentSpace.getSpaceId(), e);
+      sendError(response, STATUS_FORBIDDEN, ACCESS_DENIED_MESSAGE);
+    }
+  }
+
+  /**
+   * The {@value #AVATAR_THUMBNAIL_SIZE}px thumbnail of an avatar, as the space
+   * avatar REST endpoint serves by default; the original bytes when the file
+   * carries no id or the thumbnail cannot be produced (same fall-back as the
+   * endpoint), so an uploaded logo is not streamed whole for a 37px avatar.
+   */
+  private byte[] getThumbnailOrOriginal(FileItem avatarFile) {
+    FileInfo fileInfo = avatarFile.getFileInfo();
+    if (fileInfo == null) {
+      return avatarFile.getAsByte();
+    }
+    try {
+      FileItem thumbnail = CommonsUtils.getService(ImageThumbnailService.class)
+                                       .getOrCreateThumbnail(FileThumbnailPlugin.FILE_TYPE,
+                                                             Long.toString(fileInfo.getId()),
+                                                             fileInfo.getUpdater(),
+                                                             AVATAR_THUMBNAIL_SIZE,
+                                                             AVATAR_THUMBNAIL_SIZE);
+      return thumbnail == null ? avatarFile.getAsByte() : thumbnail.getAsByte();
+    } catch (Exception e) {
+      LOG.warn("Error while resizing avatar file {}, original image will be returned", fileInfo.getId(), e);
+      return avatarFile.getAsByte();
+    }
+  }
+
+  /**
+   * @param value the requested limit, absent when the drawer asks for the whole
+   *          list
+   * @return the number of sub-spaces to load, never above
+   *         {@link #MAX_RESOURCE_LIMIT}
+   * @throws IllegalArgumentException when the parameter is present and is not a
+   *           strictly positive number
+   */
+  private int parseLimit(String value) {
+    if (StringUtils.isBlank(value)) {
+      return MAX_RESOURCE_LIMIT;
+    }
+    int limit = NumberUtils.toInt(value, -1);
+    if (limit <= 0) {
+      throw new IllegalArgumentException(LIMIT_OUT_OF_RANGE_MESSAGE);
+    }
+    return Math.min(limit, MAX_RESOURCE_LIMIT);
+  }
+
+  private SubspaceItem toItem(SpaceService spaceService, Space subspace, String username) {
+    return new SubspaceItem(subspace.getId(),
+                            subspace.getDisplayName(),
+                            subspace.getPrettyName(),
+                            subspace.getAvatarUrl(),
+                            subspace.getVisibility(),
+                            spaceService.isMember(subspace, username),
+                            spaceService.isInvitedUser(subspace, username));
+  }
+
+  private void writeJson(ResourceResponse response, SubspacesEnvelope envelope) throws IOException {
+    response.getWriter().write(JsonUtils.toJsonString(envelope));
+  }
+
+  private void sendError(ResourceResponse response, int status, String message) throws IOException {
+    response.setProperty(ResourceResponse.HTTP_STATUS_CODE, String.valueOf(status));
+    response.setContentType("text/plain");
+    response.getWriter().write(StringUtils.defaultString(message));
+  }
+
+  /**
+   * What the widget renders from. {@code parentSpace} false means the widget
+   * hides its whole application: the other fields are then empty and no listing
+   * query ran.
+   * <p>
+   * {@code settings} is what the preferences <em>hold</em>, not what a client
+   * asked to store: it is how the drawer learns whether its save was applied.
+   * The action phase answers 200 whatever happens — a {@link PortletException}
+   * thrown by {@link #processAction} is rethrown by the portal's
+   * {@code UIPortletActionListener} and swallowed by
+   * {@code PortalRequestHandler}, which logs it and commits the response
+   * untouched — so the transport cannot tell a stored value from a refused
+   * one, and only reading the preferences back can.
+   */
+  public record SubspacesEnvelope(boolean parentSpace,
+                                  boolean canManageSpace,
+                                  boolean canCreateSubspace,
+                                  List<SubspaceItem> subspaces,
+                                  StoredSettings settings) {
+    public static SubspacesEnvelope notParentSpace() {
+      return new SubspacesEnvelope(false, false, false, Collections.emptyList(), null);
+    }
+  }
+
+  /**
+   * The three preferences as they are stored, echoed to the widget so that a
+   * save can be confirmed against them.
+   */
+  public record StoredSettings(Map<String, Object> headerTranslations, boolean showHiddenSubspaces, int subspacesLimit) {
+  }
+
+  private StoredSettings storedSettings(PortletPreferences preferences) {
+    return new StoredSettings(storedHeaderTranslations(preferences),
+                              Boolean.parseBoolean(preferences.getValue(SHOW_HIDDEN_SUBSPACES_PREFERENCE, "false")),
+                              storedLimit(preferences));
+  }
+
+  /**
+   * The stored translations as a map, so the widget receives an object and not
+   * a string to parse. Unreadable content answers an empty map rather than
+   * failing the whole envelope: {@link #processAction} is what keeps the value
+   * well formed, and a widget with no header title falls back to its default
+   * label.
+   */
+  private Map<String, Object> storedHeaderTranslations(PortletPreferences preferences) {
+    try {
+      // a preference explicitly stored with a null value reads back as null,
+      // which JSONObject rejects with an NPE rather than a JSONException
+      return new JSONObject(StringUtils.defaultIfBlank(preferences.getValue(HEADER_TRANSLATIONS_PREFERENCE, "{}"), "{}")).toMap();
+    } catch (JSONException e) {
+      LOG.debug("Unreadable stored header translations, answering none", e);
+      return Collections.emptyMap();
+    }
+  }
+
+  /**
+   * The stored number of rows, brought back inside
+   * {@link #MIN_SUBSPACES_LIMIT}..{@link #MAX_SUBSPACES_LIMIT}.
+   * <p>
+   * {@link #processAction} refuses a value outside those bounds, but it is
+   * not the only writer: a preference imported through the layout editor
+   * bypasses it entirely, so every <em>reader</em> clamps. This one is shared
+   * with the JSP rather than duplicated there, so the three places that read
+   * the preference cannot drift apart: an unclamped value feeds both the
+   * avatar resource's listing bound — where a large one is a big query on the
+   * render path and a negative one makes the Service throw
+   * {@code IllegalArgumentException}, which that method does not catch — and
+   * the envelope the widget re-seats its settings from, where a negative one
+   * makes the widget's own {@code slice} drop rows from the end.
+   *
+   * @param preferences the portlet preferences to read
+   * @return the stored limit, never outside the bounds the widget can render
+   */
+  public static int storedLimit(PortletPreferences preferences) {
+    return Math.min(MAX_SUBSPACES_LIMIT,
+                    Math.max(MIN_SUBSPACES_LIMIT,
+                             NumberUtils.toInt(preferences.getValue(SUBSPACES_LIMIT_PREFERENCE, null),
+                                               DEFAULT_SUBSPACES_LIMIT)));
+  }
+
+  /**
+   * One listed sub-space. {@code isMember} and {@code isInvited} carry the
+   * viewer's relationship to it for the hidden-space rendering only; they are
+   * not access decisions, which the Service already made by returning the
+   * space at all. Both are needed because the space REST endpoints serve a
+   * member <em>and</em> an invited user alike, so a row is only rendered
+   * anonymously when the viewer is neither.
+   */
+  public record SubspaceItem(String id,
+                             String displayName,
+                             String prettyName,
+                             String avatarUrl,
+                             String visibility,
+                             boolean isMember,
+                             boolean isInvited) {
   }
 
   private boolean canModifySettings(String username) {

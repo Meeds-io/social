@@ -17,11 +17,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import SubspacesList from './components/SubspacesList.vue';
+import SubspacesListItem from './components/SubspacesListItem.vue';
+import SubspacesListSettingsDrawer from './components/SubspacesListSettingsDrawer.vue';
 
 import * as subspacesListService from './subspacesListService.js';
 
 const components = {
   'subspaces-list': SubspacesList,
+  'subspaces-list-item': SubspacesListItem,
+  'subspaces-list-settings-drawer': SubspacesListSettingsDrawer,
 };
 
 for (const key in components) {
