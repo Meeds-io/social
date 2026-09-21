@@ -20,6 +20,7 @@ package org.exoplatform.social.core.space.spi;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import io.meeds.social.space.constant.UserSpacesScope;
@@ -1393,6 +1394,72 @@ public interface SpaceService {
    * @param inviterId the identifier of the user who sent the invitation
    */
   default void triggerUserJoinedByInvitationLink(Space space, String userId, String inviterId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Gets the sub-spaces of a parent space, as one viewer may see them, sorted
+   * alphabetically.
+   * <p>
+   * HIDDEN sub-spaces are returned to their members <em>and</em> to users
+   * invited to them &mdash; the platform-wide rule of
+   * {@link #canListSpace(Space, String)} &mdash; unless {@code includeHidden}
+   * is true, in which case every sub-space of the parent is returned whatever
+   * the viewer's membership. That
+   * flag lets a page expose hidden sub-spaces to non-members, so its only
+   * legitimate source is a page setting written by a user who
+   * {@link #canManageSpace(Space, String) can manage} the parent space; it
+   * must never be taken from a client value.
+   *
+   * @param parentSpaceId the parent {@link Space} identifier
+   * @param username the viewer's user name
+   * @param includeHidden whether HIDDEN sub-spaces are returned whatever the
+   *          viewer's membership in them
+   * @param offset index of the first sub-space to return, zero based
+   * @param limit maximum number of sub-spaces to return
+   * @return the sub-spaces of the parent, sorted by title ascending, at most
+   *         {@code limit} of them
+   * @throws ObjectNotFoundException when no space has the given identifier
+   * @throws IllegalAccessException when the viewer cannot view the parent
+   *           space
+   */
+  default List<Space> getSubspaces(long parentSpaceId,
+                                   String username,
+                                   boolean includeHidden,
+                                   long offset,
+                                   long limit) throws ObjectNotFoundException, IllegalAccessException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Checks whether a user may create a sub-space under a given parent space.
+   * <p>
+   * This is the creation-time rule enforced when a sub-space is actually
+   * created, minus the per-template count that only a chosen template can be
+   * checked against: the user is a member of the parent or a super manager, at
+   * least one allowed sub-space template is usable by them, and the parent
+   * template's global {@code subspacesMaxLimit} is not reached &mdash; counted
+   * over every sub-space of the parent, hidden ones included. Creating a
+   * sub-space may still be refused afterwards by the per-template limit.
+   *
+   * @param parentSpace the parent {@link Space}
+   * @param username the user name to check
+   * @param locale the {@link Locale} used to resolve the templates, may be null
+   * @return true when the user may create a sub-space under that parent, else
+   *         false
+   */
+  default boolean canCreateSubspace(Space parentSpace, String username, Locale locale) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Checks whether a space is a parent space: it has no parent of its own and
+   * its template allows at least one sub-space template.
+   *
+   * @param space the {@link Space} to check
+   * @return true when sub-spaces may hang under that space, else false
+   */
+  default boolean isParentSpace(Space space) {
     throw new UnsupportedOperationException();
   }
 }
