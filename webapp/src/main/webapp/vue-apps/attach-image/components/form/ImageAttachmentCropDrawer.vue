@@ -22,6 +22,7 @@
     :drawer-title="$t('attachment.imageCropDrawer.title')"
     :src="imageCropperSrc"
     :max-file-size="maxFileSize"
+    :max-image-width="maxImageWidth"
     :crop-options="cropOptions"
     :can-upload="canUpload"
     :back-icon="backIcon"
@@ -56,6 +57,10 @@ export default {
     embedded: {
       type: Boolean,
       default: false,
+    },
+    maxImageWidth: {
+      type: Number,
+      default: () => 1280,
     },
   },
   data: () => ({
