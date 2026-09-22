@@ -713,4 +713,31 @@ class SubspacesListPortletTest {
     verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "403");
     verifyNoInteractions(identityManager);
   }
+
+  @Test
+  void theJspIsToldThePageHostsAParentSpace() {
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+
+    assertTrue(SubspacesListPortlet.isParentSpaceContext());
+  }
+
+  /**
+   * The answer the JSP needs before the widget boots: outside a parent space
+   * it is not started at all, so no loading state is rendered on a space that
+   * has nothing to list.
+   */
+  @Test
+  void theJspIsToldThePageHostsNoParentSpace() {
+    when(spaceService.isParentSpace(space)).thenReturn(false);
+
+    assertFalse(SubspacesListPortlet.isParentSpaceContext());
+  }
+
+  @Test
+  void theJspIsToldThePageHostsNoParentSpaceOutsideAnySpaceContext() {
+    spaceUtils.when(SpaceUtils::getSpaceByContext).thenReturn(null);
+
+    assertFalse(SubspacesListPortlet.isParentSpaceContext());
+    verify(spaceService, never()).isParentSpace(any());
+  }
 }
