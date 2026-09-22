@@ -413,13 +413,16 @@ public class SpaceRest implements ResourceContainer {
     Space space = new Space();
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
+    Long parentSpaceId = model.getParentSpaceId();
     try {
-      space = model.getParentSpaceId() > 0
-                                           ? spaceService.createSpace(space,
-                                                                      authenticatedUser,
-                                                                      model.getInvitedMembers(),
-                                                                      model.getParentSpaceId())
-                                           : spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
+      space = parentSpaceId != null && parentSpaceId > 0
+                                                         ? spaceService.createSpace(space,
+                                                                                    authenticatedUser,
+                                                                                    model.getInvitedMembers(),
+                                                                                    parentSpaceId)
+                                                         : spaceService.createSpace(space,
+                                                                                    authenticatedUser,
+                                                                                    model.getInvitedMembers());
     } catch (SpaceException e) {
       throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
                                                 .entity(e.getCode().name())
@@ -1106,6 +1109,8 @@ public class SpaceRest implements ResourceContainer {
       space.setTemplateId(model.getTemplateId());
     }
 
+    // A payload that carries no value for the property leaves the parent
+    // relation untouched; an explicit 0 detaches the space from its parent
     if (model.getParentSpaceId() != null) {
       space.setParentSpaceId(model.getParentSpaceId());
     }
