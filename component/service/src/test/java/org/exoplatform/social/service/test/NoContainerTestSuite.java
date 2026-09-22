@@ -24,9 +24,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import org.exoplatform.social.rest.entity.SpaceEntityTest;
+
 @RunWith(Suite.class)
 @SuiteClasses({
   UtilTest.class,
+  SpaceEntityTest.class,
   })
 public class NoContainerTestSuite {
   
