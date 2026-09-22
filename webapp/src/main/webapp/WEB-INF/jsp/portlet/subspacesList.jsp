@@ -14,11 +14,19 @@
   // a preference imported through the layout editor bypasses processAction: the portlet's own reader clamps it,
   // and is shared here so that the JSP and the resource envelope cannot answer two different limits
   int subspacesLimit = SubspacesListPortlet.storedLimit(preferences);
+  // the portlet's own decision, shared here as storedLimit is: outside a parent space the widget is not
+  // booted at all, so no loading state is rendered on a space that has nothing to list
+  boolean parentSpace = SubspacesListPortlet.isParentSpaceContext();
 
   String portletId = (String) request.getAttribute("portletStorageId");
   String appId = "subspacesList" + portletId;
   String headerTranslationsDomId = appId + "HeaderTranslations";
 %>
+<%-- The bootstrap below is emitted even when the widget will not boot. Rendering nothing instead
+     looks like a cleanup and is a regression: an empty fragment makes the legacy renderer hide the
+     window itself (UIPortlet.gtmpl), but a page rendered by layout's page-layout app transplants only
+     the .PORTLET-FRAGMENT child and leaves that class behind on the discarded div, so the cell would
+     stay visible there. main.js hides the application on both. --%>
 <div class="VuetifyApp">
   <div data-app="true"
        class="v-application v-application--is-ltr theme--light"
@@ -40,6 +48,7 @@
             return {};
           }
         })(),
+        parentSpace: <%=parentSpace%>,
         showHiddenSubspaces: <%=showHiddenSubspaces%>,
         subspacesLimit: <%=subspacesLimit%>,
         saveSettingsUrl: '<%=saveSettingsUrl%>',
