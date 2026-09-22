@@ -121,14 +121,16 @@
                     fa-filter
                   </v-icon>
                 </v-btn>
+                <slot v-if="hasExpandActionSlot" name="expandAction"></slot>
                 <v-btn
-                  v-if="allowExpand && !isMobile"
+                  v-else-if="allowExpand && !isMobile"
                   :title="expandTooltip"
                   icon
                   @click="toogleExpand">
                   <v-icon v-text="expandIcon" size="20" />
                 </v-btn>
                 <v-btn
+                  v-if="!hideClose"
                   :title="$t('label.close')"
                   icon
                   @click="close()">
@@ -248,6 +250,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    hideClose: {
+      type: Boolean,
+      default: false,
+    },
     showOverlay: {
       type: Boolean,
       default: false,
@@ -341,6 +347,9 @@ export default {
     isMobile() {
       return this.$vuetify?.breakpoint?.smAndDown;
     },
+    hasExpandActionSlot() {
+      return !!(this.$scopedSlots.expandAction || this.$slots.expandAction);
+    },
     expandIcon() {
       return this.expand && 'fas fa-compress-alt' || 'fas fa-expand-alt';
     },
@@ -374,18 +383,23 @@ export default {
       this.$emit('expand-updated', this.expand);
     },
     drawer() {
-      if (!this.permanent) {
-        if (this.drawer) {
+      // the permanent guard covers only the global overlay registry: a
+      // permanent (e.g. docked) drawer stays out of the drawers overlay
+      // bookkeeping but keeps notifying its own consumer
+      if (this.drawer) {
+        if (!this.permanent) {
           document.dispatchEvent(new CustomEvent('drawerOpened', {detail: this.showOverlay || this.noExternalOverlay}));
-          if (!this.initialized) {
-            this.initialized = true;
-          }
           eXo.openedDrawers.push(this);
-          this.$emit('opened');
-          if (this.disablePullToRefresh) {
-            document.body.style.overscrollBehaviorY = 'contain';
-          }
-        } else {
+        }
+        if (!this.initialized) {
+          this.initialized = true;
+        }
+        this.$emit('opened');
+        if (this.disablePullToRefresh) {
+          document.body.style.overscrollBehaviorY = 'contain';
+        }
+      } else {
+        if (!this.permanent) {
           document.dispatchEvent(new CustomEvent('drawerClosed', {detail: this.showOverlay || this.noExternalOverlay}));
           if (eXo.openedDrawers) {
             const currentOpenedDrawerIndex = eXo.openedDrawers.indexOf(this);
@@ -393,12 +407,13 @@ export default {
               eXo.openedDrawers.splice(currentOpenedDrawerIndex, 1);
             }
           }
-          this.$emit('closed');
-          if (this.disablePullToRefresh) {
-            document.body.style.overscrollBehaviorY = '';
-          }
         }
-      } else if (!this.initialized) {
+        this.$emit('closed');
+        if (this.disablePullToRefresh) {
+          document.body.style.overscrollBehaviorY = '';
+        }
+      }
+      if (this.permanent && !this.initialized) {
         this.initialized = true;
       }
       if (this.drawer) {

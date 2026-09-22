@@ -1,8 +1,9 @@
 <template>
-  <exo-drawer
+  <pinneable-drawer
     id="searchDialog"
     v-model="drawer"
     :loading="loading"
+    app-name="search"
     expanded
     right>
     <template #title>
@@ -33,7 +34,7 @@
         </v-card>
       </v-card>
     </template>
-  </exo-drawer>
+  </pinneable-drawer>
 </template>
 <script>
 export default {
