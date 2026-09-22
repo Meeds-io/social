@@ -343,6 +343,7 @@
               <space-templates-management-suggester
                 v-model="subspaceTemplate"
                 :labels="suggesterLabels"
+                :excluded-ids="excludedSubspaceTemplateIds"
                 @input="selectSpaceTemplate($event)"
                 multiple />
               <v-list
@@ -530,6 +531,9 @@ export default {
     },
     isSubspaceTemplate() {
       return this.$root?.subspacesTemplateIds?.includes(this.spaceTemplate?.id) || false;
+    },
+    excludedSubspaceTemplateIds() {
+      return this.spaceTemplate?.id && [this.spaceTemplate.id] || [];
     },
     parentSpaceTemplateName() {
       const parent = this.$root.spaceTemplates.find(template =>

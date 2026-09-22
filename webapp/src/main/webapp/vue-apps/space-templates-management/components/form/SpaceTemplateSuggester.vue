@@ -90,6 +90,10 @@ export default {
         noDataLabel: '',
       }),
     },
+    excludedIds: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -107,12 +111,15 @@ export default {
     hideNoData() {
       return !this.searchStarted && this.templates.length === 0;
     },
+    suggestedTemplates() {
+      return this.templates.filter(t => !this.excludedIds.includes(t?.id));
+    },
     templateItems() {
       return  this.searchTerm
-        ? this.templates.filter(t =>
+        ? this.suggestedTemplates.filter(t =>
           t.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
         )
-        : this.templates;
+        : this.suggestedTemplates;
     },
   },
   watch: {

@@ -337,6 +337,21 @@ public class SpaceTemplateServiceTest {
     when(userIdentity.isMemberOf(new MembershipEntry(CREATE_AND_ACCESS_PERMISSIONS))).thenReturn(hasAccess);
   }
 
+  @Test
+  public void testUpdateSpaceTemplateWithItselfAsSubspaceTemplate() throws ObjectNotFoundException, IllegalAccessException {
+    setCanManageTemplate(true);
+    SpaceTemplate spaceTemplate = newSpaceTemplate(2l);
+    when(spaceTemplateStorage.getSpaceTemplate(2l)).thenReturn(newSpaceTemplate(2l));
+
+    spaceTemplate.setAllowedSubspaceTemplates(Arrays.asList("2:0"));
+    assertThrows(IllegalArgumentException.class, () -> spaceTemplateService.updateSpaceTemplate(spaceTemplate, TEST_USER));
+    verify(spaceTemplateStorage, never()).updateSpaceTemplate(spaceTemplate);
+
+    spaceTemplate.setAllowedSubspaceTemplates(Arrays.asList("3:0", "4:2"));
+    spaceTemplateService.updateSpaceTemplate(spaceTemplate, TEST_USER);
+    verify(spaceTemplateStorage).updateSpaceTemplate(spaceTemplate);
+  }
+
   private void setCanManageTemplate(boolean hasAccess) {
     Identity identity = mock(Identity.class);
     when(userAcl.getUserIdentity(TEST_USER)).thenReturn(identity);
