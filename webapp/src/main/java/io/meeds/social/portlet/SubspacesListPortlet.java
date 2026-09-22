@@ -488,6 +488,32 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
                              boolean isInvited) {
   }
 
+  /**
+   * Whether the page this portlet renders on hosts a space that may carry
+   * sub-spaces — the same question {@link #serveResource} answers, asked of
+   * the same {@link SpaceService} and resolved from the page, never from a
+   * request parameter.
+   * <p>
+   * Read by the JSP so that the widget is <em>not booted at all</em> outside a
+   * parent space: it used to boot everywhere, render its loading state and
+   * only then remove itself, which flashed a loading placeholder on every
+   * space that is not a parent one (PO feedback on EXO-89270).
+   * <p>
+   * Shared with the JSP the way {@link #storedLimit} is, rather than carried
+   * there as a render attribute: {@code GenericDispatchedViewPortlet.doView}
+   * copies <em>every</em> stored preference into a request attribute of the
+   * same name, after this class has had its turn, and a page editor may store
+   * a preference under any name at all
+   * ({@code PageLayoutService.updatePageApplicationPreferences}). No attribute
+   * name is therefore safe from being answered by a preference.
+   *
+   * @return {@code true} when the hosting space may carry sub-spaces
+   */
+  public static boolean isParentSpaceContext() {
+    Space space = SpaceUtils.getSpaceByContext();
+    return space != null && CommonsUtils.getService(SpaceService.class).isParentSpace(space);
+  }
+
   private boolean canModifySettings(String username) {
     Space space = SpaceUtils.getSpaceByContext();
     // resolved per call, as the sibling ParentSpaceListingPortlet does: the
