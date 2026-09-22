@@ -635,22 +635,25 @@ export default {
       this.spaceFieldInvitation = spaceTemplate.spaceFields.includes('invitation') || false;
       this.spaceFieldProperties = spaceTemplate.spaceFields.includes('properties') || false;
       this.spaceFieldAccessControl = spaceTemplate.spaceFields.includes('access') || false;
-      this.canHaveSubspaces = Array.isArray(spaceTemplate?.allowedSubspaceTemplates) &&
-          spaceTemplate?.allowedSubspaceTemplates.length > 0 &&
-          spaceTemplate?.allowedSubspaceTemplates.some(item => item && item.trim().length > 0);
+      // A template stored as its own subspace template is dropped on read too:
+      // the drawer would otherwise send back the payload the server refuses, and
+      // a template saved that way could no longer be edited at all.
+      const allowedSubspaceTemplates = (spaceTemplate?.allowedSubspaceTemplates || [])
+        .filter(item => item?.trim?.().length && Number(item.split(':')[0]) !== spaceTemplate?.id);
+      this.canHaveSubspaces = allowedSubspaceTemplates.length > 0;
+      this.selectedSubspaceTemplates = [];
+      this.subspaceTemplate = [];
 
-      if (Array.isArray(spaceTemplate?.allowedSubspaceTemplates) && spaceTemplate?.allowedSubspaceTemplates.length > 0) {
+      if (allowedSubspaceTemplates.length) {
         const allTemplates = await this.$spaceTemplateService.getSpaceTemplates();
-        this.selectedSubspaceTemplates = this.canHaveSubspaces
-          ? (spaceTemplate?.allowedSubspaceTemplates || []).map(item => {
-            const [id, max] = item.split(':');
-            const template = allTemplates.find(t => t.id === Number(id));
-            return {
-              ...template,
-              subspacesMaxLimit: Number(max) || 0,
-            };
-          })
-          : [];
+        this.selectedSubspaceTemplates = allowedSubspaceTemplates.map(item => {
+          const [id, max] = item.split(':');
+          const template = allTemplates.find(t => t.id === Number(id));
+          return {
+            ...template,
+            subspacesMaxLimit: Number(max) || 0,
+          };
+        });
         this.subspaceTemplate = [...this.selectedSubspaceTemplates];
       }
       this.subspacesMaxLimit = spaceTemplate?.subspacesMaxLimit;
@@ -706,6 +709,8 @@ export default {
           this.$root.$emit('space-templates-updated', this.spaceTemplate);
         }
         this.close();
+      } catch {
+        this.$root.$emit('alert-message', this.$t('spaceTemplate.update.error'), 'error');
       } finally {
         this.saving = false;
       }

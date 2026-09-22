@@ -330,8 +330,8 @@ public class SpaceTemplateService {
     if (storedSpaceTemplate == null || storedSpaceTemplate.isDeleted()) {
       throw new ObjectNotFoundException("Space Template doesn't exist");
     }
-    if (isAllowedSubspaceTemplate(spaceTemplate, spaceTemplate.getId())) {
-      throw new IllegalArgumentException("Space template can't be a subspace template of itself");
+    if (isSubspaceTemplateOfItself(spaceTemplate)) {
+      throw new IllegalArgumentException("spaceTemplate.subspaceTemplateCannotBeItself");
     }
     createSpaceTemplateGroupIfNotExist(storedSpaceTemplate.getId());
     spaceTemplate.setSystem(storedSpaceTemplate.isSystem());
@@ -495,14 +495,14 @@ public class SpaceTemplateService {
     return NumberUtils.isCreatable(idPart) ? Long.parseLong(idPart) : null;
   }
 
-  private boolean isAllowedSubspaceTemplate(SpaceTemplate spaceTemplate, long templateId) {
+  private boolean isSubspaceTemplateOfItself(SpaceTemplate spaceTemplate) {
     return CollectionUtils.isNotEmpty(spaceTemplate.getAllowedSubspaceTemplates())
            && spaceTemplate.getAllowedSubspaceTemplates()
                            .stream()
                            .filter(StringUtils::isNotBlank)
                            .map(this::extractTemplateId)
                            .filter(Objects::nonNull)
-                           .anyMatch(id -> id == templateId);
+                           .anyMatch(id -> id == spaceTemplate.getId());
   }
 
   @SneakyThrows

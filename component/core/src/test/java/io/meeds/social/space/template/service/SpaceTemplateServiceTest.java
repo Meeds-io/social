@@ -276,6 +276,22 @@ public class SpaceTemplateServiceTest {
   }
 
   @Test
+  public void testUpdateSpaceTemplateWithItselfAsSubspaceTemplate() throws ObjectNotFoundException, IllegalAccessException {
+    setCanManageTemplate(true);
+    // An identifier above the Long cache, so that a boxed comparison would fail the test
+    SpaceTemplate spaceTemplate = newSpaceTemplate(200l);
+    when(spaceTemplateStorage.getSpaceTemplate(200l)).thenReturn(newSpaceTemplate(200l));
+
+    spaceTemplate.setAllowedSubspaceTemplates(Arrays.asList("200:0"));
+    assertThrows(IllegalArgumentException.class, () -> spaceTemplateService.updateSpaceTemplate(spaceTemplate, TEST_USER));
+    verify(spaceTemplateStorage, never()).updateSpaceTemplate(spaceTemplate);
+
+    spaceTemplate.setAllowedSubspaceTemplates(Arrays.asList("3:0", "4:2"));
+    spaceTemplateService.updateSpaceTemplate(spaceTemplate, TEST_USER);
+    verify(spaceTemplateStorage).updateSpaceTemplate(spaceTemplate);
+  }
+
+  @Test
   public void testDeleteSpaceTemplate() throws IllegalAccessException, ObjectNotFoundException {
     assertThrows(IllegalAccessException.class, () -> spaceTemplateService.deleteSpaceTemplate(2l, TEST_USER));
     setCanManageTemplate(true);
@@ -335,21 +351,6 @@ public class SpaceTemplateServiceTest {
   private void setCanViewTemplate(boolean hasAccess) {
     when(userAcl.getUserIdentity(TEST_USER)).thenReturn(userIdentity);
     when(userIdentity.isMemberOf(new MembershipEntry(CREATE_AND_ACCESS_PERMISSIONS))).thenReturn(hasAccess);
-  }
-
-  @Test
-  public void testUpdateSpaceTemplateWithItselfAsSubspaceTemplate() throws ObjectNotFoundException, IllegalAccessException {
-    setCanManageTemplate(true);
-    SpaceTemplate spaceTemplate = newSpaceTemplate(2l);
-    when(spaceTemplateStorage.getSpaceTemplate(2l)).thenReturn(newSpaceTemplate(2l));
-
-    spaceTemplate.setAllowedSubspaceTemplates(Arrays.asList("2:0"));
-    assertThrows(IllegalArgumentException.class, () -> spaceTemplateService.updateSpaceTemplate(spaceTemplate, TEST_USER));
-    verify(spaceTemplateStorage, never()).updateSpaceTemplate(spaceTemplate);
-
-    spaceTemplate.setAllowedSubspaceTemplates(Arrays.asList("3:0", "4:2"));
-    spaceTemplateService.updateSpaceTemplate(spaceTemplate, TEST_USER);
-    verify(spaceTemplateStorage).updateSpaceTemplate(spaceTemplate);
   }
 
   private void setCanManageTemplate(boolean hasAccess) {
