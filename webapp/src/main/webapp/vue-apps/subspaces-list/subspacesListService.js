@@ -59,14 +59,21 @@ export function getSubspaces(resourceUrl, limit) {
  *
  * @param {string} avatarResourceUrl the portlet resource URL with id 'avatar'
  * @param {string|number} spaceId the sub-space identifier
+ * @param {number} listingLimit how many rows the portlet must look through to
+ *        find that sub-space, for a caller showing more rows than the widget
+ *        does; omitted by the widget itself, which shows the rows the portlet
+ *        already looks through by default
  * @returns {string} the image URL, or an empty string when it cannot be built
  */
-export function getSubspaceAvatarUrl(avatarResourceUrl, spaceId) {
+export function getSubspaceAvatarUrl(avatarResourceUrl, spaceId, listingLimit) {
   if (!avatarResourceUrl || !spaceId) {
     return '';
   }
   const url = new URL(avatarResourceUrl.replaceAll('&amp;', '&'), window.location.origin);
   url.searchParams.append('spaceId', spaceId);
+  if (listingLimit) {
+    url.searchParams.append('limit', listingLimit);
+  }
   return url.toString();
 }
 
