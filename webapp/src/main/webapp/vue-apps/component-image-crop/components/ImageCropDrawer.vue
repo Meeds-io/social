@@ -383,6 +383,9 @@ export default {
     isImageGif() {
       return this.mimetype && this.mimetype === 'image/gif';
     },
+    isVectorImage() {
+      return (this.getBase64Mimetype(this.imageData) || this.mimetype) === 'image/svg+xml';
+    },
     imageDisplayFormats() {
       return [{
         value: 'custom',
@@ -665,11 +668,7 @@ export default {
     },
     getCroppedCanvas() {
       if (this.circle) {
-        const croppedCanvas = this.cropper.getCroppedCanvas(this.maxImageWidth && {
-          maxWidth: this.maxImageWidth * 2,
-          maxHeight: this.maxImageHeight * 2,
-          imageSmoothingQuality: 'high'
-        });
+        const croppedCanvas = this.cropper.getCroppedCanvas(this.croppedCanvasOptions(2));
         const width = croppedCanvas.width;
         const height = croppedCanvas.height;
 
@@ -687,12 +686,22 @@ export default {
         context.fill();
         return canvas;
       } else {
-        return this.cropper.getCroppedCanvas(this.maxImageWidth && {
-          maxWidth: this.maxImageWidth,
-          maxHeight: this.maxImageHeight,
-          imageSmoothingQuality: 'high'
-        });
+        return this.cropper.getCroppedCanvas(this.croppedCanvasOptions(1));
       }
+    },
+    croppedCanvasOptions(scale) {
+      if (!this.maxImageWidth) {
+        return {};
+      }
+      const options = {
+        maxWidth: this.maxImageWidth * scale,
+        maxHeight: this.maxImageHeight * scale,
+        imageSmoothingQuality: 'high',
+      };
+      if (this.isVectorImage && !this.circle) {
+        options.minWidth = options.maxWidth;
+      }
+      return options;
     },
     uploadFile(file) {
       this.$root.$emit('close-alert-message');
