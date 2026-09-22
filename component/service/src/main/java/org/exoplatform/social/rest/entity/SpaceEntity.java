@@ -510,16 +510,21 @@ public class SpaceEntity extends BaseEntity {
   /**
    * @return the parent space identifier carried by the payload: a positive id
    *         to attach the space to that parent, <code>0</code> to detach it
-   *         from its parent, or <code>null</code> when the payload carries no
-   *         value for the property - whether the key is absent or explicitly
-   *         <code>null</code> - in which case the existing parent relation
-   *         must be left untouched
+   *         from its parent, or <code>null</code> when the property carries no
+   *         value at all, in which case the existing parent relation must be
+   *         left untouched
    *         <p>
-   *         Only the <code>Number</code> and <code>null</code> branches are
-   *         reachable from a REST payload: the JSON binder feeds this entity
-   *         through {@link #setParentSpaceId(Long)}, coercing any other JSON
-   *         type to a number first. The remaining branches guard programmatic
-   *         callers that set the property directly.
+   *         Over REST, <em>only an absent key</em> yields that last case. The
+   *         JSON binder feeds this entity through
+   *         {@link #setParentSpaceId(Long)} and converts whatever the payload
+   *         holds to a number first, so an explicit <code>null</code> and any
+   *         unparsable value both arrive here as <code>0</code> - the detach
+   *         sentinel. A REST caller therefore cannot reach the
+   *         <code>String</code> branch nor produce a stored <code>null</code>;
+   *         those guard programmatic callers only. That the binder
+   *         manufactures the detach sentinel out of "no value expressed" is a
+   *         defect of this contract, tracked separately: <code>0</code> cannot
+   *         safely mean detach while the transport produces it by accident.
    */
   public Long getParentSpaceId() {
     Object value = getProperty("parentSpaceId");

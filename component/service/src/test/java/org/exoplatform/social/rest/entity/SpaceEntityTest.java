@@ -26,8 +26,14 @@ import org.junit.Test;
 /**
  * Pins the three-state contract of {@link SpaceEntity#getParentSpaceId()}: a
  * positive id attaches, 0 detaches, and no value at all leaves the existing
- * parent relation untouched. The REST tests only reach two of those branches
- * through a payload round-trip, so the string ones are pinned here.
+ * parent relation untouched.
+ * <p>
+ * This is the <em>programmatic</em> contract. A REST caller reaches only two of
+ * these cases - an absent key and a number - because the JSON binder converts
+ * whatever the payload holds to a number before it gets here: an explicit JSON
+ * <code>null</code> and any unparsable value both arrive as <code>0</code>.
+ * The cases below that no payload can produce are labelled as such; they guard
+ * callers that set the property directly, not the transport.
  */
 public class SpaceEntityTest {
 
@@ -36,8 +42,13 @@ public class SpaceEntityTest {
     assertNull(new SpaceEntity().getParentSpaceId());
   }
 
+  /**
+   * Unreachable over REST: an explicit JSON <code>null</code> is coerced to
+   * <code>0</code> by the binder and detaches instead. This guards a caller
+   * that nulls the property directly.
+   */
   @Test
-  public void testParentSpaceIdExplicitNullIsNull() {
+  public void testParentSpaceIdExplicitNullSetProgrammaticallyIsNull() {
     SpaceEntity spaceEntity = new SpaceEntity();
     spaceEntity.setProperty("parentSpaceId", null);
     assertNull(spaceEntity.getParentSpaceId());
@@ -57,24 +68,33 @@ public class SpaceEntityTest {
     assertEquals(Long.valueOf(0L), spaceEntity.getParentSpaceId());
   }
 
+  /**
+   * Unreachable over REST: the binder converts a JSON string to a number
+   * before this entity sees it, so this branch guards programmatic callers.
+   */
   @Test
-  public void testParentSpaceIdFromNumericString() {
+  public void testParentSpaceIdFromNumericStringSetProgrammatically() {
     SpaceEntity spaceEntity = new SpaceEntity();
     spaceEntity.setProperty("parentSpaceId", "5");
     assertEquals(Long.valueOf(5L), spaceEntity.getParentSpaceId());
   }
 
+  /**
+   * Unreachable over REST, and deliberately the opposite of what the transport
+   * does: an unparsable value sent over REST arrives as <code>0</code> and
+   * detaches. Set programmatically it reads as "no value carried", so a
+   * garbage id is not the one thing that unlinks a subspace.
+   */
   @Test
-  public void testParentSpaceIdFromUnparsableStringLeavesRelationUntouched() {
+  public void testParentSpaceIdFromUnparsableStringSetProgrammaticallyLeavesRelationUntouched() {
     SpaceEntity spaceEntity = new SpaceEntity();
     spaceEntity.setProperty("parentSpaceId", "abc");
-    // reads as "no value carried" rather than as a detach: a garbage id must
-    // not be the one thing that unlinks a subspace
     assertNull(spaceEntity.getParentSpaceId());
   }
 
+  /** Unreachable over REST, for the same reason as the case above. */
   @Test
-  public void testParentSpaceIdFromUnexpectedTypeLeavesRelationUntouched() {
+  public void testParentSpaceIdFromUnexpectedTypeSetProgrammaticallyLeavesRelationUntouched() {
     SpaceEntity spaceEntity = new SpaceEntity();
     spaceEntity.setProperty("parentSpaceId", Boolean.TRUE);
     assertNull(spaceEntity.getParentSpaceId());
