@@ -74,8 +74,10 @@
 <script>
 export default {
   data: () => ({
-    // until the resource call answers, the application stays as the page
-    // rendered it: the cell is neither shown nor hidden by this widget
+    // the render phase already answered true — the widget is not booted
+    // otherwise — so this tracks the second answer only: a space that stopped
+    // being a parent between render and fetch, or a listing the viewer may not
+    // read
     parentSpace: null,
     // whether that first answer has arrived. The widget renders its loading
     // state until it does — the empty state stays out, it would otherwise
@@ -164,8 +166,10 @@ export default {
         .finally(() => {
           this.loaded = true;
           this.$root.loading = false;
-          // outside a parent space the cell disappears in view mode and keeps
-          // the layout editor's toolbar in edit mode
+          // a page that turned out to host no parent space, or a listing the
+          // viewer may not read: the cell disappears in view mode and, in the
+          // layout editor, stays an empty manageable cell (the hook's own
+          // guard, common/initComponents.js)
           this.$updateApplicationVisibility(this.parentSpace);
         });
     },
