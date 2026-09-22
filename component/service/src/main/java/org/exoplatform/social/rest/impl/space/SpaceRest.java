@@ -1109,8 +1109,8 @@ public class SpaceRest implements ResourceContainer {
       space.setTemplateId(model.getTemplateId());
     }
 
-    // A payload that doesn't carry the property leaves the parent relation
-    // untouched; an explicit 0 detaches the space from its parent
+    // A payload that carries no value for the property leaves the parent
+    // relation untouched; an explicit 0 detaches the space from its parent
     if (model.getParentSpaceId() != null) {
       space.setParentSpaceId(model.getParentSpaceId());
     }

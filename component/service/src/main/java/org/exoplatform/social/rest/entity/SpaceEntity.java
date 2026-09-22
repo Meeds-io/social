@@ -510,9 +510,16 @@ public class SpaceEntity extends BaseEntity {
   /**
    * @return the parent space identifier carried by the payload: a positive id
    *         to attach the space to that parent, <code>0</code> to detach it
-   *         from its parent, or <code>null</code> when the payload doesn't
-   *         carry the property at all, in which case the existing parent
-   *         relation must be left untouched
+   *         from its parent, or <code>null</code> when the payload carries no
+   *         value for the property - whether the key is absent or explicitly
+   *         <code>null</code> - in which case the existing parent relation
+   *         must be left untouched
+   *         <p>
+   *         Only the <code>Number</code> and <code>null</code> branches are
+   *         reachable from a REST payload: the JSON binder feeds this entity
+   *         through {@link #setParentSpaceId(Long)}, coercing any other JSON
+   *         type to a number first. The remaining branches guard programmatic
+   *         callers that set the property directly.
    */
   public Long getParentSpaceId() {
     Object value = getProperty("parentSpaceId");
