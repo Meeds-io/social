@@ -19,7 +19,6 @@
 package io.meeds.social.space.template.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;

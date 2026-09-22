@@ -178,6 +178,7 @@ export default {
           const allowedSubspaceTemplates = spaceTemplate.allowedSubspaceTemplates
             ?.filter(item => Number(item?.split?.(':')[0]) !== spaceTemplate.id);
           spaceTemplate.allowedSubspaceTemplates = allowedSubspaceTemplates?.length && allowedSubspaceTemplates || null;
+          spaceTemplate.subspacesMaxLimit = spaceTemplate.allowedSubspaceTemplates && spaceTemplate.subspacesMaxLimit || null;
           return this.$spaceTemplateService.updateSpaceTemplate(spaceTemplate)
             .then(() => {
               this.$root.$emit(`space-templates-${enabled && 'enabled' || 'disabled'}`, spaceTemplate);

@@ -305,6 +305,7 @@ public class SpaceTemplateServiceTest {
 
     assertEquals(List.of(300l), spaceTemplateService.getSubspaceTemplateIds(TEST_USER));
     assertEquals(List.of(200l), spaceTemplateService.getParentSpaceTemplateIds(List.of(300l), TEST_USER));
+    assertEquals(List.of(), spaceTemplateService.getParentSpaceTemplateIds(List.of(200l), TEST_USER));
   }
 
   @Test
