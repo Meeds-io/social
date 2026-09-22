@@ -178,7 +178,10 @@ export default {
           const allowedSubspaceTemplates = spaceTemplate.allowedSubspaceTemplates
             ?.filter(item => Number(item?.split?.(':')[0]) !== spaceTemplate.id);
           spaceTemplate.allowedSubspaceTemplates = allowedSubspaceTemplates?.length && allowedSubspaceTemplates || null;
-          spaceTemplate.subspacesMaxLimit = spaceTemplate.allowedSubspaceTemplates && spaceTemplate.subspacesMaxLimit || null;
+          if (!spaceTemplate.allowedSubspaceTemplates) {
+            // save() nulls the limit only with the list; a stored 0 means "no limit" and must survive
+            spaceTemplate.subspacesMaxLimit = null;
+          }
           return this.$spaceTemplateService.updateSpaceTemplate(spaceTemplate)
             .then(() => {
               this.$root.$emit(`space-templates-${enabled && 'enabled' || 'disabled'}`, spaceTemplate);
