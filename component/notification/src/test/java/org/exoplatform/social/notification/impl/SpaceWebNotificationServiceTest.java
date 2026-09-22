@@ -27,8 +27,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -43,6 +45,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -52,6 +55,7 @@ import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.Metadata;
@@ -62,6 +66,7 @@ import org.exoplatform.social.metadata.model.MetadataType;
 import org.exoplatform.social.notification.AbstractCoreTest;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.space.model.Space;
@@ -469,6 +474,94 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
     verify(metadataService, times(1)).deleteMetadataItem(metadataItemId, true);
     verify(listenerService, times(1)).broadcast(NOTIFICATION_READ_EVENT_NAME, spaceWebNotificationItem, userIdentityId);
 
+  }
+
+  /**
+   * Regression pin (EXO-89999): the unread item of a content-backed activity
+   * (news) is stored on the content object the activity redirects to, while
+   * the browser marks the activity as read. Both items must be deleted
+   * before the single {@link #NOTIFICATION_READ_EVENT_NAME} broadcast, so
+   * that the sidebar counter refetched on the event is already consistent.
+   */
+  @Test
+  public void testMarkAsReadDeletesRedirectedContentItemBeforeBroadcast() throws Exception {
+    String newsId = "42";
+    ExoSocialActivity activity = mock(ExoSocialActivity.class);
+    when(activity.hasSpecificMetadataObject()).thenReturn(true);
+    when(activity.getMetadataObjectType()).thenReturn("news");
+    when(activity.getMetadataObjectId()).thenReturn(newsId);
+    ActivityManager activityManager = mock(ActivityManager.class);
+    when(activityManager.getActivity(activityId)).thenReturn(activity);
+
+    MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME, String.valueOf(userIdentityId), userIdentityId);
+    MetadataObject newsMetadataObject = new MetadataObject("news", newsId, null, spaceId);
+    long newsItemId = 7l;
+    when(metadataService.getMetadataItemsByMetadataAndObject(metadataKey,
+                                                             newsMetadataObject)).thenReturn(Arrays.asList(new MetadataItem(newsItemId,
+                                                                                                                            newMetadata(),
+                                                                                                                            newsMetadataObject,
+                                                                                                                            userIdentityId,
+                                                                                                                            System.currentTimeMillis(),
+                                                                                                                            null)));
+    spaceWebNotificationService = newServiceWithActivityManager(activityManager);
+    SpaceWebNotificationItem spaceWebNotificationItem = new SpaceWebNotificationItem(METADATA_OBJECT_TYPE,
+                                                                                     activityId,
+                                                                                     userIdentityId,
+                                                                                     spaceId);
+
+    spaceWebNotificationService.markAsRead(spaceWebNotificationItem);
+
+    InOrder inOrder = inOrder(metadataService, listenerService);
+    inOrder.verify(metadataService).deleteMetadataItem(newsItemId, true);
+    inOrder.verify(listenerService).broadcast(NOTIFICATION_READ_EVENT_NAME, spaceWebNotificationItem, userIdentityId);
+    verify(listenerService, times(1)).broadcast(eq(NOTIFICATION_READ_EVENT_NAME), any(), any());
+  }
+
+  @Test
+  public void testMarkAsReadOfPlainActivityDoesNotRedirect() throws Exception {
+    ExoSocialActivity activity = mock(ExoSocialActivity.class);
+    when(activity.hasSpecificMetadataObject()).thenReturn(false);
+    ActivityManager activityManager = mock(ActivityManager.class);
+    when(activityManager.getActivity(activityId)).thenReturn(activity);
+    spaceWebNotificationService = newServiceWithActivityManager(activityManager);
+    SpaceWebNotificationItem spaceWebNotificationItem = new SpaceWebNotificationItem(METADATA_OBJECT_TYPE,
+                                                                                     activityId,
+                                                                                     userIdentityId,
+                                                                                     spaceId);
+
+    spaceWebNotificationService.markAsRead(spaceWebNotificationItem);
+
+    verify(metadataService, times(1)).getMetadataItemsByMetadataAndObject(any(), any());
+    verify(listenerService, times(1)).broadcast(NOTIFICATION_READ_EVENT_NAME, spaceWebNotificationItem, userIdentityId);
+  }
+
+  @Test
+  public void testMarkAsReadOfNonActivityItemDoesNotResolveActivity() throws Exception {
+    ActivityManager activityManager = mock(ActivityManager.class);
+    spaceWebNotificationService = newServiceWithActivityManager(activityManager);
+    SpaceWebNotificationItem spaceWebNotificationItem = new SpaceWebNotificationItem("news",
+                                                                                     "42",
+                                                                                     userIdentityId,
+                                                                                     spaceId);
+
+    spaceWebNotificationService.markAsRead(spaceWebNotificationItem);
+
+    verifyNoInteractions(activityManager);
+    verify(listenerService, times(1)).broadcast(NOTIFICATION_READ_EVENT_NAME, spaceWebNotificationItem, userIdentityId);
+  }
+
+  private SpaceWebNotificationServiceImpl newServiceWithActivityManager(ActivityManager activityManager) {
+    return new SpaceWebNotificationServiceImpl(getContainer(),
+                                               metadataService,
+                                               pluginSettingService,
+                                               listenerService,
+                                               identityManager,
+                                               spaceService) {
+      @Override
+      protected ActivityManager getActivityManager() {
+        return activityManager;
+      }
+    };
   }
 
 }
