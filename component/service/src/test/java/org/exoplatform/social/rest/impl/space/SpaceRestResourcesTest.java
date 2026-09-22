@@ -744,6 +744,38 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertFalse(spaceEntity.getSovereign().booleanValue());
   }
 
+  public void testUpdateSpaceKeepsParentSpaceRelation() throws Exception {
+    Space parentSpace = getSpaceInstance(20, "root");
+    Space subSpace = getSpaceInstance(21, "root");
+    subSpace.setParentSpaceId(parentSpace.getSpaceId());
+    subSpace = spaceService.updateSpace(subSpace);
+    assertNotNull(subSpace.getParentSpaceId());
+    assertEquals(parentSpace.getSpaceId(), subSpace.getParentSpaceId().longValue());
+
+    startSessionAs("root");
+    // The access & visibility drawer sends the access rules only: the parent
+    // space relation isn't part of the payload and must survive the update
+    String input = "{\"visibility\":\"hidden\",\"subscription\":\"open\"}";
+    ContainerResponse response = getResponse("PUT", getURLResource("spaces/" + subSpace.getId()), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    restartTransaction();
+
+    Space updatedSpace = spaceService.getSpaceById(subSpace.getId());
+    assertEquals(Space.HIDDEN, updatedSpace.getVisibility());
+    assertEquals(Space.OPEN, updatedSpace.getRegistration());
+    assertNotNull(updatedSpace.getParentSpaceId());
+    assertEquals(parentSpace.getSpaceId(), updatedSpace.getParentSpaceId().longValue());
+
+    // an explicitly zeroed parent space id still detaches the subspace
+    input = "{\"parentSpaceId\":0}";
+    response = getResponse("PUT", getURLResource("spaces/" + subSpace.getId()), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    restartTransaction();
+    assertNull(spaceService.getSpaceById(subSpace.getId()).getParentSpaceId());
+  }
+
   public void testSaveSpacePublicSite() throws Exception {
     // root creates 1 spaces
     Space space = getSpaceInstance(1, "root");
