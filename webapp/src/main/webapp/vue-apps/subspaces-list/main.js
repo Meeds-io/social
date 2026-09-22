@@ -43,15 +43,25 @@ const urls = [
 
 /**
  * Bootstraps the widget from the portlet preferences and URLs the JSP
- * passes: {appId, headerTranslations, showHiddenSubspaces, subspacesLimit,
- * saveSettingsUrl, resourceUrl, avatarResourceUrl}. Every business decision (parent space or
- * not, what to list, who may create or manage) comes from the portlet
- * resource call, never from here.
+ * passes: {appId, parentSpace, headerTranslations, showHiddenSubspaces,
+ * subspacesLimit, saveSettingsUrl, resourceUrl, avatarResourceUrl}. Every
+ * business decision (parent space or not, what to list, who may create or
+ * manage) is the portlet's, taken in the render phase for {@code parentSpace}
+ * and in the resource call for the rest, never here.
  *
  * @param {object} settings preferences and URLs read by the JSP
  * @returns {void}
  */
 export function init(settings) {
+  if (!settings.parentSpace) {
+    // Outside a parent space the widget has nothing to list: the application is
+    // removed straight away instead of booting the app, rendering its loading
+    // state and only then removing itself. The hook keeps the cell in the
+    // layout editor, where the administrator still has to be able to select
+    // and remove the portlet they added (see common/initComponents.js).
+    Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${settings.appId}`));
+    return;
+  }
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => {
       Vue.createApp({

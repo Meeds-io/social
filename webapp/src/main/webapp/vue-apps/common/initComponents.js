@@ -139,6 +139,50 @@ Vue.prototype.$applicationLoaded = function() {
   }}));
 };
 
+/**
+ * The element the layout, section and site-layout editors install a portlet's
+ * content into: a '.layout-application' carrying the edited container's storage
+ * id (Meeds-io/layout -> vue-app/common-layout/components/content/container/Application.vue).
+ * Five elements in that repo carry the 'layout-application' class and it is the
+ * only one to carry the attribute too — the live-page renderer (page-layout),
+ * the portlet editor's preview, the portlet instance viewer and the editor's
+ * own 'Edit application' dialog (common-layout/components/dialog/EditPortletDialog.vue)
+ * set none. The dialog is the one deliberate exclusion: its whole content is
+ * the portlet rendered in EDIT mode, where a widget that hides itself leaves a
+ * legitimately empty dialog rather than an unreachable cell. It is unreachable
+ * today anyway — the dialog opens only for a portlet declaring an EDIT mode,
+ * which no self-hiding widget does.
+ *
+ * It is also where the editor hangs the application's own hover menu, so hiding
+ * it removes the portlet from the editor together with the menu that moves,
+ * configures and deletes it.
+ */
+const LAYOUT_EDITOR_APPLICATION_SELECTOR = '.layout-application[data-storage-id]';
+
+/**
+ * Shows or hides the window a Vue application renders in, so that a widget
+ * with nothing to display leaves no empty cell — and no column gap — behind.
+ *
+ * A widget never hides itself in the layout editor: there the window is the
+ * editor's own application cell, and an administrator who has just dropped the
+ * portlet on a page must still be able to select and remove it. What keeps an
+ * empty cell reachable there is not one mechanism but two, so both are worth
+ * testing: in a Flex or SidebarCell section in desktop display mode the editor
+ * draws its own 'no content' band carrying the application's title
+ * (Application.vue displayNoContent), and in a Grid section — the common case —
+ * in either display mode, the cell keeps its own area and hovering it opens the
+ * application menu (Cell.vue -> hoveredParentId -> Application.vue
+ * hoverGridCell). A Flex or SidebarCell section in mobile display mode has
+ * neither: the band and the dynamic cell's own min-height are both desktop-only
+ * and the hover is skipped for dynamic sections. That corner is the editor's own mobile
+ * degradation — several of its application controls are desktop-gated — and it
+ * is still an improvement on hiding the element outright.
+ *
+ * @param {boolean} visible whether the window must be shown
+ * @param {object} element the application element, defaulting to the calling
+ *        application's root element
+ * @returns {void}
+ */
 Vue.prototype.$updateApplicationVisibility = function(visible, element) {
   if (!element) {
     element = this?.$root?.$el;
@@ -147,10 +191,11 @@ Vue.prototype.$updateApplicationVisibility = function(visible, element) {
     element = element?.parentElement;
   }
   if (element?.parentElement) {
+    const applicationElement = element.closest?.('.PORTLET-FRAGMENT')?.parentElement;
     if (visible) {
-      element.closest?.('.PORTLET-FRAGMENT')?.parentElement?.classList?.remove?.('hidden');
-    } else {
-      element.closest?.('.PORTLET-FRAGMENT')?.parentElement?.classList?.add?.('hidden');
+      applicationElement?.classList?.remove?.('hidden');
+    } else if (!applicationElement?.matches?.(LAYOUT_EDITOR_APPLICATION_SELECTOR)) {
+      applicationElement?.classList?.add?.('hidden');
     }
   }
 };
