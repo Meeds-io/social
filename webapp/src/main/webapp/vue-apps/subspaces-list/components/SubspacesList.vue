@@ -25,22 +25,37 @@
         :title="headerTitle"
         :loading="$root.loading"
         extra-class="application-body">
-        <template v-if="canManageSpace" #action>
+        <!-- The header affordance every widget of the dashboard shares, copied
+             from the sibling spaces widget (analytics -> SpacesListWidget.vue):
+             the 'see all' action reads as a label until the widget is hovered
+             by someone who can edit it, and then becomes an icon so the cog can
+             sit beside it. A viewer who cannot manage the space never sees the
+             cog and keeps the label. -->
+        <template v-if="canManageSpace || hasMore" #action>
           <div class="d-flex align-center justify-center">
             <v-btn
-              v-show="hover"
-              :title="$t('subspacesList.settings.drawer.title')"
-              height="27"
-              width="27"
-              class="pa-0"
-              min-width="auto"
-              text
-              icon
-              @click="openSettingsDrawer">
-              <v-icon size="18">
-                fa-cog
-              </v-icon>
+              v-if="hasMore"
+              :icon="hoverEdit"
+              :text="!hoverEdit"
+              :title="hoverEdit && $t('Widget.label.seeAll') || null"
+              color="primary"
+              small
+              link
+              @click="openSeeAllDrawer">
+              <v-icon v-if="hoverEdit" size="18">fa-external-link-alt</v-icon>
+              <span v-else class="text-font-size text-none">{{ $t('Widget.label.seeAll') }}</span>
             </v-btn>
+            <v-fab-transition hide-on-leave>
+              <v-btn
+                v-if="canManageSpace"
+                v-show="hoverEdit"
+                :title="$t('subspacesList.settings.drawer.title')"
+                small
+                icon
+                @click="openSettingsDrawer">
+                <v-icon size="18">fa-cog</v-icon>
+              </v-btn>
+            </v-fab-transition>
           </div>
         </template>
         <template #default>
@@ -69,6 +84,9 @@
       v-if="settingsDrawer"
       ref="settingsDrawer"
       :refresh="refresh" />
+    <subspaces-list-drawer
+      v-if="seeAllDrawer"
+      ref="seeAllDrawer" />
   </v-app>
 </template>
 <script>
@@ -88,10 +106,12 @@ export default {
     canManageSpace: false,
     subspaces: [],
     hover: false,
-    // the drawer is mounted on first use only, and kept from then on: most
-    // viewers never manage the space and never see the action, and tearing
-    // it down on close would cut the drawer's slide-out short
+    // the drawers are mounted on first use only, and kept from then on: most
+    // viewers never manage the space and never see the cog, most parents have
+    // fewer sub-spaces than the limit, and tearing a drawer down on close
+    // would cut its slide-out short
     settingsDrawer: false,
+    seeAllDrawer: false,
   }),
   computed: {
     headerTitle() {
@@ -99,6 +119,38 @@ export default {
     },
     hasSubspaces() {
       return this.subspaces.length > 0;
+    },
+    /**
+     * Whether the header shows its editing affordance: the same rule the
+     * sibling spaces widget uses (hover and may edit). It gates both the cog
+     * and the switch of the 'see all' action from a label to an icon, so the
+     * two never half-appear.
+     *
+     * @returns {boolean} whether the widget is hovered by someone who may
+     *          manage it
+     */
+    hoverEdit() {
+      return this.hover && this.canManageSpace;
+    },
+    /**
+     * Whether the parent has more sub-spaces than the widget shows, which is
+     * what offers the 'see all' action (board US01.05).
+     *
+     * Derived from the extra row the call asks for, never from a count: the
+     * visible-spaces count filters membership differently from the listing
+     * (MEMBER only, against MEMBER and INVITED), so a count would disagree
+     * with this very list for a hidden sub-space the viewer is only invited
+     * to.
+     *
+     * Derived from the rows the last call asked for: a limit raised by another
+     * manager between the page render and that call leaves the action hidden
+     * until the next page load, since the call asked for the older, smaller
+     * number of rows.
+     *
+     * @returns {boolean} whether a row was left out of the widget body
+     */
+    hasMore() {
+      return this.subspaces.length > this.$root.settings.subspacesLimit;
     },
     /**
      * The call asks for one item more than the widget shows, so that the
@@ -116,6 +168,17 @@ export default {
     this.refresh();
   },
   methods: {
+    /**
+     * Opens the whole list. The drawer makes its own call rather than being
+     * handed these rows: the widget holds only subspacesLimit + 1 of them.
+     *
+     * @returns {Promise<void>} resolved once the drawer is open
+     */
+    async openSeeAllDrawer() {
+      this.seeAllDrawer = true;
+      await this.$nextTick();
+      this.$refs.seeAllDrawer.open();
+    },
     /**
      * Opens the preferences drawer. The action is offered from the resource
      * envelope's canManageSpace, and the portlet re-checks the same guard on
