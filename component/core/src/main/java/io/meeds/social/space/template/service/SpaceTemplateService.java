@@ -390,7 +390,7 @@ public class SpaceTemplateService {
                               .filter(template -> template.getAllowedSubspaceTemplates()
                                                           .stream()
                                                           .map(this::extractTemplateId)
-                                                          .filter(Objects::nonNull)
+                                                          .filter(id -> id != null && id != template.getId())
                                                           .anyMatch(id -> subspaceTemplateIds.contains(id)
                                                               && canViewTemplate(id, userName)))
                               .map(SpaceTemplate::getId)
@@ -399,11 +399,12 @@ public class SpaceTemplateService {
 
   public List<Long> getSubspaceTemplateIds(String userName) {
     return getSpaceTemplates().stream()
-                              .map(SpaceTemplate::getAllowedSubspaceTemplates)
-                              .filter(Objects::nonNull)
-                              .flatMap(Collection::stream)
-                              .map(this::extractTemplateId)
-                              .filter(id -> id != null && canViewTemplate(id, userName))
+                              .filter(template -> template.getAllowedSubspaceTemplates() != null)
+                              .flatMap(template -> template.getAllowedSubspaceTemplates()
+                                                           .stream()
+                                                           .map(this::extractTemplateId)
+                                                           .filter(id -> id != null && id != template.getId()))
+                              .filter(id -> canViewTemplate(id, userName))
                               .distinct()
                               .toList();
 

@@ -710,7 +710,7 @@ export default {
         }
         this.close();
       } catch {
-        this.$root.$emit('alert-message', this.$t('spaceTemplate.update.error'), 'error');
+        this.$root.$emit('alert-message', this.$t('spaceTemplate.save.error'), 'error');
       } finally {
         this.saving = false;
       }

@@ -74,7 +74,7 @@
 export default {
   props: {
     value: {
-      type: Object,
+      type: [Object, Array],
       default: null
     },
     multiple: {
