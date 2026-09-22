@@ -166,7 +166,6 @@ export default {
       this.savingSpace = true;
       this.$spaceService.updateSpace({
         id: this.$root.spaceId,
-        parentSpaceId: this.$root?.space?.parentSpaceId || null,
         displayName: this.displayName,
         description: this.description,
         avatarId: this.avatarUploadId,

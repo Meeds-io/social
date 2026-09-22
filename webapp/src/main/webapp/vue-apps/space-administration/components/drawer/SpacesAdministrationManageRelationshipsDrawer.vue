@@ -208,7 +208,13 @@ export default {
       this.$root.$emit('spaces-administration-list-refresh');
     },
     selectParentSpace(space) {
-      this.linkSubspace(this.space, space?.spaceId);
+      if (!space?.spaceId) {
+        // a cleared suggester carries no parent to attach: issue no request,
+        // and above all no 'no more subspace' alert for a request that would
+        // change nothing
+        return;
+      }
+      this.linkSubspace(this.space, space.spaceId);
     },
     unlinkParentSpace() {
       this.linkSubspace(this.space, 0);
