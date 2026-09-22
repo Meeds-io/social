@@ -262,21 +262,30 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
    * the space has no avatar (the client then shows the default image), 403
    * when the viewer cannot view the parent, 400 on an unusable id.
    * <p>
-   * Cost: one listing query per image, bounded by the widget's own
-   * {@code subspacesLimit + 1} — the same rows the widget renders, so the
-   * query this makes is the one the listing already made, not a 500-row scan
-   * on the render path. A sub-space past that bound is answered 404 and the
-   * client shows the default image; that is invisible today (the widget
-   * renders no such row) and becomes visible with the "see more" list of
-   * US01.05, which is what the single-row Service method below is for.
+   * Cost: one listing query per image, over as many rows as the <em>caller</em>
+   * was given — the widget's own {@code subspacesLimit + 1} by default, and
+   * the number of rows the "see more" drawer received when it asks for them
+   * (the optional {@value #LIMIT_PARAMETER} parameter, capped like the listing
+   * resource's own). Two callers, two bounds, because they render different
+   * lists: the widget shows its first rows and the drawer shows all of them,
+   * and a hidden sub-space past the widget's limit would otherwise be answered
+   * 404 and show the default image in the drawer while showing its real avatar
+   * in the widget. Keeping the default at the widget's limit is what stops the
+   * drawer's price being paid on every page render.
+   * <p>
+   * The parameter widens nothing: it moves the size of the window scanned
+   * inside a listing the Service has already filtered for this viewer, and the
+   * same client may ask {@link #serveResource} for the same 500 rows anyway.
    * <p>
    * The proper fix is a Service method answering "is this one sub-space
    * listed to this viewer" instead of a list — same filter, restricted to the
-   * one id. It is not done here because {@code SpaceFilter} carries no id set
-   * and {@code XSpaceFilter.setSpaceFilter} would drop one added to it, the
-   * same copy that already drops {@code extraStatus}: reaching it means
-   * changing shared listing code, which does not belong in this diff. Recorded
-   * as a follow-up with US01.05.
+   * one id, one row instead of a window. It is not done here because
+   * {@code SpaceFilter} carries no id set and
+   * {@code XSpaceFilter.setSpaceFilter} would drop one added to it, the same
+   * copy that already drops {@code extraStatus}: reaching it means changing
+   * shared listing code, which does not belong in this diff. It stays a
+   * follow-up, and the per-caller bound is what keeps the answer correct
+   * until then.
    */
   private void serveSubspaceAvatar(ResourceRequest request, ResourceResponse response) throws IOException {
     String username = request.getRemoteUser();
@@ -291,12 +300,16 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
       sendError(response, STATUS_BAD_REQUEST, SPACE_ID_INVALID_MESSAGE);
       return;
     }
+    long bound;
+    try {
+      bound = avatarListingBound(request);
+    } catch (IllegalArgumentException e) {
+      sendError(response, STATUS_BAD_REQUEST, e.getMessage());
+      return;
+    }
     try {
       PortletPreferences preferences = request.getPreferences();
       boolean showHiddenSubspaces = Boolean.parseBoolean(preferences.getValue(SHOW_HIDDEN_SUBSPACES_PREFERENCE, "false"));
-      // the rows the widget renders, and no more: the extra one is the same
-      // 'see more' row the listing asks for
-      long bound = storedLimit(preferences) + 1L;
       Space subspace = spaceService.getSubspaces(parentSpace.getSpaceId(), username, showHiddenSubspaces, 0, bound)
                                    .stream()
                                    .filter(listed -> listed.getSpaceId() == subspaceId)
@@ -350,6 +363,25 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
       LOG.warn("Error while resizing avatar file {}, original image will be returned", fileInfo.getId(), e);
       return avatarFile.getAsByte();
     }
+  }
+
+  /**
+   * The rows the image path looks through for one caller: what it asked for
+   * when it says so, and otherwise the rows the widget itself renders.
+   *
+   * @param request the avatar resource request
+   * @return the listing bound, never above {@link #MAX_RESOURCE_LIMIT}
+   * @throws IllegalArgumentException when the parameter is present and is not
+   *           a strictly positive number
+   */
+  private long avatarListingBound(ResourceRequest request) {
+    String requested = request.getParameter(LIMIT_PARAMETER);
+    if (StringUtils.isBlank(requested)) {
+      // the rows the widget renders, and no more: the extra one is the same
+      // 'see more' row the listing asks for
+      return storedLimit(request.getPreferences()) + 1L;
+    }
+    return parseLimit(requested);
   }
 
   /**

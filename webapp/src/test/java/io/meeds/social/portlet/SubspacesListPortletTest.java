@@ -102,8 +102,9 @@ class SubspacesListPortletTest {
   private static final String       USERNAME = "john";
 
   /**
-   * Rows the avatar resource looks through: the widget's own stored limit
-   * plus the 'see more' row, not the 500-row cap of the listing resource.
+   * Rows the avatar resource looks through for the widget: its own stored
+   * limit plus the 'see more' row. The drawer, which renders more rows than
+   * that, says how many it received.
    */
   private static final long         AVATAR_LISTING_BOUND = DEFAULT_SUBSPACES_LIMIT + 1L;
 
@@ -617,6 +618,65 @@ class SubspacesListPortletTest {
     verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), anyBoolean(), eq(0L), eq(expected + 1L));
   }
 
+  @Test
+  void serveAvatarLooksOnlyThroughTheRowsTheWidgetRendersWhenNoneIsRequested() throws Exception {
+    givenAnAvatarRequest("7");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+    when(preferences.getValue(eq(SUBSPACES_LIMIT_PREFERENCE), any())).thenReturn("12");
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    // the widget's own rows, never the cap of the listing resource: this runs
+    // on the render path, once per hidden image
+    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), anyBoolean(), eq(0L), eq(13L));
+    verify(spaceService, never()).getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), eq((long) MAX_RESOURCE_LIMIT));
+  }
+
+  /**
+   * The 'see more' drawer of US01.05 renders every row the listing resource
+   * returned, so a hidden sub-space past the widget's own limit must be found
+   * here too — it would otherwise show the default image in the drawer while
+   * showing its real avatar in the widget. The drawer says how many rows it
+   * received; the widget says nothing and keeps the cheaper bound above.
+   */
+  @Test
+  void serveAvatarLooksThroughTheRowsTheCallerAsksFor() throws Exception {
+    givenAnAvatarRequest("7");
+    when(resourceRequest.getParameter(LIMIT_PARAMETER)).thenReturn("120");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), anyBoolean(), eq(0L), eq(120L));
+  }
+
+  @Test
+  void serveAvatarCapsTheRequestedRowsAtTheResourceLimit() throws Exception {
+    givenAnAvatarRequest("7");
+    when(resourceRequest.getParameter(LIMIT_PARAMETER)).thenReturn("100000");
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), anyBoolean(), eq(0L), eq((long) MAX_RESOURCE_LIMIT));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "0", "-3", "seven" })
+  void serveAvatarAnswers400OnAnUnusableRequestedLimit(String limit) throws Exception {
+    givenAnAvatarRequest("7");
+    when(resourceRequest.getParameter(LIMIT_PARAMETER)).thenReturn(limit);
+    when(spaceService.isParentSpace(space)).thenReturn(true);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    // the same contract as the listing resource: a bad parameter is a 400,
+    // never a 500 escaping from the Service
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "400");
+    assertEquals(LIMIT_OUT_OF_RANGE_MESSAGE, responseBody.toString().trim());
+    verify(spaceService, never()).getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), anyLong());
+  }
+
   @ParameterizedTest
   @CsvSource({ "-5, 1", "100000, 25", "notANumber, 4" })
   void envelopeEchoesTheClampedLimitSoTheWidgetNeverSlicesOnAnUnusableOne(String stored, int expected) throws Exception {
@@ -631,20 +691,6 @@ class SubspacesListPortletTest {
     // a negative one would drop rows from the end of its own list
     JSONObject settings = new JSONObject(responseBody.toString()).getJSONObject("settings");
     assertEquals(expected, settings.getInt("subspacesLimit"));
-  }
-
-  @Test
-  void serveAvatarLooksOnlyThroughTheRowsTheWidgetRenders() throws Exception {
-    givenAnAvatarRequest("7");
-    when(spaceService.isParentSpace(space)).thenReturn(true);
-    when(preferences.getValue(eq(SUBSPACES_LIMIT_PREFERENCE), any())).thenReturn("12");
-
-    portlet.serveResource(resourceRequest, resourceResponse);
-
-    // the stored limit plus the 'see more' row, never the 500-row cap of the
-    // listing resource: this runs on the render path, once per hidden image
-    verify(spaceService).getSubspaces(anyLong(), eq(USERNAME), anyBoolean(), eq(0L), eq(13L));
-    verify(spaceService, never()).getSubspaces(anyLong(), anyString(), anyBoolean(), anyLong(), eq((long) MAX_RESOURCE_LIMIT));
   }
 
   @Test
