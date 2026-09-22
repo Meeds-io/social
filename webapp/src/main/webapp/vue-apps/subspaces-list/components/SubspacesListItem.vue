@@ -45,6 +45,16 @@ export default {
       type: Object,
       default: () => null,
     },
+    /**
+     * How many rows the portlet must look through to serve this row's avatar,
+     * for a list longer than the widget's own — the 'see more' drawer passes
+     * the number of rows it received. Left unset by the widget, whose rows the
+     * portlet looks through by default.
+     */
+    avatarListingLimit: {
+      type: Number,
+      default: () => 0,
+    },
   },
   computed: {
     /**
@@ -75,7 +85,10 @@ export default {
       if (!this.hiddenToViewer || !this.space) {
         return this.space;
       }
-      const avatarUrl = this.$subspacesListService.getSubspaceAvatarUrl(this.$root.settings?.avatarResourceUrl, this.space.id);
+      const avatarUrl = this.$subspacesListService.getSubspaceAvatarUrl(
+        this.$root.settings?.avatarResourceUrl,
+        this.space.id,
+        this.avatarListingLimit);
       // no portlet-served URL: keep the standard one rather than lose the row
       return avatarUrl && {...this.space, avatarUrl} || this.space;
     },
