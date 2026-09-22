@@ -507,12 +507,16 @@ public class SpaceEntity extends BaseEntity {
     return this;
   }
 
+  /**
+   * @return the parent space identifier carried by the payload: a positive id
+   *         to attach the space to that parent, <code>0</code> to detach it
+   *         from its parent, or <code>null</code> when the payload doesn't
+   *         carry the property at all, in which case the existing parent
+   *         relation must be left untouched
+   */
   public Long getParentSpaceId() {
     Object value = getProperty("parentSpaceId");
     switch (value) {
-    case null -> {
-      return 0L;
-    }
     case Number number -> {
       return number.longValue();
     }
@@ -520,13 +524,13 @@ public class SpaceEntity extends BaseEntity {
       try {
         return Long.parseLong(s);
       } catch (NumberFormatException e) {
-        return 0L;
+        return null;
       }
     }
-    default -> {
+    case null, default -> {
+      return null;
     }
     }
-    return 0L;
   }
 
   public SpaceEntity setExtendedProperties(Map<String, String> extendedProperties) {
