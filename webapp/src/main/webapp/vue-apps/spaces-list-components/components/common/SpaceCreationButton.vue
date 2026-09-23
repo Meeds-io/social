@@ -32,7 +32,7 @@
       <v-btn
         id="addNewSpaceButtonMenu"
         :title="$t('menu.spaces.addNewSpaceTooltip')"
-        :small="!icon && isMobile"
+        :small="small || (!icon && isMobile)"
         :color="color"
         :icon="icon"
         :outlined="outlined"
@@ -75,7 +75,7 @@
     v-else
     id="addNewSpaceButton"
     :title="$t('menu.spaces.addNewSpaceTooltip')"
-    :small="!icon && isMobile"
+    :small="small || (!icon && isMobile)"
     :color="color"
     :icon="icon"
     :elevation="elevation"
@@ -140,6 +140,15 @@ export default {
     displayIcon: {
       type: Boolean,
       default: true
+    },
+    /**
+     * Renders the button at Vuetify's small size, for a caller placing it in a
+     * row of small action buttons — a widget header. Off by default, so the
+     * existing callers keep the size they had.
+     */
+    small: {
+      type: Boolean,
+      default: false
     },
     parentSpaceId: {
       type: String,
