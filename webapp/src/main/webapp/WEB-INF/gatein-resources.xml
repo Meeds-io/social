@@ -2870,7 +2870,8 @@
   <module>
     <!-- eXIP 7.3.0.30 - the styling inputs (background, text, text background, margins, border, radius, colour picker)
          shared by the layout editors (Meeds-io/layout re-registers them under its layout-editor-* tags) and by
-         Branding and Theme. Not part of commonVueComponents: loaded by the editors and the administration only. -->
+         Branding and Theme. Not part of commonVueComponents nor of layout's commonLayoutComponents (loaded on every
+         page view): declared as a dependency of the layout editor portlets and of the GeneralSettings portlet only. -->
     <name>stylingInputs</name>
     <script>
       <path>/js/stylingInputs.bundle.js</path>
