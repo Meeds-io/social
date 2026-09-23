@@ -31,8 +31,32 @@
              by someone who can edit it, and then becomes an icon so the cog can
              sit beside it. A viewer who cannot manage the space never sees the
              cog and keeps the label. -->
-        <template v-if="canManageSpace || hasMore" #action>
+        <template v-if="canManageSpace || hasMore || (canCreateSubspace && hasSubspaces)" #action>
           <div class="d-flex align-center justify-center">
+            <!-- The 'add a subspace' option, before 'see all', for a
+                 viewer the server says may create one. Shown on hover like the
+                 cog, but on plain hover: creating needs parent membership, not
+                 management, so a member who is not a manager gets it too. The
+                 shared button opens the space form on this parent, which then
+                 navigates to the new space — no refresh to wire here.
+                 Mounted on first hover rather than hidden: the button fetches
+                 the space templates in its own init, and a v-show would run
+                 that on every page view for every member who may create. Its
+                 results are cached on $root, so re-mounting costs nothing.
+                 Listed state only, as the board words it: with no subspace yet
+                 the body already carries the one create button, and a second
+                 entry in the header would offer the same form twice. -->
+            <v-fab-transition hide-on-leave>
+              <space-creation-button
+                v-if="canCreateSubspace && hasSubspaces && hover"
+                :parent-space-id="$root.spaceId"
+                :display-label="false"
+                :icon-size="18"
+                color="primary"
+                icon
+                small
+                require-form-drawer />
+            </v-fab-transition>
             <v-btn
               v-if="hasMore"
               :icon="hoverEdit"
@@ -86,7 +110,8 @@
       :refresh="refresh" />
     <subspaces-list-drawer
       v-if="seeAllDrawer"
-      ref="seeAllDrawer" />
+      ref="seeAllDrawer"
+      :can-create-subspace="canCreateSubspace" />
   </v-app>
 </template>
 <script>
