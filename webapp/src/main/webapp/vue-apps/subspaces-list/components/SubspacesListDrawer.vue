@@ -30,7 +30,20 @@
          open and stores it on save, so an instance nobody renamed carries one
          all the same. -->
     <template #title>
-      <span class="text-color ma-auto">{{ $t('subspacesList.drawer.title') }}</span>
+      <div class="d-flex justify-space-between align-center">
+        <span class="text-color">{{ $t('subspacesList.drawer.title') }}</span>
+        <!-- The header suggests adding a subspace to whoever the
+             envelope says may create one — the same rule, read from this
+             drawer's own call, so the drawer never claims a right the widget
+             was not given. Same shared button as the spaces toolbar. -->
+        <space-creation-button
+          v-if="creationAllowed"
+          :parent-space-id="$root.spaceId"
+          :elevation="0"
+          color="primary"
+          display-label
+          require-form-drawer />
+      </div>
     </template>
     <!-- no v-if on this template: the flag <exo-drawer> emits on close flips in
          the same tick as the closing, and Vue drops the slot with it, so the
@@ -55,7 +68,23 @@
 </template>
 <script>
 export default {
+  props: {
+    /**
+     * The widget's own server-computed flag, used to seed the header so the
+     * button does not appear a call later than the title. The drawer's own
+     * envelope then confirms or withdraws it: same Service rule, same viewer,
+     * so seeding costs no ACL — it only removes a flicker.
+     */
+    canCreateSubspace: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
+    // the server's answer for this drawer: seeded from the widget's, then
+    // re-read from each opening's envelope — who may create a subspace under
+    // this parent is the Service's decision, never derived here
+    creationAllowed: false,
     loading: false,
     // whether a call came back with a list. The empty state hangs on this and
     // not on the rows alone: the error path closes the drawer and clears the
@@ -104,12 +133,14 @@ export default {
      */
     open() {
       this.subspaces = [];
+      this.creationAllowed = this.canCreateSubspace;
       this.loaded = false;
       this.loading = true;
       this.$refs.drawer.open();
       return this.$subspacesListService.getSubspaces(this.$root.settings.resourceUrl)
         .then(envelope => {
           this.subspaces = envelope.subspaces || [];
+          this.creationAllowed = !!envelope.canCreateSubspace;
           this.loaded = true;
         })
         .catch(() => {
