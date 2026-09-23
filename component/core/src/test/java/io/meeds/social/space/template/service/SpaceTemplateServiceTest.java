@@ -276,6 +276,39 @@ public class SpaceTemplateServiceTest {
   }
 
   @Test
+  public void testUpdateSpaceTemplateWithItselfAsSubspaceTemplate() throws ObjectNotFoundException, IllegalAccessException {
+    setCanManageTemplate(true);
+    // An identifier above the Long cache, so that a boxed comparison would fail the test
+    SpaceTemplate spaceTemplate = newSpaceTemplate(200l);
+    when(spaceTemplateStorage.getSpaceTemplate(200l)).thenReturn(newSpaceTemplate(200l));
+
+    spaceTemplate.setAllowedSubspaceTemplates(Arrays.asList("200:0"));
+    assertThrows(IllegalArgumentException.class, () -> spaceTemplateService.updateSpaceTemplate(spaceTemplate, TEST_USER));
+    verify(spaceTemplateStorage, never()).updateSpaceTemplate(spaceTemplate);
+
+    spaceTemplate.setAllowedSubspaceTemplates(Arrays.asList("3:0", "4:2"));
+    spaceTemplateService.updateSpaceTemplate(spaceTemplate, TEST_USER);
+    verify(spaceTemplateStorage).updateSpaceTemplate(spaceTemplate);
+  }
+
+  @Test
+  public void testGetSubspaceTemplateIdsIgnoresSelfReference() {
+    setCanViewTemplate(true);
+    SpaceTemplate parentTemplate = newSpaceTemplate(200l);
+    parentTemplate.setAllowedSubspaceTemplates(Arrays.asList("200:0", "300:0"));
+    SpaceTemplate subspaceTemplate = newSpaceTemplate(300l);
+    when(spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged())).then(invocation -> List.of(parentTemplate,
+                                                                                               subspaceTemplate));
+    when(spaceTemplateStorage.getSpaceTemplate(300l)).thenReturn(subspaceTemplate);
+    // Viewable as well, so that only the self filter can keep it out of the result
+    lenient().when(spaceTemplateStorage.getSpaceTemplate(200l)).thenReturn(parentTemplate);
+
+    assertEquals(List.of(300l), spaceTemplateService.getSubspaceTemplateIds(TEST_USER));
+    assertEquals(List.of(200l), spaceTemplateService.getParentSpaceTemplateIds(List.of(300l), TEST_USER));
+    assertEquals(List.of(), spaceTemplateService.getParentSpaceTemplateIds(List.of(200l), TEST_USER));
+  }
+
+  @Test
   public void testDeleteSpaceTemplate() throws IllegalAccessException, ObjectNotFoundException {
     assertThrows(IllegalAccessException.class, () -> spaceTemplateService.deleteSpaceTemplate(2l, TEST_USER));
     setCanManageTemplate(true);
