@@ -42,14 +42,19 @@
         <portal-general-settings-background-input
           v-if="initialized"
           v-model="backgroundProperties"
-          class="mt-2 pe-3" />
+          :image-path="backgroundImagePath"
+          class="mt-2 pe-3"
+          no-gradient
+          sticky-option />
         <div class="mt-2 pe-4 d-flex">
           <span class="text-title">
             {{ $t('generalSettings.text.label') }}
           </span>
         </div>
-        <portal-general-settings-branding-text-input
+        <styling-text-input
+          :text-background="false"
           v-model="topBarTextProperties"
+          class="pe-3"
           :custom-header="false"
           :custom-text="true"
           :custom-sub-title="false"
@@ -90,6 +95,10 @@ export default {
     },
   },
   computed: {
+    backgroundImagePath() {
+      const background = this.topBarStylingProperties?.topBarBackground;
+      return background?.fileId && `/portal/rest/v1/platform/branding/topBarBackground?v=${background.updatedDate || 0}` || null;
+    },
     saveButtonDisabled() {
       if (!this.backgroundProperties && !this.topBarTextProperties) {
         return false;
@@ -116,7 +125,9 @@ export default {
         background: this.topBarStylingProperties?.topBarBackground || null,
         backgroundRepeat: this.topBarStylingProperties?.topBarBackgroundRepeat || null,
         backgroundSize: this.topBarStylingProperties?.topBarBackgroundSize || null,
-        backgroundEffect: this.getTopBarBackgroundEffect()
+        backgroundEffect: this.getTopBarBackgroundEffect(),
+        sticky: this.topBarStylingProperties?.topBarSticky === 'true',
+        backgroundScrollColor: this.topBarStylingProperties?.topBarBackgroundScrollColor || null,
       };
       this.topBarTextProperties = {
         textColor: this.topBarStylingProperties?.topBarTextColor,
