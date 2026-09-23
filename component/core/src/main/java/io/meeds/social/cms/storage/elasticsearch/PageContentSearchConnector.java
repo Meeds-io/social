@@ -47,8 +47,10 @@ import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -69,7 +71,17 @@ import io.meeds.social.search.model.PageSearchResult;
 
 /**
  * Searches pages previously indexed by {@link PageContentIndexingConnector}
- * (index alias {@code page_content_alias}) for the unified search bar.
+ * (index alias {@code page_content_alias}) for the unified search bar —
+ * content block documents and bare page documents alike, both carrying the
+ * page's title, name and site.
+ * <p>
+ * Results come back in three tiers, decided by the query template
+ * ({@code page-search-query.json}) rather than here so that paging stays
+ * consistent across calls: pages whose <em>name</em> (title or name) and
+ * <em>content</em> both match the term, then pages matched by name only,
+ * then pages matched by content only. Each tier is a {@code constant_score}
+ * clause whose boost dwarfs the relevance score, which only orders results
+ * within a tier.
  */
 public class PageContentSearchConnector {
 
@@ -91,11 +103,22 @@ public class PageContentSearchConnector {
   /** Query template placeholder for the permission and space filters. */
   private static final String        FILTERS_REPLACEMENT       = "\"@filters@\"";
 
-  /** Matches the document id shape produced by {@code PageContentIndexingConnector#buildBlockId}. */
+  /**
+   * Matches both document id shapes {@link PageContentIndexingConnector}
+   * produces: a content block's ({@code buildBlockId}, page storage id plus
+   * block hash) and a bare page document's (the page storage id alone).
+   */
   private static final Pattern       BLOCK_ID_PATTERN          = Pattern.compile("^page_\\d+(_[0-9a-fA-F]+)?$");
 
-  /** Upper bound on the content blocks {@link #findIndexedBlockIds} reports for one page. */
-  private static final int           INDEXED_BLOCKS_PER_PAGE_LIMIT = 1000;
+  /** Upper bound on the documents {@link #findIndexedDocumentIds} reports for one page. */
+  private static final int           INDEXED_DOCUMENTS_PER_PAGE_LIMIT = 1000;
+
+  /**
+   * The highlight fields telling that the term matched the page's own title
+   * or name — listed in the query template's highlight section for that very
+   * purpose, their fragments are never displayed.
+   */
+  private static final Set<String>   NAME_FIELDS               = Set.of("pageTitle", "pageName");
 
   /** Used to load the query template resource. */
   private final ConfigurationManager configurationManager;
@@ -121,6 +144,9 @@ public class PageContentSearchConnector {
   /** Used to normalize a request locale to a configured content language. */
   private final LocaleConfigService  localeConfigService;
 
+  /** Used to know the global site, whose pages every portal site's menu carries. */
+  private final UserPortalConfigService portalConfigService;
+
   /** Classpath location of the query template resource. */
   private final String               queryFilePath;
 
@@ -135,6 +161,7 @@ public class PageContentSearchConnector {
                                     IdentityManager identityManager,
                                     SpaceService spaceService,
                                     LocaleConfigService localeConfigService,
+                                    UserPortalConfigService portalConfigService,
                                     InitParams initParams) {
     this.configurationManager = configurationManager;
     this.client = client;
@@ -144,6 +171,7 @@ public class PageContentSearchConnector {
     this.identityManager = identityManager;
     this.spaceService = spaceService;
     this.localeConfigService = localeConfigService;
+    this.portalConfigService = portalConfigService;
     ValueParam queryFileParam = initParams.getValueParam("query.file.path");
     this.queryFilePath = queryFileParam.getValue();
     this.query = retrieveQueryFromFile();
@@ -163,6 +191,25 @@ public class PageContentSearchConnector {
    * @return the matching {@link PageSearchResult}s
    */
   public List<PageSearchResult> search(String term, int offset, int limit, Locale locale, List<Long> spaceIds, boolean favorites) {
+    return search(term, offset, limit, locale, spaceIds, favorites, null);
+  }
+
+  /**
+   * Same as {@link #search(String, int, int, Locale, List, boolean)}, with
+   * the portal site the user searches from: a page of the global site, whose
+   * navigation the portal appends to every portal site's own, is then
+   * presented as an entry of that site (see {@link #isPresentedInSite}).
+   *
+   * @param site the name of the portal site the user searches from, or
+   *          {@code null}/blank when unknown
+   */
+  public List<PageSearchResult> search(String term,
+                                       int offset,
+                                       int limit,
+                                       Locale locale,
+                                       List<Long> spaceIds,
+                                       boolean favorites,
+                                       String site) {
     if (StringUtils.isBlank(term)) {
       throw new IllegalArgumentException("Term is mandatory");
     }
@@ -177,7 +224,7 @@ public class PageContentSearchConnector {
                                     .replace(OFFSET_REPLACEMENT, String.valueOf(Math.max(offset, 0)))
                                     .replace(LIMIT_REPLACEMENT, String.valueOf(limit < 1 ? 20 : limit));
     String jsonResponse = client.sendRequest(esQuery, INDEX);
-    return buildResults(jsonResponse, locale == null ? Locale.getDefault() : locale, favoriteIds);
+    return buildResults(jsonResponse, locale == null ? Locale.getDefault() : locale, favoriteIds, site);
   }
 
   /**
@@ -219,17 +266,20 @@ public class PageContentSearchConnector {
 
   /**
    * @param pageStorageId the storage id of the page to look up
-   * @return the ids of every content block currently indexed under the
-   *         given page, regardless of whether a {@link io.meeds.social.cms.model.CMSSetting} still
-   *         binds them — used to detect blocks that were detached from the
-   *         page (or the page itself renamed/never re-saved) so the caller
-   *         can unindex them. Returns an empty list, without ever querying
-   *         Elasticsearch, when {@code pageStorageId} isn't shaped like one
-   *         (defends the same way {@link #getById} does, in case this public
-   *         method is ever reached with untrusted input).
+   * @return the ids of every document currently indexed under the given
+   *         page — its content blocks, regardless of whether a
+   *         {@link io.meeds.social.cms.model.CMSSetting} still binds them,
+   *         and its bare page document when it has one — used to detect
+   *         what no longer represents the page (a block detached from it,
+   *         the bare document of a page that received a block, the page
+   *         itself removed or never re-saved) so the caller can unindex it.
+   *         Returns an empty list, without ever querying Elasticsearch, when
+   *         {@code pageStorageId} isn't shaped like one (defends the same
+   *         way {@link #getById} does, in case this public method is ever
+   *         reached with untrusted input).
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public List<String> findIndexedBlockIds(String pageStorageId) {
+  public List<String> findIndexedDocumentIds(String pageStorageId) {
     if (StringUtils.isBlank(pageStorageId) || !BLOCK_ID_PATTERN.matcher(pageStorageId).matches()) {
       return Collections.emptyList();
     }
@@ -239,7 +289,7 @@ public class PageContentSearchConnector {
           "_source": false,
           "size": %s
         }
-        """.formatted(pageStorageId, INDEXED_BLOCKS_PER_PAGE_LIMIT);
+        """.formatted(pageStorageId, INDEXED_DOCUMENTS_PER_PAGE_LIMIT);
     String jsonResponse = client.sendRequest(esQuery, INDEX);
     JSONParser parser = new JSONParser();
     Map json;
@@ -256,13 +306,13 @@ public class PageContentSearchConnector {
     if (jsonHits == null) {
       return Collections.emptyList();
     }
-    if (jsonHits.size() >= INDEXED_BLOCKS_PER_PAGE_LIMIT) {
+    if (jsonHits.size() >= INDEXED_DOCUMENTS_PER_PAGE_LIMIT) {
       // Callers use this list to unindex whatever isn't bound to the page
       // anymore, so a truncated list silently leaves stale documents behind
-      LOG.warn("Page {} has at least {} indexed content blocks, the list is truncated: stale blocks beyond that count"
+      LOG.warn("Page {} has at least {} indexed documents, the list is truncated: stale documents beyond that count"
           + " won't be unindexed",
                pageStorageId,
-               INDEXED_BLOCKS_PER_PAGE_LIMIT);
+               INDEXED_DOCUMENTS_PER_PAGE_LIMIT);
     }
     List<String> ids = new ArrayList<>();
     for (Object jsonHit : jsonHits) {
@@ -496,7 +546,7 @@ public class PageContentSearchConnector {
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private List<PageSearchResult> buildResults(String jsonResponse, Locale locale, Set<String> favoriteIds) {
+  private List<PageSearchResult> buildResults(String jsonResponse, Locale locale, Set<String> favoriteIds, String site) {
     JSONParser parser = new JSONParser();
     Map json;
     try {
@@ -512,10 +562,13 @@ public class PageContentSearchConnector {
     if (jsonHits == null) {
       return Collections.emptyList();
     }
+    // Whether the global site's pages are presented as entries of the site
+    // searched from depends on the request alone: resolved once, not per hit
+    String globalSite = globalSitePresentedAs(site);
     List<PageSearchResult> results = new ArrayList<>();
     for (Object jsonHit : jsonHits) {
       try {
-        PageSearchResult result = buildResult((JSONObject) jsonHit, locale, favoriteIds);
+        PageSearchResult result = buildResult((JSONObject) jsonHit, locale, favoriteIds, globalSite, site);
         if (result != null) {
           results.add(result);
         }
@@ -530,34 +583,112 @@ public class PageContentSearchConnector {
    * @param jsonHit a single ES hit from the search response
    * @param locale the user's locale, used to pick the excerpt's language
    * @param favoriteIds ids of the pages the current user has bookmarked
-   * @return the built result, or {@code null} when the page only matched
-   *         through content in a language that shouldn't be shown to this
-   *         user (see {@link #extractExcerpts}) — such a page isn't a valid
-   *         result for this user at all, it isn't merely missing an
-   *         excerpt. A page matching through its title/name/site instead is
-   *         still a valid result even without any content excerpt.
+   * @param globalSite the global site's name when its pages are to be
+   *          presented as entries of {@code site}
+   *          ({@link #globalSitePresentedAs}), {@code null} otherwise
+   * @param site the name of the portal site the user searches from, or
+   *          {@code null}/blank when unknown
+   * @return the built result, or {@code null} when the page <em>only</em>
+   *         matched through content in a language that shouldn't be shown
+   *         to this user (see {@link #extractExcerpts}) — such a page isn't
+   *         a valid result for this user at all, it isn't merely missing an
+   *         excerpt. A page matching through its title/name (see
+   *         {@link #matchedName}) or its site is a valid result whatever
+   *         language its content matched in, and so is shown, with or
+   *         without an excerpt — a bare page document never has one.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private PageSearchResult buildResult(JSONObject jsonHit, Locale locale, Set<String> favoriteIds) {
+  private PageSearchResult buildResult(JSONObject jsonHit,
+                                       Locale locale,
+                                       Set<String> favoriteIds,
+                                       String globalSite,
+                                       String site) {
     String id = (String) jsonHit.get("_id");
     JSONObject source = (JSONObject) jsonHit.get("_source");
     JSONObject highlight = (JSONObject) jsonHit.get("highlight");
     List<String> excerpts = extractExcerpts(source, highlight, locale);
-    if (excerpts.isEmpty() && matchedContentInAnyLanguage(highlight)) {
+    if (excerpts.isEmpty() && !matchedName(highlight) && matchedContentInAnyLanguage(highlight)) {
       return null;
     }
     Object dateValue = source == null ? null : source.get("lastUpdatedDate");
     String siteType = source == null ? null : (String) source.get("siteType");
     String siteName = source == null ? null : (String) source.get("siteName");
+    String pagePath = source == null ? null : (String) source.get("pagePath");
+    if (isPresentedInSite(siteType, siteName, globalSite)) {
+      pagePath = relocatePath(pagePath, siteName, site);
+      siteName = site;
+    }
     return new PageSearchResult(id,
                                 resolveSiteLabel(siteType, siteName, locale),
                                 source == null ? null : (String) source.get("pageName"),
                                 source == null ? null : (String) source.get("pageTitle"),
-                                source == null ? null : (String) source.get("pagePath"),
+                                pagePath,
                                 source == null ? null : (String) source.get("author"),
                                 dateValue == null ? 0L : ((Number) dateValue).longValue(),
                                 excerpts,
                                 favoriteIds.contains(id));
+  }
+
+  /**
+   * The portal appends the global site's navigation to the navigation of
+   * every other portal site ({@code UserPortalImpl#loadUserNavigation}), so
+   * a page of the global site is what a user reaches through the menu of the
+   * site they are in: the "Spaces" entry of a Digital Workplace is the global
+   * "All Spaces" page, served under the workplace's own URL. Such a page is
+   * therefore presented as the searching user's site's entry — its path
+   * relocated under that site ({@link #relocatePath}), its label that site's
+   * — rather than as a page of a "Global" site the user never sees, and it
+   * is presented once: the global entry is the same page under a technical
+   * URL, not a second result.
+   * <p>
+   * Only a portal site other than the global one qualifies, since the portal
+   * appends the global navigation to portal sites only: within a space (a
+   * group site), or without a site to prefer, the page keeps its own.
+   *
+   * @param  site the name of the portal site the user searches from, or
+   *              {@code null}/blank when unknown
+   * @return the global site's name when its pages are to be presented as
+   *         entries of {@code site}, {@code null} when they keep their own
+   */
+  private String globalSitePresentedAs(String site) {
+    if (StringUtils.isBlank(site)) {
+      return null;
+    }
+    String globalPortal = portalConfigService.getGlobalPortal();
+    boolean presented = StringUtils.isNotBlank(globalPortal)
+                        && !StringUtils.equals(site, globalPortal)
+                        && layoutService.getPortalConfig(new SiteKey(SiteType.PORTAL, site)) != null;
+    return presented ? globalPortal : null;
+  }
+
+  /**
+   * @param  siteType   the hit's site type
+   * @param  siteName   the hit's site name
+   * @param  globalSite the global site's name when its pages are to be
+   *                    presented as the searched-from site's entries
+   *                    ({@link #globalSitePresentedAs}), {@code null}
+   *                    otherwise
+   * @return whether the hit is a global site page to present that way
+   */
+  private boolean isPresentedInSite(String siteType, String siteName, String globalSite) {
+    return globalSite != null
+           && StringUtils.equals(siteType, SiteType.PORTAL.getName())
+           && StringUtils.equals(siteName, globalSite);
+  }
+
+  /**
+   * @param  pagePath the page's indexed path, built for its own site (e.g.
+   *                  {@code /portal/global/spaces})
+   * @param  fromSite the page's own portal site
+   * @param  toSite   the portal site to present the page under
+   * @return the same navigation path under {@code toSite} (e.g.
+   *         {@code /portal/dw/spaces}), or {@code pagePath} verbatim when it
+   *         doesn't carry {@code fromSite} as its site segment
+   */
+  private String relocatePath(String pagePath, String fromSite, String toSite) {
+    String fromPrefix = "/portal/" + fromSite + "/";
+    return StringUtils.startsWith(pagePath, fromPrefix) ? "/portal/" + toSite + "/" + pagePath.substring(fromPrefix.length())
+                                                       : pagePath;
   }
 
   /**
@@ -662,6 +793,22 @@ public class PageContentSearchConnector {
       return false;
     }
     return highlight.keySet().stream().anyMatch(key -> StringUtils.startsWith((String) key, "content"));
+  }
+
+  /**
+   * @param highlight the hit's {@code highlight}, or {@code null} if none
+   * @return whether the term matched the page's title or name, i.e. one of
+   *         the highlight fields of {@link #NAME_FIELDS}. Such a match makes
+   *         the page a valid result for every user, whatever language its
+   *         content matched in — the reason those fields are highlighted at
+   *         all, since their fragments are never displayed.
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private boolean matchedName(JSONObject highlight) {
+    if (highlight == null) {
+      return false;
+    }
+    return highlight.keySet().stream().anyMatch(NAME_FIELDS::contains);
   }
 
   /**

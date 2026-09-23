@@ -6,13 +6,42 @@
   },
   "query": {
     "bool": {
-      "must": {
-        "query_string": {
-          "fields": ["pageTitle", "pageName", "siteName", "content", "content-*"],
-          "default_operator": "AND",
-          "query": "@term@"
+      "should": [
+        {
+          "constant_score": {
+            "filter": {
+              "multi_match": {
+                "query": "@term@",
+                "fields": ["pageTitle", "pageName"],
+                "operator": "and",
+                "fuzziness": "AUTO:4,7",
+                "prefix_length": 1
+              }
+            },
+            "boost": 10000
+          }
+        },
+        {
+          "constant_score": {
+            "filter": {
+              "query_string": {
+                "fields": ["content", "content-*"],
+                "default_operator": "AND",
+                "query": "@term@"
+              }
+            },
+            "boost": 1000
+          }
+        },
+        {
+          "query_string": {
+            "fields": ["pageTitle", "pageName", "siteName", "content", "content-*"],
+            "default_operator": "AND",
+            "query": "@term@"
+          }
         }
-      },
+      ],
+      "minimum_should_match": 1,
       "filter": [
         "@filters@"
       ]
@@ -24,6 +53,12 @@
     "no_match_size": 0,
     "order": "score",
     "fields": {
+      "pageTitle": {
+        "number_of_fragments": 0
+      },
+      "pageName": {
+        "number_of_fragments": 0
+      },
       "content": {
         "pre_tags": ["<span class='searchMatchExcerpt'>"],
         "post_tags": ["</span>"]

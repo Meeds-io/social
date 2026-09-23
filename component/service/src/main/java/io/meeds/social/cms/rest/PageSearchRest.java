@@ -43,16 +43,16 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/pages")
-@Tag(name = "/social/rest/pages", description = "Searches pages carrying an indexed content block")
+@Tag(name = "/social/rest/pages", description = "Searches pages by name and by the content blocks they carry")
 public class PageSearchRest {
 
-  /** Used to search and hydrate indexed page content blocks. */
+  /** Used to search and hydrate indexed pages and page content blocks. */
   @Autowired
   private PageContentSearchConnector pageContentSearchConnector;
 
   @GetMapping(value = "search", produces = MediaType.APPLICATION_JSON_VALUE)
   @Secured("users")
-  @Operation(summary = "Searches pages carrying an indexed content block", method = "GET")
+  @Operation(summary = "Searches pages by name and by the content blocks they carry, name matches first", method = "GET")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })
@@ -71,8 +71,13 @@ public class PageSearchRest {
                                        List<Long> spaceIds,
                                        @Parameter(description = "Whether to search in favorites only or not")
                                        @RequestParam(name = "favorites", required = false, defaultValue = "false")
-                                       boolean favorites) {
-    return pageContentSearchConnector.search(term, offset, limit, request.getLocale(), spaceIds, favorites);
+                                       boolean favorites,
+                                       @Parameter(description = "Name of the portal site the user searches from: a page of the"
+                                           + " global site, which every portal site's menu carries, is then presented as an"
+                                           + " entry of that site")
+                                       @RequestParam(name = "site", required = false)
+                                       String site) {
+    return pageContentSearchConnector.search(term, offset, limit, request.getLocale(), spaceIds, favorites, site);
   }
 
   @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
