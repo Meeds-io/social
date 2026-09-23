@@ -180,6 +180,20 @@ export default {
       SIDE_BAR: 'sideBar',
       DRAWER: 'drawer',
     }),
+    // A platform-wide theme variable that is not set is simply absent from the theme style returned by the server
+    // (an empty configured default); 'none' is the not-set value of the *BackgroundImage variables
+    themeUnsetValue: 'initial',
+    // Margins are on the platform scale at every level: 20 = no extra margin (a value of 32 renders 12px)
+    marginNeutral: 20,
+    applicationTextKeys: Object.freeze([
+      'textTitleColor', 'textTitleFontSize', 'textTitleFontWeight', 'textTitleFontStyle',
+      'textHeaderColor', 'textHeaderFontSize', 'textHeaderFontWeight', 'textHeaderFontStyle',
+      'textColor', 'textFontSize', 'textFontWeight', 'textFontStyle',
+      'textSubtitleColor', 'textSubtitleFontSize', 'textSubtitleFontWeight', 'textSubtitleFontStyle',
+    ]),
+    sides: Object.freeze(['Top', 'Right', 'Bottom', 'Left']),
+    textBackgroundTypes: Object.freeze(['Title', 'Header']),
+    applicationBoxShadowValue: '0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12)',
   }),
   computed: {
     defaultCompanyName() {
@@ -193,9 +207,6 @@ export default {
     },
     defaultTertiaryColor() {
       return this.branding?.themeStyle?.tertiaryColor;
-    },
-    defaultBorderRadius() {
-      return this.branding?.themeStyle?.borderRadius && Number(this.branding.themeStyle.borderRadius.split('px')[0]);
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
@@ -229,6 +240,11 @@ export default {
     },
   },
   watch: {
+    '$root.defaultBrandingThemeStyle'() {
+      if (this.branding && this.pageStylingProperties && !this.isPageStylingPropertiesChanged) {
+        this.pageStylingProperties.applicationStyling = this.createApplicationStyling(this.branding.themeStyle, this.branding);
+      }
+    },
     errorMessage() {
       if (this.errorMessage) {
         this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
@@ -314,8 +330,9 @@ export default {
         pageBackgroundAttachment: this.branding?.pageBackgroundAttachment || null,
         pageBackgroundColor: this.branding?.pageBackgroundColor || null,
         pageBackgroundEffect: this.branding?.pageBackgroundEffect || null,
-        borderRadius: this.defaultBorderRadius,
-        pageWidth: this.branding.pageWidth
+        pageWidth: this.branding.pageWidth,
+        pageMargins: this.createPageMargins(this.branding?.themeStyle),
+        applicationStyling: this.createApplicationStyling(this.branding?.themeStyle, this.branding),
       };
       this.logoUploadId = null;
       this.faviconUploadId = null;
@@ -336,8 +353,13 @@ export default {
         primaryColor: this.primaryColor,
         secondaryColor: this.secondaryColor,
         tertiaryColor: this.tertiaryColor,
-        borderRadius: `${this.pageStylingProperties.borderRadius}px`,
       };
+      const applicationStyling = this.pageStylingProperties.applicationStyling;
+      Object.assign(themeStyle, this.toApplicationThemeStyle(applicationStyling));
+      Object.assign(themeStyle, this.toPageMarginsThemeStyle(this.pageStylingProperties.pageMargins));
+      const appBackground = applicationStyling?.appBackground || this.emptyBrandingFile();
+      const appTextTitleBackground = applicationStyling?.appTextTitleBackground || this.emptyBrandingFile();
+      const appTextHeaderBackground = applicationStyling?.appTextHeaderBackground || this.emptyBrandingFile();
       themeStyle = Object.assign(this.topBarStylingProperties, themeStyle);
       themeStyle = Object.assign(this.sideBarStylingProperties, themeStyle);
       themeStyle = Object.assign(this.drawerStylingProperties, themeStyle);
@@ -354,6 +376,9 @@ export default {
         topBarBackground: topBarBackground,
         sideBarBackground: sideBarBackground,
         drawerBackground: drawerBackground,
+        appBackground: appBackground,
+        appTextTitleBackground: appTextTitleBackground,
+        appTextHeaderBackground: appTextHeaderBackground,
         pageBackground: {
           uploadId: this.pageStylingProperties.pageBackground?.uploadId,
         },
@@ -413,7 +438,12 @@ export default {
       } else {
         properties['--allPagesTopBarBackgroundImage'] = 'none';
       }
+      properties['--allPagesTopBarBackgroundScrollColor'] = this.topBarStylingProperties.topBarBackgroundScrollColor || null;
       this.$root.$emit('refresh-style-properties', { detail: properties });
+      this.$root.$emit('refresh-body-class', {
+        name: 'topbar-sticky',
+        enabled: this.topBarStylingProperties.topBarSticky === 'true',
+      });
     },
     updateSideBarProperties(sideBarBackgroundProperties, sideBarTextProperties) {
       this.sideBarStylingProperties = this.updateStylingProperties(sideBarBackgroundProperties, sideBarTextProperties, this.brandingStylingType.SIDE_BAR);
@@ -510,6 +540,10 @@ export default {
         [`${type}TextFontStyle`]: themeStyle?.[`${type}TextFontStyle`] || null,
         [`${type}TextFontWeight`]: themeStyle?.[`${type}TextFontWeight`] || null,
       };
+      if (type === this.brandingStylingType.TOP_BAR) {
+        properties.topBarSticky = themeStyle?.topBarSticky === 'true' ? 'true' : 'false';
+        properties.topBarBackgroundScrollColor = this.themeValue(themeStyle, 'topBarBackgroundScrollColor');
+      }
       if (type !== 'topBar') {
         properties[`${type}TextSubtitleColor`] = themeStyle?.[`${type}TextSubtitleColor`] || null;
         properties[`${type}TextSubtitleFontSize`] = themeStyle?.[`${type}TextSubtitleFontSize`] || null;
@@ -541,6 +575,10 @@ export default {
         [`${type}TextFontStyle`]: textProperties.textFontStyle,
         [`${type}TextFontWeight`]: textProperties.textFontWeight,
       };
+      if (type === this.brandingStylingType.TOP_BAR) {
+        properties.topBarSticky = backgroundProperties.sticky ? 'true' : 'false';
+        properties.topBarBackgroundScrollColor = backgroundProperties.sticky && backgroundProperties.backgroundScrollColor || null;
+      }
       if (type !== this.brandingStylingType.TOP_BAR) {
         properties[`${type}TextSubtitleColor`] = textProperties.textSubtitleColor;
         properties[`${type}TextSubtitleFontSize`] = textProperties.textSubtitleFontSize;
@@ -595,7 +633,7 @@ export default {
       this.isDrawerStylingPropertiesChanged = true;
       this.refreshDrawerPreview();
     },
-    updatePageStylingProperties(backgroundProperties, borderRadius, pageWidth) {
+    updatePageStylingProperties(backgroundProperties, pageWidth, applicationStyling, pageMargins) {
       this.pageStylingProperties = {
         pageBackground: backgroundProperties?.background,
         pageBackgroundSize: backgroundProperties?.backgroundSize || 'unset',
@@ -604,19 +642,221 @@ export default {
         pageBackgroundAttachment: backgroundProperties?.backgroundAttachment || null,
         pageBackgroundColor: backgroundProperties?.backgroundColor ,
         pageBackgroundEffect: backgroundProperties?.backgroundEffect,
-        borderRadius: borderRadius,
-        pageWidth: pageWidth
+        pageWidth: pageWidth,
+        pageMargins: pageMargins || null,
+        applicationStyling: applicationStyling || null,
       };
       this.isPageStylingPropertiesChanged = true;
       this.updatePagePropertiesPreview();
     },
-    updatePagePropertiesPreview() {
-      this.$root.$emit('refresh-style-property', {
-        detail: {
-          propertyName: '--allPagesBorderRadius',
-          propertyValue: `${this.pageStylingProperties.borderRadius}px`
+    // Value of a theme variable, null when it is not set ('initial' is the
+    // server-side marker of an unset platform-wide setting)
+    themeValue(themeStyle, key) {
+      const value = themeStyle?.[key];
+      return value && value !== this.themeUnsetValue && value !== 'none' ? value : null;
+    },
+    themePx(themeStyle, key) {
+      const value = this.themeValue(themeStyle, key);
+      return value === null ? null : Number(String(value).replace('px', ''));
+    },
+    // Page Design > Page Margins: platform default of the page padding (site and page values keep precedence)
+    createPageMargins(themeStyle) {
+      const px = key => this.themePx(themeStyle, key);
+      return ['pageMarginTop', 'pageMarginRight', 'pageMarginBottom', 'pageMarginLeft'].some(key => px(key) !== null) && {
+        marginTop: px('pageMarginTop') || 0,
+        marginRight: px('pageMarginRight') || 0,
+        marginBottom: px('pageMarginBottom') || 0,
+        marginLeft: px('pageMarginLeft') || 0,
+      } || null;
+    },
+    toPageMarginsThemeStyle(pageMargins) {
+      if (!pageMargins) {
+        return {};
+      }
+      return {
+        pageMarginTop: `${pageMargins.marginTop || 0}px`,
+        pageMarginRight: `${pageMargins.marginRight || 0}px`,
+        pageMarginBottom: `${pageMargins.marginBottom || 0}px`,
+        pageMarginLeft: `${pageMargins.marginLeft || 0}px`,
+      };
+    },
+    emptyBrandingFile() {
+      return {
+        data: null,
+        fileId: 0,
+        updatedDate: 0,
+        uploadId: 0,
+      };
+    },
+    themeKey(field) {
+      return `app${field.charAt(0).toUpperCase()}${field.slice(1)}`;
+    },
+    // URL of a stored branding image, null when none is stored
+    brandingImagePath(file, name) {
+      return file?.fileId && `/portal/rest/v1/platform/branding/${name}?v=${file.updatedDate || 0}` || null;
+    },
+    // Builds the Application Styling model edited by the shared styling inputs
+    // (a container-shaped object, each group off when its fields are unset)
+    // from the theme variables returned by the branding service
+    createApplicationStyling(themeStyle, branding) {
+      const value = key => this.themeValue(themeStyle, key);
+      const px = key => this.themePx(themeStyle, key);
+      const has = key => value(key) !== null;
+      const files = {
+        appBackground: branding?.appBackground || this.emptyBrandingFile(),
+        appTextTitleBackground: branding?.appTextTitleBackground || this.emptyBrandingFile(),
+        appTextHeaderBackground: branding?.appTextHeaderBackground || this.emptyBrandingFile(),
+      };
+      const container = {};
+      // Margins on the platform scale (20 = neutral); every side at the neutral value = toggle off
+      this.sides.forEach(side => {
+        container[`margin${side}`] = has(`appMargin${side}`) ? px(`appMargin${side}`) : this.marginNeutral;
+      });
+      // Border: a colour means on; the shared input reads the shadow flag as the string 'true'
+      container.borderColor = value('appBorderColor');
+      container.borderSize = has('appBorderColor') ? (px('appBorderSize') || 1) : 0;
+      container.boxShadow = has('appBoxShadow') ? 'true' : null;
+      // Corners: per-corner keys, or a uniform radius different from the configured default (null = off)
+      const corners = ['TopLeft', 'TopRight', 'BottomRight', 'BottomLeft'];
+      const defaultRadius = this.$root.defaultBrandingThemeStyle?.borderRadius;
+      const uniformRadius = themeStyle?.borderRadius;
+      if (corners.some(corner => has(`appBorderRadius${corner}`))) {
+        corners.forEach(corner => container[`radius${corner}`] = px(`appBorderRadius${corner}`) || 0);
+      } else if (uniformRadius && defaultRadius && uniformRadius !== defaultRadius) {
+        const radius = Number(String(uniformRadius).replace('px', '')) || 0;
+        corners.forEach(corner => container[`radius${corner}`] = radius);
+      } else {
+        corners.forEach(corner => container[`radius${corner}`] = null);
+      }
+      // Background: the gradient travels in the *BackgroundImage variable, the image is a branding file
+      const backgroundOn = has('appBackgroundColor') || !!files.appBackground.fileId || has('appBackgroundImage');
+      container.backgroundColor = backgroundOn ? (value('appBackgroundColor') || '#FFFFFFFF') : null;
+      container.backgroundEffect = this.extractBackgroundEffect(themeStyle?.appBackgroundImage);
+      container.backgroundImage = this.brandingImagePath(files.appBackground, 'appBackground');
+      container.backgroundSize = value('appBackgroundSize');
+      container.backgroundPosition = value('appBackgroundPosition');
+      container.backgroundRepeat = value('appBackgroundRepeat');
+      container.backgroundAttachment = null;
+      // Text
+      this.applicationTextKeys.forEach(key => container[key] = value(this.themeKey(key)));
+      // Title and Header text backgrounds
+      this.textBackgroundTypes.forEach(type => {
+        const field = `text${type}Background`;
+        const key = `appText${type}Background`;
+        container[`${field}Color`] = value(`${key}Color`);
+        container[`${field}Effect`] = this.extractBackgroundEffect(themeStyle?.[`${key}Image`]);
+        container[`${field}Image`] = this.brandingImagePath(files[key], key);
+        container[`${field}Position`] = value(`${key}Position`);
+        container[`${field}Size`] = value(`${key}Size`);
+        container[`${field}Repeat`] = value(`${key}Repeat`);
+        container[`${field}Padding`] = this.sides.some(side => has(`${key}Padding${side}`))
+          && this.sides.map(side => `${px(`${key}Padding${side}`) || 0}px`).join(' ')
+          || null;
+        container[`${field}Radius`] = value(`${key}Radius`);
+      });
+      return Object.assign({ container }, files);
+    },
+    currentBorderRadius() {
+      return this.branding?.themeStyle?.borderRadius
+        || this.$root.defaultBrandingThemeStyle?.borderRadius
+        || '8px';
+    },
+    extractBackgroundEffect(backgroundImage) {
+      if (!backgroundImage || backgroundImage === 'none' || backgroundImage === this.themeUnsetValue) {
+        return null;
+      }
+      if (backgroundImage.includes('url(')) {
+        const effect = backgroundImage.split('), ')[1];
+        return effect || null;
+      }
+      return backgroundImage;
+    },
+    // Converts the Application Styling model into the theme variables the
+    // branding service persists (a group that is off sets no key, which
+    // removes the stored setting and lets the configured default apply)
+    toApplicationThemeStyle(applicationStyling) {
+      const themeStyle = {};
+      const container = applicationStyling?.container || {};
+      const isSet = v => v === 0 || !!v;
+      // Margins: the theme variable carries the platform-scale value the shared input holds (20 = neutral);
+      // no key when the input is off (null sides) or every side is neutral
+      const margins = this.sides.map(side => container[`margin${side}`]);
+      if (margins.every(isSet) && margins.some(margin => margin !== this.marginNeutral)) {
+        this.sides.forEach(side => {
+          themeStyle[`appMargin${side}`] = `${container[`margin${side}`]}px`;
+        });
+      }
+      if (container.borderColor) {
+        themeStyle.appBorderColor = container.borderColor;
+        themeStyle.appBorderSize = `${container.borderSize || 1}px`;
+        if (container.boxShadow === true || container.boxShadow === 'true') {
+          themeStyle.appBoxShadow = this.applicationBoxShadowValue;
+        }
+      }
+      if (isSet(container.radiusBottomLeft)) {
+        const uniform = container.radiusTopLeft === container.radiusTopRight
+          && container.radiusTopRight === container.radiusBottomLeft
+          && container.radiusBottomLeft === container.radiusBottomRight;
+        if (uniform) {
+          // The uniform radius keeps the existing global variable (it also shapes buttons and components)
+          themeStyle.borderRadius = `${container.radiusTopLeft || 0}px`;
+        } else {
+          themeStyle.borderRadius = this.currentBorderRadius();
+          ['TopLeft', 'TopRight', 'BottomLeft', 'BottomRight'].forEach(corner => {
+            themeStyle[`appBorderRadius${corner}`] = `${container[`radius${corner}`] || 0}px`;
+          });
+        }
+      } else {
+        // Closed toggle: the configured default applies (never omit the key, the global radius also shapes buttons
+        // and components); the stored value is only kept while the defaults are not loaded yet
+        themeStyle.borderRadius = this.$root.defaultBrandingThemeStyle?.borderRadius
+          || this.branding?.themeStyle?.borderRadius
+          || '8px';
+      }
+      if (container.backgroundColor || container.backgroundImage) {
+        themeStyle.appBackgroundColor = container.backgroundColor || '#FFFFFFFF';
+        // The gradient travels in the *BackgroundImage variable, the server prepends the uploaded image URL
+        themeStyle.appBackgroundImage = container.backgroundEffect || null;
+        if (container.backgroundImage) {
+          themeStyle.appBackgroundSize = container.backgroundSize || 'unset';
+          themeStyle.appBackgroundPosition = container.backgroundPosition || 'unset';
+          themeStyle.appBackgroundRepeat = container.backgroundRepeat || 'no-repeat';
+        }
+      }
+      if (this.applicationTextKeys.some(key => container[key])) {
+        this.applicationTextKeys.forEach(key => {
+          if (container[key]) {
+            themeStyle[this.themeKey(key)] = container[key];
+          }
+        });
+      }
+      this.textBackgroundTypes.forEach(type => {
+        const field = `text${type}Background`;
+        const key = `appText${type}Background`;
+        if (container[`${field}Color`] || container[`${field}Image`]) {
+          themeStyle[`${key}Color`] = container[`${field}Color`] || '#FFFFFFFF';
+          themeStyle[`${key}Image`] = container[`${field}Effect`] || null;
+          if (container[`${field}Image`]) {
+            themeStyle[`${key}Size`] = container[`${field}Size`] || 'unset';
+            themeStyle[`${key}Position`] = container[`${field}Position`] || 'unset';
+            themeStyle[`${key}Repeat`] = container[`${field}Repeat`] || 'no-repeat';
+          }
+          // The shared input writes a "top right bottom left" shorthand; the skin reads one variable per side
+          if (container[`${field}Padding`]) {
+            const parts = container[`${field}Padding`].trim().split(/\s+/);
+            this.sides.forEach((side, index) => {
+              themeStyle[`${key}Padding${side}`] = `${parseInt(parts[index] || parts[0]) || 0}px`;
+            });
+          }
+          if (container[`${field}Radius`]) {
+            themeStyle[`${key}Radius`] = container[`${field}Radius`];
+          }
         }
       });
+      return themeStyle;
+    },
+    updatePagePropertiesPreview() {
+      this.refreshApplicationStylingPreview();
       this.$root.$emit('refresh-body-style-property', {
         name: '--allPagesBackgroundColor',
         value: this.pageStylingProperties.pageBackgroundColor || this.defaultBackgroundColor,
@@ -668,11 +908,65 @@ export default {
         updatedDate: 0,
         uploadId: 0,
       };
-      this.pageStylingProperties.pageWidth = this.defaultCustomPageWidth;
-      this.pageStylingProperties.borderRadius = this.$root.defaultBrandingThemeStyle.borderRadius.split('px')[0];
-      this.pageStylingProperties.pageBackgroundColor = this.defaultPageBackground;
-      this.pageStylingProperties.pageBackgroundEffect = null;
+      // Configured defaults (exo.branding.page.*) when the server exposes them, built-in ones otherwise
+      this.pageStylingProperties.pageWidth = this.$root.defaultBrandingThemeStyle?.pageWidth || this.defaultCustomPageWidth;
+      this.pageStylingProperties.pageBackgroundColor = this.$root.defaultBrandingThemeStyle?.pageBackgroundColor || this.defaultPageBackground;
+      this.pageStylingProperties.pageBackgroundEffect = this.$root.defaultBrandingThemeStyle?.pageBackgroundEffect || null;
+      this.pageStylingProperties.pageMargins = this.createPageMargins(this.$root.defaultBrandingThemeStyle);
+      // Application Styling: every toggle off, configured defaults apply
+      this.pageStylingProperties.applicationStyling = this.createApplicationStyling(this.$root.defaultBrandingThemeStyle, null);
       this.isPageStylingPropertiesChanged = true;
+      this.updatePagePropertiesPreview();
+    },
+    // Live preview of the platform-wide application styling: the same custom
+    // properties the branding stylesheet emits on :root
+    refreshApplicationStylingPreview() {
+      const applicationStyling = this.pageStylingProperties.applicationStyling;
+      const themeStyle = this.toApplicationThemeStyle(applicationStyling);
+      const properties = {
+        '--allPagesBorderRadius': themeStyle.borderRadius || this.$root.defaultBrandingThemeStyle?.borderRadius,
+      };
+      const keys = ['appMarginTop', 'appMarginRight', 'appMarginBottom', 'appMarginLeft',
+        'appBorderColor', 'appBorderSize', 'appBoxShadow',
+        'appBorderRadiusTopLeft', 'appBorderRadiusTopRight', 'appBorderRadiusBottomLeft', 'appBorderRadiusBottomRight',
+        'appBackgroundColor', 'appBackgroundSize', 'appBackgroundPosition', 'appBackgroundRepeat',
+        ...this.applicationTextKeys.map(key => this.themeKey(key))];
+      this.textBackgroundTypes.forEach(type => {
+        const key = `appText${type}Background`;
+        keys.push(`${key}Color`, `${key}Position`, `${key}Size`, `${key}Repeat`, `${key}Radius`,
+          ...this.sides.map(side => `${key}Padding${side}`));
+      });
+      keys.forEach(key => {
+        properties[`--allPages${key.charAt(0).toUpperCase()}${key.slice(1)}`] = themeStyle[key] || null;
+      });
+      const pageMargins = this.toPageMarginsThemeStyle(this.pageStylingProperties.pageMargins);
+      this.sides.forEach(side => {
+        properties[`--allPagesMargin${side}`] = pageMargins[`pageMargin${side}`] || null;
+      });
+      const container = applicationStyling?.container || {};
+      properties['--allPagesAppBackgroundImage'] = this.previewBackgroundImage(applicationStyling?.appBackground,
+        'appBackground',
+        themeStyle.appBackgroundColor && container.backgroundEffect);
+      this.textBackgroundTypes.forEach(type => {
+        const key = `appText${type}Background`;
+        properties[`--allPages${key.charAt(0).toUpperCase()}${key.slice(1)}Image`] = this.previewBackgroundImage(applicationStyling?.[key],
+          key,
+          themeStyle[`${key}Color`] && container[`text${type}BackgroundEffect`]);
+      });
+      this.$root.$emit('refresh-style-properties', { detail: properties });
+    },
+    // background-image value of the preview: the uploaded or stored image first, then the gradient
+    previewBackgroundImage(file, name, effect) {
+      let image = null;
+      if (file?.data) {
+        image = `url(${this.$utils.convertImageDataAsSrc(file.data)})`;
+      } else if (file?.fileId) {
+        image = `url(${this.brandingImagePath(file, name)})`;
+      }
+      if (image && effect) {
+        return `${image}, ${effect}`;
+      }
+      return image || effect || 'none';
     }
   }
 };
