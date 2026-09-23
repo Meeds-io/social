@@ -541,7 +541,8 @@ export default {
         [`${type}TextFontWeight`]: themeStyle?.[`${type}TextFontWeight`] || null,
       };
       if (type === this.brandingStylingType.TOP_BAR) {
-        properties.topBarSticky = themeStyle?.topBarSticky === 'true' ? 'true' : 'false';
+        // PO decision 6 applied literally (Architects Lead): off sends no key, so the configured value comes back
+        properties.topBarSticky = themeStyle?.topBarSticky === 'true' ? 'true' : null;
         properties.topBarBackgroundScrollColor = this.themeValue(themeStyle, 'topBarBackgroundScrollColor');
       }
       if (type !== 'topBar') {
@@ -576,7 +577,7 @@ export default {
         [`${type}TextFontWeight`]: textProperties.textFontWeight,
       };
       if (type === this.brandingStylingType.TOP_BAR) {
-        properties.topBarSticky = backgroundProperties.sticky ? 'true' : 'false';
+        properties.topBarSticky = backgroundProperties.sticky ? 'true' : null;
         properties.topBarBackgroundScrollColor = backgroundProperties.sticky && backgroundProperties.backgroundScrollColor || null;
       }
       if (type !== this.brandingStylingType.TOP_BAR) {
