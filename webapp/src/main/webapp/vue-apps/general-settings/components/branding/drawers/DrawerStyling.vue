@@ -42,13 +42,17 @@
         <portal-general-settings-background-input
           v-if="initialized"
           v-model="backgroundProperties"
+          :image-path="backgroundImagePath"
           class="mt-2 pe-3" />
         <div class="mt-2 pe-4 d-flex">
           <span class="text-title">
             {{ $t('generalSettings.text.label') }}
           </span>
         </div>
-        <portal-general-settings-branding-text-input v-model="drawerTextProperties" />
+        <styling-text-input
+          :text-background="false"
+          v-model="drawerTextProperties"
+          class="pe-3" />
       </v-card>
     </template>
     <template #footer>
@@ -85,6 +89,10 @@ export default {
     },
   },
   computed: {
+    backgroundImagePath() {
+      const background = this.drawerStylingProperties?.drawerBackground;
+      return background?.fileId && `/portal/rest/v1/platform/branding/drawerBackground?v=${background.updatedDate || 0}` || null;
+    },
     saveButtonDisabled() {
       if (!this.backgroundProperties && !this.drawerTextProperties) {
         return false;
