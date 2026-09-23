@@ -2,7 +2,7 @@
 
  This file is part of the Meeds project (https://meeds.io/).
  
- Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
  
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -28,26 +28,28 @@
       <v-list-item
         class="pa-0"
         dense>
-        <v-list-item-action class="me-2 my-0">
+        <v-list-item-action class="my-0 me-2 layout-color-picker-swatch">
           <v-card
             :color="value"
-            :height="height"
-            :width="width"
+            height="36px"
+            width="36px"
             v-on="on" />
         </v-list-item-action>
-        <v-list-item-content class="d-flex flex-column align-start py-1 me-2">
-          <template v-if="label">
-            <v-list-item-title class="me-auto">
-              {{ label }} {{ $t('generalSettings.color.label') }}
-            </v-list-item-title>
-            <v-spacer class="my-1" />
-            <v-list-item-subtitle>
-              {{ value }}
-            </v-list-item-subtitle>
-          </template>
-          <v-list-item-title v-else>
+        <v-list-item-content class="my-auto">
+          <v-card
+            v-if="label"
+            :min-width="minTextWidth"
+            flat>
+            <div class="text-body">{{ label }}</div>
+            <div class="text-subtitle">{{ value }}</div>
+          </v-card>
+          <v-card
+            v-else
+            :min-width="minTextWidth"
+            class="text-body text-end"
+            flat>
             {{ value }}
-          </v-list-item-title>
+          </v-card>
         </v-list-item-content>
       </v-list-item>
     </template>
@@ -62,7 +64,7 @@
           text
           color="primary"
           @click="cancel">
-          {{ $t('generalSettings.cancel') }}
+          {{ $t('layout.cancel') }}
         </v-btn>
       </v-col>
       <v-col class="center">
@@ -70,7 +72,7 @@
           text
           color="primary"
           @click="save">
-          {{ $t('generalSettings.ok') }}
+          {{ $t('layout.ok') }}
         </v-btn>
       </v-col>
     </v-row>
@@ -79,22 +81,18 @@
 <script>
 export default {
   props: {
-    label: {
-      type: String,
-      default: null,
-    },
     value: {
       type: String,
       default: null,
     },
-    height: {
+    label: {
       type: String,
-      default: '50px'
+      default: null,
     },
-    width: {
+    minTextWidth: {
       type: String,
-      default: '50px'
-    }
+      default: () => 'auto',
+    },
   },
   data: () => ({
     modal: false,

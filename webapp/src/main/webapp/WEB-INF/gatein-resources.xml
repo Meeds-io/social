@@ -1523,6 +1523,9 @@
         <module>vue</module>
       </depends>
       <depends>
+        <module>stylingInputs</module>
+      </depends>
+      <depends>
         <module>vuetify</module>
       </depends>
       <depends>
@@ -2850,6 +2853,42 @@
     <depends>
       <module>jquery</module>
       <as>jQuery</as>
+    </depends>
+  </module>
+
+  <module>
+    <!-- eXIP 7.3.0.30 - cssClass token helpers shared by the layout editors' renderer and the styling inputs -->
+    <name>stylingUtils</name>
+    <script>
+      <path>/js/stylingUtils.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <!-- eXIP 7.3.0.30 - the styling inputs (background, text, text background, margins, border, radius, colour picker)
+         shared by the layout editors (Meeds-io/layout re-registers them under its layout-editor-* tags) and by
+         Branding and Theme. Not part of commonVueComponents: loaded by the editors and the administration only. -->
+    <name>stylingInputs</name>
+    <script>
+      <path>/js/stylingInputs.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>stylingUtils</module>
     </depends>
   </module>
 

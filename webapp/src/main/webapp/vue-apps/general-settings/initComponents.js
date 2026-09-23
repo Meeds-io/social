@@ -20,13 +20,12 @@ import GeneralSettings from './components/GeneralSettings.vue';
 
 import LoginBranding from './components/login-page/LoginBranding.vue';
 
-import ColorPicker from './components/branding/form/ColorPicker.vue';
 import CompanyLogo from './components/branding/form/CompanyLogo.vue';
 import CompanyFavicon from './components/branding/form/CompanyFavicon.vue';
 import LoginBackgroundSelector from './components/branding/form/LoginBackgroundSelector.vue';
-import BorderRadiusSelector from './components/branding/form/BorderRadiusSelector.vue';
 import BackgroundImageAttachment from './components/branding/form/BackgroundImageAttachment.vue';
-import BackgroundInput from './components/branding/form/BackgroundInput.vue';
+// Branding adapter of the shared styling background input (social stylingInputs module)
+import BrandingBackgroundInput from './components/branding/form/BrandingBackgroundInput.vue';
 import CustomStyleInput from './components/branding/form/CustomStyleInput.vue';
 
 import SiteBranding from './components/branding/SiteBranding.vue';
@@ -57,7 +56,6 @@ import SiteBrandingOptions from './components/branding/options/SiteBrandingOptio
 import SiteBrandingOptionsItem from './components/branding/options/SiteBrandingOptionsItem.vue';
 import UpdateColorsDrawer from './components/branding/drawers/UpdateColorsDrawer.vue';
 import TopBarStylingDrawer from './components/branding/drawers/TopBarStylingDrawer.vue';
-import TextInput from './components/branding/form/TextInput.vue';
 import SideBarStylingDrawer from './components/branding/drawers/SideBarStylingDrawer.vue';
 import DrawerStyling from './components/branding/drawers/DrawerStyling.vue';
 import PageStylingDrawer from './components/branding/drawers/PageStylingDrawer.vue';
@@ -68,10 +66,8 @@ const components = {
   'portal-general-settings-branding-site': SiteBranding,
   'portal-general-settings-branding-site-preview': SiteBrandingPreview,
   'portal-general-settings-branding-login': LoginBranding,
-  'portal-general-settings-color-picker': ColorPicker,
   'portal-general-settings-company-logo': CompanyLogo,
   'portal-general-settings-company-favicon': CompanyFavicon,
-  'portal-general-settings-border-radius': BorderRadiusSelector,
   'portal-general-settings-branding-options': SiteBrandingOptions,
   'portal-general-settings-branding-options-item': SiteBrandingOptionsItem,
   'portal-general-settings-branding-update-colors-drawer': UpdateColorsDrawer,
@@ -79,9 +75,8 @@ const components = {
   'portal-general-settings-branding-sidebar-styling-drawer': SideBarStylingDrawer,
   'portal-general-settings-branding-drawer-styling': DrawerStyling,
   'portal-general-settings-branding-page-styling-drawer': PageStylingDrawer,
-  'portal-general-settings-branding-text-input': TextInput,
   'portal-general-settings-background-image-attachment': BackgroundImageAttachment,
-  'portal-general-settings-background-input': BackgroundInput,
+  'portal-general-settings-background-input': BrandingBackgroundInput,
   'portal-general-settings-custom-style-input': CustomStyleInput,
   'portal-general-settings-login-background-selector': LoginBackgroundSelector,
   'portal-general-settings-public-site-drawer': PublicSiteEditDrawer,
