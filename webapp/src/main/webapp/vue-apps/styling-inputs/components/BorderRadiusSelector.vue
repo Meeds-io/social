@@ -2,7 +2,7 @@
 
  This file is part of the Meeds project (https://meeds.io/).
 
- Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -19,13 +19,13 @@
 
 -->
 <template>
-  <div class="d-flex mt-2">
-    <v-btn
-      class="ps-0"
+  <div class="d-flex">
+    <v-btn 
       text
       small
+      class="ms-n3"
       @click="bordeRadius = 0">
-      {{ $t('generalSettings.widgetAndAppStyle.square') }}
+      {{ $t('layout.square') }}
     </v-btn>
     <v-slider
       v-model="bordeRadius"
@@ -40,8 +40,9 @@
     <v-btn
       text
       small
+      class="me-n3"
       @click="bordeRadius = maxBorderRadius"> 
-      {{ $t('generalSettings.widgetAndAppStyle.rounded') }} 
+      {{ $t('layout.rounded') }} 
     </v-btn>
   </div>
 </template>
@@ -58,15 +59,12 @@ export default {
     maxBorderRadius: 20
   }),
   watch: {
-    value() {
-      this.bordeRadius = this.value;
-    },
     bordeRadius() {
       this.$emit('input', this.bordeRadius);
     },
   },
   created() {
     this.bordeRadius = this.value;
-  }
+  },
 };
 </script>

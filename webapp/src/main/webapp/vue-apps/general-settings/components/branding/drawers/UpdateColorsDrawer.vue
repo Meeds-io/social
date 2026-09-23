@@ -45,19 +45,19 @@
         </div>
         <div class="d-flex flex-column justify-space-between mt-4">
           <div class="pt-2">
-            <portal-general-settings-color-picker
+            <styling-color-picker
               v-model="primaryColor"
-              :label="$t('generalSettings.primaryColor.label')" />
+              :label="`${$t('generalSettings.primaryColor.label')} ${$t('generalSettings.color.label')}`" />
           </div>
           <div class="pt-2">
-            <portal-general-settings-color-picker
+            <styling-color-picker
               v-model="secondaryColor"
-              :label="$t('generalSettings.secondaryColor.label')" />
+              :label="`${$t('generalSettings.secondaryColor.label')} ${$t('generalSettings.color.label')}`" />
           </div>
           <div class="pt-2">
-            <portal-general-settings-color-picker
+            <styling-color-picker
               v-model="tertiaryColor"
-              :label="$t('generalSettings.tertiaryColor.label')" />
+              :label="`${$t('generalSettings.tertiaryColor.label')} ${$t('generalSettings.color.label')}`" />
           </div>
         </div>
       </v-card>
