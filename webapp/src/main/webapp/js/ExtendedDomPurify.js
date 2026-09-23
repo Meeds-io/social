@@ -28,6 +28,42 @@
         return decodedUrl;
       });
     }
+  // Registered once, when the module loads: registering them after each
+  // sanitize call left the first content of the page unprocessed and piled
+  // up a new copy of each hook on every call (EXO-90272).
+  function registerHooks() {
+    DOMPurify.addHook('afterSanitizeAttributes', function(node) {
+      if ('target' in node) {
+        const nodeText = node.textContent;
+        const nodeLink = node.getAttribute('href');
+        // add noopener attribute to external links to eliminate vulnerabilities
+        if (nodeLink) {
+          // Open external links in a new Browser Tab
+          if (nodeLink.indexOf('/') !== 0 && nodeLink.indexOf(window.location.origin) === -1
+                && !nodeLink.startsWith('#')) {
+            node.setAttribute('target', '_blank');
+            node.setAttribute('rel', 'nofollow noopener noreferrer');
+          }
+          // add text ellipsis when link length is up to 75 characters
+          if (nodeText && nodeText.length > 75) {
+            node.setAttribute('title', nodeLink);
+            node.setAttribute('Aria-label', nodeLink);
+            node.textContent = node.textContent.substring(0,75)+'...';
+          }
+        }
+      }
+    });
+    DOMPurify.addHook('uponSanitizeElement', function(node) {
+      if (node.tagName === 'iframe') {
+        const src = node.getAttribute('src') || '';
+        if (!src.startsWith('https://www.youtube.com/embed/')
+          || !src.startsWith('https://player.vimeo.com/video/') || !src.startsWith('https://www.dailymotion.com/embed/video/')) {
+          return node.parentNode?.removeChild(node);
+        }
+      }
+    });
+  }
+  registerHooks();
   let ExtendedDomPurify = function() {
   };
   ExtendedDomPurify.prototype.purify = function(content) {
@@ -73,36 +109,6 @@
       },
       ADD_TAGS: ["iframe", "content-link", "user-by-name"],
       ADD_ATTR: ['is', 'target', 'allow', 'allowfullscreen', 'frameborder', 'scrolling', 'v-identity-popover'],
-    });
-    DOMPurify.addHook('afterSanitizeAttributes', function(node) {
-      if ('target' in node) {
-        const nodeText = node.textContent;
-        const nodeLink = node.getAttribute('href');
-        // add noopener attribute to external links to eliminate vulnerabilities
-        if (nodeLink) {
-          // Open external links in a new Browser Tab
-          if (nodeLink.indexOf('/') !== 0 && nodeLink.indexOf(window.location.origin) === -1
-                && !nodeLink.startsWith('#')) {
-            node.setAttribute('target', '_blank');
-            node.setAttribute('rel', 'nofollow noopener noreferrer');
-          }
-          // add text ellipsis when link length is up to 75 characters
-          if (nodeText && nodeText.length > 75) {
-            node.setAttribute('title', nodeLink);
-            node.setAttribute('Aria-label', nodeLink);
-            node.textContent = node.textContent.substring(0,75)+'...';
-          }
-        }
-      }
-    });
-    DOMPurify.addHook('uponSanitizeElement', function(node) {
-      if (node.tagName === 'iframe') {
-        const src = node.getAttribute('src') || '';
-        if (!src.startsWith('https://www.youtube.com/embed/')
-          || !src.startsWith('https://player.vimeo.com/video/') || !src.startsWith('https://www.dailymotion.com/embed/video/')) {
-          return node.parentNode?.removeChild(node);
-        }
-      }
     });
     return pureHtml;
   }
