@@ -1,7 +1,7 @@
 <template>
   <select
     v-model="timeValue"
-    class="width-auto my-auto ms-4 ignore-vuetify-classes">
+    class="timePickerSelect width-auto my-auto ms-4 ignore-vuetify-classes">
     <option
       v-for="time in filteredTimeOptions"
       :key="time.value"
