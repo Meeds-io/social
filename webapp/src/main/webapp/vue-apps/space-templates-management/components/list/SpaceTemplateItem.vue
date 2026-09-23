@@ -172,6 +172,16 @@ export default {
       this.$spaceTemplateService.getSpaceTemplate(this.spaceTemplate.id)
         .then(spaceTemplate => {
           spaceTemplate.enabled = enabled;
+          // The stored value may still list the template as its own subspace
+          // template, which the server refuses on write: this read-modify-write
+          // would send it back untouched and never apply the status change.
+          const allowedSubspaceTemplates = spaceTemplate.allowedSubspaceTemplates
+            ?.filter(item => Number(item?.split?.(':')[0]) !== spaceTemplate.id);
+          spaceTemplate.allowedSubspaceTemplates = allowedSubspaceTemplates?.length && allowedSubspaceTemplates || null;
+          if (!spaceTemplate.allowedSubspaceTemplates) {
+            // save() nulls the limit only with the list; a stored 0 means "no limit" and must survive
+            spaceTemplate.subspacesMaxLimit = null;
+          }
           return this.$spaceTemplateService.updateSpaceTemplate(spaceTemplate)
             .then(() => {
               this.$root.$emit(`space-templates-${enabled && 'enabled' || 'disabled'}`, spaceTemplate);

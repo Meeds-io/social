@@ -19,7 +19,6 @@
 package io.meeds.social.space.template.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -330,6 +329,9 @@ public class SpaceTemplateService {
     if (storedSpaceTemplate == null || storedSpaceTemplate.isDeleted()) {
       throw new ObjectNotFoundException("Space Template doesn't exist");
     }
+    if (isSubspaceTemplateOfItself(spaceTemplate)) {
+      throw new IllegalArgumentException("spaceTemplate.subspaceTemplateCannotBeItself");
+    }
     createSpaceTemplateGroupIfNotExist(storedSpaceTemplate.getId());
     spaceTemplate.setSystem(storedSpaceTemplate.isSystem());
     spaceTemplate.setDeleted(storedSpaceTemplate.isDeleted());
@@ -387,7 +389,7 @@ public class SpaceTemplateService {
                               .filter(template -> template.getAllowedSubspaceTemplates()
                                                           .stream()
                                                           .map(this::extractTemplateId)
-                                                          .filter(Objects::nonNull)
+                                                          .filter(id -> id != null && id != template.getId())
                                                           .anyMatch(id -> subspaceTemplateIds.contains(id)
                                                               && canViewTemplate(id, userName)))
                               .map(SpaceTemplate::getId)
@@ -396,11 +398,12 @@ public class SpaceTemplateService {
 
   public List<Long> getSubspaceTemplateIds(String userName) {
     return getSpaceTemplates().stream()
-                              .map(SpaceTemplate::getAllowedSubspaceTemplates)
-                              .filter(Objects::nonNull)
-                              .flatMap(Collection::stream)
-                              .map(this::extractTemplateId)
-                              .filter(id -> id != null && canViewTemplate(id, userName))
+                              .filter(template -> template.getAllowedSubspaceTemplates() != null)
+                              .flatMap(template -> template.getAllowedSubspaceTemplates()
+                                                           .stream()
+                                                           .map(this::extractTemplateId)
+                                                           .filter(id -> id != null && id != template.getId()))
+                              .filter(id -> canViewTemplate(id, userName))
                               .distinct()
                               .toList();
 
@@ -490,6 +493,16 @@ public class SpaceTemplateService {
   private Long extractTemplateId(String rawId) {
     String idPart = rawId.split(":")[0];
     return NumberUtils.isCreatable(idPart) ? Long.parseLong(idPart) : null;
+  }
+
+  private boolean isSubspaceTemplateOfItself(SpaceTemplate spaceTemplate) {
+    return CollectionUtils.isNotEmpty(spaceTemplate.getAllowedSubspaceTemplates())
+           && spaceTemplate.getAllowedSubspaceTemplates()
+                           .stream()
+                           .filter(StringUtils::isNotBlank)
+                           .map(this::extractTemplateId)
+                           .filter(Objects::nonNull)
+                           .anyMatch(id -> id == spaceTemplate.getId());
   }
 
   @SneakyThrows
