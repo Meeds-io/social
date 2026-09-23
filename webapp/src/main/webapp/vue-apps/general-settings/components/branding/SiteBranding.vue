@@ -662,23 +662,27 @@ export default {
     // Page Design > Page Margins: platform default of the page padding (site and page values keep precedence)
     createPageMargins(themeStyle) {
       const px = key => this.themePx(themeStyle, key);
+      // an unset side stays null: it is neither shown as 0 nor written back on the next save (the skin default keeps applying)
       return ['pageMarginTop', 'pageMarginRight', 'pageMarginBottom', 'pageMarginLeft'].some(key => px(key) !== null) && {
-        marginTop: px('pageMarginTop') || 0,
-        marginRight: px('pageMarginRight') || 0,
-        marginBottom: px('pageMarginBottom') || 0,
-        marginLeft: px('pageMarginLeft') || 0,
+        marginTop: px('pageMarginTop'),
+        marginRight: px('pageMarginRight'),
+        marginBottom: px('pageMarginBottom'),
+        marginLeft: px('pageMarginLeft'),
       } || null;
     },
     toPageMarginsThemeStyle(pageMargins) {
       if (!pageMargins) {
         return {};
       }
-      return {
-        pageMarginTop: `${pageMargins.marginTop || 0}px`,
-        pageMarginRight: `${pageMargins.marginRight || 0}px`,
-        pageMarginBottom: `${pageMargins.marginBottom || 0}px`,
-        pageMarginLeft: `${pageMargins.marginLeft || 0}px`,
-      };
+      // only the sides that are set travel; a null side is left to the configured or skin default
+      const themeStyle = {};
+      this.sides.forEach(side => {
+        const value = pageMargins[`margin${side}`];
+        if (value === 0 || value) {
+          themeStyle[`pageMargin${side}`] = `${value}px`;
+        }
+      });
+      return themeStyle;
     },
     emptyBrandingFile() {
       return {
