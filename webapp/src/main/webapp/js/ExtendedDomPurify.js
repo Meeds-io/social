@@ -28,10 +28,9 @@
         return decodedUrl;
       });
     }
-  // Registered once, before the first sanitize: registering them after each
-  // call left the first content of the page unprocessed and piled up a new
-  // copy of each hook on every call (EXO-90272).
-  let hooksRegistered = false;
+  // Registered once, when the module loads: registering them after each
+  // sanitize call left the first content of the page unprocessed and piled
+  // up a new copy of each hook on every call (EXO-90272).
   function registerHooks() {
     DOMPurify.addHook('afterSanitizeAttributes', function(node) {
       if ('target' in node) {
@@ -64,6 +63,7 @@
       }
     });
   }
+  registerHooks();
   let ExtendedDomPurify = function() {
   };
   ExtendedDomPurify.prototype.purify = function(content) {
@@ -82,10 +82,6 @@
       }
       return segment.replace(schemeEmailRegex, url => `<a href="${url}">${url}</a>`);
     });
-    if (!hooksRegistered) {
-      hooksRegistered = true;
-      registerHooks();
-    }
     const pureHtml = DOMPurify.sanitize(Autolinker.link(content, {
       email: false,
       replaceFn : function (match) {
