@@ -68,6 +68,7 @@ export default {
     this.$root.$on('refresh-company-name', this.refreshCompanyName);
     this.$root.$on('refresh-company-logo', this.refreshCompanyLogo);
     this.$root.$on('refresh-style-properties', this.setStyleProperties);
+    this.$root.$on('refresh-body-class', this.setBodyClass);
     this.init();
   },
   mounted() {
@@ -80,6 +81,7 @@ export default {
     this.$root.$off('refresh-company-name', this.refreshCompanyName);
     this.$root.$off('refresh-company-logo', this.refreshCompanyLogo);
     this.$root.$off('refresh-style-properties', this.setStyleProperties);
+    this.$root.$off('refresh-body-class', this.setBodyClass);
   },
   methods: {
     init() {
@@ -107,6 +109,12 @@ export default {
         if (iframeDoc) {
           iframeDoc.style.setProperty(propertyName, propertyValue);
         }
+      }
+    },
+    setBodyClass(event) {
+      const body = document.getElementById('previewIframe')?.contentWindow?.document?.body;
+      if (body && event?.name) {
+        body.classList.toggle(event.name, !!event.enabled);
       }
     },
     setBodyStyleProperty(property) {
@@ -140,7 +148,12 @@ export default {
 
         if (iframeDoc) {
           for (const [propertyName, propertyValue] of Object.entries(properties)) {
-            if (propertyName && propertyValue) {
+            if (!propertyName) {
+              continue;
+            } else if (propertyValue === null || propertyValue === '') {
+              // not set: the value of the branding stylesheet (:root) applies again
+              iframeDoc.style.removeProperty(propertyName);
+            } else if (propertyValue) {
               iframeDoc.style.setProperty(propertyName, propertyValue);
             }
           }
