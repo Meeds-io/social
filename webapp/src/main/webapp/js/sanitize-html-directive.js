@@ -17,7 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 (function() {
-  window.Vue.directive('sanitized-html', function (el, binding) {
+  function renderSanitizedHtml(el, binding) {
     let content = binding.value;
     if (content) {
       content = content.replace(/]]&gt;/g, ']]>');
@@ -37,8 +37,8 @@
       el.classList.add('reset-style-box');
     }
     el.innerHTML = content && ExtendedDomPurify.purify(content) || '';
-  });
-  window.Vue.directive('sanitized-html-no-embed', function (el, binding) {
+  }
+  function renderSanitizedHtmlNoEmbed(el, binding) {
     let content = binding.value;
     if (content) {
       content = content.replace(/]]&gt;/g, ']]>');
@@ -55,5 +55,27 @@
 
     }
     el.innerHTML = content && ExtendedDomPurify.purify(content) || '';
+  }
+  // A re-render of the host component must not rebuild an unchanged content:
+  // rewriting innerHTML recreates every embedded iframe, which ends a playing
+  // video and exits its fullscreen (EXO-90272). The class is re-added anyway,
+  // since a dynamic :class patched before this hook may have dropped it.
+  window.Vue.directive('sanitized-html', {
+    bind: renderSanitizedHtml,
+    update(el, binding) {
+      if (binding.value !== binding.oldValue) {
+        renderSanitizedHtml(el, binding);
+      } else if (!el.classList.contains('reset-style-box')) {
+        el.classList.add('reset-style-box');
+      }
+    },
+  });
+  window.Vue.directive('sanitized-html-no-embed', {
+    bind: renderSanitizedHtmlNoEmbed,
+    update(el, binding) {
+      if (binding.value !== binding.oldValue) {
+        renderSanitizedHtmlNoEmbed(el, binding);
+      }
+    },
   });
 })();
