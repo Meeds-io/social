@@ -39,7 +39,8 @@ const urls = [
 ];
 
 export function init(publicSiteVisible, publicSiteId) {
-  exoi18n.loadLanguageAsync(lang, urls)
+  // the shared styling inputs (stylingInputs module) load their own labels: wait for both bundles
+  Promise.all([exoi18n.loadLanguageAsync(lang, urls), window.stylingInputsI18n]).then(([i18n]) => i18n)
     .then(i18n =>
       Vue.createApp({
         data: {
