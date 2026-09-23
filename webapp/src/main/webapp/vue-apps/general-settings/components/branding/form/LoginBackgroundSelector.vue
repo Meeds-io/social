@@ -27,10 +27,10 @@
         @click="$refs.imageCropDrawer.open(loginBackgroundItem)">
         {{ hasImage && $t('generalSettings.changeLoginBackground.button') || $t('generalSettings.addLoginBackground.button') }}
       </v-btn>
-      <portal-general-settings-color-picker
+      <styling-color-picker
         v-if="hasImage"
         v-model="loginBackgroundTextColor"
-        :label="$t('generalSettings.loginBackgroundFontColor')" />
+        :label="`${$t('generalSettings.loginBackgroundFontColor')} ${$t('generalSettings.color.label')}`" />
     </div>
     <image-crop-drawer
       ref="imageCropDrawer"

@@ -42,14 +42,17 @@
         <portal-general-settings-background-input
           v-if="initialized"
           v-model="backgroundProperties"
+          :image-path="backgroundImagePath"
           class="mt-2 pe-3" />
         <div class="mt-2 pe-4 d-flex">
           <span class="text-title">
             {{ $t('generalSettings.text.label') }}
           </span>
         </div>
-        <portal-general-settings-branding-text-input
+        <styling-text-input
+          :text-background="false"
           v-model="sideBarTextProperties"
+          class="pe-3"
           :custom-header="false"
           :custom-text="true"
           :custom-sub-title="true"
@@ -90,6 +93,10 @@ export default {
     },
   },
   computed: {
+    backgroundImagePath() {
+      const background = this.sideBarStylingProperties?.sideBarBackground;
+      return background?.fileId && `/portal/rest/v1/platform/branding/sideBarBackground?v=${background.updatedDate || 0}` || null;
+    },
     saveButtonDisabled() {
       if (!this.backgroundProperties && !this.sideBarTextProperties) {
         return false;

@@ -90,6 +90,8 @@ let config = {
     notificationAdministration: './src/main/webapp/vue-apps/notification-administration/main.js',
     notificationExtensions: './src/main/webapp/vue-apps/notification-extensions/main.js',
     attachImage: './src/main/webapp/vue-apps/attach-image/main.js',
+    stylingUtils: './src/main/webapp/vue-apps/styling-utils/main.js',
+    stylingInputs: './src/main/webapp/vue-apps/styling-inputs/main.js',
     attachmentsPreview: './src/main/webapp/vue-apps/attachments-preview/main.js',
     verticalMenu: './src/main/webapp/vue-apps/vertical-menu/main.js',
     siteDetails: './src/main/webapp/vue-apps/site-details/main.js',
