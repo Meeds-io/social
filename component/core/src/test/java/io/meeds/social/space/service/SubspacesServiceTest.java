@@ -29,6 +29,8 @@ import org.springframework.data.domain.Pageable;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
+import org.exoplatform.social.core.space.SpaceException;
+import org.exoplatform.social.core.space.SpaceException.Code;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 
@@ -319,6 +321,83 @@ public class SubspacesServiceTest extends AbstractCoreTest {
   }
 
   /**
+   * The creation path asks the same rule as {@code canCreateSubspace}, and
+   * answers it with the typed exception the form relies on: a non-member of
+   * the parent is refused before anything is written.
+   */
+  public void testCreationIsRefusedToANonMemberOfTheParent() {
+    SpaceException refusal = assertThrows(SpaceException.class,
+                                          () -> spaceService.createSpace(newSubspace("Foxtrot subspace"),
+                                                                         OUTSIDER,
+                                                                         null,
+                                                                         parentSpace.getSpaceId()));
+    assertEquals(Code.SUBSPACES_PERMISSIONS, refusal.getCode());
+  }
+
+  /**
+   * A parent whose template allows no sub-space template is not a parent
+   * space: creating under it is refused, as {@code canCreateSubspace} already
+   * answered ({@link #testCannotCreateSubspaceUnderATemplateAllowingNone()}).
+   */
+  public void testCreationIsRefusedUnderATemplateAllowingNone() {
+    withoutAllowedSubspaceTemplates(() -> {
+      SpaceException refusal = assertThrows(SpaceException.class,
+                                            () -> spaceService.createSpace(newSubspace("Foxtrot subspace"),
+                                                                           PARENT_MANAGER,
+                                                                           null,
+                                                                           parentSpace.getSpaceId()));
+      assertEquals(Code.SPACE_PERMISSION, refusal.getCode());
+    });
+  }
+
+  /**
+   * The global limit, counted over every sub-space of the parent, hidden ones
+   * included: four exist, so a limit of four refuses the fifth.
+   */
+  public void testCreationIsRefusedAtTheGlobalLimit() throws Exception {
+    parentTemplate.setSubspacesMaxLimit(4);
+    spaceTemplateStorage.updateSpaceTemplate(parentTemplate);
+    restartTransaction();
+    try {
+      SpaceException refusal = assertThrows(SpaceException.class,
+                                            () -> spaceService.createSpace(newSubspace("Foxtrot subspace"),
+                                                                           PARENT_MEMBER,
+                                                                           null,
+                                                                           parentSpace.getSpaceId()));
+      assertEquals(Code.SUBSPACES_LIMIT_REACHED, refusal.getCode());
+    } finally {
+      parentTemplate.setSubspacesMaxLimit(0);
+      spaceTemplateStorage.updateSpaceTemplate(parentTemplate);
+      restartTransaction();
+    }
+  }
+
+  /**
+   * The per-template limit, which only the creation path can check since it
+   * needs the chosen template: the four existing sub-spaces all carry the
+   * fixture's template, so a per-template limit of four refuses the fifth
+   * while the global limit stays unset.
+   */
+  public void testCreationIsRefusedAtThePerTemplateLimit() throws Exception {
+    List<String> allowed = parentTemplate.getAllowedSubspaceTemplates();
+    parentTemplate.setAllowedSubspaceTemplates(List.of(parentTemplate.getId() + ":4"));
+    spaceTemplateStorage.updateSpaceTemplate(parentTemplate);
+    restartTransaction();
+    try {
+      SpaceException refusal = assertThrows(SpaceException.class,
+                                            () -> spaceService.createSpace(newSubspace("Foxtrot subspace"),
+                                                                           PARENT_MEMBER,
+                                                                           null,
+                                                                           parentSpace.getSpaceId()));
+      assertEquals(Code.SUBSPACES_LIMIT_REACHED, refusal.getCode());
+    } finally {
+      parentTemplate.setAllowedSubspaceTemplates(allowed);
+      spaceTemplateStorage.updateSpaceTemplate(parentTemplate);
+      restartTransaction();
+    }
+  }
+
+  /**
    * Verifies the one hypothesis the O7 discussion rests on, before any
    * production code is changed: that the board's invited-user rule is
    * reachable <strong>without</strong> touching shared platform code.
@@ -424,6 +503,22 @@ public class SubspacesServiceTest extends AbstractCoreTest {
       parentTemplate.setAllowedSubspaceTemplates(allowed);
       spaceTemplateStorage.updateSpaceTemplate(parentTemplate);
     }
+  }
+
+  /**
+   * A sub-space as the creation form posts it, of the fixture's template: the
+   * mock template is the only one the container holds, and it is allowed under
+   * itself.
+   */
+  private Space newSubspace(String displayName) {
+    Space space = new Space();
+    space.setDisplayName(displayName);
+    space.setPrettyName(displayName.replace(' ', '_').toLowerCase());
+    space.setDescription(displayName);
+    space.setRegistration(Space.OPEN);
+    space.setVisibility(Space.PUBLIC);
+    space.setTemplateId(parentTemplate.getId());
+    return space;
   }
 
   public static class SpaceTemplateDAO extends GenericDAOJPAImpl<SpaceTemplateEntity, Long> {
