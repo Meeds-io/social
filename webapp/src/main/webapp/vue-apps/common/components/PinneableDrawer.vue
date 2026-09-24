@@ -147,7 +147,7 @@
         </v-list>
       </v-menu>
       <v-btn
-        v-else-if="allowExpand && !standalone"
+        v-else-if="allowExpand && !standalone && !isMobile"
         :title="expandTooltip"
         icon
         @click="toogleExpand">
@@ -208,8 +208,11 @@ export default {
     canDetach() {
       return !!this.provider && !!this.eligibility?.allowDetach;
     },
+    isMobile() {
+      return !!this.$vuetify?.breakpoint?.smAndDown;
+    },
     displayPlacementMenu() {
-      return !this.standalone && !this.placementDisabled && (this.canStick || this.canDetach);
+      return !this.isMobile && !this.standalone && !this.placementDisabled && (this.canStick || this.canDetach);
     },
     expandIcon() {
       return this.expandState && 'fas fa-compress-alt' || 'fas fa-expand-alt';
