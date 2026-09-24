@@ -44,6 +44,9 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
+import io.meeds.social.portlet.model.StoredSettings;
+import io.meeds.social.portlet.model.SubspaceItem;
+import io.meeds.social.portlet.model.SubspacesEnvelope;
 import io.meeds.social.util.JsonUtils;
 
 import javax.portlet.ActionRequest;
@@ -149,6 +152,57 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
   private static final List<String> STORED_PREFERENCES               = List.of(HEADER_TRANSLATIONS_PREFERENCE,
                                                                                SHOW_HIDDEN_SUBSPACES_PREFERENCE,
                                                                                SUBSPACES_LIMIT_PREFERENCE);
+
+  /**
+   * The stored number of rows, brought back inside
+   * {@link #MIN_SUBSPACES_LIMIT}..{@link #MAX_SUBSPACES_LIMIT}.
+   * <p>
+   * {@link #processAction} refuses a value outside those bounds, but it is
+   * not the only writer: a preference imported through the layout editor
+   * bypasses it entirely, so every <em>reader</em> clamps. This one is shared
+   * with the JSP rather than duplicated there, so the three places that read
+   * the preference cannot drift apart: an unclamped value feeds both the
+   * avatar resource's listing bound — where a large one is a big query on the
+   * render path and a negative one makes the Service throw
+   * {@code IllegalArgumentException}, which that method does not catch — and
+   * the envelope the widget re-seats its settings from, where a negative one
+   * makes the widget's own {@code slice} drop rows from the end.
+   *
+   * @param preferences the portlet preferences to read
+   * @return the stored limit, never outside the bounds the widget can render
+   */
+  public static int storedLimit(PortletPreferences preferences) {
+    return Math.min(MAX_SUBSPACES_LIMIT,
+                    Math.max(MIN_SUBSPACES_LIMIT,
+                             NumberUtils.toInt(preferences.getValue(SUBSPACES_LIMIT_PREFERENCE, null),
+                                               DEFAULT_SUBSPACES_LIMIT)));
+  }
+
+  /**
+   * Whether the page this portlet renders on hosts a space that may carry
+   * sub-spaces — the same question {@link #serveResource} answers, asked of
+   * the same {@link SpaceService} and resolved from the page, never from a
+   * request parameter.
+   * <p>
+   * Read by the JSP so that the widget is <em>not booted at all</em> outside a
+   * parent space: it used to boot everywhere, render its loading state and
+   * only then remove itself, which flashed a loading placeholder on every
+   * space that is not a parent one (PO feedback on EXO-89270).
+   * <p>
+   * Shared with the JSP the way {@link #storedLimit} is, rather than carried
+   * there as a render attribute: {@code GenericDispatchedViewPortlet.doView}
+   * copies <em>every</em> stored preference into a request attribute of the
+   * same name, after this class has had its turn, and a page editor may store
+   * a preference under any name at all
+   * ({@code PageLayoutService.updatePageApplicationPreferences}). No attribute
+   * name is therefore safe from being answered by a preference.
+   *
+   * @return {@code true} when the hosting space may carry sub-spaces
+   */
+  public static boolean isParentSpaceContext() {
+    Space space = SpaceUtils.getSpaceByContext();
+    return space != null && CommonsUtils.getService(SpaceService.class).isParentSpace(space);
+  }
 
   @Override
   public void processAction(ActionRequest request, ActionResponse response) throws IOException, PortletException {
@@ -423,37 +477,6 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
     response.getWriter().write(StringUtils.defaultString(message));
   }
 
-  /**
-   * What the widget renders from. {@code parentSpace} false means the widget
-   * hides its whole application: the other fields are then empty and no listing
-   * query ran.
-   * <p>
-   * {@code settings} is what the preferences <em>hold</em>, not what a client
-   * asked to store: it is how the drawer learns whether its save was applied.
-   * The action phase answers 200 whatever happens — a {@link PortletException}
-   * thrown by {@link #processAction} is rethrown by the portal's
-   * {@code UIPortletActionListener} and swallowed by
-   * {@code PortalRequestHandler}, which logs it and commits the response
-   * untouched — so the transport cannot tell a stored value from a refused
-   * one, and only reading the preferences back can.
-   */
-  public record SubspacesEnvelope(boolean parentSpace,
-                                  boolean canManageSpace,
-                                  boolean canCreateSubspace,
-                                  List<SubspaceItem> subspaces,
-                                  StoredSettings settings) {
-    public static SubspacesEnvelope notParentSpace() {
-      return new SubspacesEnvelope(false, false, false, Collections.emptyList(), null);
-    }
-  }
-
-  /**
-   * The three preferences as they are stored, echoed to the widget so that a
-   * save can be confirmed against them.
-   */
-  public record StoredSettings(Map<String, Object> headerTranslations, boolean showHiddenSubspaces, int subspacesLimit) {
-  }
-
   private StoredSettings storedSettings(PortletPreferences preferences) {
     return new StoredSettings(storedHeaderTranslations(preferences),
                               Boolean.parseBoolean(preferences.getValue(SHOW_HIDDEN_SUBSPACES_PREFERENCE, "false")),
@@ -476,74 +499,6 @@ public class SubspacesListPortlet extends GenericDispatchedViewPortlet {
       LOG.debug("Unreadable stored header translations, answering none", e);
       return Collections.emptyMap();
     }
-  }
-
-  /**
-   * The stored number of rows, brought back inside
-   * {@link #MIN_SUBSPACES_LIMIT}..{@link #MAX_SUBSPACES_LIMIT}.
-   * <p>
-   * {@link #processAction} refuses a value outside those bounds, but it is
-   * not the only writer: a preference imported through the layout editor
-   * bypasses it entirely, so every <em>reader</em> clamps. This one is shared
-   * with the JSP rather than duplicated there, so the three places that read
-   * the preference cannot drift apart: an unclamped value feeds both the
-   * avatar resource's listing bound — where a large one is a big query on the
-   * render path and a negative one makes the Service throw
-   * {@code IllegalArgumentException}, which that method does not catch — and
-   * the envelope the widget re-seats its settings from, where a negative one
-   * makes the widget's own {@code slice} drop rows from the end.
-   *
-   * @param preferences the portlet preferences to read
-   * @return the stored limit, never outside the bounds the widget can render
-   */
-  public static int storedLimit(PortletPreferences preferences) {
-    return Math.min(MAX_SUBSPACES_LIMIT,
-                    Math.max(MIN_SUBSPACES_LIMIT,
-                             NumberUtils.toInt(preferences.getValue(SUBSPACES_LIMIT_PREFERENCE, null),
-                                               DEFAULT_SUBSPACES_LIMIT)));
-  }
-
-  /**
-   * One listed sub-space. {@code isMember} and {@code isInvited} carry the
-   * viewer's relationship to it for the hidden-space rendering only; they are
-   * not access decisions, which the Service already made by returning the
-   * space at all. Both are needed because the space REST endpoints serve a
-   * member <em>and</em> an invited user alike, so a row is only rendered
-   * anonymously when the viewer is neither.
-   */
-  public record SubspaceItem(String id,
-                             String displayName,
-                             String prettyName,
-                             String avatarUrl,
-                             String visibility,
-                             boolean isMember,
-                             boolean isInvited) {
-  }
-
-  /**
-   * Whether the page this portlet renders on hosts a space that may carry
-   * sub-spaces — the same question {@link #serveResource} answers, asked of
-   * the same {@link SpaceService} and resolved from the page, never from a
-   * request parameter.
-   * <p>
-   * Read by the JSP so that the widget is <em>not booted at all</em> outside a
-   * parent space: it used to boot everywhere, render its loading state and
-   * only then remove itself, which flashed a loading placeholder on every
-   * space that is not a parent one (PO feedback on EXO-89270).
-   * <p>
-   * Shared with the JSP the way {@link #storedLimit} is, rather than carried
-   * there as a render attribute: {@code GenericDispatchedViewPortlet.doView}
-   * copies <em>every</em> stored preference into a request attribute of the
-   * same name, after this class has had its turn, and a page editor may store
-   * a preference under any name at all
-   * ({@code PageLayoutService.updatePageApplicationPreferences}). No attribute
-   * name is therefore safe from being answered by a preference.
-   *
-   * @return {@code true} when the hosting space may carry sub-spaces
-   */
-  public static boolean isParentSpaceContext() {
-    Space space = SpaceUtils.getSpaceByContext();
-    return space != null && CommonsUtils.getService(SpaceService.class).isParentSpace(space);
   }
 
   private boolean canModifySettings(String username) {
