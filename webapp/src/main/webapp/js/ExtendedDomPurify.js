@@ -28,6 +28,23 @@
         return decodedUrl;
       });
     }
+  // The hosts come from the io.meeds.sanitizer.iframe.allowedHosts property,
+  // exposed by the social portal head (same list as the server-side
+  // HTMLSanitizer). Without it, no iframe is trusted.
+  function isAllowedIframeSrc(src) {
+    const allowedHosts = window.eXo?.env?.portal?.iframeAllowedHosts;
+    if (!src?.trim() || !Array.isArray(allowedHosts)) {
+      return false;
+    }
+    try {
+      // https, or protocol-relative as iframely's own iframe is
+      const url = new URL(src.trim(), window.location.href);
+      return (url.protocol === 'https:' || src.trim().startsWith('//'))
+        && allowedHosts.includes(url.hostname);
+    } catch (e) {
+      return false;
+    }
+  }
   // Registered once, when the module loads: registering them after each
   // sanitize call left the first content of the page unprocessed and piled
   // up a new copy of each hook on every call (EXO-90272).
@@ -53,13 +70,11 @@
         }
       }
     });
-    DOMPurify.addHook('uponSanitizeElement', function(node) {
-      if (node.tagName === 'iframe') {
-        const src = node.getAttribute('src') || '';
-        if (!src.startsWith('https://www.youtube.com/embed/')
-          || !src.startsWith('https://player.vimeo.com/video/') || !src.startsWith('https://www.dailymotion.com/embed/video/')) {
-          return node.parentNode?.removeChild(node);
-        }
+    // DOMPurify passes the lower-cased tag name in data: node.tagName is
+    // upper-case in an HTML document
+    DOMPurify.addHook('uponSanitizeElement', function(node, data) {
+      if (data.tagName === 'iframe' && !isAllowedIframeSrc(node.getAttribute('src'))) {
+        return node.parentNode?.removeChild(node);
       }
     });
   }
