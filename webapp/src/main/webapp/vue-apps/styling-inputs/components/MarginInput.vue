@@ -20,7 +20,7 @@
 -->
 <template>
   <div>
-    <div class="d-flex align-center mb-2">
+    <div class="d-flex align-center">
       <div
         :class="textBold && 'font-weight-bold' || 'text-header'"
         class="me-auto">
