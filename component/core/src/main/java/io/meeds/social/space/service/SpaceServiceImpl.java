@@ -1663,36 +1663,20 @@ public class SpaceServiceImpl implements SpaceService {
             .orElseThrow();
   }
 
+  /**
+   * The creation-time rule for a sub-space: the shared prerequisites of
+   * {@link #checkSubspaceCreationPrerequisites}, then the per-template rule
+   * that only a chosen template can be checked against &mdash; the template is
+   * one the parent allows, and its own limit is not reached.
+   */
   @SneakyThrows
   private void checkSubspaceCreationAllowed(Space space, long parentSpaceId, String username) {
     if (parentSpaceId <= 0) {
       return;
     }
     Space parentSpace = getSpaceById(parentSpaceId);
-    if (!isMember(parentSpace, username) && !isSuperManager(parentSpace, username)) {
-      throw new SpaceException(Code.SUBSPACES_PERMISSIONS,
-                               String.format("User %s isn't allowed to create subspace under parent space with id %s",
-                                             username,
-                                             parentSpaceId));
-    }
-    SpaceTemplate parentTemplate = spaceTemplateService.getSpaceTemplate(parentSpace.getTemplateId());
-    if (parentTemplate == null) {
-      throw new SpaceException(Code.UNKNOWN_SPACE_TEMPLATE,
-                               String.format("Unknown parent space template for space %s", parentSpace.getDisplayName()));
-    }
-
-    if (isSubspacesMaxLimitReached(parentSpaceId, parentTemplate)) {
-      throw new SpaceException(Code.SUBSPACES_LIMIT_REACHED,
-                               String.format("Cannot create more subspaces under '%s' (max %d reached)",
-                                             parentSpace.getDisplayName(),
-                                             parentTemplate.getSubspacesMaxLimit()));
-    }
-
+    SpaceTemplate parentTemplate = checkSubspaceCreationPrerequisites(parentSpace, parentSpaceId, username);
     List<String> allowedSubspaceTemplates = parentTemplate.getAllowedSubspaceTemplates();
-
-    if (allowedSubspaceTemplates == null || allowedSubspaceTemplates.isEmpty()) {
-      return;
-    }
 
     long templateId = space.getTemplateId();
     String matchedRule =
@@ -1815,17 +1799,8 @@ public class SpaceServiceImpl implements SpaceService {
     if (parentSpace == null || StringUtils.isBlank(username)) {
       return false;
     }
-    if (!isMember(parentSpace, username) && !isSuperManager(parentSpace, username)) {
-      return false;
-    }
-    SpaceTemplate parentTemplate = getSpaceTemplateService().getSpaceTemplate(parentSpace.getTemplateId());
-    if (parentTemplate == null || CollectionUtils.isEmpty(parentTemplate.getAllowedSubspaceTemplates())) {
-      return false;
-    }
     try {
-      if (isSubspacesMaxLimitReached(parentSpace.getSpaceId(), parentTemplate)) {
-        return false;
-      }
+      SpaceTemplate parentTemplate = checkSubspaceCreationPrerequisites(parentSpace, parentSpace.getSpaceId(), username);
       // the creation path refuses with SPACE_PERMISSION when no allowed
       // sub-space template is usable by the user: the same question, asked
       // before the form is offered
@@ -1845,6 +1820,51 @@ public class SpaceServiceImpl implements SpaceService {
     }
     SpaceTemplate spaceTemplate = getSpaceTemplateService().getSpaceTemplate(space.getTemplateId());
     return spaceTemplate != null && CollectionUtils.isNotEmpty(spaceTemplate.getAllowedSubspaceTemplates());
+  }
+
+  /**
+   * The one rule both callers ask before a sub-space is created under a parent,
+   * written once so that the button and the form cannot disagree: the creation
+   * path ({@link #checkSubspaceCreationAllowed}) lets the typed exception out,
+   * {@link #canCreateSubspace} turns it into {@code false}.
+   *
+   * @return the parent's template, for the per-template checks that follow
+   * @throws SpaceException {@link Code#SUBSPACES_PERMISSIONS} when the user is
+   *           neither a member of the parent nor a super manager;
+   *           {@link Code#UNKNOWN_SPACE_TEMPLATE} when the parent's template
+   *           is unknown; {@link Code#SPACE_PERMISSION} when that template
+   *           allows no sub-space template at all, so the parent is not a
+   *           parent space; {@link Code#SUBSPACES_LIMIT_REACHED} when the
+   *           template's global limit is reached, counted over every sub-space
+   *           of the parent, hidden ones included
+   */
+  private SpaceTemplate checkSubspaceCreationPrerequisites(Space parentSpace,
+                                                           long parentSpaceId,
+                                                           String username) throws SpaceException {
+    if (parentSpace == null || (!isMember(parentSpace, username) && !isSuperManager(parentSpace, username))) {
+      throw new SpaceException(Code.SUBSPACES_PERMISSIONS,
+                               String.format("User %s isn't allowed to create subspace under parent space with id %s",
+                                             username,
+                                             parentSpaceId));
+    }
+    SpaceTemplate parentTemplate = getSpaceTemplateService().getSpaceTemplate(parentSpace.getTemplateId());
+    if (parentTemplate == null) {
+      throw new SpaceException(Code.UNKNOWN_SPACE_TEMPLATE,
+                               String.format("Unknown parent space template for space %s", parentSpace.getDisplayName()));
+    }
+    if (CollectionUtils.isEmpty(parentTemplate.getAllowedSubspaceTemplates())) {
+      throw new SpaceException(Code.SPACE_PERMISSION,
+                               String.format("Space template '%s' of space '%s' allows no subspace",
+                                             parentTemplate.getId(),
+                                             parentSpace.getDisplayName()));
+    }
+    if (isSubspacesMaxLimitReached(parentSpaceId, parentTemplate)) {
+      throw new SpaceException(Code.SUBSPACES_LIMIT_REACHED,
+                               String.format("Cannot create more subspaces under '%s' (max %d reached)",
+                                             parentSpace.getDisplayName(),
+                                             parentTemplate.getSubspacesMaxLimit()));
+    }
+    return parentTemplate;
   }
 
   /**
