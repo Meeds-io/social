@@ -18,10 +18,12 @@
  */
 package io.meeds.social.space.template.storage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Pageable;
 
@@ -31,9 +33,19 @@ import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
 
+/**
+ * One default template (id 2), which every legacy call reads and writes as
+ * before: {@link #getSpaceTemplate(long)} answers it for id 0 or 2, and a
+ * create or update carrying no other id overwrites it. A template created with
+ * its own id is held beside it, listed after it, and removed by
+ * {@link #deleteSpaceTemplate(long)} — for the tests that need a parent
+ * template allowing a distinct child template.
+ */
 public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
 
-  private SpaceTemplate     spaceTemplate;
+  private SpaceTemplate                  spaceTemplate;
+
+  private final Map<Long, SpaceTemplate> otherTemplates = new LinkedHashMap<>();
 
   private static final long SPACE_CATEGORY_ID = 2l;
 
@@ -67,17 +79,23 @@ public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
 
   @Override
   public List<SpaceTemplate> getSpaceTemplates(Pageable pageable) {
-    return Collections.singletonList(spaceTemplate);
+    List<SpaceTemplate> templates = new ArrayList<>();
+    templates.add(spaceTemplate);
+    templates.addAll(otherTemplates.values());
+    return templates;
   }
 
   @Override
   public List<SpaceTemplate> getEnabledSpaceTemplates(Pageable pageable) {
-    return Collections.singletonList(spaceTemplate);
+    return getSpaceTemplates(pageable).stream().filter(SpaceTemplate::isEnabled).toList();
   }
 
   @Override
   public SpaceTemplate getSpaceTemplate(long id) {
-    return id == 0 || id == spaceTemplate.getId() ? spaceTemplate : null;
+    if (id == 0 || id == spaceTemplate.getId()) {
+      return spaceTemplate;
+    }
+    return otherTemplates.get(id);
   }
 
   @Override
@@ -87,14 +105,22 @@ public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
 
   @Override
   public SpaceTemplate updateSpaceTemplate(SpaceTemplate spaceTemplate) {
-    spaceTemplate.setId(this.spaceTemplate.getId());
-    this.spaceTemplate = spaceTemplate;
+    if (isOtherTemplate(spaceTemplate)) {
+      otherTemplates.put(spaceTemplate.getId(), spaceTemplate);
+    } else {
+      spaceTemplate.setId(this.spaceTemplate.getId());
+      this.spaceTemplate = spaceTemplate;
+    }
     return spaceTemplate;
   }
 
   @Override
   public void deleteSpaceTemplate(long id) {
-    // NoOp
+    otherTemplates.remove(id);
+  }
+
+  private boolean isOtherTemplate(SpaceTemplate template) {
+    return template.getId() > 0 && template.getId() != spaceTemplate.getId();
   }
 
 }

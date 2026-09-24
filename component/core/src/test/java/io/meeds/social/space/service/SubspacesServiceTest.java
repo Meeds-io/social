@@ -77,6 +77,8 @@ public class SubspacesServiceTest extends AbstractCoreTest {
 
   private SpaceTemplate        parentTemplate;
 
+  private SpaceTemplate        childTemplate;
+
   private Space                parentSpace;
 
   private Space                otherParentSpace;
@@ -91,7 +93,8 @@ public class SubspacesServiceTest extends AbstractCoreTest {
     createIdentity(PARENT_MEMBER);
     createIdentity(OUTSIDER);
 
-    parentTemplate = useMockTemplateAsParentTemplate();
+    childTemplate = createChildTemplate();
+    parentTemplate = useMockTemplateAsParentTemplate(childTemplate);
 
     parentSpace = saveSpace("Parent space", Space.PUBLIC, null, PARENT_MANAGER, PARENT_MEMBER);
     otherParentSpace = saveSpace("Other parent space", Space.PUBLIC, null, PARENT_MANAGER);
@@ -107,6 +110,16 @@ public class SubspacesServiceTest extends AbstractCoreTest {
     // A sub-space of another parent: it must never leak into this parent's list
     saveSpace("Echo subspace", Space.PUBLIC, otherParentSpace.getSpaceId(), PARENT_MANAGER);
     restartTransaction();
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    // the mock storage is one container singleton shared by every class of
+    // the suite: the child template must not outlive the test that made it
+    if (childTemplate != null) {
+      spaceTemplateStorage.deleteSpaceTemplate(childTemplate.getId());
+    }
+    super.tearDown();
   }
 
   public void testListsOnlyTheSubspacesOfThatParent() throws Exception {
@@ -375,12 +388,12 @@ public class SubspacesServiceTest extends AbstractCoreTest {
   /**
    * The per-template limit, which only the creation path can check since it
    * needs the chosen template: the four existing sub-spaces all carry the
-   * fixture's template, so a per-template limit of four refuses the fifth
-   * while the global limit stays unset.
+   * child template, so a per-template limit of four refuses the fifth while
+   * the global limit stays unset.
    */
   public void testCreationIsRefusedAtThePerTemplateLimit() throws Exception {
     List<String> allowed = parentTemplate.getAllowedSubspaceTemplates();
-    parentTemplate.setAllowedSubspaceTemplates(List.of(parentTemplate.getId() + ":4"));
+    parentTemplate.setAllowedSubspaceTemplates(List.of(childTemplate.getId() + ":4"));
     spaceTemplateStorage.updateSpaceTemplate(parentTemplate);
     restartTransaction();
     try {
@@ -465,14 +478,18 @@ public class SubspacesServiceTest extends AbstractCoreTest {
   }
 
   /**
-   * The container replaces {@code SpaceTemplateStorage} with a mock holding one
-   * single template, so the fixture configures that template rather than
-   * creating its own: a row written through the DAO is simply not visible to
-   * the Service. A database row is still needed, because SOC_SPACES carries a
-   * foreign key to SOC_SPACE_TEMPLATES.
+   * The container replaces {@code SpaceTemplateStorage} with
+   * {@code SpaceTemplateStorageMock}, whose default template is what every
+   * other class of the suite reads, so the fixture configures that template as
+   * the parent rather than creating its own. A database row is still needed,
+   * because SOC_SPACES carries a foreign key to SOC_SPACE_TEMPLATES.
+   * <p>
+   * The parent allows one distinct child template, never itself: since
+   * EXO-89317 the platform refuses a template as a sub-space template of
+   * itself, and a fixture the platform cannot save proves nothing.
    */
   @SneakyThrows
-  private SpaceTemplate useMockTemplateAsParentTemplate() {
+  private SpaceTemplate useMockTemplateAsParentTemplate(SpaceTemplate child) {
     SpaceTemplate template = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged()).getFirst();
     SpaceTemplateDAO dao = new SpaceTemplateDAO();
     if (dao.find(template.getId()) == null) {
@@ -484,12 +501,29 @@ public class SubspacesServiceTest extends AbstractCoreTest {
       }
       restartTransaction();
     }
-    // a template that allows sub-spaces of its own kind: one template is all
-    // the mock can hold, and the rule under test is "allows at least one"
-    template.setAllowedSubspaceTemplates(List.of(template.getId() + ":0"));
+    template.setAllowedSubspaceTemplates(List.of(child.getId() + ":0"));
     template.setPermissions(List.of("Everyone"));
     template.setSubspacesMaxLimit(0);
     return spaceTemplateStorage.updateSpaceTemplate(template);
+  }
+
+  /**
+   * The child template every sub-space of the fixture carries: a copy of the
+   * default template under a row of its own (the DAO gives it its id, so the
+   * foreign key from SOC_SPACES holds), allowing no sub-space itself, held by
+   * the mock beside the default until {@link #tearDown()}.
+   */
+  @SneakyThrows
+  private SpaceTemplate createChildTemplate() {
+    SpaceTemplate template = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged()).getFirst();
+    SpaceTemplateEntity entity = EntityMapper.toEntity(template);
+    entity.setId(null);
+    entity.setAllowedSubspaceTemplates(null);
+    entity.setSubspacesMaxLimit(0);
+    SpaceTemplate child = EntityMapper.fromEntity(new SpaceTemplateDAO().create(entity));
+    restartTransaction();
+    child.setPermissions(List.of("Everyone"));
+    return spaceTemplateStorage.createSpaceTemplate(child);
   }
 
   @SneakyThrows
@@ -506,9 +540,8 @@ public class SubspacesServiceTest extends AbstractCoreTest {
   }
 
   /**
-   * A sub-space as the creation form posts it, of the fixture's template: the
-   * mock template is the only one the container holds, and it is allowed under
-   * itself.
+   * A sub-space as the creation form posts it: of the child template, the one
+   * the parent allows.
    */
   private Space newSubspace(String displayName) {
     Space space = new Space();
@@ -517,7 +550,7 @@ public class SubspacesServiceTest extends AbstractCoreTest {
     space.setDescription(displayName);
     space.setRegistration(Space.OPEN);
     space.setVisibility(Space.PUBLIC);
-    space.setTemplateId(parentTemplate.getId());
+    space.setTemplateId(childTemplate.getId());
     return space;
   }
 
@@ -531,7 +564,7 @@ public class SubspacesServiceTest extends AbstractCoreTest {
     space.setRegistration(Space.OPEN);
     space.setDescription(displayName);
     space.setVisibility(visibility);
-    space.setTemplateId(parentTemplate.getId());
+    space.setTemplateId(parentSpaceId == null ? parentTemplate.getId() : childTemplate.getId());
     space.setGroupId("/spaces/" + space.getPrettyName());
     space.setUrl(space.getPrettyName());
     space.setManagers(new String[] { members[0] });
