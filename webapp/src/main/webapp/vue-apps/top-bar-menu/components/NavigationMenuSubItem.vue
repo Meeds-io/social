@@ -34,7 +34,7 @@
       <v-menu
         v-model="showMenu"
         rounded
-        :content-class="isTopBarElement && 'layout-top-bar' || ''"
+        content-class="topBar-navigation-drop-menu topBar-navigation-drop-sub-menu"
         :position-x="positionX"
         :position-y="positionY"
         transition="slide-x-reverse-transition"
@@ -139,9 +139,6 @@ export default {
     isSelected() {
       return this.navigationNodeUri === this.selectedPath;
     },
-    isTopBarElement() {
-      return this.$root.isTopBarElement;
-    }
   },
   watch: {
     isSelected: {
