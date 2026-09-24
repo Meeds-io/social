@@ -24,9 +24,7 @@
     :loading="loading"
     :right="!$vuetify.rtl">
     <template slot="title">
-      <span class="text-color ma-auto">
-        {{ $t('subspacesList.settings.drawer.title') }}
-      </span>
+      <span class="text-color ma-auto">{{ $t('subspacesList.settings.drawer.title') }}</span>
     </template>
     <template slot="content">
       <div class="d-flex flex-column pa-4">
@@ -44,9 +42,7 @@
           </template>
         </translation-text-field>
         <div class="d-flex align-center justify-space-between mt-6">
-          <span class="text-header my-auto">
-            {{ $t('subspacesList.settings.showHiddenSubspaces.label') }}
-          </span>
+          <span class="text-header my-auto">{{ $t('subspacesList.settings.showHiddenSubspaces.label') }}</span>
           <v-switch
             v-model="settings.showHiddenSubspaces"
             :aria-label="$t('subspacesList.settings.showHiddenSubspaces.label')"
@@ -55,9 +51,7 @@
             hide-details />
         </div>
         <div class="d-flex align-center justify-space-between mt-6">
-          <span class="text-header my-auto">
-            {{ $t('subspacesList.settings.limit.label') }}
-          </span>
+          <span class="text-header my-auto">{{ $t('subspacesList.settings.limit.label') }}</span>
           <number-input
             :key="openCount"
             v-model="settings.subspacesLimit"
@@ -71,9 +65,7 @@
     </template>
     <template slot="footer">
       <div class="d-flex justify-end">
-        <v-btn
-          class="btn me-2"
-          @click="close">
+        <v-btn class="btn me-2" @click="close">
           {{ $t('subspacesList.settings.drawer.cancel') }}
         </v-btn>
         <v-btn
@@ -88,39 +80,25 @@
   </exo-drawer>
 </template>
 <script>
-/**
- * The three preferences the portlet stores. The editable copy carries only
- * these, so the action URL receives nothing else — the server ignores any
- * other name anyway, but the URL-encoded body stays what the portlet reads.
- */
+// the three preferences the portlet stores: the posted body carries no other name
 const PREFERENCE_NAMES = ['headerTranslations', 'showHiddenSubspaces', 'subspacesLimit'];
 
 export default {
   props: {
-    /**
-     * Reloads the widget from the portlet resource and re-seats
-     * {@code $root.settings} on the stored preferences, asking for the number
-     * of rows given as its argument. Awaited after a save, because it is what
-     * tells whether the save was applied.
-     *
-     * The default is the function itself, not a factory: Vue 2 only calls a
-     * default when the declared type is not Function.
-     */
+    // reloads the widget for the given number of rows and re-seats
+    // $root.settings on the stored preferences: awaited after a save, since it
+    // tells whether the save was applied (Vue 2 calls no factory for a Function)
     refresh: {
       type: Function,
       default: () => Promise.resolve(),
     },
   },
   data: () => ({
-    // the same bounds as SubspacesListPortlet.MIN/MAX_SUBSPACES_LIMIT: the
-    // portlet refuses a value outside them with a PortletException the
-    // portal answers with a 200, so the drawer must not let one through.
-    // The shared <number-input> steps within them (no free typing, as
-    // designed); isValidLimit is the guard behind it
+    // SubspacesListPortlet.MIN/MAX_SUBSPACES_LIMIT: a value outside them is a
+    // PortletException the portal answers with a 200, so none may go through
     minLimit: 1,
     maxLimit: 25,
-    // the number input reads its value once, at creation: re-keyed per open
-    // so a reopened drawer shows the current limit, not the first one
+    // <number-input> reads its value once: re-keyed per open
     openCount: 0,
     settings: {
       headerTranslations: {},
@@ -134,15 +112,8 @@ export default {
     changed() {
       return JSON.stringify(this.settings) !== JSON.stringify(this.originalSettings);
     },
-    /**
-     * An empty header is a valid choice, not an incomplete form: the board
-     * gives the header a default value rather than making it mandatory, and
-     * the widget falls back to the 'Subspaces' label when the translations
-     * hold nothing. Only the limit can actually be out of what the portlet
-     * accepts.
-     *
-     * @returns {boolean} whether the form may be posted
-     */
+    // an empty header is a valid choice (the widget has a default label):
+    // only the limit can be out of what the portlet accepts
     canSave() {
       return !this.loading
         && this.changed
@@ -154,10 +125,9 @@ export default {
       return Number.isInteger(value) && value >= this.minLimit && value <= this.maxLimit;
     },
     /**
-     * Opens the drawer on a copy of the current preferences. An empty header
-     * translation is seeded with the default label in the portal's default
-     * language, so the field shows the value the widget actually renders and
-     * the translate option has a base to translate from.
+     * Opens the drawer on a copy of the current preferences; an empty header
+     * is seeded with the default label in the default language, so the field
+     * shows what the widget renders and the translate option has a base.
      *
      * @returns {void}
      */
@@ -179,19 +149,13 @@ export default {
       this.$refs.drawer.close();
     },
     /**
-     * Posts the three preferences, then reloads the widget and reports what
-     * the server actually stored.
+     * Posts the three preferences, reloads the widget and reports what the
+     * server stored. The action URL cannot say so: a refusal by the portlet
+     * (role revoked, value rejected) is a PortletException the portal answers
+     * with a 200. The snackbar follows the reloaded preferences, never the
+     * HTTP status.
      *
-     * The action URL cannot be trusted to say so: a refusal by the portlet
-     * (role revoked since the envelope was computed, or a value the portlet
-     * rejects) is a PortletException the portal logs and answers with a 200,
-     * so a save that changed nothing is indistinguishable from a save that
-     * worked — at the transport. The reload's envelope carries the stored
-     * preferences, and those are compared with what was posted: the snackbar
-     * follows the preferences, never the HTTP status.
-     *
-     * @returns {Promise<void>|undefined} the save request, or nothing when the
-     *          form is not savable
+     * @returns {Promise<void>|undefined} the save request, if the form is savable
      */
     save() {
       if (!this.canSave) {
@@ -201,12 +165,9 @@ export default {
       const toSave = {};
       PREFERENCE_NAMES.forEach(name => toSave[name] = this.settings[name]);
       return this.$subspacesListService.saveSettings(this.$root.settings.saveSettingsUrl, toSave)
-        // the posted limit, not the stored one: the reload must bring back
-        // enough rows for the limit this save is establishing
+        // the posted limit: the reload must bring back enough rows for it
         .then(() => this.refresh(toSave.subspacesLimit))
         .then(() => {
-          // $root.settings now holds what the reload read back from the
-          // preferences, whatever was posted
           if (this.isStored(toSave)) {
             this.$root.$emit('alert-message', this.$t('subspacesList.settings.saved.success'), 'success');
             this.close();
@@ -217,25 +178,13 @@ export default {
         .catch(() => this.$root.$emit('alert-message', this.$t('subspacesList.settings.saved.error'), 'error'))
         .finally(() => this.loading = false);
     },
-    /**
-     * Whether the reloaded preferences are the ones that were posted.
-     *
-     * @param {object} toSave the posted preference values, by name
-     * @returns {boolean} true when the server stored every one of them
-     */
+    // whether the server stored every posted preference
     isStored(toSave) {
       const stored = this.$root.settings || {};
       return PREFERENCE_NAMES.every(name => this.canonical(stored[name]) === this.canonical(toSave[name]));
     },
-    /**
-     * A value as a string that does not depend on key order: the stored
-     * translations come back from a Java map, whose iteration order is not
-     * the one they were posted in, and a plain JSON.stringify would then call
-     * an applied save a failure.
-     *
-     * @param {*} value the value to render comparable
-     * @returns {string} its order-independent representation
-     */
+    // a key-order-independent rendering: the stored translations come back
+    // from a Java map in another order than they were posted
     canonical(value) {
       if (value === null || typeof value !== 'object' || Array.isArray(value)) {
         return JSON.stringify(value);

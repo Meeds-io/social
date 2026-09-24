@@ -25,62 +25,15 @@
         :title="headerTitle"
         :loading="$root.loading"
         extra-class="application-body">
-        <!-- The header affordance every widget of the dashboard shares, copied
-             from the sibling spaces widget (analytics -> SpacesListWidget.vue):
-             the 'see all' action reads as a label until the widget is hovered
-             by someone who can edit it, and then becomes an icon so the cog can
-             sit beside it. A viewer who cannot manage the space never sees the
-             cog and keeps the label. -->
-        <template v-if="canManageSpace || hasMore || (canCreateSubspace && hasSubspaces)" #action>
-          <div class="d-flex align-center justify-center">
-            <!-- The 'add a subspace' option, before 'see all', for a
-                 viewer the server says may create one. Shown on hover like the
-                 cog, but on plain hover: creating needs parent membership, not
-                 management, so a member who is not a manager gets it too. The
-                 shared button opens the space form on this parent, which then
-                 navigates to the new space — no refresh to wire here.
-                 Mounted on first hover rather than hidden: the button fetches
-                 the space templates in its own init, and a v-show would run
-                 that on every page view for every member who may create. Its
-                 results are cached on $root, so re-mounting costs nothing.
-                 Listed state only, as the board words it: with no subspace yet
-                 the body already carries the one create button, and a second
-                 entry in the header would offer the same form twice. -->
-            <v-fab-transition hide-on-leave>
-              <space-creation-button
-                v-if="canCreateSubspace && hasSubspaces && hover"
-                :parent-space-id="$root.spaceId"
-                :display-label="false"
-                :icon-size="18"
-                color="primary"
-                icon
-                small
-                require-form-drawer />
-            </v-fab-transition>
-            <v-btn
-              v-if="hasMore"
-              :icon="hoverEdit"
-              :text="!hoverEdit"
-              :title="hoverEdit && $t('Widget.label.seeAll') || null"
-              color="primary"
-              small
-              link
-              @click="openSeeAllDrawer">
-              <v-icon v-if="hoverEdit" size="18">fa-external-link-alt</v-icon>
-              <span v-else class="text-font-size text-none">{{ $t('Widget.label.seeAll') }}</span>
-            </v-btn>
-            <v-fab-transition hide-on-leave>
-              <v-btn
-                v-if="canManageSpace"
-                v-show="hoverEdit"
-                :title="$t('subspacesList.settings.drawer.title')"
-                small
-                icon
-                @click="openSettingsDrawer">
-                <v-icon size="18">fa-cog</v-icon>
-              </v-btn>
-            </v-fab-transition>
-          </div>
+        <template v-if="hasHeaderActions" #action>
+          <subspaces-list-header-actions
+            :hover="hover"
+            :can-manage-space="canManageSpace"
+            :can-create-subspace="canCreateSubspace"
+            :has-subspaces="hasSubspaces"
+            :has-more="hasMore"
+            @see-all="openSeeAllDrawer"
+            @settings="openSettingsDrawer" />
         </template>
         <template #default>
           <div v-if="hasSubspaces" class="d-flex flex-column">
@@ -117,24 +70,19 @@
 <script>
 export default {
   data: () => ({
-    // the render phase already answered true — the widget is not booted
-    // otherwise — so this tracks the second answer only: a space that stopped
-    // being a parent between render and fetch, or a listing the viewer may not
-    // read
+    // the render phase already answered true, or the widget is not booted:
+    // this tracks the second answer only (a space that stopped being a parent
+    // between render and fetch, or a listing the viewer may not read)
     parentSpace: null,
-    // whether that first answer has arrived. The widget renders its loading
-    // state until it does — the empty state stays out, it would otherwise
-    // read as 'no subspace' before anything was asked — and then either
-    // renders the list or removes itself
+    // the empty state waits for the first answer, or it would read as 'no
+    // subspace' before anything was asked
     loaded: false,
     canCreateSubspace: false,
     canManageSpace: false,
     subspaces: [],
     hover: false,
-    // the drawers are mounted on first use only, and kept from then on: most
-    // viewers never manage the space and never see the cog, most parents have
-    // fewer sub-spaces than the limit, and tearing a drawer down on close
-    // would cut its slide-out short
+    // mounted on first use and kept: most viewers never see the cog, most
+    // parents fit the limit, and a teardown on close would cut the slide-out
     settingsDrawer: false,
     seeAllDrawer: false,
   }),
@@ -146,44 +94,30 @@ export default {
       return this.subspaces.length > 0;
     },
     /**
-     * Whether the header shows its editing affordance: the same rule the
-     * sibling spaces widget uses (hover and may edit). It gates both the cog
-     * and the switch of the 'see all' action from a label to an icon, so the
-     * two never half-appear.
+     * Whether the header has an action to show at all; the group itself
+     * decides which ones, from the same flags.
      *
-     * @returns {boolean} whether the widget is hovered by someone who may
-     *          manage it
+     * @returns {boolean} whether the action slot is rendered
      */
-    hoverEdit() {
-      return this.hover && this.canManageSpace;
+    hasHeaderActions() {
+      return this.canManageSpace || this.hasMore || (this.canCreateSubspace && this.hasSubspaces);
     },
     /**
-     * Whether the parent has more sub-spaces than the widget shows, which is
-     * what offers the 'see all' action (board US01.05).
-     *
+     * Whether a row was left out of the widget body, which offers 'see all'.
      * Derived from the extra row the call asks for, never from a count: the
      * visible-spaces count filters membership differently from the listing
-     * (MEMBER only, against MEMBER and INVITED), so a count would disagree
-     * with this very list for a hidden sub-space the viewer is only invited
-     * to.
+     * (MEMBER only, against MEMBER and INVITED) and would disagree with this
+     * very list. A limit raised by another manager between the page render
+     * and the call leaves the action hidden until the next page load.
      *
-     * Derived from the rows the last call asked for: a limit raised by another
-     * manager between the page render and that call leaves the action hidden
-     * until the next page load, since the call asked for the older, smaller
-     * number of rows.
-     *
-     * @returns {boolean} whether a row was left out of the widget body
+     * @returns {boolean} whether the parent has more sub-spaces than shown
      */
     hasMore() {
       return this.subspaces.length > this.$root.settings.subspacesLimit;
     },
     /**
-     * The call asks for one item more than the widget shows, so that the
-     * 'see more' action can be derived from the extra row rather than from a
-     * count query that would not agree with the list. Only the first
-     * subspacesLimit items are rendered here.
-     *
-     * @returns {Array} the sub-spaces the widget body shows
+     * @returns {Array} the first subspacesLimit rows; the extra one only
+     *          feeds hasMore
      */
     displayedSubspaces() {
       return this.subspaces.slice(0, this.$root.settings.subspacesLimit);
@@ -218,17 +152,14 @@ export default {
     },
     /**
      * Reloads the envelope and re-seats the widget on it, preferences
-     * included: the envelope's settings are what the portlet preferences
-     * hold, so they are the answer to "was the save applied", which the
-     * action URL's own 200 cannot give.
+     * included: the echoed settings are the answer to "was the save applied",
+     * which the action URL's own 200 cannot give.
      *
-     * The caller passes the limit when it already knows the widget is about
-     * to show a different number of rows: after a save, {@code $root.settings}
-     * still carries the <em>previous</em> limit — the echo that replaces it
-     * arrives in this very response — so reading it here would ask for too
-     * few rows and the slice below would come up short until the next page
-     * load. Over-fetching when a save was in fact refused is harmless: the
-     * slice follows the echoed stored value, not the requested one.
+     * The caller passes the limit when it knows the widget is about to show a
+     * different number of rows: after a save, {@code $root.settings} still
+     * carries the previous limit until this very response replaces it, so
+     * reading it here would ask for too few rows. Over-fetching when a save
+     * was refused is harmless: the slice follows the echoed stored value.
      *
      * @param {number} limit the number of rows to show, defaulting to the
      *        currently stored one
