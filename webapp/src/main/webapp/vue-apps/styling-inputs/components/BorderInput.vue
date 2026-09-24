@@ -106,7 +106,7 @@ export default {
     },
     boxShadow() {
       if (this.initialized) {
-        this.$set(this.container, 'boxShadow', this.boxShadow);
+        this.$set(this.container, 'boxShadow', this.boxShadow ? 'true' : null);
         this.$emit('refresh');
       }
     },
@@ -127,7 +127,7 @@ export default {
     this.container = this.value;
     this.borderColor = this.container.borderColor;
     this.borderSize = this.container.borderSize || 0;
-    this.boxShadow = this.container.boxShadow === 'true';
+    this.boxShadow = this.container.boxShadow === true || this.container.boxShadow === 'true';
     this.enabled = !!this.borderColor;
     this.$nextTick().then(() => this.initialized = true);
   },
