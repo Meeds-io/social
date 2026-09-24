@@ -79,6 +79,14 @@ public class SubspacesServiceTest extends AbstractCoreTest {
 
   private SpaceTemplate        childTemplate;
 
+  // the default template is one container singleton shared by every class of
+  // the suite: what the fixture changes on it is put back in tearDown
+  private List<String>         defaultAllowedSubspaceTemplates;
+
+  private List<String>         defaultPermissions;
+
+  private Integer              defaultSubspacesMaxLimit;
+
   private Space                parentSpace;
 
   private Space                otherParentSpace;
@@ -93,6 +101,7 @@ public class SubspacesServiceTest extends AbstractCoreTest {
     createIdentity(PARENT_MEMBER);
     createIdentity(OUTSIDER);
 
+    snapshotDefaultTemplate();
     childTemplate = createChildTemplate();
     parentTemplate = useMockTemplateAsParentTemplate(childTemplate);
 
@@ -114,12 +123,32 @@ public class SubspacesServiceTest extends AbstractCoreTest {
 
   @Override
   protected void tearDown() throws Exception {
-    // the mock storage is one container singleton shared by every class of
-    // the suite: the child template must not outlive the test that made it
+    // the default template is put back as it was found, before the child it
+    // pointed at is removed: a later class must not meet a template allowing
+    // a child that no longer exists
+    restoreDefaultTemplate();
     if (childTemplate != null) {
       spaceTemplateStorage.deleteSpaceTemplate(childTemplate.getId());
     }
     super.tearDown();
+  }
+
+  private void snapshotDefaultTemplate() {
+    SpaceTemplate template = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged()).getFirst();
+    defaultAllowedSubspaceTemplates = template.getAllowedSubspaceTemplates();
+    defaultPermissions = template.getPermissions();
+    defaultSubspacesMaxLimit = template.getSubspacesMaxLimit();
+  }
+
+  @SneakyThrows
+  private void restoreDefaultTemplate() {
+    if (parentTemplate == null) {
+      return;
+    }
+    parentTemplate.setAllowedSubspaceTemplates(defaultAllowedSubspaceTemplates);
+    parentTemplate.setPermissions(defaultPermissions);
+    parentTemplate.setSubspacesMaxLimit(defaultSubspacesMaxLimit);
+    spaceTemplateStorage.updateSpaceTemplate(parentTemplate);
   }
 
   public void testListsOnlyTheSubspacesOfThatParent() throws Exception {
