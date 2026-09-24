@@ -58,8 +58,6 @@ import io.meeds.social.html.utils.HtmlUtils;
 import io.meeds.social.reaction.service.ReactionService;
 import io.meeds.social.reaction.storage.ReactionStorage;
 import io.meeds.social.report.service.ActivityReportService;
-import io.meeds.social.space.template.model.SpaceTemplate;
-import io.meeds.social.space.template.service.SpaceTemplateService;
 import io.meeds.social.translation.service.TranslationService;
 
 import jakarta.servlet.http.HttpServletRequest;

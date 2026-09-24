@@ -19,13 +19,15 @@
 import SubspacesList from './components/SubspacesList.vue';
 import SubspacesListDrawer from './components/SubspacesListDrawer.vue';
 import SubspacesListItem from './components/SubspacesListItem.vue';
-import SubspacesListSettingsDrawer from './components/SubspacesListSettingsDrawer.vue';
+import SubspacesListHeaderActions from './components/SubspacesListHeaderActions.vue';
+import SubspacesListSettingsDrawer from './components/settings/SubspacesListSettingsDrawer.vue';
 
 import * as subspacesListService from './subspacesListService.js';
 
 const components = {
   'subspaces-list': SubspacesList,
   'subspaces-list-drawer': SubspacesListDrawer,
+  'subspaces-list-header-actions': SubspacesListHeaderActions,
   'subspaces-list-item': SubspacesListItem,
   'subspaces-list-settings-drawer': SubspacesListSettingsDrawer,
 };
