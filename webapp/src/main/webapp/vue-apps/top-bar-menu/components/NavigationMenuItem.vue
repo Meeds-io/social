@@ -23,7 +23,7 @@
   <v-menu
     v-model="showMenu"
     rounded
-    :content-class="`topBar-navigation-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
+    content-class="topBar-navigation-drop-menu"
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
     :max-height="menuMaxHeight"
@@ -127,9 +127,6 @@ export default {
     childrenHasPage() {
       return this.checkChildrenHasPage(this.navigation);
     },
-    isTopBarElement() {
-      return this.$root.isTopBarElement;
-    }
   },
   watch: {
     showMenu() {
