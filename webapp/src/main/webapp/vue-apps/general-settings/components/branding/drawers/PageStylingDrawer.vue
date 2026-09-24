@@ -108,7 +108,7 @@
             v-model="applicationStyling.container"
             :min="0"
             :max="80"
-            class="mt-2" />
+            class="mt-4" />
           <styling-border-input
             v-if="initialized"
             v-model="applicationStyling.container"
