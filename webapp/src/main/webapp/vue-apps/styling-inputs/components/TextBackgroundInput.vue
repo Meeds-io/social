@@ -142,7 +142,7 @@
     </v-list-item>
 
     <v-list-item
-      v-if="isGradient"
+      v-if="enabled && isGradient"
       class="pa-0"
       dense>
       <v-list-item-content class="my-auto">
@@ -153,7 +153,7 @@
       </v-list-item-action>
     </v-list-item>
     <div
-      v-if="isGradient"
+      v-if="enabled && isGradient"
       class="d-flex align-center px-1 pb-2">
       <span class="text-subtitle me-2">{{ $t('layout.gradientFrom') }}</span>
       <v-slider
@@ -386,6 +386,9 @@ export default {
         this.gradientDirection = null;
         this.gradientCorner = null;
         this.gradientRatio = null;
+        if (!this.enabled) {
+          this.choice = 'color';
+        }
       }
     },
     imageStyle() {
