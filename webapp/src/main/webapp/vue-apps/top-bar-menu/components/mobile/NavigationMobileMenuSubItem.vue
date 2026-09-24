@@ -23,7 +23,7 @@
   <v-bottom-sheet
     v-model="showChildren"
     inset
-    :content-class="`topBar-navigation-bottom-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
+    content-class="topBar-navigation-drop-menu topBar-navigation-bottom-drop-menu"
     hide-overlay>
     <v-sheet
       v-if="showChildren"
@@ -100,9 +100,6 @@ export default {
     showChildren: false,
   }),
   computed: {
-    isTopBarElement() {
-      return this.$root.isTopBarElement;
-    }
   },
   watch: {
     showMenu(value) {
