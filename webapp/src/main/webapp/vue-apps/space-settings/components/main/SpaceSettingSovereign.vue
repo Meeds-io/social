@@ -55,7 +55,6 @@ export default {
       try {
         await this.$spaceService.updateSpace({
           id: this.$root.spaceId,
-          parentSpaceId: this.$root?.space?.parentSpaceId || null,
           sovereign: this.$root.space.sovereign,
         });
       } finally {
