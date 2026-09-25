@@ -22,13 +22,13 @@
     ref="drawer"
     v-bind="$attrs"
     v-on="$listeners"
-    :allow-expand="allowExpand && !standalone"
-    :expanded="expanded || standalone"
-    :permanent="docked || standalone"
-    :attached="docked || standalone"
-    :no-external-overlay="docked || standalone"
-    :autofocus="!docked && !standalone"
-    :hide-close="docked || standalone"
+    :allow-expand="allowExpand && !standaloneShell"
+    :expanded="expanded || standaloneShell"
+    :permanent="docked || standaloneShell"
+    :attached="docked || standaloneShell"
+    :no-external-overlay="docked || standaloneShell || stuckElsewhere"
+    :autofocus="!docked && !standaloneShell"
+    :hide-close="docked || standaloneShell"
     @expand-updated="expandState = $event">
     <template v-for="(unusedSlot, name) in $slots" #[name]>
       <slot :name="name"></slot>
@@ -133,7 +133,7 @@
             </v-list-item-content>
           </v-list-item>
           <v-list-item
-            v-if="canStick"
+            v-if="canStick && !stuckSide"
             class="px-3"
             dense
             @click="stickTo('right')">
@@ -147,7 +147,7 @@
         </v-list>
       </v-menu>
       <v-btn
-        v-else-if="allowExpand && !standalone && !isMobile"
+        v-else-if="allowExpand && !standaloneShell && !isMobile"
         :title="expandTooltip"
         icon
         @click="toogleExpand">
@@ -176,6 +176,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    noDock: {
+      type: Boolean,
+      default: false,
+    },
     expanded: {
       type: Boolean,
       default: false,
@@ -199,8 +203,14 @@ export default {
     stuckAllowed() {
       return (this.$vuetify?.breakpoint?.width || 0) >= (this.$vuetify?.breakpoint?.thresholds?.lg || 1264);
     },
+    standaloneShell() {
+      return this.standalone && !this.noDock;
+    },
     docked() {
-      return !!this.stuckSide && this.stuckAllowed;
+      return !this.noDock && !!this.stuckSide && this.stuckAllowed;
+    },
+    stuckElsewhere() {
+      return this.noDock && !!this.stuckSide && this.stuckAllowed;
     },
     canStick() {
       return !!this.provider && !!this.eligibility?.allowStick && !!this.eligibility?.siteEligible;
@@ -227,6 +237,9 @@ export default {
   watch: {
     docked() {
       if (this.docked) {
+        if (this.isOpened()) {
+          this.$refs.drawer.close();
+        }
         this.dock();
       } else {
         this.undock();
@@ -427,6 +440,18 @@ export default {
     },
     toogleExpand() {
       return this.$refs.drawer?.toogleExpand?.();
+    },
+    resetFilter(...args) {
+      return this.$refs.drawer?.resetFilter?.(...args);
+    },
+    openFilter(...args) {
+      return this.$refs.drawer?.openFilter?.(...args);
+    },
+    isOpened() {
+      return !!this.$refs.drawer?.drawer;
+    },
+    isFilterShown() {
+      return !!this.$refs.drawer?.showFilter;
     },
   },
 };

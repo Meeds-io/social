@@ -326,7 +326,9 @@ export default {
     drawerZIndex: 1035,
     showFilter: false,
     filterText: '',
-    filterFocused: false
+    filterFocused: false,
+    overlayRegistered: false,
+    overlayDetail: false,
   }),
   computed: {
     zIndex() {
@@ -387,8 +389,10 @@ export default {
       // permanent (e.g. docked) drawer stays out of the drawers overlay
       // bookkeeping but keeps notifying its own consumer
       if (this.drawer) {
-        if (!this.permanent) {
-          document.dispatchEvent(new CustomEvent('drawerOpened', {detail: this.showOverlay || this.noExternalOverlay}));
+        this.overlayRegistered = !this.permanent;
+        if (this.overlayRegistered) {
+          this.overlayDetail = this.showOverlay || this.noExternalOverlay;
+          document.dispatchEvent(new CustomEvent('drawerOpened', {detail: this.overlayDetail}));
           eXo.openedDrawers.push(this);
         }
         if (!this.initialized) {
@@ -399,8 +403,9 @@ export default {
           document.body.style.overscrollBehaviorY = 'contain';
         }
       } else {
-        if (!this.permanent) {
-          document.dispatchEvent(new CustomEvent('drawerClosed', {detail: this.showOverlay || this.noExternalOverlay}));
+        if (this.overlayRegistered) {
+          this.overlayRegistered = false;
+          document.dispatchEvent(new CustomEvent('drawerClosed', {detail: this.overlayDetail}));
           if (eXo.openedDrawers) {
             const currentOpenedDrawerIndex = eXo.openedDrawers.indexOf(this);
             if (currentOpenedDrawerIndex >= 0) {
