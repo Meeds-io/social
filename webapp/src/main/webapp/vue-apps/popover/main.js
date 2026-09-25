@@ -10,6 +10,12 @@ const urls = [
 
 Vue.directive('identity-popover', (el, binding) => {
   const identity = binding?.value;
+  if (!identity) {
+    // a null binding means "no popover" (e.g. <space-avatar :popover="false">),
+    // not a popover on an empty identity. Evaluated on bind and on each
+    // update; listeners already attached are not removed.
+    return;
+  }
   const isUser = identity?.username;
   if (identity && !isUser) {
     document.addEventListener('metadata.favorite.updated', event => {

@@ -58,8 +58,6 @@ import io.meeds.social.html.utils.HtmlUtils;
 import io.meeds.social.reaction.service.ReactionService;
 import io.meeds.social.reaction.storage.ReactionStorage;
 import io.meeds.social.report.service.ActivityReportService;
-import io.meeds.social.space.template.model.SpaceTemplate;
-import io.meeds.social.space.template.service.SpaceTemplateService;
 import io.meeds.social.translation.service.TranslationService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -2697,12 +2695,9 @@ public class EntityBuilder {
   }
 
   private static boolean isParentSpace(Space space) {
-    if (space.getParentSpaceId() != null && space.getParentSpaceId() > 0) {
-      return false;
-    }
-    SpaceTemplate spaceTemplate = ExoContainerContext.getService(SpaceTemplateService.class)
-                                                     .getSpaceTemplate(space.getTemplateId());
-    return spaceTemplate != null && CollectionUtils.isNotEmpty(spaceTemplate.getAllowedSubspaceTemplates());
+    // one predicate, two callers: the REST builder and the Subspaces List
+    // portlet, which decides from it whether it has anything to show
+    return ExoContainerContext.getService(SpaceService.class).isParentSpace(space);
   }
 
 }
