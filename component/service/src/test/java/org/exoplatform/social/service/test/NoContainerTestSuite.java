@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import org.exoplatform.social.rest.api.EntityBuilderProfilePropertyTest;
 import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
 import org.exoplatform.social.rest.api.EntityBuilderReportsTest;
 import org.exoplatform.social.rest.entity.SpaceEntityTest;
@@ -35,6 +36,7 @@ import io.meeds.social.report.rest.ActivityReportRestTest;
 @RunWith(Suite.class)
 @SuiteClasses({
   UtilTest.class,
+  EntityBuilderProfilePropertyTest.class,
   EntityBuilderReactionsTest.class,
   EntityBuilderReportsTest.class,
   SpaceEntityTest.class,

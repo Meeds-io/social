@@ -70,7 +70,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import org.exoplatform.commons.api.notification.model.UserSetting;
 import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
@@ -564,7 +563,7 @@ public class EntityBuilder {
                                                                                       : "";
   }
 
-  private static String getProfilePropertyValue(Profile profile, String propertyName) {
+  static String getProfilePropertyValue(Profile profile, String propertyName) {
     ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
     String profilePropertyValue;
     if (profile.getProperty(propertyName) instanceof List) {
@@ -572,8 +571,34 @@ public class EntityBuilder {
     } else {
       profilePropertyValue = (String) profile.getProperty(propertyName);
     }
-    return propertySetting != null && propertySetting.isDropdownList()
-        && NumberUtils.isCreatable(profilePropertyValue) ? getTranslationService().getTranslationLabelOrDefault(PROFILE_PROPERTY_OBJECT_TYPE, Long.parseLong(profilePropertyValue), PROFILE_PROPERTY_FIELD_NAME, LocaleContextInfoUtils.getUserLocale(getCurrentUserName())) : profilePropertyValue;
+    Long optionId = getDropdownOptionId(propertySetting, profilePropertyValue);
+    return optionId == null ? profilePropertyValue
+                            : getTranslationService().getTranslationLabelOrDefault(PROFILE_PROPERTY_OBJECT_TYPE,
+                                                                                   optionId,
+                                                                                   PROFILE_PROPERTY_FIELD_NAME,
+                                                                                   LocaleContextInfoUtils.getUserLocale(getCurrentUserName()));
+  }
+
+  /**
+   * A dropdown property holds an option id, or the free text a user typed
+   * before the property became a dropdown: turning the switch on rewrites no
+   * stored value. The value is an option id only when it is one of this
+   * property's own options.
+   */
+  private static Long getDropdownOptionId(ProfilePropertySetting propertySetting, String value) {
+    if (propertySetting == null || !propertySetting.isDropdownList() || !StringUtils.isNumeric(value)
+        || CollectionUtils.isEmpty(propertySetting.getPropertyOptions())) {
+      return null;
+    }
+    long optionId;
+    try {
+      optionId = Long.parseLong(value);
+    } catch (NumberFormatException e) {
+      return null;
+    }
+    return propertySetting.getPropertyOptions()
+                          .stream()
+                          .anyMatch(option -> option.getId() != null && option.getId() == optionId) ? optionId : null;
   }
 
   private static void buildManagedUsersCount(ProfileEntity userEntity) {
