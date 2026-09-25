@@ -57,7 +57,7 @@ import io.jsonwebtoken.security.SignatureException;
 @ExtendWith(MockitoExtension.class)
 public class RemoteJwkSigningKeyResolverTest {
 
-  private static final String SIGNATURE_ALGORITHMS_PROPERTY = "exo.oauth.openid.signature.algorithms";
+  private static final String SIGNATURE_ALGORITHMS_PROPERTY = RemoteJwkSigningKeyResolver.SIGNATURE_ALGORITHMS_PROPERTY;
 
   // unreachable on purpose: getJson() fails to fetch it, so resolveAllowedAlgorithms()
   // always falls back to the exo.oauth.openid.signature.algorithms system property
@@ -175,14 +175,41 @@ public class RemoteJwkSigningKeyResolverTest {
   }
 
   @Test
-  public void testConfiguredAlgorithmNotAdvertisedIsRejected(@TempDir Path directory) throws Exception {
-    System.setProperty(SIGNATURE_ALGORITHMS_PROPERTY, "RS256,HS256");
-    RemoteJwkSigningKeyResolver resolver = new RemoteJwkSigningKeyResolver(wellKnownUrl(directory, "RS256"),
+  public void testAllowedAlgorithmsAreTheIntersectionOfAdvertisedAndConfigured(@TempDir Path directory) throws Exception {
+    // ES256 is advertised but not configured, PS256 configured but not advertised
+    System.setProperty(SIGNATURE_ALGORITHMS_PROPERTY, "RS256, HS256, PS256");
+    RemoteJwkSigningKeyResolver resolver = new RemoteJwkSigningKeyResolver(wellKnownUrl(directory, "RS256", "HS256", "ES256"),
                                                                            CLIENT_SECRET);
 
     resolver.updateKeys();
 
-    assertEquals(Set.of("RS256"), resolver.getCachedAllowedAlgorithms());
+    assertEquals(Set.of("RS256", "HS256"), resolver.getCachedAllowedAlgorithms());
+  }
+
+  @Test
+  public void testNoAlgorithmIsAllowedWhenAdvertisedAndConfiguredAreDisjoint(@TempDir Path directory) throws Exception {
+    System.setProperty(SIGNATURE_ALGORITHMS_PROPERTY, "RS256");
+    when(header.getAlgorithm()).thenReturn("ES256");
+    RemoteJwkSigningKeyResolver resolver = new RemoteJwkSigningKeyResolver(wellKnownUrl(directory, "ES256"),
+                                                                           CLIENT_SECRET);
+
+    assertThrows(SignatureException.class, () -> resolver.resolveSigningKey(header, (byte[]) null));
+    assertEquals(Set.of(), resolver.getCachedAllowedAlgorithms());
+  }
+
+  @Test
+  public void testUnparseableAdvertisedListFallsBackToTheConfiguredAlgorithms(@TempDir Path directory) throws Exception {
+    System.setProperty(SIGNATURE_ALGORITHMS_PROPERTY, "ES256");
+    Path jwks = Files.writeString(directory.resolve("jwks.json"), "{\"keys\":[]}");
+    JSONObject configuration = new JSONObject();
+    configuration.put("jwks_uri", jwks.toUri().toString());
+    configuration.put("id_token_signing_alg_values_supported", "RS256");
+    String url = Files.writeString(directory.resolve("openid-configuration.json"), configuration.toString()).toUri().toString();
+    RemoteJwkSigningKeyResolver resolver = new RemoteJwkSigningKeyResolver(url, CLIENT_SECRET);
+
+    resolver.updateKeys();
+
+    assertEquals(Set.of("ES256"), resolver.getCachedAllowedAlgorithms());
   }
 
   // a well-known document served from a file: URL, as getJson() opens any URL,
