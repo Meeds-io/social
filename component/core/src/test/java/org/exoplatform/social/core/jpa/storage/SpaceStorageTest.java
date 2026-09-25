@@ -21,10 +21,12 @@ package org.exoplatform.social.core.jpa.storage;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -35,6 +37,9 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.SocialStorageCacheService;
+import org.exoplatform.social.core.storage.cache.model.data.ListSpacesData;
+import org.exoplatform.social.core.storage.cache.model.key.ListSpacesKey;
+import org.exoplatform.social.core.storage.cache.model.key.SpaceFilterKey;
 
 public class SpaceStorageTest extends AbstractCoreTest {
 
@@ -1802,6 +1807,52 @@ public class SpaceStorageTest extends AbstractCoreTest {
     int resultListCommonSpaces = spaceStorage.countCommonSpaces("demo", "raul");
     assertEquals(2, resultListCommonSpaces);
 
+  }
+
+  /**
+   * Two filters that collide on {@link Objects#hash} while listing different
+   * spaces must each get their own cache entry: the second listing may not be
+   * served the first one's ids.
+   */
+  public void testGetSpacesByFilterKeepsDistinctEntriesForCollidingFilters() {
+    Space first = getSpaceInstance(1);
+    spaceStorage.saveSpace(first, true);
+    Space second = getSpaceInstance(2);
+    spaceStorage.saveSpace(second, true);
+    long firstId = Long.parseLong(first.getId());
+    long secondId = Long.parseLong(second.getId());
+
+    SpaceFilter excludingFirst = new SpaceFilter();
+    excludingFirst.setExcludedIds(List.of(firstId));
+    SpaceFilter excludingSecond = new SpaceFilter();
+    excludingSecond.setExcludedIds(List.of(secondId, collidingExclusion(firstId, secondId)));
+    assertEquals(Objects.hash(excludingFirst), Objects.hash(excludingSecond));
+    assertFalse(excludingFirst.equals(excludingSecond));
+
+    List<String> idsExcludingFirst = spaceStorage.getSpacesByFilter(excludingFirst, 0, 10).stream().map(Space::getId).toList();
+    List<String> idsExcludingSecond = spaceStorage.getSpacesByFilter(excludingSecond, 0, 10).stream().map(Space::getId).toList();
+
+    assertFalse(idsExcludingFirst.contains(first.getId()));
+    assertTrue(idsExcludingFirst.contains(second.getId()));
+    assertTrue(idsExcludingSecond.contains(first.getId()));
+    assertFalse(idsExcludingSecond.contains(second.getId()));
+
+    ExoCache<ListSpacesKey, ListSpacesData> spacesCache = cacheService.getSpacesCache();
+    ListSpacesData entryExcludingFirst = spacesCache.get(new ListSpacesKey(new SpaceFilterKey(null, excludingFirst, null), 0, 10));
+    ListSpacesData entryExcludingSecond = spacesCache.get(new ListSpacesKey(new SpaceFilterKey(null, excludingSecond, null), 0, 10));
+    assertNotNull(entryExcludingFirst);
+    assertNotNull(entryExcludingSecond);
+    assertFalse(entryExcludingFirst.getIds().equals(entryExcludingSecond.getIds()));
+  }
+
+  /**
+   * @return an id that no space carries, such that the lists
+   *         {@code [keptId, result]} and {@code [otherId]} share one
+   *         {@link List#hashCode()}: {@code 31 * (31 + hash(keptId)) + hash(result) == 31 + hash(otherId)}
+   */
+  private static long collidingExclusion(long otherId, long keptId) {
+    int target = 31 + Long.hashCode(otherId) - 31 * (31 + Long.hashCode(keptId));
+    return Integer.toUnsignedLong(target);
   }
 
 }
