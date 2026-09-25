@@ -204,19 +204,19 @@ public class LinkProvider {
                .append("\" target=\"_parent\"")
                .append(" v-identity-popover=\"{")
                .append("id: '")
-               .append(identity.getId())
+               .append(toPopoverValue(identity.getId()))
                .append("',")
                .append("username: '")
-               .append(identity.getRemoteId())
+               .append(toPopoverValue(identity.getRemoteId()))
                .append("',")
                .append("fullName: '")
-               .append(fullName.replace("'", "\\\\'").replace("\"", "&quot;"))
+               .append(toPopoverValue(fullName))
                .append("',")
                .append("avatar: '")
-               .append(avatarUrl)
+               .append(toPopoverValue(avatarUrl))
                .append("',")
                .append("position: '")
-               .append(identity.getProfile().getPosition() == null ? "" : identity.getProfile().getPosition().replace("'", "\\\\'").replace("\"", "&quot;"))
+               .append(toPopoverValue(identity.getProfile().getPosition()))
                .append("',")
                .append("external: '")
                .append(identity.getProfile().getProperty(Profile.EXTERNAL) != null && StringUtils.equals("true", String.valueOf(identity.getProfile().getProperty(Profile.EXTERNAL))))
@@ -228,10 +228,10 @@ public class LinkProvider {
                .append(identity.isDeleted())
                .append("',")
                .append("displayedEmail: '")
-               .append(identity.getProfile().getProperty(Profile.DISPLAYED_EMAIL))
+               .append(toPopoverValue(identity.getProfile().getProperty(Profile.DISPLAYED_EMAIL)))
                .append("',")
                .append("displayedPhone: '")
-               .append(identity.getProfile().getProperty(Profile.DISPLAYED_PHONE))
+               .append(toPopoverValue(identity.getProfile().getProperty(Profile.DISPLAYED_PHONE)))
                .append("',")
                .append("}\"")
                .append(">")
@@ -240,6 +240,30 @@ public class LinkProvider {
       profileLink = profileLink.append("<span class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(Locale.forLanguageTag(lang), "external.label.tag")).append(")").append("</span>");
     }
     return profileLink.append("</a>").toString();
+  }
+
+  /**
+   * Escapes a value of the {@code v-identity-popover} object literal built by
+   * {@link #getProfileLink(String, String)}: a single-quoted JavaScript string
+   * inside a double-quoted HTML attribute. The value is escaped for the
+   * JavaScript string first, then for the HTML attribute, which the browser
+   * decodes before Vue evaluates the literal. A null value is an empty string.
+   */
+  static String toPopoverValue(Object value) {
+    if (value == null) {
+      return "";
+    }
+    return String.valueOf(value)
+                 .replace("\\", "\\\\")
+                 .replace("'", "\\'")
+                 .replace("\r", "\\r")
+                 .replace("\n", "\\n")
+                 .replace("\u2028", "\\u2028")
+                 .replace("\u2029", "\\u2029")
+                 .replace("&", "&amp;")
+                 .replace("\"", "&quot;")
+                 .replace("<", "&lt;")
+                 .replace(">", "&gt;");
   }
 
   public static String getGroupRoleLink(String role, String identityId, Locale locale) {

@@ -18,7 +18,10 @@
  */
 package org.exoplatform.social.core.service;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -44,14 +47,44 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
         rootIdentity.getRemoteId() + "\" "
         + "target=\"_parent\" v-identity-popover=\"{id: '" + rootIdentity.getId() + "',username: '" + rootIdentity.getRemoteId()
         + "',fullName: '"
-        + rootIdentity.getProfile().getFullName() + "',avatar: '" + rootIdentity.getProfile().getAvatarUrl() + "',position: '"
+        + rootIdentity.getProfile().getFullName() + "',avatar: '" + rootIdentity.getProfile().getAvatarUrl().replace("&", "&amp;") + "',position: '"
         + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '"
         + (external == null ? "false" : external)
         + "',enabled: '" + (rootIdentity.isEnable() && !rootIdentity.isDeleted())
         + "',deleted: '" + rootIdentity.isDeleted()
-        + "',displayedEmail: '" + rootIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL)
-        + "',displayedPhone: '" + rootIdentity.getProfile().getProperty(Profile.DISPLAYED_PHONE)
+        + "',displayedEmail: '" + Objects.toString(rootIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL), "")
+        + "',displayedPhone: '" + Objects.toString(rootIdentity.getProfile().getProperty(Profile.DISPLAYED_PHONE), "")
         + "',}\">" + rootFullName + "</a>";
     assertEquals(expected, actualLink);
+  }
+
+  public void testGetProfileLinkEscapesEveryPopoverValue() {
+    Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+    Profile profile = johnIdentity.getProfile();
+    profile.setProperty(Profile.DISPLAYED_EMAIL, "o'hara\"@example.com");
+    profile.setProperty(Profile.DISPLAYED_PHONE, "+33 $1 \\ 42");
+    identityManager.updateProfile(profile);
+    try {
+      String link = LinkProvider.getProfileLink("john", "classic");
+
+      assertTrue(link, link.contains("displayedEmail: 'o\\'hara&quot;@example.com'"));
+      assertTrue(link, link.contains("displayedPhone: '+33 $1 \\\\ 42'"));
+    } finally {
+      profile.setProperty(Profile.DISPLAYED_EMAIL, null);
+      profile.setProperty(Profile.DISPLAYED_PHONE, null);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  public void testToPopoverValueRoundTripsThroughTheAttributeAndTheJsString() {
+    String value = "O'Brien \"the\" \\ <b>&amp;</b>\nnext\u2028line";
+
+    String escaped = LinkProvider.toPopoverValue(value);
+
+    assertFalse(escaped, escaped.matches(".*(?<!\\\\)'.*"));
+    assertFalse(escaped, escaped.contains("\""));
+    assertFalse(escaped, escaped.contains("<"));
+    assertEquals(value, StringEscapeUtils.unescapeEcmaScript(StringEscapeUtils.unescapeHtml4(escaped)));
+    assertEquals("", LinkProvider.toPopoverValue(null));
   }
 }
