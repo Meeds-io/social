@@ -1119,7 +1119,9 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     }
     if (activityFilter.isShowPinned() && !activityFilter.isScheduled()) {
       // getQueryFilterContent orders pinned activities first: a query name
-      // without this suffix would reuse the ORDER BY of the first call built
+      // without this suffix would reuse the ORDER BY of the first call built.
+      // A count query, which has no ORDER BY, gets it too: the same text
+      // registered under a second name
       suffixes.add("PinnedFirst");
     }
     if (activityFilter.isScheduled()) {
