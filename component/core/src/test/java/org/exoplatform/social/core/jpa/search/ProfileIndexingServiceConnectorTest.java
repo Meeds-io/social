@@ -160,6 +160,25 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
   }
 
   @Test
+  public void testIndexDropdownDigitsOfAnotherPropertysOptionAsTyped() throws Exception {
+    profilePropertyService.createPropertySetting(createProfileSettingDropdownInstance("propDropdownOwn"));
+    ProfilePropertySetting otherSetting =
+                                        profilePropertyService.createPropertySetting(createProfileSettingDropdownInstance("propDropdownOther"));
+    long otherOptionId = otherSetting.getPropertyOptions().getFirst().getId();
+    translationService.saveTranslationLabels("propertySettingOption",
+                                             otherOptionId,
+                                             "optionValue",
+                                             Map.of(Locale.US, "other option en"));
+    Profile profile = userIdentity.getProfile();
+    profile.setProperty("propDropdownOwn", String.valueOf(otherOptionId));
+    identityManager.updateProfile(profile, true);
+
+    Document document = profileIndexingServiceConnector.update(userIdentity.getId());
+
+    assertEquals(String.valueOf(otherOptionId), document.getFields().get("propDropdownOwn"));
+  }
+
+  @Test
   public void testIndexMultiValuedDropdownMixingOptionAndLegacyValue() throws Exception {
     ProfilePropertySetting setting = createProfileSettingDropdownInstance("propDropdownMulti");
     setting.setMultiValued(true);
