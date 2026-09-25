@@ -18,11 +18,11 @@
  */
 package org.exoplatform.social.core.jpa.storage;
 
-import java.util.Objects;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
