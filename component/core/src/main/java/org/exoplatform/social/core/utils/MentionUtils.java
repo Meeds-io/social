@@ -256,7 +256,7 @@ public class MentionUtils {
     try {
       String roleLink = LinkProvider.getGroupRoleLink(role, identityId, locale);
       if (StringUtils.isNotBlank(roleLink)) {
-        matcher.appendReplacement(buf, roleLink + " ");
+        matcher.appendReplacement(buf, Matcher.quoteReplacement(roleLink + " "));
       }
     } catch (Exception e) {
       LOG.warn("Error while retrieving link for role {} ans pace with identity id {}",
