@@ -49,6 +49,9 @@ public class MentionUtilsTest { // NOSONAR
 
   private static final String                     PORTAL_OWNER         = "public";
 
+  // what LinkProvider emits for a profile value holding a $ and a backslash
+  private static final String                     JANE_LINK            = "<a v-identity-popover=\"{displayedPhone: '+33 $1 \\\\ 42'}\">Jane</a>";
+
   private static final MockedStatic<LinkProvider> LINK_PROVIDER_UTIL   = mockStatic(LinkProvider.class);
 
   @Mock
@@ -68,6 +71,14 @@ public class MentionUtilsTest { // NOSONAR
     when(identity.isEnable()).thenReturn(true);
     LINK_PROVIDER_UTIL.when(() -> LinkProvider.getProfileLink("root", PORTAL_OWNER)).thenAnswer(invocation -> ROOT_FULL_NAME_MATCH);
     LINK_PROVIDER_UTIL.when(() -> LinkProvider.getProfileLink("john", PORTAL_OWNER)).thenAnswer(invocation -> JOHN_FULL_NAME_MATCH);
+    LINK_PROVIDER_UTIL.when(() -> LinkProvider.getProfileLink("jane", PORTAL_OWNER)).thenAnswer(invocation -> JANE_LINK);
+  }
+
+  @Test
+  public void testSubstituteUsernamesInsertsTheProfileLinkLiterally() {
+    String message = MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, "hello @jane");
+
+    assertEquals("hello " + JANE_LINK, message);
   }
 
   @Test
