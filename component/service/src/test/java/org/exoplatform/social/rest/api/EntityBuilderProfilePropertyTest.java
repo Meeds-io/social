@@ -85,7 +85,7 @@ public class EntityBuilderProfilePropertyTest {
 
   @Test
   public void testLegacyFreeTextThatParsesAsANumberIsReturnedAsTyped() {
-    // NumberUtils.isCreatable accepts these, Long.parseLong does not
+    // numeric-looking free text that Long.parseLong rejects
     for (String legacyValue : List.of("1.5", "1e3", "0x1F")) {
       assertEquals(legacyValue, EntityBuilder.getProfilePropertyValue(profile(legacyValue), PROPERTY));
     }
