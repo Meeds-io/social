@@ -59,7 +59,7 @@
     </script>
   <% } else { %>
     <script type="text/javascript">
-      require(['SHARED/vue'], () => Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#<%=domId%>')));
+      require(['SHARED/vue', 'SHARED/commonVueComponents'], () => Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#<%=domId%>')));
     </script>
   <% } %>
   </div>
