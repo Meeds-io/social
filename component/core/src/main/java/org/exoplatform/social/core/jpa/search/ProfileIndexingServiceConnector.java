@@ -346,21 +346,19 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
   }
 
   private String parseValue(ProfilePropertySetting profilePropertySetting, String value) {
-    if (!profilePropertySetting.isDropdownList() || StringUtils.isBlank(value)) {
+    if (profilePropertySetting == null || !profilePropertySetting.isDropdownList() || StringUtils.isBlank(value)) {
       return value;
     }
-    if (!StringUtils.isNumeric(value)) {
-      return null;
+    ProfilePropertyOption option = getDropdownOption(profilePropertySetting, value);
+    if (option == null) {
+      // free text typed before the property became a dropdown: turning the
+      // switch on rewrites no stored value, so it is indexed as typed
+      return value;
     }
-    String optionValue = profilePropertySetting.getPropertyOptions()
-                                               .stream()
-                                               .filter(option -> option.getId() == Long.parseLong(value))
-                                               .findFirst()
-                                               .map(ProfilePropertyOption::getValue)
-                                               .orElse(value);
+    String optionValue = option.getValue();
     try {
       TranslationField translationField = translationService.getTranslationField(PROFILE_PROPERTY_OBJECT_TYPE,
-                                                                                 Long.parseLong(value),
+                                                                                 option.getId(),
                                                                                  PROFILE_PROPERTY_FIELD_NAME);
       if (translationField != null && !translationField.getLabels().isEmpty()) {
         String translations = String.join("-", translationField.getLabels().values());
@@ -370,6 +368,23 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
       LOG.error("Error parsing profile property value translations", e);
     }
     return optionValue;
+  }
+
+  private ProfilePropertyOption getDropdownOption(ProfilePropertySetting profilePropertySetting, String value) {
+    if (!StringUtils.isNumeric(value) || CollectionUtils.isEmpty(profilePropertySetting.getPropertyOptions())) {
+      return null;
+    }
+    long optionId;
+    try {
+      optionId = Long.parseLong(value);
+    } catch (NumberFormatException e) {
+      return null;
+    }
+    return profilePropertySetting.getPropertyOptions()
+                                 .stream()
+                                 .filter(option -> option.getId() != null && option.getId() == optionId)
+                                 .findFirst()
+                                 .orElse(null);
   }
 
   private Set<String> getPermissions(Identity ownerIdentity) {
