@@ -944,6 +944,14 @@ export default {
       keys.forEach(key => {
         properties[`--allPages${key.charAt(0).toUpperCase()}${key.slice(1)}`] = themeStyle[key] || null;
       });
+      // Application corners: the stylesheet emits the four --allPagesAppBorderRadius* as literals (the stored
+      // uniform radius), so an unset inline value would leave the stored corners in the preview; the effective
+      // value is previewed instead — per corner when set, the uniform value or the default otherwise (0px included)
+      ['TopLeft', 'TopRight', 'BottomLeft', 'BottomRight'].forEach(corner => {
+        properties[`--allPagesAppBorderRadius${corner}`] = themeStyle[`appBorderRadius${corner}`]
+          || properties['--allPagesBorderRadius']
+          || null;
+      });
       const pageMargins = this.toPageMarginsThemeStyle(this.pageStylingProperties.pageMargins);
       this.sides.forEach(side => {
         properties[`--allPagesMargin${side}`] = pageMargins[`pageMargin${side}`] || null;
