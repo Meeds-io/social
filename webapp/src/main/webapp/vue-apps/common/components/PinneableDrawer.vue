@@ -237,9 +237,6 @@ export default {
   watch: {
     docked() {
       if (this.docked) {
-        if (this.isOpened()) {
-          this.$refs.drawer.close();
-        }
         this.dock();
       } else {
         this.undock();
