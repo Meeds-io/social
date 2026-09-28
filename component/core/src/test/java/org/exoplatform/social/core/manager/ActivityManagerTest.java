@@ -86,6 +86,7 @@ import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
 import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
+import org.exoplatform.social.core.storage.cache.SocialStorageCacheService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
@@ -3923,6 +3924,29 @@ public class ActivityManagerTest extends AbstractCoreTest {
                   .forEach(activityManager::deleteActivity);
       restartTransaction();
     }
+  }
+
+  /**
+   * An activity list or count read through {@link CachedActivityStorage} is
+   * loaded from the storage and leaves nothing in the activity list and count
+   * caches: an entry keyed by a new ActivityListKey is never read back.
+   */
+  @SneakyThrows
+  public void testActivityListsAndCountsLeaveNothingInTheListCaches() {
+    SocialStorageCacheService cacheService = getContainer().getComponentInstanceOfType(SocialStorageCacheService.class);
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("uncached list activity");
+    activity.setUserId(johnIdentity.getId());
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    ((CachedActivityStorage) activityStorage).clearCache();
+
+    List<ExoSocialActivity> activities = activityStorage.getUserActivities(johnIdentity, 0, 10);
+    int count = activityStorage.getNumberOfUserActivities(johnIdentity);
+
+    assertTrue(activities.stream().anyMatch(a -> activity.getId().equals(a.getId())));
+    assertTrue(count >= 1);
+    assertEquals(0, cacheService.getActivitiesCache().getCacheSize());
+    assertEquals(0, cacheService.getActivitiesCountCache().getCacheSize());
   }
 
 }
