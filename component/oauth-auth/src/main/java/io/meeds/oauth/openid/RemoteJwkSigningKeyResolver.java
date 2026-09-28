@@ -77,6 +77,16 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
 
   private static final Log LOG    = ExoLogger.getLogger(RemoteJwkSigningKeyResolver.class);
 
+  static final String      SIGNATURE_ALGORITHMS_PROPERTY = "exo.oauth.openid.signature.algorithms";
+
+  // accepted when SIGNATURE_ALGORITHMS_PROPERTY is not set: the asymmetric
+  // algorithms, verified against the keys the provider publishes in its JWKS.
+  // An HS* algorithm is keyed on the client secret, so a deployment accepts
+  // it only by naming it in the property.
+  static final Set<String> DEFAULT_ACCEPTED_ALGORITHMS   = Set.of("RS256", "RS384", "RS512",
+                                                                  "PS256", "PS384", "PS512",
+                                                                  "ES256", "ES384", "ES512");
+
   RemoteJwkSigningKeyResolver(String wellKnownUrl, String clientSecret) {
     this.wellKnownUrl = wellKnownUrl;
     this.clientSecret = clientSecret;
@@ -96,7 +106,8 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
     String algorithm = header.getAlgorithm();
     if (algorithm == null || !getAllowedAlgorithms().contains(algorithm)) {
       throw new SignatureException("OpenId token signature algorithm '" + algorithm
-          + "' is not among the algorithms this provider advertises (or is configured to accept)");
+          + "' is not accepted for this provider: it must be advertised by the provider and accepted by "
+          + SIGNATURE_ALGORITHMS_PROPERTY);
     }
     // HMAC-signed tokens use the client_secret itself as the shared key,
     // per the OIDC spec — it is never published in the JWKS
@@ -202,21 +213,34 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
     return newKeys;
   }
 
-  // The well-known document's own list of supported signing algorithms
-  // takes precedence; the exo.oauth.openid.signature.algorithms system
-  // property is used only when that field is absent or unparseable, so a
-  // token can never claim an algorithm (e.g. HS256, keyed on the client
-  // secret) this provider was never configured — nor observed — to
-  // actually use.
+  // An algorithm is allowed only when both sides accept it: the provider
+  // advertises it in its well-known document
+  // (id_token_signing_alg_values_supported, a global capability list, not
+  // this client's registration) and this deployment accepts it
+  // (SIGNATURE_ALGORITHMS_PROPERTY, DEFAULT_ACCEPTED_ALGORITHMS when unset).
+  // When the provider advertises nothing parseable, the property alone
+  // applies, RS256 when unset.
   private Set<String> resolveAllowedAlgorithms(JSONObject configuration) {
+    String configured = System.getProperty(SIGNATURE_ALGORITHMS_PROPERTY);
+    boolean isConfigured = configured != null && !configured.isBlank();
     if (configuration != null && configuration.has("id_token_signing_alg_values_supported")) {
       try {
-        return toStringSet(configuration.getJSONArray("id_token_signing_alg_values_supported"));
+        Set<String> advertised = toStringSet(configuration.getJSONArray("id_token_signing_alg_values_supported"));
+        Set<String> accepted = isConfigured ? toStringSet(configured) : DEFAULT_ACCEPTED_ALGORITHMS;
+        Set<String> allowed = new HashSet<>(advertised);
+        allowed.retainAll(accepted);
+        if (allowed.isEmpty()) {
+          LOG.warn("No OpenId token signature algorithm is both advertised by the provider {} and accepted by {} {}: every login through it is rejected",
+                   advertised,
+                   SIGNATURE_ALGORITHMS_PROPERTY,
+                   accepted);
+        }
+        return Collections.unmodifiableSet(allowed);
       } catch (JSONException e) {
         LOG.error("can't parse id_token_signing_alg_values_supported, falling back to the configured algorithms");
       }
     }
-    return toStringSet(System.getProperty("exo.oauth.openid.signature.algorithms", "RS256"));
+    return toStringSet(isConfigured ? configured : "RS256");
   }
 
   private static Set<String> toStringSet(JSONArray array) throws JSONException {
