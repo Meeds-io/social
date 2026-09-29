@@ -32,6 +32,7 @@
     <skin-module>StylingInputs</skin-module>
     <css-path>/skin/css/portlet/StylingInputs/Style.css</css-path>
     <css-priority>500</css-priority>
+    <filtered>true</filtered>
   </portal-skin>
 
   <portal-skin>
@@ -47,6 +48,7 @@
     <portlet-name>GeneralSettings</portlet-name>
     <skin-name>Enterprise</skin-name>
     <additional-module>ImageCropper</additional-module>
+    <additional-module>StylingInputs</additional-module>
   </portlet-skin>
 
   <portlet-skin>
