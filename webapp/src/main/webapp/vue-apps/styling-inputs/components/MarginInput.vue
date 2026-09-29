@@ -110,7 +110,7 @@ export default {
       type: Object,
       default: null,
     },
-    // Offset between the stored value and the displayed number; 0 since eXIP 7.3.0.30, the stored
+    // Offset between the stored value and the displayed number; 0, the stored
     // value being on the platform scale where 20 means "no extra margin" (a legacy container is
     // converted on read by the editors, see LayoutUtils.parseContainerStyle)
     diff: {
