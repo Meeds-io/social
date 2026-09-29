@@ -541,7 +541,7 @@ export default {
         [`${type}TextFontWeight`]: themeStyle?.[`${type}TextFontWeight`] || null,
       };
       if (type === this.brandingStylingType.TOP_BAR) {
-        // PO decision 6 applied literally (Architects Lead): off sends no key, so the configured value comes back
+        // off sends no key, so the configured value comes back
         properties.topBarSticky = themeStyle?.topBarSticky === 'true' ? 'true' : null;
         properties.topBarBackgroundScrollColor = this.themeValue(themeStyle, 'topBarBackgroundScrollColor');
       }
