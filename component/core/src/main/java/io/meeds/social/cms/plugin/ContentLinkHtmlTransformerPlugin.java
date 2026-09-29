@@ -55,6 +55,8 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
 
   private static final String      CONTENT_LINK_RESOURCE_BUNDLE    = "locale.portlet.Portlets";
 
+  private static final String      CONTENT_LINK_TYPES_BUNDLE       = "locale.portlet.ContentLink";
+
   private static final String      RESTRICTED_ACCESS_KEY           = "contentLink.restrictedAccess";
 
   private static final String      NOT_FOUND_ACCESS_KEY            = "contentLink.notFound";
@@ -86,6 +88,13 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
                                                                        "<i aria-hidden=\"true\" class=\"v-icon notranslate fa %s theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>%s" +
                                                                        "</a>";
 
+  private static final String      CONTENT_LINK_PRIVATE_HTML_TAG   =
+                                                                 "<a%s data-object=\"%s:%s\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                     "<i aria-hidden=\"true\" class=\"%s v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>%s" +
+                                                                     "</a>";
+
+  private static final String      DRAWER_ATTRIBUTE                = " is=\"content-link-drawer\"";
+
   @Autowired
   private ContentLinkService       contentLinkService;
 
@@ -116,6 +125,15 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
     return html;
   }
 
+  /**
+   * Replaces each content-link tag with its chip: the object's icon and title,
+   * linking to it, when the reader may view it, else the chip of a link the
+   * reader cannot follow.
+   *
+   * @param html the HTML being transformed
+   * @param context the transformation context: the reader and the locale
+   * @return the HTML with its content-link tags replaced
+   */
   private String replaceContentLinkTag(String html, HtmlTransformerContext context) { // NOSONAR
     int contentLinkIndex;
     while ((contentLinkIndex = html.indexOf(CONTENT_LINK_START_TAG)) > -1) {
@@ -135,7 +153,7 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
             html = html.replace(contentLinkTag,
                                 String.format(CONTENT_LINK_HTML_TAG,
                                               StringUtils.defaultIfBlank(contentLink.getUri(), ""),
-                                              contentLink.isDrawer() ? " is=\"content-link-drawer\"" : "",
+                                              contentLink.isDrawer() ? DRAWER_ATTRIBUTE : "",
                                               contentLink.getObjectType(),
                                               contentLink.getObjectId(),
                                               StringUtils.defaultIfBlank(contentLink.getIcon(), ""),
@@ -145,25 +163,21 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
             html = getContentNotFoundHtml(html,
                                           contentLinkTag,
                                           contentLinkIdentifier,
-                                          getNotFoundLabel(locale));
+                                          locale,
+                                          false);
           }
         } catch (Exception e) {
           Locale locale = ObjectUtils.firstNonNull(context.getLocale(), ResourceBundleService.DEFAULT_CROWDIN_LOCALE);
-          String label;
-          if (e instanceof IllegalAccessException) {
-            label = getRestrictedAccessLabel(locale);
-          } else {
-            label = getNotFoundLabel(locale);
-            if (!(e instanceof ObjectNotFoundException)) {
-              LOG.warn("Error while transforming Link '{}'. Remove document reference",
-                       contentLinkIdentifier,
-                       e);
-            }
+          if (!(e instanceof IllegalAccessException) && !(e instanceof ObjectNotFoundException)) {
+            LOG.warn("Error while transforming Link '{}'. Remove document reference",
+                     contentLinkIdentifier,
+                     e);
           }
           html = getContentNotFoundHtml(html,
                                         contentLinkTag,
                                         contentLinkIdentifier,
-                                        label);
+                                        locale,
+                                        e instanceof IllegalAccessException);
         }
       }
     }
@@ -209,18 +223,63 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
     return html;
   }
 
+  /**
+   * Replaces the tag of a link its reader cannot follow: the object is missing,
+   * or the reader may not view it.
+   * <p>
+   * A type whose extension declares a private label renders both cases alike, its
+   * icon and that label, with no link, so the chip tells nothing of the object,
+   * not even whether it exists. Any other type renders the restricted-access or
+   * the deleted-content label.
+   *
+   * @param html the HTML being transformed
+   * @param contentLinkTag the content-link tag to replace
+   * @param contentLinkIdentifier the linked object
+   * @param locale the reader's locale
+   * @param restricted whether the object exists and the reader may not view it
+   * @return the HTML with that tag replaced
+   */
   private String getContentNotFoundHtml(String html,
                                         String contentLinkTag,
                                         ContentLinkIdentifier contentLinkIdentifier,
-                                        String label) {
+                                        Locale locale,
+                                        boolean restricted) {
     ContentLinkPlugin plugin = contentLinkPluginService.getPlugin(contentLinkIdentifier.getObjectType());
-    String icon = plugin == null ? "fa-times" : plugin.getExtension().getIcon();
+    ContentLinkExtension extension = plugin == null ? null : plugin.getExtension();
+    if (extension != null && StringUtils.isNotBlank(extension.getPrivateTitleKey())) {
+      return html.replace(contentLinkTag,
+                          String.format(CONTENT_LINK_PRIVATE_HTML_TAG,
+                                        extension.isDrawer() ? DRAWER_ATTRIBUTE : "",
+                                        contentLinkIdentifier.getObjectType(),
+                                        contentLinkIdentifier.getObjectId(),
+                                        StringUtils.defaultIfBlank(extension.getIcon(), ""),
+                                        getPrivateLabel(extension.getPrivateTitleKey(), locale)));
+    }
+    String icon = extension == null ? "fa-times" : extension.getIcon();
     return html.replace(contentLinkTag,
                         String.format(CONTENT_LINK_NOT_FOUND_HTML_TAG,
                                       contentLinkIdentifier.getObjectType(),
                                       contentLinkIdentifier.getObjectId(),
                                       icon,
-                                      label));
+                                      restricted ? getRestrictedAccessLabel(locale) : getNotFoundLabel(locale)));
+  }
+
+  /**
+   * Resolves the private label a type declares, from the bundle its title comes
+   * from. A missing key falls back to the restricted-access label, the same one
+   * for a missing and for a refused object.
+   *
+   * @param privateTitleKey the type's private label key
+   * @param locale the reader's locale
+   * @return the label shown on the type's private chips
+   */
+  private String getPrivateLabel(String privateTitleKey, Locale locale) {
+    try {
+      return StringUtils.firstNonBlank(getResourceBundle(CONTENT_LINK_TYPES_BUNDLE, locale).getString(privateTitleKey),
+                                       getRestrictedAccessLabel(locale));
+    } catch (Exception e) {
+      return getRestrictedAccessLabel(locale);
+    }
   }
 
   private ContentLinkIdentifier getContentLinkIdentifier(String contentLinkTag, Locale locale) {
@@ -306,11 +365,28 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
     }
   }
 
+  /**
+   * The bundle of the generic restricted-access and deleted-content labels.
+   *
+   * @param locale the reader's locale
+   * @return that bundle in the reader's locale, else in the default one
+   */
   private ResourceBundle getResourceBundle(Locale locale) {
+    return getResourceBundle(CONTENT_LINK_RESOURCE_BUNDLE, locale);
+  }
+
+  /**
+   * Loads a bundle in the reader's locale, else in the default one.
+   *
+   * @param bundleName the bundle name
+   * @param locale the reader's locale
+   * @return the bundle
+   */
+  private ResourceBundle getResourceBundle(String bundleName, Locale locale) {
     try {
-      return resourceBundleService.getResourceBundle(CONTENT_LINK_RESOURCE_BUNDLE, locale);
+      return resourceBundleService.getResourceBundle(bundleName, locale);
     } catch (Exception e) {
-      return resourceBundleService.getResourceBundle(CONTENT_LINK_RESOURCE_BUNDLE, ResourceBundleService.DEFAULT_CROWDIN_LOCALE);
+      return resourceBundleService.getResourceBundle(bundleName, ResourceBundleService.DEFAULT_CROWDIN_LOCALE);
     }
   }
 

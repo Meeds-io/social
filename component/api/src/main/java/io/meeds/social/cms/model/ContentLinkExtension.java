@@ -39,6 +39,23 @@ public class ContentLinkExtension {
 
   private boolean hidden;
 
+  /**
+   * The i18n key, in the {@code locale.portlet.ContentLink} bundle, of the label
+   * a chip of this type shows when its reader may not see the object, or when
+   * the object no longer exists: both render alike, the type's icon and this
+   * label, without a link, so a chip reveals nothing about the object. Null, the
+   * default, keeps the generic rendering of a refused or missing object.
+   */
+  private String  privateTitleKey;
+
+  /**
+   * Builds an extension listed in the insert menu, without a drawer.
+   *
+   * @param objectType the content object type
+   * @param titleKey the i18n key of the type's name
+   * @param icon the type's icon class
+   * @param command the word typed after the slash
+   */
   public ContentLinkExtension(String objectType,
                               String titleKey,
                               String icon,
@@ -49,6 +66,15 @@ public class ContentLinkExtension {
     this.command = command;
   }
 
+  /**
+   * Builds an extension listed in the insert menu.
+   *
+   * @param objectType the content object type
+   * @param titleKey the i18n key of the type's name
+   * @param icon the type's icon class
+   * @param command the word typed after the slash
+   * @param drawer whether a click on a chip opens the type's drawer
+   */
   public ContentLinkExtension(String objectType,
                               String titleKey,
                               String icon,
@@ -59,6 +85,26 @@ public class ContentLinkExtension {
     this.icon = icon;
     this.command = command;
     this.drawer = drawer;
+  }
+
+  /**
+   * Builds an extension without a private label: its refused or missing chips
+   * keep the generic rendering.
+   *
+   * @param objectType the content object type
+   * @param titleKey the i18n key of the type's name
+   * @param icon the type's icon class
+   * @param command the word typed after the slash
+   * @param drawer whether a click on a chip opens the type's drawer
+   * @param hidden whether the type is hidden from the insert menu
+   */
+  public ContentLinkExtension(String objectType, // NOSONAR
+                              String titleKey,
+                              String icon,
+                              String command,
+                              boolean drawer,
+                              boolean hidden) {
+    this(objectType, titleKey, icon, command, drawer, hidden, null);
   }
 
 }
