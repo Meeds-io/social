@@ -29,6 +29,13 @@
 
   <portal-skin>
     <skin-name>Enterprise</skin-name>
+    <skin-module>StylingInputs</skin-module>
+    <css-path>/skin/css/portlet/StylingInputs/Style.css</css-path>
+    <css-priority>500</css-priority>
+  </portal-skin>
+
+  <portal-skin>
+    <skin-name>Enterprise</skin-name>
     <skin-module>ActivityReactions</skin-module>
     <css-path>/skin/css/portlet/ActivityReactions/Style.css</css-path>
     <css-priority>500</css-priority>
@@ -2857,7 +2864,7 @@
   </module>
 
   <module>
-    <!-- eXIP 7.3.0.30 - cssClass token helpers shared by the layout editors' renderer and the styling inputs -->
+    <!-- cssClass token helpers shared by the layout editors' renderer and the styling inputs -->
     <name>stylingUtils</name>
     <script>
       <path>/js/stylingUtils.bundle.js</path>
@@ -2868,7 +2875,7 @@
   </module>
 
   <module>
-    <!-- eXIP 7.3.0.30 - the styling inputs (background, text, text background, margins, border, radius, colour picker)
+    <!-- the styling inputs (background, text, text background, margins, border, radius, colour picker)
          shared by the layout editors (Meeds-io/layout re-registers them under its layout-editor-* tags) and by
          Branding and Theme. Not part of commonVueComponents nor of layout's commonLayoutComponents (loaded on every
          page view): declared as a dependency of the layout editor portlets and of the GeneralSettings portlet only. -->
