@@ -445,6 +445,7 @@
                 <include>portlet/IDMGroupsManagement/Style.less</include>
                 <include>portlet/IDMMembershipTypesManagement/Style.less</include>
                 <include>portlet/PeopleList/Style.less</include>
+                <include>portlet/StylingInputs/Style.less</include>
                 <include>portlet/PeopleOverview/Style.less</include>
                 <include>portlet/ProfileAboutMe/Style.less</include>
                 <include>portlet/ProfileContactInformation/Style.less</include>
