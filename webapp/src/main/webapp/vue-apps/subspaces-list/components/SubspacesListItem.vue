@@ -23,6 +23,7 @@
     <space-avatar
       :space="displayedSpace"
       :popover="!hiddenToViewer"
+      class="text-truncate"
       link-hidden-space
       link-style />
   </div>
