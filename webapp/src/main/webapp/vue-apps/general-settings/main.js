@@ -86,5 +86,6 @@ export function init(publicSiteVisible, publicSiteId) {
         vuetify: Vue.prototype.vuetifyOptions,
         i18n
       }, `#${appId}`, 'General Settings')
-    ).finally(() => Vue.prototype.$utils.includeExtensions('generalSettings'));
+    ).catch(error => console.error('Error loading the General Settings application', error))
+    .finally(() => Vue.prototype.$utils.includeExtensions('generalSettings'));
 }
