@@ -57,20 +57,25 @@ export default {
     },
   },
   computed: {
-    spaceTemplateId() {
-      return Number(this.space?.templateId);
-    },
     parentSpaceTemplates() {
-      // Same rule as SpaceTemplateService.getTemplateIdsAllowingSubspaces,
-      // which bounds the parent spaces the drawer's suggester can list
+      // The templates an enabled parent space can use, as
+      // SpaceTemplateService.getTemplateIdsAllowingSubspaces bounds the
+      // drawer's parent suggester: enabled, not deleted, allowing at least
+      // one sub-space template. The server applies that rule over every
+      // template, while $root.spaceTemplates holds only the templates the
+      // viewer is allowed to see (SpaceTemplateService.canViewTemplate):
+      // a super manager who is not a platform administrator may see fewer
+      // parent templates here than the suggester lists.
       return this.$root.spaceTemplates?.filter?.(t => t.enabled
         && !t.deleted
         && t.allowedSubspaceTemplates?.length) || [];
     },
     canManageRelationships() {
+      // A sub-space keeps the option so that its parent can be unlinked;
+      // any other space needs a template identified as a parent one, the
+      // condition the suggester needs to find a parent space
       return !!this.space?.parentSpaceId
-        || this.parentSpaceTemplates.some(t => t.id === this.spaceTemplateId
-          || t.allowedSubspaceTemplates.some(entry => Number(String(entry).split(':')[0]) === this.spaceTemplateId));
+        || this.parentSpaceTemplates.length > 0;
     },
   },
 };
