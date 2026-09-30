@@ -34,7 +34,7 @@
   String cometdContext = continuationBayeux.getCometdContextName();
   BrandingService brandingService = uicomponent.getApplicationComponent(BrandingService.class);
   Set<String> supportedAttachmentObjectTypes = attachmentService.getSupportedObjectTypes();
-  // Plain host names only (HTMLSanitizer drops any other entry), safe to quote as is
+  // Host names or '*.' wildcards only (HTMLSanitizer drops any other entry), safe to quote as is
   List<String> iframeAllowedHosts = HTMLSanitizer.getAllowedIframeHosts();
   String viewerIdentityId = Utils.getViewerIdentityId();
   String ownerIdentityId = Utils.getOwnerIdentityId();

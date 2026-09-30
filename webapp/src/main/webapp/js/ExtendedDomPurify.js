@@ -30,7 +30,8 @@
     }
   // The hosts come from the io.meeds.sanitizer.iframe.allowedHosts property,
   // exposed by the social portal head (same list as the server-side
-  // HTMLSanitizer). Without it, no iframe is trusted.
+  // HTMLSanitizer). A '*.example.com' entry allows every sub-domain of
+  // example.com, not example.com itself. Without it, no iframe is trusted.
   function isAllowedIframeSrc(src) {
     const allowedHosts = window.eXo?.env?.portal?.iframeAllowedHosts;
     if (!src?.trim() || !Array.isArray(allowedHosts)) {
@@ -40,7 +41,9 @@
       // https, or protocol-relative as iframely's own iframe is
       const url = new URL(src.trim(), window.location.href);
       return (url.protocol === 'https:' || src.trim().startsWith('//'))
-        && allowedHosts.includes(url.hostname);
+        && allowedHosts.some(host => (host.startsWith('*.')
+          ? url.hostname.endsWith(host.substring(1))
+          : url.hostname === host));
     } catch (e) {
       return false;
     }
