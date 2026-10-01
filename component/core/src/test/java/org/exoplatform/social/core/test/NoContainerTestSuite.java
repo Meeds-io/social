@@ -33,7 +33,6 @@ import io.meeds.social.space.plugin.SpaceGroupDecoratorPluginTest;
 import io.meeds.social.space.template.listener.SpaceTemplateMembershipListenerTest;
 import io.meeds.social.space.template.plugin.decorator.SpaceTemplateGroupDecoratorPluginTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceMockTest;
-import org.exoplatform.social.common.lifecycle.LifeCycleCompletionServiceTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -96,7 +95,6 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-    LifeCycleCompletionServiceTest.class,
     UserTimeZoneServiceTest.class,
     ReactionServiceImplTest.class,
     ActivityReportServiceImplTest.class,

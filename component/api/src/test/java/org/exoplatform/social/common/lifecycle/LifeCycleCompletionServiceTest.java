@@ -18,27 +18,23 @@
  */
 package org.exoplatform.social.common.lifecycle;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-/**
- * JUnit 4: surefire runs this module's JUnit 4 suites only, and a suite of
- * them runs JUnit 4 classes only.
- */
-public class LifeCycleCompletionServiceTest {
+class LifeCycleCompletionServiceTest {
 
   private LifeCycleCompletionService completionService;
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     if (completionService != null) {
       completionService.stop();
     }
@@ -49,7 +45,7 @@ public class LifeCycleCompletionServiceTest {
    * task per lifecycle event, and a task returns the event with its payload.
    */
   @Test
-  public void testACompletedTaskIsNotRetained() throws Exception {
+  void testACompletedTaskIsNotRetained() throws Exception {
     completionService = new LifeCycleCompletionService(null);
     AtomicReference<WeakReference<Object>> result = new AtomicReference<>();
     CountDownLatch running = new CountDownLatch(1);
@@ -66,7 +62,7 @@ public class LifeCycleCompletionServiceTest {
       System.gc(); // NOSONAR the reference is cleared only by a collection
       Thread.sleep(20);
     }
-    assertNull("The result of a completed task is still reachable", result.get().get());
+    assertNull(result.get().get(), "The result of a completed task is still reachable");
   }
 
 }
