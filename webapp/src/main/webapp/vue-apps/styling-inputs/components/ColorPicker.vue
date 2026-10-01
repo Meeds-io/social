@@ -30,7 +30,7 @@
         dense>
         <v-list-item-action class="my-0 me-2 layout-color-picker-swatch">
           <v-card
-            :color="value"
+            :color="displayedColor"
             height="36px"
             width="36px"
             v-on="on" />
@@ -41,14 +41,14 @@
             :min-width="minTextWidth"
             flat>
             <div class="text-body">{{ label }}</div>
-            <div class="text-subtitle">{{ value }}</div>
+            <div class="text-subtitle">{{ displayedColor }}</div>
           </v-card>
           <v-card
             v-else
             :min-width="minTextWidth"
             class="text-body text-end"
             flat>
-            {{ value }}
+            {{ displayedColor }}
           </v-card>
         </v-list-item-content>
       </v-list-item>
@@ -93,6 +93,11 @@ export default {
       type: String,
       default: () => 'auto',
     },
+    // Colour shown while no value is set: the one the element inherits, never stored as long as the user keeps it
+    placeholder: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     modal: false,
@@ -106,10 +111,21 @@ export default {
       ['#ffaacc', '#0000AA', '#000055'],
     ],
   }),
+  computed: {
+    inherited() {
+      return !this.value && !!this.placeholder;
+    },
+    displayedColor() {
+      return this.value || this.placeholder;
+    },
+  },
   watch: {
     modal() {
       if (this.modal) {
         this.originalValue = this.value;
+        if (this.inherited) {
+          this.color = this.placeholder;
+        }
       }
     },
     value() {
@@ -125,9 +141,22 @@ export default {
       this.modal = false;
     },
     save() {
-      this.$emit('input', this.color);
+      // An inherited colour confirmed as it is stays inherited: only a colour the user picked is stored
+      const unchangedPlaceholder = this.inherited && this.sameColor(this.color, this.placeholder);
+      this.$emit('input', unchangedPlaceholder ? null : this.color);
       this.modal = false;
-    }
+    },
+    sameColor(first, second) {
+      return this.normalizeColor(first) === this.normalizeColor(second);
+    },
+    normalizeColor(color) {
+      // #RGB, #RRGGBB and #RRGGBBAA compared as #RRGGBBAA, case-insensitive
+      let hex = String(color || '').replace('#', '').toUpperCase();
+      if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+      }
+      return hex.length === 6 ? `${hex}FF` : hex;
+    },
   }
 };
 </script>
