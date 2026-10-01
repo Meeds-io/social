@@ -31,7 +31,7 @@
         <p>
           {{ $t('generalSettings.pageStyling.help1') }}
         </p>
-        <div class="mt-2 pe-4 d-flex flex-column">
+        <div class="mt-2 d-flex flex-column">
           <span class="text-title">
             {{ $t('generalSettings.page.styling.label') }}
           </span>
