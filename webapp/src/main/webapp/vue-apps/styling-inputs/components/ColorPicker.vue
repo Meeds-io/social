@@ -31,7 +31,6 @@
         <v-list-item-action class="my-0 me-2 layout-color-picker-swatch">
           <v-card
             :color="displayedColor"
-            :class="inheritedCaptionShown && 'opacity-4'"
             height="36px"
             width="36px"
             v-on="on" />
@@ -42,19 +41,7 @@
             :min-width="minTextWidth"
             flat>
             <div class="text-body">{{ label }}</div>
-            <div
-              v-if="inheritedCaptionShown"
-              class="text-subtitle disabled--text">
-              {{ $t('layout.inherited') }}
-            </div>
-            <div v-else class="text-subtitle">{{ displayedColor }}</div>
-          </v-card>
-          <v-card
-            v-else-if="inheritedCaptionShown"
-            :min-width="minTextWidth"
-            class="text-body text-end disabled--text"
-            flat>
-            {{ $t('layout.inherited') }}
+            <div class="text-subtitle">{{ displayedColor }}</div>
           </v-card>
           <v-card
             v-else
@@ -111,11 +98,6 @@ export default {
       type: String,
       default: null,
     },
-    // Renders the placeholder dimmed with an 'Inherited' caption instead of as a plain value
-    inheritedCaption: {
-      type: Boolean,
-      default: false,
-    },
   },
   data: () => ({
     modal: false,
@@ -132,9 +114,6 @@ export default {
   computed: {
     inherited() {
       return !this.value && !!this.placeholder;
-    },
-    inheritedCaptionShown() {
-      return this.inherited && this.inheritedCaption;
     },
     displayedColor() {
       return this.value || this.placeholder;
