@@ -179,6 +179,7 @@ export default {
     pageStylingProperties: null,
     isPageStylingPropertiesChanged: false,
     isThemeColorsChanged: false,
+    isFontFamilyReset: false,
     brandingStylingType: Object.freeze({
       TOP_BAR: 'topBar',
       SIDE_BAR: 'sideBar',
@@ -250,6 +251,7 @@ export default {
           || this.isPageStylingPropertiesChanged
           || this.isThemeColorsChanged
           || this.isFontFamilyChanged
+          || this.isFontFamilyReset
           || this.isCustomStyleChanged);
     },
   },
@@ -315,6 +317,7 @@ export default {
     this.$root.$on('update-sidebar-styling-properties', this.updateSideBarProperties);
     this.$root.$on('update-drawer-styling-properties', this.updateDrawerProperties);
     this.$root.$on('reset-theme-colors', this.resetThemeStyleColors);
+    this.$root.$on('reset-font-family', this.resetFontFamily);
     this.$root.$on('reset-top-bar-styling', this.resetTopBarStylingProperties);
     this.$root.$on('reset-sidebar-styling', this.resetSidebarStylingProperties);
     this.$root.$on('reset-drawer-styling', this.resetDrawerStylingProperties);
@@ -331,6 +334,7 @@ export default {
     this.$root.$off('update-sidebar-styling-properties', this.updateSideBarProperties);
     this.$root.$off('update-drawer-styling-properties', this.updateDrawerProperties);
     this.$root.$off('reset-theme-colors', this.resetThemeStyleColors);
+    this.$root.$off('reset-font-family', this.resetFontFamily);
     this.$root.$off('reset-top-bar-styling', this.resetTopBarStylingProperties);
     this.$root.$off('reset-sidebar-styling', this.resetSidebarStylingProperties);
     this.$root.$off('reset-drawer-styling', this.resetDrawerStylingProperties);
@@ -346,6 +350,7 @@ export default {
       this.secondaryColor = this.defaultSecondaryColor;
       this.tertiaryColor = this.defaultTertiaryColor;
       this.fontFamily = this.defaultFontFamily;
+      this.isFontFamilyReset = false;
       this.customCss = this.branding?.customCss;
       this.pageStylingProperties = {
         pageBackground: this.branding?.pageBackground || null,
@@ -429,6 +434,7 @@ export default {
     },
     updateBrandingFontFamily(fontFamily) {
       this.fontFamily = fontFamily;
+      this.isFontFamilyReset = false;
     },
     updateBrandingThemeColors(primary, secondary, tertiary) {
       this.primaryColor = primary;
@@ -632,6 +638,10 @@ export default {
       this.primaryColor = this.$root.defaultBrandingThemeStyle?.primaryColor;
       this.secondaryColor = this.$root.defaultBrandingThemeStyle?.secondaryColor;
       this.tertiaryColor = this.$root.defaultBrandingThemeStyle?.tertiaryColor;
+    },
+    resetFontFamily() {
+      this.fontFamily = this.$root.defaultBrandingThemeStyle?.fontFamily;
+      this.isFontFamilyReset = true;
     },
     resetTopBarStylingProperties() {
       this.topBarStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
