@@ -39,6 +39,11 @@ export default {
         resetEvent: 'reset-theme-colors'
       },
       {
+        name: 'fontFamily',
+        event: 'open-update-font-drawer',
+        resetEvent: 'reset-font-family'
+      },
+      {
         name: 'pageStylingDrawer',
         event: 'open-page-styling-drawer',
         resetEvent: 'reset-page-styling'
