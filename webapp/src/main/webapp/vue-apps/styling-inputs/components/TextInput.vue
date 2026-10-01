@@ -189,6 +189,22 @@
           class="my-auto" />
       </v-list-item-action>
     </v-list-item>
+    <v-list-item
+      v-if="enabled && customIcon"
+      class="pa-0"
+      dense>
+      <v-list-item-content class="my-auto text-body font-weight-bold">
+        {{ $t('layout.textColorIcon') }}
+      </v-list-item-content>
+      <v-list-item-action
+        class="me-0 my-auto ms-auto">
+        <styling-color-picker
+          v-model="iconColor"
+          placeholder="#707070"
+          min-text-width="64"
+          class="my-auto" />
+      </v-list-item-action>
+    </v-list-item>
   </div>
 </template>
 <script>
@@ -223,6 +239,11 @@ export default {
       type: Boolean,
       default: true,
     },
+    // Icon colour row, offered where the container carries an icon colour (the Branding container drawers)
+    customIcon: {
+      type: Boolean,
+      default: false,
+    },
     // Title and Header text backgrounds (the only two that exist); off for areas that have none (Branding Topbar, Sidebars, Drawers)
     textBackground: {
       type: Boolean,
@@ -244,6 +265,7 @@ export default {
     textSubtitleColor: null,
     textSubtitleFontSize: 0,
     textSubtitleStyle: [],
+    iconColor: null,
     initialized: false,
   }),
   watch: {
@@ -343,9 +365,16 @@ export default {
         }
       }
     },
+    iconColor() {
+      if (this.initialized) {
+        this.$set(this.container, 'iconColor', this.iconColor || null);
+        this.$emit('refresh');
+      }
+    },
     enabled() {
       if (this.initialized) {
         if (this.enabled) {
+          // The Icon row is never pre-filled: a stored icon colour is an override of the platform's
           this.textTitleColor =  '#20282C';
           this.textTitleFontSize = 20;
           this.textTitleStyle = ['bold'];
@@ -371,6 +400,7 @@ export default {
           this.textSubtitleColor = null;
           this.textSubtitleStyle = null;
           this.textSubtitleFontSize = null;
+          this.iconColor = null;
         }
       }
     },
@@ -418,7 +448,9 @@ export default {
       this.textSubtitleStyle.push('italic');
     }
 
-    this.enabled = !!this.textTitleColor || !!this.textHeaderColor || !!this.textColor || !!this.textSubtitleColor;
+    this.iconColor = this.container.iconColor || null;
+
+    this.enabled = !!this.textTitleColor || !!this.textHeaderColor || !!this.textColor || !!this.textSubtitleColor || !!this.iconColor;
     this.$nextTick().then(() => this.initialized = true);
   },
 };
