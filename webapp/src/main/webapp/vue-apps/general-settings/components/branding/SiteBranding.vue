@@ -418,6 +418,7 @@ export default {
         '--allPagesTopBarTextFontSize': this.topBarStylingProperties.topBarTextFontSize,
         '--allPagesTopBarTextFontStyle': this.topBarStylingProperties.topBarTextFontStyle,
         '--allPagesTopBarTextFontWeight': this.topBarStylingProperties.topBarTextFontWeight,
+        '--allPagesTopBarIconColor': this.topBarStylingProperties.topBarIconColor,
         '--allPagesTopBarBackgroundColor': this.topBarStylingProperties.topBarBackgroundColor,
         '--allPagesTopBarBackgroundPosition': this.topBarStylingProperties.topBarBackgroundPosition,
         '--allPagesTopBarBackgroundRepeat': this.topBarStylingProperties.topBarBackgroundRepeat,
@@ -460,6 +461,7 @@ export default {
         '--allPagesSideBarTextSubtitleFontSize': this.sideBarStylingProperties.sideBarTextSubtitleFontSize,
         '--allPagesSideBarTextSubtitleFontStyle': this.sideBarStylingProperties.sideBarTextSubtitleFontStyle,
         '--allPagesSideBarTextSubtitleFontWeight': this.sideBarStylingProperties.sideBarTextSubtitleFontWeight,
+        '--allPagesSideBarIconColor': this.sideBarStylingProperties.sideBarIconColor,
         '--allPagesSideBarBackgroundColor': this.sideBarStylingProperties.sideBarBackgroundColor,
         '--allPagesSideBarBackgroundPosition': this.sideBarStylingProperties.sideBarBackgroundPosition,
         '--allPagesSideBarBackgroundRepeat': this.sideBarStylingProperties.sideBarBackgroundRepeat,
@@ -493,6 +495,7 @@ export default {
         '--allPagesDrawerTextFontSize': this.drawerStylingProperties.drawerTextFontSize,
         '--allPagesDrawerTextFontStyle': this.drawerStylingProperties.drawerTextFontStyle,
         '--allPagesDrawerTextFontWeight': this.drawerStylingProperties.drawerTextFontWeight,
+        '--allPagesDrawerIconColor': this.drawerStylingProperties.drawerIconColor,
         '--allPagesDrawerTextSubtitleColor': this.drawerStylingProperties.drawerTextSubtitleColor,
         '--allPagesDrawerTextSubtitleFontSize': this.drawerStylingProperties.drawerTextSubtitleFontSize,
         '--allPagesDrawerTextSubtitleFontStyle': this.drawerStylingProperties.drawerTextSubtitleFontStyle,
@@ -539,6 +542,7 @@ export default {
         [`${type}TextFontSize`]: themeStyle?.[`${type}TextFontSize`] || null,
         [`${type}TextFontStyle`]: themeStyle?.[`${type}TextFontStyle`] || null,
         [`${type}TextFontWeight`]: themeStyle?.[`${type}TextFontWeight`] || null,
+        [`${type}IconColor`]: themeStyle?.[`${type}IconColor`] || null,
       };
       if (type === this.brandingStylingType.TOP_BAR) {
         // PO decision 6 applied literally (Architects Lead): off sends no key, so the configured value comes back
@@ -575,6 +579,7 @@ export default {
         [`${type}TextFontSize`]: textProperties.textFontSize,
         [`${type}TextFontStyle`]: textProperties.textFontStyle,
         [`${type}TextFontWeight`]: textProperties.textFontWeight,
+        [`${type}IconColor`]: textProperties.iconColor || null,
       };
       if (type === this.brandingStylingType.TOP_BAR) {
         properties.topBarSticky = backgroundProperties.sticky ? 'true' : null;
