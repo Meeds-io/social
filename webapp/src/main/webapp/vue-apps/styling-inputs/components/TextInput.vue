@@ -239,7 +239,7 @@ export default {
       type: Boolean,
       default: true,
     },
-    // Icon colour row, offered where the container carries an icon colour (the Branding container drawers)
+    // Icon colour row, offered where the styled level carries an icon colour of its own
     customIcon: {
       type: Boolean,
       default: false,

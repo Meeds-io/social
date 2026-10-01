@@ -135,7 +135,8 @@
           <styling-text-input
             v-if="initialized"
             v-model="applicationStyling.container"
-            class="mt-4">
+            class="mt-4"
+            custom-icon>
             <template #title-background-image>
               <portal-general-settings-background-image-attachment
                 v-model="appTextTitleBackgroundUploadId"
