@@ -140,6 +140,9 @@
         'secondaryColor': secondaryColor,
         'tertiaryColor': tertiaryColor
       }" />
+    <portal-general-settings-branding-update-font-drawer
+      :font-family="fontFamily"
+      :font-families="supportedFontFamilies" />
     <portal-general-settings-branding-top-bar-styling-drawer :top-bar-styling-properties="topBarStylingProperties" />
     <portal-general-settings-branding-sidebar-styling-drawer :side-bar-styling-properties="sideBarStylingProperties" />
     <portal-general-settings-branding-drawer-styling :drawer-styling-properties="drawerStylingProperties" />
@@ -159,6 +162,7 @@ export default {
     primaryColor: null,
     secondaryColor: null,
     tertiaryColor: null,
+    fontFamily: null,
     errorMessage: null,
     logoUploadId: null,
     faviconUploadId: null,
@@ -208,6 +212,15 @@ export default {
     defaultTertiaryColor() {
       return this.branding?.themeStyle?.tertiaryColor;
     },
+    defaultFontFamily() {
+      return this.branding?.themeStyle?.fontFamily;
+    },
+    supportedFontFamilies() {
+      return this.branding?.supportedFontFamilies || [];
+    },
+    isFontFamilyChanged() {
+      return this.fontFamily !== this.defaultFontFamily;
+    },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
@@ -236,6 +249,7 @@ export default {
           || this.isDrawerStylingPropertiesChanged
           || this.isPageStylingPropertiesChanged
           || this.isThemeColorsChanged
+          || this.isFontFamilyChanged
           || this.isCustomStyleChanged);
     },
   },
@@ -279,6 +293,14 @@ export default {
         }
       });
     },
+    fontFamily() {
+      this.$root.$emit('refresh-style-property', {
+        detail: {
+          propertyName: '--allPagesFontFamily',
+          propertyValue: this.fontFamily
+        }
+      });
+    },
     companyName() {
       this.$root.$emit('refresh-company-name', this.companyName);
     },
@@ -288,6 +310,7 @@ export default {
   },
   created() {
     this.$root.$on('update-branding-theme-colors', this.updateBrandingThemeColors);
+    this.$root.$on('update-branding-font-family', this.updateBrandingFontFamily);
     this.$root.$on('update-top-bar-styling-properties', this.updateTopBarProperties);
     this.$root.$on('update-sidebar-styling-properties', this.updateSideBarProperties);
     this.$root.$on('update-drawer-styling-properties', this.updateDrawerProperties);
@@ -303,6 +326,7 @@ export default {
   },
   beforeDestroy() {
     this.$root.$off('update-branding-theme-colors', this.updateBrandingThemeColors);
+    this.$root.$off('update-branding-font-family', this.updateBrandingFontFamily);
     this.$root.$off('update-top-bar-styling-properties', this.updateTopBarProperties);
     this.$root.$off('update-sidebar-styling-properties', this.updateSideBarProperties);
     this.$root.$off('update-drawer-styling-properties', this.updateDrawerProperties);
@@ -321,6 +345,7 @@ export default {
       this.primaryColor = this.defaultPrimaryColor;
       this.secondaryColor = this.defaultSecondaryColor;
       this.tertiaryColor = this.defaultTertiaryColor;
+      this.fontFamily = this.defaultFontFamily;
       this.customCss = this.branding?.customCss;
       this.pageStylingProperties = {
         pageBackground: this.branding?.pageBackground || null,
@@ -353,6 +378,7 @@ export default {
         primaryColor: this.primaryColor,
         secondaryColor: this.secondaryColor,
         tertiaryColor: this.tertiaryColor,
+        fontFamily: this.fontFamily,
       };
       const applicationStyling = this.pageStylingProperties.applicationStyling;
       Object.assign(themeStyle, this.toApplicationThemeStyle(applicationStyling));
@@ -400,6 +426,9 @@ export default {
         })
         .catch(e => this.errorMessage = String(e))
         .finally(() => this.$root.loading = false);
+    },
+    updateBrandingFontFamily(fontFamily) {
+      this.fontFamily = fontFamily;
     },
     updateBrandingThemeColors(primary, secondary, tertiary) {
       this.primaryColor = primary;

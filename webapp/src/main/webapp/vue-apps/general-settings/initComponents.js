@@ -55,6 +55,7 @@ import NavigationSettingsAddSidebarSpacesDrawer from './components/navigation/si
 import SiteBrandingOptions from './components/branding/options/SiteBrandingOptions.vue';
 import SiteBrandingOptionsItem from './components/branding/options/SiteBrandingOptionsItem.vue';
 import UpdateColorsDrawer from './components/branding/drawers/UpdateColorsDrawer.vue';
+import UpdateFontDrawer from './components/branding/drawers/UpdateFontDrawer.vue';
 import TopBarStylingDrawer from './components/branding/drawers/TopBarStylingDrawer.vue';
 import SideBarStylingDrawer from './components/branding/drawers/SideBarStylingDrawer.vue';
 import DrawerStyling from './components/branding/drawers/DrawerStyling.vue';
@@ -71,6 +72,7 @@ const components = {
   'portal-general-settings-branding-options': SiteBrandingOptions,
   'portal-general-settings-branding-options-item': SiteBrandingOptionsItem,
   'portal-general-settings-branding-update-colors-drawer': UpdateColorsDrawer,
+  'portal-general-settings-branding-update-font-drawer': UpdateFontDrawer,
   'portal-general-settings-branding-top-bar-styling-drawer': TopBarStylingDrawer,
   'portal-general-settings-branding-sidebar-styling-drawer': SideBarStylingDrawer,
   'portal-general-settings-branding-drawer-styling': DrawerStyling,
