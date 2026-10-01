@@ -190,6 +190,8 @@ export default {
       'textHeaderColor', 'textHeaderFontSize', 'textHeaderFontWeight', 'textHeaderFontStyle',
       'textColor', 'textFontSize', 'textFontWeight', 'textFontStyle',
       'textSubtitleColor', 'textSubtitleFontSize', 'textSubtitleFontWeight', 'textSubtitleFontStyle',
+      // The platform-wide icon colour of page content rides the same read, save and preview paths as the text keys
+      'iconColor',
     ]),
     sides: Object.freeze(['Top', 'Right', 'Bottom', 'Left']),
     textBackgroundTypes: Object.freeze(['Title', 'Header']),
@@ -949,6 +951,11 @@ export default {
       keys.forEach(key => {
         properties[`--allPages${key.charAt(0).toUpperCase()}${key.slice(1)}`] = themeStyle[key] || null;
       });
+      // Platform icon colour: an unset inline value would leave the stored colour of the stylesheet in the preview, so the
+      // effective value is previewed instead, the configured default or 'initial' (each icon family's built-in colour)
+      properties['--allPagesAppIconColor'] = themeStyle.appIconColor
+        || this.$root.defaultBrandingThemeStyle?.appIconColor
+        || 'initial';
       // Application corners: the stylesheet emits the four --allPagesAppBorderRadius* as literals (the stored
       // uniform radius), so an unset inline value would leave the stored corners in the preview; the effective
       // value is previewed instead — per corner when set, the uniform value or the default otherwise (0px included)
