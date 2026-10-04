@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import {getColumnStyle} from '../../common/js/NotificationSettingsLayout.js';
+
 export default {
   props: {
     plugin: {
@@ -60,8 +62,7 @@ export default {
       return options;
     },
     columnStyle() {
-      const width = this.$vuetify.breakpoint.smAndDown ? 64 : 96;
-      return `width: ${width}px; min-width: ${width}px;`;
+      return getColumnStyle(this.$vuetify.breakpoint.smAndDown);
     },
   },
   watch: {
