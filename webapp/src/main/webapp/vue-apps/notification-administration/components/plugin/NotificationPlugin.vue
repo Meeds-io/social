@@ -1,45 +1,33 @@
 <template>
-  <div>
-    <v-divider />
-
-    <v-list-item dense>
-      <v-list-item-content class="px-0 pb-0 pt-2 mt-auto mb-2">
-        <v-list-item-title class="text-color text-wrap">
-          {{ label }}
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action class="ma-auto">
-        <v-btn icon @click="$emit('edit')">
-          <v-icon>
-            fa-edit
-          </v-icon>
-        </v-btn>
-      </v-list-item-action>
-    </v-list-item>
-    <v-flex class="d-flex flex-wrap">
-      <template v-if="enabledNotificationLabels && enabledNotificationLabels.length">
-        <v-chip
-          v-for="enabledNotificationLabel in enabledNotificationLabels"
-          :key="enabledNotificationLabel"
-          class="ma-2"
-          color="primary">
-          <span class="text-truncate">
-            {{ enabledNotificationLabel }}
-          </span>
-        </v-chip>
-      </template>
-      <v-chip
-        v-else
-        class="ma-2">
-        <span class="text-truncate">
-          {{ $t('UINotification.label.NoNotifications') }}
-        </span>
-      </v-chip>
-    </v-flex>
-  </div>
+  <v-list-item dense>
+    <v-list-item-content class="py-1">
+      <v-list-item-title class="text-color text-wrap">
+        {{ label }}
+      </v-list-item-title>
+    </v-list-item-content>
+    <v-list-item-action class="d-flex flex-row align-center justify-end my-1">
+      <div
+        v-for="channelId in columns"
+        :key="channelId"
+        :style="columnStyle"
+        class="d-flex justify-center flex-shrink-0">
+        <v-switch
+          v-if="optionsByChannel[channelId]"
+          :input-value="channels[channelId]"
+          :aria-label="`${channelLabel(channelId)} - ${label}`"
+          :disabled="saving"
+          :loading="savingChannel === channelId"
+          class="mt-0 pt-0"
+          hide-details
+          @change="toggle(channelId, $event)" />
+      </div>
+    </v-list-item-action>
+  </v-list-item>
 </template>
 
 <script>
+import {getColumnStyle} from '../../../common/js/NotificationSettingsLayout.js';
+
 export default {
   props: {
     plugin: {
@@ -50,19 +38,66 @@ export default {
       type: Object,
       default: null,
     },
+    columns: {
+      type: Array,
+      default: () => [],
+    },
   },
+  data: () => ({
+    channels: {},
+    saving: false,
+    savingChannel: null,
+  }),
   computed: {
     label() {
       const pluginId = this.plugin.type;
       return this.$te(`NotificationAdmin.${pluginId}`) && this.$t(`NotificationAdmin.${pluginId}`) || this.settings?.pluginLabels[pluginId];
     },
-    enabledNotifications() {
-      return this.settings && this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.filter(choice => choice.channelActive && choice.pluginId === this.plugin.type);
+    channelOptions() {
+      return (this.settings?.channelCheckBoxList || [])
+        .filter(choice => choice.allowed && choice.pluginId === this.plugin.type);
     },
-    enabledNotificationLabels() {
-      return this.enabledNotifications && this.enabledNotifications.map(plugin => this.settings.channelLabels[plugin.channelId]);
+    optionsByChannel() {
+      const options = {};
+      this.channelOptions.forEach(option => options[option.channelId] = option);
+      return options;
+    },
+    columnStyle() {
+      return getColumnStyle(this.$vuetify.breakpoint.smAndDown);
+    },
+  },
+  watch: {
+    channelOptions: {
+      immediate: true,
+      handler() {
+        const channels = {};
+        this.channelOptions.forEach(option => {
+          channels[option.channelId] = !!option.channelActive;
+        });
+        this.channels = channels;
+      },
+    },
+  },
+  methods: {
+    channelLabel(channelId) {
+      return this.settings?.channelLabels?.[channelId];
+    },
+    toggle(channelId, value) {
+      const previousValue = this.channels[channelId];
+      this.$set(this.channels, channelId, !!value);
+      this.saving = true;
+      this.savingChannel = channelId;
+      return this.$notificationAdministration.savePluginSettings(this.plugin.type, `${channelId}=${!!value}`)
+        .then(() => this.$root.$emit('refresh'))
+        .catch(() => {
+          this.$set(this.channels, channelId, previousValue);
+          this.$root.$emit('alert-message', this.$t('NotificationAdmin.error.savePluginSettings'), 'error');
+        })
+        .finally(() => {
+          this.saving = false;
+          this.savingChannel = null;
+        });
     },
   },
 };
 </script>
-

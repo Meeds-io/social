@@ -35,17 +35,7 @@
 </template>
 
 <script>
-// Icons of the settings groups owned by the social notification configuration
-const SOCIAL_GROUPS_ICONS = {
-  general: 'fa-cog',
-  connections: 'fa-user-friends',
-  spaces: 'fa-layer-group',
-  activity_stream: 'fa-stream',
-  other: 'fa-ellipsis-h',
-};
-
-// Left to right; a channel not listed here goes leftmost
-const CHANNELS_ORDER = ['SPACE_WEB_CHANNEL', 'WEB_CHANNEL', 'MAIL_CHANNEL'];
+import {getChannelColumns, getColumnStyle, getGroupIcon} from '../../common/js/NotificationSettingsLayout.js';
 
 export default {
   props: {
@@ -64,36 +54,13 @@ export default {
   }),
   computed: {
     icon() {
-      const groupId = this.group?.groupId;
-      const exactExtension = this.extensions.find(ext => ext.name === groupId);
-      if (exactExtension?.icon) {
-        return exactExtension.icon;
-      }
-      if (SOCIAL_GROUPS_ICONS[groupId]) {
-        return SOCIAL_GROUPS_ICONS[groupId];
-      }
-      // A bell group spanning several settings groups must not paint them all alike
-      const pluginTypes = (this.group?.pluginInfos || []).map(plugin => plugin.type);
-      const overlappingExtension = this.extensions.find(ext => ext.plugins?.some(type => pluginTypes.includes(type)));
-      if (overlappingExtension && this.overlappingGroupsCount(overlappingExtension) === 1) {
-        return overlappingExtension.icon;
-      }
-      return null;
+      return getGroupIcon(this.settings, this.group, this.extensions);
     },
     columns() {
-      const pluginTypes = (this.group?.pluginInfos || []).map(plugin => plugin.type);
-      const allowedChannels = new Set((this.settings?.channelCheckBoxList || [])
-        .filter(choice => choice.allowed && pluginTypes.includes(choice.pluginId))
-        .map(choice => choice.channelId));
-      return (this.settings?.channels || [])
-        .filter(channelId => allowedChannels.has(channelId))
-        .map((channelId, index) => ({channelId, index, rank: CHANNELS_ORDER.indexOf(channelId) + 1}))
-        .sort((a, b) => a.rank - b.rank || a.index - b.index)
-        .map(item => item.channelId);
+      return getChannelColumns(this.settings, this.group);
     },
     columnStyle() {
-      const width = this.$vuetify.breakpoint.smAndDown ? 64 : 96;
-      return `width: ${width}px; min-width: ${width}px;`;
+      return getColumnStyle(this.$vuetify.breakpoint.smAndDown);
     },
     label() {
       return this.settings && this.settings.groupsLabels && this.settings.groupsLabels[this.group.groupId];
@@ -111,11 +78,6 @@ export default {
     document.removeEventListener('extension-WebNotification-notification-group-extension-updated', this.refreshExtensions);
   },
   methods: {
-    overlappingGroupsCount(extension) {
-      return (this.settings?.groups || [])
-        .filter(settingsGroup => settingsGroup.pluginInfos?.some(plugin => extension.plugins.includes(plugin.type)))
-        .length;
-    },
     refreshExtensions() {
       this.extensions = extensionRegistry.loadExtensions('WebNotification', 'notification-group-extension') || [];
     },

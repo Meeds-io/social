@@ -25,7 +25,6 @@ import NotificationContact from './components/NotificationContact.vue';
 
 import NotificationPluginGroup from './components/plugin/NotificationPluginGroup.vue';
 import NotificationPlugin from './components/plugin/NotificationPlugin.vue';
-import NotificationPluginDrawer from './components/plugin/NotificationPluginDrawer.vue';
 
 import NotificationContactDrawer from './components/contact/NotificationContactDrawer.vue';
 
@@ -36,7 +35,6 @@ const components = {
   'notification-administration-contact': NotificationContact,
   'notification-administration-plugin': NotificationPlugin,
   'notification-administration-plugin-group': NotificationPluginGroup,
-  'notification-administration-plugin-drawer': NotificationPluginDrawer,
   'notification-administration-contact-drawer': NotificationContactDrawer,
 };
 
