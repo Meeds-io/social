@@ -13,8 +13,7 @@
       <user-setting-notification-plugin
         :plugin="plugin"
         :key="plugin.type"
-        :settings="settings"
-        @edit="$emit('edit', plugin, group)" />
+        :settings="settings" />
     </template>
   </div>
 </template>
