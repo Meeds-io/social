@@ -5,19 +5,22 @@
         {{ label }}
       </v-list-item-title>
     </v-list-item-content>
-    <v-list-item-action class="d-flex flex-row flex-wrap align-center justify-end my-1">
-      <v-switch
-        v-for="option in channelOptions"
-        :key="option.channelId"
-        :input-value="channels[option.channelId]"
-        :label="channelLabel(option.channelId)"
-        :aria-label="channelLabel(option.channelId)"
-        :disabled="saving || !option.channelActive"
-        class="mt-0 ms-4"
-        dense
-        inset
-        hide-details
-        @change="toggle(option, $event)" />
+    <v-list-item-action class="d-flex flex-row align-center justify-end my-1">
+      <div
+        v-for="channelId in columns"
+        :key="channelId"
+        :style="columnStyle"
+        class="d-flex justify-center flex-shrink-0">
+        <v-switch
+          v-if="optionsByChannel[channelId]"
+          :input-value="channels[channelId]"
+          :aria-label="`${channelLabel(channelId)} - ${label}`"
+          :disabled="saving || !optionsByChannel[channelId].channelActive"
+          :loading="savingChannel === channelId"
+          class="mt-0 pt-0"
+          hide-details
+          @change="toggle(optionsByChannel[channelId], $event)" />
+      </div>
     </v-list-item-action>
   </v-list-item>
 </template>
@@ -33,10 +36,15 @@ export default {
       type: Object,
       default: null,
     },
+    columns: {
+      type: Array,
+      default: () => [],
+    },
   },
   data: () => ({
     channels: {},
     saving: false,
+    savingChannel: null,
   }),
   computed: {
     label() {
@@ -44,8 +52,16 @@ export default {
     },
     channelOptions() {
       return (this.settings?.channelCheckBoxList || [])
-        .filter(choice => choice.allowed && choice.pluginId === this.plugin.type)
-        .sort((a, b) => a.channelId.localeCompare(b.channelId));
+        .filter(choice => choice.allowed && choice.pluginId === this.plugin.type);
+    },
+    optionsByChannel() {
+      const options = {};
+      this.channelOptions.forEach(option => options[option.channelId] = option);
+      return options;
+    },
+    columnStyle() {
+      const width = this.$vuetify.breakpoint.smAndDown ? 64 : 96;
+      return `width: ${width}px; min-width: ${width}px;`;
     },
   },
   watch: {
@@ -69,6 +85,7 @@ export default {
       const previousValue = this.channels[channelId];
       this.$set(this.channels, channelId, !!value);
       this.saving = true;
+      this.savingChannel = channelId;
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}/plugin/${this.plugin.type}`, {
         method: 'PATCH',
         credentials: 'include',
@@ -86,6 +103,7 @@ export default {
         this.$root.$emit('alert-message', this.$t('UserSettings.notifications.error.save'), 'error');
       }).finally(() => {
         this.saving = false;
+        this.savingChannel = null;
       });
     },
   },
