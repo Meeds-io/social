@@ -33,6 +33,10 @@ export function init(settings) {
       },
       created() {
         this.$utils.includeExtensions('UserSettingsNotificationsExtension');
+        // Same loading as the notifications drawer: the core notification extensions
+        // module first, then every add-on module named *NotificationExtension
+        const includeNotificationExtensions = () => this.$utils.includeExtensions('NotificationExtension');
+        window.require(['SHARED/notificationExtensions'], includeNotificationExtensions, includeNotificationExtensions);
       },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
