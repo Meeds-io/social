@@ -35,6 +35,9 @@
 </template>
 
 <script>
+// Left to right; a channel not listed here goes leftmost
+const CHANNELS_ORDER = ['SPACE_WEB_CHANNEL', 'WEB_CHANNEL', 'MAIL_CHANNEL'];
+
 export default {
   props: {
     group: {
@@ -62,7 +65,11 @@ export default {
       const allowedChannels = new Set((this.settings?.channelCheckBoxList || [])
         .filter(choice => choice.allowed && pluginTypes.includes(choice.pluginId))
         .map(choice => choice.channelId));
-      return (this.settings?.channels || []).filter(channelId => allowedChannels.has(channelId));
+      return (this.settings?.channels || [])
+        .filter(channelId => allowedChannels.has(channelId))
+        .map((channelId, index) => ({channelId, index, rank: CHANNELS_ORDER.indexOf(channelId) + 1}))
+        .sort((a, b) => a.rank - b.rank || a.index - b.index)
+        .map(item => item.channelId);
     },
     columnStyle() {
       const width = this.$vuetify.breakpoint.smAndDown ? 64 : 96;
