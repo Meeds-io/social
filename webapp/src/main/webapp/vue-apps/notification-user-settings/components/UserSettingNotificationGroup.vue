@@ -35,6 +35,15 @@
 </template>
 
 <script>
+// Icons of the settings groups owned by the social notification configuration
+const SOCIAL_GROUPS_ICONS = {
+  general: 'fa-cog',
+  connections: 'fa-user-friends',
+  spaces: 'fa-layer-group',
+  activity_stream: 'fa-stream',
+  other: 'fa-ellipsis-h',
+};
+
 // Left to right; a channel not listed here goes leftmost
 const CHANNELS_ORDER = ['SPACE_WEB_CHANNEL', 'WEB_CHANNEL', 'MAIL_CHANNEL'];
 
@@ -55,10 +64,21 @@ export default {
   }),
   computed: {
     icon() {
+      const groupId = this.group?.groupId;
+      const exactExtension = this.extensions.find(ext => ext.name === groupId);
+      if (exactExtension?.icon) {
+        return exactExtension.icon;
+      }
+      if (SOCIAL_GROUPS_ICONS[groupId]) {
+        return SOCIAL_GROUPS_ICONS[groupId];
+      }
+      // A bell group spanning several settings groups must not paint them all alike
       const pluginTypes = (this.group?.pluginInfos || []).map(plugin => plugin.type);
-      const extension = this.extensions.find(ext => ext.plugins?.some(type => pluginTypes.includes(type)))
-        || this.extensions.find(ext => ext.name === this.group?.groupId);
-      return extension?.icon;
+      const overlappingExtension = this.extensions.find(ext => ext.plugins?.some(type => pluginTypes.includes(type)));
+      if (overlappingExtension && this.overlappingGroupsCount(overlappingExtension) === 1) {
+        return overlappingExtension.icon;
+      }
+      return null;
     },
     columns() {
       const pluginTypes = (this.group?.pluginInfos || []).map(plugin => plugin.type);
@@ -91,6 +111,11 @@ export default {
     document.removeEventListener('extension-WebNotification-notification-group-extension-updated', this.refreshExtensions);
   },
   methods: {
+    overlappingGroupsCount(extension) {
+      return (this.settings?.groups || [])
+        .filter(settingsGroup => settingsGroup.pluginInfos?.some(plugin => extension.plugins.includes(plugin.type)))
+        .length;
+    },
     refreshExtensions() {
       this.extensions = extensionRegistry.loadExtensions('WebNotification', 'notification-group-extension') || [];
     },
