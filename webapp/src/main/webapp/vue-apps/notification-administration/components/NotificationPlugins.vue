@@ -5,11 +5,7 @@
       v-for="group in settings.groups"
       :settings="settings"
       :key="group.groupId"
-      :group="group"
-      @edit="openDrawer" />
-    <notification-administration-plugin-drawer
-      ref="drawer"
-      :settings="settings" />
+      :group="group" />
   </div>
 </template>
 
@@ -19,11 +15,6 @@ export default {
     settings: {
       type: Object,
       default: null,
-    },
-  },
-  methods: {
-    openDrawer(plugin, group) {
-      this.$nextTick(() => this.$refs.drawer.open(plugin, group));
     },
   },
 };
