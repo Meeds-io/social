@@ -1,19 +1,21 @@
 <template>
-  <div v-if="manageNotification && isEnabledNotificationGroup" class="border-radius border-color ma-4">
+  <div v-if="manageNotification && isEnabledNotificationGroup" class="mb-4">
     <v-list-item dense>
       <v-list-item-content>
-        <v-list-item-title class="text-header">
+        <v-list-item-title class="text-title">
           {{ label }}
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
 
-    <user-setting-notification-plugin
-      v-for="plugin in group.pluginInfos"
-      :plugin="plugin"
-      :key="plugin.type"
-      :settings="settings"
-      @edit="$emit('edit', plugin, group)" />
+    <template v-for="(plugin, index) in group.pluginInfos">
+      <v-divider v-if="index > 0" :key="`divider-${plugin.type}`" />
+      <user-setting-notification-plugin
+        :plugin="plugin"
+        :key="plugin.type"
+        :settings="settings"
+        @edit="$emit('edit', plugin, group)" />
+    </template>
   </div>
 </template>
 
