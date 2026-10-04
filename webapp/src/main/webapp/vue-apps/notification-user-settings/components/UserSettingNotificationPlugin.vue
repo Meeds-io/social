@@ -1,7 +1,5 @@
 <template>
   <div v-if="isEnabledNotifications.length">
-    <v-divider />
-
     <v-list-item dense>
       <v-list-item-content class="px-0 pb-0 pt-2 mt-auto mb-2">
         <v-list-item-title class="text-color text-wrap">
@@ -22,8 +20,10 @@
         <v-chip
           v-for="enabledNotificationLabel in enabledNotificationLabels"
           :key="enabledNotificationLabel"
-          class="ma-2"
-          color="primary">
+          class="ma-1 me-2"
+          color="primary"
+          outlined
+          small>
           <span class="text-truncate">
             {{ enabledNotificationLabel }}
           </span>
