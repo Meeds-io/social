@@ -1,6 +1,12 @@
 <template>
   <div v-if="manageNotification && isEnabledNotificationGroup" class="mb-4">
     <v-list-item dense>
+      <v-icon
+        v-if="icon"
+        size="20"
+        class="icon-default-color me-3">
+        {{ icon }}
+      </v-icon>
       <v-list-item-content>
         <v-list-item-title class="text-title">
           {{ label }}
@@ -42,8 +48,15 @@ export default {
   },
   data: () => ({
     isEnabledNotificationGroup: true,
+    extensions: [],
   }),
   computed: {
+    icon() {
+      const pluginTypes = (this.group?.pluginInfos || []).map(plugin => plugin.type);
+      const extension = this.extensions.find(ext => ext.plugins?.some(type => pluginTypes.includes(type)))
+        || this.extensions.find(ext => ext.name === this.group?.groupId);
+      return extension?.icon;
+    },
     columns() {
       const pluginTypes = (this.group?.pluginInfos || []).map(plugin => plugin.type);
       const allowedChannels = new Set((this.settings?.channelCheckBoxList || [])
@@ -63,9 +76,17 @@ export default {
     },
   },
   created() {
+    document.addEventListener('extension-WebNotification-notification-group-extension-updated', this.refreshExtensions);
+    this.refreshExtensions();
     this.init();
   },
+  beforeDestroy() {
+    document.removeEventListener('extension-WebNotification-notification-group-extension-updated', this.refreshExtensions);
+  },
   methods: {
+    refreshExtensions() {
+      this.extensions = extensionRegistry.loadExtensions('WebNotification', 'notification-group-extension') || [];
+    },
     init() {
       const listPlugins = [];
       this.group?.pluginInfos?.forEach(plugin => {
