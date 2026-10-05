@@ -1188,6 +1188,43 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(0, activities.size());
   }
 
+  /**
+   * The same space-stream filter, asked with and then without pinned
+   * activities first, must get both orders: the JPQL text is registered once
+   * per query name, so the pinned-first ordering has to be part of that name.
+   */
+  @SneakyThrows
+  public void testSpaceStreamOrdersPinnedFirstOnlyWhenAsked() {
+    Space space = createSpace("spaceTestPinnedOrder", "john");
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    ExoSocialActivity pinnedActivity = new ExoSocialActivityImpl();
+    pinnedActivity.setTitle("older pinned activity");
+    pinnedActivity.setUserId(johnIdentity.getId());
+    activityManager.saveActivityNoReturn(spaceIdentity, pinnedActivity);
+    activityManager.pinActivity(pinnedActivity.getId(), johnIdentity.getId());
+    Thread.sleep(10);
+    ExoSocialActivity newerActivity = new ExoSocialActivityImpl();
+    newerActivity.setTitle("newer activity");
+    newerActivity.setUserId(johnIdentity.getId());
+    activityManager.saveActivityNoReturn(spaceIdentity, newerActivity);
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.ALL_STREAM);
+    activityFilter.setSpaceIdentityId(Long.parseLong(spaceIdentity.getId()));
+
+    activityFilter.setShowPinned(false);
+    assertEquals(List.of(newerActivity.getId(), pinnedActivity.getId()),
+                 activityManager.getActivitiesByFilterWithListAccess(johnIdentity, activityFilter).loadIdsAsList(0, 10));
+
+    activityFilter.setShowPinned(true);
+    assertEquals(List.of(pinnedActivity.getId(), newerActivity.getId()),
+                 activityManager.getActivitiesByFilterWithListAccess(johnIdentity, activityFilter).loadIdsAsList(0, 10));
+
+    activityFilter.setShowPinned(false);
+    assertEquals(List.of(newerActivity.getId(), pinnedActivity.getId()),
+                 activityManager.getActivitiesByFilterWithListAccess(johnIdentity, activityFilter).loadIdsAsList(0, 10));
+  }
+
   @SneakyThrows
   public void testLoadSpaceActivities() {
     String activityTitle = "activity title";
