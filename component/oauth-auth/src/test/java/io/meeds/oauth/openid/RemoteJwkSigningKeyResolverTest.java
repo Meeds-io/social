@@ -279,6 +279,19 @@ public class RemoteJwkSigningKeyResolverTest {
                "an empty fallback set is logged");
   }
 
+  @Test
+  public void testUpdateKeysDoesNotCacheTheFallbackOnAFailedFetch() {
+    // WELL_KNOWN_URL is unreachable by construction: getJson() returns null,
+    // so this simulates a transient well-known-document fetch failure
+    RemoteJwkSigningKeyResolver resolver = new RemoteJwkSigningKeyResolver(WELL_KNOWN_URL, CLIENT_SECRET);
+
+    Set<String> algorithms = resolver.updateKeys();
+
+    assertEquals(Set.of("RS256"), algorithms);
+    assertNull(resolver.getCachedAllowedAlgorithms(),
+               "a failed fetch must not permanently pin the provider to the fallback algorithms");
+  }
+
   // a well-known document served from a file: URL, as getJson() opens any URL,
   // with an empty JWKS next to it
   private static String wellKnownUrl(Path directory, String... advertisedAlgorithms) throws Exception {
@@ -295,18 +308,5 @@ public class RemoteJwkSigningKeyResolverTest {
       configuration.put("id_token_signing_alg_values_supported", new JSONArray(advertisedAlgorithms));
     }
     return Files.writeString(directory.resolve("openid-configuration.json"), configuration.toString()).toUri().toString();
-  }
-
-  @Test
-  public void testUpdateKeysDoesNotCacheTheFallbackOnAFailedFetch() {
-    // WELL_KNOWN_URL is unreachable by construction: getJson() returns null,
-    // so this simulates a transient well-known-document fetch failure
-    RemoteJwkSigningKeyResolver resolver = new RemoteJwkSigningKeyResolver(WELL_KNOWN_URL, CLIENT_SECRET);
-
-    Set<String> algorithms = resolver.updateKeys();
-
-    assertEquals(Set.of("RS256"), algorithms);
-    assertNull(resolver.getCachedAllowedAlgorithms(),
-               "a failed fetch must not permanently pin the provider to the fallback algorithms");
   }
 }

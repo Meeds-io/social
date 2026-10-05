@@ -65,6 +65,18 @@ import io.jsonwebtoken.security.SignatureException;
 
 public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
 
+  static final String      SIGNATURE_ALGORITHMS_PROPERTY = "exo.oauth.openid.signature.algorithms";
+
+  // accepted when SIGNATURE_ALGORITHMS_PROPERTY is not set: the asymmetric
+  // algorithms, verified against the keys the provider publishes in its JWKS.
+  // An HS* algorithm is keyed on the client secret, so a deployment accepts
+  // it only by naming it in the property.
+  static final Set<String> DEFAULT_ACCEPTED_ALGORITHMS   = Set.of("RS256", "RS384", "RS512",
+                                                                  "PS256", "PS384", "PS512",
+                                                                  "ES256", "ES384", "ES512");
+
+  private static final Log LOG    = ExoLogger.getLogger(RemoteJwkSigningKeyResolver.class);
+
   private final String     wellKnownUrl;
 
   private final String     clientSecret;
@@ -75,18 +87,6 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
 
   // null until the well-known document (or the fallback) has been resolved
   private volatile Set<String> allowedAlgorithms;
-
-  private static final Log LOG    = ExoLogger.getLogger(RemoteJwkSigningKeyResolver.class);
-
-  static final String      SIGNATURE_ALGORITHMS_PROPERTY = "exo.oauth.openid.signature.algorithms";
-
-  // accepted when SIGNATURE_ALGORITHMS_PROPERTY is not set: the asymmetric
-  // algorithms, verified against the keys the provider publishes in its JWKS.
-  // An HS* algorithm is keyed on the client secret, so a deployment accepts
-  // it only by naming it in the property.
-  static final Set<String> DEFAULT_ACCEPTED_ALGORITHMS   = Set.of("RS256", "RS384", "RS512",
-                                                                  "PS256", "PS384", "PS512",
-                                                                  "ES256", "ES384", "ES512");
 
   RemoteJwkSigningKeyResolver(String wellKnownUrl, String clientSecret) {
     this.wellKnownUrl = wellKnownUrl;
