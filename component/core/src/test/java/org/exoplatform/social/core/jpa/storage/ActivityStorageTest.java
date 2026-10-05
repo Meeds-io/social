@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -174,8 +175,8 @@ public class ActivityStorageTest extends AbstractCoreTest {
         + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '" + (rootExternal == null ? "false" : rootExternal)
         + "',enabled: '" + (rootIdentity.isEnable() && !rootIdentity.isDeleted())
         + "',deleted: '" + rootIdentity.isDeleted()
-        + "',displayedEmail: '" + rootIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL)
-        + "',displayedPhone: '" + rootIdentity.getProfile().getProperty(Profile.DISPLAYED_PHONE)
+        + "',displayedEmail: '" + Objects.toString(rootIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL), "")
+        + "',displayedPhone: '" + Objects.toString(rootIdentity.getProfile().getProperty(Profile.DISPLAYED_PHONE), "")
         + "',}\" rel=\"nofollow\" target=\"_self\">" + rootIdentity.getProfile().getFullName() + "</a> " +
         "<a class=\"user-suggester\" href=\"" + currentDomain + "/portal/classic/profile/john\" "
         + "v-identity-popover=\"{id: '" + johnIdentity.getId() + "',username: '" + johnIdentity.getRemoteId() + "',fullName: '"
@@ -183,8 +184,8 @@ public class ActivityStorageTest extends AbstractCoreTest {
         + StringUtils.trimToEmpty(johnIdentity.getProfile().getPosition()) + "',external: '" + (johnExternal == null ? "false" : johnExternal)
         + "',enabled: '" + (johnIdentity.isEnable() && !johnIdentity.isDeleted())
         + "',deleted: '" + johnIdentity.isDeleted()
-        + "',displayedEmail: '" + johnIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL)
-        + "',displayedPhone: '" + johnIdentity.getProfile().getProperty(Profile.DISPLAYED_PHONE)
+        + "',displayedEmail: '" + Objects.toString(johnIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL), "")
+        + "',displayedPhone: '" + Objects.toString(johnIdentity.getProfile().getProperty(Profile.DISPLAYED_PHONE), "")
         + "',}\" rel=\"nofollow\" target=\"_self\">" + johnIdentity.getProfile().getFullName() + "</a>";
     activity.setTitle("test @root @john");
     activityStorage.updateActivity(activity);
