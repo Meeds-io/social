@@ -242,7 +242,13 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
         LOG.error("can't parse id_token_signing_alg_values_supported, falling back to the configured algorithms");
       }
     }
-    return toStringSet(isConfigured ? configured : "RS256");
+    Set<String> fallback = toStringSet(isConfigured ? configured : "RS256");
+    if (fallback.isEmpty()) {
+      LOG.warn("{} '{}' names no OpenId token signature algorithm: every login through this provider is rejected",
+               SIGNATURE_ALGORITHMS_PROPERTY,
+               configured);
+    }
+    return fallback;
   }
 
   private static Set<String> toStringSet(JSONArray array) throws JSONException {

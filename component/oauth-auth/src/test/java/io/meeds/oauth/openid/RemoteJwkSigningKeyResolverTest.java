@@ -48,7 +48,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.io.Encoders;
@@ -223,6 +228,29 @@ public class RemoteJwkSigningKeyResolverTest {
                                                 () -> resolver.resolveSigningKey(header, (byte[]) null));
     assertTrue(exception.getMessage().contains("[RS256]"), exception.getMessage());
     assertTrue(exception.getMessage().contains(SIGNATURE_ALGORITHMS_PROPERTY), exception.getMessage());
+  }
+
+  @Test
+  public void testPropertyNamingNoAlgorithmIsWarnedOnTheFallbackPath(@TempDir Path directory) throws Exception {
+    System.setProperty(SIGNATURE_ALGORITHMS_PROPERTY, ",");
+    when(header.getAlgorithm()).thenReturn("RS256");
+    RemoteJwkSigningKeyResolver resolver = new RemoteJwkSigningKeyResolver(wellKnownUrl(directory, null, new JSONArray()),
+                                                                           CLIENT_SECRET);
+    Logger logger = (Logger) LoggerFactory.getLogger(RemoteJwkSigningKeyResolver.class);
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    logger.addAppender(appender);
+    try {
+      assertThrows(SignatureException.class, () -> resolver.resolveSigningKey(header, (byte[]) null));
+    } finally {
+      logger.detachAppender(appender);
+    }
+
+    assertEquals(Set.of(), resolver.getCachedAllowedAlgorithms());
+    assertTrue(appender.list.stream()
+                            .anyMatch(event -> event.getLevel() == Level.WARN
+                                && event.getFormattedMessage().contains(SIGNATURE_ALGORITHMS_PROPERTY)),
+               "an empty fallback set is logged");
   }
 
   // a well-known document served from a file: URL, as getJson() opens any URL,
