@@ -212,13 +212,34 @@ public class RemoteJwkSigningKeyResolverTest {
     assertEquals(Set.of("ES256"), resolver.getCachedAllowedAlgorithms());
   }
 
+  @Test
+  public void testRejectionNamesTheAllowedAlgorithms(@TempDir Path directory) throws Exception {
+    // the provider advertises no list: the property alone applies, RS256 when unset
+    when(header.getAlgorithm()).thenReturn("ES256");
+    RemoteJwkSigningKeyResolver resolver = new RemoteJwkSigningKeyResolver(wellKnownUrl(directory, null, new JSONArray()),
+                                                                           CLIENT_SECRET);
+
+    SignatureException exception = assertThrows(SignatureException.class,
+                                                () -> resolver.resolveSigningKey(header, (byte[]) null));
+    assertTrue(exception.getMessage().contains("[RS256]"), exception.getMessage());
+    assertTrue(exception.getMessage().contains(SIGNATURE_ALGORITHMS_PROPERTY), exception.getMessage());
+  }
+
   // a well-known document served from a file: URL, as getJson() opens any URL,
   // with an empty JWKS next to it
   private static String wellKnownUrl(Path directory, String... advertisedAlgorithms) throws Exception {
-    Path jwks = Files.writeString(directory.resolve("jwks.json"), "{\"keys\":[]}");
+    return wellKnownUrl(directory, List.of(advertisedAlgorithms), new JSONArray());
+  }
+
+  // the same, with the given JWKS keys; a null advertisedAlgorithms leaves
+  // id_token_signing_alg_values_supported out of the document
+  private static String wellKnownUrl(Path directory, List<String> advertisedAlgorithms, JSONArray keys) throws Exception {
+    Path jwks = Files.writeString(directory.resolve("jwks.json"), new JSONObject().put("keys", keys).toString());
     JSONObject configuration = new JSONObject();
     configuration.put("jwks_uri", jwks.toUri().toString());
-    configuration.put("id_token_signing_alg_values_supported", new JSONArray(List.of(advertisedAlgorithms)));
+    if (advertisedAlgorithms != null) {
+      configuration.put("id_token_signing_alg_values_supported", new JSONArray(advertisedAlgorithms));
+    }
     return Files.writeString(directory.resolve("openid-configuration.json"), configuration.toString()).toUri().toString();
   }
 

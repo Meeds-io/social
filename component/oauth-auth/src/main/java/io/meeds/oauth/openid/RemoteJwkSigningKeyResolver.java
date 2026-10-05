@@ -46,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -104,9 +105,10 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
 
   private Key resolveSigningKey(JwsHeader header) {
     String algorithm = header.getAlgorithm();
-    if (algorithm == null || !getAllowedAlgorithms().contains(algorithm)) {
+    Set<String> allowed = getAllowedAlgorithms();
+    if (algorithm == null || !allowed.contains(algorithm)) {
       throw new SignatureException("OpenId token signature algorithm '" + algorithm
-          + "' is not accepted for this provider: it must be advertised by the provider and accepted by "
+          + "' is not among the algorithms allowed for this provider " + new TreeSet<>(allowed) + ", see "
           + SIGNATURE_ALGORITHMS_PROPERTY);
     }
     // HMAC-signed tokens use the client_secret itself as the shared key,
