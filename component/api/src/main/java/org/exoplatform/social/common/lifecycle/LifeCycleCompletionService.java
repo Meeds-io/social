@@ -19,7 +19,6 @@
 package org.exoplatform.social.common.lifecycle;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -49,8 +48,6 @@ public class LifeCycleCompletionService implements Startable {
 
   private ExecutorService           executor;
 
-  private ExecutorCompletionService ecs;
-
   private int                       configThreadNumber;
 
   private boolean                   configAsyncExecution;
@@ -62,7 +59,6 @@ public class LifeCycleCompletionService implements Startable {
     this.configThreadNumber = threadNumber == null ? DEFAULT_THREAD_NUMBER : Integer.valueOf(threadNumber.getValue());
     this.configAsyncExecution = asyncExecution == null ? DEFAULT_ASYNC_EXECUTION : Boolean.valueOf(asyncExecution.getValue());
     this.executor = Executors.newFixedThreadPool(this.configThreadNumber);
-    this.ecs = new ExecutorCompletionService(executor);
   }
 
   @Override
@@ -70,9 +66,15 @@ public class LifeCycleCompletionService implements Startable {
     executor.shutdown();
   }
 
+  /**
+   * Runs the task on the pool. Neither its result nor an exception it lets
+   * escape is kept: a task logs its own errors.
+   *
+   * @param callable the task to run
+   */
   @SuppressWarnings("unchecked")
   public void addTask(Callable callable) {
-    ecs.submit(callable);
+    executor.submit(callable); // NOSONAR the future is deliberately not kept
   }
 
   @SneakyThrows
