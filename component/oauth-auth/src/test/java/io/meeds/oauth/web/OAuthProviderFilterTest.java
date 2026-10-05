@@ -18,16 +18,20 @@
  */
 package io.meeds.oauth.web;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Field;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import org.exoplatform.web.security.AuthenticationRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -60,6 +64,12 @@ public class OAuthProviderFilterTest {
   @Mock
   private FilterChain                                      chain;
 
+  @Mock
+  private AuthenticationRegistry                           authenticationRegistry;
+
+  @Mock
+  private OAuthPrincipal<OpenIdAccessTokenContext>         principal;
+
   @Test
   public void testOAuthExceptionFromGetOAuthPrincipalEndsAsTheOAuthErrorRedirect() throws Exception {
     // e.g. OpenIdFilter, whose getOAuthPrincipal fetches and verifies the UserInfo response
@@ -68,7 +78,7 @@ public class OAuthProviderFilterTest {
     when(request.getSession()).thenReturn(session);
     when(processor.processOAuthInteraction(request, response)).thenReturn(new InteractionState<>(InteractionState.State.FINISH,
                                                                                                 null));
-    PrincipalFailingFilter filter = new PrincipalFailingFilter(processor, userInfoError);
+    PrincipalFilter filter = new PrincipalFilter(processor, null, userInfoError);
 
     filter.doFilter(request, response, chain);
 
@@ -77,16 +87,40 @@ public class OAuthProviderFilterTest {
     verifyNoInteractions(chain);
   }
 
-  private static class PrincipalFailingFilter extends OAuthProviderFilter<OpenIdAccessTokenContext> {
+  @Test
+  public void testObtainedPrincipalIsRegisteredAndTheChainContinues() throws Exception {
+    when(request.getSession()).thenReturn(session);
+    when(processor.processOAuthInteraction(request, response)).thenReturn(new InteractionState<>(InteractionState.State.FINISH,
+                                                                                                null));
+    PrincipalFilter filter = new PrincipalFilter(processor, principal, null);
+    // set by initImpl from the container, which this unit test does not start
+    Field registryField = OAuthProviderFilter.class.getDeclaredField("authenticationRegistry");
+    registryField.setAccessible(true);
+    registryField.set(filter, authenticationRegistry);
+
+    filter.doFilter(request, response, chain);
+
+    verify(authenticationRegistry).setAttributeOfClient(request, OAuthConstants.ATTRIBUTE_AUTHENTICATED_OAUTH_PRINCIPAL, principal);
+    verify(chain).doFilter(request, response);
+    assertFalse(filter.redirectedAfterOAuthError);
+  }
+
+  private static class PrincipalFilter extends OAuthProviderFilter<OpenIdAccessTokenContext> {
 
     private final OAuthProviderProcessor<OpenIdAccessTokenContext> processor;
+
+    private final OAuthPrincipal<OpenIdAccessTokenContext>         principal;
 
     private final OAuthException                                   principalError;
 
     private boolean                                                redirectedAfterOAuthError;
 
-    PrincipalFailingFilter(OAuthProviderProcessor<OpenIdAccessTokenContext> processor, OAuthException principalError) {
+    // getOAuthPrincipal returns principal, or throws principalError when it is set
+    PrincipalFilter(OAuthProviderProcessor<OpenIdAccessTokenContext> processor,
+                    OAuthPrincipal<OpenIdAccessTokenContext> principal,
+                    OAuthException principalError) {
       this.processor = processor;
+      this.principal = principal;
       this.principalError = principalError;
     }
 
@@ -114,7 +148,10 @@ public class OAuthProviderFilterTest {
     protected OAuthPrincipal<OpenIdAccessTokenContext> getOAuthPrincipal(HttpServletRequest request,
                                                                           HttpServletResponse response,
                                                                           InteractionState<OpenIdAccessTokenContext> interactionState) {
-      throw principalError;
+      if (principalError != null) {
+        throw principalError;
+      }
+      return principal;
     }
   }
 }

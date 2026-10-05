@@ -548,8 +548,8 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
   }
 
   // a signed UserInfo response is verified like the ID token; its rejection
-  // ends as an OAuthException, the only exception OAuthProviderFilter turns
-  // into the OAuth-error redirect
+  // ends as an OAuthException, the only exception OAuthProviderFilter's
+  // getOAuthPrincipal catch turns into the OAuth-error redirect
   private Claims parseAndVerifySignedUserInfo(String jwt) {
     try {
       return parseAndVerifySignedJwt(jwt);
