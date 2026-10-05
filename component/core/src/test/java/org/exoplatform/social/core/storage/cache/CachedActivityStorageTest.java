@@ -56,10 +56,11 @@ public class CachedActivityStorageTest {
 
   /**
    * The reads that do not go through the activity list and count caches: they
-   * read single activities by id, processors or scheduled ids.
+   * read single activities by id, processors or scheduled ids. Activities read
+   * by a list of ids are excluded by signature in {@link #isReadByIds(Method)},
+   * since the viewer's stream shares their method name.
    */
   private static final Set<String>                             NOT_A_LIST_READ       = Set.of("getActivity",
-                                                                                              "getActivities",
                                                                                               "getParentActivity",
                                                                                               "getActivityProcessors",
                                                                                               "getScheduledActivityIds");
@@ -107,6 +108,7 @@ public class CachedActivityStorageTest {
                                .filter(m -> m.getReturnType() == int.class || m.getReturnType() == List.class)
                                .filter(m -> m.getName().startsWith("get"))
                                .filter(m -> !NOT_A_LIST_READ.contains(m.getName()))
+                               .filter(m -> !isReadByIds(m))
                                .toList();
     assertFalse(reads.isEmpty());
 
@@ -124,6 +126,10 @@ public class CachedActivityStorageTest {
     }
     assertEquals(Collections.emptyList(), cached);
     verifyNoInteractions(activitiesCache, activitiesCountCache);
+  }
+
+  private static boolean isReadByIds(Method method) {
+    return method.getName().equals("getActivities") && Arrays.equals(method.getParameterTypes(), new Class<?>[] { List.class });
   }
 
   private Object argument(Class<?> type) {

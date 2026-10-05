@@ -68,9 +68,12 @@ public class CachedActivityStorage implements ActivityStorage {
    * Activity lists and counts are read from the storage on every call, never
    * through these two caches. ActivityListKey#equals joins "this field differs"
    * tests with &&, so two distinct keys of the same type are never equal and an
-   * entry keyed by it is never read back; correcting equals alone would let two
-   * viewers share one list, since it leaves out viewerKey. Both caches are only
-   * cleared here, as other storages sharing them also do.
+   * entry keyed by it is never read back. Correcting equals alone is not enough:
+   * equals and hashCode cover different fields, the key holds a filter the
+   * storage mutates, and hiding, pinning, unpinning, updating or sharing an
+   * activity clears these caches only when that activity is in the activity
+   * cache. Both caches are only cleared here, as other storages sharing them
+   * also do.
    */
   private final ExoCache<ActivityListKey, IntegerData>                                                   exoActivitiesCountCache;
 
