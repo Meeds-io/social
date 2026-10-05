@@ -44,6 +44,7 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import io.meeds.social.core.profileproperty.storage.CachedProfileSettingStorage;
 import io.meeds.social.identity.permission.service.UserPermissionService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -142,6 +143,64 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
     assertEquals("option-option fr-option en", document.getFields().get("propDropdownTest"));
   }
 
+
+  @Test
+  public void testIndexDropdownLegacyFreeTextAsTyped() throws Exception {
+    // free text stored before the property became a dropdown
+    profilePropertyService.createPropertySetting(createProfileSettingDropdownInstance("propDropdownLegacy"));
+    Profile profile = userIdentity.getProfile();
+
+    for (String legacyValue : List.of("Senior developer", "1.5", "99999999999999999999")) {
+      profile.setProperty("propDropdownLegacy", legacyValue);
+      identityManager.updateProfile(profile, true);
+
+      Document document = profileIndexingServiceConnector.update(userIdentity.getId());
+      assertEquals(legacyValue, document.getFields().get("propDropdownLegacy"));
+    }
+  }
+
+  @Test
+  public void testIndexDropdownDigitsOfAnotherPropertysOptionAsTyped() throws Exception {
+    profilePropertyService.createPropertySetting(createProfileSettingDropdownInstance("propDropdownOwn"));
+    ProfilePropertySetting otherSetting =
+                                        profilePropertyService.createPropertySetting(createProfileSettingDropdownInstance("propDropdownOther"));
+    long otherOptionId = otherSetting.getPropertyOptions().getFirst().getId();
+    translationService.saveTranslationLabels("propertySettingOption",
+                                             otherOptionId,
+                                             "optionValue",
+                                             Map.of(Locale.US, "other option en"));
+    Profile profile = userIdentity.getProfile();
+    profile.setProperty("propDropdownOwn", String.valueOf(otherOptionId));
+    identityManager.updateProfile(profile, true);
+
+    Document document = profileIndexingServiceConnector.update(userIdentity.getId());
+
+    assertEquals(String.valueOf(otherOptionId), document.getFields().get("propDropdownOwn"));
+  }
+
+  @Test
+  public void testIndexMultiValuedDropdownMixingOptionAndLegacyValue() throws Exception {
+    ProfilePropertySetting setting = createProfileSettingDropdownInstance("propDropdownMulti");
+    setting.setMultiValued(true);
+    ProfilePropertySetting created = profilePropertyService.createPropertySetting(setting);
+    Profile profile = userIdentity.getProfile();
+    profile.setProperty("propDropdownMulti",
+                        new ArrayList<>(List.of(multiValue(String.valueOf(created.getPropertyOptions().getFirst().getId())),
+                                                multiValue("legacy entry"))));
+    identityManager.updateProfile(profile, true);
+
+    Document document = profileIndexingServiceConnector.update(userIdentity.getId());
+
+    assertEquals("option,legacy entry", document.getFields().get("propDropdownMulti"));
+  }
+
+  // the shape the profile storage keeps for one value of a multi-valued property
+  private static Map<String, String> multiValue(String value) {
+    Map<String, String> multiValue = new HashMap<>();
+    multiValue.put("key", null);
+    multiValue.put("value", value);
+    return multiValue;
+  }
 
   private ProfilePropertySetting createProfileSettingDropdownInstance(String propertyName) {
     ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
