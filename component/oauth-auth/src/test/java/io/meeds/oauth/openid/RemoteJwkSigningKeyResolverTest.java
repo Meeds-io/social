@@ -218,6 +218,32 @@ public class RemoteJwkSigningKeyResolverTest {
   }
 
   @Test
+  public void testAdvertisedRs256ResolvesTheProviderKeyByDefault(@TempDir Path directory) throws Exception {
+    // the path an RS256 provider takes with the property unset: allow-list,
+    // then the key published in the JWKS under the token's kid
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(2048);
+    RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPairGenerator.generateKeyPair().getPublic();
+    JSONObject rsaKey = new JSONObject();
+    rsaKey.put("kty", "RSA");
+    rsaKey.put("use", "sig");
+    rsaKey.put("kid", "provider-rsa");
+    rsaKey.put("n", Encoders.BASE64URL.encode(rsaPublicKey.getModulus().toByteArray()));
+    rsaKey.put("e", Encoders.BASE64URL.encode(rsaPublicKey.getPublicExponent().toByteArray()));
+    when(header.getAlgorithm()).thenReturn("RS256");
+    when(header.getKeyId()).thenReturn("provider-rsa");
+    RemoteJwkSigningKeyResolver resolver = new RemoteJwkSigningKeyResolver(wellKnownUrl(directory,
+                                                                                        List.of("RS256", "HS256"),
+                                                                                        new JSONArray().put(rsaKey)),
+                                                                           CLIENT_SECRET);
+
+    Key key = resolver.resolveSigningKey(header, (byte[]) null);
+
+    assertInstanceOf(RSAPublicKey.class, key);
+    assertArrayEquals(rsaPublicKey.getEncoded(), key.getEncoded());
+  }
+
+  @Test
   public void testRejectionNamesTheAllowedAlgorithms(@TempDir Path directory) throws Exception {
     // the provider advertises no list: the property alone applies, RS256 when unset
     when(header.getAlgorithm()).thenReturn("ES256");
