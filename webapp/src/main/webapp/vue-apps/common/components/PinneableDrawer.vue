@@ -27,7 +27,7 @@
     :permanent="docked || standaloneShell"
     :attached="docked || standaloneShell"
     :no-external-overlay="docked || standaloneShell || stuckElsewhere"
-    :autofocus="!docked && !standaloneShell"
+    :autofocus="autofocus && !docked && !standaloneShell"
     :hide-close="docked || standaloneShell"
     @expand-updated="expandState = $event">
     <template v-for="(unusedSlot, name) in $slots" #[name]>
@@ -179,6 +179,10 @@ export default {
     noDock: {
       type: Boolean,
       default: false,
+    },
+    autofocus: {
+      type: Boolean,
+      default: true,
     },
     expanded: {
       type: Boolean,
@@ -428,6 +432,9 @@ export default {
     },
     close(...args) {
       return this.$refs.drawer?.close?.(...args);
+    },
+    closeEffectively(...args) {
+      return this.$refs.drawer?.closeEffectively?.(...args);
     },
     startLoading() {
       return this.$refs.drawer?.startLoading?.();
