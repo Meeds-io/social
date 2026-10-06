@@ -85,12 +85,9 @@
                 @click.stop.prevent="changeMenuStickiness('ICON')"
                 @mousedown.stop.prevent
                 @mouseup.stop.prevent>
-                <img
-                  :alt="$t('menu.reduce')"
-                  src="/social/images/sidebar.svg"
-                  class="icon-default-color"
-                  height="20px"
-                  width="20px">
+                <i
+                  class="icon-sidebar icon-default-color"
+                  aria-hidden="true"></i>
               </v-btn>
             </div>
           </template>
