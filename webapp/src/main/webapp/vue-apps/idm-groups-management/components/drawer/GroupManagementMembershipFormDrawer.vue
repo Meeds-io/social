@@ -265,7 +265,7 @@ export default {
     searchUsers(term) {
       this.users = [];
       this.loadingSuggestions++;
-      this.$refs.membershipUserNameInput?.focus();
+      this.restoreFocus();
       return this.$userService.getUsersByStatus(term, 0, 20, 'ENABLED')
         .then(data => {
           if (this.searchTerm === term) {
@@ -273,6 +273,19 @@ export default {
           }
         })
         .finally(() => this.loadingSuggestions--);
+    },
+    restoreFocus() {
+      const autocomplete = this.$refs.membershipUserNameInput;
+      if (!autocomplete) {
+        return;
+      }
+      autocomplete.focus();
+      this.$nextTick(() => {
+        const input = autocomplete.$refs?.input;
+        if (input) {
+          input.setSelectionRange(input.value.length, input.value.length);
+        }
+      });
     },
     removeMemberShip(user) {
       this.selectedUsers.splice(this.selectedUsers.findIndex(userName => userName === user.userName), 1);
