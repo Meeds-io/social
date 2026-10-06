@@ -174,19 +174,20 @@
       </v-list-item-content>
       <v-list-item-action class="my-auto me-0 ms-auto">
         <slot
+          v-if="$scopedSlots.image"
           name="image"
           :container="container"
           :image-field="imageField"
           :object-id="objectId"
-          :object-type="objectType">
-          <styling-background-image-attachment
-            v-model="container[imageField]"
-            ref="backgroundImage"
-            :storage-id="objectId"
-            :object-type="objectType"
-            immediate-save
-            class="my-auto" />
-        </slot>
+          :object-type="objectType"></slot>
+        <styling-background-image-attachment
+          v-else
+          v-model="container[imageField]"
+          ref="backgroundImage"
+          :storage-id="objectId"
+          :object-type="objectType"
+          immediate-save
+          class="my-auto" />
       </v-list-item-action>
     </v-list-item>
     <div v-if="container[imageField]" class="d-flex">
