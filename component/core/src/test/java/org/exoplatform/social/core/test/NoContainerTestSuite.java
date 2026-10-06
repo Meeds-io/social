@@ -51,6 +51,7 @@ import org.exoplatform.social.core.profile.UserProfileComparatorTest;
 import org.exoplatform.social.core.relationship.RelationshipTest;
 import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
+import org.exoplatform.social.core.storage.cache.CachedActivityStorageTest;
 
 import io.meeds.social.activity.schedule.ActivityPublicationPluginTest;
 import io.meeds.social.authorization.AuthorizationManagerTest;
@@ -108,6 +109,7 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     ActivityResourceBundlePluginTest.class,
     RelationshipTest.class,
     StorageUtilsTest.class,
+    CachedActivityStorageTest.class,
     ActivityIteratorTest.class,
     IdentityResultTest.class,
     GettingStartedServiceTest.class,
