@@ -165,6 +165,11 @@ export default {
     },
   },
   watch: {
+    drawer(value) {
+      if (!value) {
+        window.clearTimeout(this.searchTimeout);
+      }
+    },
     searchTerm(value) {
       window.clearTimeout(this.searchTimeout);
       if (!value?.length) {
@@ -276,7 +281,8 @@ export default {
     },
     restoreFocus() {
       const autocomplete = this.$refs.membershipUserNameInput;
-      if (!autocomplete) {
+      const input = autocomplete?.$refs?.input;
+      if (!input || document.activeElement !== input) {
         return;
       }
       const wasFocused = autocomplete.isFocused;
@@ -284,12 +290,7 @@ export default {
       if (wasFocused) {
         return;
       }
-      this.$nextTick(() => {
-        const input = autocomplete.$refs?.input;
-        if (input) {
-          input.setSelectionRange(input.value.length, input.value.length);
-        }
-      });
+      this.$nextTick(() => input.setSelectionRange(input.value.length, input.value.length));
     },
     removeMemberShip(user) {
       this.selectedUsers.splice(this.selectedUsers.findIndex(userName => userName === user.userName), 1);
