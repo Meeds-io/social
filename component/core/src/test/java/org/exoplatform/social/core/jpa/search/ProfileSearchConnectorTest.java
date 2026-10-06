@@ -17,9 +17,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package org.exoplatform.social.core.jpa.search;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,10 +39,14 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -829,7 +836,7 @@ public class ProfileSearchConnectorTest {
           ,
             {
               "query_string": {
-                "query": " testProperty.whitespace:*value\\\\+* AND  testProperty.whitespace:*\\\\-\\\\=\\\\&&\\\\||of\\\\>\\\\<\\\\!\\\\(\\\\)\\\\{\\\\}* AND  testProperty.whitespace:*test\\\\[\\\\]\\\\^\\\\"\\\\~\\\\*\\\\?* AND  testProperty.whitespace:*Property\\\\:*"
+                "query": " testProperty.whitespace:*value\\\\+* AND  testProperty.whitespace:*\\\\-\\\\=\\\\&\\\\&\\\\|\\\\|of\\\\>\\\\<\\\\!\\\\(\\\\)\\\\{\\\\}* AND  testProperty.whitespace:*test\\\\[\\\\]\\\\^\\\\\\"\\\\~\\\\*\\\\?* AND  testProperty.whitespace:*Property\\\\:*"
               }
            }
                 ]
@@ -847,6 +854,118 @@ public class ProfileSearchConnectorTest {
         long limit = 10;
         List<String>  result = profileSearchConnector.search(null, filter, null, offset, limit);
         Assert.assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchWithProfileSettingValueHoldingABackslash() {
+        Assert.assertEquals("testProperty.whitespace:*a\\\\b*", getProfileSettingQueryString("a\\b"));
+        Assert.assertEquals(" testProperty.whitespace:*R\\&D* AND  testProperty.whitespace:*'lead'* AND  testProperty.whitespace:*$1* AND  testProperty.whitespace:*\\\\* AND  testProperty.whitespace:*test*",
+                            getProfileSettingQueryString("R&D 'lead' $1 \\ test"));
+    }
+
+    @Test
+    public void testSearchWithProfileSettingValueHoldingASlash() {
+        Assert.assertEquals("testProperty.whitespace:*a\\/b*", getProfileSettingQueryString("a/b"));
+    }
+
+    @Test
+    public void testSearchWithProfileSettingValueHoldingDoubleQuotes() {
+        Assert.assertEquals(" testProperty.whitespace:*say* AND  testProperty.whitespace:*\\\"hi\\\"*",
+                            getProfileSettingQueryString("say \"hi\""));
+    }
+
+    @Test
+    public void testSearchWithProfileSettingValueSplitOnWhitespace() {
+        String expected = " testProperty.whitespace:*a* AND  testProperty.whitespace:*b*";
+        Assert.assertEquals(expected, getProfileSettingQueryString("a\tb"));
+        Assert.assertEquals(expected, getProfileSettingQueryString("a\r\nb"));
+        Assert.assertEquals(expected, getProfileSettingQueryString("a\u3000b"));
+    }
+
+    @Test
+    public void testSearchWithProfileSettingValueEscapedOnceAccentsRemoved() {
+        Assert.assertEquals("testProperty.whitespace:*a\\=b*", getProfileSettingQueryString("a\u2260b"));
+    }
+
+    @Test
+    public void testSearchWithABlankProfileSettingAfterAnotherOne() {
+        Map<String, String> profileSettings = new LinkedHashMap<>();
+        profileSettings.put("testProperty", "value");
+        profileSettings.put("otherProperty", "  ");
+        ProfilePropertySetting otherPropertySetting = mock(ProfilePropertySetting.class);
+        when(profilePropertyService.getProfileSettingByName("otherProperty")).thenReturn(otherPropertySetting);
+
+        Assert.assertEquals("testProperty.whitespace:*value*", getProfileSettingQueryString(profileSettings));
+    }
+
+    @Test
+    public void testSearchWithTwoProfileSettings() {
+        Map<String, String> profileSettings = new LinkedHashMap<>();
+        profileSettings.put("testProperty", "a");
+        profileSettings.put("otherProperty", "b");
+        ProfilePropertySetting otherPropertySetting = mock(ProfilePropertySetting.class);
+        when(otherPropertySetting.getPropertyName()).thenReturn("otherProperty");
+        when(profilePropertyService.getProfileSettingByName("otherProperty")).thenReturn(otherPropertySetting);
+
+        Assert.assertEquals(Arrays.asList("testProperty.whitespace:*a*", "otherProperty.whitespace:*b*"),
+                            getProfileSettingQueryStrings(profileSettings));
+    }
+
+    @Test
+    public void testExactSearchWithProfileSettingValueHoldingReservedChars() {
+        Assert.assertEquals(Collections.singletonList("testProperty.whitespace:a\\\\b"),
+                            getProfileSettingQueryStrings(Collections.singletonMap("testProperty", "a\\b"), false));
+        Assert.assertEquals(Collections.singletonList(" testProperty.whitespace:say AND  testProperty.whitespace:\\\"hi\\\""),
+                            getProfileSettingQueryStrings(Collections.singletonMap("testProperty", "say \"hi\""), false));
+    }
+
+    private String getProfileSettingQueryString(String value) {
+        return getProfileSettingQueryString(Collections.singletonMap("testProperty", value));
+    }
+
+    private String getProfileSettingQueryString(Map<String, String> profileSettings) {
+        List<String> queryStrings = getProfileSettingQueryStrings(profileSettings);
+        return queryStrings.stream()
+                           .filter(queryString -> queryString.contains("testProperty.whitespace:"))
+                           .findFirst()
+                           .orElseThrow(() -> new AssertionError("No query_string on testProperty in " + queryStrings));
+    }
+
+    private List<String> getProfileSettingQueryStrings(Map<String, String> profileSettings) {
+        return getProfileSettingQueryStrings(profileSettings, true);
+    }
+
+    /**
+     * Searches on profile properties and returns the query_string queries of
+     * the request, once its body is parsed as JSON: it checks that the request
+     * is valid JSON and returns the text Elasticsearch reads. How query_string
+     * parses that text is not exercised by this suite.
+     */
+    private List<String> getProfileSettingQueryStrings(Map<String, String> profileSettings, boolean wildcardSearch) {
+        ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
+        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
+        ProfilePropertySetting profilePropertySetting = mock(ProfilePropertySetting.class);
+        lenient().when(profilePropertySetting.getPropertyName()).thenReturn("testProperty");
+        when(profilePropertyService.getProfileSettingByName("testProperty")).thenReturn(profilePropertySetting);
+        when(elasticSearchClient.sendRequest(anyString(), anyString())).thenReturn("{\"hits\":{\"hits\":[]}}");
+        ProfileFilter filter = new ProfileFilter();
+        filter.setProfileSettings(profileSettings);
+        filter.setWildcardSearch(wildcardSearch);
+        profileSearchConnector.search(null, filter, null, 0, 10);
+
+        ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
+        verify(elasticSearchClient).sendRequest(query.capture(), anyString());
+        JsonNode parsedQuery;
+        try {
+            // strict parser, like Elasticsearch's: a trailing comma is refused
+            parsedQuery = new ObjectMapper().readTree(query.getValue());
+        } catch (JacksonException e) {
+            throw new AssertionError("The query sent to Elasticsearch is not valid JSON: " + query.getValue(), e);
+        }
+        return parsedQuery.findValues("query_string")
+                          .stream()
+                          .map(queryString -> queryString.path("query").asString())
+                          .toList();
     }
 
     @Test

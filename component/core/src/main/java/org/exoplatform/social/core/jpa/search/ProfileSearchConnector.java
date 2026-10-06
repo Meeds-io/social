@@ -28,9 +28,11 @@ import java.util.Map;
 import io.meeds.social.identity.permission.service.UserPermissionService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -51,6 +53,9 @@ import org.exoplatform.social.core.storage.impl.StorageUtils;
 public class ProfileSearchConnector {
 
   private static final Log LOG = ExoLogger.getLogger(ProfileSearchConnector.class);
+
+  private static final String ES_RESERVED_CHARS = "+-=&|><!(){}[]^\"~*?:\\/";
+
   private final ElasticSearchingClient client;
   private final ProfilePropertyService profilePropertyService;
   private final UserPermissionService  userPermissionService;
@@ -562,29 +567,30 @@ public class ProfileSearchConnector {
     for(String key : settings.keySet()) {
       ProfilePropertySetting property = profilePropertyService.getProfileSettingByName(key);
       if (property != null) {
-        if (index > 0) {
-          query.append(",");
-        }
-        String value = settings.get(key);
-        value = escapeESReservedChars(value);
-        if (StringUtils.isNotBlank(value)) {
+        // split on whitespace, as Character#isWhitespace and the index's
+        // whitespace tokenizer define it, before escaping: query_string
+        // separates terms on tabs and line breaks too, which would leave a
+        // word with no field, searched on every field
+        String[] splittedValues = StringUtils.split(settings.get(key));
+        if (ArrayUtils.isNotEmpty(splittedValues)) {
+          if (index > 0) {
+            query.append(",");
+          }
           StringBuilder expression = new StringBuilder();
-          String[] splittedValues = value.split(" ");
           if (splittedValues.length > 1) {
             for (int i = 0; i < splittedValues.length; i++) {
-              if (StringUtils.isNotBlank(splittedValues[i])) {
-                if (i != 0 && StringUtils.isNotBlank(expression)) {
-                  expression.append(" AND ");
-                }
-                String searchedText;
-                if (filter.isWildcardSearch()) {
-                  searchedText = StorageUtils.ASTERISK_STR + removeAccents(splittedValues[i]) + StorageUtils.ASTERISK_STR;
-                } else {
-                  searchedText = removeAccents(splittedValues[i]);
-                }
-                key = normalizeESFieldName(key);
-                expression.append(" ").append(key.replace(" ", "\\\\ ")).append(isEmailProfileProperty(key) ? ":" : ".whitespace:").append(searchedText);
+              if (i != 0) {
+                expression.append(" AND ");
               }
+              String searchedWord = escapeESReservedChars(removeAccents(splittedValues[i]));
+              String searchedText;
+              if (filter.isWildcardSearch()) {
+                searchedText = StorageUtils.ASTERISK_STR + searchedWord + StorageUtils.ASTERISK_STR;
+              } else {
+                searchedText = searchedWord;
+              }
+              key = normalizeESFieldName(key);
+              expression.append(" ").append(key.replace(" ", "\\\\ ")).append(isEmailProfileProperty(key) ? ":" : ".whitespace:").append(searchedText);
             }
             query.append("""
                         {
@@ -594,10 +600,11 @@ public class ProfileSearchConnector {
                        }
                       """.formatted(expression.toString()));
           } else {
+            String searchedWord = escapeESReservedChars(removeAccents(splittedValues[0]));
             String searchedTex = filter.isWildcardSearch()
-                                                          ? StorageUtils.ASTERISK_STR + removeAccents(value)
+                                                          ? StorageUtils.ASTERISK_STR + searchedWord
                                                               + StorageUtils.ASTERISK_STR
-                                                          : removeAccents(value);
+                                                          : searchedWord;
             String propertyName = property.getPropertyName();
             propertyName = normalizeESFieldName(propertyName);
             String filedName = isEmailProfileProperty(propertyName) ? propertyName : "%s.whitespace".formatted(propertyName);
@@ -623,12 +630,24 @@ public class ProfileSearchConnector {
     return string;
   }
 
+  /**
+   * Escapes a value for a query_string query written inside a JSON string, at
+   * two levels: each query_string reserved character is escaped once, then the
+   * result is escaped for JSON, so that a backslash, a slash or a double quote
+   * in the value reaches Elasticsearch as a literal character.
+   *
+   * @param string value to search for
+   * @return the value to write between the quotes of the query JSON string
+   */
   public static String escapeESReservedChars(String string) {
-    String [] ES_RESERVED_CHARS = new String []{"+","-","=","&&","||",">","<","!","(",")","{","}","[","]","^","\"","~","*","?",":","\\","/"};
-    for(String c : ES_RESERVED_CHARS) {
-      string = string.replace(c, "\\" + c);
+    StringBuilder escaped = new StringBuilder(string.length());
+    for (char c : string.toCharArray()) {
+      if (ES_RESERVED_CHARS.indexOf(c) >= 0) {
+        escaped.append('\\');
+      }
+      escaped.append(c);
     }
-    return string;
+    return JSONValue.escape(escaped.toString());
   }
 
   private String buildMembershipPermissionsExpression(ProfileFilter filter) {
