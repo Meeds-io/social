@@ -498,7 +498,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
       protected JSONObject parseResponse(String httpResponse) throws JSONException {
         String trimmedResponse = httpResponse.trim();
         JSONObject userInfo = trimmedResponse.startsWith("{") ? new JSONObject(trimmedResponse)
-                                                               : new JSONObject(parseAndVerifySignedJwt(trimmedResponse));
+                                                               : new JSONObject(parseAndVerifySignedUserInfo(trimmedResponse));
         JSONArray customClaimsArray = new JSONArray();
         customClaims.stream().forEach(customClaim -> {
           if (userInfo.has(customClaim)) {
@@ -545,6 +545,18 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   private static String urlEncode(String value) {
     return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
+  // a signed UserInfo response is verified like the ID token; its rejection
+  // ends as an OAuthException, the only exception OAuthProviderFilter's
+  // getOAuthPrincipal catch turns into the OAuth-error redirect
+  private Claims parseAndVerifySignedUserInfo(String jwt) {
+    try {
+      return parseAndVerifySignedJwt(jwt);
+    } catch (JwtException e) {
+      log.error("Unable to verify the UserInfo response signature", e);
+      throw new OAuthException(OAuthExceptionCode.TOKEN_VALIDATION_ERROR, "Unable to verify the UserInfo response signature", e);
+    }
   }
 
   private Claims parseAndVerifySignedJwt(String jwt) {
