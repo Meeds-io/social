@@ -279,7 +279,11 @@ export default {
       if (!autocomplete) {
         return;
       }
+      const wasFocused = autocomplete.isFocused;
       autocomplete.focus();
+      if (wasFocused) {
+        return;
+      }
       this.$nextTick(() => {
         const input = autocomplete.$refs?.input;
         if (input) {
