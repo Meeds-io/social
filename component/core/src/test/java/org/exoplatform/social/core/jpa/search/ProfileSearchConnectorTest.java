@@ -953,34 +953,92 @@ public class ProfileSearchConnectorTest {
         Assert.assertEquals("AND", queryString.path("default_operator").asString());
     }
 
+    @Test
+    public void testSearchByGroupAndRemoteIdHoldingReservedChars() {
+        ProfileFilter filter = new ProfileFilter();
+        filter.setGroupIds(Collections.singletonList("/g\"x\\y"));
+        filter.setMembershipType("member");
+        filter.setRemoteIds(Collections.singletonList("jo\"hn\\"));
+        JsonNode request = searchAndParse(filter);
+
+        List<String> permissions = new ArrayList<>();
+        request.findValues("permissions").forEach(values -> values.forEach(value -> permissions.add(value.asString())));
+        Assert.assertTrue(permissions.toString(), permissions.contains("member:/g\"x\\y"));
+        List<String> userNames = new ArrayList<>();
+        request.findValues("userName").forEach(values -> values.forEach(value -> userNames.add(value.asString())));
+        Assert.assertEquals(Collections.singletonList("jo\"hn\\"), userNames);
+    }
+
+    @Test
+    public void testSearchWithProfileSettingNameHoldingReservedChars() {
+        String propertyName = "my\"prop\\x";
+        ProfilePropertySetting propertySetting = mock(ProfilePropertySetting.class);
+        when(propertySetting.getPropertyName()).thenReturn(propertyName);
+        when(profilePropertyService.getProfileSettingByName(propertyName)).thenReturn(propertySetting);
+
+        ProfileFilter filter = new ProfileFilter();
+        filter.setProfileSettings(Collections.singletonMap(propertyName, "a"));
+        Assert.assertEquals(Collections.singletonList("my\\\"prop\\\\x.whitespace:*a*"), getQueryStrings(searchAndParse(filter)));
+
+        filter = new ProfileFilter();
+        filter.setProfileSettings(Collections.singletonMap(propertyName, "a b"));
+        Assert.assertEquals(Collections.singletonList(" my\\\"prop\\\\x.whitespace:*a* AND  my\\\"prop\\\\x.whitespace:*b*"),
+                            getQueryStrings(searchAndParse(filter)));
+    }
+
+    @Test
+    public void testSearchWithProfileSettingNameHoldingWhitespace() {
+        String propertyName = "my\tprop";
+        ProfilePropertySetting propertySetting = mock(ProfilePropertySetting.class);
+        when(propertySetting.getPropertyName()).thenReturn(propertyName);
+        when(profilePropertyService.getProfileSettingByName(propertyName)).thenReturn(propertySetting);
+
+        ProfileFilter filter = new ProfileFilter();
+        filter.setProfileSettings(Collections.singletonMap(propertyName, "a"));
+        Assert.assertEquals(Collections.singletonList("my\\\tprop.whitespace:*a*"), getQueryStrings(searchAndParse(filter)));
+
+        filter = new ProfileFilter();
+        filter.setProfileSettings(Collections.singletonMap(propertyName, "a b"));
+        Assert.assertEquals(Collections.singletonList(" my\\\tprop.whitespace:*a* AND  my\\\tprop.whitespace:*b*"),
+                            getQueryStrings(searchAndParse(filter)));
+    }
+
+    private List<String> getQueryStrings(JsonNode request) {
+        return request.findValues("query_string").stream().map(queryString -> queryString.path("query").asString()).toList();
+    }
+
     /**
-     * Searches by name and returns the query_string object of the name clause,
-     * once the request body is parsed as JSON. How query_string parses its text
-     * is not exercised by this suite.
+     * Searches with the filter and returns the request sent to Elasticsearch,
+     * parsed by a strict JSON parser, like Elasticsearch's: a request that is
+     * not valid JSON, a trailing comma included, fails the test. How
+     * query_string parses the query texts is not exercised by this suite.
      */
-    private JsonNode getNameQueryString(String name, boolean searchEmailAndUserName) {
+    private JsonNode searchAndParse(ProfileFilter filter) {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
         profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
         when(elasticSearchClient.sendRequest(anyString(), anyString())).thenReturn("{\"hits\":{\"hits\":[]}}");
-        ProfileFilter filter = new ProfileFilter();
-        filter.setName(name);
-        filter.setSearchEmail(searchEmailAndUserName);
-        filter.setSearchUserName(searchEmailAndUserName);
         profileSearchConnector.search(null, filter, null, 0, 10);
 
         ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
         verify(elasticSearchClient).sendRequest(query.capture(), anyString());
-        JsonNode parsedQuery;
         try {
-            parsedQuery = new ObjectMapper().readTree(query.getValue());
+            return new ObjectMapper().readTree(query.getValue());
         } catch (JacksonException e) {
             throw new AssertionError("The query sent to Elasticsearch is not valid JSON: " + query.getValue(), e);
         }
-        return parsedQuery.findValues("query_string")
-                          .stream()
-                          .filter(queryString -> queryString.path("query").asString().contains("name.whitespace:"))
-                          .findFirst()
-                          .orElseThrow(() -> new AssertionError("No query_string on the name in " + query.getValue()));
+    }
+
+    private JsonNode getNameQueryString(String name, boolean searchEmailAndUserName) {
+        ProfileFilter filter = new ProfileFilter();
+        filter.setName(name);
+        filter.setSearchEmail(searchEmailAndUserName);
+        filter.setSearchUserName(searchEmailAndUserName);
+        JsonNode request = searchAndParse(filter);
+        return request.findValues("query_string")
+                      .stream()
+                      .filter(queryString -> queryString.path("query").asString().contains("name.whitespace:"))
+                      .findFirst()
+                      .orElseThrow(() -> new AssertionError("No query_string on the name in " + request));
     }
 
     private String getProfileSettingQueryString(String value) {
@@ -999,37 +1057,14 @@ public class ProfileSearchConnectorTest {
         return getProfileSettingQueryStrings(profileSettings, true);
     }
 
-    /**
-     * Searches on profile properties and returns the query_string queries of
-     * the request, once its body is parsed as JSON: it checks that the request
-     * is valid JSON and returns the text Elasticsearch reads. How query_string
-     * parses that text is not exercised by this suite.
-     */
     private List<String> getProfileSettingQueryStrings(Map<String, String> profileSettings, boolean wildcardSearch) {
-        ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
-        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
         ProfilePropertySetting profilePropertySetting = mock(ProfilePropertySetting.class);
         lenient().when(profilePropertySetting.getPropertyName()).thenReturn("testProperty");
         when(profilePropertyService.getProfileSettingByName("testProperty")).thenReturn(profilePropertySetting);
-        when(elasticSearchClient.sendRequest(anyString(), anyString())).thenReturn("{\"hits\":{\"hits\":[]}}");
         ProfileFilter filter = new ProfileFilter();
         filter.setProfileSettings(profileSettings);
         filter.setWildcardSearch(wildcardSearch);
-        profileSearchConnector.search(null, filter, null, 0, 10);
-
-        ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
-        verify(elasticSearchClient).sendRequest(query.capture(), anyString());
-        JsonNode parsedQuery;
-        try {
-            // strict parser, like Elasticsearch's: a trailing comma is refused
-            parsedQuery = new ObjectMapper().readTree(query.getValue());
-        } catch (JacksonException e) {
-            throw new AssertionError("The query sent to Elasticsearch is not valid JSON: " + query.getValue(), e);
-        }
-        return parsedQuery.findValues("query_string")
-                          .stream()
-                          .map(queryString -> queryString.path("query").asString())
-                          .toList();
+        return getQueryStrings(searchAndParse(filter));
     }
 
     @Test
@@ -1181,7 +1216,7 @@ public class ProfileSearchConnectorTest {
               "must": [
               {
                 "terms" :{
-                  "permissions" : ["member:/spaces/test","redactor:/spaces/test"]
+                  "permissions" : ["member:\\/spaces\\/test","redactor:\\/spaces\\/test"]
                 }\s
               }
         ,

@@ -353,7 +353,7 @@ public class ProfileSearchConnector {
         if (remoteIds.length() > 0) {
           remoteIds.append(",");
         }
-        remoteIds.append("\"").append(remoteId).append("\"");
+        remoteIds.append("\"").append(JSONValue.escape(remoteId)).append("\"");
       }
       StringBuilder remoteIdClauseBuilder = new StringBuilder();
       remoteIdClauseBuilder.append("      {\n")
@@ -594,7 +594,7 @@ public class ProfileSearchConnector {
                 searchedText = searchedWord;
               }
               key = normalizeESFieldName(key);
-              expression.append(" ").append(key.replace(" ", "\\\\ ")).append(isEmailProfileProperty(key) ? ":" : ".whitespace:").append(searchedText);
+              expression.append(" ").append(escapeESFieldName(key)).append(isEmailProfileProperty(key) ? ":" : ".whitespace:").append(searchedText);
             }
             query.append("""
                         {
@@ -618,7 +618,7 @@ public class ProfileSearchConnector {
                       "query": "%s:%s"
                     }
                  }
-                """.formatted(filedName.replace(" ", "\\\\ "), searchedTex));
+                """.formatted(escapeESFieldName(filedName), searchedTex));
           }
           index++;
         }
@@ -644,14 +644,28 @@ public class ProfileSearchConnector {
    * @return the value to write between the quotes of the query JSON string
    */
   public static String escapeESReservedChars(String string) {
+    return JSONValue.escape(escapeQueryString(string, false));
+  }
+
+  /**
+   * Escapes a property's field name for a query_string query written inside a
+   * JSON string: its reserved characters and its whitespace, which query_string
+   * reads as a term separator, are escaped once, then the result is escaped for
+   * JSON.
+   */
+  private static String escapeESFieldName(String fieldName) {
+    return JSONValue.escape(escapeQueryString(fieldName, true));
+  }
+
+  private static String escapeQueryString(String string, boolean escapeWhitespace) {
     StringBuilder escaped = new StringBuilder(string.length());
     for (char c : string.toCharArray()) {
-      if (ES_RESERVED_CHARS.indexOf(c) >= 0) {
+      if (ES_RESERVED_CHARS.indexOf(c) >= 0 || (escapeWhitespace && Character.isWhitespace(c))) {
         escaped.append('\\');
       }
       escaped.append(c);
     }
-    return JSONValue.escape(escaped.toString());
+    return escaped.toString();
   }
 
   private String buildMembershipPermissionsExpression(ProfileFilter filter) {
@@ -690,7 +704,7 @@ public class ProfileSearchConnector {
       permissions.append(",");
     }
     String prefix = inherited ? UserPermissionService.INHERITED_TOKEN_PREFIX : "";
-    permissions.append("\"").append(prefix).append(token).append("\"");
+    permissions.append("\"").append(JSONValue.escape(prefix + token)).append("\"");
   }
   private boolean isEmailProfileProperty(String propertyName) {
     return propertyName.equals("email");
