@@ -15,8 +15,7 @@
           v-if="optionsByChannel[channelId]"
           :input-value="channels[channelId]"
           :aria-label="`${channelLabel(channelId)} - ${label}`"
-          :disabled="saving || !optionsByChannel[channelId].channelActive"
-          :loading="savingChannel === channelId"
+          :disabled="!optionsByChannel[channelId].channelActive"
           class="mt-0 pt-0"
           hide-details
           @change="toggle(optionsByChannel[channelId], $event)" />
@@ -26,7 +25,7 @@
 </template>
 
 <script>
-import {getColumnStyle} from '../../common/js/NotificationSettingsLayout.js';
+import {getColumnStyle, hasPendingSettingSaves, queueSettingSave} from '../../common/js/NotificationSettingsLayout.js';
 
 export default {
   props: {
@@ -45,8 +44,7 @@ export default {
   },
   data: () => ({
     channels: {},
-    saving: false,
-    savingChannel: null,
+    pendingChannels: {},
   }),
   computed: {
     label() {
@@ -71,7 +69,10 @@ export default {
       handler() {
         const channels = {};
         this.channelOptions.forEach(option => {
-          channels[option.channelId] = !!(option.allowed && option.active && option.channelActive);
+          // Settings read before a save of this channel settled would revert its switch
+          channels[option.channelId] = this.pendingChannels[option.channelId]
+            ? this.channels[option.channelId]
+            : !!(option.allowed && option.active && option.channelActive);
         });
         this.channels = channels;
       },
@@ -85,9 +86,8 @@ export default {
       const channelId = option.channelId;
       const previousValue = this.channels[channelId];
       this.$set(this.channels, channelId, !!value);
-      this.saving = true;
-      this.savingChannel = channelId;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}/plugin/${this.plugin.type}`, {
+      this.pendingChannels[channelId] = (this.pendingChannels[channelId] || 0) + 1;
+      return queueSettingSave(() => fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}/plugin/${this.plugin.type}`, {
         method: 'PATCH',
         credentials: 'include',
         headers: {
@@ -98,13 +98,18 @@ export default {
         if (!resp || !resp.ok) {
           throw new Error('Error saving notification settings');
         }
-        this.$root.$emit('refresh');
-      }).catch(() => {
-        this.$set(this.channels, channelId, previousValue);
+      })).catch(() => {
+        // A later switch of the same channel, still queued, holds the value to display
+        if (this.pendingChannels[channelId] === 1) {
+          this.$set(this.channels, channelId, previousValue);
+        }
         this.$root.$emit('alert-message', this.$t('UserSettings.notifications.error.save'), 'error');
       }).finally(() => {
-        this.saving = false;
-        this.savingChannel = null;
+        this.pendingChannels[channelId]--;
+        // Read once every queued save settled, so that the read reflects all of them
+        if (!hasPendingSettingSaves()) {
+          this.$root.$emit('refresh');
+        }
       });
     },
   },
