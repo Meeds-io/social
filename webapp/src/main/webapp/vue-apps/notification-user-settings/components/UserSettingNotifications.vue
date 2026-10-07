@@ -98,6 +98,7 @@ export default {
     digestAllowed: null,
     displayDetails: false,
     displayed: true,
+    lastRefreshId: 0,
   }),
   watch: {
     displayed() {
@@ -128,12 +129,17 @@ export default {
   },
   methods: {
     refresh() {
+      const refreshId = ++this.lastRefreshId;
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`, {
         method: 'GET',
         credentials: 'include',
       })
         .then(resp => resp && resp.ok && resp.json())
         .then(settings => {
+          // A response overtaken by a later read holds settings older than the switches
+          if (refreshId !== this.lastRefreshId) {
+            return;
+          }
           if (this.displayed && !settings?.channels?.length) {
             this.displayed = false;
           }
