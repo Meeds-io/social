@@ -44,6 +44,7 @@ export default {
   },
   data: () => ({
     channels: {},
+    savedChannels: {},
     pendingChannels: {},
   }),
   computed: {
@@ -70,9 +71,12 @@ export default {
         const channels = {};
         this.channelOptions.forEach(option => {
           // Settings read before a save of this channel settled would revert its switch
-          channels[option.channelId] = this.pendingChannels[option.channelId]
-            ? this.channels[option.channelId]
-            : !!(option.allowed && option.active && option.channelActive);
+          if (this.pendingChannels[option.channelId]) {
+            channels[option.channelId] = this.channels[option.channelId];
+          } else {
+            channels[option.channelId] = !!(option.allowed && option.active && option.channelActive);
+            this.savedChannels[option.channelId] = channels[option.channelId];
+          }
         });
         this.channels = channels;
       },
@@ -84,7 +88,6 @@ export default {
     },
     toggle(option, value) {
       const channelId = option.channelId;
-      const previousValue = this.channels[channelId];
       this.$set(this.channels, channelId, !!value);
       this.pendingChannels[channelId] = (this.pendingChannels[channelId] || 0) + 1;
       return queueSettingSave(() => fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}/plugin/${this.plugin.type}`, {
@@ -98,10 +101,12 @@ export default {
         if (!resp || !resp.ok) {
           throw new Error('Error saving notification settings');
         }
-      })).catch(() => {
+      })).then(() => {
+        this.savedChannels[channelId] = !!value;
+      }).catch(() => {
         // A later switch of the same channel, still queued, holds the value to display
         if (this.pendingChannels[channelId] === 1) {
-          this.$set(this.channels, channelId, previousValue);
+          this.$set(this.channels, channelId, this.savedChannels[channelId]);
         }
         this.$root.$emit('alert-message', this.$t('UserSettings.notifications.error.save'), 'error');
       }).finally(() => {
