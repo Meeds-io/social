@@ -138,18 +138,24 @@ export default {
     newMembership: false,
     saving: false,
     confirmNewPassword: null,
-    previousSearchTerm: null,
     searchTerm: null,
+    searchTimeout: null,
     loadingSuggestions: 0,
     membershipTypes: [],
     users: [],
-    memberships: [],
     selectedUsers: [],
     group: {},
     membership: {},
     membershipType: null,
   }),
   computed: {
+    memberships() {
+      return this.selectedUsers.map(userName => ({
+        groupId: this.group.id,
+        membershipType: this.membershipType,
+        userName,
+      }));
+    },
     title() {
       if (this.newMembership) {
         return this.$t('GroupsManagement.addMemberInGroup');
@@ -159,35 +165,18 @@ export default {
     },
   },
   watch: {
-    searchTerm(value) {
-      if (value?.length) {
-        window.setTimeout(() => {
-          if (this.previousSearchTerm === this.searchTerm) {
-            this.users = [];
-
-            this.loadingSuggestions++;
-            this.$userService.getUsersByStatus(value, 0, 20, 'ENABLED')
-              .then(data => {
-                this.users = data && data.entities || [];
-              })
-              .finally(() => this.loadingSuggestions--);
-          }
-          this.previousSearchTerm = this.searchTerm;
-        }, 400);
-      } else {
-        this.users = [];
+    drawer(value) {
+      if (!value) {
+        window.clearTimeout(this.searchTimeout);
       }
     },
-    selectedUsers() {
-      this.selectedUsers.forEach(user => {
-        if (!this.memberships.some(membership => membership.userName === user)) {
-          this.memberships.push({
-            groupId: this.group.id,
-            membershipType: this.membershipType,
-            userName: user
-          });
-        }
-      });
+    searchTerm(value) {
+      window.clearTimeout(this.searchTimeout);
+      if (!value?.length) {
+        this.users = [];
+        return;
+      }
+      this.searchTimeout = window.setTimeout(() => this.searchUsers(value), 400);
     },
   },
   created() {
@@ -231,8 +220,6 @@ export default {
       }
       this.saving = true;
       this.membership.groupId = this.group.id;
-      // set the membershipType for each membership
-      this.memberships.forEach(membership => membership.membershipType = this.membershipType);
       const input = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/${this.newMembership ? 'memberships/bulk' : 'memberships'}?membershipId=${this.membership.id || ''}`;
       const init = {
         method: this.newMembership && 'POST' || 'PUT',
@@ -256,10 +243,7 @@ export default {
       }).then(() => this.$root.$emit('refresh-group-members'))
         .then(() => this.$refs.drawer.close())
         .catch(this.handleError)
-        .finally(() => {
-          this.memberships = [];
-          this.saving = false;
-        });
+        .finally(() => this.saving = false);
     },
     cancel() {
       this.drawer = false;
@@ -283,16 +267,32 @@ export default {
         }, 200);
       }
     },
-    refreshUserSelection(value) {
-      if (value) {
-        this.loadingSuggestions++;
-        this.$userService.getUsersByStatus(value, 0, 20, 'ANY')
-          .then(data => this.users = data && data.entities || [])
-          .finally(() => this.loadingSuggestions--);
+    searchUsers(term) {
+      this.users = [];
+      this.loadingSuggestions++;
+      this.restoreFocus();
+      return this.$userService.getUsersByStatus(term, 0, 20, 'ENABLED')
+        .then(data => {
+          if (this.searchTerm === term) {
+            this.users = data?.entities || [];
+          }
+        })
+        .finally(() => this.loadingSuggestions--);
+    },
+    restoreFocus() {
+      const autocomplete = this.$refs.membershipUserNameInput;
+      const input = autocomplete?.$refs?.input;
+      if (!input || document.activeElement !== input) {
+        return;
       }
+      const wasFocused = autocomplete.isFocused;
+      autocomplete.focus();
+      if (wasFocused) {
+        return;
+      }
+      this.$nextTick(() => input.setSelectionRange(input.value.length, input.value.length));
     },
     removeMemberShip(user) {
-      this.memberships.splice(this.memberships.findIndex(membership => membership.userName === user.userName), 1);
       this.selectedUsers.splice(this.selectedUsers.findIndex(userName => userName === user.userName), 1);
     },
     clearSearch() {
