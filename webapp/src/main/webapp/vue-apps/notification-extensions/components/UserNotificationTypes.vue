@@ -61,17 +61,20 @@ export default {
       const groups = [];
       extensionRegistry.loadExtensions('WebNotification', 'notification-group-extension')
         .forEach(group => {
-          if (this.settings && group?.plugins?.length) {
-            const listPlugins = group.plugins.filter(pluginId => {
+          let plugins = group?.plugins;
+          if (this.settings && plugins?.length) {
+            // Only the notifications the user kept active count in the type's badge and filter its list
+            plugins = plugins.filter(pluginId => {
               return this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.some(choice => choice.active && choice.pluginId === pluginId);
             });
-            if (!listPlugins.length) {
+            if (!plugins.length) {
               return;
             }
           }
-          const badge = this.badgeByPlugin && group.plugins && group.plugins.reduce((sum, p) => sum += this.badgeByPlugin[p] || 0, 0) || 0;
+          const badge = this.badgeByPlugin && plugins && plugins.reduce((sum, p) => sum += this.badgeByPlugin[p] || 0, 0) || 0;
           groups.push({
             ...group,
+            plugins,
             badge,
             label: this.$te(`Notification.label.types.${group.name}`)
               ? this.$t(`Notification.label.types.${group.name}`)
