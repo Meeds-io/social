@@ -15,8 +15,6 @@
           v-if="optionsByChannel[channelId]"
           :input-value="channels[channelId]"
           :aria-label="`${channelLabel(channelId)} - ${label}`"
-          :disabled="saving"
-          :loading="savingChannel === channelId"
           class="mt-0 pt-0"
           hide-details
           @change="toggle(channelId, $event)" />
@@ -26,7 +24,7 @@
 </template>
 
 <script>
-import {getColumnStyle} from '../../../common/js/NotificationSettingsLayout.js';
+import {getColumnStyle, hasPendingSettingSaves, queueSettingSave} from '../../../common/js/NotificationSettingsLayout.js';
 
 export default {
   props: {
@@ -45,8 +43,8 @@ export default {
   },
   data: () => ({
     channels: {},
-    saving: false,
-    savingChannel: null,
+    savedChannels: {},
+    pendingChannels: {},
   }),
   computed: {
     label() {
@@ -72,7 +70,13 @@ export default {
       handler() {
         const channels = {};
         this.channelOptions.forEach(option => {
-          channels[option.channelId] = !!option.channelActive;
+          // Settings read before a save of this channel settled would revert its switch
+          if (this.pendingChannels[option.channelId]) {
+            channels[option.channelId] = this.channels[option.channelId];
+          } else {
+            channels[option.channelId] = !!option.channelActive;
+            this.savedChannels[option.channelId] = channels[option.channelId];
+          }
         });
         this.channels = channels;
       },
@@ -83,19 +87,25 @@ export default {
       return this.settings?.channelLabels?.[channelId];
     },
     toggle(channelId, value) {
-      const previousValue = this.channels[channelId];
       this.$set(this.channels, channelId, !!value);
-      this.saving = true;
-      this.savingChannel = channelId;
-      return this.$notificationAdministration.savePluginSettings(this.plugin.type, `${channelId}=${!!value}`)
-        .then(() => this.$root.$emit('refresh'))
+      this.pendingChannels[channelId] = (this.pendingChannels[channelId] || 0) + 1;
+      return queueSettingSave(() => this.$notificationAdministration.savePluginSettings(this.plugin.type, `${channelId}=${!!value}`))
+        .then(() => {
+          this.savedChannels[channelId] = !!value;
+        })
         .catch(() => {
-          this.$set(this.channels, channelId, previousValue);
+          // A later switch of the same channel, still queued, holds the value to display
+          if (this.pendingChannels[channelId] === 1) {
+            this.$set(this.channels, channelId, this.savedChannels[channelId]);
+          }
           this.$root.$emit('alert-message', this.$t('NotificationAdmin.error.savePluginSettings'), 'error');
         })
         .finally(() => {
-          this.saving = false;
-          this.savingChannel = null;
+          this.pendingChannels[channelId]--;
+          // Read once every queued save settled, so that the read reflects all of them
+          if (!hasPendingSettingSaves()) {
+            this.$root.$emit('refresh');
+          }
         });
     },
   },

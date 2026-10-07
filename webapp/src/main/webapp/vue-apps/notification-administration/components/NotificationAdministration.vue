@@ -17,6 +17,7 @@
 export default {
   data: () => ({
     notificationSettings: null,
+    lastRefreshId: 0,
   }),
   created() {
     this.$root.$on('refresh', this.refresh);
@@ -24,8 +25,13 @@ export default {
   },
   methods: {
     refresh() {
+      const refreshId = ++this.lastRefreshId;
       return this.$notificationAdministration.getSettings()
         .then(settings => {
+          // A response overtaken by a later read holds settings older than the switches
+          if (refreshId !== this.lastRefreshId) {
+            return;
+          }
           if (settings?.channelLabels) {
             Object.keys(settings.channelLabels).forEach(channelId => {
               if (this.$te(`NotificationAdmin.${channelId}.name`)) {

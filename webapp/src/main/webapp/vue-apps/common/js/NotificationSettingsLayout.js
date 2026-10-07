@@ -30,6 +30,31 @@ const SOCIAL_GROUPS_ICONS = {
   other: 'fa-ellipsis-h',
 };
 
+let pendingSaves = 0;
+let savesQueue = Promise.resolve();
+
+/**
+ * Runs a notification setting save once every save queued before it has
+ * settled: the user settings endpoint rewrites the whole stored setting on
+ * each save, so two concurrent saves could lose one of the changes.
+ *
+ * @param {Function} save returns the promise of the save request
+ * @return {Promise} the promise of this save
+ */
+export function queueSettingSave(save) {
+  pendingSaves++;
+  const result = savesQueue.then(save).finally(() => pendingSaves--);
+  savesQueue = result.catch(() => null);
+  return result;
+}
+
+/**
+ * @return {boolean} whether a queued save has not settled yet
+ */
+export function hasPendingSettingSaves() {
+  return pendingSaves > 0;
+}
+
 /**
  * Computes the channel columns of a notification settings group: the channels
  * at least one plugin of the group allows, in the fixed display order.
