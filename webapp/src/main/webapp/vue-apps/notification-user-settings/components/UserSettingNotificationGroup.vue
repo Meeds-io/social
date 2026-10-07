@@ -1,23 +1,42 @@
 <template>
-  <div v-if="manageNotification && isEnabledNotificationGroup" class="border-radius border-color ma-4">
+  <div v-if="manageNotification && isEnabledNotificationGroup" class="mb-4">
     <v-list-item dense>
+      <v-icon
+        v-if="icon"
+        size="20"
+        class="icon-default-color me-3">
+        {{ icon }}
+      </v-icon>
       <v-list-item-content>
-        <v-list-item-title class="text-header">
+        <v-list-item-title class="text-title">
           {{ label }}
         </v-list-item-title>
       </v-list-item-content>
+      <v-list-item-action class="d-flex flex-row align-center justify-end my-1">
+        <div
+          v-for="channelId in columns"
+          :key="channelId"
+          :style="columnStyle"
+          class="text-center text-caption text-truncate flex-shrink-0">
+          {{ settings.channelLabels && settings.channelLabels[channelId] }}
+        </div>
+      </v-list-item-action>
     </v-list-item>
 
-    <user-setting-notification-plugin
-      v-for="plugin in group.pluginInfos"
-      :plugin="plugin"
-      :key="plugin.type"
-      :settings="settings"
-      @edit="$emit('edit', plugin, group)" />
+    <template v-for="(plugin, index) in group.pluginInfos">
+      <v-divider v-if="index > 0" :key="`divider-${plugin.type}`" />
+      <user-setting-notification-plugin
+        :plugin="plugin"
+        :key="plugin.type"
+        :settings="settings"
+        :columns="columns" />
+    </template>
   </div>
 </template>
 
 <script>
+import {getChannelColumns, getColumnStyle, getGroupIcon} from '../../common/js/NotificationSettingsLayout.js';
+
 export default {
   props: {
     group: {
@@ -31,8 +50,18 @@ export default {
   },
   data: () => ({
     isEnabledNotificationGroup: true,
+    extensions: [],
   }),
   computed: {
+    icon() {
+      return getGroupIcon(this.settings, this.group, this.extensions);
+    },
+    columns() {
+      return getChannelColumns(this.settings, this.group);
+    },
+    columnStyle() {
+      return getColumnStyle(this.$vuetify.breakpoint.smAndDown);
+    },
     label() {
       return this.settings && this.settings.groupsLabels && this.settings.groupsLabels[this.group.groupId];
     },
@@ -41,9 +70,17 @@ export default {
     },
   },
   created() {
+    document.addEventListener('extension-WebNotification-notification-group-extension-updated', this.refreshExtensions);
+    this.refreshExtensions();
     this.init();
   },
+  beforeDestroy() {
+    document.removeEventListener('extension-WebNotification-notification-group-extension-updated', this.refreshExtensions);
+  },
   methods: {
+    refreshExtensions() {
+      this.extensions = extensionRegistry.loadExtensions('WebNotification', 'notification-group-extension') || [];
+    },
     init() {
       const listPlugins = [];
       this.group?.pluginInfos?.forEach(plugin => {

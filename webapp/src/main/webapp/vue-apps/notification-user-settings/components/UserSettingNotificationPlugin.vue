@@ -1,46 +1,33 @@
 <template>
-  <div v-if="isEnabledNotifications.length">
-    <v-divider />
-
-    <v-list-item dense>
-      <v-list-item-content class="px-0 pb-0 pt-2 mt-auto mb-2">
-        <v-list-item-title class="text-color text-wrap">
-          {{ label }}
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action class="ma-auto">
-        <v-btn
-          small
-          icon
-          @click="$emit('edit')">
-          <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
-        </v-btn>
-      </v-list-item-action>
-    </v-list-item>
-    <v-flex v-if="hasNotificationSettings" class="d-flex flex-wrap">
-      <template v-if="enabledNotificationLabels && enabledNotificationLabels.length">
-        <v-chip
-          v-for="enabledNotificationLabel in enabledNotificationLabels"
-          :key="enabledNotificationLabel"
-          class="ma-2"
-          color="primary">
-          <span class="text-truncate">
-            {{ enabledNotificationLabel }}
-          </span>
-        </v-chip>
-      </template>
-    </v-flex>
-    <v-list-item v-else dense>
-      <v-list-item-content class="pa-0">
-        <v-list-item-subtitle>
-          {{ $t('UINotification.label.NoNotifications') }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-  </div>
+  <v-list-item v-if="channelOptions.length" dense>
+    <v-list-item-content class="py-1">
+      <v-list-item-title class="text-color text-wrap">
+        {{ label }}
+      </v-list-item-title>
+    </v-list-item-content>
+    <v-list-item-action class="d-flex flex-row align-center justify-end my-1">
+      <div
+        v-for="channelId in columns"
+        :key="channelId"
+        :style="columnStyle"
+        class="d-flex justify-center flex-shrink-0">
+        <v-switch
+          v-if="optionsByChannel[channelId]"
+          :input-value="channels[channelId]"
+          :aria-label="`${channelLabel(channelId)} - ${label}`"
+          :disabled="saving || !optionsByChannel[channelId].channelActive"
+          :loading="savingChannel === channelId"
+          class="mt-0 pt-0"
+          hide-details
+          @change="toggle(optionsByChannel[channelId], $event)" />
+      </div>
+    </v-list-item-action>
+  </v-list-item>
 </template>
 
 <script>
+import {getColumnStyle} from '../../common/js/NotificationSettingsLayout.js';
+
 export default {
   props: {
     plugin: {
@@ -51,24 +38,75 @@ export default {
       type: Object,
       default: null,
     },
+    columns: {
+      type: Array,
+      default: () => [],
+    },
   },
+  data: () => ({
+    channels: {},
+    saving: false,
+    savingChannel: null,
+  }),
   computed: {
     label() {
       return this.settings && this.settings.pluginLabels && this.settings.pluginLabels[this.plugin.type];
     },
-    hasNotificationSettings() {
-      return this.enabledNotificationLabels && this.enabledNotificationLabels.length;
+    channelOptions() {
+      return (this.settings?.channelCheckBoxList || [])
+        .filter(choice => choice.allowed && choice.pluginId === this.plugin.type);
     },
-    enabledNotifications() {
-      return this.settings && this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.filter(choice => choice.active && choice.channelActive && choice.pluginId === this.plugin.type);
+    optionsByChannel() {
+      const options = {};
+      this.channelOptions.forEach(option => options[option.channelId] = option);
+      return options;
     },
-    isEnabledNotifications() {
-      return this.settings && this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.filter(choice => choice.channelActive && choice.pluginId === this.plugin.type);
+    columnStyle() {
+      return getColumnStyle(this.$vuetify.breakpoint.smAndDown);
     },
-    enabledNotificationLabels() {
-      return this.enabledNotifications && this.enabledNotifications.map(plugin => this.settings.channelLabels[plugin.channelId]);
+  },
+  watch: {
+    channelOptions: {
+      immediate: true,
+      handler() {
+        const channels = {};
+        this.channelOptions.forEach(option => {
+          channels[option.channelId] = !!(option.allowed && option.active && option.channelActive);
+        });
+        this.channels = channels;
+      },
+    },
+  },
+  methods: {
+    channelLabel(channelId) {
+      return this.settings?.channelLabels?.[channelId];
+    },
+    toggle(option, value) {
+      const channelId = option.channelId;
+      const previousValue = this.channels[channelId];
+      this.$set(this.channels, channelId, !!value);
+      this.saving = true;
+      this.savingChannel = channelId;
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}/plugin/${this.plugin.type}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `channels=${channelId}=${!!value}`
+      }).then(resp => {
+        if (!resp || !resp.ok) {
+          throw new Error('Error saving notification settings');
+        }
+        this.$root.$emit('refresh');
+      }).catch(() => {
+        this.$set(this.channels, channelId, previousValue);
+        this.$root.$emit('alert-message', this.$t('UserSettings.notifications.error.save'), 'error');
+      }).finally(() => {
+        this.saving = false;
+        this.savingChannel = null;
+      });
     },
   },
 };
 </script>
-

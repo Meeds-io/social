@@ -50,6 +50,11 @@ export function init(settings) {
       data: {
         settings: settings,
       },
+      created() {
+        // Same loading as the notifications drawer, to get the groups icons
+        const includeNotificationExtensions = () => this.$utils.includeExtensions('NotificationExtension');
+        window.require(['SHARED/notificationExtensions'], includeNotificationExtensions, includeNotificationExtensions);
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
