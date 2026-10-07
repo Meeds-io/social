@@ -64,7 +64,7 @@ export default {
         .forEach(group => {
           if (this.settings && group?.plugins?.length) {
             const listPlugins = group.plugins.filter(pluginId => {
-              return this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.some(choice => choice.channelActive && choice.pluginId === pluginId);
+              return this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.some(choice => choice.active && choice.pluginId === pluginId);
             });
             if (!listPlugins.length) {
               return;
@@ -80,7 +80,7 @@ export default {
           });
         });
       const badge = this.badgeByPlugin && Object.keys(this.badgeByPlugin).reduce((sum, p) => {
-        const isEnabled = !this.settings || (this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.some(choice => choice.channelActive && choice.pluginId === p));
+        const isEnabled = !this.settings || (this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.some(choice => choice.active && choice.pluginId === p));
         return isEnabled ? sum + (this.badgeByPlugin[p] || 0) : sum;
       }, 0) || 0;
       groups.splice(0, 0, {
