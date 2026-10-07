@@ -249,6 +249,10 @@ export default {
       }
     },
     async openActivityCommentDrawer() {
+      // The comments drawer renders the reactions chooser, whose skin only the
+      // activity stream portlets declare: load it wherever the search opens.
+      // The drawer opens even when the skin fails to load.
+      await this.$utils.importSkin('portal', 'ActivityReactions').catch(() => null);
       this.activityCommentDrawer = true;
       await this.$nextTick();
       const options = {
