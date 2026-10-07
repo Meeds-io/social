@@ -10,6 +10,7 @@
         v-for="channelId in columns"
         :key="channelId"
         :style="columnStyle"
+        :title="isDisabledByAdmin(channelId) && $t('UserSettings.notifications.notAuthorized') || null"
         class="d-flex justify-center flex-shrink-0">
         <v-switch
           v-if="optionsByChannel[channelId]"
@@ -80,6 +81,11 @@ export default {
   methods: {
     channelLabel(channelId) {
       return this.settings?.channelLabels?.[channelId];
+    },
+    isDisabledByAdmin(channelId) {
+      // An inactive option on a channel the user left on is deactivated by an administrator
+      const option = this.optionsByChannel[channelId];
+      return !!option && !option.channelActive && !!this.settings?.channelStatus?.[channelId];
     },
     toggle(option, value) {
       const channelId = option.channelId;
