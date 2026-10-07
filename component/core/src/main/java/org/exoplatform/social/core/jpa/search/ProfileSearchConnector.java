@@ -518,7 +518,8 @@ public class ProfileSearchConnector {
       if (newInputName.startsWith("\"") && inputName.endsWith("\"")) {
         newInputName = inputName.replace("\"", "");
       }
-      keys = newInputName.split(" ");
+      // same whitespace split and escaping as the profile property values
+      keys = StringUtils.split(newInputName);
       if (keys.length > 1) {
         StringBuilder nameEsExp = new StringBuilder();
         // We will not search on userName because it doesn't contain a space character
@@ -527,7 +528,8 @@ public class ProfileSearchConnector {
             if (i != 0) {
               nameEsExp.append(") AND (");
             }
-            String searchedWord = StorageUtils.ASTERISK_STR + removeAccents(keys[i]) + StorageUtils.ASTERISK_STR;
+            String searchedWord = StorageUtils.ASTERISK_STR + escapeESReservedChars(removeAccents(keys[i]))
+                + StorageUtils.ASTERISK_STR;
             nameEsExp.append(" name.whitespace:").append(searchedWord);
             if (filter.isSearchEmail()) {
               nameEsExp.append(" OR email:").append(searchedWord);
@@ -540,8 +542,9 @@ public class ProfileSearchConnector {
         if(StringUtils.isNotBlank(nameEsExp.toString())) {
           esExp.append("(").append(nameEsExp).append(")");
         }
-      } else if (StringUtils.isNotBlank(newInputName)) {
-        String searchedText = StorageUtils.ASTERISK_STR + removeAccents(newInputName) + StorageUtils.ASTERISK_STR;
+      } else if (keys.length == 1) {
+        String searchedText = StorageUtils.ASTERISK_STR + escapeESReservedChars(removeAccents(keys[0]))
+            + StorageUtils.ASTERISK_STR;
         esExp.append("name.whitespace:").append(searchedText);
 
         if (filter.isSearchEmail()) {
@@ -551,7 +554,8 @@ public class ProfileSearchConnector {
           esExp.append(" OR userName:").append(searchedText);
         }
       } else {
-        esExp.append("name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(newInputName)).append(StorageUtils.ASTERISK_STR);
+        // a quoted name holding only whitespace: no word to search
+        esExp.append("name.whitespace:").append(StorageUtils.ASTERISK_STR).append(StorageUtils.ASTERISK_STR);
       }
     }
     return esExp.toString();
