@@ -1,6 +1,7 @@
 <template>
   <v-list-item
     :key="name"
+    :value="name"
     class="px-4 mx-n4 rounded-lg"
     dense
     @click="$emit('select', false)">
