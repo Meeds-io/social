@@ -18,6 +18,8 @@
  */
 package io.meeds.oauth.web.openid;
 
+import java.io.IOException;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -59,6 +61,15 @@ public class OpenIdFilter extends OAuthProviderFilter<OpenIdAccessTokenContext> 
     }
 
     return OAuthUtils.convertOpenIdInfoToOAuthPrincipal(userInfo, accessTokenContext, getOAuthProvider());
+  }
+
+  @Override
+  protected void redirectAfterOAuthError(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // OpenIdAuthenticationFilter restarts the OpenId login on this cookie
+    // alone: kept on the error redirect, it sends the browser back to the
+    // provider, which answers at once, and the failure repeats in a loop
+    response.setHeader("Set-Cookie", "OPENID_ACCESS_TOKEN=" + " ; Path=/;  Max-Age=0; HttpOnly;SameSite=Lax");
+    super.redirectAfterOAuthError(request, response);
   }
 
 }

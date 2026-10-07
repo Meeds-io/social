@@ -19,11 +19,16 @@
 package io.meeds.oauth.openid;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,9 +43,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.sun.net.httpserver.HttpServer;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.SignatureException;
 import io.meeds.oauth.common.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
@@ -49,6 +56,19 @@ import io.meeds.oauth.exception.OAuthExceptionCode;
 public class OpenIdProcessorImplTest {
 
   private OpenIdProcessorImpl newProcessor() {
+    return new OpenIdProcessorImpl(mock(ExoContainerContext.class), newParams(), mock(SecureRandomService.class));
+  }
+
+  private OpenIdProcessorImpl newProcessor(URL userInfoUrl) {
+    return new OpenIdProcessorImpl(mock(ExoContainerContext.class), newParams(), mock(SecureRandomService.class)) {
+      @Override
+      protected URL getUserInfoURL() {
+        return userInfoUrl;
+      }
+    };
+  }
+
+  private InitParams newParams() {
     InitParams params = mock(InitParams.class);
     stubParam(params, "clientId", "test-client");
     stubParam(params, "clientSecret", "test-secret");
@@ -63,8 +83,7 @@ public class OpenIdProcessorImplTest {
     // both optional, deliberately absent from configuration.xml in most deployments
     when(params.getValueParam("applicationName")).thenReturn(null);
     when(params.getValueParam("chunkLength")).thenReturn(null);
-
-    return new OpenIdProcessorImpl(mock(ExoContainerContext.class), params, mock(SecureRandomService.class));
+    return params;
   }
 
   private void stubParam(InitParams params, String name, String value) {
@@ -136,5 +155,41 @@ public class OpenIdProcessorImplTest {
     verify(session).removeAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
     verify(session).removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
     verify(session).removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_NONCE);
+  }
+
+  @Test
+  public void testObtainUserInfoRejectsAnUnacceptedSignedResponseAsTokenValidationError() throws Exception {
+    // the UserInfo endpoint answers with an HS256-signed JWT; no
+    // exo.oauth.openid.signature.algorithms set: the resolver's fallback allow-list is RS256 only
+    String forgedUserInfo = Jwts.builder()
+                                .subject("attacker")
+                                .signWith(SignatureAlgorithm.HS256, "0123456789abcdef0123456789abcdef".getBytes(StandardCharsets.UTF_8))
+                                .compact();
+    HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
+    server.createContext("/userinfo", exchange -> {
+      byte[] body = forgedUserInfo.getBytes(StandardCharsets.UTF_8);
+      exchange.getResponseHeaders().add("Content-Type", "application/jwt");
+      exchange.sendResponseHeaders(200, body.length);
+      try (OutputStream output = exchange.getResponseBody()) {
+        output.write(body);
+      }
+    });
+    server.start();
+    try {
+      OpenIdProcessorImpl processor = newProcessor(new URL("http://" + server.getAddress().getHostString() + ":"
+          + server.getAddress().getPort() + "/userinfo"));
+      processor.setWellKnownConfigurationForTest("https://issuer.example.invalid",
+                                                 new RemoteJwkSigningKeyResolver(
+                                                                                 "https://issuer.example.invalid/.well-known/openid-configuration",
+                                                                                 "test-secret"));
+      OpenIdAccessTokenContext accessTokenContext = new OpenIdAccessTokenContext(new OAuth2AccessToken("access-token"), "openid");
+
+      OAuthException exception = assertThrows(OAuthException.class, () -> processor.obtainUserInfo(accessTokenContext));
+
+      assertEquals(OAuthExceptionCode.TOKEN_VALIDATION_ERROR, exception.getExceptionCode());
+      assertInstanceOf(SignatureException.class, exception.getCause());
+    } finally {
+      server.stop(0);
+    }
   }
 }

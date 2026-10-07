@@ -120,17 +120,18 @@ public abstract class OAuthProviderFilter<T extends AccessTokenContext> extends 
         interactionState = getOauthProviderProcessor().processOAuthInteraction(httpRequest, httpResponse, scopeToUse);
       }
     } catch (OAuthException | ExecutionException | InterruptedException ex) {
-      log.error("Error during OAuth flow with: " + ex.getMessage(), ex);
-
-      // Save exception to session and redirect to portal. Exception will be
-      // processed later on portal side
-      session.setAttribute(OAuthConstants.ATTRIBUTE_EXCEPTION_OAUTH, ex);
-      redirectAfterOAuthError(httpRequest, httpResponse);
+      handleOAuthError(httpRequest, httpResponse, session, ex);
       return;
     }
 
     if (InteractionState.State.FINISH.equals(interactionState.getState())) {
-      OAuthPrincipal<T> oauthPrincipal = getOAuthPrincipal(httpRequest, httpResponse, interactionState);
+      OAuthPrincipal<T> oauthPrincipal;
+      try {
+        oauthPrincipal = getOAuthPrincipal(httpRequest, httpResponse, interactionState);
+      } catch (OAuthException ex) {
+        handleOAuthError(httpRequest, httpResponse, session, ex);
+        return;
+      }
 
       if (oauthPrincipal != null) {
         if (httpRequest.getRemoteUser() == null) {
@@ -231,4 +232,16 @@ public abstract class OAuthProviderFilter<T extends AccessTokenContext> extends 
 
   protected abstract OAuthPrincipal<T> getOAuthPrincipal(HttpServletRequest request, HttpServletResponse response,
                                                          InteractionState<T> interactionState);
+
+  private void handleOAuthError(HttpServletRequest httpRequest,
+                                HttpServletResponse httpResponse,
+                                HttpSession session,
+                                Exception ex) throws IOException {
+    log.error("Error during OAuth flow with: " + ex.getMessage(), ex);
+
+    // Save exception to session and redirect to portal. Exception will be
+    // processed later on portal side
+    session.setAttribute(OAuthConstants.ATTRIBUTE_EXCEPTION_OAUTH, ex);
+    redirectAfterOAuthError(httpRequest, httpResponse);
+  }
 }
