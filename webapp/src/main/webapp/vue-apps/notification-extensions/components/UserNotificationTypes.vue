@@ -96,6 +96,9 @@ export default {
       if (selectedGroupName) {
         const newIndex = this.groups.findIndex(g => g.name === selectedGroupName);
         if (newIndex !== -1) {
+          if (this.unreadIndex === this.selectedGroupIndex) {
+            this.unreadIndex = newIndex;
+          }
           this.selectedGroupIndex = newIndex;
         } else {
           // The selected type was switched off: fall back to 'all' and let the parent drop its plugins filter
