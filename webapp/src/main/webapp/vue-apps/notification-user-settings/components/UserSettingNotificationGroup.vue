@@ -17,8 +17,8 @@
           v-for="channelId in columns"
           :key="channelId"
           :style="columnStyle"
-          class="text-center text-caption text-truncate flex-shrink-0">
-          {{ settings.channelLabels && settings.channelLabels[channelId] }}
+          class="text-center text-truncate flex-shrink-0">
+          {{ columnLabel(channelId) }}
         </div>
       </v-list-item-action>
     </v-list-item>
@@ -80,6 +80,10 @@ export default {
   methods: {
     refreshExtensions() {
       this.extensions = extensionRegistry.loadExtensions('WebNotification', 'notification-group-extension') || [];
+    },
+    columnLabel(channelId) {
+      const key = `UINotification.column.channel-${channelId.replace('_CHANNEL', '').toLowerCase()}`;
+      return this.$te(key) ? this.$t(key) : this.settings?.channelLabels?.[channelId];
     },
     init() {
       const listPlugins = [];
