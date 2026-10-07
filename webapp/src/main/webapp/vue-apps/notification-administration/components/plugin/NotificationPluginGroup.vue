@@ -17,7 +17,7 @@
           v-for="channelId in columns"
           :key="channelId"
           :style="columnStyle"
-          class="text-center text-caption text-truncate flex-shrink-0">
+          class="text-center text-truncate flex-shrink-0">
           {{ settings.channelLabels && settings.channelLabels[channelId] }}
         </div>
       </v-list-item-action>
