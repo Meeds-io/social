@@ -17,9 +17,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package org.exoplatform.social.core.jpa.search;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,10 +39,14 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -220,7 +227,7 @@ public class ProfileSearchConnectorTest {
                 ,
                 "filter": [
                 {          "query_string": {
-                      "query": "( name.whitespace:*te-s* OR email:*te-s* OR userName:*te-s*) AND ( name.whitespace:*t* OR email:*t* OR userName:*t*)"
+                      "query": "( name.whitespace:*te\\\\-s* OR email:*te\\\\-s* OR userName:*te\\\\-s*) AND ( name.whitespace:*t* OR email:*t* OR userName:*t*)"
                     }
                 }
                 ]
@@ -345,7 +352,7 @@ public class ProfileSearchConnectorTest {
                 ,
                 "filter": [
                 {          "query_string": {
-                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                      "query": "( name.whitespace:*\\\\\\\\\\\\\\"te\\\\-s*) AND ( name.whitespace:*t\\\\\\\\\\\\\\"*)"
                     }
                 }
                 ]
@@ -434,7 +441,7 @@ public class ProfileSearchConnectorTest {
                 ,
                 "filter": [
                 {          "query_string": {
-                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                      "query": "( name.whitespace:*\\\\\\\\\\\\\\"te\\\\-s*) AND ( name.whitespace:*t\\\\\\\\\\\\\\"*)"
                     }
                 }
                 ]
@@ -558,7 +565,7 @@ public class ProfileSearchConnectorTest {
                 ,
                 "filter": [
                 {          "query_string": {
-                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                      "query": "( name.whitespace:*\\\\\\\\\\\\\\"te\\\\-s*) AND ( name.whitespace:*t\\\\\\\\\\\\\\"*)"
                     }
                 }
           ,
@@ -690,7 +697,7 @@ public class ProfileSearchConnectorTest {
                 ,
                 "filter": [
                 {          "query_string": {
-                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                      "query": "( name.whitespace:*\\\\\\\\\\\\\\"te\\\\-s*) AND ( name.whitespace:*t\\\\\\\\\\\\\\"*)"
                     }
                 }
           ,
@@ -823,13 +830,13 @@ public class ProfileSearchConnectorTest {
                 ,
                 "filter": [
                 {          "query_string": {
-                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                      "query": "( name.whitespace:*\\\\\\\\\\\\\\"te\\\\-s*) AND ( name.whitespace:*t\\\\\\\\\\\\\\"*)"
                     }
                 }
           ,
             {
               "query_string": {
-                "query": " testProperty.whitespace:*value\\\\+* AND  testProperty.whitespace:*\\\\-\\\\=\\\\&&\\\\||of\\\\>\\\\<\\\\!\\\\(\\\\)\\\\{\\\\}* AND  testProperty.whitespace:*test\\\\[\\\\]\\\\^\\\\"\\\\~\\\\*\\\\?* AND  testProperty.whitespace:*Property\\\\:*"
+                "query": " testProperty.whitespace:*value\\\\+* AND  testProperty.whitespace:*\\\\-\\\\=\\\\&\\\\&\\\\|\\\\|of\\\\>\\\\<\\\\!\\\\(\\\\)\\\\{\\\\}* AND  testProperty.whitespace:*test\\\\[\\\\]\\\\^\\\\\\"\\\\~\\\\*\\\\?* AND  testProperty.whitespace:*Property\\\\:*"
               }
            }
                 ]
@@ -847,6 +854,217 @@ public class ProfileSearchConnectorTest {
         long limit = 10;
         List<String>  result = profileSearchConnector.search(null, filter, null, offset, limit);
         Assert.assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchWithProfileSettingValueHoldingABackslash() {
+        Assert.assertEquals("testProperty.whitespace:*a\\\\b*", getProfileSettingQueryString("a\\b"));
+        Assert.assertEquals(" testProperty.whitespace:*R\\&D* AND  testProperty.whitespace:*'lead'* AND  testProperty.whitespace:*$1* AND  testProperty.whitespace:*\\\\* AND  testProperty.whitespace:*test*",
+                            getProfileSettingQueryString("R&D 'lead' $1 \\ test"));
+    }
+
+    @Test
+    public void testSearchWithProfileSettingValueHoldingASlash() {
+        Assert.assertEquals("testProperty.whitespace:*a\\/b*", getProfileSettingQueryString("a/b"));
+    }
+
+    @Test
+    public void testSearchWithProfileSettingValueHoldingDoubleQuotes() {
+        Assert.assertEquals(" testProperty.whitespace:*say* AND  testProperty.whitespace:*\\\"hi\\\"*",
+                            getProfileSettingQueryString("say \"hi\""));
+    }
+
+    @Test
+    public void testSearchWithProfileSettingValueSplitOnWhitespace() {
+        String expected = " testProperty.whitespace:*a* AND  testProperty.whitespace:*b*";
+        Assert.assertEquals(expected, getProfileSettingQueryString("a\tb"));
+        Assert.assertEquals(expected, getProfileSettingQueryString("a\r\nb"));
+        Assert.assertEquals(expected, getProfileSettingQueryString("a\u3000b"));
+    }
+
+    @Test
+    public void testSearchWithProfileSettingValueEscapedOnceAccentsRemoved() {
+        Assert.assertEquals("testProperty.whitespace:*a\\=b*", getProfileSettingQueryString("a\u2260b"));
+    }
+
+    @Test
+    public void testSearchWithABlankProfileSettingAfterAnotherOne() {
+        Map<String, String> profileSettings = new LinkedHashMap<>();
+        profileSettings.put("testProperty", "value");
+        profileSettings.put("otherProperty", "  ");
+        ProfilePropertySetting otherPropertySetting = mock(ProfilePropertySetting.class);
+        when(profilePropertyService.getProfileSettingByName("otherProperty")).thenReturn(otherPropertySetting);
+
+        Assert.assertEquals("testProperty.whitespace:*value*", getProfileSettingQueryString(profileSettings));
+    }
+
+    @Test
+    public void testSearchWithTwoProfileSettings() {
+        Map<String, String> profileSettings = new LinkedHashMap<>();
+        profileSettings.put("testProperty", "a");
+        profileSettings.put("otherProperty", "b");
+        ProfilePropertySetting otherPropertySetting = mock(ProfilePropertySetting.class);
+        when(otherPropertySetting.getPropertyName()).thenReturn("otherProperty");
+        when(profilePropertyService.getProfileSettingByName("otherProperty")).thenReturn(otherPropertySetting);
+
+        Assert.assertEquals(Arrays.asList("testProperty.whitespace:*a*", "otherProperty.whitespace:*b*"),
+                            getProfileSettingQueryStrings(profileSettings));
+    }
+
+    @Test
+    public void testExactSearchWithProfileSettingValueHoldingReservedChars() {
+        Assert.assertEquals(Collections.singletonList("testProperty.whitespace:a\\\\b"),
+                            getProfileSettingQueryStrings(Collections.singletonMap("testProperty", "a\\b"), false));
+        Assert.assertEquals(Collections.singletonList(" testProperty.whitespace:say AND  testProperty.whitespace:\\\"hi\\\""),
+                            getProfileSettingQueryStrings(Collections.singletonMap("testProperty", "say \"hi\""), false));
+    }
+
+    @Test
+    public void testSearchByNameHoldingReservedChars() {
+        Assert.assertEquals("name.whitespace:*Jo\\\"hn*", getNameQueryString("Jo\"hn", false).path("query").asString());
+        Assert.assertEquals("name.whitespace:*Jo\\\\hn*", getNameQueryString("Jo\\hn", false).path("query").asString());
+        Assert.assertEquals("name.whitespace:*John\\/*", getNameQueryString("John/", false).path("query").asString());
+        Assert.assertEquals("( name.whitespace:*Jo\\\"hn*) AND ( name.whitespace:*\\(Doe*)",
+                            getNameQueryString("Jo\"hn (Doe", false).path("query").asString());
+    }
+
+    @Test
+    public void testSearchByNameEmailAndUserNameHoldingReservedChars() {
+        Assert.assertEquals("name.whitespace:*john\\+test@x.org* OR email:*john\\+test@x.org* OR userName:*john\\+test@x.org*",
+                            getNameQueryString("john+test@x.org", true).path("query").asString());
+    }
+
+    @Test
+    public void testSearchByNameSplitOnWhitespace() {
+        JsonNode queryString = getNameQueryString("John\tDoe", false);
+        Assert.assertEquals("( name.whitespace:*John*) AND ( name.whitespace:*Doe*)", queryString.path("query").asString());
+        Assert.assertTrue(queryString.path("default_operator").isMissingNode());
+    }
+
+    @Test
+    public void testSearchByQuotedBlankName() {
+        Assert.assertEquals("name.whitespace:**", getNameQueryString("\"\t\"", false).path("query").asString());
+    }
+
+    @Test
+    public void testSearchByQuotedNameKeepsTheAndOperator() {
+        JsonNode queryString = getNameQueryString("\"John Doe\"", false);
+        Assert.assertEquals("( name.whitespace:*John*) AND ( name.whitespace:*Doe*)", queryString.path("query").asString());
+        Assert.assertEquals("AND", queryString.path("default_operator").asString());
+    }
+
+    @Test
+    public void testSearchByGroupAndRemoteIdHoldingReservedChars() {
+        ProfileFilter filter = new ProfileFilter();
+        filter.setGroupIds(Collections.singletonList("/g\"x\\y"));
+        filter.setMembershipType("member");
+        filter.setRemoteIds(Collections.singletonList("jo\"hn\\"));
+        JsonNode request = searchAndParse(filter);
+
+        List<String> permissions = new ArrayList<>();
+        request.findValues("permissions").forEach(values -> values.forEach(value -> permissions.add(value.asString())));
+        Assert.assertTrue(permissions.toString(), permissions.contains("member:/g\"x\\y"));
+        List<String> userNames = new ArrayList<>();
+        request.findValues("userName").forEach(values -> values.forEach(value -> userNames.add(value.asString())));
+        Assert.assertEquals(Collections.singletonList("jo\"hn\\"), userNames);
+    }
+
+    @Test
+    public void testSearchWithProfileSettingNameHoldingReservedChars() {
+        String propertyName = "my\"prop\\x";
+        ProfilePropertySetting propertySetting = mock(ProfilePropertySetting.class);
+        when(propertySetting.getPropertyName()).thenReturn(propertyName);
+        when(profilePropertyService.getProfileSettingByName(propertyName)).thenReturn(propertySetting);
+
+        ProfileFilter filter = new ProfileFilter();
+        filter.setProfileSettings(Collections.singletonMap(propertyName, "a"));
+        Assert.assertEquals(Collections.singletonList("my\\\"prop\\\\x.whitespace:*a*"), getQueryStrings(searchAndParse(filter)));
+
+        filter = new ProfileFilter();
+        filter.setProfileSettings(Collections.singletonMap(propertyName, "a b"));
+        Assert.assertEquals(Collections.singletonList(" my\\\"prop\\\\x.whitespace:*a* AND  my\\\"prop\\\\x.whitespace:*b*"),
+                            getQueryStrings(searchAndParse(filter)));
+    }
+
+    @Test
+    public void testSearchWithProfileSettingNameHoldingWhitespace() {
+        String propertyName = "my\tprop";
+        ProfilePropertySetting propertySetting = mock(ProfilePropertySetting.class);
+        when(propertySetting.getPropertyName()).thenReturn(propertyName);
+        when(profilePropertyService.getProfileSettingByName(propertyName)).thenReturn(propertySetting);
+
+        ProfileFilter filter = new ProfileFilter();
+        filter.setProfileSettings(Collections.singletonMap(propertyName, "a"));
+        Assert.assertEquals(Collections.singletonList("my\\\tprop.whitespace:*a*"), getQueryStrings(searchAndParse(filter)));
+
+        filter = new ProfileFilter();
+        filter.setProfileSettings(Collections.singletonMap(propertyName, "a b"));
+        Assert.assertEquals(Collections.singletonList(" my\\\tprop.whitespace:*a* AND  my\\\tprop.whitespace:*b*"),
+                            getQueryStrings(searchAndParse(filter)));
+    }
+
+    private List<String> getQueryStrings(JsonNode request) {
+        return request.findValues("query_string").stream().map(queryString -> queryString.path("query").asString()).toList();
+    }
+
+    /**
+     * Searches with the filter and returns the request sent to Elasticsearch,
+     * parsed by a strict JSON parser, like Elasticsearch's: a request that is
+     * not valid JSON, a trailing comma included, fails the test. How
+     * query_string parses the query texts is not exercised by this suite.
+     */
+    private JsonNode searchAndParse(ProfileFilter filter) {
+        ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
+        profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
+        when(elasticSearchClient.sendRequest(anyString(), anyString())).thenReturn("{\"hits\":{\"hits\":[]}}");
+        profileSearchConnector.search(null, filter, null, 0, 10);
+
+        ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
+        verify(elasticSearchClient).sendRequest(query.capture(), anyString());
+        try {
+            return new ObjectMapper().readTree(query.getValue());
+        } catch (JacksonException e) {
+            throw new AssertionError("The query sent to Elasticsearch is not valid JSON: " + query.getValue(), e);
+        }
+    }
+
+    private JsonNode getNameQueryString(String name, boolean searchEmailAndUserName) {
+        ProfileFilter filter = new ProfileFilter();
+        filter.setName(name);
+        filter.setSearchEmail(searchEmailAndUserName);
+        filter.setSearchUserName(searchEmailAndUserName);
+        JsonNode request = searchAndParse(filter);
+        return request.findValues("query_string")
+                      .stream()
+                      .filter(queryString -> queryString.path("query").asString().contains("name.whitespace:"))
+                      .findFirst()
+                      .orElseThrow(() -> new AssertionError("No query_string on the name in " + request));
+    }
+
+    private String getProfileSettingQueryString(String value) {
+        return getProfileSettingQueryString(Collections.singletonMap("testProperty", value));
+    }
+
+    private String getProfileSettingQueryString(Map<String, String> profileSettings) {
+        List<String> queryStrings = getProfileSettingQueryStrings(profileSettings);
+        return queryStrings.stream()
+                           .filter(queryString -> queryString.contains("testProperty.whitespace:"))
+                           .findFirst()
+                           .orElseThrow(() -> new AssertionError("No query_string on testProperty in " + queryStrings));
+    }
+
+    private List<String> getProfileSettingQueryStrings(Map<String, String> profileSettings) {
+        return getProfileSettingQueryStrings(profileSettings, true);
+    }
+
+    private List<String> getProfileSettingQueryStrings(Map<String, String> profileSettings, boolean wildcardSearch) {
+        ProfilePropertySetting profilePropertySetting = mock(ProfilePropertySetting.class);
+        lenient().when(profilePropertySetting.getPropertyName()).thenReturn("testProperty");
+        when(profilePropertyService.getProfileSettingByName("testProperty")).thenReturn(profilePropertySetting);
+        ProfileFilter filter = new ProfileFilter();
+        filter.setProfileSettings(profileSettings);
+        filter.setWildcardSearch(wildcardSearch);
+        return getQueryStrings(searchAndParse(filter));
     }
 
     @Test
@@ -952,7 +1170,7 @@ public class ProfileSearchConnectorTest {
                 ,
                 "filter": [
                 {          "query_string": {
-                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                      "query": "( name.whitespace:*\\\\\\\\\\\\\\"te\\\\-s*) AND ( name.whitespace:*t\\\\\\\\\\\\\\"*)"
                     }
                 }
                 ]
@@ -998,7 +1216,7 @@ public class ProfileSearchConnectorTest {
               "must": [
               {
                 "terms" :{
-                  "permissions" : ["member:/spaces/test","redactor:/spaces/test"]
+                  "permissions" : ["member:\\/spaces\\/test","redactor:\\/spaces\\/test"]
                 }\s
               }
         ,
@@ -1050,7 +1268,7 @@ public class ProfileSearchConnectorTest {
               ,
               "filter": [
               {          "query_string": {
-                    "query": "name.whitespace:*\\"aaa\\"*"
+                    "query": "name.whitespace:*\\\\\\\\\\\\\\"aaa\\\\\\\\\\\\\\"*"
                   }
               }
               ]
