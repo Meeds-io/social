@@ -524,24 +524,20 @@ public class ProfileSearchConnector {
         StringBuilder nameEsExp = new StringBuilder();
         // We will not search on userName because it doesn't contain a space character
         for (int i = 0; i < keys.length; i++) {
-          if(StringUtils.isNotBlank(keys[i])) {
-            if (i != 0) {
-              nameEsExp.append(") AND (");
-            }
-            String searchedWord = StorageUtils.ASTERISK_STR + escapeESReservedChars(removeAccents(keys[i]))
-                + StorageUtils.ASTERISK_STR;
-            nameEsExp.append(" name.whitespace:").append(searchedWord);
-            if (filter.isSearchEmail()) {
-              nameEsExp.append(" OR email:").append(searchedWord);
-            }
-            if (filter.isSearchUserName()) {
-              nameEsExp.append(" OR userName:").append(searchedWord);
-            }
+          if (i != 0) {
+            nameEsExp.append(") AND (");
+          }
+          String searchedWord = StorageUtils.ASTERISK_STR + escapeESReservedChars(removeAccents(keys[i]))
+              + StorageUtils.ASTERISK_STR;
+          nameEsExp.append(" name.whitespace:").append(searchedWord);
+          if (filter.isSearchEmail()) {
+            nameEsExp.append(" OR email:").append(searchedWord);
+          }
+          if (filter.isSearchUserName()) {
+            nameEsExp.append(" OR userName:").append(searchedWord);
           }
         }
-        if(StringUtils.isNotBlank(nameEsExp.toString())) {
-          esExp.append("(").append(nameEsExp).append(")");
-        }
+        esExp.append("(").append(nameEsExp).append(")");
       } else if (keys.length == 1) {
         String searchedText = StorageUtils.ASTERISK_STR + escapeESReservedChars(removeAccents(keys[0]))
             + StorageUtils.ASTERISK_STR;
