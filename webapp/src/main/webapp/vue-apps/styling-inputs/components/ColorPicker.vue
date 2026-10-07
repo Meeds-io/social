@@ -150,9 +150,12 @@ export default {
       return this.normalizeColor(first) === this.normalizeColor(second);
     },
     normalizeColor(color) {
-      // #RGB, #RRGGBB and #RRGGBBAA compared as #RRGGBBAA, case-insensitive
+      // Compared as the picker re-emits them (#RRGGBBAA, upper case): #RGB and #RGBA expanded, 'transparent' as #00000000
+      if (String(color || '').trim().toLowerCase() === 'transparent') {
+        return '00000000';
+      }
       let hex = String(color || '').replace('#', '').toUpperCase();
-      if (hex.length === 3) {
+      if (hex.length === 3 || hex.length === 4) {
         hex = hex.split('').map(c => c + c).join('');
       }
       return hex.length === 6 ? `${hex}FF` : hex;
