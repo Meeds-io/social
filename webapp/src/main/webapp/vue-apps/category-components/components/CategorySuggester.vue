@@ -69,6 +69,10 @@ export default {
       type: String,
       default: null,
     },
+    objectType: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     initialized: false,
@@ -137,6 +141,7 @@ export default {
         try {
           this.categories = await this.$categoryService.findCategories({
             query: this.keyword,
+            objectType: this.objectType,
             limit: this.limit,
           });
         } finally {
