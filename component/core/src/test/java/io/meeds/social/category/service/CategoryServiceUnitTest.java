@@ -24,6 +24,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -187,6 +190,56 @@ public class CategoryServiceUnitTest {
     assertNotNull(categories);
     assertEquals(1, categories.size());
     assertEquals(Collections.singletonList(PARENT_ID), categories.get(0).getAncestorIds());
+  }
+
+  @Test
+  public void testFindCategoriesByObjectType() {
+    Category parentCategory = mock(Category.class);
+    when(categoryStorage.getCategory(PARENT_ID)).thenReturn(parentCategory);
+    Identity adminGroupIdentity = mock(Identity.class);
+    when(adminGroupIdentity.getId()).thenReturn(String.valueOf(ADMIN_GROUP_IDENTITY_ID));
+    when(identityManager.getOrCreateGroupIdentity(CategoryServiceImpl.ADMINISTRATORS_GROUP)).thenReturn(adminGroupIdentity);
+    org.exoplatform.services.security.Identity userAclIdentity = mock(org.exoplatform.services.security.Identity.class);
+    when(userAcl.getUserIdentity(TEST_USER)).thenReturn(userAclIdentity);
+    when(userAclIdentity.getGroups()).thenReturn(new HashSet<>(Arrays.asList(A_GROUP_ID)));
+    Identity groupIdentity = mock(Identity.class);
+    when(identityManager.getOrCreateGroupIdentity(A_GROUP_ID)).thenReturn(groupIdentity);
+    when(groupIdentity.getId()).thenReturn(String.valueOf(GROUP_IDENTITY_ID));
+    Category category = mock(Category.class);
+    when(category.getId()).thenReturn(CATEGORY_ID);
+    when(categoryStorage.getCategory(CATEGORY_ID)).thenReturn(category);
+    CategorySearchFilter filter = new CategorySearchFilter(TERM,
+                                                           TYPE_A,
+                                                           ADMIN_GROUP_IDENTITY_ID,
+                                                           PARENT_ID,
+                                                           OFFSET,
+                                                           LIMIT,
+                                                           LINK_PERMISSION,
+                                                           SORT_BY_NAME);
+
+    // No category has an object of the type: nothing to search
+    when(categoryPluginService.getCategoryIds(TYPE_A, 0, TEST_USER)).thenReturn(Collections.emptyList());
+    assertTrue(categoryService.findCategories(filter, TEST_USER, Locale.ENGLISH).isEmpty());
+    verify(categoryStorage, never()).findCategories(any(), any(), any());
+    verify(categoryStorage, never()).findCategories(any(), any(), any(), any());
+
+    // The search is restricted to the categories having an object of the type
+    List<Long> allowedIds = Arrays.asList(CATEGORY_ID, 9l);
+    when(categoryPluginService.getCategoryIds(TYPE_A, 0, TEST_USER)).thenReturn(allowedIds);
+    when(categoryStorage.findCategories(filter,
+                                        Collections.singletonList(GROUP_IDENTITY_ID),
+                                        allowedIds,
+                                        Locale.ENGLISH)).thenReturn(Collections.singletonList(category));
+    List<CategorySearchResult> categories = categoryService.findCategories(filter, TEST_USER, Locale.ENGLISH);
+    assertEquals(1, categories.size());
+    assertEquals(CATEGORY_ID, categories.get(0).getId());
+    verify(categoryStorage, never()).findCategories(any(), any(), any());
+
+    // Without object type, no restriction
+    filter.setObjectType(null);
+    categoryService.findCategories(filter, TEST_USER, Locale.ENGLISH);
+    verify(categoryStorage).findCategories(filter, Collections.singletonList(GROUP_IDENTITY_ID), Locale.ENGLISH);
+    verify(categoryPluginService, times(2)).getCategoryIds(TYPE_A, 0, TEST_USER);
   }
 
   @Test
