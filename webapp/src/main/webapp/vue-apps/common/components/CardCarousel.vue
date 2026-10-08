@@ -6,6 +6,7 @@
       class="carousel-middle-parent scrollbar-width-none transparent d-flex overflow-x-scroll"
       flat
       @scroll="computeProperties"
+      @scrollend="resetTargetChildIndex"
       @resize="computeProperties">
       <div :class="parentClass" class="carousel-last-parent d-flex ma-auto">
         <slot></slot>
@@ -73,10 +74,10 @@ export default {
     scrollElement: null,
     displayLeftArrow: false,
     displayRightArrow: false,
-    childScrollIndex: 0,
     visibleChildrenPerPage: 1,
+    targetChildIndex: null,
+    targetChildIndexTimeout: null,
     computing: false,
-    initialized: false,
   }),
   computed: {
     leftArrowIcon() {
@@ -106,22 +107,52 @@ export default {
       }
     },
     moveRight() {
+      this.scrollToChild(this.getStartChildIndex() + this.visibleChildrenPerPage);
+    },
+    moveLeft() {
+      this.scrollToChild(this.getStartChildIndex() - this.visibleChildrenPerPage);
+    },
+    scrollToChild(index) {
       const children = this.scrollElement.firstChild.children;
-      const newIndex = this.childScrollIndex + this.visibleChildrenPerPage;
-      this.childScrollIndex = newIndex >= children.length ? (children.length - 1) : newIndex;
+      this.targetChildIndex = Math.min(Math.max(index, 0), children.length - 1);
+      // Browsers without the scrollend event release the target once the
+      // smooth scroll has had the time to end
+      window.clearTimeout(this.targetChildIndexTimeout);
+      this.targetChildIndexTimeout = window.setTimeout(this.resetTargetChildIndex, 1000);
       this.scrollElement.scrollTo({
-        left: children[this.childScrollIndex].offsetLeft - 8,
+        left: this.getChildScrollPosition(children[this.targetChildIndex]),
         behavior: 'smooth'
       });
     },
-    moveLeft() {
-      const children = this.scrollElement.firstChild.children;
-      const newIndex = this.childScrollIndex - this.visibleChildrenPerPage;
-      this.childScrollIndex = newIndex < 0 ? 0 : newIndex;
-      this.scrollElement.scrollTo({
-        left: children[this.childScrollIndex].offsetLeft - 8,
-        behavior: 'smooth'
+    // A click while the previous arrow's smooth scroll is still running starts
+    // from that scroll's target: the position being animated is between two
+    // pages and would land the carousel in the middle of one
+    getStartChildIndex() {
+      return this.targetChildIndex === null ? this.getFirstVisibleChildIndex() : this.targetChildIndex;
+    },
+    resetTargetChildIndex() {
+      window.clearTimeout(this.targetChildIndexTimeout);
+      this.targetChildIndex = null;
+    },
+    // The page the user sees is read from the scroll position rather than
+    // tracked across arrow clicks, so that a swipe or a drag of the content
+    // never desynchronizes the arrows from what is displayed
+    getFirstVisibleChildIndex() {
+      const children = Array.from(this.scrollElement.firstChild.children);
+      const scrollLeft = this.scrollElement.scrollLeft;
+      const index = children.findIndex(child => {
+        const childScrollPosition = this.getChildScrollPosition(child);
+        return this.$vuetify.rtl ? childScrollPosition <= scrollLeft + 10 : childScrollPosition >= scrollLeft - 10;
       });
+      return index < 0 ? children.length - 1 : index;
+    },
+    // The scroll position that displays a child at the start edge of the
+    // viewport with an 8px peek of the previous one. In RTL the start edge
+    // is the right one and the scroll position grows negative
+    getChildScrollPosition(child) {
+      return this.$vuetify.rtl
+        ? child.offsetLeft + child.offsetWidth + 8 - this.scrollElement.clientWidth
+        : child.offsetLeft - 8;
     },
     computeProperties() {
       if (!this.computing && !this.hideArrows) {
@@ -131,13 +162,9 @@ export default {
           const contentWidth = this.scrollElement.firstChild.offsetWidth;
           const children = this.scrollElement.firstChild.children;
           const childrenCount = children.length;
-          this.visibleChildrenPerPage = parseInt(parentWidth * childrenCount / contentWidth);
+          this.visibleChildrenPerPage = Math.max(1, parseInt(parentWidth * childrenCount / contentWidth) || 0);
           this.displayLeftArrow = this.scrollElement && childrenCount && this.checkDisplayLeftArrow(children);
           this.displayRightArrow = this.scrollElement && childrenCount && this.checkDisplayRightArrow(children);
-          if (!this.initialized && childrenCount) {
-            this.childScrollIndex = this.visibleChildrenPerPage >= children.length ? (children.length - 1) : this.visibleChildrenPerPage;
-            this.initialized = true;
-          }
           this.computing = false;
         }, 200);
       }
