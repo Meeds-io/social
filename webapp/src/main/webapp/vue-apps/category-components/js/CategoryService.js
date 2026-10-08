@@ -146,6 +146,9 @@ export function findCategories(options) {
   if (options.ownerId) {
     formData.append('ownerId', options.ownerId);
   }
+  if (options.objectType) {
+    formData.append('objectType', options.objectType);
+  }
   if (options.offset) {
     formData.append('offset', options.offset);
   }
