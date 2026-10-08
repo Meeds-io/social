@@ -27,9 +27,13 @@ import org.exoplatform.commons.api.notification.service.SendAllRecipientProvider
 import org.exoplatform.social.core.manager.IdentityManager;
 
 /**
- * Lists the recipients of a send-all notification from the social identities,
- * whose enabled and external status follows the organization service's: one
- * database query per page, however the organization service is backed.
+ * Lists the recipients of a send-all notification from the social identities:
+ * one database query per page, however the organization service is backed.
+ * The enabled status follows the organization service's. The external status
+ * is the identity's {@code external} profile property, which follows the
+ * membership of the externals group and of which the organization service's
+ * {@code user.other-info.external} attribute is a copy: that attribute written
+ * by another means does not reach it.
  */
 @Service("socialSendAllRecipientProvider")
 public class SocialSendAllRecipientProvider implements SendAllRecipientProvider {
