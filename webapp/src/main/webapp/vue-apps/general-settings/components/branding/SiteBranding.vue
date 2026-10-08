@@ -455,7 +455,10 @@ export default {
         '--allPagesTopBarTextFontSize': this.topBarStylingProperties.topBarTextFontSize,
         '--allPagesTopBarTextFontStyle': this.topBarStylingProperties.topBarTextFontStyle,
         '--allPagesTopBarTextFontWeight': this.topBarStylingProperties.topBarTextFontWeight,
-        '--allPagesTopBarIconColor': this.topBarStylingProperties.topBarIconColor,
+        // a cleared icon colour previews the effective value, the configured default or 'initial', never the stylesheet's stored one
+        '--allPagesTopBarIconColor': this.topBarStylingProperties.topBarIconColor
+          || this.$root.defaultBrandingThemeStyle?.topBarIconColor
+          || 'initial',
         '--allPagesTopBarBackgroundColor': this.topBarStylingProperties.topBarBackgroundColor,
         '--allPagesTopBarBackgroundPosition': this.topBarStylingProperties.topBarBackgroundPosition,
         '--allPagesTopBarBackgroundRepeat': this.topBarStylingProperties.topBarBackgroundRepeat,
@@ -498,7 +501,10 @@ export default {
         '--allPagesSideBarTextSubtitleFontSize': this.sideBarStylingProperties.sideBarTextSubtitleFontSize,
         '--allPagesSideBarTextSubtitleFontStyle': this.sideBarStylingProperties.sideBarTextSubtitleFontStyle,
         '--allPagesSideBarTextSubtitleFontWeight': this.sideBarStylingProperties.sideBarTextSubtitleFontWeight,
-        '--allPagesSideBarIconColor': this.sideBarStylingProperties.sideBarIconColor,
+        // a cleared icon colour previews the effective value, the configured default or 'initial', never the stylesheet's stored one
+        '--allPagesSideBarIconColor': this.sideBarStylingProperties.sideBarIconColor
+          || this.$root.defaultBrandingThemeStyle?.sideBarIconColor
+          || 'initial',
         '--allPagesSideBarBackgroundColor': this.sideBarStylingProperties.sideBarBackgroundColor,
         '--allPagesSideBarBackgroundPosition': this.sideBarStylingProperties.sideBarBackgroundPosition,
         '--allPagesSideBarBackgroundRepeat': this.sideBarStylingProperties.sideBarBackgroundRepeat,
@@ -532,7 +538,10 @@ export default {
         '--allPagesDrawerTextFontSize': this.drawerStylingProperties.drawerTextFontSize,
         '--allPagesDrawerTextFontStyle': this.drawerStylingProperties.drawerTextFontStyle,
         '--allPagesDrawerTextFontWeight': this.drawerStylingProperties.drawerTextFontWeight,
-        '--allPagesDrawerIconColor': this.drawerStylingProperties.drawerIconColor,
+        // a cleared icon colour previews the effective value, the configured default or 'initial', never the stylesheet's stored one
+        '--allPagesDrawerIconColor': this.drawerStylingProperties.drawerIconColor
+          || this.$root.defaultBrandingThemeStyle?.drawerIconColor
+          || 'initial',
         '--allPagesDrawerTextSubtitleColor': this.drawerStylingProperties.drawerTextSubtitleColor,
         '--allPagesDrawerTextSubtitleFontSize': this.drawerStylingProperties.drawerTextSubtitleFontSize,
         '--allPagesDrawerTextSubtitleFontStyle': this.drawerStylingProperties.drawerTextSubtitleFontStyle,
