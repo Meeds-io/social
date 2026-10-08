@@ -37,14 +37,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 
 import io.meeds.social.category.model.CategorySearchFilter;
-
-import lombok.SneakyThrows;
 
 /**
  * Checks the structure of the queries the connector builds, parsed strictly.
@@ -111,17 +109,6 @@ public class CategorySearchConnectorTest {
   }
 
   @Test
-  public void testCountRestrictedToAllowedIds() {
-    when(client.countRequest(argThat(query -> {
-      JsonNode must = must(query);
-      return must.size() == 2
-             && hasClause(must, "term")
-             && "[\"7\"]".equals(clause(must, "ids").get("values").toString());
-    }), eq(INDEX))).thenReturn("{\"count\":1}");
-    assertEquals(1, connector.count(filter(0l, 2l, false), IDENTITY_IDS, Collections.singletonList(7l), Locale.ENGLISH));
-  }
-
-  @Test
   public void testCountWithoutAllowedIdsHasNoIdsClause() {
     when(client.countRequest(argThat(query -> {
       JsonNode must = must(query);
@@ -144,7 +131,6 @@ public class CategorySearchConnectorTest {
    * Parses the query strictly, so that a trailing or a missing comma between
    * the must clauses fails, as Elasticsearch would.
    */
-  @SneakyThrows
   private static JsonNode must(String query) {
     return OBJECT_MAPPER.readTree(query).get("query").get("bool").get("must");
   }

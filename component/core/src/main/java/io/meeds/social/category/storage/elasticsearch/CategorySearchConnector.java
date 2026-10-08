@@ -188,18 +188,7 @@ public class CategorySearchConnector {
   }
 
   public int count(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
-    return count(filter, identityIds, null, locale);
-  }
-
-  /**
-   * @param filter search filter
-   * @param identityIds identities of the user, used for link permissions
-   * @param categoryIds when not null, only these categories are counted
-   * @param locale locale of the searched name
-   * @return the count of matching categories
-   */
-  public int count(CategorySearchFilter filter, List<Long> identityIds, List<Long> categoryIds, Locale locale) {
-    String esQuery = buildSearchQuery(COUNT_QUERY_TERM, filter, identityIds, categoryIds, locale);
+    String esQuery = buildSearchQuery(COUNT_QUERY_TERM, filter, identityIds, null, locale);
     String jsonResponse = this.client.countRequest(esQuery, CATEGORY_INDEX);
     return buildCount(jsonResponse);
   }
