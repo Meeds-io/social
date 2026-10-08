@@ -55,6 +55,7 @@ import org.exoplatform.social.core.storage.cache.CachedActivityStorageTest;
 import io.meeds.social.activity.schedule.ActivityPublicationPluginTest;
 import io.meeds.social.authorization.AuthorizationManagerTest;
 import io.meeds.social.category.service.CategoryServiceUnitTest;
+import io.meeds.social.category.storage.elasticsearch.CategorySearchConnectorTest;
 import io.meeds.social.reaction.listener.ReactionLikeDeletedListenerTest;
 import io.meeds.social.reaction.service.ReactionServiceImplTest;
 import io.meeds.social.reaction.storage.ReactionStorageTest;
@@ -130,6 +131,7 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     SpaceTemplateStorageTest.class,
     SpaceTemplateServiceTest.class,
     CategoryServiceUnitTest.class,
+    CategorySearchConnectorTest.class,
     CoeditingServiceTest.class,
     SpaceDirectoryServiceTest.class,
     SpaceDirectoryStorageTest.class,

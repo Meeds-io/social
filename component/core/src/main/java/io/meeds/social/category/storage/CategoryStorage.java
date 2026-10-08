@@ -142,7 +142,18 @@ public class CategoryStorage {
   }
 
   public List<Category> findCategories(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
-    List<Long> ids = findCategoryIds(filter, identityIds, locale);
+    return findCategories(filter, identityIds, null, locale);
+  }
+
+  /**
+   * @param filter search filter
+   * @param identityIds identities of the user, used for link permissions
+   * @param categoryIds when not null, only these categories may match
+   * @param locale locale of the searched and sorted name
+   * @return the matching categories
+   */
+  public List<Category> findCategories(CategorySearchFilter filter, List<Long> identityIds, List<Long> categoryIds, Locale locale) {
+    List<Long> ids = searchConnector.search(filter, identityIds, categoryIds, locale);
     return ids.stream().map(this::getCategory).toList();
   }
 

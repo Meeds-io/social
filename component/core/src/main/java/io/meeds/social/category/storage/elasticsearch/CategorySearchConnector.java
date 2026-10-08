@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,9 +57,7 @@ public class CategorySearchConnector {
               "bool":{
                 @term_query@
                 "must":[
-                  @owner_id_query@
-                  @parent_id_query@
-                  @permissions_query@
+                  @must_queries@
                 ]
               }
             },
@@ -73,9 +72,7 @@ public class CategorySearchConnector {
               "bool":{
                 @term_query@
                 "must":[
-                  @owner_id_query@
-                  @parent_id_query@
-                  @permissions_query@
+                  @must_queries@
                 ]
               }
             }
@@ -116,6 +113,14 @@ public class CategorySearchConnector {
       }
       """;
 
+  public static final String     IDS_QUERY                        = """
+      {
+        "ids":{
+          "values": [@ids@]
+        }
+      }
+      """;
+
   public static final String     SORT_QUERY_BY_NAME               = """
       "sort" : [
         { "@sort_field@.raw" : "@sort_direction@" }
@@ -142,17 +147,15 @@ public class CategorySearchConnector {
 
   private static final String    OWNER_ID_REPLACEMENT             = "@ownerId@";
 
-  private static final String    OWNER_ID_QUERY_REPLACEMENT       = "@owner_id_query@";
-
   private static final String    PARENT_ID_REPLACEMENT            = "@parentId@";
-
-  private static final String    PARENT_ID_QUERY_REPLACEMENT      = "@parent_id_query@";
 
   private static final String    PERMISSIONS_REPLACEMENT          = "@permissions@";
 
   private static final String    PERMISSIONS_FIELD_REPLACEMENT    = "@permissions_field@";
 
-  private static final String    PERMISSIONS_QUERY_REPLACEMENT    = "@permissions_query@";
+  private static final String    MUST_QUERIES_REPLACEMENT         = "@must_queries@";
+
+  private static final String    IDS_REPLACEMENT                  = "@ids@";
 
   private static final String    SORT_FIELD_QUERY_REPLACEMENT     = "@sort_field@";
 
@@ -168,48 +171,54 @@ public class CategorySearchConnector {
   private ElasticSearchingClient client;
 
   public List<Long> search(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
-    String esQuery = buildSearchQuery(SEARCH_QUERY_TERM, filter, identityIds, locale);
+    return search(filter, identityIds, null, locale);
+  }
+
+  /**
+   * @param filter search filter
+   * @param identityIds identities of the user, used for link permissions
+   * @param categoryIds when not null, only these categories may match
+   * @param locale locale of the searched and sorted name
+   * @return the matching category ids
+   */
+  public List<Long> search(CategorySearchFilter filter, List<Long> identityIds, List<Long> categoryIds, Locale locale) {
+    String esQuery = buildSearchQuery(SEARCH_QUERY_TERM, filter, identityIds, categoryIds, locale);
     String jsonResponse = this.client.sendRequest(esQuery, CATEGORY_INDEX);
     return buildResult(jsonResponse);
   }
 
   public int count(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
-    String esQuery = buildSearchQuery(COUNT_QUERY_TERM, filter, identityIds, locale);
+    String esQuery = buildSearchQuery(COUNT_QUERY_TERM, filter, identityIds, null, locale);
     String jsonResponse = this.client.countRequest(esQuery, CATEGORY_INDEX);
     return buildCount(jsonResponse);
   }
 
-  private String buildSearchQuery(String queryBase, CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
-    String append = "";
+  String buildSearchQuery(String queryBase,
+                          CategorySearchFilter filter,
+                          List<Long> identityIds,
+                          List<Long> categoryIds,
+                          Locale locale) {
     String esQuery = queryBase.replace(OFFSET_REPLACEMENT, String.valueOf(filter.getOffset()))
                               .replace(LIMIT_REPLACEMENT,
                                        String.valueOf(filter.getLimit() < 1 ? DEFAULT_LIMIT : filter.getLimit()));
+    List<String> mustQueries = new ArrayList<>();
     if (filter.getParentId() > 0) {
-      esQuery = esQuery.replace(PARENT_ID_QUERY_REPLACEMENT,
-                                PARENT_ID_QUERY.replace(PARENT_ID_REPLACEMENT,
-                                                        String.format(STRING_VALUE_FORMAT, filter.getParentId())));
-      esQuery = esQuery.replace(OWNER_ID_QUERY_REPLACEMENT, "");
-      append = ",";
+      mustQueries.add(PARENT_ID_QUERY.replace(PARENT_ID_REPLACEMENT, String.format(STRING_VALUE_FORMAT, filter.getParentId())));
     } else if (filter.getOwnerId() > 0) {
-      esQuery = esQuery.replace(OWNER_ID_QUERY_REPLACEMENT,
-                                OWNER_ID_QUERY.replace(OWNER_ID_REPLACEMENT,
-                                                       String.format(STRING_VALUE_FORMAT, filter.getOwnerId())));
-      esQuery = esQuery.replace(PARENT_ID_QUERY_REPLACEMENT, "");
-      append = ",";
-    } else {
-      esQuery = esQuery.replace(PARENT_ID_QUERY_REPLACEMENT, "");
-      esQuery = esQuery.replace(OWNER_ID_QUERY_REPLACEMENT, "");
+      mustQueries.add(OWNER_ID_QUERY.replace(OWNER_ID_REPLACEMENT, String.format(STRING_VALUE_FORMAT, filter.getOwnerId())));
     }
     if (CollectionUtils.isNotEmpty(identityIds) && filter.isLinkPermission()) {
-      esQuery = esQuery.replace(PERMISSIONS_QUERY_REPLACEMENT,
-                                append + PERMISSIONS_QUERY
-                                                          .replace(PERMISSIONS_REPLACEMENT,
-                                                                   String.format(STRING_VALUE_FORMAT,
-                                                                                 StringUtils.join(identityIds, "\",\"")))
-                                                          .replace(PERMISSIONS_FIELD_REPLACEMENT,"linkPermissions"));
-    } else {
-      esQuery = esQuery.replace(PERMISSIONS_QUERY_REPLACEMENT, "");
+      mustQueries.add(PERMISSIONS_QUERY.replace(PERMISSIONS_REPLACEMENT,
+                                                String.format(STRING_VALUE_FORMAT, StringUtils.join(identityIds, "\",\"")))
+                                       .replace(PERMISSIONS_FIELD_REPLACEMENT, "linkPermissions"));
     }
+    if (categoryIds != null) {
+      mustQueries.add(IDS_QUERY.replace(IDS_REPLACEMENT,
+                                        categoryIds.stream()
+                                                   .map(id -> String.format(STRING_VALUE_FORMAT, id))
+                                                   .collect(Collectors.joining(","))));
+    }
+    esQuery = esQuery.replace(MUST_QUERIES_REPLACEMENT, String.join(",", mustQueries));
     if (StringUtils.isNotBlank(filter.getTerm())) {
       esQuery = esQuery.replace(TERM_QUERY_REPLACEMENT,
                                 TERM_QUERY.replace(NAME_REPLACEMENT, String.format(NAME_FORMAT, locale.toLanguageTag()))

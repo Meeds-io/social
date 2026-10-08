@@ -59,7 +59,9 @@ public interface CategoryService {
 
   /**
    * Searches Categories in flat mode by a name. This will return only
-   * accessible categories by the user.
+   * accessible categories by the user. When the filter designates an
+   * objectType, only the categories having at least one object of that type
+   * linked directly are returned.
    *
    * @param filter used filter to query the Category tree
    * @param username User name/login
