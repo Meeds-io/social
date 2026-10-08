@@ -37,8 +37,11 @@
         <p class="ma-0">
           {{ $t('generalSettings.themeColors.help3') }}
         </p>
-        <p>
+        <p class="ma-0">
           {{ $t('generalSettings.themeColors.help4') }}
+        </p>
+        <p>
+          {{ $t('generalSettings.themeColors.help5') }}
         </p>
         <div class="text-header mt-4">
           {{ $t('generalSettings.themeColors.drawer.content.header.title') }}
