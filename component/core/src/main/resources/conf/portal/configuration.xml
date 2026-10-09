@@ -84,4 +84,14 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.security.Authenticator</target-component>
+    <component-plugin>
+      <name>social.agent.account.login.guard</name>
+      <set-method>addSecurityCheckAuthenticatorPlugin</set-method>
+      <type>io.meeds.social.core.identity.plugin.AgentAccountLoginGuard</type>
+      <description>Refuses a password login to the members of /platform/agents.</description>
+    </component-plugin>
+  </external-component-plugins>
+
 </configuration>
