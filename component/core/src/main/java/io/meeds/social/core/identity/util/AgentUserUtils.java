@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 
 /**
  * Agent accounts: the user accounts that are members of the
@@ -62,6 +64,39 @@ public final class AgentUserUtils {
     Collection<Membership> memberships = organizationService.getMembershipHandler()
                                                             .findMembershipsByUserAndGroup(userName, PLATFORM_AGENTS_GROUP);
     return memberships != null && !memberships.isEmpty();
+  }
+
+  /**
+   * Refuses a change of the {@code Profile#MANAGER} property of an agent
+   * account to anyone but an administrator: the agent itself cannot change
+   * who it reports to. A failure to read the memberships refuses the change.
+   *
+   * @param organizationService the organization service to read the
+   *          memberships from
+   * @param profile the profile being updated
+   * @param administrator whether the user who makes the change is an
+   *          administrator
+   * @throws IllegalAccessException when the profile is an agent account's and
+   *           the modifier is not an administrator, or when its memberships
+   *           cannot be read
+   */
+  public static void checkManagerUpdate(OrganizationService organizationService,
+                                        Profile profile,
+                                        boolean administrator) throws IllegalAccessException {
+    if (administrator) {
+      return;
+    }
+    Identity identity = profile == null ? null : profile.getIdentity();
+    String userName = identity == null ? null : identity.getRemoteId();
+    boolean agent;
+    try {
+      agent = isAgentUser(organizationService, userName);
+    } catch (Exception e) {
+      throw new IllegalAccessException("Cannot check whether the profile of " + userName + " is an agent account's");
+    }
+    if (agent) {
+      throw new IllegalAccessException("Not allowed to update the MANAGER field of an agent account");
+    }
   }
 
 }
