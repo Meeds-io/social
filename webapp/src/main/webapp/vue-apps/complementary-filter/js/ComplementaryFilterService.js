@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-export function getComplementaryFilterSuggestions(objectIds, attributes, indexAlias, minDocCount) {
+export function getComplementaryFilterSuggestions(objectIds, attributes, minDocCount) {
   const formData = new FormData();
   attributes.forEach(attribute => formData.append('attributes', attribute));
   if (minDocCount) {
     formData.append('minDocCount', minDocCount);
   }
   const params = new URLSearchParams(formData).toString();
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/complementaryfilter/suggestions/${indexAlias}?${params}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/complementaryfilter/suggestions?${params}`, {
     method: 'POST',
     credentials: 'include',
     headers: {
