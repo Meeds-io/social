@@ -142,9 +142,9 @@ public class CategorySearchConnector {
 
   private static final String    LIMIT_NAME                       = "limit";
 
-  private static final String    NAME_REPLACEMENT                 = "@name_field@";
+  private static final String    NAME_FIELD_NAME                  = "name_field";
 
-  private static final String    TERM_REPLACEMENT                 = "@term@";
+  private static final String    TERM_NAME                        = "term";
 
   private static final String    TERM_QUERY_NAME                  = "term_query";
 
@@ -214,8 +214,11 @@ public class CategorySearchConnector {
     }
     if (StringUtils.isNotBlank(filter.getTerm())) {
       values.put(TERM_QUERY_NAME,
-                 TERM_QUERY.replace(NAME_REPLACEMENT, String.format(NAME_FORMAT, locale.toLanguageTag()))
-                           .replace(TERM_REPLACEMENT, StorageUtils.escapeSearchText(filter.getTerm())));
+                 StorageUtils.fillQueryTemplate(TERM_QUERY,
+                                                Map.of(NAME_FIELD_NAME,
+                                                       String.format(NAME_FORMAT, locale.toLanguageTag()),
+                                                       TERM_NAME,
+                                                       StorageUtils.escapeSearchText(filter.getTerm()))));
     }
     if (filter.isSortByName()) {
       values.put(SORT_QUERY_NAME,

@@ -75,6 +75,7 @@ public class CategorySearchConnectorTest {
     assertEquals("a/b", searchedQueryText("a/b"));
     assertEquals("@limit@", searchedQueryText("@limit@"));
     assertEquals("@sort_query@", searchedQueryText("@sort_query@"));
+    assertEquals("@name_field@ @term@", searchedQueryText("@name_field@ @term@"));
     assertEquals("#release\"", searchedQueryText("#release\""));
     assertEquals("test-tes", searchedQueryText("tést-tés"));
     assertEquals("Publie", searchedQueryText("Publié"));
