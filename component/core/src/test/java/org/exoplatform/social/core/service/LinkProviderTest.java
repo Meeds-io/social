@@ -50,6 +50,7 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
         + rootIdentity.getProfile().getFullName() + "',avatar: '" + rootIdentity.getProfile().getAvatarUrl().replace("&", "&amp;") + "',position: '"
         + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '"
         + (external == null ? "false" : external)
+        + "',agent: 'false"
         + "',enabled: '" + (rootIdentity.isEnable() && !rootIdentity.isDeleted())
         + "',deleted: '" + rootIdentity.isDeleted()
         + "',displayedEmail: '" + Objects.toString(rootIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL), "")
@@ -72,6 +73,33 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
     } finally {
       profile.setProperty(Profile.DISPLAYED_EMAIL, null);
       profile.setProperty(Profile.DISPLAYED_PHONE, null);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * An agent account's link carries {@code agent: 'true'} in the popover
+   * literal, appended raw like the other booleans, and an agent label after
+   * the name; a profile that is not an agent's carries neither.
+   */
+  public void testGetProfileLinkFlagsAnAgentAccount() {
+    Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+    Profile profile = johnIdentity.getProfile();
+    Object previous = profile.getProperty(Profile.AGENT);
+    try {
+      profile.setProperty(Profile.AGENT, "true");
+      identityManager.updateProfile(profile);
+      String link = LinkProvider.getProfileLink("john", "classic");
+      assertTrue(link, link.contains(",agent: 'true',"));
+      assertTrue(link, link.contains("<span class=\"agentFlagClass\"> ("));
+
+      profile.setProperty(Profile.AGENT, "false");
+      identityManager.updateProfile(profile);
+      link = LinkProvider.getProfileLink("john", "classic");
+      assertTrue(link, link.contains(",agent: 'false',"));
+      assertFalse(link, link.contains("agentFlagClass"));
+    } finally {
+      profile.setProperty(Profile.AGENT, previous);
       identityManager.updateProfile(profile);
     }
   }

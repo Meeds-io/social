@@ -82,6 +82,8 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String EXTERNAL                = "external";
 
+  public static final String AGENT                   = "agent";
+
   public static final String LAST_LOGIN_TIME         = "lastLoginTime";
 
   public static final String ENROLLMENT_DATE         = "enrollmentDate";
@@ -491,6 +493,26 @@ public class ProfileEntity extends BaseEntity {
 
   public String isExternal() {
     return getString(EXTERNAL);
+  }
+
+  /**
+   * Sets whether the profile is an agent account's.
+   *
+   * @param isAgent {@code "true"} or {@code "false"}
+   * @return this entity
+   */
+  public ProfileEntity setIsAgent(String isAgent) {
+    setProperty(AGENT, isAgent);
+    return this;
+  }
+
+  /**
+   * Tells whether the profile is an agent account's.
+   *
+   * @return {@code "true"} or {@code "false"}
+   */
+  public String isAgent() {
+    return getString(AGENT);
   }
 
   public ProfileEntity setLastLoginTime(String lastLoginTime) {
