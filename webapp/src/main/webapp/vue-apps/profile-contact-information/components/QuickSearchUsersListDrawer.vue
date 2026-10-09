@@ -45,7 +45,6 @@
         :object-ids="objectIds"
         :attributes="listProperties"
         :show-message="false"
-        index-alias="profile_alias"
         :loading-call-back="loadingCallBack"
         :parent-expanded="expanded"
         @build-suggestions-terminated="buildSuggestionsTerminated"

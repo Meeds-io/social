@@ -31,6 +31,10 @@
     <exo.test.coverage.ratio>0.72</exo.test.coverage.ratio>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
     <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
     <dependency>
       <groupId>${project.groupId}</groupId>
