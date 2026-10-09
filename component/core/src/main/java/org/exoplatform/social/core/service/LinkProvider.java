@@ -221,6 +221,9 @@ public class LinkProvider {
                .append("external: '")
                .append(identity.getProfile().getProperty(Profile.EXTERNAL) != null && StringUtils.equals("true", String.valueOf(identity.getProfile().getProperty(Profile.EXTERNAL))))
                .append("',")
+               .append("agent: '")
+               .append(identity.isAgent())
+               .append("',")
                .append("enabled: '")
                .append(identity.isEnable() && !identity.isDeleted())
                .append("',")
@@ -238,6 +241,13 @@ public class LinkProvider {
                .append(StringEscapeUtils.escapeHtml4(fullName));
     if(identity.getProfile().getProperty("external") != null && identity.getProfile().getProperty("external").equals("true")){
       profileLink = profileLink.append("<span class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(Locale.forLanguageTag(lang), "external.label.tag")).append(")").append("</span>");
+    }
+    if (identity.isAgent()) {
+      profileLink.append("<span class=\"agentFlagClass\">")
+                 .append(" (")
+                 .append(StringEscapeUtils.escapeHtml4(getResourceBundleLabel(Locale.forLanguageTag(lang), "agent.label.tag")))
+                 .append(")")
+                 .append("</span>");
     }
     return profileLink.append("</a>").toString();
   }

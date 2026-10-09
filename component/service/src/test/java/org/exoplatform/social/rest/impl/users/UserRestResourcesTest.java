@@ -882,6 +882,36 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
+   * The user entity exposes the agent flag as the string {@code "true"} or
+   * {@code "false"}, like the external flag, since the clients compare it with
+   * {@code === 'true'}.
+   */
+  public void testGetUserExposesTheAgentFlagAsAString() throws Exception {
+    startSessionAs("root");
+    Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    Object previous = profile.getProperty(Profile.AGENT);
+    try {
+      profile.setProperty(Profile.AGENT, "true");
+      identityManager.updateProfile(profile);
+      ContainerResponse response = service("GET", getURLResource("users/mary"), "", null, null);
+      assertEquals(200, response.getStatus());
+      ProfileEntity userEntity = getBaseEntity(response.getEntity(), ProfileEntity.class);
+      assertEquals("true", userEntity.getDataEntity().get(ProfileEntity.AGENT));
+
+      profile.removeProperty(Profile.AGENT);
+      identityManager.updateProfile(profile);
+      response = service("GET", getURLResource("users/mary"), "", null, null);
+      assertEquals(200, response.getStatus());
+      userEntity = getBaseEntity(response.getEntity(), ProfileEntity.class);
+      assertEquals("false", userEntity.getDataEntity().get(ProfileEntity.AGENT));
+    } finally {
+      profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.setProperty(Profile.AGENT, previous);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
    * Sends the single-property PATCH of a user profile.
    *
    * @param userName the user whose profile is updated

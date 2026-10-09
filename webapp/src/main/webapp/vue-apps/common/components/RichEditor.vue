@@ -862,7 +862,7 @@ export default {
     replaceValidSuggestedUser(message, profile, pattern) {
       return message.replace(new RegExp(pattern, 'g'), ExtendedDomPurify.purify(`
                       <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="${profile.username}" contenteditable="false">
-                        <span class="exo-mention">${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>
+                        <span class="exo-mention">${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}${profile.agent === 'true' ? ` (${  this.$t('userAvatar.agent.label')  })` : ''}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>
                       </span>
                     `));
     },
@@ -872,7 +872,7 @@ export default {
                         <span class="exo-mention">
                           <i aria-hidden="true" class="v-icon notranslate fa fa-exclamation-triangle theme--light orange--text error-color" style="font-size: 16px;">
                           </i>
-                          <del>${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}</del>
+                          <del>${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}${profile.agent === 'true' ? ` (${  this.$t('userAvatar.agent.label')  })` : ''}</del>
                           <a href="#" class="remove">
                             <i class="uiIconClose uiIconLightGray"></i>
                           </a>

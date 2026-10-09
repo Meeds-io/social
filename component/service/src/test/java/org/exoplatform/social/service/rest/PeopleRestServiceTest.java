@@ -19,6 +19,7 @@
 package org.exoplatform.social.service.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.exoplatform.social.service.rest.api.models.IdentityNameList;
 
@@ -31,6 +32,7 @@ import org.exoplatform.services.rest.tools.ByteArrayContainerResponseWriter;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
@@ -182,6 +184,62 @@ public class PeopleRestServiceTest extends AbstractResourceTest {
       identityManager.processEnabledIdentity("mary", true);
       relationshipManager.delete(relationship);
     }
+  }
+
+  /**
+   * An agent account is an enabled internal user: a member of a space is
+   * suggested for a mention in that space's stream whether or not it is an
+   * agent account.
+   */
+  public void testAgentAccountIsSuggestedForMentionInSpaceActivityStream() throws Exception {
+    startSessionAs("root");
+    Space space = new Space();
+    space.setPrettyName("agentmentionspace");
+    space.setDisplayName("agentmentionspace");
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.OPEN);
+    space = spaceService.createSpace(space, rootIdentity.getRemoteId());
+    spaceService.addMember(space, maryIdentity.getRemoteId());
+    Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary").getProfile();
+    Object previousAgent = profile.getProperty(Profile.AGENT);
+    try {
+      assertTrue("a space member must be suggested for a mention", isSuggestedForMention("mary", space));
+
+      profile.setProperty(Profile.AGENT, "true");
+      identityManager.updateProfile(profile);
+      assertTrue(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary").isAgent());
+      assertTrue("an agent account must be suggested for a mention", isSuggestedForMention("mary", space));
+    } finally {
+      profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary").getProfile();
+      profile.setProperty(Profile.AGENT, previousAgent);
+      identityManager.updateProfile(profile);
+      spaceService.deleteSpace(space);
+    }
+  }
+
+  /**
+   * Asks the people suggester for the mentions of a space's activity stream,
+   * on behalf of root.
+   *
+   * @param userName the user expected among the suggestions, whose
+   *          suggestion id is the user name prefixed with {@code @}
+   * @param space the space whose stream is being written
+   * @return true when the user is suggested
+   */
+  private boolean isSuggestedForMention(String userName, Space space) throws Exception {
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("username", "root");
+    ContainerResponse response = service("GET",
+                                         "/social/people/suggest.json?nameToSearch=m&currentUser=root&typeOfRelation=mention_activity_stream&spacePrettyName="
+                                             + space.getPrettyName(),
+                                         "",
+                                         headers,
+                                         null,
+                                         new ByteArrayContainerResponseWriter());
+    assertEquals(200, response.getStatus());
+    return ((Collection<?>) response.getEntity()).stream()
+                                                 .map(PeopleRestService.UserInfo.class::cast)
+                                                 .anyMatch(userInfo -> ("@" + userName).equals(userInfo.getId()));
   }
 
   public void testDeactivatedAuthorNotSuggestedForMentionInComment() throws Exception {
