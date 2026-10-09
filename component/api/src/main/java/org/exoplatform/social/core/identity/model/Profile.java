@@ -150,6 +150,9 @@ public class Profile {
    */
   public static final String AGENT                    = "agent";
 
+  /** MANAGER: the user names of the person's managers. */
+  public static final String MANAGER                  = "manager";
+
   /** ENROLLMENT DATE. */
   public static final String ENROLLMENT_DATE          = "enrollmentDate";
 
