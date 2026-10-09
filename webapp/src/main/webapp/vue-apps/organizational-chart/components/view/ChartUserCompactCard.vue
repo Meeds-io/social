@@ -47,6 +47,11 @@
                   class="grey--text">
                   {{ $t('peopleList.label.external') }}
                 </span>
+                <span
+                  v-if="agentUser"
+                  class="grey--text">
+                  ({{ $t('userAvatar.agent.label') }})
+                </span>
               </p>
             </v-list-item-title>
             <v-list-item-subtitle>
@@ -102,6 +107,9 @@ export default {
     },
     externalUser() {
       return this.user?.external === 'true';
+    },
+    agentUser() {
+      return this.user?.agent === 'true';
     },
   }
 };
