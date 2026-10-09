@@ -18,7 +18,7 @@
           :key="channelId"
           :style="columnStyle"
           class="text-center text-truncate flex-shrink-0">
-          {{ settings.channelLabels && settings.channelLabels[channelId] }}
+          {{ columnLabel(channelId) }}
         </div>
       </v-list-item-action>
     </v-list-item>
@@ -76,6 +76,10 @@ export default {
     document.removeEventListener('extension-WebNotification-notification-group-extension-updated', this.refreshExtensions);
   },
   methods: {
+    columnLabel(channelId) {
+      const key = `NotificationAdmin.${channelId}.column`;
+      return this.$te(key) ? this.$t(key) : this.settings?.channelLabels?.[channelId];
+    },
     refreshExtensions() {
       this.extensions = extensionRegistry.loadExtensions('WebNotification', 'notification-group-extension') || [];
     },
