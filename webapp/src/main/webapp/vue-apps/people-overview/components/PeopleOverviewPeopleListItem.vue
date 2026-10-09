@@ -26,6 +26,9 @@
           <span v-if="user.external === 'true'" class="externalTagClass">
             ({{ $t('UserProfilePopup.label.profile.external') }})
           </span>
+          <span v-if="user.agent === 'true'" class="externalTagClass">
+            ({{ $t('userAvatar.agent.label') }})
+          </span>
         </a>
       </v-list-item-title>
       <v-list-item-subtitle>
