@@ -101,6 +101,12 @@
           <includes>
             <include>**/*TestSuite.java</include>
           </includes>
+          <systemPropertyVariables>
+            <!-- The tests run without Elasticsearch, as in CI: an instance answering on the default
+                 http://127.0.0.1:9200 throws no exception, so the database fallbacks never run -->
+            <exo.es.search.server.url>http://127.0.0.1:1</exo.es.search.server.url>
+            <exo.es.index.server.url>http://127.0.0.1:1</exo.es.index.server.url>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
       <plugin>
