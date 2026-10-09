@@ -22,6 +22,7 @@ import io.meeds.social.notification.digest.SocialDigestLinePluginTest;
 import io.meeds.social.notification.job.SpaceWebNotificationCleanupJobTest;
 import io.meeds.social.notification.listener.SpaceMembershipNotificationListenerTest;
 import io.meeds.social.notification.rest.utils.WebNotificationRestEntityBuilderTest;
+import io.meeds.social.notification.service.SocialSendAllRecipientProviderTest;
 import io.meeds.social.notification.plugin.JoinedSpaceByInvitationLinkPluginTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -82,6 +83,7 @@ import io.meeds.social.security.plugin.EmailOtpPluginTest;
   SocialNotificationUtilsTest.class,
   UtilsTestCase.class,
   EmailOtpPluginTest.class,
+  SocialSendAllRecipientProviderTest.class,
   AccountDeactivationEmailOtpPluginTest.class,
   SpaceMembershipNotificationListenerTest.class,
   JoinedSpaceByInvitationLinkPluginTest.class,

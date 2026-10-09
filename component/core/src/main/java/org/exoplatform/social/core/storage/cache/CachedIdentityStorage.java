@@ -312,6 +312,11 @@ public class CachedIdentityStorage implements IdentityStorage {
       getCachedRelationshipStorage().clearAllRelationshipCache();
     }
   }
+
+  @Override
+  public List<String> getEnabledUsernames(boolean internalsOnly, String afterUsername, int limit) {
+    return storage.getEnabledUsernames(internalsOnly, afterUsername, limit);
+  }
   
   @Override
   public List<IdentityWithRelationship> getIdentitiesWithRelationships(String identityId, int offset, int limit) {

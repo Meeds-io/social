@@ -49,6 +49,18 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
    */
   List<Long> getIdsByProviderAfterId(String providerId, long lastId, int limit);
 
+  /**
+   * @param providerId the identity provider
+   * @param internalsOnly whether the identities marked external are left out
+   * @param afterRemoteId the remote id after which the list starts, excluded,
+   *          or null to start from the first one
+   * @param limit the maximum number of remote ids returned, 0 for all
+   * @return the remote ids of the enabled, non-deleted identities of a
+   *         provider, in ascending remote id order — keyset iteration over the
+   *         provider's unique remote ids
+   */
+  List<String> getEnabledRemoteIdsAfter(String providerId, boolean internalsOnly, String afterRemoteId, int limit);
+
   ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId,
                                                                                            String sortField,
                                                                                            String sortDirection);
