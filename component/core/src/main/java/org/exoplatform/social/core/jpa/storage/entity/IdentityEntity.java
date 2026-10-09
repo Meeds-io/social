@@ -82,6 +82,22 @@ import jakarta.persistence.TemporalType;
         @NamedQuery(
                 name = "SocIdentity.getIdsByProviderAfterId",
                 query = "SELECT i.id FROM SocIdentityEntity i WHERE i.deleted = FALSE AND i.providerId = :providerId AND i.id > :lastId ORDER BY i.id ASC"
+        ),
+        @NamedQuery(
+                name = "SocIdentity.getEnabledRemoteIds",
+                query = "SELECT i.remoteId FROM SocIdentityEntity i WHERE i.providerId = :providerId AND i.enabled = TRUE AND i.deleted = FALSE ORDER BY i.remoteId ASC"
+        ),
+        @NamedQuery(
+                name = "SocIdentity.getEnabledRemoteIdsAfter",
+                query = "SELECT i.remoteId FROM SocIdentityEntity i WHERE i.providerId = :providerId AND i.enabled = TRUE AND i.deleted = FALSE AND i.remoteId > :afterRemoteId ORDER BY i.remoteId ASC"
+        ),
+        @NamedQuery(
+                name = "SocIdentity.getEnabledInternalRemoteIds",
+                query = "SELECT i.remoteId FROM SocIdentityEntity i WHERE i.providerId = :providerId AND i.enabled = TRUE AND i.deleted = FALSE AND NOT EXISTS (SELECT e.id FROM SocIdentityEntity e JOIN e.properties p WHERE e.id = i.id AND KEY(p) = 'external' AND VALUE(p) = 'true') ORDER BY i.remoteId ASC"
+        ),
+        @NamedQuery(
+                name = "SocIdentity.getEnabledInternalRemoteIdsAfter",
+                query = "SELECT i.remoteId FROM SocIdentityEntity i WHERE i.providerId = :providerId AND i.enabled = TRUE AND i.deleted = FALSE AND i.remoteId > :afterRemoteId AND NOT EXISTS (SELECT e.id FROM SocIdentityEntity e JOIN e.properties p WHERE e.id = i.id AND KEY(p) = 'external' AND VALUE(p) = 'true') ORDER BY i.remoteId ASC"
         )
 })
 public class IdentityEntity {

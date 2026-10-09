@@ -133,6 +133,21 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
+  public List<String> getEnabledRemoteIdsAfter(String providerId, boolean internalsOnly, String afterRemoteId, int limit) {
+    String queryName = internalsOnly ? "SocIdentity.getEnabledInternalRemoteIds" : "SocIdentity.getEnabledRemoteIds";
+    TypedQuery<String> query = getEntityManager().createNamedQuery(afterRemoteId == null ? queryName : queryName + "After",
+                                                                   String.class);
+    query.setParameter(PROVIDER_ID_PARAM, providerId);
+    if (afterRemoteId != null) {
+      query.setParameter("afterRemoteId", afterRemoteId);
+    }
+    if (limit > 0) {
+      query.setMaxResults(limit);
+    }
+    return query.getResultList();
+  }
+
+  @Override
   public List<Long> getIdsByProviderAfterId(String providerId, long lastId, int limit) {
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SocIdentity.getIdsByProviderAfterId", Long.class);
     query.setParameter(PROVIDER_ID_PARAM, providerId);
