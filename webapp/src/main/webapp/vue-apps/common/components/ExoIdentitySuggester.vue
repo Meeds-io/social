@@ -80,7 +80,9 @@
           <span class="text-truncate">
             {{ item.profile.external
               ? (itemText !== 'profile.fullName' ? item[itemText] : item.profile.fullName).concat(' (').concat($t('userAvatar.external.label')).concat(')')
-              : itemText !== 'profile.fullName' ? item[itemText] : item.profile.fullName
+              : (item.profile.agent === true || item.profile.agent === 'true')
+                ? (itemText !== 'profile.fullName' ? item[itemText] : item.profile.fullName).concat(' (').concat($t('userAvatar.agent.label')).concat(')')
+                : itemText !== 'profile.fullName' ? item[itemText] : item.profile.fullName
             }}
           </span>
         </v-chip>
