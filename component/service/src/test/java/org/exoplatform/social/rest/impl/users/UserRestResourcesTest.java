@@ -21,6 +21,7 @@ package org.exoplatform.social.rest.impl.users;
 import io.meeds.portal.plugin.AclPlugin;
 import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
+import io.meeds.social.core.identity.util.AgentUserUtils;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.web.security.service.OtpService;
@@ -817,6 +818,142 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     } finally {
       // The profile property outlives this test in the shared test database
       markExternal(demoIdentity, false);
+    }
+  }
+
+  /**
+   * No user, an administrator included, may write the agent flag through the
+   * single-property PATCH nor through the profile properties PATCH.
+   */
+  public void testUpdateProfileAgentFlagIsRefused() throws Exception {
+    startSessionAs("root", true);
+    ContainerResponse response = patchProfileAttribute("root", Profile.AGENT, "true");
+    assertEquals(401, response.getStatus());
+    assertNotEquals("true", identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.AGENT));
+
+    ProfilePropertySettingEntity agentProperty = new ProfilePropertySettingEntity();
+    agentProperty.setPropertyName(Profile.AGENT);
+    agentProperty.setValue("true");
+    response = getResponse("PATCH",
+                           "/v1/social/users/root/profile/properties",
+                           new JSONArray(Collections.singletonList(agentProperty)).toString());
+    assertEquals(401, response.getStatus());
+    assertNotEquals("true", identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.AGENT));
+  }
+
+  /**
+   * An agent account cannot change its own manager; an administrator can.
+   */
+  public void testUpdateManagerOfAgentAccount() throws Exception {
+    setAgentMembership("mary", true);
+    try {
+      startSessionAs("mary");
+      ContainerResponse response = patchProfileAttribute("mary", Profile.MANAGER, "demo");
+      assertEquals(401, response.getStatus());
+      assertNotEquals("demo", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
+
+      startSessionAs("root", true);
+      response = patchProfileAttribute("mary", Profile.MANAGER, "root");
+      assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+      assertEquals("root", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
+    } finally {
+      setAgentMembership("mary", false);
+      Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.MANAGER);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * A user who is not an agent changes its own manager, as before.
+   */
+  public void testUpdateManagerOfNonAgentAccount() throws Exception {
+    setAgentMembership("mary", false);
+    try {
+      startSessionAs("mary");
+      ContainerResponse response = patchProfileAttribute("mary", Profile.MANAGER, "demo");
+      assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+      assertEquals("demo", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
+    } finally {
+      Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.MANAGER);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * The user entity exposes the agent flag as the string {@code "true"} or
+   * {@code "false"}, like the external flag, since the clients compare it with
+   * {@code === 'true'}.
+   */
+  public void testGetUserExposesTheAgentFlagAsAString() throws Exception {
+    startSessionAs("root");
+    Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    Object previous = profile.getProperty(Profile.AGENT);
+    try {
+      profile.setProperty(Profile.AGENT, "true");
+      identityManager.updateProfile(profile);
+      ContainerResponse response = service("GET", getURLResource("users/mary"), "", null, null);
+      assertEquals(200, response.getStatus());
+      ProfileEntity userEntity = getBaseEntity(response.getEntity(), ProfileEntity.class);
+      assertEquals("true", userEntity.getDataEntity().get(ProfileEntity.AGENT));
+
+      profile.removeProperty(Profile.AGENT);
+      identityManager.updateProfile(profile);
+      response = service("GET", getURLResource("users/mary"), "", null, null);
+      assertEquals(200, response.getStatus());
+      userEntity = getBaseEntity(response.getEntity(), ProfileEntity.class);
+      assertEquals("false", userEntity.getDataEntity().get(ProfileEntity.AGENT));
+    } finally {
+      profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.setProperty(Profile.AGENT, previous);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * Sends the single-property PATCH of a user profile.
+   *
+   * @param userName the user whose profile is updated
+   * @param name the property name
+   * @param value the property value
+   * @return the response
+   */
+  private ContainerResponse patchProfileAttribute(String userName, String name, String value) throws Exception {
+    byte[] formData = ("name=" + name + "&value=" + value).getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    return service("PATCH", getURLResource("users/" + userName), "", headers, formData);
+  }
+
+  /**
+   * Adds the user to the agents group, creating it when missing, or removes
+   * every membership the user holds in it.
+   *
+   * @param userName the user
+   * @param agent whether the user must be a member of the agents group
+   */
+  private void setAgentMembership(String userName, boolean agent) throws Exception {
+    org.exoplatform.services.organization.GroupHandler groupHandler = organizationService.getGroupHandler();
+    org.exoplatform.services.organization.Group group = groupHandler.findGroupById(AgentUserUtils.PLATFORM_AGENTS_GROUP);
+    if (group == null) {
+      group = groupHandler.createGroupInstance();
+      group.setGroupName("agents");
+      group.setLabel("Agents");
+      groupHandler.addChild(groupHandler.findGroupById("/platform"), group, true);
+      group = groupHandler.findGroupById(AgentUserUtils.PLATFORM_AGENTS_GROUP);
+    }
+    for (org.exoplatform.services.organization.Membership membership : organizationService.getMembershipHandler()
+                                                                                          .findMembershipsByUserAndGroup(userName,
+                                                                                                                         AgentUserUtils.PLATFORM_AGENTS_GROUP)) {
+      organizationService.getMembershipHandler().removeMembership(membership.getId(), true);
+    }
+    if (agent) {
+      organizationService.getMembershipHandler()
+                         .linkMembership(organizationService.getUserHandler().findUserByName(userName),
+                                         group,
+                                         organizationService.getMembershipTypeHandler().findMembershipType("member"),
+                                         true);
     }
   }
 
