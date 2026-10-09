@@ -172,7 +172,7 @@ public class ActivityStorageTest extends AbstractCoreTest {
         + "/portal/classic/profile/root\" "
         + "v-identity-popover=\"{id: '" + rootIdentity.getId() + "',username: '" + rootIdentity.getRemoteId() + "',fullName: '"
         + rootIdentity.getProfile().getFullName() + "',avatar: '" + rootIdentity.getProfile().getAvatarUrl() + "',position: '"
-        + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '" + (rootExternal == null ? "false" : rootExternal)
+        + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '" + (rootExternal == null ? "false" : rootExternal) + "',agent: 'false"
         + "',enabled: '" + (rootIdentity.isEnable() && !rootIdentity.isDeleted())
         + "',deleted: '" + rootIdentity.isDeleted()
         + "',displayedEmail: '" + Objects.toString(rootIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL), "")
@@ -181,7 +181,7 @@ public class ActivityStorageTest extends AbstractCoreTest {
         "<a class=\"user-suggester\" href=\"" + currentDomain + "/portal/classic/profile/john\" "
         + "v-identity-popover=\"{id: '" + johnIdentity.getId() + "',username: '" + johnIdentity.getRemoteId() + "',fullName: '"
         + johnIdentity.getProfile().getFullName() + "',avatar: '" + johnIdentity.getProfile().getAvatarUrl() + "',position: '"
-        + StringUtils.trimToEmpty(johnIdentity.getProfile().getPosition()) + "',external: '" + (johnExternal == null ? "false" : johnExternal)
+        + StringUtils.trimToEmpty(johnIdentity.getProfile().getPosition()) + "',external: '" + (johnExternal == null ? "false" : johnExternal) + "',agent: 'false"
         + "',enabled: '" + (johnIdentity.isEnable() && !johnIdentity.isDeleted())
         + "',deleted: '" + johnIdentity.isDeleted()
         + "',displayedEmail: '" + Objects.toString(johnIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL), "")
