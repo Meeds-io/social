@@ -143,6 +143,13 @@ public class Profile {
   /** EXTERNAL. */
   public static final String EXTERNAL                 = "external";
 
+  /**
+   * AGENT: {@code "true"} on the profile of an agent account, a member of the
+   * {@code /platform/agents} group. A display flag kept in sync with that
+   * membership; security decisions read the membership, never this property.
+   */
+  public static final String AGENT                    = "agent";
+
   /** ENROLLMENT DATE. */
   public static final String ENROLLMENT_DATE          = "enrollmentDate";
 
