@@ -161,6 +161,10 @@ export default {
                                .every(child => child.hidden));
     },
     isSearchable(property) {
+      // the profile index holds the values of the visible settings only
+      if (!property.visible || !property.active) {
+        return false;
+      }
       if (this.nonSearchablePropertyTypes?.includes(property.propertyType)) {
         return false;
       }

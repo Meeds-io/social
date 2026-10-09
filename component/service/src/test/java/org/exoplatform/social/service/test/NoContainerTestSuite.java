@@ -28,6 +28,7 @@ import org.exoplatform.social.rest.api.EntityBuilderProfilePropertyTest;
 import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
 import org.exoplatform.social.rest.api.EntityBuilderReportsTest;
 import org.exoplatform.social.rest.entity.SpaceEntityTest;
+import org.exoplatform.social.rest.impl.complementaryfilter.ComplementaryFilterRestTest;
 import org.exoplatform.social.websocket.SpaceWebNotificationWebSocketServiceTest;
 
 import io.meeds.social.report.listener.ReportWebSocketBroadcastListenerTest;
@@ -43,6 +44,7 @@ import io.meeds.social.report.rest.ActivityReportRestTest;
   ReportWebSocketBroadcastListenerTest.class,
   SpaceWebNotificationWebSocketServiceTest.class,
   ActivityReportRestTest.class,
+  ComplementaryFilterRestTest.class,
   })
 public class NoContainerTestSuite {
   
