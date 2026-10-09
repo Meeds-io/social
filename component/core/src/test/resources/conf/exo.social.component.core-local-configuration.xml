@@ -1088,6 +1088,12 @@
       <type>org.exoplatform.social.core.listeners.ExternalUsersListenerImpl</type>
       <description>Update external profile property.</description>
     </component-plugin>
+    <component-plugin>
+      <name>social.agent.membership.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.AgentUsersListenerImpl</type>
+      <description>Update agent profile property.</description>
+    </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>
