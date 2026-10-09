@@ -79,6 +79,11 @@
           class="grey--text">
           {{ $t('peopleList.label.external') }}
         </span>
+        <span
+          v-if="agentUser"
+          class="grey--text">
+          ({{ $t('userAvatar.agent.label') }})
+        </span>
       </div>
       <div class="userFieldsArea px-2">
         <div
@@ -277,6 +282,9 @@ export default {
     },
     externalUser() {
       return this.user?.external === 'true' || this.user?.dataEntity?.external === 'true';
+    },
+    agentUser() {
+      return this.user?.agent === 'true' || this.user?.dataEntity?.agent === 'true';
     },
     profileUrl() {
       return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.user?.username}`;
