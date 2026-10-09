@@ -24,17 +24,23 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
+import org.exoplatform.portal.localization.LocaleContextInfoUtils;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
@@ -52,6 +58,8 @@ public class EntityBuilderProfilePropertyTest {
 
   private static final long      OPTION_ID = 12L;
 
+  private static final String    USERNAME  = "john";
+
   private ProfilePropertyService profilePropertyService;
 
   private TranslationService     translationService;
@@ -62,6 +70,7 @@ public class EntityBuilderProfilePropertyTest {
     translationService = mock(TranslationService.class);
     setStaticField("profilePropertyService", profilePropertyService);
     setStaticField("translationService", translationService);
+    ConversationState.setCurrent(new ConversationState(new Identity(USERNAME)));
 
     ProfilePropertySetting setting = new ProfilePropertySetting();
     setting.setPropertyName(PROPERTY);
@@ -75,12 +84,18 @@ public class EntityBuilderProfilePropertyTest {
   public void tearDown() throws Exception {
     setStaticField("profilePropertyService", null);
     setStaticField("translationService", null);
+    ConversationState.setCurrent(null);
   }
 
   @Test
   public void testOptionIdOfThePropertyIsTranslated() {
-    assertEquals("Engineer", EntityBuilder.getProfilePropertyValue(profile(String.valueOf(OPTION_ID)), PROPERTY));
-    verify(translationService).getTranslationLabelOrDefault(anyString(), eq(OPTION_ID), anyString(), any());
+    // The real locale lookup reaches ExoContainerContext.getTopContainer(), which boots a RootContainer in
+    // this container-free test's JVM and breaks InitContainerTestSuite when it runs afterwards in that JVM
+    try (MockedStatic<LocaleContextInfoUtils> localeContextInfoUtils = mockStatic(LocaleContextInfoUtils.class)) {
+      localeContextInfoUtils.when(() -> LocaleContextInfoUtils.getUserLocale(USERNAME)).thenReturn(Locale.ENGLISH);
+      assertEquals("Engineer", EntityBuilder.getProfilePropertyValue(profile(String.valueOf(OPTION_ID)), PROPERTY));
+    }
+    verify(translationService).getTranslationLabelOrDefault(anyString(), eq(OPTION_ID), anyString(), eq(Locale.ENGLISH));
   }
 
   @Test
