@@ -2464,6 +2464,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     johnActivity.setTitle("Post activity to 'john' user stream by 'john'");
     johnActivity.setUserId(johnIdentity.getId());
     activityManager.saveActivityNoReturn(johnIdentity, johnActivity);
+    // The stream is ordered by a millisecond date alone: each save whose order is asserted lands in its own millisecond
+    Thread.sleep(10);
 
     ExoSocialActivity maryActivity = new ExoSocialActivityImpl();
     maryActivity.setTitle("Post activity to 'mary' user stream by 'demo'");
@@ -2488,6 +2490,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("Activity Title: " + i);
       activity.setUserId(johnIdentity.getId());
+      Thread.sleep(10);
       activityManager.saveActivityNoReturn(spaceIdentity, activity);
       spaceActivities.add(0, activity);
     }
@@ -2519,6 +2522,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity johnActivityComment = new ExoSocialActivityImpl();
     johnActivityComment.setTitle("John's activity comment");
     johnActivityComment.setUserId(rootIdentity.getId());
+    Thread.sleep(10);
     activityManager.saveComment(johnActivity, johnActivityComment);
 
     activitiesListAccess = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
@@ -2533,6 +2537,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity maryActivityComment = new ExoSocialActivityImpl();
     maryActivityComment.setTitle("Mary's activity comment");
     maryActivityComment.setUserId(rootIdentity.getId());
+    Thread.sleep(10);
     activityManager.saveComment(maryActivity, maryActivityComment);
 
     activitiesListAccess = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
