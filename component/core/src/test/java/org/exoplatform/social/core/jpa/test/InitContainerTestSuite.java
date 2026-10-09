@@ -64,6 +64,8 @@ import org.exoplatform.social.core.profile.ProfilePropertyServiceTest;
 import org.exoplatform.social.core.search.SearchServiceTest;
 import org.exoplatform.social.core.search.SortingTest;
 import org.exoplatform.social.core.service.LinkProviderTest;
+import org.exoplatform.social.core.listeners.AgentUsersListenerImplTest;
+import io.meeds.social.core.identity.plugin.AgentAccountLoginGuardTest;
 import org.exoplatform.social.core.service.ProfileLabelServiceTest;
 import org.exoplatform.social.core.space.SpaceLifeCycleTest;
 import org.exoplatform.social.core.space.SpaceUtilsTest;
@@ -114,6 +116,8 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   OSHtmlSanitizerProcessorTest.class,
   TemplateParamsProcessorTest.class,
   LinkProviderTest.class,
+  AgentUsersListenerImplTest.class,
+  AgentAccountLoginGuardTest.class,
   SortingTest.class,
   GroupSpaceBindingServiceTest.class,
   RDBMSGroupSpaceBindingStorageTest.class,
