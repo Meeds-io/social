@@ -18,12 +18,18 @@
  */
 package org.exoplatform.social.service.test;
 
+import static org.junit.Assert.assertSame;
+
+import java.lang.reflect.Field;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.social.rest.api.EntityBuilderProfilePropertyTest;
 import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
 import org.exoplatform.social.rest.api.EntityBuilderReportsTest;
@@ -45,15 +51,31 @@ import io.meeds.social.report.rest.ActivityReportRestTest;
   ActivityReportRestTest.class,
   })
 public class NoContainerTestSuite {
-  
+
+  private static ExoContainer topContainerBefore;
+
   @BeforeClass
   public static void setUp() throws Exception {
-    
+    topContainerBefore = getTopContainerField();
   }
 
+  /**
+   * A service lookup through ExoContainerContext boots a RootContainer when
+   * none exists, and InitContainerTestSuite then fails when it runs after this
+   * suite in the same JVM. This fails on the suite that boots it, whatever the
+   * order surefire runs the suites in.
+   */
   @AfterClass
-  public static void tearDown() {
+  public static void tearDown() throws Exception {
+    assertSame("A test of NoContainerTestSuite booted a Kernel container: stub its ExoContainerContext lookup",
+               topContainerBefore,
+               getTopContainerField());
   }
 
+  private static ExoContainer getTopContainerField() throws Exception {
+    Field topContainerField = ExoContainerContext.class.getDeclaredField("topContainer");
+    topContainerField.setAccessible(true); // NOSONAR
+    return (ExoContainer) topContainerField.get(null);
+  }
 
 }
