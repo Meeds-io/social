@@ -71,7 +71,7 @@
       </template>
       <!-- eslint-disable vue/valid-v-slot -->
       <template #item.external="{ item }">
-        {{ item && item.external === 'true' ? $t(`UsersManagement.type.external`) : $t(`UsersManagement.type.internal`) }}
+        {{ item && item.external === 'true' ? $t(`UsersManagement.type.external`) : (item && item.agent === 'true' ? $t('userAvatar.agent.label') : $t(`UsersManagement.type.internal`)) }}
       </template>
       <!-- eslint-disable vue/valid-v-slot -->
       <template #item.actions="{ item }">

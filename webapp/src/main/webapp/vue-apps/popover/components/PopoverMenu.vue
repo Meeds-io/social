@@ -124,6 +124,7 @@ export default {
           avatar: data?.avatar,
           primaryProperty: data?.primaryProperty,
           external: data?.external,
+          agent: data?.agent,
           displayedEmail: data?.displayedEmail,
           displayedPhone: data?.displayedPhone,
         };
