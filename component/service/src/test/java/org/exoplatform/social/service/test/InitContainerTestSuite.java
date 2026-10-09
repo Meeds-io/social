@@ -74,6 +74,7 @@ import org.exoplatform.social.websocket.listener.SpaceWebNotificationWebSocketSe
   SpaceMembershipRestResourcesTest.class,
   UserRestResourcesTest.class,
   ProfileSettingsRestTest.class,
+  org.exoplatform.social.service.rest.PeopleRestServiceAgentMentionTest.class,
   GroupSpaceBindingRestServiceTest.class,
   FavoriteRestTest.class,
   TranslationRestResourcesTest.class,

@@ -32,6 +32,8 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.listeners.AgentUsersListenerImplTest;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
+import io.meeds.social.core.identity.util.AgentUserUtils;
+
 /**
  * Pins {@link AgentAccountLoginGuard} through the container's real
  * {@link Authenticator}: the guard is registered by the social core
@@ -94,6 +96,22 @@ public class AgentAccountLoginGuardTest extends AbstractCoreTest {
 
     assertLoginRefusedAsDisabled(PASSWORD);
     assertLoginRefusedAsDisabled("anyOtherPassword");
+  }
+
+  /**
+   * On a platform where no agent exists yet, the agents group is missing: the
+   * guard reads no membership and lets a password login through.
+   */
+  public void testLoginSucceedsWhenTheAgentsGroupDoesNotExist() throws Exception {
+    org.exoplatform.services.organization.GroupHandler groupHandler = organizationService.getGroupHandler();
+    org.exoplatform.services.organization.Group group = groupHandler.findGroupById(AgentUserUtils.PLATFORM_AGENTS_GROUP);
+    if (group != null) {
+      groupHandler.removeGroup(group, true);
+      restartTransaction();
+    }
+    assertNull(groupHandler.findGroupById(AgentUserUtils.PLATFORM_AGENTS_GROUP));
+
+    assertEquals(USER_NAME, authenticator.validateUser(credentials(USER_NAME, PASSWORD)));
   }
 
   /**
