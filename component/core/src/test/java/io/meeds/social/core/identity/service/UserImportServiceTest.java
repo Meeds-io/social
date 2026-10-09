@@ -19,7 +19,10 @@
 package io.meeds.social.core.identity.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -27,6 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +42,7 @@ import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -59,6 +64,7 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.OrganizationService;
@@ -430,6 +436,108 @@ public class UserImportServiceTest {
                                "true",
                                false,
                                TEST_USER_2);
+  }
+
+  /**
+   * The agent flag is never written by an import, whoever runs it.
+   */
+  @Test
+  public void testUpdateProfileFieldReservedAgent() throws IOException {
+    when(profilePropertyService.getProfileSettingByName(Profile.AGENT)).thenReturn(null);
+    assertThrows(IllegalAccessException.class,
+                 () -> service.updateProfileField(profile, Profile.AGENT, "true", false, TEST_USER_2));
+    verify(profile, never()).setProperty(eq(Profile.AGENT), any());
+  }
+
+  /**
+   * A CSV row carrying an agent column, even one an administrator declared as
+   * a profile property, is refused: the property is not written and the row
+   * gets a warning.
+   */
+  @Test
+  public void testImportUsersRowWithAgentColumnIsRejected() throws Exception {
+    ProfilePropertySetting agentSetting = new ProfilePropertySetting();
+    agentSetting.setPropertyName(Profile.AGENT);
+    agentSetting.setEditable(true);
+    when(profilePropertyService.getProfileSettingByName(anyString())).thenReturn(null);
+    when(profilePropertyService.getProfileSettingByName(Profile.AGENT)).thenReturn(agentSetting);
+    User existing = mock(User.class);
+    Date now = Calendar.getInstance().getTime();
+    when(existing.isEnabled()).thenReturn(true);
+    when(existing.getCreatedDate()).thenReturn(now);
+    when(existing.getLastLoginTime()).thenReturn(now);
+    when(userHandler.findUserByName("john", UserStatus.ANY)).thenReturn(existing);
+
+    File f = csv("agent.csv",
+                 HEADER_LINE_5 + ",agent",
+                 "john,john@ex.com,John,Doe,true");
+    UserImportResult r = new UserImportResult();
+    service.importUsers(f.getAbsolutePath(), r, TEST_USER_2, Locale.ENGLISH, URL);
+
+    verify(profile, never()).setProperty(eq(Profile.AGENT), any());
+    assertNotNull(r.getWarnMessages());
+    assertTrue(r.getWarnMessages().get("john").stream().anyMatch(m -> m.contains("AGENT")));
+  }
+
+  /**
+   * A non-administrator cannot change the manager of an agent account.
+   */
+  @Test
+  public void testUpdateProfileFieldManagerOfAgentRefusedToNonAdministrator() throws Exception {
+    mockAgentProfile(true);
+    mockAdministrator(false);
+    assertThrows(IllegalAccessException.class,
+                 () -> service.updateProfileField(profile, Profile.MANAGER, "root", false, TEST_USER_2));
+    verify(profile, never()).setProperty(eq(Profile.MANAGER), any());
+  }
+
+  /**
+   * An administrator changes the manager of an agent account.
+   */
+  @Test
+  public void testUpdateProfileFieldManagerOfAgentAllowedToAdministrator() throws Exception {
+    mockAgentProfile(true);
+    mockAdministrator(true);
+    service.updateProfileField(profile, Profile.MANAGER, "root", false, TEST_USER_2);
+    verify(profile).setProperty(Profile.MANAGER, "root");
+  }
+
+  /**
+   * A non-administrator changes the manager of a profile that is not an agent
+   * account's, as before.
+   */
+  @Test
+  public void testUpdateProfileFieldManagerOfNonAgentAllowedToNonAdministrator() throws Exception {
+    mockAgentProfile(false);
+    mockAdministrator(false);
+    service.updateProfileField(profile, Profile.MANAGER, "root", false, TEST_USER_2);
+    verify(profile).setProperty(Profile.MANAGER, "root");
+  }
+
+  /**
+   * Makes the mocked profile an agent account's, or not, through its
+   * membership in the agents group.
+   *
+   * @param agent whether the profile's user is a member of the agents group
+   */
+  private void mockAgentProfile(boolean agent) throws Exception {
+    Identity identity = mock(Identity.class);
+    when(identity.getRemoteId()).thenReturn(TEST_USER_1);
+    when(profile.getIdentity()).thenReturn(identity);
+    when(membershipHandler.findMembershipsByUserAndGroup(TEST_USER_1, "/platform/agents"))
+      .thenReturn(agent ? List.of(mock(Membership.class)) : List.of());
+  }
+
+  /**
+   * Makes {@link #TEST_USER_2} an administrator, or not.
+   *
+   * @param administrator whether the modifier is an administrator
+   */
+  private void mockAdministrator(boolean administrator) {
+    org.exoplatform.services.security.Identity aclIdentity = mock(org.exoplatform.services.security.Identity.class);
+    when(userAcl.getAdminGroups()).thenReturn("/platform/administrators");
+    when(userAcl.getUserIdentity(TEST_USER_2)).thenReturn(aclIdentity);
+    when(aclIdentity.isMemberOf("/platform/administrators")).thenReturn(administrator);
   }
 
   @Test(expected = IllegalAccessException.class)
