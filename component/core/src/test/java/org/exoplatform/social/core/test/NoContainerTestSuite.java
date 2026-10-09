@@ -68,6 +68,7 @@ import io.meeds.social.publication.service.ContentPublicationServiceTest;
 import io.meeds.social.security.service.AccountDeactivationServiceTest;
 import io.meeds.social.core.identity.service.UserExportServiceTest;
 import io.meeds.social.core.identity.service.UserImportServiceTest;
+import io.meeds.social.core.identity.util.AgentUserUtilsTest;
 import io.meeds.social.core.plugin.SiteAttachmentPluginTest;
 import io.meeds.social.databind.service.DatabindServiceTest;
 import io.meeds.social.search.SpaceSearchConnectorTest;
@@ -139,6 +140,7 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     SiteAttachmentPluginTest.class,
     UserExportServiceTest.class,
     UserImportServiceTest.class,
+    AgentUserUtilsTest.class,
     UserAclPluginTest.class,
     RemoveProfilePropertyUpgradePlugin.class,
     SpaceInvitationLinkLinkJoinListenerTest.class,
