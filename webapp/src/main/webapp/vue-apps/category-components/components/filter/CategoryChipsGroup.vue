@@ -22,12 +22,12 @@
 -->
 <template>
   <div
-    :class="!isMobile && 'specific-scrollbar overflow-x-auto overflow-y-hidden'"
+    :class="[(!isMobile || scrollable) && 'specific-scrollbar overflow-x-auto overflow-y-hidden', scrollable && 'category-chips-thin-scrollbar']"
     class="d-flex align-center position-relative d-inline text-no-wrap">
     <component
       v-if="initialized"
-      :is="isMobile ? 'div' : 'card-carousel'"
-      class="flex-grow-0 flex-shrink-1 overflow-hidden"
+      :is="(isMobile || scrollable) ? 'div' : 'card-carousel'"
+      :class="scrollable ? 'flex-grow-0 flex-shrink-0' : 'flex-grow-0 flex-shrink-1 overflow-hidden'"
       hide-arrows
       dense>
       <category-chip
@@ -43,7 +43,7 @@
         @select="openCategory" />
     </component>
     <v-btn
-      v-if="!isMobile"
+      v-if="!isMobile && !scrollable"
       ref="moreButton"
       :class="{
         'invisible' : !hasInvisibleItems,
@@ -68,6 +68,13 @@ export default {
     selectedId: {
       type: Number,
       default: () => 0,
+    },
+    // When true, always lay the chips out in a horizontally scrollable row (the
+    // mobile behaviour) instead of the desktop carousel with a "See all" overflow
+    // button — useful in narrow containers such as side drawers.
+    scrollable: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
@@ -168,3 +175,20 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+/* A thin, subtle horizontal scrollbar for the scrollable (mobile-like) chips row,
+   used in narrow containers such as side drawers. */
+.category-chips-thin-scrollbar {
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    height: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.16);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+</style>
