@@ -65,12 +65,12 @@ import org.exoplatform.social.core.search.SearchServiceTest;
 import org.exoplatform.social.core.search.SortingTest;
 import org.exoplatform.social.core.service.LinkProviderTest;
 import org.exoplatform.social.core.listeners.AgentUsersListenerImplTest;
-import io.meeds.social.core.identity.plugin.AgentAccountLoginGuardTest;
 import org.exoplatform.social.core.service.ProfileLabelServiceTest;
 import org.exoplatform.social.core.space.SpaceLifeCycleTest;
 import org.exoplatform.social.core.space.SpaceUtilsTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceTest;
 
+import io.meeds.social.core.identity.plugin.AgentAccountLoginGuardTest;
 import io.meeds.social.space.service.SubspacesServiceTest;
 import io.meeds.social.space.service.UserSpacesServiceTest;
 import org.exoplatform.social.core.thumbnail.ImageThumbnailServiceImplTest;
