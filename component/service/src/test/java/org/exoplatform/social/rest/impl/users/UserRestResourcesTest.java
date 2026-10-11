@@ -865,6 +865,46 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
+   * An agent account cannot change its own manager through the profile
+   * properties PATCH either, where the multi-valued manager comes as children.
+   */
+  public void testUpdateManagerOfAgentAccountThroughTheProfileProperties() throws Exception {
+    setAgentMembership("mary", true);
+    try {
+      startSessionAs("mary");
+      JSONObject manager = new JSONObject();
+      manager.put("propertyName", Profile.MANAGER);
+      manager.put("multiValued", true);
+      manager.put("children", new JSONArray(Collections.singletonList(new JSONObject().put("value", "demo"))));
+      ContainerResponse response = getResponse("PATCH",
+                                               "/v1/social/users/mary/profile/properties",
+                                               new JSONArray(Collections.singletonList(manager)).toString());
+      assertEquals(401, response.getStatus());
+      assertFalse(String.valueOf(identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER))
+                        .contains("demo"));
+    } finally {
+      setAgentMembership("mary", false);
+      Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.MANAGER);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * No user, an administrator included, may write the agent flag through the
+   * profile entity PATCH.
+   */
+  public void testUpdateAgentFlagThroughTheProfileEntityIsRefused() throws Exception {
+    startSessionAs("root", true);
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.USERNAME, "root");
+    data.put(Profile.AGENT, "true");
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/root/profile", data.toString());
+    assertEquals(String.valueOf(response.getEntity()), 401, response.getStatus());
+    assertNotEquals("true", identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.AGENT));
+  }
+
+  /**
    * A user who is not an agent changes its own manager, as before.
    */
   public void testUpdateManagerOfNonAgentAccount() throws Exception {
