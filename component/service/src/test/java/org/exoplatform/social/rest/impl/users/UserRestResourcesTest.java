@@ -892,13 +892,13 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   /**
    * No user, an administrator included, may write the agent flag through the
-   * profile entity PATCH.
+   * profile entity PATCH. The entity reads it through its {@code isAgent}
+   * setter; an {@code agent} key matches no setter and is dropped.
    */
   public void testUpdateAgentFlagThroughTheProfileEntityIsRefused() throws Exception {
     startSessionAs("root", true);
     JSONObject data = new JSONObject();
-    data.put(ProfileEntity.USERNAME, "root");
-    data.put(Profile.AGENT, "true");
+    data.put("isAgent", "true");
     ContainerResponse response = getResponse("PATCH", "/v1/social/users/root/profile", data.toString());
     assertEquals(String.valueOf(response.getEntity()), 401, response.getStatus());
     assertNotEquals("true", identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.AGENT));
