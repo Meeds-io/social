@@ -23,6 +23,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -43,6 +44,9 @@ public class AgentUsersListenerImpl extends MembershipEventListener {
   /** The identity manager, resolved on first use. */
   private IdentityManager  identityManager;
 
+  /** The organization service, resolved on first use. */
+  private OrganizationService organizationService;
+
   /**
    * Flags the profile as an agent's when the membership is in the agents group.
    *
@@ -57,14 +61,27 @@ public class AgentUsersListenerImpl extends MembershipEventListener {
   }
 
   /**
-   * Clears the profile's agent flag when the membership is in the agents group.
+   * Recomputes the profile's agent flag when a membership in the agents group
+   * is removed: any membership type counts, so the user stays an agent while
+   * another membership in the group remains. When the remaining memberships
+   * cannot be read, the flag is left as it is.
    *
    * @param m the deleted membership
    */
   @Override
   public void postDelete(Membership m) {
     if (AgentUserUtils.PLATFORM_AGENTS_GROUP.equals(m.getGroupId())) {
-      setAgentProperty(m.getUserName(), false);
+      boolean agent;
+      try {
+        agent = AgentUserUtils.isAgentUser(getOrganizationService(), m.getUserName());
+      } catch (Exception e) {
+        LOG.warn("Cannot read the {} memberships of {}, leaving its agent flag unchanged",
+                 AgentUserUtils.PLATFORM_AGENTS_GROUP,
+                 m.getUserName(),
+                 e);
+        return;
+      }
+      setAgentProperty(m.getUserName(), agent);
     }
   }
 
@@ -86,6 +103,18 @@ public class AgentUsersListenerImpl extends MembershipEventListener {
         LOG.error("Error while saving the agent property for user profile {}", userName, e);
       }
     }
+  }
+
+  /**
+   * Resolves the organization service lazily, as the identity manager.
+   *
+   * @return the organization service
+   */
+  private OrganizationService getOrganizationService() {
+    if (organizationService == null) {
+      organizationService = CommonsUtils.getService(OrganizationService.class);
+    }
+    return organizationService;
   }
 
   /**
