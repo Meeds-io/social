@@ -89,6 +89,31 @@ public class AgentUsersListenerImplTest extends AbstractCoreTest {
   }
 
   /**
+   * Any membership type in the agents group makes an agent: removing one of two
+   * memberships keeps the flag, removing the last one clears it.
+   */
+  public void testRemovingOneOfTwoAgentMembershipsKeepsTheAgentFlag() throws Exception {
+    linkAgentMembership(organizationService, USER_NAME);
+    organizationService.getMembershipHandler()
+                       .linkMembership(organizationService.getUserHandler().findUserByName(USER_NAME),
+                                       getOrCreateAgentsGroup(organizationService),
+                                       organizationService.getMembershipTypeHandler().findMembershipType("manager"),
+                                       true);
+    restartTransaction();
+    assertTrue(getIdentity().isAgent());
+    Membership manager = organizationService.getMembershipHandler()
+                                            .findMembershipByUserGroupAndType(USER_NAME,
+                                                                              AgentUserUtils.PLATFORM_AGENTS_GROUP,
+                                                                              "manager");
+    organizationService.getMembershipHandler().removeMembership(manager.getId(), true);
+    restartTransaction();
+    assertTrue(getIdentity().isAgent());
+    removeAgentMemberships(organizationService, USER_NAME);
+    restartTransaction();
+    assertFalse(getIdentity().isAgent());
+  }
+
+  /**
    * A membership in another group does not touch the agent flag.
    */
   public void testOtherGroupMembershipLeavesTheAgentFlagUnchanged() throws Exception {
