@@ -22,6 +22,8 @@ import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -35,6 +37,9 @@ import org.exoplatform.social.core.identity.model.Profile;
  * copy of it.
  */
 public final class AgentUserUtils {
+
+  /** The logger. */
+  private static final Log   LOG                   = ExoLogger.getLogger(AgentUserUtils.class);
 
   /** The group whose members are agent accounts. */
   public static final String PLATFORM_AGENTS_GROUP = "/platform/agents";
@@ -92,7 +97,14 @@ public final class AgentUserUtils {
     try {
       agent = isAgentUser(organizationService, userName);
     } catch (Exception e) {
-      throw new IllegalAccessException("Cannot check whether the profile of " + userName + " is an agent account's");
+      LOG.warn("Cannot read the {} memberships of {}, refusing the change of its manager",
+               PLATFORM_AGENTS_GROUP,
+               userName,
+               e);
+      IllegalAccessException refusal = new IllegalAccessException("Cannot check whether the profile of " + userName
+          + " is an agent account's");
+      refusal.initCause(e);
+      throw refusal;
     }
     if (agent) {
       throw new IllegalAccessException("Not allowed to update the MANAGER field of an agent account");
