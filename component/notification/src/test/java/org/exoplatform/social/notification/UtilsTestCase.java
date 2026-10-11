@@ -19,6 +19,14 @@
 package org.exoplatform.social.notification;
 
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mockStatic;
+
+import org.mockito.MockedStatic;
+
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -68,14 +76,18 @@ public class UtilsTestCase extends AbstractCoreTest {
 
   /**
    * An agent account's name carries the agent label in a notification, a
-   * guest's the guest label, and anyone else's no label.
+   * guest's the guest label, and anyone else's no label. The labels are
+   * stubbed: the test container serves no shared resource bundle.
    */
   public void testAddExternalFlagNamesAnAgentAndAGuest() {
-    String agentLabel = LinkProvider.getResourceBundleLabel(new Locale(LinkProvider.getCurrentUserLanguage("demo")), "agent.label.tag");
-    String guestLabel = LinkProvider.getResourceBundleLabel(new Locale(LinkProvider.getCurrentUserLanguage("demo")), "external.label.tag");
-    assertEquals("Agent Smith (" + agentLabel + ")", Utils.addExternalFlag(userIdentity("Agent Smith", Profile.AGENT)));
-    assertEquals("Guest Smith (" + guestLabel + ")", Utils.addExternalFlag(userIdentity("Guest Smith", Profile.EXTERNAL)));
-    assertEquals("Plain Smith", Utils.addExternalFlag(userIdentity("Plain Smith", null)));
+    try (MockedStatic<LinkProvider> linkProvider = mockStatic(LinkProvider.class, CALLS_REAL_METHODS)) {
+      linkProvider.when(() -> LinkProvider.getResourceBundleLabel(any(Locale.class), eq("agent.label.tag"))).thenReturn("Agent");
+      linkProvider.when(() -> LinkProvider.getResourceBundleLabel(any(Locale.class), eq("external.label.tag"))).thenReturn("Guest");
+      linkProvider.when(() -> LinkProvider.getCurrentUserLanguage(anyString())).thenReturn("en");
+      assertEquals("Agent Smith (Agent)", Utils.addExternalFlag(userIdentity("Agent Smith", Profile.AGENT)));
+      assertEquals("Guest Smith (Guest)", Utils.addExternalFlag(userIdentity("Guest Smith", Profile.EXTERNAL)));
+      assertEquals("Plain Smith", Utils.addExternalFlag(userIdentity("Plain Smith", null)));
+    }
   }
 
   /**
