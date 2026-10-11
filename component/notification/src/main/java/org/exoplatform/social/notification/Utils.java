@@ -303,7 +303,8 @@ public class Utils {
   }
 
   /**
-   * Add the external flag if the user is an external
+   * Add the external flag if the user is an external, or the agent flag if the
+   * user is an agent account
    *
    * @param userIdentity
    * @return full username
@@ -312,6 +313,8 @@ public class Utils {
     String fullName = userIdentity.getProfile().getFullName();
     if(userIdentity != null && userIdentity.getProfile() != null && userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && (userIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true")) {
       fullName += " " + "(" + LinkProvider.getResourceBundleLabel(new Locale(LinkProvider.getCurrentUserLanguage(userIdentity.getRemoteId())), "external.label.tag") + ")";
+    } else if (userIdentity.isAgent()) {
+      fullName += " " + "(" + LinkProvider.getResourceBundleLabel(new Locale(LinkProvider.getCurrentUserLanguage(userIdentity.getRemoteId())), "agent.label.tag") + ")";
     }
     return fullName;
   }
