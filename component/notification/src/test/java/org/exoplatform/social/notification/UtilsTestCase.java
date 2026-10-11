@@ -20,10 +20,15 @@ package org.exoplatform.social.notification;
 
 
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 public class UtilsTestCase extends AbstractCoreTest {
@@ -59,6 +64,37 @@ public class UtilsTestCase extends AbstractCoreTest {
     assertEquals("Shared a document <a href=\"http://test.com/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\" style=\"color: #2f5e92; text-decoration: none;\">New design. eXo in Smart Watch.jpg</a>", Utils.processLinkTitle(title));
     title = "Shared a document <a href=\"/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\">New design. eXo in Smart Watch.jpg</a>";
     assertEquals("Shared a document <a href=\"http://test.com/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\" style=\"color: #2f5e92; text-decoration: none;\">New design. eXo in Smart Watch.jpg</a>", Utils.processLinkTitle(title));
+  }
+
+  /**
+   * An agent account's name carries the agent label in a notification, a
+   * guest's the guest label, and anyone else's no label.
+   */
+  public void testAddExternalFlagNamesAnAgentAndAGuest() {
+    String agentLabel = LinkProvider.getResourceBundleLabel(new Locale(LinkProvider.getCurrentUserLanguage("demo")), "agent.label.tag");
+    String guestLabel = LinkProvider.getResourceBundleLabel(new Locale(LinkProvider.getCurrentUserLanguage("demo")), "external.label.tag");
+    assertEquals("Agent Smith (" + agentLabel + ")", Utils.addExternalFlag(userIdentity("Agent Smith", Profile.AGENT)));
+    assertEquals("Guest Smith (" + guestLabel + ")", Utils.addExternalFlag(userIdentity("Guest Smith", Profile.EXTERNAL)));
+    assertEquals("Plain Smith", Utils.addExternalFlag(userIdentity("Plain Smith", null)));
+  }
+
+  /**
+   * An identity of the demo user, held in memory only, with the given full
+   * name and, when given, the given flag property set to true.
+   *
+   * @param fullName the full name
+   * @param flag the profile property set to "true", or null for none
+   * @return the identity
+   */
+  private Identity userIdentity(String fullName, String flag) {
+    Identity identity = new Identity(OrganizationIdentityProvider.NAME, "demo");
+    Profile profile = new Profile(identity);
+    profile.setProperty(Profile.FULL_NAME, fullName);
+    if (flag != null) {
+      profile.setProperty(flag, "true");
+    }
+    identity.setProfile(profile);
+    return identity;
   }
 
   public void testGetMentioners() {

@@ -18,6 +18,8 @@
  */
 package io.meeds.social.core.identity.plugin;
 
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.DisabledUserException;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
@@ -33,6 +35,9 @@ import io.meeds.social.core.identity.util.AgentUserUtils;
  * profile property is never read here.
  */
 public class AgentAccountLoginGuard extends SecurityCheckAuthenticationPlugin {
+
+  /** The logger. */
+  private static final Log LOG = ExoLogger.getLogger(AgentAccountLoginGuard.class);
 
   /** The organization service that holds the agents group memberships. */
   private final OrganizationService organizationService;
@@ -64,6 +69,10 @@ public class AgentAccountLoginGuard extends SecurityCheckAuthenticationPlugin {
     try {
       agent = AgentUserUtils.isAgentUser(organizationService, user.getUserName());
     } catch (Exception e) {
+      LOG.warn("Cannot read the {} memberships of {}, refusing its login",
+               AgentUserUtils.PLATFORM_AGENTS_GROUP,
+               user.getUserName(),
+               e);
       throw new DisabledUserException(user.getUserName(), e);
     }
     if (agent) {
