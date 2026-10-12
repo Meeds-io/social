@@ -264,6 +264,20 @@ public class Identity implements CacheEntry, Cloneable {
   }
 
   /**
+   * Gives the account kind stored on this identity's profile, for display
+   * purposes. The kind mirrors a group membership; a permission or login
+   * decision reads that membership instead.
+   *
+   * @return the profile property {@link Profile#ACCOUNT_KIND}, null when the
+   *         identity has no profile or the profile no kind
+   */
+  public String getAccountKind() {
+    Profile identityProfile = getProfile();
+    Object kind = identityProfile == null ? null : identityProfile.getProperty(Profile.ACCOUNT_KIND);
+    return kind == null ? null : String.valueOf(kind);
+  }
+
+  /**
    * Sets the provider id.
    *
    * @param providerId the new provider id
