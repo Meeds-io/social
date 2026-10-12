@@ -159,12 +159,12 @@ public class AccountKindService {
 
   /**
    * Computes the account kind of a user from its memberships: the first
-   * registered kind, in the alphabetical order of the kinds, whose group
+   * accepted kind, in the alphabetical order of the kinds, whose group
    * holds the user. A user in several kinds' groups thus always gets the same
    * one, whatever the order its memberships came in.
    *
    * @param userName the user name
-   * @return the account kind, null when no registered kind's group holds the
+   * @return the account kind, null when no accepted kind's group holds the
    *         user
    * @throws IllegalStateException when the memberships cannot be read
    */
