@@ -31,7 +31,6 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 import io.meeds.social.core.identity.plugin.TestAccountKindPlugin;
-import io.meeds.social.core.identity.service.AccountKindService;
 
 public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
 
@@ -116,7 +115,6 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
    * The test container serves no shared bundle, so the label is its key.
    */
   public void testGetProfileLinkShowsARegisteredAccountKind() {
-    TestAccountKindPlugin.register(getService(AccountKindService.class));
     Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
     Profile profile = johnIdentity.getProfile();
     Object previous = profile.getProperty(Profile.ACCOUNT_KIND);
