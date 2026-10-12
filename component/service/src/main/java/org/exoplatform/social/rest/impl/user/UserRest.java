@@ -138,6 +138,7 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import io.meeds.social.core.identity.model.UserExportFilter;
 import io.meeds.social.core.identity.model.UserExportResult;
 import io.meeds.social.core.identity.model.UserImportResult;
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.social.core.identity.util.AgentUserUtils;
@@ -266,6 +267,8 @@ public class UserRest implements ResourceContainer, Startable {
 
   private OtpService                      otpService;
 
+  private AccountKindService              accountKindService;
+
   private ExecutorService                 importExecutorService       = null;
 
   public UserRest(UserACL userACL, // NOSONAR
@@ -282,7 +285,8 @@ public class UserRest implements ResourceContainer, Startable {
                   PasswordRecoveryService passwordRecoveryService,
                   LocaleConfigService localeConfigService,
                   SettingService settingService,
-                  OtpService otpService) {
+                  OtpService otpService,
+                  AccountKindService accountKindService) {
     this.userACL = userACL;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
@@ -297,6 +301,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.passwordRecoveryService = passwordRecoveryService;
     this.localeConfigService = localeConfigService;
     this.otpService = otpService;
+    this.accountKindService = accountKindService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
     this.settingService = settingService;
 
@@ -2069,6 +2074,7 @@ public class UserRest implements ResourceContainer, Startable {
                                   Object value,
                                   boolean save,
                                   String modifierUsername) throws IllegalAccessException {
+    accountKindService.checkPropertyUpdate(profile, name, modifierUsername);
     if (Profile.MANAGER.equals(name)) {
       AgentUserUtils.checkManagerUpdate(organizationService, profile, isAdministrator(modifierUsername));
     }
