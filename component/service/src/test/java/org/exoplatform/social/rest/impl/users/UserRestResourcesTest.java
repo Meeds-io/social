@@ -23,6 +23,7 @@ import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
 import io.meeds.social.core.identity.util.AgentUserUtils;
 import io.meeds.social.core.identity.service.UserExportService;
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.social.security.plugin.EmailChangeOtpPlugin;
 import io.meeds.web.security.plugin.OtpPlugin;
@@ -167,6 +168,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private UserImportService            userImportService;
 
+  private AccountKindService           accountKindService;
+
   private ImageThumbnailService        imageThumbnailService;
 
   private PasswordRecoveryService      passwordRecoveryService;
@@ -210,7 +213,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     userExportService = mock(UserExportService.class);
+    accountKindService = getContainer().getComponentInstanceOfType(AccountKindService.class);
     userImportService = new UserImportService();
+    userImportService.setAccountKindService(accountKindService);
     userImportService.setIdentityManager(identityManager);
     userImportService.setOrganizationService(organizationService);
     userImportService.setProfilePropertyService(profilePropertyService);
@@ -257,7 +262,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 passwordRecoveryService,
                                                 localeConfigService,
                                                 settingService,
-                                                otpService);
+                                                otpService,
+                                                accountKindService);
     registry(userRestResourcesV1);
   }
 
@@ -346,7 +352,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               passwordRecoveryService,
                                               localeConfigService,
                                               settingService,
-                                              otpService);
+                                              otpService,
+                                              accountKindService);
     registry(userRestResources);
 
     // when
@@ -868,6 +875,26 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       // The profile property outlives this test in the shared test database
       markExternal(demoIdentity, false);
     }
+  }
+
+  /**
+   * No user, an administrator included, may write the account kind through
+   * the single-property PATCH nor through the profile properties PATCH.
+   */
+  public void testUpdateProfileAccountKindIsRefused() throws Exception {
+    startSessionAs("root", true);
+    ContainerResponse response = patchProfileAttribute("root", Profile.ACCOUNT_KIND, "bot");
+    assertEquals(401, response.getStatus());
+    assertNull(identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.ACCOUNT_KIND));
+
+    ProfilePropertySettingEntity kindProperty = new ProfilePropertySettingEntity();
+    kindProperty.setPropertyName(Profile.ACCOUNT_KIND);
+    kindProperty.setValue("bot");
+    response = getResponse("PATCH",
+                           "/v1/social/users/root/profile/properties",
+                           new JSONArray(Collections.singletonList(kindProperty)).toString());
+    assertEquals(401, response.getStatus());
+    assertNull(identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.ACCOUNT_KIND));
   }
 
   /**
