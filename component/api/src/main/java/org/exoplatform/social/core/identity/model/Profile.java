@@ -144,13 +144,6 @@ public class Profile {
   public static final String EXTERNAL                 = "external";
 
   /**
-   * AGENT: {@code "true"} on the profile of an agent account, a member of the
-   * {@code /platform/agents} group. A display flag kept in sync with that
-   * membership; security decisions read the membership, never this property.
-   */
-  public static final String AGENT                    = "agent";
-
-  /**
    * ACCOUNT KIND: the kind of an account an add-on owns, such as
    * {@code bot}, stored on the profile of a member of the group an
    * {@code AccountKindPlugin} names. A display copy of that membership,
