@@ -78,7 +78,6 @@ import org.exoplatform.portal.config.UserACL;
 
 import io.meeds.common.ContainerTransactional;
 import io.meeds.social.core.identity.model.UserImportResult;
-import io.meeds.social.core.identity.util.AgentUserUtils;
 import io.meeds.social.util.JsonUtils;
 
 import jakarta.annotation.PostConstruct;
@@ -617,8 +616,9 @@ public class UserImportService {
   /**
    * Sets one property of an imported user's profile, refusing the properties
    * an import may not write: a non-editable property to a non-administrator,
-   * the external and agent flags and the user name to anyone, and the manager
-   * of an agent account to a non-administrator.
+   * the external flag, the account kind and the user name to anyone, and a
+   * property an account kind keeps for administrators to a non-administrator
+   * on an account of that kind.
    *
    * @param profile the profile to update
    * @param name the property name
@@ -635,19 +635,11 @@ public class UserImportService {
                                     boolean save,
                                     String modifierUsername) throws IllegalAccessException, IOException {
     accountKindService.checkPropertyUpdate(profile, name, modifierUsername);
-    if (Profile.MANAGER.equals(name)) {
-      AgentUserUtils.checkManagerUpdate(organizationService,
-                                        profile,
-                                        modifierUsername != null
-                                            && userAcl.getUserIdentity(modifierUsername).isMemberOf(userAcl.getAdminGroups()));
-    }
     ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name);
     if (propertySetting != null && !propertySetting.isEditable() && !userAcl.getUserIdentity(modifierUsername).isMemberOf(userAcl.getAdminGroups())) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
     } else if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
-    } else if (Profile.AGENT.equals(name)) {
-      throw new IllegalAccessException("Not allowed to update AGENT field");
     } else if (Profile.USERNAME.equals(name)) {
       throw new IllegalAccessException("Not allowed to update USERNAME field");
     } else if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
