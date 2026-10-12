@@ -182,6 +182,10 @@
     <type>io.meeds.social.observe.service.ObserverServiceImpl</type>
   </component>
 
+  <component>
+    <type>io.meeds.social.core.identity.service.AccountKindService</type>
+  </component>
+
    <!--
     Activity storage components.
   -->
