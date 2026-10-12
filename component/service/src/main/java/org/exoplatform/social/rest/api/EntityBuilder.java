@@ -327,9 +327,10 @@ public class EntityBuilder {
   }
 
   /**
-   * Builds the REST entity of a user profile. The {@code external} and
-   * {@code agent} flags are always present, as the strings {@code "true"} or
-   * {@code "false"} the clients compare against.
+   * Builds the REST entity of a user profile. The {@code external} flag is
+   * always present, as the string {@code "true"} or {@code "false"} the
+   * clients compare against; the {@code accountKind} is present only for an
+   * account of a kind an add-on declares.
    *
    * @param profile the user profile
    * @param restPath the REST path the entity links are built from
@@ -408,7 +409,7 @@ public class EntityBuilder {
     } else {
       userEntity.setIsExternal("false");
     }
-    userEntity.setIsAgent(String.valueOf("true".equals(profile.getProperty(Profile.AGENT))));
+    userEntity.setAccountKind(LinkProvider.getDisplayedAccountKind(profile));
     if (canViewProperties || isProfilePropertyVisible(Profile.COMPANY)) {
       userEntity.setCompany((String) profile.getProperty(Profile.COMPANY));
     }

@@ -57,6 +57,8 @@ import org.exoplatform.web.url.navigation.NodeURL;
 import io.meeds.portal.permlink.model.PermanentLinkObject;
 import io.meeds.portal.permlink.service.PermanentLinkService;
 import io.meeds.portal.security.service.SecuritySettingService;
+import io.meeds.social.core.identity.plugin.AccountKindPlugin;
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.space.plugin.SpacePermanentLinkPlugin;
 
 import lombok.SneakyThrows;
@@ -195,6 +197,7 @@ public class LinkProvider {
       configuredDomainUrl = null;
     }
 
+    String accountKind = getDisplayedAccountKind(identity);
     StringBuilder profileLink = new StringBuilder("<a class=\"user-suggester\" href=\"");
     profileLink.append((configuredDomainUrl != null) ? configuredDomainUrl
                                                        : "")
@@ -220,11 +223,13 @@ public class LinkProvider {
                .append("',")
                .append("external: '")
                .append(identity.getProfile().getProperty(Profile.EXTERNAL) != null && StringUtils.equals("true", String.valueOf(identity.getProfile().getProperty(Profile.EXTERNAL))))
-               .append("',")
-               .append("agent: '")
-               .append(identity.isAgent())
-               .append("',")
-               .append("enabled: '")
+               .append("',");
+    if (accountKind != null) {
+      profileLink.append("accountKind: '")
+                 .append(toPopoverValue(accountKind))
+                 .append("',");
+    }
+    profileLink.append("enabled: '")
                .append(identity.isEnable() && !identity.isDeleted())
                .append("',")
                .append("deleted: '")
@@ -242,10 +247,10 @@ public class LinkProvider {
     if(identity.getProfile().getProperty("external") != null && identity.getProfile().getProperty("external").equals("true")){
       profileLink = profileLink.append("<span class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(Locale.forLanguageTag(lang), "external.label.tag")).append(")").append("</span>");
     }
-    if (identity.isAgent()) {
-      profileLink.append("<span class=\"agentFlagClass\">")
+    if (accountKind != null) {
+      profileLink.append("<span class=\"accountKindFlagClass\">")
                  .append(" (")
-                 .append(StringEscapeUtils.escapeHtml4(getResourceBundleLabel(Locale.forLanguageTag(lang), "agent.label.tag")))
+                 .append(StringEscapeUtils.escapeHtml4(getAccountKindLabel(Locale.forLanguageTag(lang), accountKind)))
                  .append(")")
                  .append("</span>");
     }
@@ -659,6 +664,41 @@ public class LinkProvider {
    *
    * @return the label
    */
+  /**
+   * Gives the account kind an identity shows next to its name: the kind
+   * stored on its profile, when an add-on declares it.
+   *
+   * @param identity the identity
+   * @return the account kind, null when the identity shows none
+   */
+  public static String getDisplayedAccountKind(Identity identity) {
+    return identity == null ? null : getDisplayedAccountKind(identity.getProfile());
+  }
+
+  /**
+   * Gives the account kind a profile shows next to its name: the kind stored
+   * on it, when an add-on declares it.
+   *
+   * @param profile the profile
+   * @return the account kind, null when the profile shows none
+   */
+  public static String getDisplayedAccountKind(Profile profile) {
+    AccountKindService accountKindService = ExoContainerContext.getService(AccountKindService.class);
+    return accountKindService == null ? null : accountKindService.getDisplayedKind(profile);
+  }
+
+  /**
+   * Gives the label shown next to the name of an account of a kind, read in
+   * the shared resource bundles where the add-on declaring the kind ships it.
+   *
+   * @param locale the locale of the label
+   * @param kind the account kind
+   * @return the label, or its key when no shared bundle holds it
+   */
+  public static String getAccountKindLabel(Locale locale, String kind) {
+    return getResourceBundleLabel(locale, AccountKindPlugin.getLabelKey(kind));
+  }
+
   public static String getResourceBundleLabel(Locale locale, String label) {
     ResourceBundleService resourceBundleService =  ExoContainerContext.getService(ResourceBundleService.class);
     try {
