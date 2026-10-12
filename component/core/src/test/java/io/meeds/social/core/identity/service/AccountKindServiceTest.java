@@ -271,6 +271,29 @@ public class AccountKindServiceTest {
   }
 
   /**
+   * The kind computed from the memberships is the first registered kind, in
+   * alphabetical order, whose group holds the user, and a read failure is
+   * thrown.
+   */
+  @Test
+  public void testComputeAccountKindTakesTheFirstKindInAlphabeticalOrder() throws Exception {
+    service.register(new OtherPlugin("alpha", "/platform/alphas"));
+    when(membershipHandler.findMembershipsByUserAndGroup(USER_NAME, GROUP_ID)).thenReturn(List.of(mock(Membership.class)));
+    when(membershipHandler.findMembershipsByUserAndGroup(USER_NAME, "/platform/alphas")).thenReturn(List.of());
+    assertEquals(KIND, service.computeAccountKind(USER_NAME));
+
+    when(membershipHandler.findMembershipsByUserAndGroup(USER_NAME, "/platform/alphas")).thenReturn(List.of(mock(Membership.class)));
+    assertEquals("alpha", service.computeAccountKind(USER_NAME));
+
+    when(membershipHandler.findMembershipsByUserAndGroup(USER_NAME, "/platform/alphas")).thenReturn(List.of());
+    when(membershipHandler.findMembershipsByUserAndGroup(USER_NAME, GROUP_ID)).thenReturn(List.of());
+    assertNull(service.computeAccountKind(USER_NAME));
+
+    when(membershipHandler.findMembershipsByUserAndGroup(USER_NAME, GROUP_ID)).thenThrow(new RuntimeException("down"));
+    assertThrows(IllegalStateException.class, () -> service.computeAccountKind(USER_NAME));
+  }
+
+  /**
    * A profile shows the kind stored on it only when a plugin declares that
    * kind.
    */
