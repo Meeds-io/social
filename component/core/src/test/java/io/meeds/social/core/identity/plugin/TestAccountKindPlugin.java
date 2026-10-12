@@ -27,13 +27,10 @@ import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.identity.model.Profile;
 
-import io.meeds.social.core.identity.service.AccountKindService;
-
 /**
- * The account kind the container tests register: the members of
- * {@link #GROUP_ID} are {@link #KIND} accounts, whose manager only an
- * administrator changes. One class for every test, so that registering it
- * again in the shared test container replaces it.
+ * The account kind the test configuration declares to the kernel-container
+ * tests: the members of {@link #GROUP_ID} are {@link #KIND} accounts, whose
+ * manager only an administrator changes.
  */
 public class TestAccountKindPlugin implements AccountKindPlugin {
 
@@ -69,24 +66,6 @@ public class TestAccountKindPlugin implements AccountKindPlugin {
   public TestAccountKindPlugin(String kind, String groupId) {
     this.kind = kind;
     this.groupId = groupId;
-  }
-
-  /**
-   * Registers this kind in a registry.
-   *
-   * @param accountKindService the registry
-   */
-  public static void register(AccountKindService accountKindService) {
-    accountKindService.register(new TestAccountKindPlugin());
-  }
-
-  /**
-   * Registers the {@link #OTHER_KIND} kind in a registry.
-   *
-   * @param accountKindService the registry
-   */
-  public static void registerOther(AccountKindService accountKindService) {
-    accountKindService.register(new TestAccountKindPlugin(OTHER_KIND, OTHER_GROUP_ID));
   }
 
   /**
