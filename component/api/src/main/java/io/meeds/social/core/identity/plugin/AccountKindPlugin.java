@@ -37,7 +37,11 @@ import java.util.Set;
  * the bean has a name social's context does not hold, given explicitly, such
  * as {@code @Service("botAccountKindPlugin")}. A plugin whose kind or group an
  * earlier plugin, in the order of the kinds then of the groups, already holds
- * is refused. The label shown for a kind is read
+ * is refused. Social reads a plugin at its first decision on an account
+ * kind, which can come before the contributing add-on's context has started:
+ * the bean is then created ahead of its context, so a plugin holds no
+ * dependency, and a plugin whose creation fails is refused until the next
+ * startup. The label shown for a kind is read
  * under the key {@link #getLabelKey(String)} in the shared resource bundles on
  * the server and in the {@code locale.portlet.Portlets} bundle in the browser,
  * which the add-on ships in both.
