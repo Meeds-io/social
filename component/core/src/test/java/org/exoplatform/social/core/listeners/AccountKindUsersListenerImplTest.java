@@ -126,7 +126,7 @@ public class AccountKindUsersListenerImplTest extends AbstractCoreTest {
   }
 
   /**
-   * A user in two kinds' groups gets the first kind in alphabetical order,
+   * A user in two kinds' groups gets the first kind in the order of the kinds,
    * whatever the order of its memberships: a membership in the second kind's
    * group saved while the first kind is held keeps it, and the second kind
    * comes back when the first kind's membership goes.
