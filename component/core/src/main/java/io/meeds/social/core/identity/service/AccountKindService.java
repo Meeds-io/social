@@ -55,8 +55,7 @@ import io.meeds.social.core.identity.plugin.AccountKindPlugin;
  * including the {@code @Service} beans of the add-ons whose web applications
  * start after social, which the Kernel/Spring integration declares in this
  * context before any context creates its beans. They are read at the first
- * use, never while this service is built, so that the plugin of a context that
- * has not started yet is not created ahead of it, and only once: what each
+ * use, not while this service is built, and only once: what each
  * plugin declares is kept, and no decision calls a plugin again. A plugin that
  * cannot be accepted, one that fails to answer included, is refused with an
  * error log, never by failing the startup nor the decisions on the other
@@ -300,7 +299,8 @@ public class AccountKindService {
   /**
    * Indexes the contributed plugins once, in the order of their kinds, then
    * of their groups, then of their class names, whatever order they were
-   * collected in. Each plugin is asked once for its kind, its group and its
+   * collected in; the sort is stable, so two plugins equal on all three keep
+   * the collected order. Each plugin is asked once for its kind, its group and its
    * admin-only properties. A plugin that throws while answering, that has no
    * kind or no group, whose kind holds a character other than a letter, a
    * digit, {@code _} or {@code -} (the kind becomes an i18n key, a REST value
@@ -319,7 +319,12 @@ public class AccountKindService {
         declare(plugin, kinds, groups, adminOnlyProperties);
       }
     }
-    List<AccountKindPlugin> candidates = new ArrayList<>(kinds.keySet());
+    List<AccountKindPlugin> candidates = new ArrayList<>();
+    for (AccountKindPlugin plugin : contributedPlugins) {
+      if (plugin != null && kinds.containsKey(plugin) && candidates.stream().noneMatch(candidate -> candidate == plugin)) {
+        candidates.add(plugin);
+      }
+    }
     candidates.sort(Comparator.comparing((AccountKindPlugin plugin) -> kinds.get(plugin))
                               .thenComparing(groups::get)
                               .thenComparing(AccountKindService::getPluginClassName));
