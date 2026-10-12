@@ -19,7 +19,6 @@
 package org.exoplatform.social.core.jpa.search;
 
 import java.io.InputStream;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,6 +50,7 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.core.storage.impl.StorageUtils;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.tag.TagService;
 
@@ -61,25 +61,52 @@ public class ActivitySearchConnector {
 
   public static final String            SEARCH_QUERY_FILE_PATH_PARAM = "query.file.path";
 
-  public static final String            SEARCH_QUERY_TERM            = "\"must\":{" +
-      "  \"query_string\":{" +
-      "    \"fields\": [\"body\", \"posterName\"]," +
-      "    \"default_operator\": \"AND\"," +
-      "    \"query\": \"@term@~\"," +
-      "    \"fuzziness\": 1," +
-      "    \"phrase_slop\": 1" +
-      "  }" +
-      "},";
-
-  public static final String            SEARCH_QUERY_WITH_PHRASE     = "\"must\":{" +
-      "  \"query_string\":{" +
-      "    \"fields\": [\"body\", \"posterName\"]," +
-      "    \"default_operator\": \"AND\"," +
-      "    \"query\": \"(@term@) OR (\\\"@phrase@\\\"~)^5\"," +
-      "    \"fuzziness\": 1," +
-      "    \"phrase_slop\": 1" +
-      "  }" +
-      "},";
+  /**
+   * Term query of the searched text, analyzed by each field's own analyzer so
+   * that the tokens searched are the ones the index holds: every token is
+   * required and the last one, the one being typed, is a prefix
+   * ({@code bool_prefix}); one edit is allowed on a token of two letters or
+   * more when the text is one word ({@link #SINGLE_WORD_FUZZINESS}), of five
+   * letters or more otherwise ({@link #MULTI_WORD_FUZZINESS}); the whole text
+   * as a phrase, with one position of slop, is boosted. A text with no token
+   * matches nothing. The text is written in a JSON string only, so no
+   * character of it is query syntax.
+   */
+  public static final String            SEARCH_QUERY_TERM            = """
+      "must":{
+        "bool":{
+          "should":[
+            {
+              "multi_match":{
+                "query": "@term@",
+                "fields": ["body", "posterName"],
+                "type": "bool_prefix",
+                "operator": "and"
+              }
+            },
+            {
+              "multi_match":{
+                "query": "@term@",
+                "fields": ["body", "posterName"],
+                "type": "best_fields",
+                "operator": "and",
+                "fuzziness": "@fuzziness@"
+              }
+            },
+            {
+              "multi_match":{
+                "query": "@term@",
+                "fields": ["body", "posterName"],
+                "type": "phrase",
+                "slop": 1,
+                "boost": 5
+              }
+            }
+          ],
+          "minimum_should_match": 1
+        }
+      },
+      """;
 
   public static final String            CATEGORY_IDS_QUERY           = """
       {
@@ -106,9 +133,18 @@ public class ActivitySearchConnector {
           "_score"
       """;
 
-  private static final String           TERM_REPLACEMENT             = "@term@";
+  /**
+   * One edit allowed on each token of a one-word text, from two letters: a
+   * single letter is matched exactly (and as a prefix when it ends the text)
+   */
+  public static final String            SINGLE_WORD_FUZZINESS        = "AUTO:2,1000";
 
-  private static final String           PHRASE_REPLACEMENT           = "@phrase@";
+  /** One edit allowed on the tokens of five letters or more of a longer text */
+  public static final String            MULTI_WORD_FUZZINESS         = "AUTO:5,1000";
+
+  private static final String           TERM_NAME                    = "term";
+
+  private static final String           FUZZINESS_NAME               = "fuzziness";
 
   private final ConfigurationManager    configurationManager;                                  // NOSONAR
 
@@ -202,14 +238,17 @@ public class ActivitySearchConnector {
     String tagsQuery = buildTagsQueryStatement(metadataFilters.get(TagService.METADATA_TYPE.getName()));
     String categoryQuery = buildCategoryIdQueryStatement(filter);
     String sortQuery = buildSortQueryStatement(filter);
-    return retrieveSearchQuery().replace("@term_query@", termQuery)
-                                .replace("@favorite_query@", favoriteQuery)
-                                .replace("@tags_query@", tagsQuery)
-                                .replace("@category_query@", categoryQuery)
-                                .replace("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
-                                .replace("@sortQuery@", sortQuery)
-                                .replace("@offset@", String.valueOf(offset))
-                                .replace("@limit@", String.valueOf(limit));
+    // one pass: a placeholder name typed in the term or a tag stays literal
+    Map<String, String> values = new HashMap<>();
+    values.put("term_query", termQuery);
+    values.put("favorite_query", favoriteQuery);
+    values.put("tags_query", tagsQuery);
+    values.put("category_query", categoryQuery);
+    values.put("permissions", StringUtils.join(streamFeedOwnerIds, ","));
+    values.put("sortQuery", sortQuery);
+    values.put("offset", String.valueOf(offset));
+    values.put("limit", String.valueOf(limit));
+    return StorageUtils.fillQueryTemplate(retrieveSearchQuery(), values);
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -367,12 +406,6 @@ public class ActivitySearchConnector {
     }
   }
 
-  private String removeSpecialCharacters(String string) {
-    string = Normalizer.normalize(string, Normalizer.Form.NFD);
-    string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "").replace("'", " ");
-    return string;
-  }
-
   private Map<String, List<String>> buildMetadatasFilter(ActivitySearchFilter filter, Identity viewerIdentity) {
     Map<String, List<String>> metadataFilters = new HashMap<>();
     if (filter.isFavorites()) {
@@ -403,7 +436,7 @@ public class ActivitySearchConnector {
                                         .map(value -> new StringBuilder().append("{\"term\": {\n")
                                                                          .append("            \"metadatas.tags.metadataName.keyword\": {\n")
                                                                          .append("              \"value\": \"")
-                                                                         .append(value)
+                                                                         .append(StorageUtils.escapeJsonValue(value))
                                                                          .append("\",\n")
                                                                          .append("              \"case_insensitive\":true\n")
                                                                          .append("            }\n")
@@ -429,22 +462,11 @@ public class ActivitySearchConnector {
     if (StringUtils.isBlank(phrase)) {
       return "";
     }
-    phrase = removeSpecialCharacters(phrase);
-
-    if (StringUtils.contains(phrase, " ")) {// If multiple words
-      String terms = Arrays.stream(StringUtils.split(phrase, " ")).map(keyword -> {
-        String keywordTrim = keyword.trim();
-        if (keywordTrim.length() > 4) {// Only words with 5 letters or greater
-          return keywordTrim + "~";
-        } else {
-          return keywordTrim;
-        }
-      }).reduce("", (key1, key2) -> key1 + " " + key2);
-      return SEARCH_QUERY_WITH_PHRASE.replace(TERM_REPLACEMENT, terms)
-                                     .replace(PHRASE_REPLACEMENT, phrase);
-    } else {
-      return SEARCH_QUERY_TERM.replace(TERM_REPLACEMENT, phrase);
-    }
+    String text = StorageUtils.normalizeSearchText(phrase);
+    String fuzziness = StringUtils.containsWhitespace(text) ? MULTI_WORD_FUZZINESS : SINGLE_WORD_FUZZINESS;
+    // one pass: a placeholder name typed in the text stays literal
+    return StorageUtils.fillQueryTemplate(SEARCH_QUERY_TERM,
+                                          Map.of(TERM_NAME, StorageUtils.escapeJsonValue(text), FUZZINESS_NAME, fuzziness));
   }
 
   private String buildSortQueryStatement(ActivitySearchFilter filter) {

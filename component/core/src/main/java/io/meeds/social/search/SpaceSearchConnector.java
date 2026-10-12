@@ -22,7 +22,6 @@ import static org.exoplatform.social.core.jpa.search.SpaceIndexingServiceConnect
 import static org.exoplatform.social.core.jpa.search.SpaceIndexingServiceConnector.TEMPLATE_MANAGER_PREFIX;
 
 import java.io.InputStream;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,6 +45,7 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.storage.impl.StorageUtils;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.tag.TagService;
 
@@ -79,26 +79,49 @@ public class SpaceSearchConnector {
 
   private static final Log             LOG                           = ExoLogger.getLogger(SpaceSearchConnector.class);
 
+  /**
+   * Term query of the searched text, analyzed by each field's own analyzer so
+   * that the tokens searched are the ones the index holds: every token is
+   * required and the last one, the one being typed, is a prefix
+   * ({@code bool_prefix}); one edit is allowed on a token of two letters or
+   * more when the text is one word ({@link #SINGLE_WORD_FUZZINESS}), of five
+   * letters or more otherwise ({@link #MULTI_WORD_FUZZINESS}); the whole text
+   * as a phrase, with one position of slop, is boosted. A text with no token
+   * matches nothing. The text is written in a JSON string only, so no
+   * character of it is query syntax.
+   */
   private static final String          SEARCH_QUERY_TERM             = """
       "must":{
-        "query_string":{
-          "fields": ["displayName", "description"],
-          "default_operator": "AND",
-          "query": "@term@~",
-          "fuzziness": 1,
-          "phrase_slop": 1
-        }
-      },
-            """;
-
-  private static final String          SEARCH_QUERY_WITH_PHRASE      = """
-      "must":{
-        "query_string":{
-          "fields": ["displayName", "description"],
-          "default_operator": "AND",
-          "query": "(@term@) OR (\\"@phrase@\\"~)^5",
-          "fuzziness": 1,
-          "phrase_slop": 1
+        "bool":{
+          "should":[
+            {
+              "multi_match":{
+                "query": "@term@",
+                "fields": ["displayName", "description"],
+                "type": "bool_prefix",
+                "operator": "and"
+              }
+            },
+            {
+              "multi_match":{
+                "query": "@term@",
+                "fields": ["displayName", "description"],
+                "type": "best_fields",
+                "operator": "and",
+                "fuzziness": "@fuzziness@"
+              }
+            },
+            {
+              "multi_match":{
+                "query": "@term@",
+                "fields": ["displayName", "description"],
+                "type": "phrase",
+                "slop": 1,
+                "boost": 5
+              }
+            }
+          ],
+          "minimum_should_match": 1
         }
       },
       """;
@@ -195,9 +218,18 @@ public class SpaceSearchConnector {
           "_score"
       """;
 
-  private static final String          TERM_REPLACEMENT              = "@term@";
+  /**
+   * One edit allowed on each token of a one-word text, from two letters: a
+   * single letter is matched exactly (and as a prefix when it ends the text)
+   */
+  public static final String           SINGLE_WORD_FUZZINESS         = "AUTO:2,1000";
 
-  private static final String          PHRASE_REPLACEMENT            = "@phrase@";
+  /** One edit allowed on the tokens of five letters or more of a longer text */
+  public static final String           MULTI_WORD_FUZZINESS          = "AUTO:5,1000";
+
+  private static final String          TERM_NAME                     = "term";
+
+  private static final String          FUZZINESS_NAME                = "fuzziness";
 
   private static final String          PERMISSIONS_REPLACEMENT       = "@permissions@";
 
@@ -284,7 +316,7 @@ public class SpaceSearchConnector {
                                      String query,
                                      long offset,
                                      long limit) {
-    String termQuery = buildTermQueryStatement(StringUtils.lowerCase(filter.getTerm()));
+    String termQuery = buildTermQueryStatement(filter.getTerm());
     String favoriteQuery = buildFavoriteQueryStatement(metadataFilters.get(FavoriteService.METADATA_TYPE.getName()));
     String templateQuery = buildTemplateIdQueryStatement(filter);
     String categoryQuery = buildCategoryIdQueryStatement(filter);
@@ -305,31 +337,25 @@ public class SpaceSearchConnector {
                                                               favoriteQuery,
                                                               templateQuery,
                                                               categoryQuery);
-    return query.replace("@term_query@",
-                         termQuery)
-                .replace("@category_query@",
-                         categoryQuery)
-                .replace("@template_query@",
-                         noCommaToTemplate ? templateQuery :
-                                           String.format(PREFIX_COMMA_TO_APPEND, templateQuery))
-                .replace("@favorite_query@",
-                         noCommaToFavorite ? favoriteQuery :
-                                           String.format(PREFIX_COMMA_TO_APPEND, favoriteQuery))
-                .replace("@permissions_query@",
-                         noCommaToPermission ? permissionsQuery :
-                                             String.format(PREFIX_COMMA_TO_APPEND, permissionsQuery))
-                .replace("@visibility_query@",
-                         noCommaToVisibility ? visibilityQuery :
-                                             String.format(PREFIX_COMMA_TO_APPEND, visibilityQuery))
-                .replace("@registration_query@",
-                         noCommaToRegistration ? registrationQuery :
-                                               String.format(PREFIX_COMMA_TO_APPEND, registrationQuery))
-                .replace("@tags_query@", tagsQuery)
-                .replace("@sortQuery@", sortQuery)
-                .replace("@offset@",
-                         String.valueOf(offset))
-                .replace("@limit@",
-                         String.valueOf(limit));
+    // one pass: a placeholder name typed in the term or a tag stays literal
+    Map<String, String> values = new HashMap<>();
+    values.put("term_query", termQuery);
+    values.put("category_query", categoryQuery);
+    values.put("template_query",
+               noCommaToTemplate ? templateQuery : String.format(PREFIX_COMMA_TO_APPEND, templateQuery));
+    values.put("favorite_query",
+               noCommaToFavorite ? favoriteQuery : String.format(PREFIX_COMMA_TO_APPEND, favoriteQuery));
+    values.put("permissions_query",
+               noCommaToPermission ? permissionsQuery : String.format(PREFIX_COMMA_TO_APPEND, permissionsQuery));
+    values.put("visibility_query",
+               noCommaToVisibility ? visibilityQuery : String.format(PREFIX_COMMA_TO_APPEND, visibilityQuery));
+    values.put("registration_query",
+               noCommaToRegistration ? registrationQuery : String.format(PREFIX_COMMA_TO_APPEND, registrationQuery));
+    values.put("tags_query", tagsQuery);
+    values.put("sortQuery", sortQuery);
+    values.put("offset", String.valueOf(offset));
+    values.put("limit", String.valueOf(limit));
+    return StorageUtils.fillQueryTemplate(query, values);
   }
 
   private String buildRegistrationStatement(SpaceRegistration registration) {
@@ -430,12 +456,6 @@ public class SpaceSearchConnector {
     }
   }
 
-  private String removeSpecialCharacters(String string) {
-    string = Normalizer.normalize(string, Normalizer.Form.NFD);
-    string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "").replace("'", " ");
-    return string;
-  }
-
   private Map<String, List<String>> buildMetadatasFilter(SpaceSearchFilter filter) {
     Map<String, List<String>> metadataFilters = new HashMap<>();
     if (filter.isFavorites()) {
@@ -467,7 +487,7 @@ public class SpaceSearchConnector {
                                         .map(value -> new StringBuilder().append("{\"term\": {\n")
                                                                          .append("            \"metadatas.tags.metadataName.keyword\": {\n")
                                                                          .append("              \"value\": \"")
-                                                                         .append(value)
+                                                                         .append(StorageUtils.escapeJsonValue(value))
                                                                          .append("\",\n")
                                                                          .append("              \"case_insensitive\":true\n")
                                                                          .append("            }\n")
@@ -485,22 +505,11 @@ public class SpaceSearchConnector {
     if (StringUtils.isBlank(phrase)) {
       return "";
     }
-    phrase = removeSpecialCharacters(phrase);
-
-    if (StringUtils.contains(phrase, " ")) {// If multiple words
-      String terms = Arrays.stream(StringUtils.split(phrase, " ")).map(keyword -> {
-        String keywordTrim = keyword.trim();
-        if (keywordTrim.length() > 4) {// Only words with 5 letters or greater
-          return keywordTrim + "~";
-        } else {
-          return keywordTrim;
-        }
-      }).reduce("", (key1, key2) -> key1 + " " + key2);
-      return SEARCH_QUERY_WITH_PHRASE.replace(TERM_REPLACEMENT, terms)
-                                     .replace(PHRASE_REPLACEMENT, phrase);
-    } else {
-      return SEARCH_QUERY_TERM.replace(TERM_REPLACEMENT, phrase);
-    }
+    String text = StorageUtils.normalizeSearchText(phrase);
+    String fuzziness = StringUtils.containsWhitespace(text) ? MULTI_WORD_FUZZINESS : SINGLE_WORD_FUZZINESS;
+    // one pass: a placeholder name typed in the text stays literal
+    return StorageUtils.fillQueryTemplate(SEARCH_QUERY_TERM,
+                                          Map.of(TERM_NAME, StorageUtils.escapeJsonValue(text), FUZZINESS_NAME, fuzziness));
   }
 
   private String buildPermissionsQuery(SpaceSearchFilter filter) {
