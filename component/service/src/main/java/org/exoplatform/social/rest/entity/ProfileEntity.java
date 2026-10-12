@@ -82,7 +82,7 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String EXTERNAL                = "external";
 
-  public static final String AGENT                   = "agent";
+  public static final String ACCOUNT_KIND            = "accountKind";
 
   public static final String LAST_LOGIN_TIME         = "lastLoginTime";
 
@@ -496,23 +496,26 @@ public class ProfileEntity extends BaseEntity {
   }
 
   /**
-   * Sets whether the profile is an agent account's.
+   * Sets the account kind the profile shows, omitted when null.
    *
-   * @param isAgent {@code "true"} or {@code "false"}
+   * @param accountKind the account kind, such as {@code bot}, or null for
+   *          none
    * @return this entity
    */
-  public ProfileEntity setIsAgent(String isAgent) {
-    setProperty(AGENT, isAgent);
+  public ProfileEntity setAccountKind(String accountKind) {
+    if (accountKind != null) {
+      setProperty(ACCOUNT_KIND, accountKind);
+    }
     return this;
   }
 
   /**
-   * Tells whether the profile is an agent account's.
+   * Gives the account kind the profile shows.
    *
-   * @return {@code "true"} or {@code "false"}
+   * @return the account kind, null when the profile shows none
    */
-  public String isAgent() {
-    return getString(AGENT);
+  public String getAccountKind() {
+    return getString(ACCOUNT_KIND);
   }
 
   public ProfileEntity setLastLoginTime(String lastLoginTime) {
