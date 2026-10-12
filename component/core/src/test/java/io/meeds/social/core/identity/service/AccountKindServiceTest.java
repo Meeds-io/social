@@ -102,8 +102,9 @@ public class AccountKindServiceTest {
 
   /**
    * The same plugin registered again replaces itself, while another plugin
-   * claiming a registered kind or group, or a plugin without a kind or a
-   * group, is refused.
+   * claiming a registered kind or group, a plugin without a kind or a group,
+   * or a kind holding a character other than a letter, a digit, {@code _} or
+   * {@code -}, is refused.
    */
   @Test
   public void testRegistrationRefusesAClaimedKindOrGroup() {
@@ -116,7 +117,12 @@ public class AccountKindServiceTest {
     assertThrows(IllegalArgumentException.class, () -> service.register(null));
     assertThrows(IllegalArgumentException.class, () -> service.register(new OtherPlugin(" ", "/platform/others")));
     assertThrows(IllegalArgumentException.class, () -> service.register(new OtherPlugin("other", null)));
-    assertEquals(1, service.getPlugins().size());
+    assertThrows(IllegalArgumentException.class, () -> service.register(new OtherPlugin("it's", "/platform/quotes")));
+    assertThrows(IllegalArgumentException.class, () -> service.register(new OtherPlugin("a.b", "/platform/dots")));
+    assertThrows(IllegalArgumentException.class, () -> service.register(new OtherPlugin("$1\\\"", "/platform/specials")));
+    service.register(new OtherPlugin("Bot_2-x", "/platform/bot2"));
+    assertEquals("Bot_2-x", service.getPluginByGroup("/platform/bot2").getKind());
+    assertEquals(2, service.getPlugins().size());
     assertNull(service.getPluginByGroup("/platform/others"));
   }
 
