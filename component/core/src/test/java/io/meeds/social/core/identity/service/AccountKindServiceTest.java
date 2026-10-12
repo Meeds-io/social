@@ -271,13 +271,16 @@ public class AccountKindServiceTest {
   }
 
   /**
-   * The kind computed from the memberships is the first registered kind, in
+   * The kind computed from the memberships is the first accepted kind, in
    * alphabetical order, whose group holds the user, and a read failure is
    * thrown.
    */
   @Test
   public void testComputeAccountKindTakesTheFirstKindInAlphabeticalOrder() throws Exception {
-    service.register(new OtherPlugin("alpha", "/platform/alphas"));
+    service = new AccountKindService(organizationService,
+                                     userAcl,
+                                     List.of(new TestPlugin(KIND, GROUP_ID, Set.of(Profile.MANAGER)),
+                                             new OtherPlugin("alpha", "/platform/alphas")));
     when(membershipHandler.findMembershipsByUserAndGroup(USER_NAME, GROUP_ID)).thenReturn(List.of(mock(Membership.class)));
     when(membershipHandler.findMembershipsByUserAndGroup(USER_NAME, "/platform/alphas")).thenReturn(List.of());
     assertEquals(KIND, service.computeAccountKind(USER_NAME));
