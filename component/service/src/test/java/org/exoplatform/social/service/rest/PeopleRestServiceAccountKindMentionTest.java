@@ -33,11 +33,14 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
+import io.meeds.social.core.identity.plugin.TestAccountKindPlugin;
+import io.meeds.social.core.identity.service.AccountKindService;
+
 /**
- * Pins that an agent account, an enabled internal user, is suggested for a
+ * Pins that an account of a kind, an enabled internal user, is suggested for a
  * mention like any other member.
  */
-public class PeopleRestServiceAgentMentionTest extends AbstractResourceTest {
+public class PeopleRestServiceAccountKindMentionTest extends AbstractResourceTest {
 
   private IdentityManager identityManager;
 
@@ -70,34 +73,36 @@ public class PeopleRestServiceAgentMentionTest extends AbstractResourceTest {
   }
 
   /**
-   * An agent account is an enabled internal user: a member of a space is
+   * An account of a kind is an enabled internal user: a member of a space is
    * suggested for a mention in that space's stream whether or not it is an
-   * agent account.
+   * account of a kind.
    */
-  public void testAgentAccountIsSuggestedForMentionInSpaceActivityStream() throws Exception {
+  public void testAccountOfKindIsSuggestedForMentionInSpaceActivityStream() throws Exception {
+    TestAccountKindPlugin.register(getContainer().getComponentInstanceOfType(AccountKindService.class));
     startSessionAs("root");
     Space space = new Space();
-    space.setPrettyName("agentmentionspace");
-    space.setDisplayName("agentmentionspace");
+    space.setPrettyName("accountkindmentionspace");
+    space.setDisplayName("accountkindmentionspace");
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.OPEN);
     space = spaceService.createSpace(space, rootIdentity.getRemoteId());
     spaceService.addMember(space, maryIdentity.getRemoteId());
     Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary").getProfile();
-    Object previousAgent = profile.getProperty(Profile.AGENT);
+    Object previousKind = profile.getProperty(Profile.ACCOUNT_KIND);
     Object previousExternal = profile.getProperty(Profile.EXTERNAL);
     try {
       profile.setProperty(Profile.EXTERNAL, "false");
       identityManager.updateProfile(profile);
       assertTrue("a space member must be suggested for a mention", isSuggestedForMention("mary", space));
 
-      profile.setProperty(Profile.AGENT, "true");
+      profile.setProperty(Profile.ACCOUNT_KIND, TestAccountKindPlugin.KIND);
       identityManager.updateProfile(profile);
-      assertTrue(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary").isAgent());
-      assertTrue("an agent account must be suggested for a mention", isSuggestedForMention("mary", space));
+      assertEquals(TestAccountKindPlugin.KIND,
+                   identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary").getAccountKind());
+      assertTrue("an account of a kind must be suggested for a mention", isSuggestedForMention("mary", space));
     } finally {
       profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary").getProfile();
-      profile.setProperty(Profile.AGENT, previousAgent);
+      profile.setProperty(Profile.ACCOUNT_KIND, previousKind);
       profile.setProperty(Profile.EXTERNAL, previousExternal);
       identityManager.updateProfile(profile);
       spaceService.deleteSpace(space);
