@@ -21,10 +21,13 @@ package org.exoplatform.social.core.activity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -40,9 +43,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.commons.utils.IOUtil;
@@ -170,8 +176,8 @@ public class ActivitySearchConnectorTest {
     String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term_query@",
                                                       ActivitySearchConnector.SEARCH_QUERY_TERM.replace("@term@",
                                                                                                         filter.getTerm())
-                                                                                               .replace("@term_query@",
-                                                                                                        filter.getTerm()))
+                                                                                               .replace("@fuzziness@",
+                                                                                                        ActivitySearchConnector.SINGLE_WORD_FUZZINESS))
                                           .replaceAll("@permissions@", StringUtils.join(permissions, ","))
                                           .replaceAll("@offset@", "0")
                                           .replaceAll("@limit@", "10");
@@ -199,8 +205,8 @@ public class ActivitySearchConnectorTest {
     String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term_query@",
                                                       ActivitySearchConnector.SEARCH_QUERY_TERM.replace("@term@",
                                                                                                         filter.getTerm())
-                                                                                               .replace("@term_query@",
-                                                                                                        filter.getTerm()))
+                                                                                               .replace("@fuzziness@",
+                                                                                                        ActivitySearchConnector.SINGLE_WORD_FUZZINESS))
                                           .replaceAll("@permissions@", StringUtils.join(permissions, ","))
                                           .replaceAll("@offset@", "0")
                                           .replaceAll("@limit@", "10");
@@ -268,8 +274,8 @@ public class ActivitySearchConnectorTest {
     String expectedESQuery = FAKE_ES_QUERY.replaceAll("@term_query@",
                                                       ActivitySearchConnector.SEARCH_QUERY_TERM.replace("@term@",
                                                                                                         filter.getTerm())
-                                                                                               .replace("@term_query@",
-                                                                                                        filter.getTerm()))
+                                                                                               .replace("@fuzziness@",
+                                                                                                        ActivitySearchConnector.SINGLE_WORD_FUZZINESS))
                                           .replaceAll("@permissions@", StringUtils.join(permissions, ","))
                                           .replaceAll("@offset@", "0")
                                           .replaceAll("@limit@", "10");
@@ -342,6 +348,152 @@ public class ActivitySearchConnectorTest {
     result = activitySearchConnector.search(identity, filter, 0, 10);
     assertNotNull(result);
     assertEquals(0, result.size());
+  }
+
+  /**
+   * The typed text reaches the analyzed queries as typed, Latin diacritics
+   * removed, escaped for JSON only: no character of it is query syntax, and
+   * the field's search analyzer tokenizes it the way the index was.
+   */
+  @Test
+  public void testSearchWritesTheTypedTextInTheAnalyzedQueries() {
+    assertEquals("test\"", searchedQueryText("test\""));
+    assertEquals("test\\", searchedQueryText("test\\"));
+    assertEquals("a/b", searchedQueryText("a/b"));
+    assertEquals("@limit@", searchedQueryText("@limit@"));
+    assertEquals("@fuzziness@ @term@", searchedQueryText("@fuzziness@ @term@"));
+    assertEquals("@fuzziness@", searchedQueryText("@fuzziness@"));
+    assertEquals("#release\"", searchedQueryText("#release\""));
+    assertEquals("test-tes", searchedQueryText("tést-tés"));
+    assertEquals("test-t", searchedQueryText("tést-t"));
+    assertEquals("test-test tes", searchedQueryText("test-test tés"));
+    assertEquals("www.meeds.io test_test 3.14", searchedQueryText("www.meeds.io test_test 3.14"));
+    assertEquals("l'equipe", searchedQueryText("l'équipe"));
+    assertEquals("\u0939\u093f\u0928\u094d\u0926\u0940", searchedQueryText("\u0939\u093f\u0928\u094d\u0926\u0940"));
+    assertEquals("\ud55c\uad6d\uc5b4 \u304c\u3063\u3053\u3046", searchedQueryText("\ud55c\uad6d\uc5b4 \u304c\u3063\u3053\u3046"));
+    assertEquals("Tests\t\r\ntes\u3000x", searchedQueryText("Tests\t\r\ntes\u3000x"));
+    assertEquals("(test) AND {x} OR [y] ^~*?:+-=&|><!", searchedQueryText(" (test) AND {x} OR [y] ^~*?:+-=&|><! "));
+    assertEquals("\" \\ /", searchedQueryText("\" \\ /"));
+  }
+
+  /**
+   * The three clauses of the term query: every token required and the last
+   * one a prefix, one edit on the word of a one-word text, the phrase
+   * boosted. What each clause matches is the engine's: a text with no token
+   * matches nothing (checked on Elasticsearch 8.13.4, not by this suite).
+   */
+  @Test
+  public void testSearchTermQueryClauses() {
+    JsonNode request = searchRequest(new ActivitySearchFilter("test"));
+    JsonNode termQuery = request.at("/query/bool/must/bool");
+    assertEquals(request.toString(), 1, termQuery.get("minimum_should_match").asInt());
+    JsonNode clauses = termQuery.get("should");
+    assertEquals(request.toString(), 3, clauses.size());
+    for (JsonNode clause : clauses.values()) {
+      JsonNode multiMatch = clause.get("multi_match");
+      assertEquals("test", multiMatch.get("query").asText());
+      assertEquals("body", multiMatch.get("fields").get(0).asText());
+      assertEquals("posterName", multiMatch.get("fields").get(1).asText());
+    }
+    JsonNode prefix = clauses.get(0).get("multi_match");
+    assertEquals("bool_prefix", prefix.get("type").asText());
+    assertEquals("and", prefix.get("operator").asText());
+    assertTrue(prefix.toString(), prefix.get("fuzziness") == null);
+    JsonNode fuzzy = clauses.get(1).get("multi_match");
+    assertEquals("best_fields", fuzzy.get("type").asText());
+    assertEquals("and", fuzzy.get("operator").asText());
+    assertEquals("AUTO:2,1000", fuzzy.get("fuzziness").asText());
+    JsonNode phrase = clauses.get(2).get("multi_match");
+    assertEquals("phrase", phrase.get("type").asText());
+    assertEquals(1, phrase.get("slop").asInt());
+    assertEquals(5, phrase.get("boost").asInt());
+    assertTrue(request.toString(), request.at("/query/bool/must/query_string").isMissingNode());
+  }
+
+  /**
+   * A tag is an exact value: it is written as typed, escaped for JSON, and a
+   * placeholder name in it is not replaced by the template's value (the
+   * template is filled in one pass).
+   */
+  @Test
+  public void testSearchWritesTagsAsExactEscapedValues() {
+    ActivitySearchFilter filter = new ActivitySearchFilter(null,
+                                                           Arrays.asList("release\"", "@limit@", "a\\b"),
+                                                           null,
+                                                           null,
+                                                           false,
+                                                           null,
+                                                           null);
+    JsonNode request = searchRequest(filter);
+    JsonNode should = request.at("/query/bool/should");
+    assertEquals(request.toString(), 3, should.size());
+    assertEquals("release\"", should.get(0).at("/term/metadatas.tags.metadataName.keyword/value").asText());
+    assertEquals("@limit@", should.get(1).at("/term/metadatas.tags.metadataName.keyword/value").asText());
+    assertEquals("a\\b", should.get(2).at("/term/metadatas.tags.metadataName.keyword/value").asText());
+    assertEquals(1, request.at("/query/bool/minimum_should_match").asInt());
+    assertEquals("10", request.get("size").asText());
+    assertEquals("0", request.get("from").asText());
+    assertTrue(request.toString(), request.at("/query/bool/must").isMissingNode());
+  }
+
+  /**
+   * One edit is allowed on each token of two letters or more when the text is
+   * one word (a single letter is matched exactly), on tokens of five letters
+   * or more when the text holds whitespace.
+   */
+  @Test
+  public void testSearchAllowsOneEditOnShortWordsOfAOneWordTextOnly() {
+    assertEquals("AUTO:2,1000", searchedFuzziness("tset"));
+    assertEquals("AUTO:2,1000", searchedFuzziness("www.meeds.io"));
+    assertEquals("AUTO:2,1000", searchedFuzziness("test-test"));
+    assertEquals("AUTO:2,1000", searchedFuzziness("a/b"));
+    assertEquals("AUTO:5,1000", searchedFuzziness("test tes"));
+    assertEquals("AUTO:5,1000", searchedFuzziness("a\tb"));
+    assertEquals("AUTO:5,1000", searchedFuzziness("\u0939\u093f\u0928\u094d\u0926\u0940\u3000x"));
+  }
+
+  private String searchedFuzziness(String term) {
+    JsonNode request = searchRequest(new ActivitySearchFilter(term));
+    return request.at("/query/bool/must/bool/should/1/multi_match/fuzziness").asText();
+  }
+
+  private String searchedQueryText(String term) {
+    JsonNode request = searchRequest(new ActivitySearchFilter(term));
+    JsonNode clauses = request.at("/query/bool/must/bool/should");
+    assertEquals(request.toString(), 3, clauses.size());
+    String text = clauses.get(0).at("/multi_match/query").asText();
+    assertEquals(text, clauses.get(1).at("/multi_match/query").asText());
+    assertEquals(text, clauses.get(2).at("/multi_match/query").asText());
+    assertEquals(request.toString(), "10", request.get("size").asText());
+    return text;
+  }
+
+  /**
+   * Runs a search on the shipped query template and returns the request sent
+   * to Elasticsearch, parsed by a strict JSON parser
+   */
+  private JsonNode searchRequest(ActivitySearchFilter filter) {
+    try {
+      when(configurationManager.getInputStream("FILE_PATH")).thenReturn(getClass().getClassLoader()
+                                                                                  .getResourceAsStream("activities-search-query.json"));
+    } catch (Exception e) {
+      throw new IllegalStateException("Error retrieving ES Query content", e);
+    }
+    ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
+                                                                                  identityManager,
+                                                                                  activityStorage,
+                                                                                  configurationManager,
+                                                                                  client,
+                                                                                  getParams());
+    Identity identity = mock(Identity.class);
+    lenient().when(identity.getId()).thenReturn("1");
+    when(activityStorage.getStreamFeedOwnerIds(identity)).thenReturn(new HashSet<>(Arrays.asList(10L, 20L)));
+    when(client.sendRequest(anyString(), eq(ES_INDEX))).thenReturn("{}");
+    assertEquals(0, activitySearchConnector.search(identity, filter, 0, 10).size());
+    ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
+    verify(client).sendRequest(query.capture(), eq(ES_INDEX));
+    Mockito.reset(client);
+    return new ObjectMapper().readTree(query.getValue());
   }
 
   private InitParams getParams() {
