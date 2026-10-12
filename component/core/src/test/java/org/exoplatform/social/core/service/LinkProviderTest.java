@@ -79,12 +79,12 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
   }
 
   /**
-   * The link of an account of a registered kind carries the kind in the
+   * The link of an account of a declared kind carries the kind in the
    * popover literal, escaped like the other strings, and the kind's label
    * after the name; a kind no plugin declares, or no kind, carries neither.
    * The test container serves no shared bundle, so the label is its key.
    */
-  public void testGetProfileLinkShowsARegisteredAccountKind() {
+  public void testGetProfileLinkShowsADeclaredAccountKind() {
     Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
     Profile profile = johnIdentity.getProfile();
     Object previous = profile.getProperty(Profile.ACCOUNT_KIND);
@@ -95,7 +95,7 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
       assertTrue(link, link.contains(",accountKind: '" + TestAccountKindPlugin.KIND + "',"));
       assertTrue(link, link.contains("<span class=\"accountKindFlagClass\"> (accountKind.label." + TestAccountKindPlugin.KIND + ")</span>"));
 
-      profile.setProperty(Profile.ACCOUNT_KIND, "unregistered");
+      profile.setProperty(Profile.ACCOUNT_KIND, "undeclared");
       identityManager.updateProfile(profile);
       link = LinkProvider.getProfileLink("john", "classic");
       assertFalse(link, link.contains("accountKind"));
