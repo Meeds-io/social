@@ -52,8 +52,10 @@ public class AccountKindUsersListenerImplTest extends AbstractCoreTest {
     super.setUp();
     organizationService = getService(OrganizationService.class);
     TestAccountKindPlugin.register(getService(AccountKindService.class));
+    TestAccountKindPlugin.registerOther(getService(AccountKindService.class));
     identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, USER_NAME);
     TestAccountKindPlugin.removeMemberships(organizationService, USER_NAME);
+    TestAccountKindPlugin.removeMemberships(organizationService, USER_NAME, TestAccountKindPlugin.OTHER_GROUP_ID);
     restartTransaction();
     clearAccountKind();
   }
@@ -65,6 +67,7 @@ public class AccountKindUsersListenerImplTest extends AbstractCoreTest {
   @Override
   public void tearDown() throws Exception {
     TestAccountKindPlugin.removeMemberships(organizationService, USER_NAME);
+    TestAccountKindPlugin.removeMemberships(organizationService, USER_NAME, TestAccountKindPlugin.OTHER_GROUP_ID);
     restartTransaction();
     clearAccountKind();
     super.tearDown();
@@ -108,8 +111,8 @@ public class AccountKindUsersListenerImplTest extends AbstractCoreTest {
   }
 
   /**
-   * The removal of the last membership leaves a profile carrying another kind
-   * as it is.
+   * The removal of the last membership leaves a profile carrying a kind no
+   * plugin declares as it is.
    */
   public void testRemovalLeavesAnotherKindAlone() throws Exception {
     TestAccountKindPlugin.linkMembership(organizationService, USER_NAME, "member");
@@ -122,6 +125,31 @@ public class AccountKindUsersListenerImplTest extends AbstractCoreTest {
     TestAccountKindPlugin.removeMemberships(organizationService, USER_NAME);
     restartTransaction();
     assertEquals("other", getIdentity().getAccountKind());
+  }
+
+  /**
+   * A user in two kinds' groups gets the first kind in alphabetical order,
+   * whatever the order of its memberships, and keeps the other kind when the
+   * first kind's membership goes.
+   */
+  public void testTwoKindsGiveTheFirstOneAndTheRemovalGivesTheOther() throws Exception {
+    TestAccountKindPlugin.linkMembership(organizationService, USER_NAME, "member", TestAccountKindPlugin.OTHER_GROUP_ID);
+    restartTransaction();
+    assertEquals(TestAccountKindPlugin.OTHER_KIND, getIdentity().getAccountKind());
+
+    TestAccountKindPlugin.linkMembership(organizationService, USER_NAME, "member");
+    restartTransaction();
+    assertEquals(TestAccountKindPlugin.KIND, getIdentity().getAccountKind());
+
+    TestAccountKindPlugin.removeMemberships(organizationService, USER_NAME);
+    restartTransaction();
+    assertEquals(TestAccountKindPlugin.OTHER_KIND, getIdentity().getAccountKind());
+
+    TestAccountKindPlugin.linkMembership(organizationService, USER_NAME, "member");
+    restartTransaction();
+    TestAccountKindPlugin.removeMemberships(organizationService, USER_NAME, TestAccountKindPlugin.OTHER_GROUP_ID);
+    restartTransaction();
+    assertEquals(TestAccountKindPlugin.KIND, getIdentity().getAccountKind());
   }
 
   /**
