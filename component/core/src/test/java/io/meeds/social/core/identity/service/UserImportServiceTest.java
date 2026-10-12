@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import org.junit.After;
@@ -85,6 +86,7 @@ import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 import io.meeds.social.core.identity.model.UserImportResult;
+import io.meeds.social.core.identity.plugin.AccountKindPlugin;
 
 import lombok.SneakyThrows;
 
@@ -167,6 +169,8 @@ public class UserImportServiceTest {
   @InjectMocks
   private UserImportService       service;
 
+  private AccountKindService      accountKindService;
+
   private File                    tempDir;
 
   @Before
@@ -182,6 +186,9 @@ public class UserImportServiceTest {
     localeConfig.setLocale(Locale.ENGLISH);
     when(localeConfigService.getDefaultLocaleConfig()).thenReturn(localeConfig);
     when(identityManager.getOrCreateUserIdentity(anyString())).thenReturn(userIdentity);
+
+    accountKindService = new AccountKindService(organizationService, userAcl);
+    service.setAccountKindService(accountKindService);
 
     tempDir = Files.createTempDirectory("uimport-test").toFile();
     service.init();
@@ -538,6 +545,124 @@ public class UserImportServiceTest {
     when(userAcl.getAdminGroups()).thenReturn("/platform/administrators");
     when(userAcl.getUserIdentity(TEST_USER_2)).thenReturn(aclIdentity);
     when(aclIdentity.isMemberOf("/platform/administrators")).thenReturn(administrator);
+  }
+
+  /**
+   * The account kind is never written by an import, whoever runs it.
+   */
+  @Test
+  public void testUpdateProfileFieldReservedAccountKind() throws IOException {
+    mockAdministrator(true);
+    assertThrows(IllegalAccessException.class,
+                 () -> service.updateProfileField(profile, Profile.ACCOUNT_KIND, "bot", false, TEST_USER_2));
+    verify(profile, never()).setProperty(eq(Profile.ACCOUNT_KIND), any());
+  }
+
+  /**
+   * A CSV row carrying an account kind column, even one an administrator
+   * declared as a profile property, is refused: the property is not written
+   * and the row gets a warning.
+   */
+  @Test
+  public void testImportUsersRowWithAccountKindColumnIsRejected() throws Exception {
+    ProfilePropertySetting kindSetting = new ProfilePropertySetting();
+    kindSetting.setPropertyName(Profile.ACCOUNT_KIND);
+    kindSetting.setEditable(true);
+    when(profilePropertyService.getProfileSettingByName(anyString())).thenReturn(null);
+    when(profilePropertyService.getProfileSettingByName(Profile.ACCOUNT_KIND)).thenReturn(kindSetting);
+    User existing = mock(User.class);
+    Date now = Calendar.getInstance().getTime();
+    when(existing.isEnabled()).thenReturn(true);
+    when(existing.getCreatedDate()).thenReturn(now);
+    when(existing.getLastLoginTime()).thenReturn(now);
+    when(userHandler.findUserByName("john", UserStatus.ANY)).thenReturn(existing);
+
+    File f = csv("kind.csv",
+                 HEADER_LINE_5 + "," + Profile.ACCOUNT_KIND,
+                 "john,john@ex.com,John,Doe,bot");
+    UserImportResult r = new UserImportResult();
+    service.importUsers(f.getAbsolutePath(), r, TEST_USER_2, Locale.ENGLISH, URL);
+
+    verify(profile, never()).setProperty(eq(Profile.ACCOUNT_KIND), any());
+    assertNotNull(r.getWarnMessages());
+    assertTrue(r.getWarnMessages().get("john").stream().anyMatch(m -> m.contains("ACCOUNT_KIND")));
+  }
+
+  /**
+   * A non-administrator cannot change a property an account kind keeps for
+   * administrators on an account of that kind.
+   */
+  @Test
+  public void testUpdateProfileFieldAdminOnlyPropertyOfKindRefusedToNonAdministrator() throws Exception {
+    mockBotProfile(true);
+    mockAdministrator(false);
+    assertThrows(IllegalAccessException.class,
+                 () -> service.updateProfileField(profile, Profile.MANAGER, "root", false, TEST_USER_2));
+    verify(profile, never()).setProperty(eq(Profile.MANAGER), any());
+  }
+
+  /**
+   * An administrator changes a property an account kind keeps for
+   * administrators on an account of that kind.
+   */
+  @Test
+  public void testUpdateProfileFieldAdminOnlyPropertyOfKindAllowedToAdministrator() throws Exception {
+    mockBotProfile(true);
+    mockAdministrator(true);
+    service.updateProfileField(profile, Profile.MANAGER, "root", false, TEST_USER_2);
+    verify(profile).setProperty(Profile.MANAGER, "root");
+  }
+
+  /**
+   * A non-administrator changes that property on a profile that is not an
+   * account of the kind, as before.
+   */
+  @Test
+  public void testUpdateProfileFieldAdminOnlyPropertyOfOtherProfileAllowedToNonAdministrator() throws Exception {
+    mockBotProfile(false);
+    mockAdministrator(false);
+    service.updateProfileField(profile, Profile.MANAGER, "root", false, TEST_USER_2);
+    verify(profile).setProperty(Profile.MANAGER, "root");
+  }
+
+  /**
+   * Registers a {@code bot} account kind keeping the manager for
+   * administrators, and makes the mocked profile a member of its group, or
+   * not.
+   *
+   * @param bot whether the profile's user is a member of the bots group
+   */
+  private void mockBotProfile(boolean bot) throws Exception {
+    accountKindService.register(new AccountKindPlugin() {
+      /**
+       * @return the {@code bot} kind
+       */
+      @Override
+      public String getKind() {
+        return "bot";
+      }
+
+      /**
+       * @return the bots group
+       */
+      @Override
+      public String getGroupId() {
+        return "/platform/bots";
+      }
+
+      /**
+       * @return the manager
+       */
+      @Override
+      public Set<String> getAdminOnlyProperties() {
+        return Set.of(Profile.MANAGER);
+      }
+    });
+    Identity identity = mock(Identity.class);
+    when(identity.getRemoteId()).thenReturn(TEST_USER_1);
+    when(profile.getIdentity()).thenReturn(identity);
+    when(membershipHandler.findMembershipsByUserAndGroup(TEST_USER_1, "/platform/bots"))
+      .thenReturn(bot ? List.of(mock(Membership.class)) : List.of());
   }
 
   @Test(expected = IllegalAccessException.class)
