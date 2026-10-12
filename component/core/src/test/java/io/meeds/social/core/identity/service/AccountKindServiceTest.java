@@ -272,11 +272,11 @@ public class AccountKindServiceTest {
 
   /**
    * The kind computed from the memberships is the first accepted kind, in
-   * alphabetical order, whose group holds the user, and a read failure is
-   * thrown.
+   * the order of the kinds as strings, whose group holds the user, and a read
+   * failure is thrown.
    */
   @Test
-  public void testComputeAccountKindTakesTheFirstKindInAlphabeticalOrder() throws Exception {
+  public void testComputeAccountKindTakesTheFirstKindInStringOrder() throws Exception {
     service = new AccountKindService(organizationService,
                                      userAcl,
                                      List.of(new TestPlugin(KIND, GROUP_ID, Set.of(Profile.MANAGER)),
