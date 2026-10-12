@@ -159,10 +159,11 @@ public class AccountKindService {
 
   /**
    * Computes the account kind of a user from its memberships: the first
-   * accepted kind, in the alphabetical order of the kinds in which the plugins
-   * are indexed, whose group
-   * holds the user. A user in several kinds' groups thus always gets the same
-   * one, whatever the order its memberships came in.
+   * accepted kind, in the order of the kinds as strings
+   * ({@link String#compareTo(String)}, upper case before lower case) in which
+   * the plugins are indexed, whose group holds the user. A user in several
+   * kinds' groups thus always gets the same one, whatever the order its
+   * memberships came in.
    *
    * @param userName the user name
    * @return the account kind, null when no accepted kind's group holds the
