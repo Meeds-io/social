@@ -164,10 +164,8 @@ public class AccountKindServiceTest {
   }
 
   /**
-   * The plugins are not called while the service is built, so that the
-   * plugin of a web application that has not started yet is not created
-   * ahead of it; they are read once, at the first use, and no decision calls
-   * them again.
+   * The plugins are not called while the service is built; they are read
+   * once, at the first use, and no decision calls them again.
    *
    * @throws Exception never
    */
