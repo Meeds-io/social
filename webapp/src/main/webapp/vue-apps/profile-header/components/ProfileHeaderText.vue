@@ -43,16 +43,16 @@ export default {
       return this.displayOption === 'welcome';
     },
     userFullname() {
-      return this.user?.fullname && `${this.user.fullname}${this.external}${this.agent}${this.disabled}`;
+      return this.user?.fullname && `${this.user.fullname}${this.external}${this.accountKind}${this.disabled}`;
     },
     userFirstName() {
-      return `${this.user?.firstname}${this.external}${this.agent}${this.disabled}`;
+      return `${this.user?.firstname}${this.external}${this.accountKind}${this.disabled}`;
     },
     primaryProperty() {
       return this.user?.primaryProperty;
     },
-    agent() {
-      return this.user?.agent === 'true' ? ` (${this.$t('userAvatar.agent.label')}) ` : '';
+    accountKind() {
+      return this.user?.accountKind ? ` (${this.$t(`accountKind.label.${this.user.accountKind}`)}) ` : '';
     },
     external() {
       if (this.user && this.user.external === 'true') {
