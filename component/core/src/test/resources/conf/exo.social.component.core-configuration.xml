@@ -187,6 +187,14 @@
     <type>io.meeds.social.core.identity.service.ContainerAccountKindService</type>
   </component>
 
+  <component>
+    <type>io.meeds.social.core.identity.plugin.TestAccountKindPlugin</type>
+  </component>
+
+  <component>
+    <type>io.meeds.social.core.identity.plugin.TestOtherAccountKindPlugin</type>
+  </component>
+
    <!--
     Activity storage components.
   -->
