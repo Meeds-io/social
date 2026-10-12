@@ -73,6 +73,7 @@ import io.meeds.social.coediting.service.CoeditingServiceTest;
 import io.meeds.social.core.mail.BrandedEmailSenderTest;
 import io.meeds.social.publication.service.ContentPublicationServiceTest;
 import io.meeds.social.security.service.AccountDeactivationServiceTest;
+import io.meeds.social.core.identity.service.AccountKindServiceTest;
 import io.meeds.social.core.identity.service.UserExportServiceTest;
 import io.meeds.social.core.identity.service.UserImportServiceTest;
 import io.meeds.social.core.identity.util.AgentUserUtilsTest;
@@ -166,6 +167,7 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     UserExportServiceTest.class,
     UserImportServiceTest.class,
     AgentUserUtilsTest.class,
+    AccountKindServiceTest.class,
     UserAclPluginTest.class,
     RemoveProfilePropertyUpgradePlugin.class,
     SpaceInvitationLinkLinkJoinListenerTest.class,
