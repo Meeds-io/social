@@ -149,7 +149,6 @@ import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
-import io.meeds.social.core.identity.util.AgentUserUtils;
 import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
 import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
 import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
@@ -2342,9 +2341,10 @@ public class UserRest implements ResourceContainer, Startable {
 
   /**
    * Sets one property of a user profile, refusing the properties no client may
-   * write: a non-editable property to a non-administrator, the external and
-   * agent flags and the user name to anyone, and the manager of an agent
-   * account to a non-administrator.
+   * write: a non-editable property to a non-administrator, the external flag,
+   * the account kind and the user name to anyone, and a property an account
+   * kind keeps for administrators to a non-administrator on an account of
+   * that kind.
    *
    * @param profile the profile to update
    * @param name the property name
@@ -2362,9 +2362,6 @@ public class UserRest implements ResourceContainer, Startable {
                                   boolean save,
                                   String modifierUsername) throws IllegalAccessException {
     accountKindService.checkPropertyUpdate(profile, name, modifierUsername);
-    if (Profile.MANAGER.equals(name)) {
-      AgentUserUtils.checkManagerUpdate(organizationService, profile, isAdministrator(modifierUsername));
-    }
     ProfilePropertySetting propertySetting = getPropertySetting(name);
     if (!canEdit(propertySetting, modifierUsername)) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
@@ -2373,8 +2370,6 @@ public class UserRest implements ResourceContainer, Startable {
       throw new IllegalAccessException(String.format("Not allowed to update a non modifiable sub-field of '%s'", name));
     } else if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
-    } else if (Profile.AGENT.equals(name)) {
-      throw new IllegalAccessException("Not allowed to update AGENT field");
     } else if (Profile.USERNAME.equals(name)) {
       throw new IllegalAccessException("Not allowed to update USERNAME field");
     } else if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
