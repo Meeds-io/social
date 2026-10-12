@@ -28,6 +28,9 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
+import io.meeds.social.core.identity.plugin.TestAccountKindPlugin;
+import io.meeds.social.core.identity.service.AccountKindService;
+
 public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
 
   public void testGetProfileLink() {
@@ -50,7 +53,6 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
         + rootIdentity.getProfile().getFullName() + "',avatar: '" + rootIdentity.getProfile().getAvatarUrl().replace("&", "&amp;") + "',position: '"
         + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '"
         + (external == null ? "false" : external)
-        + "',agent: 'false"
         + "',enabled: '" + (rootIdentity.isEnable() && !rootIdentity.isDeleted())
         + "',deleted: '" + rootIdentity.isDeleted()
         + "',displayedEmail: '" + Objects.toString(rootIdentity.getProfile().getProperty(Profile.DISPLAYED_EMAIL), "")
@@ -78,28 +80,34 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
   }
 
   /**
-   * An agent account's link carries {@code agent: 'true'} in the popover
-   * literal, appended raw like the other booleans, and an agent label after
-   * the name; a profile that is not an agent's carries neither.
+   * The link of an account of a registered kind carries the kind in the
+   * popover literal, escaped like the other strings, and the kind's label
+   * after the name; a kind no plugin declares, or no kind, carries neither.
+   * The test container serves no shared bundle, so the label is its key.
    */
-  public void testGetProfileLinkFlagsAnAgentAccount() {
+  public void testGetProfileLinkShowsARegisteredAccountKind() {
+    TestAccountKindPlugin.register(getService(AccountKindService.class));
     Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
     Profile profile = johnIdentity.getProfile();
-    Object previous = profile.getProperty(Profile.AGENT);
+    Object previous = profile.getProperty(Profile.ACCOUNT_KIND);
     try {
-      profile.setProperty(Profile.AGENT, "true");
+      profile.setProperty(Profile.ACCOUNT_KIND, TestAccountKindPlugin.KIND);
       identityManager.updateProfile(profile);
       String link = LinkProvider.getProfileLink("john", "classic");
-      assertTrue(link, link.contains(",agent: 'true',"));
-      assertTrue(link, link.contains("<span class=\"agentFlagClass\"> ("));
+      assertTrue(link, link.contains(",accountKind: '" + TestAccountKindPlugin.KIND + "',"));
+      assertTrue(link, link.contains("<span class=\"accountKindFlagClass\"> (accountKind.label." + TestAccountKindPlugin.KIND + ")</span>"));
 
-      profile.setProperty(Profile.AGENT, "false");
+      profile.setProperty(Profile.ACCOUNT_KIND, "unregistered");
       identityManager.updateProfile(profile);
       link = LinkProvider.getProfileLink("john", "classic");
-      assertTrue(link, link.contains(",agent: 'false',"));
-      assertFalse(link, link.contains("agentFlagClass"));
+      assertFalse(link, link.contains("accountKind"));
+
+      profile.removeProperty(Profile.ACCOUNT_KIND);
+      identityManager.updateProfile(profile);
+      link = LinkProvider.getProfileLink("john", "classic");
+      assertFalse(link, link.contains("accountKind"));
     } finally {
-      profile.setProperty(Profile.AGENT, previous);
+      profile.setProperty(Profile.ACCOUNT_KIND, previous);
       identityManager.updateProfile(profile);
     }
   }
