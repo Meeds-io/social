@@ -34,8 +34,6 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
-import io.meeds.social.core.identity.plugin.AccountKindPlugin;
-import io.meeds.social.core.identity.service.AccountKindService;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -84,8 +82,6 @@ public class UtilsTestCase extends AbstractCoreTest {
    * test container serves no shared resource bundle.
    */
   public void testAddExternalFlagNamesAnAccountOfKindAndAGuest() {
-    AccountKindService accountKindService = getContainer().getComponentInstanceOfType(AccountKindService.class);
-    accountKindService.register(new NotificationTestAccountKindPlugin());
     try (MockedStatic<LinkProvider> linkProvider = mockStatic(LinkProvider.class, CALLS_REAL_METHODS)) {
       linkProvider.when(() -> LinkProvider.getResourceBundleLabel(any(Locale.class), eq("accountKind.label.bot"))).thenReturn("Bot");
       linkProvider.when(() -> LinkProvider.getResourceBundleLabel(any(Locale.class), eq("external.label.tag"))).thenReturn("Guest");
@@ -115,28 +111,6 @@ public class UtilsTestCase extends AbstractCoreTest {
     }
     identity.setProfile(profile);
     return identity;
-  }
-
-  /**
-   * The {@code bot} account kind of the members of {@code /platform/bots}.
-   */
-  private static class NotificationTestAccountKindPlugin implements AccountKindPlugin {
-
-    /**
-     * @return the {@code bot} kind
-     */
-    @Override
-    public String getKind() {
-      return "bot";
-    }
-
-    /**
-     * @return the bots group
-     */
-    @Override
-    public String getGroupId() {
-      return "/platform/bots";
-    }
   }
 
   public void testGetMentioners() {
