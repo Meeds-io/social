@@ -29,7 +29,6 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 import io.meeds.social.core.identity.plugin.TestAccountKindPlugin;
-import io.meeds.social.core.identity.service.AccountKindService;
 
 /**
  * Pins {@link AccountKindUsersListenerImpl}: a membership in the group of a
@@ -44,15 +43,14 @@ public class AccountKindUsersListenerImplTest extends AbstractCoreTest {
   private OrganizationService organizationService;
 
   /**
-   * Registers the test account kind, and makes sure its group exists and the
-   * test user holds no membership in it and no kind.
+   * Makes sure the groups of the two account kinds the test configuration
+   * declares exist, and the test user holds no membership in them and no
+   * kind.
    */
   @Override
   public void setUp() throws Exception {
     super.setUp();
     organizationService = getService(OrganizationService.class);
-    TestAccountKindPlugin.register(getService(AccountKindService.class));
-    TestAccountKindPlugin.registerOther(getService(AccountKindService.class));
     identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, USER_NAME);
     TestAccountKindPlugin.removeMemberships(organizationService, USER_NAME);
     TestAccountKindPlugin.removeMemberships(organizationService, USER_NAME, TestAccountKindPlugin.OTHER_GROUP_ID);
