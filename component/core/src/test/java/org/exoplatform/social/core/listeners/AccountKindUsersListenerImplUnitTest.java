@@ -38,7 +38,7 @@ import io.meeds.social.core.identity.service.AccountKindService;
 /**
  * Pins the branches of {@link AccountKindUsersListenerImpl} the container
  * test cannot reach: a membership whose memberships cannot be read, and a
- * listener without registry, leave every profile as it is.
+ * listener without the account kind service, leave every profile as it is.
  */
 public class AccountKindUsersListenerImplUnitTest {
 
@@ -55,7 +55,7 @@ public class AccountKindUsersListenerImplUnitTest {
   private Membership                membership;
 
   /**
-   * Builds the listener over a mocked registry and identity manager.
+   * Builds the listener over a mocked account kind service and identity manager.
    *
    * @throws Exception never
    */
