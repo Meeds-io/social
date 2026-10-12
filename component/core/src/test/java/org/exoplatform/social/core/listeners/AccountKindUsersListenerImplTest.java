@@ -129,8 +129,9 @@ public class AccountKindUsersListenerImplTest extends AbstractCoreTest {
 
   /**
    * A user in two kinds' groups gets the first kind in alphabetical order,
-   * whatever the order of its memberships, and keeps the other kind when the
-   * first kind's membership goes.
+   * whatever the order of its memberships: a membership in the second kind's
+   * group saved while the first kind is held keeps it, and the second kind
+   * comes back when the first kind's membership goes.
    */
   public void testTwoKindsGiveTheFirstOneAndTheRemovalGivesTheOther() throws Exception {
     TestAccountKindPlugin.linkMembership(organizationService, USER_NAME, "member", TestAccountKindPlugin.OTHER_GROUP_ID);
@@ -148,6 +149,10 @@ public class AccountKindUsersListenerImplTest extends AbstractCoreTest {
     TestAccountKindPlugin.linkMembership(organizationService, USER_NAME, "member");
     restartTransaction();
     TestAccountKindPlugin.removeMemberships(organizationService, USER_NAME, TestAccountKindPlugin.OTHER_GROUP_ID);
+    restartTransaction();
+    assertEquals(TestAccountKindPlugin.KIND, getIdentity().getAccountKind());
+
+    TestAccountKindPlugin.linkMembership(organizationService, USER_NAME, "member", TestAccountKindPlugin.OTHER_GROUP_ID);
     restartTransaction();
     assertEquals(TestAccountKindPlugin.KIND, getIdentity().getAccountKind());
   }
