@@ -23,10 +23,12 @@ import static io.meeds.social.search.SpaceSearchConnector.SEARCH_QUERY_FILE_PATH
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -40,10 +42,12 @@ import java.util.stream.StreamSupport;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.container.configuration.ConfigurationManager;
@@ -55,12 +59,13 @@ import org.exoplatform.social.core.jpa.search.SpaceIndexingServiceConnector;
 import io.meeds.social.search.model.SpaceSearchFilter;
 import io.meeds.social.search.model.SpaceSearchResult;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
-import io.meeds.social.util.JsonUtils;
 
 import lombok.SneakyThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SpaceSearchConnectorTest {
+
+  private static final ObjectMapper OBJECT_MAPPER     = new ObjectMapper();
 
   private static final String MEMBER            = "member";
 
@@ -375,6 +380,155 @@ public class SpaceSearchConnectorTest {
     assertEquals(1, search.get(0).getDescriptionExcerpts().size());
   }
 
+  /**
+   * The typed text reaches the analyzed queries as typed, Latin diacritics
+   * removed, escaped for JSON only: no character of it is query syntax, and
+   * the field's search analyzer tokenizes it the way the index was.
+   */
+  @Test
+  public void testSearchWritesTheTypedTextInTheAnalyzedQueries() {
+    assertEquals("test\"", searchedQueryText("test\""));
+    assertEquals("test\\", searchedQueryText("test\\"));
+    assertEquals("a/b", searchedQueryText("a/b"));
+    assertEquals("@limit@", searchedQueryText("@limit@"));
+    assertEquals("@fuzziness@ @term@", searchedQueryText("@fuzziness@ @term@"));
+    assertEquals("@fuzziness@", searchedQueryText("@fuzziness@"));
+    assertEquals("#release\"", searchedQueryText("#release\""));
+    assertEquals("test-tes", searchedQueryText("tést-tés"));
+    assertEquals("Test-T", searchedQueryText("Tést-T"));
+    assertEquals("\ud55c\uad6d\uc5b4 \u304c\u3063\u3053\u3046", searchedQueryText("\ud55c\uad6d\uc5b4 \u304c\u3063\u3053\u3046"));
+    assertEquals("www.meeds.io test_test 3.14", searchedQueryText("www.meeds.io test_test 3.14"));
+    assertEquals("Tests\t\r\ntes\u3000x", searchedQueryText("Tests\t\r\ntes\u3000x"));
+    assertEquals("\" \\ /", searchedQueryText("\" \\ /"));
+  }
+
+  /**
+   * The three clauses of the term query, on the search and on the count:
+   * every token required and the last one a prefix, one edit on the word of
+   * a one-word text, the phrase boosted. What each clause matches is the
+   * engine's: a text with no token matches nothing (checked on Elasticsearch
+   * 8.13.4, not by this suite).
+   */
+  @Test
+  public void testSearchTermQueryClauses() {
+    JsonNode request = searchRequest(filterWithTerm("test"), null);
+    assertTermQueryClauses(request, "test");
+
+    when(client.countRequest(anyString(), eq(index))).thenReturn(COUNT_RESULT);
+    assertEquals(1, spaceSearchConnector.count(filterWithTerm("tést\"")));
+    ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
+    verify(client).countRequest(query.capture(), eq(index));
+    assertTermQueryClauses(new ObjectMapper().readTree(query.getValue()), "test\"");
+  }
+
+  /**
+   * A tag is an exact value: it is written as typed, escaped for JSON, and a
+   * placeholder name in it is not replaced by the template's value (the
+   * template is filled in one pass).
+   */
+  @Test
+  public void testSearchWritesTagsAsExactEscapedValues() {
+    JsonNode request = searchRequest(filterWithTerm(null), Arrays.asList("release\"", "@limit@", "a\\b"));
+    JsonNode should = request.at("/query/bool/should");
+    assertEquals(request.toString(), 3, should.size());
+    assertEquals("release\"", should.get(0).at("/term/metadatas.tags.metadataName.keyword/value").asText());
+    assertEquals("@limit@", should.get(1).at("/term/metadatas.tags.metadataName.keyword/value").asText());
+    assertEquals("a\\b", should.get(2).at("/term/metadatas.tags.metadataName.keyword/value").asText());
+    assertEquals(1, request.at("/query/bool/minimum_should_match").asInt());
+    assertEquals("10", request.get("size").asText());
+    assertEquals("all", request.at("/query/bool/filter/0/terms/permissions/0").asText());
+    assertEquals(USER_NAME, request.at("/query/bool/filter/0/terms/permissions/1").asText());
+    assertTrue(request.toString(), request.at("/query/bool/must").isMissingNode());
+  }
+
+  private void assertTermQueryClauses(JsonNode request, String text) {
+    JsonNode termQuery = request.at("/query/bool/must/bool");
+    assertEquals(request.toString(), 1, termQuery.get("minimum_should_match").asInt());
+    JsonNode clauses = termQuery.get("should");
+    assertEquals(request.toString(), 3, clauses.size());
+    for (JsonNode clause : clauses.values()) {
+      JsonNode multiMatch = clause.get("multi_match");
+      assertEquals(text, multiMatch.get("query").asText());
+      assertEquals("displayName", multiMatch.get("fields").get(0).asText());
+      assertEquals("description", multiMatch.get("fields").get(1).asText());
+    }
+    JsonNode prefix = clauses.get(0).get("multi_match");
+    assertEquals("bool_prefix", prefix.get("type").asText());
+    assertEquals("and", prefix.get("operator").asText());
+    assertTrue(prefix.toString(), prefix.get("fuzziness") == null);
+    JsonNode fuzzy = clauses.get(1).get("multi_match");
+    assertEquals("best_fields", fuzzy.get("type").asText());
+    assertEquals("and", fuzzy.get("operator").asText());
+    assertEquals("AUTO:2,1000", fuzzy.get("fuzziness").asText());
+    JsonNode phrase = clauses.get(2).get("multi_match");
+    assertEquals("phrase", phrase.get("type").asText());
+    assertEquals(1, phrase.get("slop").asInt());
+    assertEquals(5, phrase.get("boost").asInt());
+    assertTrue(request.toString(), request.at("/query/bool/must/query_string").isMissingNode());
+  }
+
+  /**
+   * One edit is allowed on each token of two letters or more when the text is
+   * one word (a single letter is matched exactly), on tokens of five letters
+   * or more when the text holds whitespace.
+   */
+  @Test
+  public void testSearchAllowsOneEditOnShortWordsOfAOneWordTextOnly() {
+    assertEquals("AUTO:2,1000", searchedFuzziness("tset"));
+    assertEquals("AUTO:2,1000", searchedFuzziness("test-test"));
+    assertEquals("AUTO:2,1000", searchedFuzziness("a/b"));
+    assertEquals("AUTO:5,1000", searchedFuzziness("test tes"));
+    assertEquals("AUTO:5,1000", searchedFuzziness("a\tb"));
+  }
+
+  private String searchedFuzziness(String term) {
+    JsonNode request = searchRequest(filterWithTerm(term), null);
+    return request.at("/query/bool/must/bool/should/1/multi_match/fuzziness").asText();
+  }
+
+  private String searchedQueryText(String term) {
+    JsonNode request = searchRequest(filterWithTerm(term), null);
+    JsonNode clauses = request.at("/query/bool/must/bool/should");
+    assertEquals(request.toString(), 3, clauses.size());
+    String text = clauses.get(0).at("/multi_match/query").asText();
+    assertEquals(text, clauses.get(1).at("/multi_match/query").asText());
+    assertEquals(text, clauses.get(2).at("/multi_match/query").asText());
+    assertEquals(request.toString(), "10", request.get("size").asText());
+    return text;
+  }
+
+  private SpaceSearchFilter filterWithTerm(String term) {
+    return new SpaceSearchFilter(USER_NAME,
+                                 USER_IDENTITY_ID,
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 term,
+                                 false,
+                                 null,
+                                 null,
+                                 null,
+                                 null,
+                                 null,
+                                 null);
+  }
+
+  /**
+   * Runs a search on the shipped query template and returns the request sent
+   * to Elasticsearch, parsed by a strict JSON parser
+   */
+  @SneakyThrows
+  private JsonNode searchRequest(SpaceSearchFilter filter, List<String> tagNames) {
+    filter.setTagNames(tagNames);
+    when(client.sendRequest(anyString(), eq(index))).thenReturn(SEARCH_RESULT);
+    assertEquals(1, spaceSearchConnector.search(filter, 0, 10).size());
+    ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
+    verify(client).sendRequest(query.capture(), eq(index));
+    Mockito.reset(client);
+    return new ObjectMapper().readTree(query.getValue());
+  }
+
   private void checkPermissionField(SpaceMembershipStatus status, String fieldName) {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
@@ -443,14 +597,14 @@ public class SpaceSearchConnectorTest {
 
   @SneakyThrows
   private JsonNode getFilterNode(String esQuery, String filterName) {
-    JsonNode jsonNode = JsonUtils.OBJECT_MAPPER.readTree(esQuery);
+    JsonNode jsonNode = OBJECT_MAPPER.readTree(esQuery);
     JsonNode filter = jsonNode.get("query")
                               .get("bool")
                               .get("filter");
     if (filter == null || filter.size() == 0) {
       return null;
     }
-    Iterator<JsonNode> filterElements = filter.elements();
+    Iterator<JsonNode> filterElements = filter.values().iterator();
     JsonNode filterNode = null;
     while (filterElements.hasNext() && filterNode == null) {
       JsonNode filterElement = filterElements.next();
@@ -462,7 +616,7 @@ public class SpaceSearchConnectorTest {
 
   @SneakyThrows
   private boolean hasTagsNode(String esQuery, String tagValue) {
-    JsonNode jsonNode = JsonUtils.OBJECT_MAPPER.readTree(esQuery);
+    JsonNode jsonNode = OBJECT_MAPPER.readTree(esQuery);
     JsonNode filter = jsonNode.get("query")
                               .get("bool")
                               .get("should");
