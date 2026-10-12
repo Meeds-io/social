@@ -25,6 +25,7 @@ import io.meeds.social.cms.service.PageUrlResolverServiceImplTest;
 import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnectorTest;
 import io.meeds.social.cms.storage.elasticsearch.PageContentSearchConnectorTest;
 import org.exoplatform.social.core.listeners.UpdateLoginTimeListenerImplTest;
+import org.exoplatform.social.core.listeners.AccountKindUsersListenerImplUnitTest;
 import org.exoplatform.social.core.plugin.PageFavoriteACLPluginTest;
 import io.meeds.social.navigation.service.NavigationConfigurationAllowUserHomeTest;
 import io.meeds.social.navigation.storage.NavigationConfigurationStorageTest;
@@ -163,6 +164,7 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     UserExportServiceTest.class,
     UserImportServiceTest.class,
     AccountKindServiceTest.class,
+    AccountKindUsersListenerImplUnitTest.class,
     AccountKindServiceSpringTest.class,
     UserAclPluginTest.class,
     RemoveProfilePropertyUpgradePlugin.class,
