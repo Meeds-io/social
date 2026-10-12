@@ -159,7 +159,8 @@ public class AccountKindService {
 
   /**
    * Computes the account kind of a user from its memberships: the first
-   * accepted kind, in the alphabetical order of the kinds, whose group
+   * accepted kind, in the alphabetical order of the kinds in which the plugins
+   * are indexed, whose group
    * holds the user. A user in several kinds' groups thus always gets the same
    * one, whatever the order its memberships came in.
    *
@@ -169,9 +170,7 @@ public class AccountKindService {
    * @throws IllegalStateException when the memberships cannot be read
    */
   public String computeAccountKind(String userName) {
-    List<String> kinds = new ArrayList<>(getPluginsByKind().keySet());
-    Collections.sort(kinds);
-    for (String kind : kinds) {
+    for (String kind : getPluginsByKind().keySet()) {
       if (isOfKind(userName, kind)) {
         return kind;
       }
