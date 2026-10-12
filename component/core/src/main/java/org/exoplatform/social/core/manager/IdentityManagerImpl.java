@@ -473,6 +473,11 @@ public class IdentityManagerImpl implements IdentityManager {
   }
 
   @Override
+  public List<String> getEnabledUsernames(boolean internalsOnly, String afterUsername, int limit) {
+    return identityStorage.getEnabledUsernames(internalsOnly, afterUsername, limit);
+  }
+
+  @Override
   public List<String> sortIdentities(List<String> identityRemoteIds,
                                      String sortField,
                                      String sortDirection,

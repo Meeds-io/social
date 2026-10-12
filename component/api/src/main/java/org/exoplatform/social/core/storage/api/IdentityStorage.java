@@ -493,4 +493,16 @@ public interface IdentityStorage {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @param internalsOnly whether the external users are left out
+   * @param afterUsername the username after which the list starts, excluded,
+   *          or null to start from the first one
+   * @param limit the maximum number of usernames returned
+   * @return the usernames of the enabled, non-deleted users, in ascending
+   *         order
+   */
+  default List<String> getEnabledUsernames(boolean internalsOnly, String afterUsername, int limit) {
+    throw new UnsupportedOperationException();
+  }
+
 }

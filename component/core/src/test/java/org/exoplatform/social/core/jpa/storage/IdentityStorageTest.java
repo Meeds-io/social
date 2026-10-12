@@ -104,6 +104,42 @@ public class IdentityStorageTest extends AbstractCoreTest {
   }
 
   /**
+   * Tests {@link IdentityStorage#getEnabledUsernames(boolean, String, int)}:
+   * the enabled, non-deleted users by ascending username after the given one,
+   * the external ones left out when asked; each of the four named queries runs
+   * on the test database.
+   */
+  public void testGetEnabledUsernames() throws Exception {
+    createUserIdentity("sendalluser1", false);
+    createUserIdentity("sendalluser2", true);
+    Identity disabledUser = createUserIdentity("sendalluser3", false);
+    identityStorage.processEnabledIdentity(disabledUser, false);
+    Identity deletedUser = createUserIdentity("sendalluser4", false);
+    identityStorage.deleteIdentity(deletedUser);
+    createUserIdentity("sendalluser5", false);
+    Identity space = new Identity(SpaceIdentityProvider.NAME, "sendalluser6");
+    identityStorage.saveIdentity(space);
+    tearDownIdentityList.add(space);
+
+    List<String> usernames = identityStorage.getEnabledUsernames(false, null, 0);
+    assertTrue("Usernames " + usernames, usernames.containsAll(List.of("sendalluser1", "sendalluser2", "sendalluser5")));
+    assertFalse("Usernames " + usernames, usernames.contains("sendalluser3"));
+    assertFalse("Usernames " + usernames, usernames.contains("sendalluser4"));
+    assertFalse("Usernames " + usernames, usernames.contains("sendalluser6"));
+    List<String> sortedUsernames = new ArrayList<>(usernames);
+    Collections.sort(sortedUsernames);
+    assertEquals("Usernames are not sorted", sortedUsernames, usernames);
+
+    List<String> internalUsernames = identityStorage.getEnabledUsernames(true, null, 0);
+    assertTrue("Internal usernames " + internalUsernames,
+               internalUsernames.containsAll(List.of("sendalluser1", "sendalluser5")));
+    assertFalse("Internal usernames " + internalUsernames, internalUsernames.contains("sendalluser2"));
+
+    assertEquals(List.of("sendalluser2", "sendalluser5"), identityStorage.getEnabledUsernames(false, "sendalluser1", 2));
+    assertEquals(List.of("sendalluser5"), identityStorage.getEnabledUsernames(true, "sendalluser1", 1));
+  }
+
+  /**
    * Tests {@link IdenityStorage#processEnabledIdentity(Identity)}
    */
   public void testEnableIdentity() {
@@ -1553,6 +1589,18 @@ public class IdentityStorageTest extends AbstractCoreTest {
     List<String> identitiesListBackup = new ArrayList<>(identitiesList);
     Collections.sort(identitiesList);
     assertEquals("List '" + identitiesList + "' is not sorted", identitiesList, identitiesListBackup);
+  }
+
+
+  private Identity createUserIdentity(String username, boolean external) {
+    Identity identity = new Identity(OrganizationIdentityProvider.NAME, username);
+    identityStorage.saveIdentity(identity);
+    Profile profile = new Profile(identity);
+    profile.setProperty(Profile.EXTERNAL, String.valueOf(external));
+    identityStorage.saveProfile(profile);
+    identity.setProfile(profile);
+    tearDownIdentityList.add(identity);
+    return identity;
   }
 
 }

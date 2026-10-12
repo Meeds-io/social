@@ -632,4 +632,19 @@ public interface IdentityManager {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Lists the enabled users page by page, read from the identities store
+   * without the organization service.
+   *
+   * @param internalsOnly whether the external users are left out
+   * @param afterUsername the username after which the list starts, excluded,
+   *          or null to start from the first one
+   * @param limit the maximum number of usernames returned
+   * @return the usernames of the enabled, non-deleted users, in ascending
+   *         order
+   */
+  default List<String> getEnabledUsernames(boolean internalsOnly, String afterUsername, int limit) {
+    throw new UnsupportedOperationException();
+  }
+
 }

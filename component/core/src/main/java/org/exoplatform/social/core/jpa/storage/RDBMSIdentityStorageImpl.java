@@ -707,6 +707,11 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   }
 
   @Override
+  public List<String> getEnabledUsernames(boolean internalsOnly, String afterUsername, int limit) {
+    return getIdentityDAO().getEnabledRemoteIdsAfter(OrganizationIdentityProvider.NAME, internalsOnly, afterUsername, limit);
+  }
+
+  @Override
   public List<Identity> getIdentitiesForMentions(String providerId,
                                                  ProfileFilter profileFilter,
                                                  Type type,
