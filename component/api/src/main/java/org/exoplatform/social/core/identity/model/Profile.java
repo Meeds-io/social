@@ -150,6 +150,15 @@ public class Profile {
    */
   public static final String AGENT                    = "agent";
 
+  /**
+   * ACCOUNT KIND: the kind of an account an add-on owns, such as
+   * {@code bot}, stored on the profile of a member of the group an
+   * {@code AccountKindPlugin} names. A display copy of that membership,
+   * written by the platform alone; security decisions read the membership,
+   * never this property.
+   */
+  public static final String ACCOUNT_KIND             = "accountKind";
+
   /** MANAGER: the user names of the person's managers. */
   public static final String MANAGER                  = "manager";
 
