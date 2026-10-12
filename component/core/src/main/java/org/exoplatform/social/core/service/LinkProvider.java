@@ -660,11 +660,6 @@ public class LinkProvider {
   }
 
   /**
-   * Gets the resource bundle label.
-   *
-   * @return the label
-   */
-  /**
    * Gives the account kind an identity shows next to its name: the kind
    * stored on its profile, when an add-on declares it.
    *
@@ -699,6 +694,11 @@ public class LinkProvider {
     return getResourceBundleLabel(locale, AccountKindPlugin.getLabelKey(kind));
   }
 
+  /**
+   * Gets the resource bundle label.
+   *
+   * @return the label
+   */
   public static String getResourceBundleLabel(Locale locale, String label) {
     ResourceBundleService resourceBundleService =  ExoContainerContext.getService(ResourceBundleService.class);
     try {
