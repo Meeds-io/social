@@ -61,6 +61,10 @@ public interface AccountKindPlugin {
 
   /**
    * Gives the kind stored on the profiles of the accounts of this kind.
+   * <p>
+   * The kind is made of letters, digits, {@code _} and {@code -} only: it
+   * becomes an i18n key, a REST value and a value of the profile popover
+   * literal. A plugin declaring another kind is refused.
    *
    * @return the account kind, a non-blank identifier such as {@code bot}
    */
