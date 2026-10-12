@@ -985,7 +985,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
    * for no kind.
    */
   public void testGetUserExposesARegisteredAccountKind() throws Exception {
-    TestAccountKindPlugin.register(accountKindService);
     startSessionAs("root");
     Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
     try {
@@ -1042,7 +1041,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
    * @param member whether the user must be a member of the kind's group
    */
   private void setKindMembership(String userName, boolean member) throws Exception {
-    TestAccountKindPlugin.register(accountKindService);
     TestAccountKindPlugin.removeMemberships(organizationService, userName);
     if (member) {
       TestAccountKindPlugin.linkMembership(organizationService, userName, "member");
