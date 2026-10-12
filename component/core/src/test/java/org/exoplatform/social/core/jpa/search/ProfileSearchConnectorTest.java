@@ -1003,6 +1003,28 @@ public class ProfileSearchConnectorTest {
                             getQueryStrings(searchAndParse(filter)));
     }
 
+    /**
+     * The index stores a dotted property under its name with the dot replaced by
+     * an underscore ({@link ProfileIndexingServiceConnector#getIndexedFieldName}):
+     * a query on the raw name would match nothing.
+     */
+    @Test
+    public void testSearchWithDottedProfileSettingNameQueriesTheIndexedField() {
+        String propertyName = "phones.work";
+        ProfilePropertySetting propertySetting = mock(ProfilePropertySetting.class);
+        when(propertySetting.getPropertyName()).thenReturn(propertyName);
+        when(profilePropertyService.getProfileSettingByName(propertyName)).thenReturn(propertySetting);
+
+        ProfileFilter filter = new ProfileFilter();
+        filter.setProfileSettings(Collections.singletonMap(propertyName, "a"));
+        Assert.assertEquals(Collections.singletonList("phones_work.whitespace:*a*"), getQueryStrings(searchAndParse(filter)));
+
+        filter = new ProfileFilter();
+        filter.setProfileSettings(Collections.singletonMap(propertyName, "a b"));
+        Assert.assertEquals(Collections.singletonList(" phones_work.whitespace:*a* AND  phones_work.whitespace:*b*"),
+                            getQueryStrings(searchAndParse(filter)));
+    }
+
     private List<String> getQueryStrings(JsonNode request) {
         return request.findValues("query_string").stream().map(queryString -> queryString.path("query").asString()).toList();
     }
