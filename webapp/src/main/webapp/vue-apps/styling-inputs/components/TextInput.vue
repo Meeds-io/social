@@ -189,6 +189,22 @@
           class="my-auto" />
       </v-list-item-action>
     </v-list-item>
+    <v-list-item
+      v-if="enabled && customIcon"
+      class="pa-0"
+      dense>
+      <v-list-item-content class="my-auto text-body font-weight-bold">
+        {{ $t('layout.textColorIcon') }}
+      </v-list-item-content>
+      <v-list-item-action
+        class="me-0 my-auto ms-auto">
+        <styling-color-picker
+          v-model="iconColor"
+          :placeholder="effectiveIconPlaceholder"
+          min-text-width="64"
+          class="my-auto" />
+      </v-list-item-action>
+    </v-list-item>
   </div>
 </template>
 <script>
@@ -223,6 +239,17 @@ export default {
       type: Boolean,
       default: true,
     },
+    // Icon colour row, offered where the styled level carries an icon colour of its own
+    customIcon: {
+      type: Boolean,
+      default: false,
+    },
+    // Colour the Icon row inherits while nothing is stored at this level (the platform's for a page, the page's for an
+    // application); the built-in grey when the caller knows none
+    iconPlaceholder: {
+      type: String,
+      default: null,
+    },
     // Title and Header text backgrounds (the only two that exist); off for areas that have none (Branding Topbar, Sidebars, Drawers)
     textBackground: {
       type: Boolean,
@@ -230,6 +257,9 @@ export default {
     },
   },
   data: () => ({
+    // Shapes the colour picker parses as written: #RGB(A), #RRGGBB(AA) and transparent; anything else it re-emits as garbage
+    pickerColorPattern: /^(#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})|transparent)$/i,
+    defaultIconColor: '#707070',
     container: null,
     enabled: false,
     textTitleColor: null,
@@ -244,8 +274,15 @@ export default {
     textSubtitleColor: null,
     textSubtitleFontSize: 0,
     textSubtitleStyle: [],
+    iconColor: null,
     initialized: false,
   }),
+  computed: {
+    // The inherited colour handed to the picker: the caller's when the picker can parse it, else the built-in grey
+    effectiveIconPlaceholder() {
+      return this.pickerColor(this.iconPlaceholder) || this.pickerColor(this.defaultIconColor) || '#707070';
+    },
+  },
   watch: {
     container: {
       deep: true,
@@ -343,9 +380,16 @@ export default {
         }
       }
     },
+    iconColor() {
+      if (this.initialized) {
+        this.$set(this.container, 'iconColor', this.iconColor || null);
+        this.$emit('refresh');
+      }
+    },
     enabled() {
       if (this.initialized) {
         if (this.enabled) {
+          // The Icon row is never pre-filled: a stored icon colour is an override of the platform's
           this.textTitleColor =  '#20282C';
           this.textTitleFontSize = 20;
           this.textTitleStyle = ['bold'];
@@ -371,11 +415,14 @@ export default {
           this.textSubtitleColor = null;
           this.textSubtitleStyle = null;
           this.textSubtitleFontSize = null;
+          this.iconColor = null;
         }
       }
     },
   },
   created() {
+    // The built-in icon colour as the stylesheet renders it: the grey the branding emits, configurable per deployment
+    this.defaultIconColor = window.getComputedStyle?.(document.documentElement)?.getPropertyValue?.('--allPagesGreyColorLighten1')?.trim?.() || this.defaultIconColor;
     this.container = this.value;
 
     this.textTitleColor = this.container.textTitleColor;
@@ -418,8 +465,16 @@ export default {
       this.textSubtitleStyle.push('italic');
     }
 
-    this.enabled = !!this.textTitleColor || !!this.textHeaderColor || !!this.textColor || !!this.textSubtitleColor;
+    this.iconColor = this.container.iconColor || null;
+
+    this.enabled = !!this.textTitleColor || !!this.textHeaderColor || !!this.textColor || !!this.textSubtitleColor || !!this.iconColor;
     this.$nextTick().then(() => this.initialized = true);
+  },
+  methods: {
+    pickerColor(color) {
+      const value = String(color || '').trim();
+      return this.pickerColorPattern.test(value) ? value : null;
+    },
   },
 };
 </script>

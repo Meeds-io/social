@@ -34,7 +34,7 @@
             min-width="20"
             flat>
             <v-icon
-              :class="!canManageRelationships && 'disabled--text'"
+              :class="!canManageRelationships && 'icon-disabled-color'"
               size="16">
               fas fa-link
             </v-icon>

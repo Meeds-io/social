@@ -52,7 +52,8 @@
         <styling-text-input
           :text-background="false"
           v-model="drawerTextProperties"
-          class="pe-3" />
+          class="pe-3"
+          custom-icon />
       </v-card>
     </template>
     <template #footer>
@@ -137,7 +138,8 @@ export default {
         textHeaderColor: this.drawerStylingProperties?.drawerTextHeaderColor,
         textHeaderFontSize: this.drawerStylingProperties?.drawerTextHeaderFontSize,
         textHeaderFontStyle: this.drawerStylingProperties?.drawerTextHeaderFontStyle,
-        textHeaderFontWeight: this.drawerStylingProperties?.drawerTextHeaderFontWeight
+        textHeaderFontWeight: this.drawerStylingProperties?.drawerTextHeaderFontWeight,
+        iconColor: this.drawerStylingProperties?.drawerIconColor || null
       };
       this.defaultDrawerStylingProperties = {
         backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),

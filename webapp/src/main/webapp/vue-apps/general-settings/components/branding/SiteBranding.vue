@@ -195,6 +195,8 @@ export default {
       'textHeaderColor', 'textHeaderFontSize', 'textHeaderFontWeight', 'textHeaderFontStyle',
       'textColor', 'textFontSize', 'textFontWeight', 'textFontStyle',
       'textSubtitleColor', 'textSubtitleFontSize', 'textSubtitleFontWeight', 'textSubtitleFontStyle',
+      // The platform-wide icon colour of page content rides the same read, save and preview paths as the text keys
+      'iconColor',
     ]),
     sides: Object.freeze(['Top', 'Right', 'Bottom', 'Left']),
     textBackgroundTypes: Object.freeze(['Title', 'Header']),
@@ -453,6 +455,10 @@ export default {
         '--allPagesTopBarTextFontSize': this.topBarStylingProperties.topBarTextFontSize,
         '--allPagesTopBarTextFontStyle': this.topBarStylingProperties.topBarTextFontStyle,
         '--allPagesTopBarTextFontWeight': this.topBarStylingProperties.topBarTextFontWeight,
+        // a cleared icon colour previews the effective value, the configured default or 'initial', never the stylesheet's stored one
+        '--allPagesTopBarIconColor': this.topBarStylingProperties.topBarIconColor
+          || this.$root.defaultBrandingThemeStyle?.topBarIconColor
+          || 'initial',
         '--allPagesTopBarBackgroundColor': this.topBarStylingProperties.topBarBackgroundColor,
         '--allPagesTopBarBackgroundPosition': this.topBarStylingProperties.topBarBackgroundPosition,
         '--allPagesTopBarBackgroundRepeat': this.topBarStylingProperties.topBarBackgroundRepeat,
@@ -495,6 +501,10 @@ export default {
         '--allPagesSideBarTextSubtitleFontSize': this.sideBarStylingProperties.sideBarTextSubtitleFontSize,
         '--allPagesSideBarTextSubtitleFontStyle': this.sideBarStylingProperties.sideBarTextSubtitleFontStyle,
         '--allPagesSideBarTextSubtitleFontWeight': this.sideBarStylingProperties.sideBarTextSubtitleFontWeight,
+        // a cleared icon colour previews the effective value, the configured default or 'initial', never the stylesheet's stored one
+        '--allPagesSideBarIconColor': this.sideBarStylingProperties.sideBarIconColor
+          || this.$root.defaultBrandingThemeStyle?.sideBarIconColor
+          || 'initial',
         '--allPagesSideBarBackgroundColor': this.sideBarStylingProperties.sideBarBackgroundColor,
         '--allPagesSideBarBackgroundPosition': this.sideBarStylingProperties.sideBarBackgroundPosition,
         '--allPagesSideBarBackgroundRepeat': this.sideBarStylingProperties.sideBarBackgroundRepeat,
@@ -528,6 +538,10 @@ export default {
         '--allPagesDrawerTextFontSize': this.drawerStylingProperties.drawerTextFontSize,
         '--allPagesDrawerTextFontStyle': this.drawerStylingProperties.drawerTextFontStyle,
         '--allPagesDrawerTextFontWeight': this.drawerStylingProperties.drawerTextFontWeight,
+        // a cleared icon colour previews the effective value, the configured default or 'initial', never the stylesheet's stored one
+        '--allPagesDrawerIconColor': this.drawerStylingProperties.drawerIconColor
+          || this.$root.defaultBrandingThemeStyle?.drawerIconColor
+          || 'initial',
         '--allPagesDrawerTextSubtitleColor': this.drawerStylingProperties.drawerTextSubtitleColor,
         '--allPagesDrawerTextSubtitleFontSize': this.drawerStylingProperties.drawerTextSubtitleFontSize,
         '--allPagesDrawerTextSubtitleFontStyle': this.drawerStylingProperties.drawerTextSubtitleFontStyle,
@@ -574,6 +588,7 @@ export default {
         [`${type}TextFontSize`]: themeStyle?.[`${type}TextFontSize`] || null,
         [`${type}TextFontStyle`]: themeStyle?.[`${type}TextFontStyle`] || null,
         [`${type}TextFontWeight`]: themeStyle?.[`${type}TextFontWeight`] || null,
+        [`${type}IconColor`]: themeStyle?.[`${type}IconColor`] || null,
       };
       if (type === this.brandingStylingType.TOP_BAR) {
         // off sends no key, so the configured value comes back
@@ -610,6 +625,7 @@ export default {
         [`${type}TextFontSize`]: textProperties.textFontSize,
         [`${type}TextFontStyle`]: textProperties.textFontStyle,
         [`${type}TextFontWeight`]: textProperties.textFontWeight,
+        [`${type}IconColor`]: textProperties.iconColor || null,
       };
       if (type === this.brandingStylingType.TOP_BAR) {
         properties.topBarSticky = backgroundProperties.sticky ? 'true' : null;
@@ -983,6 +999,11 @@ export default {
       keys.forEach(key => {
         properties[`--allPages${key.charAt(0).toUpperCase()}${key.slice(1)}`] = themeStyle[key] || null;
       });
+      // Platform icon colour: an unset inline value would leave the stored colour of the stylesheet in the preview, so the
+      // effective value is previewed instead, the configured default or 'initial' (each icon family's built-in colour)
+      properties['--allPagesAppIconColor'] = themeStyle.appIconColor
+        || this.$root.defaultBrandingThemeStyle?.appIconColor
+        || 'initial';
       // Application corners: the stylesheet emits the four --allPagesAppBorderRadius* as literals (the stored
       // uniform radius), so an unset inline value would leave the stored corners in the preview; the effective
       // value is previewed instead — per corner when set, the uniform value or the default otherwise (0px included)

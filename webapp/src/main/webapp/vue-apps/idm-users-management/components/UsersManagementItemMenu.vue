@@ -47,7 +47,7 @@
               dense
               @click="$root.$emit('editUser', item)">
               <v-list-item-icon class="mx-1 justify-center">
-                <v-icon size="14" :class="{'text--disabled': !item.isInternal}">fa-edit</v-icon>
+                <v-icon size="14" :class="{'icon-disabled-color': !item.isInternal}">fa-edit</v-icon>
               </v-list-item-icon>
               <v-list-item-title class="ps-0">{{ $t('UsersManagement.edit') }}</v-list-item-title>
             </v-list-item>
@@ -67,7 +67,7 @@
                 <v-icon
                   size="14"
                   :class="{
-                    'text--disabled': item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'
+                    'icon-disabled-color': item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'
                   }">
                   fa-user-plus
                 </v-icon>

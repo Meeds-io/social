@@ -56,7 +56,8 @@
           :custom-header="false"
           :custom-text="true"
           :custom-sub-title="true"
-          :custom-title="false" />
+          :custom-title="false"
+          custom-icon />
       </v-card>
     </template>
     <template #footer>
@@ -133,7 +134,8 @@ export default {
         textSubtitleColor: this.sideBarStylingProperties?.sideBarTextSubtitleColor,
         textSubtitleFontSize: this.sideBarStylingProperties?.sideBarTextSubtitleFontSize,
         textSubtitleFontStyle: this.sideBarStylingProperties?.sideBarTextSubtitleFontStyle,
-        textSubtitleFontWeight: this.sideBarStylingProperties?.sideBarTextSubtitleFontWeight
+        textSubtitleFontWeight: this.sideBarStylingProperties?.sideBarTextSubtitleFontWeight,
+        iconColor: this.sideBarStylingProperties?.sideBarIconColor || null
       };
       this.defaultSideBarStylingProperties = {
         backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),

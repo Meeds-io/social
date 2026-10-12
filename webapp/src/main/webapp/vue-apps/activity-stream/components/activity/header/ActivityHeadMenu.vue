@@ -63,7 +63,7 @@
                           eager />
                         <v-icon
                           v-else
-                          :class="isActionDisabled(action) ? 'text-disabled-color' : 'icon-default-color'"
+                          :class="isActionDisabled(action) ? 'icon-disabled-color' : 'icon-default-color'"
                           size="16">
                           {{ $t(action.icon) }}
                         </v-icon>

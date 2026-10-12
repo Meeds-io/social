@@ -19,7 +19,6 @@
     <div
       class="my-auto flex-grow-1 py-2 ps-4 pe-1">
       <v-icon
-        color="grey"
         :size="16">
         fa-thumbtack
       </v-icon>
