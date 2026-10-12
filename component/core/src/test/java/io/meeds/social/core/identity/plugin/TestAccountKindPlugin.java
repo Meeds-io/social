@@ -40,7 +40,7 @@ public class TestAccountKindPlugin implements AccountKindPlugin {
   /** The group whose members are {@link #KIND} accounts. */
   public static final String GROUP_ID = "/platform/bots";
 
-  /** A second test account kind, after {@link #KIND} in alphabetical order. */
+  /** A second test account kind, after {@link #KIND} in the order of the kinds. */
   public static final String OTHER_KIND     = "drone";
 
   /** The group whose members are {@link #OTHER_KIND} accounts. */
