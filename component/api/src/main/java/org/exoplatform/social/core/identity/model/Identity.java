@@ -251,19 +251,6 @@ public class Identity implements CacheEntry, Cloneable {
   }
 
   /**
-   * Tells whether this identity's profile is flagged as an agent account, for
-   * display purposes. The flag mirrors the {@code /platform/agents} membership;
-   * a permission or login decision reads that membership instead.
-   *
-   * @return true when the profile property {@link Profile#AGENT} is
-   *         {@code "true"}
-   */
-  public boolean isAgent() {
-    Profile identityProfile = getProfile();
-    return identityProfile != null && Objects.equals("true", identityProfile.getProperty(Profile.AGENT));
-  }
-
-  /**
    * Gives the account kind stored on this identity's profile, for display
    * purposes. The kind mirrors a group membership; a permission or login
    * decision reads that membership instead.
