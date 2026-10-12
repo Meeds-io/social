@@ -21,7 +21,7 @@ package org.exoplatform.social.rest.impl.users;
 import io.meeds.portal.plugin.AclPlugin;
 import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
-import io.meeds.social.core.identity.util.AgentUserUtils;
+import io.meeds.social.core.identity.plugin.TestAccountKindPlugin;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.identity.service.UserImportService;
@@ -849,30 +849,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
-   * No user, an administrator included, may write the agent flag through the
-   * single-property PATCH nor through the profile properties PATCH.
+   * An account of a kind keeping its manager for administrators cannot change
+   * its own manager; an administrator can.
    */
-  public void testUpdateProfileAgentFlagIsRefused() throws Exception {
-    startSessionAs("root", true);
-    ContainerResponse response = patchProfileAttribute("root", Profile.AGENT, "true");
-    assertEquals(401, response.getStatus());
-    assertNotEquals("true", identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.AGENT));
-
-    ProfilePropertySettingEntity agentProperty = new ProfilePropertySettingEntity();
-    agentProperty.setPropertyName(Profile.AGENT);
-    agentProperty.setValue("true");
-    response = getResponse("PATCH",
-                           "/v1/social/users/root/profile/properties",
-                           new JSONArray(Collections.singletonList(agentProperty)).toString());
-    assertEquals(401, response.getStatus());
-    assertNotEquals("true", identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.AGENT));
-  }
-
-  /**
-   * An agent account cannot change its own manager; an administrator can.
-   */
-  public void testUpdateManagerOfAgentAccount() throws Exception {
-    setAgentMembership("mary", true);
+  public void testUpdateManagerOfAccountOfKind() throws Exception {
+    setKindMembership("mary", true);
     try {
       startSessionAs("mary");
       ContainerResponse response = patchProfileAttribute("mary", Profile.MANAGER, "demo");
@@ -884,7 +865,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
       assertEquals("root", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
     } finally {
-      setAgentMembership("mary", false);
+      setKindMembership("mary", false);
       Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
       profile.removeProperty(Profile.MANAGER);
       identityManager.updateProfile(profile);
@@ -892,11 +873,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
-   * An agent account cannot change its own manager through the profile
+   * Such an account cannot change its own manager through the profile
    * properties PATCH either, where the multi-valued manager comes as children.
    */
-  public void testUpdateManagerOfAgentAccountThroughTheProfileProperties() throws Exception {
-    setAgentMembership("mary", true);
+  public void testUpdateManagerOfAccountOfKindThroughTheProfileProperties() throws Exception {
+    setKindMembership("mary", true);
     try {
       startSessionAs("mary");
       JSONObject manager = new JSONObject();
@@ -910,7 +891,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       assertFalse(String.valueOf(identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER))
                         .contains("demo"));
     } finally {
-      setAgentMembership("mary", false);
+      setKindMembership("mary", false);
       Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
       profile.removeProperty(Profile.MANAGER);
       identityManager.updateProfile(profile);
@@ -918,24 +899,25 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
-   * No user, an administrator included, may write the agent flag through the
-   * profile entity PATCH. The entity reads it through its {@code isAgent}
-   * setter; an {@code agent} key matches no setter and is dropped.
+   * No user, an administrator included, may write the account kind through
+   * the profile entity PATCH, which reads it through its {@code accountKind}
+   * setter.
    */
-  public void testUpdateAgentFlagThroughTheProfileEntityIsRefused() throws Exception {
+  public void testUpdateAccountKindThroughTheProfileEntityIsRefused() throws Exception {
     startSessionAs("root", true);
     JSONObject data = new JSONObject();
-    data.put("isAgent", "true");
+    data.put(ProfileEntity.ACCOUNT_KIND, TestAccountKindPlugin.KIND);
     ContainerResponse response = getResponse("PATCH", "/v1/social/users/root/profile", data.toString());
     assertEquals(String.valueOf(response.getEntity()), 401, response.getStatus());
-    assertNotEquals("true", identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.AGENT));
+    assertNull(identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.ACCOUNT_KIND));
   }
 
   /**
-   * A user who is not an agent changes its own manager, as before.
+   * A user who is not an account of the kind changes its own manager, as
+   * before.
    */
-  public void testUpdateManagerOfNonAgentAccount() throws Exception {
-    setAgentMembership("mary", false);
+  public void testUpdateManagerOfAccountNotOfKind() throws Exception {
+    setKindMembership("mary", false);
     try {
       startSessionAs("mary");
       ContainerResponse response = patchProfileAttribute("mary", Profile.MANAGER, "demo");
@@ -949,33 +931,43 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
-   * The user entity exposes the agent flag as the string {@code "true"} or
-   * {@code "false"}, like the external flag, since the clients compare it with
-   * {@code === 'true'}.
+   * The user entity carries the account kind of an account of a registered
+   * kind, and no {@code accountKind} field for a kind no plugin declares or
+   * for no kind.
    */
-  public void testGetUserExposesTheAgentFlagAsAString() throws Exception {
+  public void testGetUserExposesARegisteredAccountKind() throws Exception {
+    TestAccountKindPlugin.register(accountKindService);
     startSessionAs("root");
     Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
-    Object previous = profile.getProperty(Profile.AGENT);
     try {
-      profile.setProperty(Profile.AGENT, "true");
+      profile.setProperty(Profile.ACCOUNT_KIND, TestAccountKindPlugin.KIND);
       identityManager.updateProfile(profile);
-      ContainerResponse response = service("GET", getURLResource("users/mary"), "", null, null);
-      assertEquals(200, response.getStatus());
-      ProfileEntity userEntity = getBaseEntity(response.getEntity(), ProfileEntity.class);
-      assertEquals("true", userEntity.getDataEntity().get(ProfileEntity.AGENT));
+      assertEquals(TestAccountKindPlugin.KIND, getUserEntity("mary").getDataEntity().get(ProfileEntity.ACCOUNT_KIND));
 
-      profile.removeProperty(Profile.AGENT);
+      profile.setProperty(Profile.ACCOUNT_KIND, "unregistered");
       identityManager.updateProfile(profile);
-      response = service("GET", getURLResource("users/mary"), "", null, null);
-      assertEquals(200, response.getStatus());
-      userEntity = getBaseEntity(response.getEntity(), ProfileEntity.class);
-      assertEquals("false", userEntity.getDataEntity().get(ProfileEntity.AGENT));
+      assertFalse(getUserEntity("mary").getDataEntity().containsKey(ProfileEntity.ACCOUNT_KIND));
+
+      profile.removeProperty(Profile.ACCOUNT_KIND);
+      identityManager.updateProfile(profile);
+      assertFalse(getUserEntity("mary").getDataEntity().containsKey(ProfileEntity.ACCOUNT_KIND));
     } finally {
       profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
-      profile.setProperty(Profile.AGENT, previous);
+      profile.removeProperty(Profile.ACCOUNT_KIND);
       identityManager.updateProfile(profile);
     }
+  }
+
+  /**
+   * Reads the user entity of a user.
+   *
+   * @param userName the user
+   * @return the user entity
+   */
+  private ProfileEntity getUserEntity(String userName) throws Exception {
+    ContainerResponse response = service("GET", getURLResource("users/" + userName), "", null, null);
+    assertEquals(200, response.getStatus());
+    return getBaseEntity(response.getEntity(), ProfileEntity.class);
   }
 
   /**
@@ -994,33 +986,17 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
-   * Adds the user to the agents group, creating it when missing, or removes
-   * every membership the user holds in it.
+   * Registers the test account kind and makes the user a member of its group,
+   * or removes every membership the user holds in it.
    *
    * @param userName the user
-   * @param agent whether the user must be a member of the agents group
+   * @param member whether the user must be a member of the kind's group
    */
-  private void setAgentMembership(String userName, boolean agent) throws Exception {
-    org.exoplatform.services.organization.GroupHandler groupHandler = organizationService.getGroupHandler();
-    org.exoplatform.services.organization.Group group = groupHandler.findGroupById(AgentUserUtils.PLATFORM_AGENTS_GROUP);
-    if (group == null) {
-      group = groupHandler.createGroupInstance();
-      group.setGroupName("agents");
-      group.setLabel("Agents");
-      groupHandler.addChild(groupHandler.findGroupById("/platform"), group, true);
-      group = groupHandler.findGroupById(AgentUserUtils.PLATFORM_AGENTS_GROUP);
-    }
-    for (org.exoplatform.services.organization.Membership membership : organizationService.getMembershipHandler()
-                                                                                          .findMembershipsByUserAndGroup(userName,
-                                                                                                                         AgentUserUtils.PLATFORM_AGENTS_GROUP)) {
-      organizationService.getMembershipHandler().removeMembership(membership.getId(), true);
-    }
-    if (agent) {
-      organizationService.getMembershipHandler()
-                         .linkMembership(organizationService.getUserHandler().findUserByName(userName),
-                                         group,
-                                         organizationService.getMembershipTypeHandler().findMembershipType("member"),
-                                         true);
+  private void setKindMembership(String userName, boolean member) throws Exception {
+    TestAccountKindPlugin.register(accountKindService);
+    TestAccountKindPlugin.removeMemberships(organizationService, userName);
+    if (member) {
+      TestAccountKindPlugin.linkMembership(organizationService, userName, "member");
     }
   }
 
