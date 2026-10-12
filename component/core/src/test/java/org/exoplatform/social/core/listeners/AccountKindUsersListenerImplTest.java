@@ -32,7 +32,7 @@ import io.meeds.social.core.identity.plugin.TestAccountKindPlugin;
 
 /**
  * Pins {@link AccountKindUsersListenerImpl}: a membership in the group of a
- * registered account kind writes the kind on the profile, the removal of the
+ * declared account kind writes the kind on the profile, the removal of the
  * last one clears it, and a membership in another group leaves the profile
  * alone.
  */
