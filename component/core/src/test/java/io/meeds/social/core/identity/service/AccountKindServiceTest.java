@@ -25,9 +25,9 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -95,7 +95,7 @@ public class AccountKindServiceTest {
    * found for another kind, another group or null.
    */
   @Test
-  public void testRegisteredPluginIsFoundByKindAndGroup() {
+  public void testCollectedPluginIsFoundByKindAndGroup() {
     assertEquals(KIND, service.getPluginByKind(KIND).getKind());
     assertSame(service.getPluginByKind(KIND), service.getPluginByGroup(GROUP_ID));
     assertEquals(1, service.getPlugins().size());
@@ -166,29 +166,71 @@ public class AccountKindServiceTest {
   /**
    * The plugins are not called while the service is built, so that the
    * plugin of a web application that has not started yet is not created
-   * ahead of it; they are read once, at the first use.
+   * ahead of it; they are read once, at the first use, and no decision calls
+   * them again.
+   *
+   * @throws Exception never
    */
   @Test
-  public void testPluginsAreReadOnceAtTheFirstUse() {
+  public void testPluginsAreReadOnceAtTheFirstUse() throws Exception {
     AccountKindPlugin plugin = mock(AccountKindPlugin.class);
     when(plugin.getKind()).thenReturn("drone");
     when(plugin.getGroupId()).thenReturn("/platform/drones");
+    when(plugin.getAdminOnlyProperties()).thenReturn(Set.of(Profile.MANAGER));
     AccountKindService lazy = new AccountKindService(organizationService, userAcl, List.of(plugin));
     verifyNoInteractions(plugin);
 
     assertSame(plugin, lazy.getPluginByKind("drone"));
     assertSame(plugin, lazy.getPluginByGroup("/platform/drones"));
     assertEquals(1, lazy.getPlugins().size());
-    verify(plugin, atMost(4)).getKind();
+    verify(plugin, times(1)).getKind();
+    verify(plugin, times(1)).getGroupId();
+    verify(plugin, times(1)).getAdminOnlyProperties();
     clearInvocations(plugin);
     lazy.getPluginByKind("drone");
     lazy.getPlugins();
+    when(membershipHandler.findMembershipsByUserAndGroup(USER_NAME, "/platform/drones")).thenReturn(List.of(mock(Membership.class)));
+    assertTrue(lazy.isOfKind(USER_NAME, "drone"));
+    mockAdministrator(false);
+    assertThrows(IllegalAccessException.class, () -> lazy.checkPropertyUpdate(profileOf(USER_NAME), Profile.MANAGER, MODIFIER));
     verifyNoInteractions(plugin);
   }
 
   /**
+   * A plugin that throws while declaring its kind, as the proxy of another
+   * web application's plugin whose bean cannot be created, is refused: the
+   * other kinds keep working, the lock of their admin-only properties
+   * included, and the failing plugin is not asked again.
+   *
+   * @throws Exception never
+   */
+  @Test
+  public void testAPluginThatThrowsIsRefusedAndTheOthersKeepWorking() throws Exception {
+    AccountKindPlugin failing = mock(AccountKindPlugin.class);
+    when(failing.getKind()).thenThrow(new IllegalStateException("No shared bean found"));
+    AccountKindPlugin failingProperties = mock(AccountKindPlugin.class);
+    when(failingProperties.getKind()).thenReturn("drone");
+    when(failingProperties.getGroupId()).thenReturn("/platform/drones");
+    when(failingProperties.getAdminOnlyProperties()).thenThrow(new IllegalStateException("broken"));
+    AccountKindService collected = new AccountKindService(organizationService,
+                                                          userAcl,
+                                                          List.of(failing,
+                                                                  failingProperties,
+                                                                  new TestPlugin(KIND, GROUP_ID, Set.of(Profile.MANAGER))));
+    assertEquals(1, collected.getPlugins().size());
+    assertEquals(KIND, collected.getPluginByGroup(GROUP_ID).getKind());
+    assertNull(collected.getPluginByKind("drone"));
+
+    when(membershipHandler.findMembershipsByUserAndGroup(USER_NAME, GROUP_ID)).thenReturn(List.of(mock(Membership.class)));
+    mockAdministrator(false);
+    assertThrows(IllegalAccessException.class, () -> collected.checkPropertyUpdate(profileOf(USER_NAME), Profile.MANAGER, MODIFIER));
+    collected.checkPropertyUpdate(profileOf(USER_NAME), Profile.POSITION, MODIFIER);
+    verify(failing, times(1)).getKind();
+  }
+
+  /**
    * A user is of a kind only with a membership in the kind's group; a blank
-   * user name or an unregistered kind is never one, without reading anything.
+   * user name or an undeclared kind is never one, without reading anything.
    */
   @Test
   public void testIsOfKindReadsTheKindGroupMemberships() throws Exception {
@@ -222,13 +264,13 @@ public class AccountKindServiceTest {
    * kind.
    */
   @Test
-  public void testDisplayedKindIsARegisteredOne() {
+  public void testDisplayedKindIsADeclaredOne() {
     assertEquals(KIND, service.getDisplayedKind(identityOfKind(KIND)));
-    assertNull(service.getDisplayedKind(identityOfKind("unregistered")));
+    assertNull(service.getDisplayedKind(identityOfKind("undeclared")));
     assertNull(service.getDisplayedKind(identityOfKind(null)));
     assertNull(service.getDisplayedKind((Identity) null));
     assertEquals(KIND, service.getDisplayedKind(identityOfKind(KIND).getProfile()));
-    assertNull(service.getDisplayedKind(identityOfKind("unregistered").getProfile()));
+    assertNull(service.getDisplayedKind(identityOfKind("undeclared").getProfile()));
     assertNull(service.getDisplayedKind((Profile) null));
   }
 
