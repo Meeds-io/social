@@ -202,6 +202,10 @@ public class UserImportService {
   @Autowired
   private UserACL                               userAcl;
 
+  @Autowired
+  @Setter
+  private AccountKindService                    accountKindService;
+
   private Group                                 externalsGroup                    = null;
 
   private MembershipType                        memberMembershipType              = null;
@@ -630,6 +634,7 @@ public class UserImportService {
                                     Object value,
                                     boolean save,
                                     String modifierUsername) throws IllegalAccessException, IOException {
+    accountKindService.checkPropertyUpdate(profile, name, modifierUsername);
     if (Profile.MANAGER.equals(name)) {
       AgentUserUtils.checkManagerUpdate(organizationService,
                                         profile,
