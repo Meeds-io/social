@@ -30,8 +30,14 @@ import java.util.Set;
  * their profile. The group membership stays the only source of truth for a
  * permission decision; the profile property is a display copy of it.
  * <p>
- * An add-on contributes a kind by registering its plugin in
- * {@code AccountKindService#register}. The label shown for a kind is read
+ * An add-on contributes a kind by declaring its plugin as a Spring bean
+ * annotated {@code @Service}, which {@code AccountKindService} collects with
+ * every other plugin bean. From another web application than social's, only an
+ * {@code @Service} bean reaches social's context: the class is not final, and
+ * the bean has a name social's context does not hold, given explicitly, such
+ * as {@code @Service("botAccountKindPlugin")}. A plugin whose kind or group an
+ * earlier plugin, in the order of the kinds then of the groups, already holds
+ * is refused. The label shown for a kind is read
  * under the key {@link #getLabelKey(String)} in the shared resource bundles on
  * the server and in the {@code locale.portlet.Portlets} bundle in the browser,
  * which the add-on ships in both.

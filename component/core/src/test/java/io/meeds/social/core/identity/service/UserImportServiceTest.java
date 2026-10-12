@@ -187,7 +187,7 @@ public class UserImportServiceTest {
     when(localeConfigService.getDefaultLocaleConfig()).thenReturn(localeConfig);
     when(identityManager.getOrCreateUserIdentity(anyString())).thenReturn(userIdentity);
 
-    accountKindService = new AccountKindService(organizationService, userAcl);
+    accountKindService = new AccountKindService(organizationService, userAcl, List.of());
     service.setAccountKindService(accountKindService);
 
     tempDir = Files.createTempDirectory("uimport-test").toFile();
@@ -626,14 +626,14 @@ public class UserImportServiceTest {
   }
 
   /**
-   * Registers a {@code bot} account kind keeping the manager for
+   * Gives the service a {@code bot} account kind keeping the manager for
    * administrators, and makes the mocked profile a member of its group, or
    * not.
    *
    * @param bot whether the profile's user is a member of the bots group
    */
   private void mockBotProfile(boolean bot) throws Exception {
-    accountKindService.register(new AccountKindPlugin() {
+    accountKindService = new AccountKindService(organizationService, userAcl, List.of(new AccountKindPlugin() {
       /**
        * @return the {@code bot} kind
        */
@@ -657,7 +657,8 @@ public class UserImportServiceTest {
       public Set<String> getAdminOnlyProperties() {
         return Set.of(Profile.MANAGER);
       }
-    });
+    }));
+    service.setAccountKindService(accountKindService);
     Identity identity = mock(Identity.class);
     when(identity.getRemoteId()).thenReturn(TEST_USER_1);
     when(profile.getIdentity()).thenReturn(identity);
