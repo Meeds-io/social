@@ -34,6 +34,9 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.social.core.identity.plugin.AccountKindPlugin;
+import io.meeds.social.core.identity.service.AccountKindService;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
@@ -75,38 +78,65 @@ public class UtilsTestCase extends AbstractCoreTest {
   }
 
   /**
-   * An agent account's name carries the agent label in a notification, a
-   * guest's the guest label, and anyone else's no label. The labels are
-   * stubbed: the test container serves no shared resource bundle.
+   * The name of an account of a registered kind carries the kind's label in a
+   * notification, a guest's the guest label, and anyone else's, an account of
+   * a kind no plugin declares included, no label. The labels are stubbed: the
+   * test container serves no shared resource bundle.
    */
-  public void testAddExternalFlagNamesAnAgentAndAGuest() {
+  public void testAddExternalFlagNamesAnAccountOfKindAndAGuest() {
+    AccountKindService accountKindService = getContainer().getComponentInstanceOfType(AccountKindService.class);
+    accountKindService.register(new NotificationTestAccountKindPlugin());
     try (MockedStatic<LinkProvider> linkProvider = mockStatic(LinkProvider.class, CALLS_REAL_METHODS)) {
-      linkProvider.when(() -> LinkProvider.getResourceBundleLabel(any(Locale.class), eq("agent.label.tag"))).thenReturn("Agent");
+      linkProvider.when(() -> LinkProvider.getResourceBundleLabel(any(Locale.class), eq("accountKind.label.bot"))).thenReturn("Bot");
       linkProvider.when(() -> LinkProvider.getResourceBundleLabel(any(Locale.class), eq("external.label.tag"))).thenReturn("Guest");
       linkProvider.when(() -> LinkProvider.getCurrentUserLanguage(anyString())).thenReturn("en");
-      assertEquals("Agent Smith (Agent)", Utils.addExternalFlag(userIdentity("Agent Smith", Profile.AGENT)));
-      assertEquals("Guest Smith (Guest)", Utils.addExternalFlag(userIdentity("Guest Smith", Profile.EXTERNAL)));
-      assertEquals("Plain Smith", Utils.addExternalFlag(userIdentity("Plain Smith", null)));
+      assertEquals("Bot Smith (Bot)", Utils.addExternalFlag(userIdentity("Bot Smith", Profile.ACCOUNT_KIND, "bot")));
+      assertEquals("Guest Smith (Guest)", Utils.addExternalFlag(userIdentity("Guest Smith", Profile.EXTERNAL, "true")));
+      assertEquals("Other Smith", Utils.addExternalFlag(userIdentity("Other Smith", Profile.ACCOUNT_KIND, "unregistered")));
+      assertEquals("Plain Smith", Utils.addExternalFlag(userIdentity("Plain Smith", null, null)));
     }
   }
 
   /**
    * An identity of the demo user, held in memory only, with the given full
-   * name and, when given, the given flag property set to true.
+   * name and, when given, one profile property.
    *
    * @param fullName the full name
-   * @param flag the profile property set to "true", or null for none
+   * @param property the profile property to set, or null for none
+   * @param value the property value
    * @return the identity
    */
-  private Identity userIdentity(String fullName, String flag) {
+  private Identity userIdentity(String fullName, String property, String value) {
     Identity identity = new Identity(OrganizationIdentityProvider.NAME, "demo");
     Profile profile = new Profile(identity);
     profile.setProperty(Profile.FULL_NAME, fullName);
-    if (flag != null) {
-      profile.setProperty(flag, "true");
+    if (property != null) {
+      profile.setProperty(property, value);
     }
     identity.setProfile(profile);
     return identity;
+  }
+
+  /**
+   * The {@code bot} account kind of the members of {@code /platform/bots}.
+   */
+  private static class NotificationTestAccountKindPlugin implements AccountKindPlugin {
+
+    /**
+     * @return the {@code bot} kind
+     */
+    @Override
+    public String getKind() {
+      return "bot";
+    }
+
+    /**
+     * @return the bots group
+     */
+    @Override
+    public String getGroupId() {
+      return "/platform/bots";
+    }
   }
 
   public void testGetMentioners() {
