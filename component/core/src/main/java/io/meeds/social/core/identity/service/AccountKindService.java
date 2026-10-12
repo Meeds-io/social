@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,8 @@ public class AccountKindService {
 
   private static final Log                     LOG             = ExoLogger.getLogger(AccountKindService.class);
 
+  private static final Pattern                 KIND_PATTERN    = Pattern.compile("[A-Za-z0-9_-]+");
+
   private final OrganizationService            organizationService;
 
   private final UserACL                        userAcl;
@@ -71,17 +74,23 @@ public class AccountKindService {
   /**
    * Registers the account kind a plugin declares. Registering the same plugin
    * again replaces it; a plugin whose kind or group another plugin already
-   * holds is refused.
+   * holds is refused. The kind is made of letters, digits, {@code _} and
+   * {@code -} only, as it becomes an i18n key, a REST value and a value of the
+   * profile popover literal.
    *
    * @param plugin the plugin to register
    * @throws IllegalArgumentException when the plugin, its kind or its group is
-   *           missing
+   *           missing, or when the kind holds another character
    * @throws IllegalStateException when another plugin holds its kind or its
    *           group
    */
   public synchronized void register(AccountKindPlugin plugin) {
     if (plugin == null || StringUtils.isBlank(plugin.getKind()) || StringUtils.isBlank(plugin.getGroupId())) {
       throw new IllegalArgumentException("An account kind plugin needs a kind and a group");
+    }
+    if (!KIND_PATTERN.matcher(plugin.getKind()).matches()) {
+      throw new IllegalArgumentException(String.format("The account kind '%s' holds a character other than a letter, a digit, '_' or '-'",
+                                                       plugin.getKind()));
     }
     AccountKindPlugin kindHolder = pluginsByKind.get(plugin.getKind());
     AccountKindPlugin groupHolder = pluginsByGroup.get(plugin.getGroupId());
