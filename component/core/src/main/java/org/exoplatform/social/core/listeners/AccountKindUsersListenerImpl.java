@@ -34,7 +34,9 @@ import io.meeds.social.core.identity.service.AccountKindService;
 /**
  * Keeps the account kind {@link Profile#ACCOUNT_KIND} of a user profile in
  * sync with its memberships in the groups the {@link AccountKindPlugin}s name,
- * the way {@link ExternalUsersListenerImpl} does for {@link Profile#EXTERNAL}.
+ * the way {@link ExternalUsersListenerImpl} does for {@link Profile#EXTERNAL}:
+ * on any membership change in such a group, the kind is computed again from
+ * every registered kind's group.
  */
 public class AccountKindUsersListenerImpl extends MembershipEventListener {
 
@@ -48,72 +50,61 @@ public class AccountKindUsersListenerImpl extends MembershipEventListener {
   private AccountKindService accountKindService;
 
   /**
-   * Writes the kind of the membership's group on the member's profile, when a
-   * plugin names that group.
+   * Recomputes the member's account kind when a membership in a plugin's
+   * group is saved.
    *
    * @param m the saved membership
    * @param isNew whether the membership was created
    */
   @Override
   public void postSave(Membership m, boolean isNew) {
-    AccountKindPlugin plugin = getPluginByGroup(m.getGroupId());
-    if (plugin != null) {
-      setAccountKind(m.getUserName(), plugin.getKind(), null);
+    if (getPluginByGroup(m.getGroupId()) != null) {
+      updateAccountKind(m.getUserName());
     }
   }
 
   /**
-   * Recomputes the member's kind when a membership in a plugin's group is
-   * removed: any membership type counts, so the kind stays while another
-   * membership in the group remains, and is cleared otherwise, unless the
-   * profile carries another kind. When the remaining memberships cannot be
-   * read, the kind is left as it is.
+   * Recomputes the member's account kind when a membership in a plugin's
+   * group is removed: any membership type counts, so the kind stays while
+   * another membership in the group remains.
    *
    * @param m the deleted membership
    */
   @Override
   public void postDelete(Membership m) {
-    AccountKindPlugin plugin = getPluginByGroup(m.getGroupId());
-    if (plugin == null) {
-      return;
-    }
-    boolean ofKind;
-    try {
-      ofKind = getAccountKindService().isOfKind(m.getUserName(), plugin.getKind());
-    } catch (IllegalStateException e) {
-      LOG.warn("Cannot read the {} memberships of {}, leaving its account kind unchanged",
-               plugin.getGroupId(),
-               m.getUserName(),
-               e);
-      return;
-    }
-    if (ofKind) {
-      setAccountKind(m.getUserName(), plugin.getKind(), null);
-    } else {
-      setAccountKind(m.getUserName(), null, plugin.getKind());
+    if (getPluginByGroup(m.getGroupId()) != null) {
+      updateAccountKind(m.getUserName());
     }
   }
 
   /**
-   * Writes or clears {@link Profile#ACCOUNT_KIND} on the user's profile and
-   * saves it with its change broadcast, so that the profile index is
-   * refreshed. A clear leaves a profile carrying another kind than the
-   * expected one as it is.
+   * Stores on the user's profile the account kind its memberships give
+   * ({@link AccountKindService#computeAccountKind(String)}), and saves the
+   * profile with its change broadcast, so that the profile index is
+   * refreshed. When the memberships give no kind, a stored kind is removed
+   * only when a plugin declares it: a kind no registered plugin declares is
+   * left as it is. When the memberships cannot be read, the profile is left
+   * as it is.
    *
    * @param userName the member's user name
-   * @param kind the kind to store, null to clear it
-   * @param clearedKind the kind the profile must carry to be cleared, used
-   *          when {@code kind} is null
    */
-  private void setAccountKind(String userName, String kind, String clearedKind) {
+  private void updateAccountKind(String userName) {
+    String kind;
+    try {
+      kind = getAccountKindService().computeAccountKind(userName);
+    } catch (IllegalStateException e) {
+      LOG.warn("Cannot read the memberships of {}, leaving its account kind unchanged", userName, e);
+      return;
+    }
     Identity userIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName);
     Profile profile = userIdentity == null ? null : userIdentity.getProfile();
     if (profile == null) {
       return;
     }
-    if (kind != null) {
+    String storedKind = userIdentity.getAccountKind();
+    if (kind != null && !kind.equals(storedKind)) {
       profile.setProperty(Profile.ACCOUNT_KIND, kind);
-    } else if (clearedKind.equals(userIdentity.getAccountKind())) {
+    } else if (kind == null && storedKind != null && getAccountKindService().getPluginByKind(storedKind) != null) {
       profile.removeProperty(Profile.ACCOUNT_KIND);
     } else {
       return;
