@@ -931,11 +931,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
-   * The user entity carries the account kind of an account of a registered
+   * The user entity carries the account kind of an account of a declared
    * kind, and no {@code accountKind} field for a kind no plugin declares or
    * for no kind.
    */
-  public void testGetUserExposesARegisteredAccountKind() throws Exception {
+  public void testGetUserExposesADeclaredAccountKind() throws Exception {
     startSessionAs("root");
     Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
     try {
@@ -943,7 +943,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       identityManager.updateProfile(profile);
       assertEquals(TestAccountKindPlugin.KIND, getUserEntity("mary").getDataEntity().get(ProfileEntity.ACCOUNT_KIND));
 
-      profile.setProperty(Profile.ACCOUNT_KIND, "unregistered");
+      profile.setProperty(Profile.ACCOUNT_KIND, "undeclared");
       identityManager.updateProfile(profile);
       assertFalse(getUserEntity("mary").getDataEntity().containsKey(ProfileEntity.ACCOUNT_KIND));
 
