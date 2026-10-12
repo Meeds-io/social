@@ -96,6 +96,16 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     this.userPermissionService = userPermissionService;
   }
 
+  /**
+   * @param propertyName name of a profile property setting
+   * @return the name of the profile index field holding that property's value:
+   *         a dot, which Elasticsearch reads as an object path, becomes an
+   *         underscore. Every query on a property value uses this field name.
+   */
+  public static String getIndexedFieldName(String propertyName) {
+    return propertyName.replace(".", "_");
+  }
+
   @Override
   public Document create(String id) {
     return getDocument(id);
@@ -322,10 +332,11 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
   }
 
   private void addPropertyToDocumentFields(Map<String, String> fields, String propertyName, String value, long userIdentityId) {
+    String fieldName = getIndexedFieldName(propertyName);
     if(isPropertyHidden(propertyName, userIdentityId)) {
-      fields.put(propertyName.replace(".", "_"), HIDDEN_VALUE);
+      fields.put(fieldName, HIDDEN_VALUE);
     } else {
-      fields.put(propertyName.replace(".", "_"), value);
+      fields.put(fieldName, value);
     }
   }
 
