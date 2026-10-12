@@ -25,11 +25,17 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +52,7 @@ import org.exoplatform.social.core.identity.model.Profile;
 import io.meeds.social.core.identity.plugin.AccountKindPlugin;
 
 /**
- * Pins the registry of account kinds, its membership read that never answers
+ * Pins the account kinds collected from the plugins, their membership read that never answers
  * "not of that kind" on a failure, the kind a profile shows, and the profile
  * properties it refuses.
  */
@@ -71,7 +77,7 @@ public class AccountKindServiceTest {
   private AccountKindService  service;
 
   /**
-   * Builds the registry over a mocked organization service and ACL, with one
+   * Builds the service over a mocked organization service and ACL, with one
    * kind keeping the manager property for administrators.
    */
   @Before
@@ -81,12 +87,11 @@ public class AccountKindServiceTest {
     userAcl = mock(UserACL.class);
     when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
     when(userAcl.getAdminGroups()).thenReturn(ADMIN_GROUP);
-    service = new AccountKindService(organizationService, userAcl);
-    service.register(new TestPlugin(KIND, GROUP_ID, Set.of(Profile.MANAGER)));
+    service = new AccountKindService(organizationService, userAcl, List.of(new TestPlugin(KIND, GROUP_ID, Set.of(Profile.MANAGER))));
   }
 
   /**
-   * A registered plugin is found by its kind and by its group, and nothing is
+   * A collected plugin is found by its kind and by its group, and nothing is
    * found for another kind, another group or null.
    */
   @Test
@@ -101,29 +106,84 @@ public class AccountKindServiceTest {
   }
 
   /**
-   * The same plugin registered again replaces itself, while another plugin
-   * claiming a registered kind or group, a plugin without a kind or a group,
-   * or a kind holding a character other than a letter, a digit, {@code _} or
-   * {@code -}, is refused.
+   * A plugin claiming a kind or a group an earlier plugin holds, in the order
+   * of the kinds then of the groups, a plugin without a kind or a group, a
+   * null plugin, or a kind holding a character other than a letter, a digit,
+   * {@code _} or {@code -}, is refused, without failing; the same plugins
+   * collected in the reverse order give the same result.
    */
   @Test
-  public void testRegistrationRefusesAClaimedKindOrGroup() {
-    service.register(new TestPlugin(KIND, GROUP_ID, Set.of()));
-    assertEquals(1, service.getPlugins().size());
-    assertTrue(service.getPluginByKind(KIND).getAdminOnlyProperties().isEmpty());
+  public void testCollectedPluginsAreRefusedDeterministically() {
+    AccountKindPlugin holder = new TestPlugin(KIND, GROUP_ID, Set.of(Profile.MANAGER));
+    List<AccountKindPlugin> plugins = new ArrayList<>(Arrays.asList(new OtherPlugin(KIND, "/platform/others"),
+                                                                    new OtherPlugin("other", GROUP_ID),
+                                                                    null,
+                                                                    new OtherPlugin(" ", "/platform/blanks"),
+                                                                    new OtherPlugin("nogroup", null),
+                                                                    new OtherPlugin("it's", "/platform/quotes"),
+                                                                    new OtherPlugin("a.b", "/platform/dots"),
+                                                                    new OtherPlugin("$1\\\"", "/platform/specials"),
+                                                                    new OtherPlugin("Bot_2-x", "/platform/bot2"),
+                                                                    holder));
+    for (int i = 0; i < 2; i++) {
+      AccountKindService collected = new AccountKindService(organizationService, userAcl, plugins);
+      assertSame(holder, collected.getPluginByKind(KIND));
+      assertSame(holder, collected.getPluginByGroup(GROUP_ID));
+      assertNull(collected.getPluginByGroup("/platform/others"));
+      assertNull(collected.getPluginByKind("other"));
+      assertNull(collected.getPluginByKind("nogroup"));
+      assertNull(collected.getPluginByGroup("/platform/blanks"));
+      assertNull(collected.getPluginByKind("it's"));
+      assertNull(collected.getPluginByKind("a.b"));
+      assertNull(collected.getPluginByGroup("/platform/specials"));
+      assertEquals("Bot_2-x", collected.getPluginByGroup("/platform/bot2").getKind());
+      assertEquals(2, collected.getPlugins().size());
+      Collections.reverse(plugins);
+    }
+  }
 
-    assertThrows(IllegalStateException.class, () -> service.register(new OtherPlugin(KIND, "/platform/others")));
-    assertThrows(IllegalStateException.class, () -> service.register(new OtherPlugin("other", GROUP_ID)));
-    assertThrows(IllegalArgumentException.class, () -> service.register(null));
-    assertThrows(IllegalArgumentException.class, () -> service.register(new OtherPlugin(" ", "/platform/others")));
-    assertThrows(IllegalArgumentException.class, () -> service.register(new OtherPlugin("other", null)));
-    assertThrows(IllegalArgumentException.class, () -> service.register(new OtherPlugin("it's", "/platform/quotes")));
-    assertThrows(IllegalArgumentException.class, () -> service.register(new OtherPlugin("a.b", "/platform/dots")));
-    assertThrows(IllegalArgumentException.class, () -> service.register(new OtherPlugin("$1\\\"", "/platform/specials")));
-    service.register(new OtherPlugin("Bot_2-x", "/platform/bot2"));
-    assertEquals("Bot_2-x", service.getPluginByGroup("/platform/bot2").getKind());
-    assertEquals(2, service.getPlugins().size());
-    assertNull(service.getPluginByGroup("/platform/others"));
+  /**
+   * Without any plugin, as when no add-on contributes a kind, nothing is of a
+   * kind, no profile shows one, and only the account kind itself is refused.
+   *
+   * @throws Exception never
+   */
+  @Test
+  public void testNoPluginIsHarmless() throws Exception {
+    for (AccountKindService empty : List.of(new AccountKindService(organizationService, userAcl, null),
+                                            new AccountKindService(organizationService, userAcl, List.of()))) {
+      assertTrue(empty.getPlugins().isEmpty());
+      assertNull(empty.getPluginByKind(KIND));
+      assertNull(empty.getPluginByGroup(GROUP_ID));
+      assertFalse(empty.isOfKind(USER_NAME, KIND));
+      assertNull(empty.getDisplayedKind(identityOfKind(KIND)));
+      empty.checkPropertyUpdate(profileOf(USER_NAME), Profile.MANAGER, MODIFIER);
+      assertThrows(IllegalAccessException.class, () -> empty.checkPropertyUpdate(profileOf(USER_NAME), Profile.ACCOUNT_KIND, null));
+    }
+    verify(membershipHandler, never()).findMembershipsByUserAndGroup(anyString(), anyString());
+  }
+
+  /**
+   * The plugins are not called while the service is built, so that the
+   * plugin of a web application that has not started yet is not created
+   * ahead of it; they are read once, at the first use.
+   */
+  @Test
+  public void testPluginsAreReadOnceAtTheFirstUse() {
+    AccountKindPlugin plugin = mock(AccountKindPlugin.class);
+    when(plugin.getKind()).thenReturn("drone");
+    when(plugin.getGroupId()).thenReturn("/platform/drones");
+    AccountKindService lazy = new AccountKindService(organizationService, userAcl, List.of(plugin));
+    verifyNoInteractions(plugin);
+
+    assertSame(plugin, lazy.getPluginByKind("drone"));
+    assertSame(plugin, lazy.getPluginByGroup("/platform/drones"));
+    assertEquals(1, lazy.getPlugins().size());
+    verify(plugin, atMost(4)).getKind();
+    clearInvocations(plugin);
+    lazy.getPluginByKind("drone");
+    lazy.getPlugins();
+    verifyNoInteractions(plugin);
   }
 
   /**
