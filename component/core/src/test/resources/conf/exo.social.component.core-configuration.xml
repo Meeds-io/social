@@ -183,7 +183,8 @@
   </component>
 
   <component>
-    <type>io.meeds.social.core.identity.service.AccountKindService</type>
+    <key>io.meeds.social.core.identity.service.AccountKindService</key>
+    <type>io.meeds.social.core.identity.service.ContainerAccountKindService</type>
   </component>
 
    <!--
