@@ -148,7 +148,6 @@ import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
-import io.meeds.social.core.identity.util.AgentUserUtils;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.social.space.constant.UserSpacesScope;
 import io.meeds.web.security.service.OtpService;
@@ -2142,9 +2141,10 @@ public class UserRest implements ResourceContainer, Startable {
 
   /**
    * Sets one property of a user profile, refusing the properties no client may
-   * write: a non-editable property to a non-administrator, the external and
-   * agent flags and the user name to anyone, and the manager of an agent
-   * account to a non-administrator.
+   * write: a non-editable property to a non-administrator, the external flag,
+   * the account kind and the user name to anyone, and a property an account
+   * kind keeps for administrators to a non-administrator on an account of
+   * that kind.
    *
    * @param profile the profile to update
    * @param name the property name
@@ -2162,16 +2162,11 @@ public class UserRest implements ResourceContainer, Startable {
                                   boolean save,
                                   String modifierUsername) throws IllegalAccessException {
     accountKindService.checkPropertyUpdate(profile, name, modifierUsername);
-    if (Profile.MANAGER.equals(name)) {
-      AgentUserUtils.checkManagerUpdate(organizationService, profile, isAdministrator(modifierUsername));
-    }
     ProfilePropertySetting propertySetting = getPropertySetting(name);
     if (propertySetting != null && !propertySetting.isEditable() && (modifierUsername==null || !userACL.getUserIdentity(modifierUsername).isMemberOf(userACL.getAdminGroups()))) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
     } else if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
-    } else if (Profile.AGENT.equals(name)) {
-      throw new IllegalAccessException("Not allowed to update AGENT field");
     } else if (Profile.USERNAME.equals(name)) {
       throw new IllegalAccessException("Not allowed to update USERNAME field");
     } else if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
@@ -2210,17 +2205,6 @@ public class UserRest implements ResourceContainer, Startable {
         identityManager.updateProfile(profile, getCurrentUser(), true);
       }
     }
-  }
-
-  /**
-   * Tells whether a user is a member of the administrators group.
-   *
-   * @param userName the user name, null for a change made by the platform
-   * @return true when the user is an administrator
-   */
-  private boolean isAdministrator(String userName) {
-    org.exoplatform.services.security.Identity aclIdentity = userName == null ? null : userACL.getUserIdentity(userName);
-    return aclIdentity != null && aclIdentity.isMemberOf(userACL.getAdminGroups());
   }
 
   /**
