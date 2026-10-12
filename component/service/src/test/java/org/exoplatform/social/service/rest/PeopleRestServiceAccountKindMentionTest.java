@@ -34,7 +34,6 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 import io.meeds.social.core.identity.plugin.TestAccountKindPlugin;
-import io.meeds.social.core.identity.service.AccountKindService;
 
 /**
  * Pins that an account of a kind, an enabled internal user, is suggested for a
@@ -78,7 +77,6 @@ public class PeopleRestServiceAccountKindMentionTest extends AbstractResourceTes
    * account of a kind.
    */
   public void testAccountOfKindIsSuggestedForMentionInSpaceActivityStream() throws Exception {
-    TestAccountKindPlugin.register(getContainer().getComponentInstanceOfType(AccountKindService.class));
     startSessionAs("root");
     Space space = new Space();
     space.setPrettyName("accountkindmentionspace");
