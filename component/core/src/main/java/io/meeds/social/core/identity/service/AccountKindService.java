@@ -169,7 +169,7 @@ public class AccountKindService {
    * @throws IllegalStateException when the memberships cannot be read
    */
   public String computeAccountKind(String userName) {
-    List<String> kinds = new ArrayList<>(pluginsByKind.keySet());
+    List<String> kinds = new ArrayList<>(getPluginsByKind().keySet());
     Collections.sort(kinds);
     for (String kind : kinds) {
       if (isOfKind(userName, kind)) {
