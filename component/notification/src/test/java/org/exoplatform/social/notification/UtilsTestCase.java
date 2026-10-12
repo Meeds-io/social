@@ -76,7 +76,7 @@ public class UtilsTestCase extends AbstractCoreTest {
   }
 
   /**
-   * The name of an account of a registered kind carries the kind's label in a
+   * The name of an account of a declared kind carries the kind's label in a
    * notification, a guest's the guest label, and anyone else's, an account of
    * a kind no plugin declares included, no label. The labels are stubbed: the
    * test container serves no shared resource bundle.
@@ -88,7 +88,7 @@ public class UtilsTestCase extends AbstractCoreTest {
       linkProvider.when(() -> LinkProvider.getCurrentUserLanguage(anyString())).thenReturn("en");
       assertEquals("Bot Smith (Bot)", Utils.addExternalFlag(userIdentity("Bot Smith", Profile.ACCOUNT_KIND, "bot")));
       assertEquals("Guest Smith (Guest)", Utils.addExternalFlag(userIdentity("Guest Smith", Profile.EXTERNAL, "true")));
-      assertEquals("Other Smith", Utils.addExternalFlag(userIdentity("Other Smith", Profile.ACCOUNT_KIND, "unregistered")));
+      assertEquals("Other Smith", Utils.addExternalFlag(userIdentity("Other Smith", Profile.ACCOUNT_KIND, "undeclared")));
       assertEquals("Plain Smith", Utils.addExternalFlag(userIdentity("Plain Smith", null, null)));
     }
   }
