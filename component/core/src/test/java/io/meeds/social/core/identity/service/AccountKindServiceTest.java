@@ -143,6 +143,19 @@ public class AccountKindServiceTest {
   }
 
   /**
+   * Two plugins equal on kind, group and class keep the order they were
+   * collected in: the first one is accepted, whichever order the list holds
+   * them in.
+   */
+  @Test
+  public void testAFullTieKeepsTheCollectedOrder() {
+    AccountKindPlugin first = new TestPlugin(KIND, GROUP_ID, Set.of(Profile.MANAGER));
+    AccountKindPlugin second = new TestPlugin(KIND, GROUP_ID, Set.of());
+    assertSame(first, new AccountKindService(organizationService, userAcl, List.of(first, second)).getPluginByKind(KIND));
+    assertSame(second, new AccountKindService(organizationService, userAcl, List.of(second, first)).getPluginByKind(KIND));
+  }
+
+  /**
    * Without any plugin, as when no add-on contributes a kind, nothing is of a
    * kind, no profile shows one, and only the account kind itself is refused.
    *
