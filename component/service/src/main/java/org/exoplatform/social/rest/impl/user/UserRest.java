@@ -146,6 +146,7 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import io.meeds.social.core.identity.model.UserExportFilter;
 import io.meeds.social.core.identity.model.UserExportResult;
 import io.meeds.social.core.identity.model.UserImportResult;
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.social.core.identity.util.AgentUserUtils;
@@ -300,6 +301,7 @@ public class UserRest implements ResourceContainer, Startable {
 
   private OtpService                      otpService;
 
+  private AccountKindService              accountKindService;
   private final ProfileFormFieldService   profileFormFieldService;
 
   private ExecutorService                 importExecutorService       = null;
@@ -319,6 +321,7 @@ public class UserRest implements ResourceContainer, Startable {
                   LocaleConfigService localeConfigService,
                   SettingService settingService,
                   OtpService otpService,
+                  AccountKindService accountKindService,
                   ProfileFormFieldService profileFormFieldService) {
     this.userACL = userACL;
     this.organizationService = organizationService;
@@ -334,6 +337,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.passwordRecoveryService = passwordRecoveryService;
     this.localeConfigService = localeConfigService;
     this.otpService = otpService;
+    this.accountKindService = accountKindService;
     this.profileFormFieldService = profileFormFieldService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
     this.settingService = settingService;
@@ -2357,6 +2361,7 @@ public class UserRest implements ResourceContainer, Startable {
                                   Object value,
                                   boolean save,
                                   String modifierUsername) throws IllegalAccessException {
+    accountKindService.checkPropertyUpdate(profile, name, modifierUsername);
     if (Profile.MANAGER.equals(name)) {
       AgentUserUtils.checkManagerUpdate(organizationService, profile, isAdministrator(modifierUsername));
     }
