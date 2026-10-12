@@ -70,7 +70,6 @@ import org.exoplatform.social.core.space.SpaceLifeCycleTest;
 import org.exoplatform.social.core.space.SpaceUtilsTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceTest;
 
-import io.meeds.social.core.identity.plugin.AgentAccountLoginGuardTest;
 import io.meeds.social.space.service.SubspacesServiceTest;
 import io.meeds.social.space.service.UserSpacesServiceTest;
 import org.exoplatform.social.core.thumbnail.ImageThumbnailServiceImplTest;
@@ -117,7 +116,6 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   TemplateParamsProcessorTest.class,
   LinkProviderTest.class,
   AgentUsersListenerImplTest.class,
-  AgentAccountLoginGuardTest.class,
   SortingTest.class,
   GroupSpaceBindingServiceTest.class,
   RDBMSGroupSpaceBindingStorageTest.class,
