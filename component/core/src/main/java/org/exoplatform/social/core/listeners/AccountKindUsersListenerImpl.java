@@ -36,7 +36,7 @@ import io.meeds.social.core.identity.service.AccountKindService;
  * sync with its memberships in the groups the {@link AccountKindPlugin}s name,
  * the way {@link ExternalUsersListenerImpl} does for {@link Profile#EXTERNAL}:
  * on any membership change in such a group, the kind is computed again from
- * every registered kind's group.
+ * every declared kind's group.
  */
 public class AccountKindUsersListenerImpl extends MembershipEventListener {
 
@@ -46,7 +46,7 @@ public class AccountKindUsersListenerImpl extends MembershipEventListener {
   /** The identity manager, resolved on first use. */
   private IdentityManager    identityManager;
 
-  /** The account kind registry, resolved on first use. */
+  /** The account kind service, resolved on first use. */
   private AccountKindService accountKindService;
 
   /**
@@ -82,7 +82,7 @@ public class AccountKindUsersListenerImpl extends MembershipEventListener {
    * ({@link AccountKindService#computeAccountKind(String)}), and saves the
    * profile with its change broadcast, so that the profile index is
    * refreshed. When the memberships give no kind, a stored kind is removed
-   * only when a plugin declares it: a kind no registered plugin declares is
+   * only when a plugin declares it: a kind no accepted plugin declares is
    * left as it is. When the memberships cannot be read, the profile is left
    * as it is.
    *
@@ -120,8 +120,8 @@ public class AccountKindUsersListenerImpl extends MembershipEventListener {
    * Gives the plugin naming a group.
    *
    * @param groupId the membership's group id
-   * @return the plugin, null when none names the group or when the registry
-   *         is not there
+   * @return the plugin, null when none names the group or when the account
+   *         kind service is not there
    */
   private AccountKindPlugin getPluginByGroup(String groupId) {
     AccountKindService service = getAccountKindService();
@@ -129,9 +129,9 @@ public class AccountKindUsersListenerImpl extends MembershipEventListener {
   }
 
   /**
-   * Resolves the account kind registry lazily, as the identity manager.
+   * Resolves the account kind service lazily, as the identity manager.
    *
-   * @return the account kind registry
+   * @return the account kind service
    */
   private AccountKindService getAccountKindService() {
     if (accountKindService == null) {
