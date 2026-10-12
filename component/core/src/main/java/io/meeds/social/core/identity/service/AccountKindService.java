@@ -23,14 +23,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ClassUtils;
 
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
@@ -53,8 +56,11 @@ import io.meeds.social.core.identity.plugin.AccountKindPlugin;
  * start after social, which the Kernel/Spring integration declares in this
  * context before any context creates its beans. They are read at the first
  * use, never while this service is built, so that the plugin of a context that
- * has not started yet is not created ahead of it. A plugin that cannot be
- * accepted is refused with an error log, never by failing the startup.
+ * has not started yet is not created ahead of it, and only once: what each
+ * plugin declares is kept, and no decision calls a plugin again. A plugin that
+ * cannot be accepted, one that fails to answer included, is refused with an
+ * error log, never by failing the startup nor the decisions on the other
+ * kinds.
  */
 @Service
 public class AccountKindService {
@@ -63,17 +69,6 @@ public class AccountKindService {
 
   private static final Pattern                       KIND_PATTERN = Pattern.compile("[A-Za-z0-9_-]+");
 
-  /**
-   * The order in which the plugins are accepted. It decides which plugin is
-   * refused when two claim the same kind or group, whatever order they were
-   * collected in.
-   */
-  private static final Comparator<AccountKindPlugin> PLUGIN_ORDER =
-                                                                  Comparator.comparing(AccountKindPlugin::getKind)
-                                                                            .thenComparing(AccountKindPlugin::getGroupId)
-                                                                            .thenComparing(plugin -> plugin.getClass()
-                                                                                                           .getName());
-
   private final OrganizationService                  organizationService;
 
   private final UserACL                              userAcl;
@@ -81,6 +76,10 @@ public class AccountKindService {
   private final List<AccountKindPlugin>              contributedPlugins;
 
   private final AtomicReference<Map<String, AccountKindPlugin>> pluginsByGroup = new AtomicReference<>();
+
+  private final AtomicReference<Map<String, String>>            groupsByKind   = new AtomicReference<>();
+
+  private final AtomicReference<Map<String, Set<String>>>       adminOnlyPropertiesByKind = new AtomicReference<>();
 
   private final AtomicReference<Map<String, AccountKindPlugin>> pluginsByKind  = new AtomicReference<>();
 
@@ -143,17 +142,17 @@ public class AccountKindService {
    * @throws IllegalStateException when the memberships cannot be read
    */
   public boolean isOfKind(String userName, String kind) {
-    AccountKindPlugin plugin = getPluginByKind(kind);
-    if (plugin == null || StringUtils.isBlank(userName)) {
+    String groupId = getGroupId(kind);
+    if (groupId == null || StringUtils.isBlank(userName)) {
       return false;
     }
     Collection<Membership> memberships;
     try {
-      memberships = organizationService.getMembershipHandler().findMembershipsByUserAndGroup(userName, plugin.getGroupId());
+      memberships = organizationService.getMembershipHandler().findMembershipsByUserAndGroup(userName, groupId);
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Cannot read the memberships of '%s' in %s",
                                                     userName,
-                                                    plugin.getGroupId()),
+                                                    groupId),
                                       e);
     }
     return memberships != null && !memberships.isEmpty();
@@ -201,32 +200,32 @@ public class AccountKindService {
     if (Profile.ACCOUNT_KIND.equals(propertyName)) {
       throw new IllegalAccessException("Not allowed to update ACCOUNT_KIND field");
     }
-    List<AccountKindPlugin> plugins = getAdminOnlyPlugins(propertyName);
-    if (plugins.isEmpty() || isAdministrator(modifierUsername)) {
+    List<String> kinds = getAdminOnlyKinds(propertyName);
+    if (kinds.isEmpty() || isAdministrator(modifierUsername)) {
       return;
     }
     Identity identity = profile == null ? null : profile.getIdentity();
     String userName = identity == null ? null : identity.getRemoteId();
-    for (AccountKindPlugin plugin : plugins) {
+    for (String kind : kinds) {
       boolean ofKind;
       try {
-        ofKind = isOfKind(userName, plugin.getKind());
+        ofKind = isOfKind(userName, kind);
       } catch (IllegalStateException e) {
         LOG.warn("Cannot read the {} memberships of {}, refusing the change of its property {}",
-                 plugin.getGroupId(),
+                 getGroupId(kind),
                  userName,
                  propertyName,
                  e);
         IllegalAccessException refusal = new IllegalAccessException(String.format("Cannot check whether the profile of %s is a '%s' account",
                                                                                   userName,
-                                                                                  plugin.getKind()));
+                                                                                  kind));
         refusal.initCause(e);
         throw refusal;
       }
       if (ofKind) {
         throw new IllegalAccessException(String.format("Not allowed to update the %s field of a '%s' account",
                                                        propertyName,
-                                                       plugin.getKind()));
+                                                       kind));
       }
     }
   }
@@ -243,21 +242,35 @@ public class AccountKindService {
   }
 
   /**
-   * Lists the plugins that keep a property for administrators.
+   * Lists the accepted kinds that keep a property for administrators, from
+   * what their plugins declared when indexed.
    *
    * @param propertyName the property name
-   * @return the plugins whose admin-only properties hold the name
+   * @return the kinds whose admin-only properties hold the name
    */
-  private List<AccountKindPlugin> getAdminOnlyPlugins(String propertyName) {
-    List<AccountKindPlugin> plugins = new ArrayList<>();
+  private List<String> getAdminOnlyKinds(String propertyName) {
+    List<String> kinds = new ArrayList<>();
     if (propertyName != null) {
-      for (AccountKindPlugin plugin : getPluginsByKind().values()) {
-        if (plugin.getAdminOnlyProperties() != null && plugin.getAdminOnlyProperties().contains(propertyName)) {
-          plugins.add(plugin);
+      getPluginsByKind();
+      adminOnlyPropertiesByKind.get().forEach((kind, properties) -> {
+        if (properties.contains(propertyName)) {
+          kinds.add(kind);
         }
-      }
+      });
     }
-    return plugins;
+    return kinds;
+  }
+
+  /**
+   * Gives the group of an accepted kind, as its plugin declared it when
+   * indexed.
+   *
+   * @param kind the account kind
+   * @return the group id, null when no accepted plugin declares the kind
+   */
+  private String getGroupId(String kind) {
+    getPluginsByKind();
+    return kind == null ? null : groupsByKind.get().get(kind);
   }
 
   /**
@@ -285,52 +298,112 @@ public class AccountKindService {
   }
 
   /**
-   * Indexes the contributed plugins once, in {@link #PLUGIN_ORDER}. A plugin
-   * without a kind or a group, whose kind holds a character other than a
-   * letter, a digit, {@code _} or {@code -} (the kind becomes an i18n key, a
-   * REST value and a value of the profile popover literal), or whose kind or
-   * group an earlier plugin holds, is refused with an error log.
+   * Indexes the contributed plugins once, in the order of their kinds, then
+   * of their groups, then of their class names, whatever order they were
+   * collected in. Each plugin is asked once for its kind, its group and its
+   * admin-only properties. A plugin that throws while answering, that has no
+   * kind or no group, whose kind holds a character other than a letter, a
+   * digit, {@code _} or {@code -} (the kind becomes an i18n key, a REST value
+   * and a value of the profile popover literal), or whose kind or group an
+   * earlier plugin holds, is refused with an error log.
    */
   private synchronized void index() {
     if (pluginsByKind.get() != null) {
       return;
     }
-    List<AccountKindPlugin> candidates = new ArrayList<>();
+    Map<AccountKindPlugin, String> kinds = new IdentityHashMap<>();
+    Map<AccountKindPlugin, String> groups = new IdentityHashMap<>();
+    Map<AccountKindPlugin, Set<String>> adminOnlyProperties = new IdentityHashMap<>();
     for (AccountKindPlugin plugin : contributedPlugins) {
-      if (plugin == null) {
-        continue;
-      }
-      if (StringUtils.isBlank(plugin.getKind()) || StringUtils.isBlank(plugin.getGroupId())) {
-        LOG.error("Account kind plugin {} refused: it needs a kind and a group", plugin.getClass().getName());
-      } else if (!KIND_PATTERN.matcher(plugin.getKind()).matches()) {
-        LOG.error("Account kind plugin {} refused: its kind '{}' holds a character other than a letter, a digit, '_' or '-'",
-                  plugin.getClass().getName(),
-                  plugin.getKind());
-      } else {
-        candidates.add(plugin);
+      if (plugin != null) {
+        declare(plugin, kinds, groups, adminOnlyProperties);
       }
     }
-    candidates.sort(PLUGIN_ORDER);
+    List<AccountKindPlugin> candidates = new ArrayList<>(kinds.keySet());
+    candidates.sort(Comparator.comparing((AccountKindPlugin plugin) -> kinds.get(plugin))
+                              .thenComparing(groups::get)
+                              .thenComparing(AccountKindService::getPluginClassName));
     Map<String, AccountKindPlugin> byKind = new LinkedHashMap<>();
     Map<String, AccountKindPlugin> byGroup = new HashMap<>();
+    Map<String, String> groupByKind = new HashMap<>();
+    Map<String, Set<String>> adminOnlyByKind = new LinkedHashMap<>();
     for (AccountKindPlugin plugin : candidates) {
-      AccountKindPlugin holder = byKind.containsKey(plugin.getKind()) ? byKind.get(plugin.getKind())
-                                                                       : byGroup.get(plugin.getGroupId());
+      String kind = kinds.get(plugin);
+      String group = groups.get(plugin);
+      AccountKindPlugin holder = byKind.containsKey(kind) ? byKind.get(kind) : byGroup.get(group);
       if (holder == null) {
-        byKind.put(plugin.getKind(), plugin);
-        byGroup.put(plugin.getGroupId(), plugin);
+        byKind.put(kind, plugin);
+        byGroup.put(group, plugin);
+        groupByKind.put(kind, group);
+        adminOnlyByKind.put(kind, adminOnlyProperties.get(plugin));
       } else {
         LOG.error("Account kind plugin {} (kind '{}', group '{}') refused: plugin {} already holds the kind '{}' and the group '{}'",
-                  plugin.getClass().getName(),
-                  plugin.getKind(),
-                  plugin.getGroupId(),
-                  holder.getClass().getName(),
-                  holder.getKind(),
-                  holder.getGroupId());
+                  getPluginClassName(plugin),
+                  kind,
+                  group,
+                  getPluginClassName(holder),
+                  kinds.get(holder),
+                  groups.get(holder));
       }
     }
+    groupsByKind.set(Collections.unmodifiableMap(groupByKind));
+    adminOnlyPropertiesByKind.set(Collections.unmodifiableMap(adminOnlyByKind));
     pluginsByGroup.set(Collections.unmodifiableMap(byGroup));
     pluginsByKind.set(Collections.unmodifiableMap(byKind));
+  }
+
+  /**
+   * Reads what a plugin declares and keeps it when the plugin can be
+   * accepted: a kind and a group, the kind made of letters, digits,
+   * {@code _} and {@code -} only. A plugin that throws while answering is
+   * refused, so that a contributor whose bean cannot be created leaves the
+   * other kinds working.
+   *
+   * @param plugin the plugin
+   * @param kinds the kinds of the plugins kept, filled
+   * @param groups the groups of the plugins kept, filled
+   * @param adminOnlyProperties the admin-only properties of the plugins
+   *          kept, filled
+   */
+  private static void declare(AccountKindPlugin plugin,
+                              Map<AccountKindPlugin, String> kinds,
+                              Map<AccountKindPlugin, String> groups,
+                              Map<AccountKindPlugin, Set<String>> adminOnlyProperties) {
+    String kind;
+    String group;
+    Set<String> properties;
+    try {
+      kind = plugin.getKind();
+      group = plugin.getGroupId();
+      properties = plugin.getAdminOnlyProperties();
+      properties = properties == null ? Set.of() : Set.copyOf(properties);
+    } catch (RuntimeException e) {
+      LOG.error("Account kind plugin {} refused: it failed to declare its kind", getPluginClassName(plugin), e);
+      return;
+    }
+    if (StringUtils.isBlank(kind) || StringUtils.isBlank(group)) {
+      LOG.error("Account kind plugin {} refused: it needs a kind and a group", getPluginClassName(plugin));
+    } else if (!KIND_PATTERN.matcher(kind).matches()) {
+      LOG.error("Account kind plugin {} refused: its kind '{}' holds a character other than a letter, a digit, '_' or '-'",
+                getPluginClassName(plugin),
+                kind);
+    } else {
+      kinds.put(plugin, kind);
+      groups.put(plugin, group);
+      adminOnlyProperties.put(plugin, properties);
+    }
+  }
+
+  /**
+   * Gives the name of a plugin's own class, not of the proxy the
+   * Kernel/Spring integration wraps the plugin of another web application in;
+   * reading it does not create that plugin.
+   *
+   * @param plugin the plugin
+   * @return the class name
+   */
+  private static String getPluginClassName(AccountKindPlugin plugin) {
+    return ClassUtils.getUserClass(plugin).getName();
   }
 
 }
