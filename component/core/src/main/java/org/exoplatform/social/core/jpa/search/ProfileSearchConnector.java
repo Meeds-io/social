@@ -589,7 +589,7 @@ public class ProfileSearchConnector {
               } else {
                 searchedText = searchedWord;
               }
-              key = normalizeESFieldName(key);
+              key = ProfileIndexingServiceConnector.getIndexedFieldName(key);
               expression.append(" ").append(escapeESFieldName(key)).append(isEmailProfileProperty(key) ? ":" : ".whitespace:").append(searchedText);
             }
             query.append("""
@@ -606,7 +606,7 @@ public class ProfileSearchConnector {
                                                               + StorageUtils.ASTERISK_STR
                                                           : searchedWord;
             String propertyName = property.getPropertyName();
-            propertyName = normalizeESFieldName(propertyName);
+            propertyName = ProfileIndexingServiceConnector.getIndexedFieldName(propertyName);
             String filedName = isEmailProfileProperty(propertyName) ? propertyName : "%s.whitespace".formatted(propertyName);
             query.append("""
                   {
@@ -704,8 +704,5 @@ public class ProfileSearchConnector {
   }
   private boolean isEmailProfileProperty(String propertyName) {
     return propertyName.equals("email");
-  }
-  private String normalizeESFieldName(String fieldName) {
-    return fieldName.replace(".", "_");
   }
 }

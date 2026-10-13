@@ -414,6 +414,12 @@
 
   <component>
     <type>org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnector</type>
+    <init-params>
+      <properties-param>
+        <name>constructor.params</name>
+        <property name="index" value="profile_alias"/>
+      </properties-param>
+    </init-params>
   </component>
 
   <!-- Spaces Groups Binding -->

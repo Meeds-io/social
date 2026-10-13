@@ -31,7 +31,11 @@ import org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnector
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -52,31 +56,24 @@ public class ComplementaryFilterRest implements ResourceContainer {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Path("suggestions/{indexAlias}")
-  @Operation(summary = "Gets complementary filter suggestions",
-             description = "Gets complementary filter suggestions based on attributes", method = "POST")
+  @Path("suggestions")
+  @Operation(summary = "Gets complementary filter suggestions over profiles",
+             description = "Aggregates the values the given profiles share on the given profile properties. Only the profile index is queried.",
+             method = "POST")
   @ApiResponses(value = {
           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-          @ApiResponse(responseCode = "400", description = "Bad request"),
+          @ApiResponse(responseCode = "400",
+                       description = "Bad request: an empty list, an unknown or hidden profile property, a non-numeric identity id "
+                           + "or a minDocCount lower than 1; the body is the message code"),
           @ApiResponse(responseCode = "500", description = "Internal server error"), })
-  public Response getComplementaryFilterSuggestions(@RequestBody(description = "filter object ids") List<String> objectIds,
-                                                    @Parameter(description = "filter attributes") @QueryParam("attributes") List<String> attributes,
-                                                    @Parameter(description = "min count of occurrence")  @QueryParam("minDocCount") @DefaultValue ("2") int minDocCount,
-                                                    @Parameter(description = "target search index alias")  @PathParam("indexAlias") String indexAlias) {
-
-    if (objectIds.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("Objects Ids list is mandatory").build();
-    }
-    if (attributes.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("attributes list is mandatory").build();
-    }
-    if (indexAlias == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("target index alias is mandatory").build();
-    }
-
+  public Response getComplementaryFilterSuggestions(@RequestBody(description = "identity ids of the profiles to aggregate over") List<String> objectIds,
+                                                    @Parameter(description = "profile property names to aggregate on") @QueryParam("attributes") List<String> attributes,
+                                                    @Parameter(description = "min count of occurrence")  @QueryParam("minDocCount") @DefaultValue ("2") int minDocCount) {
     try {
-      List<Map<String, String>> result = complementaryFilterSearchConnector.search(attributes, objectIds, minDocCount, indexAlias);
+      List<Map<String, String>> result = complementaryFilterSearchConnector.search(attributes, objectIds, minDocCount);
       return Response.ok(result).build();
+    } catch (IllegalArgumentException e) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
     } catch (Exception e) {
       LOG.error("Error while getting complementary filter suggestions", e);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
