@@ -62,7 +62,7 @@
         class="me-0 my-auto">
         <styling-color-picker
           v-model="textTitleColor"
-          min-text-width="64"
+          min-text-width="78"
           class="my-auto" />
       </v-list-item-action>
     </v-list-item>
@@ -106,7 +106,7 @@
         class="me-0 my-auto">
         <styling-color-picker
           v-model="textHeaderColor"
-          min-text-width="64"
+          min-text-width="78"
           class="my-auto" />
       </v-list-item-action>
     </v-list-item>
@@ -150,7 +150,7 @@
         class="me-0 my-auto">
         <styling-color-picker
           v-model="textColor"
-          min-text-width="64"
+          min-text-width="78"
           class="my-auto" />
       </v-list-item-action>
     </v-list-item>
@@ -185,7 +185,7 @@
         class="me-0 my-auto">
         <styling-color-picker
           v-model="textSubtitleColor"
-          min-text-width="64"
+          min-text-width="78"
           class="my-auto" />
       </v-list-item-action>
     </v-list-item>
@@ -201,7 +201,7 @@
         <styling-color-picker
           v-model="iconColor"
           :placeholder="effectiveIconPlaceholder"
-          min-text-width="64"
+          min-text-width="78"
           class="my-auto" />
       </v-list-item-action>
     </v-list-item>
