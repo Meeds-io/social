@@ -558,6 +558,8 @@ export default {
         '--allPagesDrawerBackgroundPosition': this.drawerStylingProperties.drawerBackgroundPosition,
         '--allPagesDrawerBackgroundRepeat': this.drawerStylingProperties.drawerBackgroundRepeat,
         '--allPagesDrawerBackgroundSize': this.drawerStylingProperties.drawerBackgroundSize,
+        '--allPagesDrawerCommentBackgroundColor': this.previewCommentBackgroundColor(this.drawerStylingProperties.drawerBackgroundColor
+          || this.$root.defaultBrandingThemeStyle?.drawerBackgroundColor),
       };
 
       // Determine the background image property
@@ -1004,6 +1006,8 @@ export default {
       properties['--allPagesAppIconColor'] = themeStyle.appIconColor
         || this.$root.defaultBrandingThemeStyle?.appIconColor
         || 'initial';
+      properties['--allPagesCommentBackgroundColor'] = this.previewCommentBackgroundColor(themeStyle.appBackgroundColor
+        || this.$root.defaultBrandingThemeStyle?.appBackgroundColor);
       // Application corners: the stylesheet emits the four --allPagesAppBorderRadius* as literals (the stored
       // uniform radius), so an unset inline value would leave the stored corners in the preview; the effective
       // value is previewed instead — per corner when set, the uniform value or the default otherwise (0px included)
@@ -1027,6 +1031,14 @@ export default {
           themeStyle[`${key}Color`] && container[`text${type}BackgroundEffect`]);
       });
       this.$root.$emit('refresh-style-properties', { detail: properties });
+    },
+    // Comment bubble colour the branding stylesheet derives from an application or drawer background colour
+    // (portal branding.less): 60% of a coloured background mixed with white; 'initial' for a white or unset one,
+    // which leaves the skin's default bubble colour, where an unset inline value would keep the stored derivation
+    previewCommentBackgroundColor(backgroundColor) {
+      return backgroundColor && !/^(#fff|#ffffff|#ffffffff|initial)$/i.test(backgroundColor)
+        && `color-mix(in srgb, ${backgroundColor} 60%, white)`
+        || 'initial';
     },
     // background-image value of the preview: the uploaded or stored image first, then the gradient
     previewBackgroundImage(file, name, effect) {
