@@ -52,7 +52,8 @@
         <styling-text-input
           :text-background="false"
           v-model="sideBarTextProperties"
-          class="pe-3"
+          class="mt-2 pe-3"
+          no-toggle
           :custom-header="false"
           :custom-text="true"
           :custom-sub-title="true"
