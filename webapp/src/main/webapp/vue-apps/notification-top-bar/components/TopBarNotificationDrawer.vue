@@ -100,7 +100,7 @@
     <template #content>
       <div
         :class="expanded && 'pa-4'"
-        class="d-flex light-grey-background-color border-box-sizing"
+        class="d-flex page-background border-box-sizing"
         style="min-height: 100%;">
         <div
           class="page-content pa-0 d-flex border-box-sizing"
