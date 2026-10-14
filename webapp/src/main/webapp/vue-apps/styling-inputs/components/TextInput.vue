@@ -20,7 +20,9 @@
 -->
 <template>
   <div>
-    <div class="d-flex align-center">
+    <div
+      v-if="!noToggle"
+      class="d-flex align-center">
       <div
         :class="textBold && 'font-weight-bold' || 'text-header'"
         class="me-auto">
@@ -31,7 +33,7 @@
         class="ms-auto my-auto me-n2" />
     </div>
     <v-list-item
-      v-if="enabled && customTitle"
+      v-if="rowsShown && customTitle"
       class="pa-0"
       dense>
       <v-list-item-content class="my-auto text-body font-weight-bold">
@@ -67,7 +69,7 @@
       </v-list-item-action>
     </v-list-item>
     <styling-text-background-input
-      v-if="enabled && customTitle && textBackground"
+      v-if="rowsShown && customTitle && textBackground"
       v-model="container"
       type-prefix="Title"
       class="mb-4">
@@ -76,7 +78,7 @@
       </template>
     </styling-text-background-input>
     <v-list-item
-      v-if="enabled && customHeader"
+      v-if="rowsShown && customHeader"
       class="pa-0"
       dense>
       <v-list-item-content class="my-auto text-body font-weight-bold">
@@ -111,7 +113,7 @@
       </v-list-item-action>
     </v-list-item>
     <styling-text-background-input
-      v-if="enabled && customHeader && textBackground"
+      v-if="rowsShown && customHeader && textBackground"
       v-model="container"
       type-prefix="Header"
       class="mb-4">
@@ -120,7 +122,7 @@
       </template>
     </styling-text-background-input>
     <v-list-item
-      v-if="enabled && customText"
+      v-if="rowsShown && customText"
       class="pa-0"
       dense>
       <v-list-item-content class="my-auto text-body font-weight-bold">
@@ -155,7 +157,7 @@
       </v-list-item-action>
     </v-list-item>
     <v-list-item
-      v-if="enabled && customSubTitle"
+      v-if="rowsShown && customSubTitle"
       class="pa-0"
       dense>
       <v-list-item-content class="my-auto text-body font-weight-bold">
@@ -190,7 +192,7 @@
       </v-list-item-action>
     </v-list-item>
     <v-list-item
-      v-if="enabled && customIcon"
+      v-if="rowsShown && customIcon"
       class="pa-0"
       dense>
       <v-list-item-content class="my-auto text-body font-weight-bold">
@@ -255,6 +257,11 @@ export default {
       type: Boolean,
       default: true,
     },
+    // Enable switch above the rows; off where the area always carries text values (Branding Topbar, Sidebars, Drawers & Popup)
+    noToggle: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     // Shapes the colour picker parses as written: #RGB(A), #RRGGBB(AA) and transparent; anything else it re-emits as garbage
@@ -278,6 +285,10 @@ export default {
     initialized: false,
   }),
   computed: {
+    // The rows show while the switch is on, and always where there is none
+    rowsShown() {
+      return this.noToggle || this.enabled;
+    },
     // The inherited colour handed to the picker: the caller's when the picker can parse it, else the built-in grey
     effectiveIconPlaceholder() {
       return this.pickerColor(this.iconPlaceholder) || this.pickerColor(this.defaultIconColor) || '#707070';
