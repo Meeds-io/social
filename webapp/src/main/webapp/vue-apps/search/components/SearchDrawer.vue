@@ -12,7 +12,7 @@
     <template v-if="drawer" #content>
       <v-card
         :class="!$root.isMobile && 'pa-4' || ''"
-        class="d-flex flex-column light-grey-background-color"
+        class="d-flex flex-column page-background"
         min-height="100%"
         flat>
         <v-card
