@@ -25,7 +25,7 @@
     v-model="menu"
     :left="!$vuetify.rtl"
     :right="$vuetify.rtl"
-    content-class="application-menu z-index-modal"
+    content-class="application-menu z-index-modal layout-drawer"
     offset-y>
     <template #activator="{attrs, on}">
       <v-btn
@@ -38,7 +38,7 @@
     </template>
     <v-list
       v-if="space && menu"
-      class="layout-side-bar"
+      class="transparent"
       max-width="auto"
       min-width="auto"
       width="auto">
