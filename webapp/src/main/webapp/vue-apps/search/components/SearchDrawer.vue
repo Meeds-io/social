@@ -17,7 +17,7 @@
         flat>
         <v-card
           :class="!$root.isMobile && 'singlePageApplication card-border-radius' || ''"
-          class="pa-0 flex-grow-1 d-flex flex-column fill-height white overflow-hidden"
+          class="pa-0 flex-grow-1 d-flex flex-column fill-height overflow-hidden"
           flat>
           <search-toolbar
             ref="toolbar"
