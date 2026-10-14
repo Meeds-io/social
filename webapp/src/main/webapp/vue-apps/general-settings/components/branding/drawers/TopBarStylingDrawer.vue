@@ -54,7 +54,8 @@
         <styling-text-input
           :text-background="false"
           v-model="topBarTextProperties"
-          class="pe-3"
+          class="mt-2 pe-3"
+          no-toggle
           :custom-header="false"
           :custom-text="true"
           :custom-sub-title="false"
