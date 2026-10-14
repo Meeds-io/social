@@ -257,7 +257,7 @@ export default {
       type: Boolean,
       default: true,
     },
-    // Enable switch above the rows; off where the area always carries text values (Branding Topbar, Sidebars, Drawers & Popup)
+    // Hides the "Text" header and its enable switch and always shows the rows, where the area always carries text values
     noToggle: {
       type: Boolean,
       default: false,
