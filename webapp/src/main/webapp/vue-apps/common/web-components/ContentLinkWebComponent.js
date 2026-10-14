@@ -61,7 +61,7 @@ function escapeHtml(text) {
  * @param {string} objectType the linked object's type
  * @param {string} dataObjectAttr the chip's `type:id` reference
  * @returns {Promise<string>} the chip's HTML, or null when the type declares no
- *          private label
+ *          private label or its label cannot be read in the reader's language
  */
 async function getPrivateLinkHtml(objectType, dataObjectAttr) {
   const extensions = await getContentLinkExtensions();
@@ -70,7 +70,12 @@ async function getPrivateLinkHtml(objectType, dataObjectAttr) {
     return null;
   }
   const labels = await getContentLinkLabels();
-  const label = labels?.[extension.privateTitleKey] || extension.privateTitleKey;
+  const label = labels?.[extension.privateTitleKey];
+  if (!label) {
+    // No label in the reader's language, or the bundle could not be read: the
+    // cross, as for a type that declares none, never the key itself.
+    return null;
+  }
   return `<a${extension.drawer ? ' is="content-link-drawer"' : ''} data-object="${escapeHtml(dataObjectAttr)}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${escapeHtml(extension.icon)} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${escapeHtml(label)}</a>`;
 }
 
