@@ -52,7 +52,8 @@
         <styling-text-input
           :text-background="false"
           v-model="drawerTextProperties"
-          class="pe-3"
+          class="mt-2 pe-3"
+          no-toggle
           custom-icon />
       </v-card>
     </template>
