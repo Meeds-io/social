@@ -21,7 +21,7 @@
 <template>
   <v-menu
     v-if="showMenu"
-    content-class="application-menu z-index-modal"
+    content-class="application-menu z-index-modal layout-drawer"
     offset-y>
     <template #activator="{attrs, on}">
       <v-btn
@@ -41,6 +41,7 @@
       </v-btn>
     </template>
     <v-list
+      class="transparent"
       max-width="300">
       <v-list-item
         id="InvitePlatformUserToSpaceButton"
