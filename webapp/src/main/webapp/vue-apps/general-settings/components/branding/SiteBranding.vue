@@ -1033,10 +1033,12 @@ export default {
       this.$root.$emit('refresh-style-properties', { detail: properties });
     },
     // Comment bubble colour the branding stylesheet derives from an application or drawer background colour
-    // (portal branding.less): 60% of a coloured background mixed with white; 'initial' for a white or unset one,
-    // which leaves the skin's default bubble colour, where an unset inline value would keep the stored derivation
+    // (portal branding.less, same two patterns): 60% of a coloured background mixed with white; 'initial' for a white,
+    // unset or non-colour value, which leaves the skin's default bubble colour, where an unset inline value would keep
+    // the stored derivation
     previewCommentBackgroundColor(backgroundColor) {
-      return backgroundColor && !/^(#fff|#ffffff|#ffffffff|initial)$/i.test(backgroundColor)
+      return /^(#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})|transparent)$/i.test(backgroundColor)
+        && !/^#(f{3,4}|f{6}|f{8})$/i.test(backgroundColor)
         && `color-mix(in srgb, ${backgroundColor} 60%, white)`
         || 'initial';
     },
