@@ -18,6 +18,20 @@
 
 */
 
+@import "../../variables.less";
+
+// The comment bubble rules live in this skin, not in ActivityStream's: the
+// comments drawer also renders on pages without an activity stream portlet
+// (search results, the App Center search quick action), which load this skin
+// and not the stream portlet's.
+.activity-comment-background {
+  background: @commentBackgroundColor !important;
+}
+
+.linear-gradient-comment-background {
+  background: linear-gradient(to left, @commentBackgroundColor 80%, transparent 100%);
+}
+
 @keyframes reaction-pop {
   0% { transform: scale(1); }
   40% { transform: scale(1.5); }
