@@ -53,7 +53,7 @@
       :left="!$vuetify.rtl"
       :right="$vuetify.rtl"
       transition="slide-x-reverse-transition"
-      content-class="position-absolute application-menu z-index-modal"
+      :content-class="menuContentClass"
       offset-y>
       <template #activator="{attrs}">
         <space-card-button
@@ -69,7 +69,7 @@
       </template>
       <v-list
         :max-width="!$root.isMobile && 300 || 'auto'"
-        :class="$root.isMobile && 'border-top-left-radius border-top-right-radius'"
+        class="transparent"
         dense>
         <space-card-menu-item
           v-if="$root.isMobile"
@@ -140,7 +140,7 @@
       :left="!$vuetify.rtl"
       :right="$vuetify.rtl"
       transition="slide-x-reverse-transition"
-      content-class="position-absolute application-menu z-index-modal"
+      :content-class="menuContentClass"
       offset-y>
       <template #activator="{attrs}">
         <space-card-button
@@ -156,7 +156,7 @@
       </template>
       <v-list
         :max-width="!$root.isMobile && 300 || 'auto'"
-        :class="$root.isMobile && 'border-top-left-radius border-top-right-radius'"
+        class="transparent"
         dense>
         <space-card-menu-item
           label="spacesList.button.acceptToJoin"
@@ -230,6 +230,9 @@ export default {
     okMethod: null,
   }),
   computed: {
+    menuContentClass() {
+      return `position-absolute application-menu z-index-modal layout-drawer${this.$root.isMobile && ' border-top-left-radius border-top-right-radius' || ''}`;
+    },
     url() {
       return `${eXo.env.portal.context}/s/${this.space.id}`;
     },
