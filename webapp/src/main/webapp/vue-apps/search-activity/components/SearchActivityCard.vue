@@ -232,6 +232,12 @@ export default {
     document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtensionName}-updated`, this.refreshActivityTypes);
     this.refreshActivityTypes();
     this.$root.activityBaseLink = this.activityBaseLink;
+    // The comments drawer this card opens renders the comment bubbles and the
+    // reactions chooser, whose skin only the activity stream portlets declare:
+    // load it wherever the search shows an activity. The bubbles render as soon
+    // as the drawer opens, so the load starts with the card rather than with the
+    // drawer, and the drawer never waits for it.
+    this.$utils.importSkin('portal', 'ActivityReactions').catch(() => null);
   },
   methods: {
     refreshActivityTypes() {
@@ -249,12 +255,6 @@ export default {
       }
     },
     async openActivityCommentDrawer() {
-      // The comments drawer renders the reactions chooser, whose skin only the
-      // activity stream portlets declare: load it wherever the search opens.
-      // The skin styles only what a user action renders (the chooser's menu, the
-      // like label's transition), so the drawer opens without waiting for the
-      // load, and whether or not it succeeds.
-      this.$utils.importSkin('portal', 'ActivityReactions').catch(() => null);
       this.activityCommentDrawer = true;
       await this.$nextTick();
       const options = {
