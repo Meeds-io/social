@@ -99,15 +99,15 @@
     </template>
     <template #content>
       <div
-        :class="expanded && 'pa-4'"
-        class="d-flex page-background border-box-sizing"
+        :class="expanded && 'pa-4 page-background'"
+        class="d-flex border-box-sizing"
         style="min-height: 100%;">
         <div
           class="page-content pa-0 d-flex border-box-sizing"
           style="min-height: 100%;">
           <v-card
             v-if="expanded"
-            class="card-border-radius"
+            class="card-border-radius layout-drawer"
             height="fit-content"
             min-width="270"
             width="270"
@@ -124,7 +124,9 @@
           <v-expand-x-transition>
             <v-card
               :min-width="separatorWidth"
-              :class="expanded && 'me-4'" />
+              :class="expanded && 'me-4'"
+              class="transparent"
+              flat />
           </v-expand-x-transition>
           <v-card
             :max-height="expanded && '100%' || 'auto'"
@@ -132,7 +134,7 @@
             flat>
             <v-card
               :max-height="expanded && '100%' || 'auto'"
-              :class="expanded && 'overflow-x-hidden overflow-y-auto card-border-radius' || 'overflow-x-hidden no-border-radius'"
+              :class="expanded && 'overflow-x-hidden overflow-y-auto card-border-radius layout-drawer' || 'overflow-x-hidden no-border-radius'"
               :tile="!expanded"
               class="d-flex flex-column flex-grow-1 flex-shrink-1"
               flat
