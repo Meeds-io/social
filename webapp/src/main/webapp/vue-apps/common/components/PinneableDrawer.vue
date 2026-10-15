@@ -36,6 +36,7 @@
     <template #expandAction>
       <v-menu
         v-if="docked"
+        content-class="application-menu layout-drawer"
         open-on-hover
         offset-y
         bottom
@@ -50,7 +51,7 @@
             <v-icon size="20">fas fa-thumbtack</v-icon>
           </v-btn>
         </template>
-        <v-list dense class="pa-0">
+        <v-list dense class="pa-0 transparent">
           <v-list-item
             v-if="allowExpand"
             class="px-3"
@@ -90,6 +91,7 @@
       </v-menu>
       <v-menu
         v-else-if="displayPlacementMenu"
+        content-class="application-menu layout-drawer"
         open-on-hover
         offset-y
         bottom
@@ -104,7 +106,7 @@
             <v-icon v-text="expandIcon" size="20" />
           </v-btn>
         </template>
-        <v-list dense class="pa-0">
+        <v-list dense class="pa-0 transparent">
           <v-list-item
             v-if="allowExpand"
             class="px-3"
