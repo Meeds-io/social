@@ -33,7 +33,7 @@
       :position-x="menuX"
       :position-y="menuY"
       :close-on-content-click="false"
-      content-class="reaction-chooser rounded-xl"
+      content-class="reaction-chooser rounded-xl layout-drawer"
       transition="fade-transition"
       z-index="2000"
       absolute
@@ -41,7 +41,7 @@
       allow-overflow>
       <v-card
         :aria-label="$t('UIActivity.label.reactions')"
-        class="d-flex flex-nowrap align-center pa-1 white"
+        class="d-flex flex-nowrap align-center pa-1 transparent"
         role="menu"
         flat
         @mouseenter="cancelCloseTimer"
