@@ -19,17 +19,25 @@
 package io.meeds.social.cms.plugin;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.ListResourceBundle;
 import java.util.Locale;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.services.security.Identity;
 
 import io.meeds.portal.permlink.model.PermanentLinkObject;
@@ -108,6 +116,20 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
                                                                      ADDITIONAL_CONTENT +
                                                                          "<content-link contenteditable=\"false\" style=\"display: none;\">/noPlugin:89665</content-link>";
 
+  private static final String                 PRIVATE_LINK_TYPE              = "privateTestContentLink";
+
+  private static final String                 PRIVATE_TITLE_KEY              = "contentLink.privateTestContentLink";
+
+  private static final String                 PRIVATE_LINK_CHIP              =
+                                                                ADDITIONAL_CONTENT +
+                                                                    "<a is=\"content-link-drawer\" data-object=\"privateTestContentLink:%s\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                    "<i aria-hidden=\"true\" class=\"pluginIcon v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>Private item" +
+                                                                    "</a>";
+
+  private static final String                 PRIVATE_LINK_TAG               =
+                                                               ADDITIONAL_CONTENT +
+                                                                   "<content-link contenteditable=\"false\" style=\"display: none;\">/privateTestContentLink:%s</content-link>";
+
   @Autowired
   private ContentLinkPluginService            contentLinkPluginService;
 
@@ -117,6 +139,11 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
   @Autowired
   private UserACL                             userAcl;
 
+  @Autowired
+  private ContentLinkHtmlTransformerPlugin    contentLinkHtmlTransformerPlugin;
+
+  private Object                              resourceBundleService;
+
   @Override
   @Before
   public void setUp() {
@@ -124,6 +151,70 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
     addAclPlugin(CONTENT_LINK_TYPE);
     addPermanentLinkPlugin(CONTENT_LINK_TYPE);
     addContentLinkPlugin();
+    addAclPlugin(PRIVATE_LINK_TYPE);
+    addPermanentLinkPlugin(PRIVATE_LINK_TYPE);
+    addPrivateContentLinkPlugin();
+    resourceBundleService = ReflectionTestUtils.getField(contentLinkHtmlTransformerPlugin, "resourceBundleService");
+    ResourceBundleService typesBundleService = mock(ResourceBundleService.class);
+    when(typesBundleService.getResourceBundle(eq("locale.portlet.ContentLink"), any(Locale.class))).thenReturn(new ListResourceBundle() {
+      @Override
+      protected Object[][] getContents() {
+        return new Object[][] { { PRIVATE_TITLE_KEY, "Private item" } };
+      }
+    });
+    ReflectionTestUtils.setField(contentLinkHtmlTransformerPlugin, "resourceBundleService", typesBundleService);
+  }
+
+  /**
+   * Gives the shared transformer its bundle service back.
+   */
+  @Override
+  @After
+  public void tearDown() {
+    ReflectionTestUtils.setField(contentLinkHtmlTransformerPlugin, "resourceBundleService", resourceBundleService);
+    super.tearDown();
+  }
+
+  /**
+   * A type declaring a private label shows it, with the type's icon and no link,
+   * on the chip of an object its reader may not view.
+   */
+  @Test
+  @SneakyThrows
+  public void testPrivateContentLinkRestricted() {
+    assertEquals(String.format(PRIVATE_LINK_CHIP, CONTENT_LINK_RESTRICTED_ID),
+                 HtmlUtils.transform(String.format(PRIVATE_LINK_TAG, CONTENT_LINK_RESTRICTED_ID), CONTENT_LINK_USER_CONTEXT)
+                          .trim());
+  }
+
+  /**
+   * A missing object of such a type renders exactly as a refused one: the chip
+   * tells nothing of whether the object exists.
+   */
+  @Test
+  @SneakyThrows
+  public void testPrivateContentLinkNotFoundLooksLikeRestricted() {
+    String missingId = "89665";
+    String restricted = HtmlUtils.transform(String.format(PRIVATE_LINK_TAG, CONTENT_LINK_RESTRICTED_ID),
+                                            CONTENT_LINK_USER_CONTEXT)
+                                 .trim();
+    String missing = HtmlUtils.transform(String.format(PRIVATE_LINK_TAG, missingId), CONTENT_LINK_USER_CONTEXT).trim();
+    assertEquals(String.format(PRIVATE_LINK_CHIP, missingId), missing);
+    assertEquals(restricted, missing.replace(missingId, CONTENT_LINK_RESTRICTED_ID));
+  }
+
+  /**
+   * A private label changes nothing for a reader who may view the object: the
+   * chip keeps the object's title and link.
+   */
+  @Test
+  @SneakyThrows
+  public void testPrivateContentLinkVisible() {
+    assertEquals(ADDITIONAL_CONTENT
+        + "<a href=\"linkToContent\" is=\"content-link-drawer\" data-object=\"privateTestContentLink:5874\" contenteditable=\"false\" class=\"content-link\">"
+        + "<i aria-hidden=\"true\" class=\"pluginIcon v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>contentTitle"
+        + "</a>",
+                 HtmlUtils.transform(String.format(PRIVATE_LINK_TAG, CONTENT_LINK_ID), CONTENT_LINK_CONTEXT).trim());
   }
 
   @Test
@@ -191,6 +282,40 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
         """.replace("\n", "").trim();
 
     assertEquals(expected, HtmlUtils.transform(html, CONTENT_LINK_CONTEXT).trim());
+  }
+
+  /**
+   * Registers a drawer type declaring a private label, resolving the same
+   * objects as the generic test type.
+   */
+  private void addPrivateContentLinkPlugin() {
+    contentLinkPluginService.addPlugin(new ContentLinkPlugin() {
+
+      @Override
+      public List<ContentLinkSearchResult> search(String keyword, Identity identity, Locale locale, int offset, int limit) {
+        return Collections.emptyList();
+      }
+
+      @Override
+      public ContentLinkExtension getExtension() {
+        return new ContentLinkExtension(PRIVATE_LINK_TYPE,
+                                        PLUGIN_TITLE_KEY,
+                                        PLUGIN_ICON,
+                                        PLUGIN_COMMAND,
+                                        true,
+                                        false,
+                                        PRIVATE_TITLE_KEY);
+      }
+
+      @Override
+      public String getContentTitle(String objectId, Locale locale) {
+        if (CONTENT_LINK_ID.equals(objectId) || CONTENT_LINK_RESTRICTED_ID.equals(objectId)) {
+          return CONTENT_LINK_TITLE;
+        } else {
+          return null;
+        }
+      }
+    });
   }
 
   private void addAclPlugin(String objectType) {
