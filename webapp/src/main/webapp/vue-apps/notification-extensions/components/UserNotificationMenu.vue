@@ -31,6 +31,7 @@
     :attach="!absolute"
     :absolute="absolute"
     class="z-index-modal"
+    content-class="application-menu layout-drawer"
     offset-y
     bottom>
     <template #activator="{ on, attrs }">
@@ -45,7 +46,7 @@
       </v-btn>
     </template>
     <v-hover v-if="menu" @input="hoverMenu = $event">
-      <v-list dense class="white pa-0">
+      <v-list dense class="pa-0">
         <v-list-item
           dense
           @click="$emit('select')">
