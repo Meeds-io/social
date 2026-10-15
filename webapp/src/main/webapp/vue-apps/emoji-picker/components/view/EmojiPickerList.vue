@@ -19,7 +19,7 @@
 
 <template>
   <v-card
-    class="border-box-sizing"
+    class="border-box-sizing transparent"
     flat>
     <emoji-picker-list-category
       :categories="emojiCategories"
@@ -57,7 +57,7 @@
             v-for="emoji in item.emojis"
             :key="emoji.unicode"
             :title="emoji.shortcodes?.[0]"
-            class="pa-1 btn btn-default no-border"
+            class="pa-1 btn btn-default no-border transparent"
             icon
             @click="selectEmoji(emoji)">
             <v-icon
