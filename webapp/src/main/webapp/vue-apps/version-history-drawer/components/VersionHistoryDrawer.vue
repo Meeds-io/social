@@ -39,7 +39,7 @@
             <v-list-item
               v-for="version in versions"
               :key="version.id"
-              :class="[version.current? 'light-grey-background-color' : '']"
+              :class="[version.current? 'comment-background-color' : '']"
               @click="openVersion(version)"
               class="history-line pa-2 mb-2 border-color border-radius d-block">
               <version-card
