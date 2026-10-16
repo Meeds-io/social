@@ -19,7 +19,7 @@
       :item-text="itemText"
       :cache-items="!ignoreCache"
       append-icon=""
-      menu-props="closeOnClick, closeOnContentClick, maxHeight = 100"
+      :menu-props="{ closeOnClick: true, closeOnContentClick: true, contentClass: 'application-menu layout-drawer' }"
       class="identitySuggester"
       content-class="identitySuggesterContent"
       width="100%"
