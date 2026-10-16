@@ -97,6 +97,7 @@
           {{ $t('social.spaces.administration.manageSpaces.cancel') }}
         </v-btn>
         <v-btn
+          :disabled="$root.isBusy"
           color="primary"
           elevation="0"
           @click="apply">
@@ -175,6 +176,9 @@ export default {
       this.$root.selectedTemplateId = this.selectedTemplateId || '0';
       this.$root.selectedRegistration = this.selectedRegistration || '';
       this.$root.selectedVisibility = this.selectedVisibility || '';
+      if (this.$root.isFilteredByTemplate || this.$root.isFilteredByRegistration || this.$root.isFilteredByVisibility) {
+        this.$root.resetContributedSort();
+      }
       this.$root.$emit('spaces-administration-list-refresh', true);
       this.close();
     },

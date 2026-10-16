@@ -26,6 +26,12 @@
     min-height="calc(var(--100vh, 100vh) - 220px)"
     flat>
     <div id="spacesAdministrationListBody" class="flex-grow-1 flex-shrink-1 pt-2">
+      <div
+        role="status"
+        aria-live="polite"
+        class="d-sr-only">
+        {{ selectionStatus }}
+      </div>
       <v-data-table
         v-if="$root.spacesSize || !$root.initialized"
         v-model="$root.selectedSpaces"
@@ -35,7 +41,7 @@
         :hide-default-header="$root.isMobile"
         :options.sync="options"
         :disable-sort="!canSort || $root.isMobile"
-        :must-sort="canSort"
+        :must-sort="sortEnabled"
         :show-select="!$root.isMobile"
         class="spacesAdministrationTable full-width px-0"
         disable-pagination
@@ -44,7 +50,8 @@
           <v-checkbox
             v-on="on"
             v-bind="props"
-            :disabled="$root.isBulkProcessing"
+            :disabled="$root.isBusy"
+            :aria-label="$t('social.spaces.administration.manageSpaces.selectAllSpacesOnPage')"
             on-icon="fas fa-check-square fa-lg primary--text"
             indeterminate-icon="fas fa-minus-square fa-lg"
             off-icon="far fa-square fa-lg"
@@ -60,7 +67,25 @@
                 border="left"
                 type="info"
                 colored-border>
-                <div v-html="selectionLabel"></div>
+                <div>
+                  <template v-for="(part, index) in selectionLabelParts">
+                    <strong v-if="part.strong" :key="index">{{ part.text }}</strong>
+                    <button
+                      v-else-if="part.button"
+                      :key="index"
+                      :disabled="$root.isBusy"
+                      :class="$root.isBusy ? 'text-disabled-color' : 'primary--text'"
+                      class="font-weight-bold"
+                      type="button"
+                      @click="selectAllSpaces">
+                      <template v-for="(buttonPart, buttonIndex) in part.parts">
+                        <strong v-if="buttonPart.strong" :key="buttonIndex">{{ buttonPart.text }}</strong>
+                        <template v-else>{{ buttonPart.text }}</template>
+                      </template>
+                    </button>
+                    <span v-else :key="index">{{ part.text }}</span>
+                  </template>
+                </div>
               </v-alert>
             </td>
           </tr>
@@ -116,6 +141,7 @@
       class="flex-grow-0 flex-shrink-0 pb-5 border-box-sizing px-2">
       <v-btn
         :loading="$root.loadingSpaces"
+        :disabled="$root.isBusy"
         class="loadMoreButton border-color elevation-0 ma-auto"
         block
         @click="$root.loadNextPage">
@@ -134,11 +160,16 @@ export default {
     },
   }),
   computed: {
-    canSort() {
+    sortEnabled() {
       // Sort is made by pertinence
       // When search by keyword, thus disable
       // when the text search is used
       return !this.$root.keyword?.length && !this.$root.isBulkProcessing;
+    },
+    canSort() {
+      // Busy disables the headers only: must-sort is part of the table
+      // options, which a busy page leaves unchanged
+      return this.sortEnabled && !this.$root.isBusy;
     },
     headers() {
       const headers = this.$root.isMobile && [
@@ -217,30 +248,61 @@ export default {
         },
       ];
       if (!this.$root.isMobile) {
-        this.$root.tableColumnExtensions.forEach(extension => headers.splice(1, 0, {
+        // A contributed sort applies to the unfiltered list with no keyword only
+        const filtered = this.$root.keyword?.length
+          || this.$root.isFilteredByTemplate
+          || this.$root.isFilteredByRegistration
+          || this.$root.isFilteredByVisibility;
+        // In rank order, as the row cells are
+        headers.splice(1, 0, ...this.$root.tableColumnExtensions.map(extension => ({
           ...extension.header,
+          sortable: !!extension.header?.sortable && !filtered,
           text: this.$t(extension.titleKey)
-        }));
+        })));
       }
       return headers;
     },
-    selectionLabel() {
+    selectionLabelKey() {
       if (this.$root.allSpacesSelected) {
-        return this.$t('social.spaces.administration.manageSpaces.allSpacesSelected', {
-          0: `<strong>${this.$root.spacesSize}</strong>`,
-        });
+        return 'social.spaces.administration.manageSpaces.allSpacesSelected';
       } else if (this.$root.selectedSpaces.length === this.$root.spaces.length && this.$root.spaces.length < this.$root.spacesSize) {
-        return this.$t('social.spaces.administration.manageSpaces.allDisplayedSpacesSelected', {
-          0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
-          1: '<a class="primary--text font-weight-bold" onclick="window.dispatchEvent(new CustomEvent(\'select-all-spaces\'))">',
-          2: this.$root.spacesSize,
-          3: '</a>',
-        });
+        return 'social.spaces.administration.manageSpaces.allDisplayedSpacesSelected';
       } else {
-        return this.$t('social.spaces.administration.manageSpaces.selectedSpacesCount', {
-          0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
-        });
+        return 'social.spaces.administration.manageSpaces.selectedSpacesCount';
       }
+    },
+    selectionLabelParts() {
+      // The label's placeholders: {0} the selected count, {1} and {3} the
+      // bounds of the select-all button, {2} the matching spaces count. The
+      // translation is rendered as text around them, never as HTML
+      const count = this.$root.allSpacesSelected ? this.$root.spacesSize : this.$root.selectedSpaces.length;
+      const tokens = this.$t(this.selectionLabelKey, [0, 1, 2, 3].map(index => `@@${index}@@`))
+        .split(/@@(\d)@@/);
+      const parts = [];
+      let button = null;
+      tokens.forEach((token, index) => {
+        const target = button?.parts || parts;
+        if (index % 2 === 0) {
+          if (token) {
+            target.push({text: token});
+          }
+        } else if (token === '0') {
+          target.push({text: String(count), strong: true});
+        } else if (token === '1') {
+          button = {button: true, parts: []};
+          parts.push(button);
+        } else if (token === '2') {
+          target.push({text: String(this.$root.spacesSize)});
+        } else if (token === '3') {
+          button = null;
+        }
+      });
+      return parts;
+    },
+    selectionStatus() {
+      return this.$root.selectedSpaces.length
+        && this.selectionLabelParts.map(part => part.text ?? part.parts.map(buttonPart => buttonPart.text).join('')).join('')
+        || '';
     },
     selectedSpaces() {
       return this.$root.selectedSpaces;
@@ -250,6 +312,9 @@ export default {
     },
     isAllowOptionsWatching() {
       return !this.$root.isBulkProcessing && this.allowOptionsWatching;
+    },
+    rootSort() {
+      return `${this.$root.sortBy}:${!!this.$root.sortDesc}`;
     },
   },
   watch: {
@@ -261,8 +326,25 @@ export default {
         this.$nextTick().then(() => window.setTimeout(() => this.allowOptionsWatching = true, 200));
       }
     },
+    rootSort() {
+      // The root's sort was reset: the table follows it, with no load of its own
+      const sortBy = this.$root.sortBy;
+      const sortDesc = !!this.$root.sortDesc;
+      if (this.options?.sortBy?.[0] !== sortBy || !!this.options?.sortDesc?.[0] !== sortDesc) {
+        this.options = {
+          ...this.options,
+          sortBy: [sortBy],
+          sortDesc: [sortDesc],
+        };
+      }
+    },
     options: {
       handler () {
+        if (this.options?.sortBy?.[0] === this.$root.sortBy
+            && !!this.options?.sortDesc?.[0] === !!this.$root.sortDesc) {
+          // The list is already sorted this way
+          return;
+        }
         if (!this.$root.keyword?.length && this.isAllowOptionsWatching) {
           this.$root.sortBy = this.options?.sortBy?.[0];
           this.$root.sortDesc = this.options?.sortDesc?.[0];
@@ -274,10 +356,6 @@ export default {
   },
   created() {
     this.$root.searchSpaces();
-    window.addEventListener('select-all-spaces', this.selectAllSpaces);
-  },
-  beforeDestroy() {
-    window.removeEventListener('select-all-spaces', this.selectAllSpaces);
   },
   methods: {
     selectAllSpaces() {

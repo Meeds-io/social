@@ -43,6 +43,8 @@ import SpacesAdministrationBulkApplyTemplate from './components/bulk-action/Spac
 import SpacesAdministrationBulkSyncMembers from './components/bulk-action/SpacesAdministrationBulkSyncMembers.vue';
 import SpacesAdministrationBulkDelete from './components/bulk-action/SpacesAdministrationBulkDelete.vue';
 import SpacesAdministrationBulkPermissions from './components/bulk-action/SpacesAdministrationBulkPermissions.vue';
+import SpacesAdministrationBulkExport from './components/bulk-action/SpacesAdministrationBulkExport.vue';
+import SpacesAdministrationExportAlert from './components/bulk-action/SpacesAdministrationExportAlert.vue';
 
 import SpacesAdministrationBindingReportItem from './components/binding-report/SpacesAdministrationBindingReportItem.vue';
 import SpacesAdministrationBindingReportList from './components/binding-report/SpacesAdministrationBindingReportList.vue';
@@ -86,6 +88,8 @@ const components = {
   'spaces-administration-bulk-sync-members': SpacesAdministrationBulkSyncMembers,
   'spaces-administration-bulk-delete': SpacesAdministrationBulkDelete,
   'spaces-administration-bulk-permissions': SpacesAdministrationBulkPermissions,
+  'spaces-administration-bulk-export': SpacesAdministrationBulkExport,
+  'spaces-administration-export-alert': SpacesAdministrationExportAlert,
 
   'spaces-administration-managers-drawer': SpacesAdministrationManagersDrawer,
   'spaces-administration-sync-members-drawer': SpacesAdministrationSyncMembersDrawer,

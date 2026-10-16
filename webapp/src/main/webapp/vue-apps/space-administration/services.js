@@ -19,6 +19,7 @@
 
 import * as spaceBindingService from './js/SpaceBindingService.js';
 import * as spaceAdministrationService from './js/SpaceAdministrationService.js';
+import * as spaceExportService from './js/SpaceExportService.js';
 
 if (!Vue.prototype.$spaceBindingService) {
   window.Object.defineProperty(Vue.prototype, '$spaceBindingService', {
@@ -32,3 +33,8 @@ if (!Vue.prototype.$spaceAdministrationService) {
   });
 }
 
+if (!Vue.prototype.$spaceExportService) {
+  window.Object.defineProperty(Vue.prototype, '$spaceExportService', {
+    value: spaceExportService,
+  });
+}
