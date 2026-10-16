@@ -65,6 +65,7 @@
         v-else
         :value="selected || $root.allSpacesSelected"
         :disabled="bulkOperationStatus === 'disabled'"
+        :aria-label="$t('social.spaces.administration.manageSpaces.selectSpace', {0: space.displayName})"
         on-icon="fas fa-check-square fa-lg primary--text"
         off-icon="far fa-square fa-lg"
         class="my-auto pt-2"
@@ -142,7 +143,7 @@
       align="center">
       <v-btn
         :title="bindingStatusTitle"
-        :disabled="$root.isBulkProcessing"
+        :disabled="$root.isBusy"
         icon
         @click="$root.$emit('space-administration-sync-members-drawer-open', space)">
         <v-icon :class="boundToGroup && 'success--text'" size="20">fa-users</v-icon>
