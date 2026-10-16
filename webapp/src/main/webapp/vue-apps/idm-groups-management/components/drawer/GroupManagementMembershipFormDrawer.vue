@@ -62,7 +62,7 @@
               autofocus
               item-text="fullName"
               item-value="userName"
-              menu-props="closeOnClick, closeOnContentClick, maxHeight = 100"
+              :menu-props="{ closeOnClick: true, closeOnContentClick: true, contentClass: 'application-menu layout-drawer' }"
               class="identitySuggester identitySuggesterInputStyle"
               content-class="identitySuggesterContent"
               append-icon=""
