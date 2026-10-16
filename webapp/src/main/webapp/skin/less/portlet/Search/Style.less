@@ -26,3 +26,10 @@
     top: 0;
   }
 }
+
+/* The search results are clickable cards contributed by each search connector: the drawer surface rule leaves a
+   clickable card to Vuetify's white, so they are made transparent here to show the Drawers & Popup background and
+   image. Not !important, so a hover or colour helper class on a card still applies */
+#searchDialog .v-card.v-card--link {
+  background-color: transparent;
+}
