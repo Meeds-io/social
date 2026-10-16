@@ -26,10 +26,10 @@
       color="primary"
       class="me-4 my-auto" />
     <div class="d-flex flex-column me-2">
-      <span>{{ $t('social.spaces.administration.manageSpaces.processingSpacesBulkOperation1') }}</span>
-      <span>{{ $t('social.spaces.administration.manageSpaces.processingSpacesBulkOperation2') }}</span>
+      <span>{{ $t(labels.line1) }}</span>
+      <span>{{ $t(labels.line2) }}</span>
       <span
-        v-sanitized-html="$t('social.spaces.administration.manageSpaces.processingSpacesBulkOperation3', {
+        v-sanitized-html="$t(labels.line3, {
           0: `<span class='text-subtitle'>`,
           1: '</span>',
         })"></span>
@@ -49,8 +49,17 @@ export default {
     processedSpaces() {
       return this.options.processedSpaces;
     },
+    labels() {
+      return {
+        line1: 'social.spaces.administration.manageSpaces.processingSpacesBulkOperation1',
+        line2: 'social.spaces.administration.manageSpaces.processingSpacesBulkOperation2',
+        line3: 'social.spaces.administration.manageSpaces.processingSpacesBulkOperation3',
+        ...this.options.bulkOperationLabels,
+      };
+    },
     selectedSpacesCount() {
-      return this.options.allSpacesSelected ? this.options.spacesSize : this.options.selectedSpaces.length;
+      return this.options.bulkOperationTotal
+        ?? (this.options.allSpacesSelected ? this.options.spacesSize : this.options.selectedSpaces.length);
     },
     progress() {
       return parseInt(this.processedSpaces / this.selectedSpacesCount * 100);

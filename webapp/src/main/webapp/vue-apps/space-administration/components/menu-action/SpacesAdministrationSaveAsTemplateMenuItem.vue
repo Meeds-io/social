@@ -47,44 +47,59 @@ export default {
       this.$emit('loading', true);
       window.require(['PORTLET/social/SpaceTemplateManagement'], () => {
         window.setTimeout(async () => {
-          const bannerBlob = await fetch(this.space.bannerUrl, {
-            credentials: 'include',
-            method: 'GET',
-          }).then(resp => resp?.ok && resp.blob());
-          const bannerData = bannerBlob && await this.$utils.blobToBase64(bannerBlob);
-          const bannerUploadId = bannerBlob && await this.$uploadService.upload(bannerBlob);
+          try {
+            const bannerBlob = await fetch(this.space.bannerUrl, {
+              credentials: 'include',
+              method: 'GET',
+            }).then(resp => resp?.ok && resp.blob());
+            const bannerData = bannerBlob && await this.$utils.blobToBase64(bannerBlob);
+            const bannerUploadId = bannerBlob && await this.$uploadService.upload(bannerBlob);
 
-          const translationConfiguration = await this.$translationService.getTranslationConfiguration();
-          const nameTranslations = {};
-          const descriptionTranslations = {};
-          nameTranslations[translationConfiguration?.defaultLanguage] = this.space.displayName;
-          descriptionTranslations[translationConfiguration?.defaultLanguage] = this.space.description;
-          const spaceTemplate = this.space.templateId && this.$root.spaceTemplates.find(t => t.id === this.space.templateId);
-          const permissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
+            const translationConfiguration = await this.$translationService.getTranslationConfiguration();
+            const nameTranslations = {};
+            const descriptionTranslations = {};
+            nameTranslations[translationConfiguration?.defaultLanguage] = this.space.displayName;
+            descriptionTranslations[translationConfiguration?.defaultLanguage] = this.space.description;
+            const spaceTemplate = this.space.templateId && this.$root.spaceTemplates.find(t => t.id === this.space.templateId);
+            const permissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
 
-          this.$root.$emit('space-templates-name-open',
-            {
-              enabled: true,
-              icon: spaceTemplate?.icon || 'fa-people-arrows',
-              spaceFields: spaceTemplate?.spaceFields || ['name', 'invitation', 'properties', 'access'],
-              permissions: spaceTemplate?.permissions,
-              layout: `group::${this.space.groupId}`,
-              spaceDefaultVisibility: this.space.visibility?.toUpperCase?.(),
-              spaceDefaultRegistration: this.space.subscription?.toUpperCase?.(),
-              spaceAllowContentCreation: !!this.space.redactorsCount,
-              spaceLayoutPermissions: permissions?.layoutPermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
-              spacePublicSitePermissions: permissions?.publicSitePermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
-              spaceDeletePermissions: permissions?.deletePermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
-            },
-            this.space.displayName,
-            nameTranslations,
-            this.space.description,
-            descriptionTranslations,
-            true,
-            bannerUploadId,
-            bannerData);
-          this.$emit('loading', false);
+            this.$root.$emit('space-templates-name-open',
+              {
+                enabled: true,
+                icon: spaceTemplate?.icon || 'fa-people-arrows',
+                spaceFields: spaceTemplate?.spaceFields || ['name', 'invitation', 'properties', 'access'],
+                permissions: spaceTemplate?.permissions,
+                layout: `group::${this.space.groupId}`,
+                spaceDefaultVisibility: this.space.visibility?.toUpperCase?.(),
+                spaceDefaultRegistration: this.space.subscription?.toUpperCase?.(),
+                spaceAllowContentCreation: !!this.space.redactorsCount,
+                spaceLayoutPermissions: permissions?.layoutPermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
+                spacePublicSitePermissions: permissions?.publicSitePermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
+                spaceDeletePermissions: permissions?.deletePermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
+              },
+              this.space.displayName,
+              nameTranslations,
+              this.space.description,
+              descriptionTranslations,
+              true,
+              bannerUploadId,
+              bannerData);
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error('Error preparing the space template of space', this.space.id, e);
+            this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.errorSpacesBulkOperation'), 'error');
+          } finally {
+            this.$emit('loading', false);
+          }
         }, 200);
+      }, error => {
+        // A module that failed to load stays registered as requested and
+        // never settles again: it is undefined, so that a retry loads it again
+        window.require.undef?.('PORTLET/social/SpaceTemplateManagement');
+        // eslint-disable-next-line no-console
+        console.error('Error loading the space templates management', error);
+        this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.errorSpacesBulkOperation'), 'error');
+        this.$emit('loading', false);
       });
     },
   },

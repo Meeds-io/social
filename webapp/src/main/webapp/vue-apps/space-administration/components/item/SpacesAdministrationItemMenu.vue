@@ -37,7 +37,7 @@
         v-bind="attrs"
         v-on="on"
         :title="$t('social.spaces.administration.manageSpaces.spaceActionsMenu')"
-        :disabled="$root.isBulkProcessing"
+        :disabled="$root.isBusy"
         :loading="loading"
         icon>
         <v-icon size="20">fa-ellipsis-v</v-icon>
@@ -52,7 +52,7 @@
         :key="extension.name"
         :is="extension.componentName"
         :space="space"
-        @loading="loading = $event" />
+        @loading="setLoading" />
     </v-list>
   </component>
 </template>
@@ -84,10 +84,22 @@ export default {
     this.$root.$on('spaces-administration-list-menu-opened', this.closeMenu);
   },
   beforeDestroy() {
+    if (this.loading) {
+      this.$root.rowActionsInFlight--;
+    }
     this.$root.$off('spaces-administration-list-menu-opened', this.closeMenu);
     document.removeEventListener('mousedown', this.closeMenu);
   },
   methods: {
+    setLoading(loading) {
+      // The page is busy while a row action is in flight
+      if (loading && !this.loading) {
+        this.$root.rowActionsInFlight++;
+      } else if (!loading && this.loading) {
+        this.$root.rowActionsInFlight--;
+      }
+      this.loading = loading;
+    },
     closeMenu(event) {
       if (event !== this.id) {
         if (event?.target) {
