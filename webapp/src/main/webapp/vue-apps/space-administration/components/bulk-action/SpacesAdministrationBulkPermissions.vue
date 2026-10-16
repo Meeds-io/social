@@ -21,7 +21,7 @@
 -->
 <template>
   <v-btn
-    :disabled="$root.isBulkProcessing"
+    :disabled="$root.isBusy"
     color="primary"
     elevation="0"
     outlined

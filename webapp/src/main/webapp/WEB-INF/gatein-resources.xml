@@ -3408,6 +3408,19 @@
   </module>
 
   <module>
+    <name>exceljs</name>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/lib/exceljs.min.js</include>
+        return ExcelJS;
+        })();
+      </adapter>
+    </script>
+  </module>
+
+  <module>
     <name>fontIcons</name>
     <script>
       <minify>false</minify>

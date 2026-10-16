@@ -21,7 +21,7 @@
 <template>
   <div class="d-inline">
     <v-btn
-      :disabled="$root.isBulkProcessing"
+      :disabled="$root.isBusy"
       color="error"
       elevation="0"
       outlined
