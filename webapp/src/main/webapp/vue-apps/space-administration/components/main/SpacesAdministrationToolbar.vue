@@ -30,7 +30,7 @@
     }"
     :right-filter-button="{
       text: $t('social.spaces.administration.manageSpaces.filter'),
-      disabled: $root.isBulkProcessing,
+      disabled: $root.isBusy,
       displayText: !$root.isMobile,
     }"
     :filters-count="filtersCount"
