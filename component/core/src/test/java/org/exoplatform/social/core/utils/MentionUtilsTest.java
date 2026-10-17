@@ -23,6 +23,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.Locale;
+
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -48,6 +52,10 @@ public class MentionUtilsTest { // NOSONAR
   private static final String                     JOHN_FULL_NAME_MATCH = "<span>" + JOHN_FULL_NAME + "</span>";
 
   private static final String                     PORTAL_OWNER         = "public";
+
+  private static final String                     SPACE_IDENTITY_ID    = "12";
+
+  private static final String                     MANAGER_ROLE_LINK    = "<span>Managers</span>";
 
   // what LinkProvider emits for a profile value holding a $ and a backslash
   private static final String                     JANE_LINK            = "<a v-identity-popover=\"{displayedPhone: '+33 $1 \\\\ 42'}\">Jane</a>";
@@ -118,5 +126,85 @@ public class MentionUtilsTest { // NOSONAR
     message = MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, message);
     assertEquals(1, StringUtils.countMatches(message, ROOT_FULL_NAME_MATCH));
     assertEquals(1, StringUtils.countMatches(message, JOHN_FULL_NAME_MATCH));
+  }
+
+  /**
+   * A mention written right before a closing tag, as a Markdown-rendered
+   * activity title has it, keeps the tag whole after the link.
+   */
+  @Test
+  public void testSubstituteUsernamesKeepsTheClosingTagRightAfterTheMention() {
+    assertEquals("<p>Scope check M2: please review the NDA template " + ROOT_FULL_NAME_MATCH + "</p>",
+                 MentionUtils.substituteUsernames(identityManager,
+                                                  PORTAL_OWNER,
+                                                  "<p>Scope check M2: please review the NDA template @root</p>"));
+    assertEquals("<strong>" + ROOT_FULL_NAME_MATCH + "</strong> done",
+                 MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, "<strong>@root</strong> done"));
+    assertEquals("<ul><li>" + ROOT_FULL_NAME_MATCH + "</li><li>" + JOHN_FULL_NAME_MATCH + "</li></ul>",
+                 MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, "<ul><li>@root</li><li>@john</li></ul>"));
+    assertEquals(ROOT_FULL_NAME_MATCH + "<br>next line",
+                 MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, "@root<br>next line"));
+    assertEquals("hello " + ROOT_FULL_NAME_MATCH + "<",
+                 MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, "hello @root<"));
+  }
+
+  /**
+   * A mention followed by a whitespace or by the end of the text keeps the
+   * single space written after the link.
+   */
+  @Test
+  public void testSubstituteUsernamesKeepsASpaceAfterAMentionInText() {
+    assertEquals("hello " + ROOT_FULL_NAME_MATCH + " and " + JOHN_FULL_NAME_MATCH,
+                 MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, "hello @root and @john"));
+    assertEquals("hello " + ROOT_FULL_NAME_MATCH + " there",
+                 MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, "hello @root\tthere"));
+    assertEquals("<p>hello " + ROOT_FULL_NAME_MATCH + " there</p>",
+                 MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, "<p>hello @root there</p>"));
+  }
+
+  /**
+   * The username extracted from a mention right before a closing tag is the
+   * bare username, as for a mention followed by a space.
+   */
+  @Test
+  public void testGetMentionedUsernamesBeforeAClosingTag() throws Exception {
+    setIdentityManager(identityManager);
+    try {
+      assertEquals(Collections.singleton("root"),
+                   MentionUtils.getMentionedUsernames("<p>please review the NDA template @root</p>"));
+      assertEquals(Collections.singleton("root"), MentionUtils.getMentionedUsernames("<strong>@root</strong>"));
+      assertEquals(Collections.singleton("root"), MentionUtils.getMentionedUsernames("hello @root there"));
+    } finally {
+      setIdentityManager(null);
+    }
+  }
+
+  /**
+   * A role mention right before a closing tag keeps the tag whole after the
+   * role link, and the extracted role is the bare role.
+   */
+  @Test
+  public void testSubstituteRolesKeepsTheClosingTagRightAfterTheMention() {
+    when(identityManager.getIdentity(Long.parseLong(SPACE_IDENTITY_ID))).thenReturn(identity);
+    LINK_PROVIDER_UTIL.when(() -> LinkProvider.getGroupRoleLink("manager", SPACE_IDENTITY_ID, Locale.ENGLISH))
+                      .thenReturn(MANAGER_ROLE_LINK);
+
+    assertEquals("<p>ping " + MANAGER_ROLE_LINK + "</p>",
+                 MentionUtils.substituteRoles(identityManager, "<p>ping @manager:12</p>", Locale.ENGLISH));
+    assertEquals("ping " + MANAGER_ROLE_LINK + " now",
+                 MentionUtils.substituteRoles(identityManager, "ping @manager:12 now", Locale.ENGLISH));
+    assertEquals(Collections.singleton("manager"), MentionUtils.getMentionedRoles("<p>ping @manager:12</p>", SPACE_IDENTITY_ID));
+  }
+
+  /**
+   * Sets the identity manager {@link MentionUtils} resolves lazily from the
+   * container.
+   *
+   * @param manager the identity manager to use, or null to reset it
+   */
+  private static void setIdentityManager(IdentityManager manager) throws Exception {
+    Field field = MentionUtils.class.getDeclaredField("identityManager");
+    field.setAccessible(true);
+    field.set(null, manager);
   }
 }
