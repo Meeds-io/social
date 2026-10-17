@@ -61,6 +61,14 @@ public class MentionUtils {
     // Static methods, thus no need to constructor
   }
 
+  /**
+   * Gives the usernames mentioned as {@code @username} in a message, a mention
+   * ending on a whitespace, the end of the text or the {@code <} of a tag, and
+   * keeps only the enabled, non-deleted users.
+   *
+   * @param message the message text or HTML
+   * @return the mentioned usernames, empty when none
+   */
   public static Set<String> getMentionedUsernames(String message) {
     if (message == null || message.trim().isEmpty()) {
       return Collections.emptySet();
@@ -69,10 +77,7 @@ public class MentionUtils {
     Set<String> usernames = new HashSet<>();
     Matcher matcher = USER_MENTION_PATTERN.matcher(message);
     while (matcher.find()) {
-      String username = matcher.group().substring(1).trim();
-      if (username.endsWith("<")) {
-        username = username.length() > 1 ? username.substring(0, username.length() - 1) : "";
-      }
+      String username = mentionText(matcher);
       if (StringUtils.isBlank(username)
           || !isUserEnabled(username)) {
         continue;
@@ -82,6 +87,15 @@ public class MentionUtils {
     return usernames;
   }
 
+  /**
+   * Gives the space roles mentioned as {@code @role:spaceIdentityId} in a
+   * message for the given space, a mention ending on a whitespace, the end of
+   * the text or the {@code <} of a tag.
+   *
+   * @param message the message text or HTML
+   * @param identityId the identity id of the space whose role mentions are kept
+   * @return the mentioned roles, empty when none
+   */
   public static Set<String> getMentionedRoles(String message, String identityId) {
     if (message == null || message.trim().isEmpty()) {
       return Collections.emptySet();
@@ -90,12 +104,9 @@ public class MentionUtils {
     Set<String> roles = new HashSet<>();
     Matcher matcher = ROLE_MENTION_PATTERN.matcher(message);
     while (matcher.find()) {
-      String[] roleParts = matcher.group().substring(1).trim().split(":");
+      String[] roleParts = mentionText(matcher).split(":");
       String role = roleParts[0];
       String groupIdentityId = roleParts[1];
-      if (role.endsWith("<")) {
-        role = role.length() > 1 ? role.substring(0, role.length() - 1) : "";
-      }
       if (StringUtils.isBlank(role)
           || !StringUtils.equals(identityId, groupIdentityId)) {
         continue;
@@ -142,6 +153,19 @@ public class MentionUtils {
     return substituteUsernames(identityManager, portalOwner, message, null);
   }
 
+  /**
+   * Replaces every {@code @username} mention of an enabled user by the user's
+   * profile link, then every role mention by its role link (see
+   * {@link #substituteRoles(IdentityManager, String, Locale)}). The link is
+   * followed by the {@code <} of the tag the mention preceded, or by a single
+   * space.
+   *
+   * @param identityManager the service resolving the mentioned identities
+   * @param portalOwner the portal owner used to build the profile URLs
+   * @param message the message text or HTML
+   * @param locale the locale of the role labels
+   * @return the message with its mentions substituted
+   */
   public static String substituteUsernames(IdentityManager identityManager, String portalOwner, String message, Locale locale) {
     if (message == null || message.trim().isEmpty()) {
       return message;
@@ -149,10 +173,7 @@ public class MentionUtils {
     Matcher matcher = USER_MENTION_PATTERN.matcher(message);
     StringBuffer buf = new StringBuffer();
     while (matcher.find()) {
-      String username = matcher.group().substring(1).trim();
-      if (username.endsWith("<")) {
-        username = username.length() > 1 ? username.substring(0, username.length() - 1) : "";
-      }
+      String username = mentionText(matcher);
       if (StringUtils.isBlank(username)) {
         continue;
       }
@@ -165,6 +186,16 @@ public class MentionUtils {
     return substituteRoles(identityManager, message, locale);
   }
 
+  /**
+   * Replaces every {@code @role:spaceIdentityId} mention of an enabled space by
+   * the space role link, followed by the {@code <} of the tag the mention
+   * preceded, or by a single space.
+   *
+   * @param identityManager the service resolving the space identities
+   * @param message the message text or HTML
+   * @param locale the locale of the role labels
+   * @return the message with its role mentions substituted
+   */
   public static String substituteRoles(IdentityManager identityManager, String message, Locale locale) {
     if (StringUtils.isBlank(message)) {
       return message;
@@ -173,12 +204,9 @@ public class MentionUtils {
     String identityId = null;
     StringBuffer buf = new StringBuffer();
     while (matcher.find()) {
-      String[] roleParts = matcher.group().substring(1).trim().split(":");
+      String[] roleParts = mentionText(matcher).split(":");
       String role = roleParts[0];
       identityId = roleParts[1];
-      if (role.endsWith("<")) {
-        role = role.length() > 1 ? role.substring(0, role.length() - 1) : "";
-      }
       Identity identity = identityManager.getIdentity(Long.parseLong(identityId));
       if (StringUtils.isBlank(role)
           || !isIdentityEnabled(identity)) {
@@ -227,6 +255,20 @@ public class MentionUtils {
     return message;
   }
 
+  /**
+   * Replaces the current user mention match with the user's profile link,
+   * followed by the delimiter the mention pattern consumed (see
+   * {@link #mentionDelimiter(Matcher)}). Leaves the mention as plain text when
+   * the user is unknown, deleted or disabled.
+   *
+   * @param identityManager the service resolving the mentioned user's identity
+   * @param matcher the matcher positioned on a {@code USER_MENTION_PATTERN}
+   *          match
+   * @param buf the buffer receiving the substituted text
+   * @param username the mentioned username, without its {@code @} and its
+   *          delimiter
+   * @param portalOwner the portal owner used to build the profile URL
+   */
   private static void appendUsernameReplacement(IdentityManager identityManager,
                                                 Matcher matcher,
                                                 StringBuffer buf,
@@ -241,13 +283,26 @@ public class MentionUtils {
       // Insert replacement
       if (StringUtils.isNotBlank(profileLink)) {
         // the link is literal text, not a replacement template: its $ and backslashes stay as they are
-        matcher.appendReplacement(buf, Matcher.quoteReplacement(profileLink + " "));
+        matcher.appendReplacement(buf, Matcher.quoteReplacement(profileLink + mentionDelimiter(matcher)));
       }
     } catch (Exception e) {
       LOG.warn("Error while retrieving link for profile of user {}", username, e);
     }
   }
 
+  /**
+   * Replaces the current role mention match with the space role link, followed
+   * by the delimiter the mention pattern consumed (see
+   * {@link #mentionDelimiter(Matcher)}).
+   *
+   * @param matcher the matcher positioned on a {@code ROLE_MENTION_PATTERN}
+   *          match
+   * @param buf the buffer receiving the substituted text
+   * @param role the mentioned role, without its {@code @}, its space identity id
+   *          and its delimiter
+   * @param identityId the identity id of the space whose role is mentioned
+   * @param locale the locale of the role label
+   */
   private static void appendRoleReplacement(Matcher matcher,
                                             StringBuffer buf,
                                             String role,
@@ -256,7 +311,7 @@ public class MentionUtils {
     try {
       String roleLink = LinkProvider.getGroupRoleLink(role, identityId, locale);
       if (StringUtils.isNotBlank(roleLink)) {
-        matcher.appendReplacement(buf, Matcher.quoteReplacement(roleLink + " "));
+        matcher.appendReplacement(buf, Matcher.quoteReplacement(roleLink + mentionDelimiter(matcher)));
       }
     } catch (Exception e) {
       LOG.warn("Error while retrieving link for role {} ans pace with identity id {}",
@@ -264,6 +319,36 @@ public class MentionUtils {
                identityId,
                e);
     }
+  }
+
+  /**
+   * Gives the text of the current mention match without its {@code @} and
+   * without the delimiter the mention pattern consumed: a whitespace, or the
+   * {@code <} of the tag that follows (as in {@code @alice</p>}). For a role
+   * mention, the delimiter is removed after the space identity id, where it
+   * sits.
+   *
+   * @param matcher the matcher positioned on a mention match
+   * @return the mentioned username, or the role and space identity id joined by
+   *         {@code :}
+   */
+  private static String mentionText(Matcher matcher) {
+    String mention = matcher.group().substring(1).trim();
+    return mention.endsWith("<") ? mention.substring(0, mention.length() - 1) : mention;
+  }
+
+  /**
+   * Gives the text to write after a mention link: the mention patterns consume
+   * the character that ends the mention, so a {@code <} that opens the next tag
+   * (as in {@code @alice</p>}) is given back, while a whitespace or the end of
+   * the text becomes a single space.
+   *
+   * @param matcher the matcher positioned on a mention match
+   * @return {@code "<"} when the match ends on a tag opening, {@code " "}
+   *         otherwise
+   */
+  private static String mentionDelimiter(Matcher matcher) {
+    return matcher.group().endsWith("<") ? "<" : " ";
   }
 
   private static boolean isUserEnabled(String username) {
