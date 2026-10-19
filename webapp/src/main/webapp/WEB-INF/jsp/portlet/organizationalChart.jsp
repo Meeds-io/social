@@ -17,6 +17,7 @@
 <%@ page import="io.meeds.social.translation.service.TranslationService" %>
 <%@ page import="io.meeds.social.translation.model.TranslationField" %>
 <%@ page import="java.util.Locale" %>
+<%@ page import="org.apache.commons.text.StringEscapeUtils" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
@@ -51,7 +52,7 @@
     if (labels != null && !labels.isEmpty()) {
         headerTitle = labels.get(request.getLocale());
         ObjectMapper mapper = new ObjectMapper();
-        headerTranslations = mapper.writeValueAsString(labels);
+        headerTranslations = mapper.writeValueAsString(labels).replace("</", "<\\/");
     }
     PortletPreferences preferences = renderRequest.getPreferences();
     boolean canUpdateCenterUser = Boolean.parseBoolean(preferences.getValue("canUpdateCenterUser", "true"));
@@ -87,8 +88,8 @@
         <% if (propertySetting.isActive()) { %>
             <script type="text/javascript">
                 require(['PORTLET/social/OrganizationalChart'], app => app.init('<%=id%>', {
-                                                                                                       userId: "<%=centerUser%>" !== 'null' && "<%=centerUser%>" || null,
-                                                                                                       title: "<%=headerTitle%>" !== 'null' && "<%=headerTitle%>" || null,
+                                                                                                       userId: "<%=StringEscapeUtils.escapeEcmaScript(centerUser)%>" !== 'null' && "<%=StringEscapeUtils.escapeEcmaScript(centerUser)%>" || null,
+                                                                                                       title: "<%=StringEscapeUtils.escapeEcmaScript(headerTitle)%>" !== 'null' && "<%=StringEscapeUtils.escapeEcmaScript(headerTitle)%>" || null,
                                                                                                        headerTranslations: <%=headerTranslations%>,
                                                                                                        canUpdateCenterUser: <%=canUpdateCenterUser%>,
                                                                                                        hasHeaderTitle: <%=hasHeaderTitle%>,
