@@ -40,6 +40,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.portal.config.UserACL;
@@ -155,6 +156,20 @@ public class OrganizationalChartSettingServiceTest {
     assertInvalid(APPLICATION_ID, "21", OrganizationalChartSettingService.INVALID_CENTER_USER_MESSAGE);
     assertInvalid(APPLICATION_ID, "22", OrganizationalChartSettingService.INVALID_CENTER_USER_MESSAGE);
     verify(settingService, never()).set(any(), any(), anyString(), any());
+  }
+
+  @Test
+  public void saveSettingsKeepsAStoredCenterUserDisabledSince() throws IllegalAccessException {
+    mockIdentity("21", OrganizationIdentityProvider.NAME, false, false);
+    when(settingService.get(Context.GLOBAL, SCOPE, "organizationalChartCenterUser")).thenAnswer(invocation -> SettingValue.create("21"));
+    organizationalChartSettingService.saveSettings(APPLICATION_ID, "21", false, ADMIN);
+    verify(settingService).set(eq(Context.GLOBAL),
+                               eq(SCOPE),
+                               eq("organizationalChartCenterUser"),
+                               argThat(value -> "21".equals(value.getValue())));
+
+    // Stored for another application, it is still refused
+    assertInvalid("126", "21", OrganizationalChartSettingService.INVALID_CENTER_USER_MESSAGE);
   }
 
   private void mockIdentity(String id, String providerId, boolean enabled, boolean deleted) {

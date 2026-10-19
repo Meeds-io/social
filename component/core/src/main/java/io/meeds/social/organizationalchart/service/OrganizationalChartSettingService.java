@@ -85,10 +85,10 @@ public class OrganizationalChartSettingService {
     if (applicationId == null || !NUMERIC_PATTERN.matcher(applicationId).matches()) {
       throw new IllegalArgumentException(INVALID_APPLICATION_MESSAGE);
     }
-    if (centerUser != null && !isValidCenterUser(centerUser)) {
+    Scope scope = Scope.APPLICATION.id(OBJECT_TYPE + applicationId);
+    if (centerUser != null && !isStoredCenterUser(scope, centerUser) && !isValidCenterUser(centerUser)) {
       throw new IllegalArgumentException(INVALID_CENTER_USER_MESSAGE);
     }
-    Scope scope = Scope.APPLICATION.id(OBJECT_TYPE + applicationId);
     if (centerUser != null) {
       settingService.set(Context.GLOBAL, scope, CENTER_USER_SETTING_KEY, SettingValue.create(centerUser));
     }
@@ -102,6 +102,15 @@ public class OrganizationalChartSettingService {
    */
   public boolean canEdit(String username) {
     return StringUtils.isNotBlank(username) && userAcl.isAdministrator(userAcl.getUserIdentity(username));
+  }
+
+  /**
+   * The center user stored before keeps being accepted even when the user was
+   * disabled since, as the settings drawer sends it back with every save
+   */
+  private boolean isStoredCenterUser(Scope scope, String centerUser) {
+    SettingValue<?> storedValue = settingService.get(Context.GLOBAL, scope, CENTER_USER_SETTING_KEY);
+    return storedValue != null && storedValue.getValue() != null && centerUser.equals(storedValue.getValue().toString());
   }
 
   private boolean isValidCenterUser(String centerUser) {
