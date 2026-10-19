@@ -22,18 +22,24 @@
   <v-dialog
     ref="dialog"
     v-model="modal"
+    :disabled="disabled"
     color="white"
     width="290px">
-    <template #activator="{ on }">
+    <template #activator="{ on, attrs }">
       <v-list-item
         class="pa-0"
         dense>
-        <v-list-item-action class="my-0 me-2 layout-color-picker-swatch">
+        <v-list-item-action class="my-0 me-2 color-picker-swatch">
           <v-card
-            :color="displayedColor"
-            height="36px"
-            width="36px"
-            v-on="on" />
+            :color="displayedColor || 'transparent'"
+            :height="swatchSize"
+            :width="swatchSize"
+            :aria-label="label || $t('colorPicker.change')"
+            :aria-disabled="disabled"
+            v-bind="attrs"
+            v-on="on"
+            @keydown.enter.prevent="$event.target.click()"
+            @keydown.space.prevent="$event.target.click()" />
         </v-list-item-action>
         <v-list-item-content class="my-auto">
           <v-card
@@ -58,13 +64,25 @@
       :swatches="swatches"
       mode="hexa"
       show-swatches />
+    <v-row
+      v-if="resettable"
+      class="mx-0 white">
+      <v-col class="center pb-0">
+        <v-btn
+          text
+          color="primary"
+          @click="reset">
+          {{ $t('colorPicker.reset') }}
+        </v-btn>
+      </v-col>
+    </v-row>
     <v-row class="mx-0 white">
       <v-col class="center">
         <v-btn
           text
           color="primary"
           @click="cancel">
-          {{ $t('layout.cancel') }}
+          {{ $t('colorPicker.cancel') }}
         </v-btn>
       </v-col>
       <v-col class="center">
@@ -72,13 +90,16 @@
           text
           color="primary"
           @click="save">
-          {{ $t('layout.ok') }}
+          {{ $t('colorPicker.ok') }}
         </v-btn>
       </v-col>
     </v-row>
   </v-dialog>
 </template>
 <script>
+// The shapes v-color-picker parses: any other string is re-emitted as garbage
+const PICKABLE_COLOR = /^(#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})|transparent)$/i;
+
 export default {
   props: {
     value: {
@@ -98,18 +119,38 @@ export default {
       type: String,
       default: null,
     },
+    swatchSize: {
+      type: String,
+      default: () => '36px',
+    },
+    swatches: {
+      type: Array,
+      default: () => [
+        ['#FF0000', '#319ab3', '#f97575'],
+        ['#98cc81', '#4273c8', '#cea6ac'],
+        ['#bc99e7', '#9ee4f5', '#774ea9'],
+        ['#ffa500', '#bed67e', '#0E100F'],
+        ['#ffaacc', '#0000AA', '#000055'],
+      ],
+    },
+    // Adds a 'Reset to default' action, which emits an empty value
+    resettable: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    // Offers no transparency and emits #RRGGBB, for the screens that store opaque colors
+    opaque: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     modal: false,
     color: null,
-    originalValue: null,
-    swatches: [
-      ['#FF0000', '#319ab3', '#f97575'],
-      ['#98cc81', '#4273c8', '#cea6ac'],
-      ['#bc99e7', '#9ee4f5', '#774ea9'],
-      ['#ffa500', '#bed67e', '#0E100F'],
-      ['#ffaacc', '#0000AA', '#000055'],
-    ],
   }),
   computed: {
     inherited() {
@@ -122,10 +163,7 @@ export default {
   watch: {
     modal() {
       if (this.modal) {
-        this.originalValue = this.value;
-        if (this.inherited) {
-          this.color = this.placeholder;
-        }
+        this.color = this.initialColor();
       }
     },
     value() {
@@ -136,14 +174,26 @@ export default {
     this.color = this.value;
   },
   methods: {
+    initialColor() {
+      // Never null, which v-color-picker answers with a colour object instead of a string. From a #RRGGBB start it
+      // returns #RRGGBB and hides its transparency slider; from any other start, #RRGGBBAA with the slider
+      const color = [this.value, this.inherited && this.placeholder].find(color => color && PICKABLE_COLOR.test(color))
+        || `#${this.normalizeColor(this.swatches?.[0]?.[0] || '#FFFFFF')}`;
+      return this.opaque ? `#${this.normalizeColor(color).substring(0, 6)}` : color;
+    },
     cancel() {
-      this.$emit('input', this.originalValue);
+      // Nothing was emitted since the dialog opened: closing it leaves the value as it is
       this.modal = false;
     },
     save() {
       // An inherited colour confirmed as it is stays inherited: only a colour the user picked is stored
       const unchangedPlaceholder = this.inherited && this.sameColor(this.color, this.placeholder);
-      this.$emit('input', unchangedPlaceholder ? null : this.color);
+      const color = this.opaque && this.color?.length === 9 ? this.color.substring(0, 7) : this.color;
+      this.$emit('input', unchangedPlaceholder ? null : color);
+      this.modal = false;
+    },
+    reset() {
+      this.$emit('input', '');
       this.modal = false;
     },
     sameColor(first, second) {

@@ -56,6 +56,7 @@ import ContentLinkDrawer from './components/ContentLinkDrawer.vue';
 import StickyPositionElement from './components/StickyPositionElement.vue';
 import FloatingArrowButton from './components/FloatingArrowButton.vue';
 import SelectPeriod from './components/SelectPeriod.vue';
+import ColorPicker from './components/ColorPicker.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -107,6 +108,7 @@ const components = {
   'sticky-position-element': StickyPositionElement,
   'floating-arrow-button': FloatingArrowButton,
   'select-period': SelectPeriod,
+  'color-picker': ColorPicker,
 };
 
 for (const key in components) {
