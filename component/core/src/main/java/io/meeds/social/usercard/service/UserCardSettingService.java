@@ -80,11 +80,11 @@ public class UserCardSettingService {
       throw new IllegalAccessException("User " + username + " can't edit the user card settings");
     }
     if (settings == null
-        || !isValidProperty(settings.firstField(), TEXT_TYPE)
-        || !isValidProperty(settings.secondField(), TEXT_TYPE)
-        || !isValidProperty(settings.thirdField(), TEXT_TYPE)
-        || (settings.displayedPhone() != null && !isValidProperty(settings.displayedPhone(), PHONE_TYPE))
-        || (settings.displayedEmail() != null && !isValidProperty(settings.displayedEmail(), EMAIL_TYPE))) {
+        || !isValidProperty(FIRST_FIELD_KEY, settings.firstField(), TEXT_TYPE)
+        || !isValidProperty(SECOND_FIELD_KEY, settings.secondField(), TEXT_TYPE)
+        || !isValidProperty(THIRD_FIELD_KEY, settings.thirdField(), TEXT_TYPE)
+        || (settings.displayedPhone() != null && !isValidProperty(PHONE_KEY, settings.displayedPhone(), PHONE_TYPE))
+        || (settings.displayedEmail() != null && !isValidProperty(EMAIL_KEY, settings.displayedEmail(), EMAIL_TYPE))) {
       throw new IllegalArgumentException(INVALID_PROPERTY_MESSAGE);
     }
     saveSetting(FIRST_FIELD_KEY, settings.firstField());
@@ -94,9 +94,18 @@ public class UserCardSettingService {
     saveSetting(EMAIL_KEY, settings.displayedEmail());
   }
 
-  private boolean isValidProperty(String propertyName, String propertyType) {
+  /**
+   * A property stored before keeps being accepted for its place even when it
+   * was deleted or changed since, since the settings drawer sends it back with
+   * every save, whatever the field the administrator changed
+   */
+  private boolean isValidProperty(String key, String propertyName, String propertyType) {
     if (StringUtils.isBlank(propertyName)) {
       return false;
+    }
+    SettingValue<?> storedValue = settingService.get(Context.GLOBAL, USER_CARD_SCOPE, key);
+    if (storedValue != null && storedValue.getValue() != null && propertyName.equals(storedValue.getValue().toString())) {
+      return true;
     }
     ProfilePropertySetting property = profilePropertyService.getProfileSettingByName(propertyName);
     return property != null
