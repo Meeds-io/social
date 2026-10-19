@@ -58,6 +58,7 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
   io.meeds.social.reminder.rest.ChangesReminderRestTest.class,
   io.meeds.social.navigation.rest.NavigationConfigurationRestTest.class,
   io.meeds.social.organizationalchart.rest.OrganizationalChartSettingRestTest.class,
+  io.meeds.social.usercard.rest.UserCardSettingRestTest.class,
   VersionResourcesTest.class,
   RestCheckerTest.class,
   UtilTest.class,
