@@ -59,11 +59,15 @@ export default {
   },
   methods: {
     changeHome() {
-      this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.url)
+      this.$navigationService.saveUserHomePage(this.url)
         .then(() => {
           eXo.env.portal.homeLink = this.url;
           document.dispatchEvent(new CustomEvent('homeLinkUpdated', {detail: this.url}));
-        });
+        })
+        .catch(() => document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          alertMessage: this.$t('navigation.home.invalidUri'),
+          alertType: 'error',
+        }})));
     },
     selectSpaceHome(space) {
       this.selectedSpace = space;

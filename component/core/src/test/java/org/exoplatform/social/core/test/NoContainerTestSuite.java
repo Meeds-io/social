@@ -84,6 +84,7 @@ import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
 import io.meeds.social.user.plugin.UserAclPluginTest;
 import io.meeds.social.timezone.service.UserTimeZoneServiceTest;
 import io.meeds.social.reminder.service.ChangesReminderServiceTest;
+import io.meeds.social.navigation.service.UserHomePageServiceTest;
 import io.meeds.social.identity.permission.listener.UserPermissionGroupListenerTest;
 import io.meeds.social.identity.permission.listener.UserPermissionMembershipListenerTest;
 import io.meeds.social.identity.permission.listener.UserPermissionNestedMembershipListenerTest;
@@ -100,6 +101,7 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 @SuiteClasses({
     UserTimeZoneServiceTest.class,
     ChangesReminderServiceTest.class,
+    UserHomePageServiceTest.class,
     ReactionServiceImplTest.class,
     ActivityReportServiceImplTest.class,
     ReportActivityProcessorTest.class,
