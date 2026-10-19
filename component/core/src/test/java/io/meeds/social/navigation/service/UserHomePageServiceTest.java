@@ -67,6 +67,8 @@ public class UserHomePageServiceTest {
     assertSaved("/portal/s/12/tasks?view=board#top");
     assertSaved("/portal/dw/%C3%A9t%C3%A9");
     assertSaved("https://www.example.com/path?a=1&b=2");
+    // A link page saved without scheme, as the site details normalize it
+    assertSaved("http://www.example.com");
     assertSaved("HTTP://www.example.com");
     assertSaved("/" + "a".repeat(UserHomePageService.MAX_URI_LENGTH - 1));
   }

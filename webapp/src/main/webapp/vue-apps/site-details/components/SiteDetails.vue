@@ -121,7 +121,7 @@ export default {
       } else {
         let url = navigation.pageLink || `/portal/${navigation.siteKey.name}/${navigation.uri}`;
         if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
-          url = `//${url}`;
+          url = Autolinker.parse(url, {urls: true})?.[0]?.getUrl?.() || `//${url}`;
         }
         return url;
       }
