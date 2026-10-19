@@ -55,6 +55,7 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
 @RunWith(Suite.class)
 @SuiteClasses({
   io.meeds.social.digest.rest.DigestRestTest.class,
+  io.meeds.social.reminder.rest.ChangesReminderRestTest.class,
   VersionResourcesTest.class,
   RestCheckerTest.class,
   UtilTest.class,
