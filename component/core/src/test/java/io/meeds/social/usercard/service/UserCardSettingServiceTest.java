@@ -38,6 +38,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.portal.config.UserACL;
@@ -131,6 +132,18 @@ public class UserCardSettingServiceTest {
     assertInvalid(new UserCardSettings("position", "team", "city", null, "workPhone"));
     verify(settingService, never()).set(any(), any(), anyString(), any());
     verify(settingService, never()).remove(any(), any(), anyString());
+  }
+
+  @Test
+  public void saveSettingsKeepsAStoredPropertyThatCantBeDisplayedAnymore() throws IllegalAccessException {
+    // A phone property deleted after it was saved: the drawer sends it back
+    // with every save
+    when(settingService.get(Context.GLOBAL, SCOPE, UserCardSettingService.PHONE_KEY)).thenAnswer(invocation -> SettingValue.create("deletedPhone"));
+    userCardSettingService.saveSettings(new UserCardSettings("position", "team", "city", "deletedPhone", null), ADMIN);
+    assertSaved(UserCardSettingService.PHONE_KEY, "deletedPhone");
+
+    // Stored for another place of the card, it is still refused
+    assertInvalid(new UserCardSettings("position", "team", "city", null, "deletedPhone"));
   }
 
   private void mockProperty(String name, String type, boolean multiValued, boolean hasChildren) {

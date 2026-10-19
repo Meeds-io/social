@@ -19,7 +19,9 @@
 package io.meeds.social.reminder.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,12 +56,14 @@ public class ChangesReminderRest {
     @ApiResponse(responseCode = "400", description = "Invalid reminder name"),
     @ApiResponse(responseCode = "403", description = "Forbidden"),
   })
-  public boolean isAcknowledged(HttpServletRequest request,
-                                @Parameter(description = "Reminder name", required = true)
-                                @PathVariable("name")
-                                String name) {
+  public ResponseEntity<Boolean> isAcknowledged(HttpServletRequest request,
+                                                @Parameter(description = "Reminder name", required = true)
+                                                @PathVariable("name")
+                                                String name) {
     try {
-      return changesReminderService.isAcknowledged(request.getRemoteUser(), name);
+      return ResponseEntity.ok()
+                           .cacheControl(CacheControl.noStore())
+                           .body(changesReminderService.isAcknowledged(request.getRemoteUser(), name));
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
     }
