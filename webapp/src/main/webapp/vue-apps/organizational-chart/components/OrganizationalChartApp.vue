@@ -75,6 +75,7 @@
 </template>
 
 <script>
+import {saveSettings} from '../js/OrganizationalChartService.js';
 
 export default {
   data() {
@@ -92,10 +93,6 @@ export default {
       userExtensions: [],
       userId: eXo?.env?.portal.userIdentityId,
       collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
-      settingsContextKey: 'GLOBAL',
-      settingScopeKey: 'APPLICATION',
-      settingsCenterUserKey: 'organizationalChartCenterUser',
-      settingsHasHeaderTitleKey: 'organizationalChartHasHeaderTitle',
       centerUserIdUrlParam: 'centerUserId',
       headerTitleFieldName: 'chartHeaderTitle',
       translationObjectType: 'organizationalChart',
@@ -140,7 +137,7 @@ export default {
       return this.hasSettings || (!this.hasSettings && this.isAdmin) || this.preview;
     },
     isAdmin() {
-      return this.user?.isAdmin === 'true' || this.isSpaceManager;
+      return this.user?.isAdmin === 'true';
     },
     savedHeaderTranslations() {
       return this.$root.settings?.headerTranslations;
@@ -248,28 +245,19 @@ export default {
       return Promise.resolve();
     },
     saveApplicationSettings(settings) {
-      return this.saveSetting(this.settingsCenterUserKey, settings?.userId).then(() => {
-        return this.saveSetting(this.settingsHasHeaderTitleKey, String(settings?.hasHeaderTitle)).then(() => {
-          return this.saveOrDeleteTranslations(settings).then(() => {
-            this.$refs.chartSettingsDrawer.close();
-            this.$root.settings = settings;
-            const userId = settings.connectedUser && eXo?.env?.portal?.userIdentityId
-                                                || settings?.userId;
-            this.$root.settings.userId = userId;
-            this.updateChart(userId);
-            this.$root.$emit('alert-message', this.$t('organizationalChart.settings.saved.success'), 'success');
-          });
+      return saveSettings(this.applicationId, settings?.userId, settings?.hasHeaderTitle).then(() => {
+        return this.saveOrDeleteTranslations(settings).then(() => {
+          this.$refs.chartSettingsDrawer.close();
+          this.$root.settings = settings;
+          const userId = settings.connectedUser && eXo?.env?.portal?.userIdentityId
+                                              || settings?.userId;
+          this.$root.settings.userId = userId;
+          this.updateChart(userId);
+          this.$root.$emit('alert-message', this.$t('organizationalChart.settings.saved.success'), 'success');
         });
       }).catch(() => {
         this.$root.$emit('alert-message', this.$t('organizationalChart.settings.saved.error'), 'error');
       });
-    },
-    saveSetting(settingKey, settingValue) {
-      if (!settingValue) {
-        return;
-      }
-      return this.$settingService.setSettingValue(this.settingsContextKey, '',
-        this.settingScopeKey, `organizationalChart${this.applicationId}`, settingKey, settingValue);
     },
     openSettingsDrawer() {
       this.$refs.chartSettingsDrawer.open();

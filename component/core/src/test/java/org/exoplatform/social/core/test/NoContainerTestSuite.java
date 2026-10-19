@@ -85,6 +85,8 @@ import io.meeds.social.user.plugin.UserAclPluginTest;
 import io.meeds.social.timezone.service.UserTimeZoneServiceTest;
 import io.meeds.social.reminder.service.ChangesReminderServiceTest;
 import io.meeds.social.navigation.service.UserHomePageServiceTest;
+import io.meeds.social.organizationalchart.service.OrganizationalChartSettingServiceTest;
+import org.exoplatform.social.core.plugin.OrganizationalChartHeaderTranslationPermissionTest;
 import io.meeds.social.identity.permission.listener.UserPermissionGroupListenerTest;
 import io.meeds.social.identity.permission.listener.UserPermissionMembershipListenerTest;
 import io.meeds.social.identity.permission.listener.UserPermissionNestedMembershipListenerTest;
@@ -102,6 +104,8 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     UserTimeZoneServiceTest.class,
     ChangesReminderServiceTest.class,
     UserHomePageServiceTest.class,
+    OrganizationalChartSettingServiceTest.class,
+    OrganizationalChartHeaderTranslationPermissionTest.class,
     ReactionServiceImplTest.class,
     ActivityReportServiceImplTest.class,
     ReportActivityProcessorTest.class,
