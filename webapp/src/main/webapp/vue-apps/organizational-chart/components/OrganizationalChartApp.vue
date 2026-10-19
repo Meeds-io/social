@@ -114,10 +114,6 @@ export default {
       type: String,
       default: null
     },
-    isSpaceManager: {
-      type: Boolean,
-      default: false
-    },
   },
   watch: {
     initialUserId() {

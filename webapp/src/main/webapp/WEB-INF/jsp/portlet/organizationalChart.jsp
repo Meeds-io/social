@@ -4,9 +4,6 @@
 <%@ page import="org.exoplatform.commons.api.settings.data.Scope" %>
 <%@ page import="org.exoplatform.commons.api.settings.SettingValue" %>
 <%@ page import="org.exoplatform.portal.webui.application.UIPortlet" %>
-<%@ page import="org.exoplatform.social.core.space.model.Space" %>
-<%@ page import="org.exoplatform.social.core.space.spi.SpaceService" %>
-<%@ page import="org.exoplatform.social.core.space.SpaceUtils" %>
 <%@ page import="org.exoplatform.social.core.profileproperty.ProfilePropertyService" %>
 <%@ page import="org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting" %>
 <%@ page import="java.util.Objects" %>
@@ -72,13 +69,6 @@
     if (Objects.equals(centerUser, "@connected@")) {
         centerUser = Utils.getOwnerIdentityId();
     }
-
-    boolean isManager = false;
-    Space space = SpaceUtils.getSpaceByContext();
-    if (space != null) {
-      SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-      isManager = spaceService.canManageSpace(space, request.getRemoteUser());
-    }
 %>
 
 <div class="VuetifyApp" id="organizationalChartParent">
@@ -92,8 +82,7 @@
                                                                                                        title: "<%=StringEscapeUtils.escapeEcmaScript(headerTitle)%>" !== 'null' && "<%=StringEscapeUtils.escapeEcmaScript(headerTitle)%>" || null,
                                                                                                        headerTranslations: <%=headerTranslations%>,
                                                                                                        canUpdateCenterUser: <%=canUpdateCenterUser%>,
-                                                                                                       hasHeaderTitle: <%=hasHeaderTitle%>,
-                                                                                                       isSpaceManager: <%=isManager%>
+                                                                                                       hasHeaderTitle: <%=hasHeaderTitle%>
                                                                                                    }));
             </script>
         <% } else {%>
