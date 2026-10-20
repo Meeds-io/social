@@ -26,7 +26,7 @@
       color="primary"
       class="me-4 my-auto" />
     <div class="d-flex flex-column me-2">
-      <span>{{ $t(labels.line1) }}</span>
+      <span>{{ $t(labels.line1, {0: selectedSpacesCount}) }}</span>
       <span>{{ $t(labels.line2) }}</span>
       <span
         v-sanitized-html="$t(labels.line3, {
