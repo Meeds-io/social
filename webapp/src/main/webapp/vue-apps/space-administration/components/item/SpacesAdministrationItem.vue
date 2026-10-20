@@ -65,7 +65,6 @@
         v-else
         :value="selected || $root.allSpacesSelected"
         :disabled="bulkOperationStatus === 'disabled'"
-        :aria-label="$t('social.spaces.administration.manageSpaces.selectSpace', {0: space.displayName})"
         on-icon="fas fa-check-square fa-lg primary--text"
         off-icon="far fa-square fa-lg"
         class="my-auto pt-2"
