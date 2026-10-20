@@ -71,7 +71,10 @@ const EXCEL_SHEET_NAME_RESERVED = 'history';
 
 const DEFAULT_SHEET_NAME = 'Spaces';
 
-// Every cell is centered, but the space names
+// The headers and the short values are centered; the space names and the
+// text values that can be long are aligned left
+const LEFT_ALIGNED_COLUMNS = ['spaceName', 'template', 'admins', 'sync', 'access'];
+
 const EXCEL_CENTER_ALIGNMENT = {
   horizontal: 'center',
 };
@@ -271,7 +274,7 @@ export async function createWorkbookBlob(ExcelJS, columns, rows, sheetName) {
     const row = sheet.addRow(exportedIndexes.map(index => toCellValue(columns[index], values[index])));
     exportedColumns.forEach((column, index) => {
       const cell = row.getCell(index + 1);
-      cell.alignment = column.key === 'spaceName' ? EXCEL_LEFT_ALIGNMENT : EXCEL_CENTER_ALIGNMENT;
+      cell.alignment = isLeftAligned(column, cell.value) ? EXCEL_LEFT_ALIGNMENT : EXCEL_CENTER_ALIGNMENT;
       if (column.type === 'date') {
         cell.numFmt = EXCEL_DATE_FORMAT;
       } else if (column.type === 'link' && cell.value?.hyperlink) {
@@ -434,4 +437,9 @@ function trimQuotesAndSpaces(text) {
     end--;
   }
   return text.substring(start, end);
+}
+
+// A Sync cell holding no synchronization ('-') is centered, as the short values
+function isLeftAligned(column, value) {
+  return LEFT_ALIGNED_COLUMNS.includes(column.key) && !(column.key === 'sync' && value === '-');
 }
