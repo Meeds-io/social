@@ -34,6 +34,7 @@
       displayText: !$root.isMobile,
     }"
     :filters-count="filtersCount"
+    :height="toolbarHeight"
     compact
     class="px-1"
     no-text-truncate
@@ -42,12 +43,14 @@
     @filter-button-click="$root.$emit('spaces-administration-filter-drawer-open')"
     @loading="$emit('loading', $event)">
     <template v-if="!$root.isMobile" #left>
-      <div v-if="$root.selectedSpaces.length && !$root.isMobile">
+      <div
+        v-if="showBulkActions"
+        ref="bulkActions"
+        class="d-flex flex-wrap gap-4 py-2">
         <component
           v-for="extension in $root.bulkExtensions"
           :key="extension.name"
-          :is="extension.componentName"
-          class="me-4" />
+          :is="extension.componentName" />
       </div>
       <v-btn
         v-else
@@ -70,12 +73,58 @@
   </application-toolbar>
 </template>
 <script>
+// Height of one row of bulk actions, button and vertical padding included
+const TOOLBAR_SINGLE_ROW_HEIGHT = 56;
+
+const TOOLBAR_VERTICAL_PADDING = 16;
+
 export default {
+  data: () => ({
+    toolbarHeight: null,
+    resizeObserver: null,
+  }),
   computed: {
+    showBulkActions() {
+      return !!this.$root.selectedSpaces.length && !this.$root.isMobile;
+    },
     filtersCount() {
       return (this.$root.isFilteredByTemplate ? 1 : 0)
         + (this.$root.isFilteredByRegistration ? 1 : 0)
         + (this.$root.isFilteredByVisibility ? 1 : 0);
+    },
+  },
+  mounted() {
+    // The bulk actions wrap on narrow screens: the toolbar, whose height is
+    // fixed, follows the height of its actions so that their rows keep
+    // their spacing
+    this.resizeObserver = new ResizeObserver(() => this.computeToolbarHeight());
+    this.observeBulkActions();
+  },
+  watch: {
+    showBulkActions() {
+      // The bulk actions are rendered by the toolbar's slot: they are
+      // observed once rendered
+      this.$nextTick(() => this.observeBulkActions());
+    },
+  },
+  beforeDestroy() {
+    this.resizeObserver?.disconnect();
+  },
+  methods: {
+    observeBulkActions() {
+      if (this.$refs.bulkActions && this.$refs.bulkActions !== this.observedBulkActions) {
+        this.observedBulkActions = this.$refs.bulkActions;
+        this.resizeObserver?.observe(this.$refs.bulkActions);
+      } else if (!this.$refs.bulkActions && this.observedBulkActions) {
+        this.resizeObserver?.unobserve(this.observedBulkActions);
+        this.observedBulkActions = null;
+        this.toolbarHeight = null;
+      }
+    },
+    computeToolbarHeight() {
+      const height = this.$refs.bulkActions?.offsetHeight || 0;
+      // A single row fits in the toolbar's default height
+      this.toolbarHeight = height > TOOLBAR_SINGLE_ROW_HEIGHT ? height + TOOLBAR_VERTICAL_PADDING : null;
     },
   },
 };
