@@ -24,14 +24,14 @@ import BackgroundRadiusInput from './components/BackgroundRadiusInput.vue';
 import BorderInput from './components/BorderInput.vue';
 import BorderRadiusInput from './components/BorderRadiusInput.vue';
 import BorderRadiusSelector from './components/BorderRadiusSelector.vue';
-import ColorPicker from './components/ColorPicker.vue';
 import MarginInput from './components/MarginInput.vue';
 import SectionMarginInput from './components/SectionMarginInput.vue';
 import TextBackgroundInput from './components/TextBackgroundInput.vue';
 import TextInput from './components/TextInput.vue';
 
 const components = {
-  'styling-color-picker': ColorPicker,
+  // The common color picker, under the name the styling inputs and layout's editors use
+  'styling-color-picker': Vue.component('color-picker'),
   'styling-border-radius-selector': BorderRadiusSelector,
   'styling-background-image-attachment': BackgroundImageAttachment,
   'styling-background-input': BackgroundInput,
