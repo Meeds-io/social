@@ -34,7 +34,7 @@
             :color="displayedColor || 'transparent'"
             :height="swatchSize"
             :width="swatchSize"
-            :aria-label="label || $t('colorPicker.change')"
+            :aria-label="ariaLabel || label || $t('colorPicker.change')"
             :aria-disabled="disabled"
             v-bind="attrs"
             v-on="on"
@@ -107,6 +107,11 @@ export default {
       default: null,
     },
     label: {
+      type: String,
+      default: null,
+    },
+    // The swatch's accessible name, for a screen holding several pickers. Defaults to the label
+    ariaLabel: {
       type: String,
       default: null,
     },
@@ -186,10 +191,13 @@ export default {
       this.modal = false;
     },
     save() {
-      // An inherited colour confirmed as it is stays inherited: only a colour the user picked is stored
-      const unchangedPlaceholder = this.inherited && this.sameColor(this.color, this.placeholder);
-      const color = this.opaque && this.color?.length === 9 ? this.color.substring(0, 7) : this.color;
-      this.$emit('input', unchangedPlaceholder ? null : color);
+      // Confirmed as the dialog opened, the value stays as it is: a stored colour is not given back in the shape the
+      // picker normalised it to, and an inherited one is not stored. Only a colour the user picked is emitted
+      const openedOnColor = [this.value, this.inherited && this.placeholder].some(color => color && PICKABLE_COLOR.test(color));
+      if (!openedOnColor || !this.sameColor(this.color, this.initialColor())) {
+        const color = this.opaque && this.color?.length === 9 ? this.color.substring(0, 7) : this.color;
+        this.$emit('input', color);
+      }
       this.modal = false;
     },
     reset() {
