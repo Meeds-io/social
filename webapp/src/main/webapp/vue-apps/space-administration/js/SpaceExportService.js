@@ -39,7 +39,7 @@
 const I18N_PREFIX = 'social.spaces.administration.manageSpaces';
 
 const PROCESSING_LABELS = {
-  line1: `${I18N_PREFIX}.exportInProgress`,
+  line1: `${I18N_PREFIX}.exportInProgressSpacesCount`,
   line2: `${I18N_PREFIX}.exportPleaseWait`,
   line3: `${I18N_PREFIX}.exportDoNotClosePage`,
 };
