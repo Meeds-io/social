@@ -26,12 +26,6 @@
     min-height="calc(var(--100vh, 100vh) - 220px)"
     flat>
     <div id="spacesAdministrationListBody" class="flex-grow-1 flex-shrink-1 pt-2">
-      <div
-        role="status"
-        aria-live="polite"
-        class="d-sr-only">
-        {{ selectionStatus }}
-      </div>
       <v-data-table
         v-if="$root.spacesSize || !$root.initialized"
         v-model="$root.selectedSpaces"
@@ -51,7 +45,6 @@
             v-on="on"
             v-bind="props"
             :disabled="$root.isBusy"
-            :aria-label="$t('social.spaces.administration.manageSpaces.selectAllSpacesOnPage')"
             on-icon="fas fa-check-square fa-lg primary--text"
             indeterminate-icon="fas fa-minus-square fa-lg"
             off-icon="far fa-square fa-lg"
@@ -67,25 +60,7 @@
                 border="left"
                 type="info"
                 colored-border>
-                <div>
-                  <template v-for="(part, index) in selectionLabelParts">
-                    <strong v-if="part.strong" :key="index">{{ part.text }}</strong>
-                    <button
-                      v-else-if="part.button"
-                      :key="index"
-                      :disabled="$root.isBusy"
-                      :class="$root.isBusy ? 'text-disabled-color' : 'primary--text'"
-                      class="font-weight-bold"
-                      type="button"
-                      @click="selectAllSpaces">
-                      <template v-for="(buttonPart, buttonIndex) in part.parts">
-                        <strong v-if="buttonPart.strong" :key="buttonIndex">{{ buttonPart.text }}</strong>
-                        <template v-else>{{ buttonPart.text }}</template>
-                      </template>
-                    </button>
-                    <span v-else :key="index">{{ part.text }}</span>
-                  </template>
-                </div>
+                <div v-html="selectionLabel"></div>
               </v-alert>
             </td>
           </tr>
@@ -262,47 +237,23 @@ export default {
       }
       return headers;
     },
-    selectionLabelKey() {
+    selectionLabel() {
       if (this.$root.allSpacesSelected) {
-        return 'social.spaces.administration.manageSpaces.allSpacesSelected';
+        return this.$t('social.spaces.administration.manageSpaces.allSpacesSelected', {
+          0: `<strong>${this.$root.spacesSize}</strong>`,
+        });
       } else if (this.$root.selectedSpaces.length === this.$root.spaces.length && this.$root.spaces.length < this.$root.spacesSize) {
-        return 'social.spaces.administration.manageSpaces.allDisplayedSpacesSelected';
+        return this.$t('social.spaces.administration.manageSpaces.allDisplayedSpacesSelected', {
+          0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
+          1: `<a class="${this.$root.isBusy ? 'text-disabled-color' : 'primary--text'} font-weight-bold" aria-disabled="${!!this.$root.isBusy}" onclick="window.dispatchEvent(new CustomEvent('select-all-spaces'))">`,
+          2: this.$root.spacesSize,
+          3: '</a>',
+        });
       } else {
-        return 'social.spaces.administration.manageSpaces.selectedSpacesCount';
+        return this.$t('social.spaces.administration.manageSpaces.selectedSpacesCount', {
+          0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
+        });
       }
-    },
-    selectionLabelParts() {
-      // The label's placeholders: {0} the selected count, {1} and {3} the
-      // bounds of the select-all button, {2} the matching spaces count. The
-      // translation is rendered as text around them, never as HTML
-      const count = this.$root.allSpacesSelected ? this.$root.spacesSize : this.$root.selectedSpaces.length;
-      const tokens = this.$t(this.selectionLabelKey, [0, 1, 2, 3].map(index => `@@${index}@@`))
-        .split(/@@(\d)@@/);
-      const parts = [];
-      let button = null;
-      tokens.forEach((token, index) => {
-        const target = button?.parts || parts;
-        if (index % 2 === 0) {
-          if (token) {
-            target.push({text: token});
-          }
-        } else if (token === '0') {
-          target.push({text: String(count), strong: true});
-        } else if (token === '1') {
-          button = {button: true, parts: []};
-          parts.push(button);
-        } else if (token === '2') {
-          target.push({text: String(this.$root.spacesSize)});
-        } else if (token === '3') {
-          button = null;
-        }
-      });
-      return parts;
-    },
-    selectionStatus() {
-      return this.$root.selectedSpaces.length
-        && this.selectionLabelParts.map(part => part.text ?? part.parts.map(buttonPart => buttonPart.text).join('')).join('')
-        || '';
     },
     selectedSpaces() {
       return this.$root.selectedSpaces;
@@ -356,10 +307,17 @@ export default {
   },
   created() {
     this.$root.searchSpaces();
+    window.addEventListener('select-all-spaces', this.selectAllSpaces);
+  },
+  beforeDestroy() {
+    window.removeEventListener('select-all-spaces', this.selectAllSpaces);
   },
   methods: {
     selectAllSpaces() {
-      this.$root.allSpacesSelected = true;
+      // Disabled while the page is busy, as the select-all checkbox
+      if (!this.$root.isBusy) {
+        this.$root.allSpacesSelected = true;
+      }
     },
   }
 };
