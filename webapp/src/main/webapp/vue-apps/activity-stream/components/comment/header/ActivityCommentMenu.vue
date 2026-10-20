@@ -2,7 +2,7 @@
   <v-list-item-icon v-show="enabledActions && enabledActions.length" class="mx-0 mb-0 mt-n1 flex-shrink-0">
     <v-menu
       v-model="menu"
-      content-class="white"
+      content-class="application-menu layout-drawer"
       bottom
       offset-y
       :left="!$vuetify.rtl"
@@ -19,13 +19,14 @@
           <v-icon size="16" class="icon-default-color">fas fa-ellipsis-v</v-icon>
         </v-btn>
       </template>
-      <v-list class="pa-0" dense>
+      <v-list class="pa-0 transparent" dense>
         <v-menu
           v-for="action of enabledActions"
           :key="action.id"
           :disabled="!action.children.length"
           :left="!$vuetify.rtl"
           :right="$vuetify.rtl"
+          content-class="application-menu layout-drawer"
           open-on-hover
           offset-x>
           <template #activator="{ on, attrs }">
@@ -83,7 +84,7 @@
           </template>
           <v-list
             v-if="action.children.length"
-            class="pa-0"
+            class="pa-0 transparent"
             dense>
             <v-list-item
               v-for="act of action.children"
