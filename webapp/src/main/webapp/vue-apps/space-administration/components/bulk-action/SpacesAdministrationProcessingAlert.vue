@@ -34,7 +34,10 @@
           1: '</span>',
         })"></span>
     </div>
-    <strong class="ms-4 my-auto text-no-wrap">{{ processedSpaces }} / {{ selectedSpacesCount }}</strong>
+    <!-- The alert is a live region: a counter read by screen readers would
+         have the whole alert announced again at each processed space; the
+         progress stays exposed by the progress bar -->
+    <strong aria-hidden="true" class="ms-4 my-auto text-no-wrap">{{ processedSpaces }} / {{ selectedSpacesCount }}</strong>
   </div>
 </template>
 <script>
