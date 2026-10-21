@@ -163,21 +163,8 @@ export default {
     },
     headers() {
       return [{
-        text: this.$t && this.$t('UsersManagement.userName'),
-        value: 'userName',
-        align: 'center',
-        class: 'px-2',
-        sortable: false,
-        show: !this.$root.isMobile
-      }, {
-        text: this.$t && this.$t('UsersManagement.firstName'),
-        value: 'firstName',
-        align: 'center',
-        class: 'px-2',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.lastName'),
-        value: 'lastName',
+        text: this.$t && this.$t('UsersManagement.fullName'),
+        value: 'fullname',
         align: 'center',
         class: 'px-2',
         sortable: false,
