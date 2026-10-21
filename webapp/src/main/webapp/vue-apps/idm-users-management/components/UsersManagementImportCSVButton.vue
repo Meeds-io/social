@@ -51,7 +51,7 @@ export default {
           alertDismissible: false,
           alertTimeout: 864000000,
         }})))
-        .catch(error => this.$root.$emit('alert-message', error, 'error'))
+        .catch(error => this.$userAccountConfirmationService.isCancelled(error) || this.$root.$emit('alert-message', error, 'error'))
         .finally(() => this.uploading = false);
     },
   },

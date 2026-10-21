@@ -19,7 +19,9 @@
 package io.meeds.social.security.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +30,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.meeds.social.security.rest.model.OtpSettings;
+import io.meeds.web.security.plugin.OtpPlugin;
 import io.meeds.web.security.service.OtpService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,6 +66,30 @@ public class OtpRest {
     } catch (IllegalStateException e) {
       throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS);
     }
+  }
+
+  @GetMapping("settings")
+  @Secured("users")
+  @Operation(summary = "Gets the timing of an OTP method: the delay between two sends and the validity of a code", method = "GET")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fullfilled"),
+    @ApiResponse(responseCode = "404", description = "No OTP method has this name"),
+  })
+  public ResponseEntity<OtpSettings> getOtpSettings(@Parameter(description = "OTP Method")
+                                                    @RequestParam("method")
+                                                    String otpMethod) {
+    OtpPlugin otpPlugin = otpService.getOtpPlugins() == null ? null
+                                                             : otpService.getOtpPlugins()
+                                                                         .stream()
+                                                                         .filter(p -> p.getName().equals(otpMethod))
+                                                                         .findFirst()
+                                                                         .orElse(null);
+    if (otpPlugin == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    return ResponseEntity.ok()
+                         .cacheControl(CacheControl.noStore().cachePrivate())
+                         .body(new OtpSettings(otpPlugin.getSendIntervalSeconds(), otpPlugin.getCodeTtlMinutes()));
   }
 
 }

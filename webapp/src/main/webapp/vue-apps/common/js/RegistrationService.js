@@ -17,8 +17,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { confirmedFetch } from './UserAccountConfirmationService.js';
+
 export function saveRegistrationSettings(settings){
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/registration/settings`, {
+  return confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/registration/settings`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
