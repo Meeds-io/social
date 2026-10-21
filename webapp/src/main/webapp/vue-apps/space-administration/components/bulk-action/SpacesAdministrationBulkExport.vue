@@ -20,7 +20,7 @@
 -->
 <template>
   <v-btn
-    :disabled="$root.isBusy"
+    :disabled="$root.isBusy || $root.exportPending"
     color="primary"
     elevation="0"
     outlined

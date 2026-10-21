@@ -45,6 +45,7 @@ export function init(isExternalFeatureEnabled) {
         spaceTemplates: null,
         mainExtensions: [],
         tableColumnExtensions: [],
+        exportGates: [],
         itemMenuExtensions: [],
         bulkExtensions: [],
         usersPermission: '/platform/users',
@@ -119,6 +120,11 @@ export function init(isExternalFeatureEnabled) {
           // the bulk operation, the page load or the row action in flight
           return this.isBulkProcessing || this.loadingSpaces || this.rowActionInFlight;
         },
+        exportPending() {
+          // A contributor whose export column is not known yet (an access
+          // check in flight) holds the export: its columns are fixed when it starts
+          return this.exportGates.some(gate => gate.pending);
+        },
         customSort() {
           // A contributed sort is applied only to the list with no keyword
           return !this.keyword?.length
@@ -173,6 +179,7 @@ export function init(isExternalFeatureEnabled) {
         document.addEventListener('extension-spaces-administration-menu-action-updated', this.refreshExtensions);
         document.addEventListener('extension-spaces-administration-main-updated', this.refreshExtensions);
         document.addEventListener('extension-spaces-administration-table-column-updated', this.refreshExtensions);
+        document.addEventListener('extension-spaces-administration-export-gate-updated', this.refreshExtensions);
         this.$on('spaces-administration-list-refresh', this.refreshSpaces);
         this.refreshSpaceTemplates();
         this.refreshExtensions();
@@ -182,6 +189,7 @@ export function init(isExternalFeatureEnabled) {
         document.removeEventListener('extension-spaces-administration-menu-action-updated', this.refreshExtensions);
         document.removeEventListener('extension-spaces-administration-main-updated', this.refreshExtensions);
         document.removeEventListener('extension-spaces-administration-table-column-updated', this.refreshExtensions);
+        document.removeEventListener('extension-spaces-administration-export-gate-updated', this.refreshExtensions);
         this.$off('spaces-administration-list-refresh', this.refreshSpaces);
       },
       methods: {
@@ -201,6 +209,8 @@ export function init(isExternalFeatureEnabled) {
           this.itemMenuExtensions = extensionRegistry.loadExtensions('spaces-administration', 'menu-action') || [];
           this.mainExtensions = extensionRegistry.loadExtensions('spaces-administration', 'main') || [];
           this.tableColumnExtensions = extensionRegistry.loadExtensions('spaces-administration', 'table-column') || [];
+          // {id, pending}: a contributor registers its gate pending, then again with pending false once settled
+          this.exportGates = extensionRegistry.loadExtensions('spaces-administration', 'export-gate') || [];
         },
         resetContributedSort() {
           // A contributed sort applies to the unfiltered list with no keyword
