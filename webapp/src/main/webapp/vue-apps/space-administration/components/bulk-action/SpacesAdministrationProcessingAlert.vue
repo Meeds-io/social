@@ -34,10 +34,10 @@
           1: '</span>',
         })"></span>
     </div>
-    <!-- The alert is a live region: a counter read by screen readers would
-         have the whole alert announced again at each processed space; the
-         progress stays exposed by the progress bar -->
-    <strong aria-hidden="true" class="ms-4 my-auto text-no-wrap">{{ processedSpaces }} / {{ selectedSpacesCount }}</strong>
+    <!-- The alert is a live region: an operation that states its total in
+         its own text hides the counter, which would have the whole alert
+         announced again at each processed space -->
+    <strong :aria-hidden="counterHidden" class="ms-4 my-auto text-no-wrap">{{ processedSpaces }} / {{ selectedSpacesCount }}</strong>
   </div>
 </template>
 <script>
@@ -63,6 +63,9 @@ export default {
     selectedSpacesCount() {
       return this.options.bulkOperationTotal
         ?? (this.options.allSpacesSelected ? this.options.spacesSize : this.options.selectedSpaces.length);
+    },
+    counterHidden() {
+      return this.options.bulkOperationLabels ? 'true' : null;
     },
     progress() {
       return parseInt(this.processedSpaces / this.selectedSpacesCount * 100);
