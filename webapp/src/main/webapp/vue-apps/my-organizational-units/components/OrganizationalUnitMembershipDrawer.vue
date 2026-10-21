@@ -181,36 +181,67 @@ export default {
     },
     async apply() {
       this.saving = true;
+      const newMemberships = this.memberships.filter(m => !this.originalMemberships.find(om => om.groupId === m.groupId && om.membershipType === m.membershipType));
+      const toDeleteMemberships = this.originalMemberships.filter(om => !this.memberships.find(m => m.groupId === om.groupId && m.membershipType === om.membershipType));
+      // One call at a time, stopping at the first refusal: an unconfirmed
+      // session is refused at the first call with nothing written, and the
+      // whole batch is applied once the session is confirmed
+      let appliedCount = 0;
+      let current = null;
       try {
-        const newMemberships = this.memberships.filter(m => !this.originalMemberships.find(om => om.groupId === m.groupId && om.membershipType === m.membershipType));
-        if (newMemberships.length) {
-          await Promise.all(newMemberships.map(this.createMembership));
-        }
-        const toDeleteMemberships = this.originalMemberships.filter(om => !this.memberships.find(m => m.groupId === om.groupId && m.membershipType === om.membershipType));
-        if (toDeleteMemberships.length) {
-          await Promise.all(toDeleteMemberships.map(this.deleteMembership));
-        }
+        const changes = [
+          ...newMemberships.map(membership => ({membership, apply: this.createMembership})),
+          ...toDeleteMemberships.map(membership => ({membership, apply: this.deleteMembership})),
+        ];
+        await changes.reduce((previous, change) => previous.then(() => {
+          current = change.membership;
+          return change.apply(change.membership);
+        }).then(() => {
+          appliedCount++;
+          this.recordApplied(change);
+        }), Promise.resolve());
         this.close();
+      } catch (error) {
+        if (!this.$userAccountConfirmationService.isCancelled(error)) {
+          this.handleApplyError(error, current, appliedCount);
+        }
       } finally {
         this.saving = false;
         this.$root.$emit('refresh-organizational-unit-members');
       }
     },
-    async createMembership(membership) {
-      try {
-        await this.$organizationalUnitMembersService.createMembership(this.userName, membership.groupId, membership.membershipType);
-      } catch (error) {
-        this.handleError(error);
-      }
+    createMembership(membership) {
+      return this.$organizationalUnitMembersService.createMembership(this.userName, membership.groupId, membership.membershipType);
     },
     async deleteMembership(membership) {
       const membershipId = `${membership.membershipType}:${this.userName}:${membership.groupId}`;
-      const response = await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${encodeURIComponent(membershipId)}`, {
+      const response = await this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${encodeURIComponent(membershipId)}`, {
         method: 'DELETE',
         credentials: 'include',
       });
       if (!response?.ok) {
-        this.handleError(new Error(await response.text()));
+        throw new Error(await response.text());
+      }
+    },
+    // An applied change becomes part of the original state, so that a new
+    // Apply after a refusal sends only what is left
+    recordApplied(change) {
+      if (change.apply === this.createMembership) {
+        this.originalMemberships.push(JSON.parse(JSON.stringify(change.membership)));
+      } else {
+        this.originalMemberships = this.originalMemberships.filter(m => m.groupId !== change.membership.groupId || m.membershipType !== change.membership.membershipType);
+      }
+    },
+    handleApplyError(error, membership, appliedCount) {
+      if (appliedCount) {
+        const message = error?.message && !error.message.includes('Error') ? error.message : this.$t('organizationalUnitMembers.errorSavingMemberships');
+        this.$root.$emit('alert-message', this.$t('UsersManagement.memberships.applyStopped', {
+          0: `${membership.membershipType}:${membership.groupId}`,
+          1: appliedCount,
+          2: message,
+        }), 'error');
+      } else {
+        this.handleError(error);
       }
     },
     handleError(error) {

@@ -110,7 +110,7 @@ export default {
     },
     deleteConfirm() {
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups?groupId=${encodeURIComponent(this.group.id)}`, {
+      return this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups?groupId=${encodeURIComponent(this.group.id)}`, {
         method: 'DELETE',
         credentials: 'include',
       }).then(resp => {
@@ -125,6 +125,9 @@ export default {
         }
         return this.$root.$emit('removeGroup', this.group);
       }).catch(error => {
+        if (this.$userAccountConfirmationService.isCancelled(error)) {
+          return;
+        }
         error = error.message || String(error);
         const errorI18NKey = `GroupsManagement.error.${error}`;
         const errorI18N = this.$t(errorI18NKey, {0: this.group.label});

@@ -1,5 +1,5 @@
 export function createMembership(userName, groupId, membershipType) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships`, {
+  return Vue.prototype.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships`, {
     method: 'POST',
     credentials: 'include',
     headers: {
