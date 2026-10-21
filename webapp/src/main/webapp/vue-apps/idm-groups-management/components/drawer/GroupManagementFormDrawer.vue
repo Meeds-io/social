@@ -240,7 +240,7 @@ export default {
       }
 
       this.saving = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups`, {
+      return this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups`, {
         method: this.newGroup && 'POST' || 'PUT',
         credentials: 'include',
         headers: {
@@ -259,12 +259,10 @@ export default {
           }
         }
       }).then(() => this.$root.$emit('refreshGroup', this.group, this.parentGroup))
-        .then(() => this.$refs.groupFormDrawer.close())
-        .catch(this.handleError)
-        .finally(() => {
-          this.saving = false;
-          this.reset();
-        });
+        // The component's close resets the form, then closes the drawer
+        .then(() => this.close())
+        .catch(error => this.$userAccountConfirmationService.isCancelled(error) || this.handleError(error))
+        .finally(() => this.saving = false);
     },
     cancel() {
       this.close();
