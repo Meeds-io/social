@@ -364,6 +364,9 @@ function displayDone(root) {
       icon: 'fa-check-circle',
       color: 'success',
       messageKey: `${I18N_PREFIX}.exportDone`,
+      // The file is released when the alert goes away: closed by the user,
+      // or replaced by another page alert, which calls no dismiss callback
+      onRemove: revokeCurrentExport,
     },
     alertType: 'success',
     alertDismissible: true,
@@ -371,7 +374,6 @@ function displayDone(root) {
     alertTimeout: -1,
     alertLinkText: root.$t(`${I18N_PREFIX}.exportDownload`),
     alertLinkCallback: downloadCurrentExport,
-    alertDismissCallback: revokeCurrentExport,
   }}));
 }
 

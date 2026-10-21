@@ -44,6 +44,13 @@ export default {
       type: String,
       default: null,
     },
+    onRemove: {
+      type: Function,
+      default: null,
+    },
+  },
+  beforeDestroy() {
+    this.onRemove?.();
   },
 };
 </script>
