@@ -268,6 +268,7 @@ export default {
         for (let i = 0; i < this.selectedUsers.length; i++) {
           selectedUsers.push(this.selectedUsers[i].userName);
         }
+        const selection = this.selectedUsers;
         this.selectedUsers = [];
         this.loading = true;
         this.$userService.multiSelectAction(action, selectedUsers)
@@ -277,6 +278,14 @@ export default {
             }
           })
           .then(this.searchUsers)
+          .catch(error => {
+            if (this.$userAccountConfirmationService.isCancelled(error)) {
+              // Nothing was applied: the administrator keeps the selection
+              this.selectedUsers = selection;
+            } else {
+              throw error;
+            }
+          })
           .finally(() => this.loading = false);
       }
     },
@@ -313,7 +322,7 @@ export default {
       this.loading = true;
       const self = this;
       const userNameDeleted = this.selectedUser.userName ;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${userNameDeleted}`, {
+      return this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${userNameDeleted}`, {
         method: 'DELETE',
         credentials: 'include',
       })
@@ -331,6 +340,9 @@ export default {
           }
         })
         .catch(error => {
+          if (this.$userAccountConfirmationService.isCancelled(error)) {
+            return;
+          }
           error = error.message || String(error);
           const errorI18NKey = `UsersManagement.error.${error}`;
           const errorI18N = this.$t(errorI18NKey, {0: this.selectedUser.fullname});
@@ -413,7 +425,7 @@ export default {
         enabled: enabled,
       };
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users`, {
+      return this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users`, {
         method: 'PUT',
         credentials: 'include',
         headers: {
@@ -441,6 +453,11 @@ export default {
         }
       })
         .then(this.searchUsers)
+        .catch(error => {
+          if (!this.$userAccountConfirmationService.isCancelled(error)) {
+            throw error;
+          }
+        })
         .finally(() => this.loading = false);
     },
     formatDate(time) {
