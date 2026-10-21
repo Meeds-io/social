@@ -29,7 +29,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.picocontainer.Startable;
 
-import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.portal.config.UserACL;
@@ -682,7 +681,6 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
-  @ExoTransactional
   public void start() {
     this.metadataPlugins.forEach(plugin -> {
       Metadata metadata = plugin.getMetadata();

@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -188,6 +189,20 @@ public class PageContentIndexingConnectorTest {
   }
 
   @Test
+  public void shouldNotListBlocksOfAPageOfASiteNobodyNavigates() {
+    PageKey templatePageKey = new PageKey(new SiteKey(SiteType.GROUP_TEMPLATE, "/spaces/template"), "home");
+    CMSSetting valid = new CMSSetting(CONTENT_TYPE, "name1", PAGE_KEY.format(), 0);
+    CMSSetting template = new CMSSetting(CONTENT_TYPE, "name2", templatePageKey.format(), 0);
+    when(cmsService.getSettingsByType(CONTENT_TYPE)).thenReturn(List.of(valid, template));
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    lenient().when(layoutService.getPage(templatePageKey)).thenReturn(page);
+    mockActiveWidget("name1");
+    mockActiveWidget("name2");
+
+    assertEquals(List.of(blockId("name1")), connector.getAllIds(0, 10));
+  }
+
+  @Test
   public void shouldNotListBlockWhoseWidgetWasRemovedFromThePage() {
     // The CMSSetting and the content it names both survive the removal of the
     // widget that created it, so a full reindex would otherwise resurrect
@@ -252,6 +267,21 @@ public class PageContentIndexingConnectorTest {
     when(page.getPageKey()).thenReturn(PageKey.parse("portal::site::page_draft_john"));
 
     assertNull(connector.create(blockId("name")));
+  }
+
+  @Test
+  public void shouldReturnNullWhenBlockPageBelongsToASiteNobodyNavigates() {
+    PageKey templatePageKey = new PageKey(new SiteKey(SiteType.GROUP_TEMPLATE, "/spaces/template"), "home");
+    when(page.getPageKey()).thenReturn(templatePageKey);
+    CMSSetting setting = new CMSSetting(CONTENT_TYPE, "name", templatePageKey.format(), 0);
+    lenient().when(cmsService.getSettingsByTypeAndPageReference(CONTENT_TYPE, templatePageKey.format()))
+             .thenReturn(List.of(setting));
+    mockActiveWidget("name");
+    lenient().when(plugin.getContent(setting)).thenReturn(new PageContentBlock("john", new Date(), Map.of("", "Hello")));
+
+    assertNull(connector.create(blockId("name")));
+
+    verify(urlResolverService, never()).resolvePath(any());
   }
 
   @Test

@@ -119,6 +119,12 @@ public class PageContentBlockIndexingListener implements ListenerBase<String, St
       return;
     }
     String storageId = page.getStorageId();
+    if (!PageContentIndexingConnector.isIndexableSite(pageKey.getSite())) {
+      // The connector builds no document for a page of a site users don't
+      // navigate, so the index keeps none of its documents
+      unindexStaleDocuments(storageId, List.of());
+      return;
+    }
     Set<String> activeWidgetNames = PageContentBlockUtils.collectWidgetSettingNames(layoutService, page);
     List<String> currentBlockIds = findContentBlockIds(pageRef, storageId, activeWidgetNames);
     // Without any live block, the page is represented by its bare page

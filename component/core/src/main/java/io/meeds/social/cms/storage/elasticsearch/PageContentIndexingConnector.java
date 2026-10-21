@@ -120,7 +120,8 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
   /**
    * The sites whose pages users reach through a navigation. Pages of any
    * other site type — draft copies, site templates, the legacy per-user
-   * sites — never surface as bare page documents.
+   * sites — never surface in search, as a bare page document or a content
+   * block document.
    */
   private static final Set<SiteType>          INDEXABLE_SITE_TYPES     = Set.of(SiteType.PORTAL, SiteType.GROUP);
 
@@ -297,6 +298,12 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
         LOGGER.debug("Page {} is a draft, thus it can't be indexed", pageKey);
         return null;
       }
+      if (!isIndexableSite(pageKey.getSite())) {
+        LOGGER.debug("Page {} belongs to a {} site which users don't navigate, thus it isn't indexed",
+                     pageKey,
+                     pageKey.getSite().getType());
+        return null;
+      }
       return isPageDocumentId(id) ? createPageDocument(id, page, creation) : createBlockDocument(id, page);
     } catch (Exception e) {
       LOGGER.warn("Cannot index page document with id {}", id, e);
@@ -339,7 +346,7 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
   /**
    * @param  siteKey a site key
    * @return whether the site is one users reach through a navigation, i.e.
-   *         whose pages may surface as bare page documents
+   *         whose pages may surface in search
    */
   public static boolean isIndexableSite(SiteKey siteKey) {
     return siteKey != null && INDEXABLE_SITE_TYPES.contains(siteKey.getType());
@@ -351,12 +358,12 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
    * otherwise, which would let a full reindex skip or repeat blocks across
    * batches.
    * <p>
-   * Every reason a setting can be disqualified (blank/draft page reference,
-   * page gone, or the widget that created the block no longer present on the
-   * page) is evaluated here, before {@link #getAllIds} applies skip/limit,
-   * so a disqualified setting never consumes a slot in a batch — the block
-   * portion of the ids has no store-side paging to lean on, unlike the page
-   * portion.
+   * Every reason a setting can be disqualified (blank or draft page reference,
+   * page of a site users don't navigate, page gone, or the widget that created
+   * the block no longer present on the page) is evaluated here, before
+   * {@link #getAllIds} applies skip/limit, so a disqualified setting never
+   * consumes a slot in a batch — the block portion of the ids has no
+   * store-side paging to lean on, unlike the page portion.
    * <p>
    * Pages are resolved through a per-call memo: re-walking the settings that
    * precede {@code offset} on every batch then costs at most one page load
@@ -370,7 +377,7 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
                         .flatMap(type -> cmsService.getSettingsByType(type)
                                                    .stream()
                                                    .filter(s -> StringUtils.isNotBlank(s.getPageReference()))
-                                                   .filter(s -> isNotDraftPageReference(s.getPageReference()))
+                                                   .filter(s -> isIndexablePageReference(s.getPageReference()))
                                                    .sorted(Comparator.comparing(CMSSetting::getName))
                                                    .map(s -> buildBlockId(type, s, resolvedPages)))
                         .filter(StringUtils::isNotBlank)
@@ -404,18 +411,12 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
    *                  blocks, if any, are all queued for indexing or only the
    *                  ones the index lacks (see {@link #queueLiveBlockDocuments})
    * @return the bare page document, or {@code null} when the page is
-   *         represented by its content block documents instead, belongs to
-   *         a site nobody navigates, or can't be reached from any navigation
-   *         node (a result leading nowhere is worse than none)
+   *         represented by its content block documents instead, or can't be
+   *         reached from any navigation node (a result leading nowhere is
+   *         worse than none)
    */
   private Document createPageDocument(String id, Page page, boolean creation) {
     PageKey pageKey = page.getPageKey();
-    if (!isIndexableSite(pageKey.getSite())) {
-      LOGGER.debug("Page {} belongs to a {} site which users don't navigate, thus it isn't indexed",
-                   pageKey,
-                   pageKey.getSite().getType());
-      return null;
-    }
     List<CMSSetting> liveBlocks = findLiveContentBlockSettings(page);
     if (!liveBlocks.isEmpty()) {
       queueLiveBlockDocuments(page, liveBlocks, creation);
@@ -684,9 +685,10 @@ public class PageContentIndexingConnector extends ElasticIndexingServiceConnecto
     }
   }
 
-  private boolean isNotDraftPageReference(String pageReference) {
+  private boolean isIndexablePageReference(String pageReference) {
     try {
-      return !isDraftPage(PageKey.parse(pageReference));
+      PageKey pageKey = PageKey.parse(pageReference);
+      return !isDraftPage(pageKey) && isIndexableSite(pageKey.getSite());
     } catch (Exception e) {
       LOGGER.debug("Cannot parse page reference {}", pageReference, e);
       return true;
