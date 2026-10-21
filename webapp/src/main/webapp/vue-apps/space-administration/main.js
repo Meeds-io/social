@@ -452,15 +452,21 @@ export function init(isExternalFeatureEnabled) {
         /**
          * Loads the next page of a select-all walk. A page that fails to
          * load, or that adds no new space while the list is known to hold
-         * more, ends the walk as a failure.
+         * more, ends the walk as a failure. Without a contributed sort, the
+         * walk ends with no request once every matching space is listed; a
+         * contributed sort reports no total, and its end is an empty page.
          *
          * @param {Function} isCurrent tells whether the walking run is still the current one
-         * @returns {Promise<string>} 'loaded'; 'failed' when the walk failed;
-         *          'stopped' when the run was cancelled meanwhile
+         * @returns {Promise<string>} 'loaded'; 'complete' when every matching space
+         *          is listed; 'failed' when the walk failed; 'stopped' when the
+         *          run was cancelled meanwhile
          */
         async loadNextBulkPage(isCurrent) {
           const loadedSpacesCount = this.spaces.length;
           const customSort = this.customSort;
+          if (!customSort && loadedSpacesCount >= this.spacesSize) {
+            return 'complete';
+          }
           try {
             this.offset += this.pageSize;
             await this.loadSpaces();
