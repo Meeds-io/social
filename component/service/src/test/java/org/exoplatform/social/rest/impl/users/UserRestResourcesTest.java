@@ -57,7 +57,11 @@ import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.rest.UserAccountConfirmation;
+import org.exoplatform.portal.rest.UserAccountConfirmationSettings;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
@@ -159,6 +163,10 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private List<ProfilePropertySetting> tearDownProfilePropertyList = new ArrayList<>();
 
+  private UserAccountConfirmationSettings confirmationSettings;
+
+  private ProfilePropertyService       profilePropertyServiceSpy;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
@@ -191,6 +199,17 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
     settingService = getContainer().getComponentInstanceOfType(SettingService.class);
     otpService = mock(OtpService.class);
+    profilePropertyServiceSpy = spy(profilePropertyService);
+    // The confirmation guard is switched off for the tests of the endpoints'
+    // own behaviour; the guard tests switch it back on
+    InitParams confirmationParams = new InitParams();
+    ValueParam enabledParam = new ValueParam();
+    enabledParam.setName(UserAccountConfirmationSettings.ENABLED_PARAM);
+    enabledParam.setValue("false");
+    confirmationParams.addParameter(enabledParam);
+    confirmationSettings = new UserAccountConfirmationSettings(confirmationParams, organizationService, userACL);
+    getContainer().registerComponentInstance(UserAccountConfirmationSettings.class, confirmationSettings);
+    confirmedSessionUser = null;
     rootIdentity = createIdentity("root");
     johnIdentity = createIdentity("john");
     maryIdentity = createIdentity("mary");
@@ -210,7 +229,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 userExportService,
                                                 userImportService,
                                                 imageThumbnailService,
-                                                profilePropertyService,
+                                                profilePropertyServiceSpy,
                                                 passwordRecoveryService,
                                                 localeConfigService,
                                                 settingService,
@@ -219,6 +238,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   public void tearDown() throws Exception {
+    getContainer().unregisterComponent(UserAccountConfirmationSettings.class);
+    confirmedSessionUser = null;
     super.tearDown();
     for (ProfilePropertySetting propertySetting : tearDownProfilePropertyList) {
       profilePropertyService.deleteProfilePropertySetting(propertySetting.getId());
@@ -1534,6 +1555,232 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
     endSession();
+  }
+
+  public void testAccountWritesRequireConfirmedSession() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+
+    byte[] userData = ("{\"username\":\"guarded.user\",\"password\":\"Passw0rd!\",\"email\":\"guarded.user@exoplatform.com\","
+        + "\"firstname\":\"Guarded\",\"lastname\":\"User\"}").getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> jsonHeaders = new MultivaluedMapImpl();
+    jsonHeaders.putSingle("content-type", "application/json");
+    jsonHeaders.putSingle("content-length", "" + userData.length);
+    ContainerResponse response = service("POST", getURLResource("users"), "", jsonHeaders, userData, "root");
+    assertOtpRequired(response);
+    assertNull(organizationService.getUserHandler().findUserByName("guarded.user", UserStatus.ANY));
+
+    response = service("DELETE", getURLResource("users/john"), "", null, null, "root");
+    assertOtpRequired(response);
+    assertNotNull(organizationService.getUserHandler().findUserByName("john", UserStatus.ANY));
+
+    byte[] users = "[\"john\"]".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+    listHeaders.putSingle("content-type", "application/json");
+    response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
+    assertOtpRequired(response);
+    assertTrue(organizationService.getUserHandler().findUserByName("john", UserStatus.ANY).isEnabled());
+    response = service("PATCH", getURLResource("users/bulk/enable"), "", listHeaders, users, "root");
+    assertOtpRequired(response);
+    // Sending the onboarding email alters no account
+    response = service("PATCH", getURLResource("users/bulk/onboard"), "", listHeaders, users, "root");
+    assertNotOtpRequired(response);
+
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    Object firstName = identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.FIRST_NAME);
+    response = service("PATCH", getURLResource("users/john"), "", formHeaders, "name=firstName&value=Johnny".getBytes(), "root");
+    assertOtpRequired(response);
+    assertEquals(firstName, identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.FIRST_NAME));
+
+    response = getResponseAs("PATCH", "/v1/social/users/john/profile", "{\"firstname\":\"Johnny\"}", "root");
+    assertOtpRequired(response);
+    response = getResponseAs("PATCH",
+                             "/v1/social/users/john/profile/properties",
+                             "[{\"propertyName\":\"firstName\",\"value\":\"Johnny\",\"children\":[]}]",
+                             "root");
+    assertOtpRequired(response);
+  }
+
+  public void testAccountWritesPassFromConfirmedSession() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    confirmedSessionUser = "root";
+
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=firstName&value=Johnny".getBytes(),
+                                         "root");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+
+    byte[] users = "[\"john\"]".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+    listHeaders.putSingle("content-type", "application/json");
+    try {
+      response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertFalse(organizationService.getUserHandler().findUserByName("john", UserStatus.ANY).isEnabled());
+      response = service("PATCH", getURLResource("users/bulk/enable"), "", listHeaders, users, "root");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertTrue(organizationService.getUserHandler().findUserByName("john", UserStatus.ANY).isEnabled());
+    } finally {
+      organizationService.getUserHandler().setEnabled("john", true, true);
+    }
+
+    // A confirmation of another user does not count
+    confirmedSessionUser = "mary";
+    response = service("PATCH", getURLResource("users/john"), "", formHeaders, "name=firstName&value=John".getBytes(), "root");
+    assertOtpRequired(response);
+  }
+
+  public void testOwnProfileIsNeverGuarded() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("john");
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=firstName&value=Johnny".getBytes(),
+                                         "john");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    response = getResponseAs("PATCH", "/v1/social/users/john/profile", "{\"firstname\":\"John\"}", "john");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+  }
+
+  public void testProfileGuardRunsAfterCallerCheck() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("mary");
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=firstName&value=Johnny".getBytes(),
+                                         "mary");
+    assertEquals(401, response.getStatus());
+  }
+
+  public void testImportStartRequiresConfirmedSessionButNotProgressNorClean() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+
+    ContainerResponse response = service("POST", getURLResource("users/csv"), "", headers, "sync=true".getBytes(), "root");
+    assertEquals(400, response.getStatus());
+    assertEquals("UPLOAD_ID:MANDATORY", response.getEntity());
+
+    response = service("POST", getURLResource("users/csv"), "", headers, "uploadId=guarded&sync=true".getBytes(), "root");
+    assertOtpRequired(response);
+
+    response = service("POST", getURLResource("users/csv"), "", headers, "uploadId=guarded&progress=true".getBytes(), "root");
+    assertEquals(404, response.getStatus());
+
+    response = service("POST", getURLResource("users/csv"), "", headers, "uploadId=guarded&clean=true".getBytes(), "root");
+    assertEquals(204, response.getStatus());
+  }
+
+  public void testSwitchedOffConfirmationLetsAccountWritesThrough() throws Exception {
+    startSessionAs("root", true);
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=firstName&value=John".getBytes(),
+                                         "root");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+  }
+
+  /**
+   * The email change validates the code of the email method whatever the
+   * client names, and consumes it once the change is written: a code that
+   * confirmed one change cannot confirm another, and a refused request burns
+   * nothing
+   */
+  public void testEmailChangeIsBoundToEmailMethodAndConsumedAfterTheWrite() throws Exception {
+    startSessionAs("john");
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.EMAIL, "WRONG_FORMAT");
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile?otpMethod=sms&otpCode=123", data.toString());
+    assertEquals(400, response.getStatus());
+    verify(otpService, never()).consumeOtp(anyString(), anyString(), anyString());
+
+    data.put(ProfileEntity.EMAIL, "john.new@platform.com");
+    response = getResponse("PATCH", "/v1/social/users/john/profile?otpMethod=sms&otpCode=123", data.toString());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    verify(otpService, never()).validateOtp(eq("john"), eq("sms"), anyString());
+    verify(otpService, times(2)).validateOtp("john", "email", "123");
+    verify(otpService).consumeOtp("john", "email", "123");
+
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    response = service("PATCH",
+                       getURLResource("users/john"),
+                       "",
+                       formHeaders,
+                       "name=email&value=john.other@platform.com&otpMethod=sms&otpCode=456".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    verify(otpService).validateOtp("john", "email", "456");
+    verify(otpService).consumeOtp("john", "email", "456");
+  }
+
+  public void testEmailChangeRefusedByTheCodeConsumesNothing() throws Exception {
+    startSessionAs("john");
+    doThrow(new IllegalAccessException()).when(otpService).validateOtp("john", "email", "000");
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.EMAIL, "john.new@platform.com");
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile?otpCode=000", data.toString());
+    assertEquals(400, response.getStatus());
+    assertEquals("EMAIL:OTP_CODE_WRONG", response.getEntity());
+    verify(otpService, never()).consumeOtp(anyString(), anyString(), anyString());
+  }
+
+  /**
+   * A request-supplied property name is looked up among the stored settings,
+   * never through the by-name lookup that caches every miss; names that are
+   * no setting keep being stored
+   */
+  public void testUpdateProfileFieldNeverLooksSettingsUpByName() throws Exception {
+    startSessionAs("john");
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH", getURLResource("users/john"), "", formHeaders, "name=aboutMe&value=Hello".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    response = service("PATCH", getURLResource("users/john"), "", formHeaders, "name=enrollmentDate&value=123".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+
+    verify(profilePropertyServiceSpy, never()).getProfileSettingByName(anyString());
+    Profile profile = identityManager.getOrCreateUserIdentity("john").getProfile();
+    assertEquals("Hello", profile.getProperty(Profile.ABOUT_ME));
+    assertEquals("123", profile.getProperty(Profile.ENROLLMENT_DATE));
+  }
+
+  private ContainerResponse getResponseAs(String method, String path, String input, String remoteUser) throws Exception {
+    byte[] jsonData = input.getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("content-type", "application/json");
+    headers.putSingle("content-length", "" + jsonData.length);
+    return service(method, path, "", headers, jsonData, remoteUser);
+  }
+
+  private void assertOtpRequired(ContainerResponse response) {
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 403, response.getStatus());
+    assertEquals(UserAccountConfirmation.OTP_REQUIRED, response.getEntity());
+  }
+
+  private void assertNotOtpRequired(ContainerResponse response) {
+    assertNotNull(response);
+    assertFalse(UserAccountConfirmation.OTP_REQUIRED.equals(response.getEntity()));
   }
 
   public void testIncludeCurrentUserInAdvancedSearchResult() throws Exception {
