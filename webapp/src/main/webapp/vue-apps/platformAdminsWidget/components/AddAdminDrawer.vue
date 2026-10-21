@@ -192,7 +192,7 @@ export default {
       }
       this.saving = true;
 
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships/bulk?membershipId=''`, {
+      return this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships/bulk?membershipId=''`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -212,11 +212,19 @@ export default {
         }
       }).then(() => this.$root.$emit('platform-settings-admins-refresh'))
         .then(() => this.$refs.drawer.close())
-        .finally(() => {
-          this.selectedUsers = [];
-          this.memberships = [];
-          this.saving = false;
-        });
+        .then(() => this.clearSelection())
+        .catch(error => {
+          // A cancelled confirmation keeps the selection, to save it again
+          if (!this.$userAccountConfirmationService.isCancelled(error)) {
+            this.clearSelection();
+            throw error;
+          }
+        })
+        .finally(() => this.saving = false);
+    },
+    clearSelection() {
+      this.selectedUsers = [];
+      this.memberships = [];
     },
     searchAdmins(adminsCount, admins) {
       this.admins = admins;
