@@ -35,21 +35,23 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
         role="status">
         {{ sendMessage }}
       </p>
-      <v-text-field
-        ref="codeInput"
-        v-model="otpCode"
-        :placeholder="$t('userAccountConfirmation.codePlaceholder')"
-        :aria-label="$t('userAccountConfirmation.codePlaceholder')"
-        :error-messages="errorMessage"
-        :disabled="confirming"
-        prepend-inner-icon="fa-lock"
-        autocomplete="one-time-code"
-        inputmode="numeric"
-        class="pt-0"
-        outlined
-        dense
-        autofocus
-        @input="errorMessage = null" />
+      <v-sheet class="d-flex flex-wrap justify-center" width="400">
+        <v-text-field
+          ref="codeInput"
+          v-model="otpCode"
+          :placeholder="$t('userAccountConfirmation.codePlaceholder')"
+          :aria-label="$t('userAccountConfirmation.codePlaceholder')"
+          :error-messages="errorMessage"
+          :disabled="confirming"
+          prepend-inner-icon="fa-lock"
+          autocomplete="one-time-code"
+          inputmode="numeric"
+          class="pt-0"
+          outlined
+          dense
+          autofocus
+          @input="errorMessage = null" />
+      </v-sheet>
       <div class="d-flex flex-wrap justify-center mt-2">
         <v-btn
           :disabled="!canSendAgain"
