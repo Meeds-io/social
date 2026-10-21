@@ -101,7 +101,9 @@ export default {
       this.$organizationalUnitMembersService.createMembership(this.memberUserName, this.groupId, this.managerMembershipType)
         .then(() => this.$root.$emit('alert-message', this.$t('organizationalUnitMembers.promotedAsAdmin', {0: this.member?.fullname || this.memberUserName}), 'success'))
         .catch(error => {
-          if (error?.message?.includes?.('ALREADY_EXISTS')) {
+          if (this.$userAccountConfirmationService.isCancelled(error)) {
+            return;
+          } else if (error?.message?.includes?.('ALREADY_EXISTS')) {
             this.$root.$emit('alert-message', this.$t('organizationalUnitMembers.alreadyAdmin', {0: this.member?.fullname || this.memberUserName}), 'warning');
           } else {
             this.$root.$emit('alert-message', this.$t('organizationalUnitMembers.errorSavingMemberships'), 'error');

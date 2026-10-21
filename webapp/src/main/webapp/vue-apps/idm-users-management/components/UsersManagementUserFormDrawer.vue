@@ -218,7 +218,7 @@ export default {
       }
 
       this.saving = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users`, {
+      return this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users`, {
         method: this.newUser && 'POST' || 'PUT',
         credentials: 'include',
         headers: {
@@ -238,7 +238,7 @@ export default {
         }
       }).then(() => this.$root.$emit('refreshUsers'))
         .then(() => this.$refs.userFormDrawer.close())
-        .catch(this.handleError)
+        .catch(error => this.$userAccountConfirmationService.isCancelled(error) || this.handleError(error))
         .finally(() => this.saving = false);
     },
     cancel() {
