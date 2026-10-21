@@ -37,11 +37,15 @@ import org.picocontainer.Startable;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
+import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
+import org.exoplatform.social.core.metadata.MetadataServiceImpl;
 import org.exoplatform.social.core.metadata.storage.MetadataStorage;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.model.Metadata;
 import org.exoplatform.social.metadata.model.MetadataItem;
@@ -1943,6 +1947,34 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                                               name,
                                                               audienceId),
                                               creatorId);
+  }
+
+  public void testStartCreatesTheMetadataOfTheOtherPluginsWhenOneFails() {
+    MetadataServiceImpl startedService = new MetadataServiceImpl(getContainer().getComponentInstanceOfType(UserACL.class),
+                                                                 getContainer().getComponentInstanceOfType(IdentityStorage.class),
+                                                                 getContainer().getComponentInstanceOfType(MetadataStorage.class),
+                                                                 getContainer().getComponentInstanceOfType(ListenerService.class));
+    // A name longer than its column: this metadata can't be stored
+    startedService.addMetadataPlugin(newMetadataInitPlugin(StringUtils.repeat("x", 300)));
+    startedService.addMetadataPlugin(newMetadataInitPlugin("test9"));
+
+    startedService.start();
+    restartTransaction();
+
+    assertNotNull(metadataService.getMetadataByKey(new MetadataKey(userMetadataType.getName(), "test9", 2L)));
+  }
+
+  private MetadataInitPlugin newMetadataInitPlugin(String name) {
+    Metadata metadata = new Metadata();
+    metadata.setAudienceId(2L);
+    metadata.setName(name);
+    metadata.setType(userMetadataType);
+    InitParams params = new InitParams();
+    ObjectParameter parameter = new ObjectParameter();
+    parameter.setName("metadata");
+    parameter.setObject(metadata);
+    params.addParameter(parameter);
+    return new MetadataInitPlugin(params);
   }
 
   private InitParams newParam(long id, String name) {
