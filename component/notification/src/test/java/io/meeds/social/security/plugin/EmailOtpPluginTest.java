@@ -147,6 +147,19 @@ public class EmailOtpPluginTest {
   }
 
   @Test
+  public void testConsumeOtpRemovesTheCodeOnce() {
+    when(otpCache.remove("email:john")).thenReturn(OTP_CODE, (String) null);
+    assertTrue(plugin.consumeOtp("john", OTP_CODE));
+    assertFalse(plugin.consumeOtp("john", OTP_CODE));
+  }
+
+  @Test
+  public void testTimingGetters() {
+    assertEquals(60, plugin.getSendIntervalSeconds());
+    assertEquals(5, plugin.getCodeTtlMinutes());
+  }
+
+  @Test
   public void testGetNameAndCanUse() {
     assertEquals("email", plugin.getName());
     assertTrue(plugin.canUse("anyUser"));
