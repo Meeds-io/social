@@ -35,7 +35,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
         role="status">
         {{ sendMessage }}
       </p>
-      <v-sheet class="d-flex flex-wrap justify-center" width="400">
+      <v-sheet class="mx-auto" max-width="400">
         <v-text-field
           ref="codeInput"
           v-model="otpCode"

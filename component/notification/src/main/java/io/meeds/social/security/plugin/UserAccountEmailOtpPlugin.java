@@ -29,7 +29,9 @@ import lombok.Setter;
  * Same OTP mechanics as {@link EmailOtpPlugin} (generation, TTL, length, send
  * interval, single-use consumption) and the same email wording, under its
  * own subject, for the confirmation of an administrator session before
- * actions on user accounts.
+ * actions on user accounts. Its template is a copy of the base one under its
+ * own path, so a deployment can replace this email on its own, as it can the
+ * other code emails.
  * The code is stored under a purpose-bound cache key, so a code sent for
  * another flow never confirms an administrator session.
  */
