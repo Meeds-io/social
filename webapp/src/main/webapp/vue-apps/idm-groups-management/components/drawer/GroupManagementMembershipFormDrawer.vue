@@ -229,7 +229,7 @@ export default {
         },
         body: JSON.stringify(this.newMembership ? this.memberships : this.membership),
       };
-      return fetch(input, init).then(resp => {
+      return this.$userAccountConfirmationService.confirmedFetch(input, init).then(resp => {
         if (!resp || !resp.ok) {
           if (resp.status === 400) {
             return resp.text().then(error => {
@@ -242,7 +242,7 @@ export default {
         }
       }).then(() => this.$root.$emit('refresh-group-members'))
         .then(() => this.$refs.drawer.close())
-        .catch(this.handleError)
+        .catch(error => this.$userAccountConfirmationService.isCancelled(error) || this.handleError(error))
         .finally(() => this.saving = false);
     },
     cancel() {

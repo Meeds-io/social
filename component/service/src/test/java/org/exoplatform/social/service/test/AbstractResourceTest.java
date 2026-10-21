@@ -28,6 +28,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.portal.rest.UserAccountConfirmation;
 import org.exoplatform.services.rest.ContainerResponseWriter;
 import org.exoplatform.services.rest.impl.*;
 import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
@@ -47,6 +48,12 @@ import org.exoplatform.ws.frameworks.json.value.JsonValue;
  * Provides <code>service</code> method to test rest service.
  */
 public abstract class AbstractResourceTest extends AbstractServiceTest {
+
+  /**
+   * User whose HTTP session is confirmed with a one-time password on the next
+   * requests, none when null
+   */
+  protected String confirmedSessionUser;
 
   public ContainerResponse getResponse(String method, String restPath, String input) throws Exception {
     byte[] jsonData = (StringUtils.isBlank(input) ? "" : input).getBytes("UTF-8");
@@ -102,6 +109,9 @@ public abstract class AbstractResourceTest extends AbstractServiceTest {
                                                                       method,
                                                                       headers,
                                                                       remoteUser);
+    if (confirmedSessionUser != null) {
+      httpRequest.getSession().setAttribute(UserAccountConfirmation.SESSION_ATTRIBUTE, confirmedSessionUser);
+    }
     envctx.put(HttpServletRequest.class, httpRequest);
     EnvironmentContext.setCurrent(envctx);
     ContainerRequestWithAclCheck request = new ContainerRequestWithAclCheck(method,

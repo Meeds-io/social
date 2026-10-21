@@ -19,10 +19,16 @@
 package io.meeds.social.security.rest;
 
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +49,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import io.meeds.spring.web.security.PortalAuthenticationManager;
 import io.meeds.spring.web.security.WebSecurityConfiguration;
+import io.meeds.web.security.plugin.OtpPlugin;
 import io.meeds.web.security.service.OtpService;
 
 import jakarta.servlet.Filter;
@@ -96,6 +103,44 @@ public class OtpRestTest {
     doThrow(new IllegalStateException()).when(otpService).sendOtpCode(USERNAME, "email");
     mockMvc.perform(get("/otp?method=email").with(testUser()))
            .andExpect(status().isTooManyRequests());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testGetOtpSettingsAnonymously() {
+    mockMvc.perform(get("/otp/settings?method=userAccountEmail"))
+           .andExpect(status().isForbidden());
+  }
+
+  /**
+   * Two fields in two units: the delay between sends in seconds and the
+   * validity in minutes, given distinct values so that a swapped getter fails
+   */
+  @Test
+  @SneakyThrows
+  public void testGetOtpSettings() {
+    OtpPlugin plugin = mock(OtpPlugin.class);
+    when(plugin.getName()).thenReturn("userAccountEmail");
+    when(plugin.getSendIntervalSeconds()).thenReturn(60L);
+    when(plugin.getCodeTtlMinutes()).thenReturn(5L);
+    when(otpService.getOtpPlugins()).thenReturn(List.of(plugin));
+
+    mockMvc.perform(get("/otp/settings?method=userAccountEmail").with(testUser()))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.sendIntervalSeconds").value(60))
+           .andExpect(jsonPath("$.ttlMinutes").value(5))
+           .andExpect(header().string("Cache-Control", "no-store, private"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testGetOtpSettingsOfUnknownMethod() {
+    OtpPlugin plugin = mock(OtpPlugin.class);
+    when(plugin.getName()).thenReturn("email");
+    when(otpService.getOtpPlugins()).thenReturn(List.of(plugin));
+
+    mockMvc.perform(get("/otp/settings?method=userAccountEmail").with(testUser()))
+           .andExpect(status().isNotFound());
   }
 
   private RequestPostProcessor testUser() {
