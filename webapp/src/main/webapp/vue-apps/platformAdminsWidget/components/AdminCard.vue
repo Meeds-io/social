@@ -88,7 +88,7 @@ export default {
       this.$refs.deleteConfirmDialog.open();
     },
     ConfirmDeleteAdminMembership() {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${this.membership.id}`, {
+      return this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${this.membership.id}`, {
         method: 'DELETE',
         credentials: 'include',
       }).then(resp => {
@@ -96,6 +96,10 @@ export default {
           throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
         }
         this.$root.$emit('platform-settings-admins-refresh');
+      }).catch(error => {
+        if (!this.$userAccountConfirmationService.isCancelled(error)) {
+          throw error;
+        }
       });
     },
   }

@@ -46,6 +46,7 @@ import * as spaceTemplateService from './js/SpaceTemplateService.js';
 import * as registrationService from './js/RegistrationService';
 import * as databindService from './js/DatabindService.js';
 import * as loginService from './js/LoginService.js';
+import * as userAccountConfirmationService from './js/UserAccountConfirmationService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -143,6 +144,9 @@ window.Object.defineProperty(Vue.prototype, '$databindService', {
 });
 window.Object.defineProperty(Vue.prototype, '$loginService', {
   value: loginService,
+});
+window.Object.defineProperty(Vue.prototype, '$userAccountConfirmationService', {
+  value: userAccountConfirmationService,
 });
 
 if (eXo.env.portal.userIdentityId) {

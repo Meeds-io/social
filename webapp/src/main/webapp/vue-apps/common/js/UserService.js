@@ -1,3 +1,5 @@
+import { confirmedFetch } from './UserAccountConfirmationService.js';
+
 
 export function getUser(username, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}?expand=${expand || ''}`, {
@@ -355,7 +357,7 @@ export function changePassword(username, currentPassword, newPassword) {
 }
 
 export function importUsers(uploadId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/csv`, {
+  return confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/csv`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -418,7 +420,7 @@ export function cleanImportUsers(uploadId) {
 }
 
 export function multiSelectAction(action, selectedUsers) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/bulk/${action}`, {
+  return confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/bulk/${action}`, {
     headers: {
       'Content-Type': 'application/json'
     },

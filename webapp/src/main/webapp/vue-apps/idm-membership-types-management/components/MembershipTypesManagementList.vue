@@ -140,7 +140,7 @@ export default {
     },
     deleteConfirm() {
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/membershipTypes/${this.selectedMembershipType.name}`, {
+      return this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/membershipTypes/${this.selectedMembershipType.name}`, {
         method: 'DELETE',
         credentials: 'include',
       }).then(resp => {
@@ -155,6 +155,9 @@ export default {
         }
         return this.searchMembershipTypes();
       }).catch(error => {
+        if (this.$userAccountConfirmationService.isCancelled(error)) {
+          return;
+        }
         error = error.message || String(error);
         const errorI18NKey = `MembershipTypesManagement.error.${error}`;
         const errorI18N = this.$t(errorI18NKey, {0: this.selectedMembershipType.name});
