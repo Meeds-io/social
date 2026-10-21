@@ -26,7 +26,7 @@
       color="primary"
       class="me-4 my-auto" />
     <div class="d-flex flex-column me-2">
-      <span>{{ $t(labels.line1, {0: selectedSpacesCount}) }}</span>
+      <span>{{ line1 }}</span>
       <span>{{ $t(labels.line2) }}</span>
       <span
         v-sanitized-html="$t(labels.line3, {
@@ -63,6 +63,12 @@ export default {
     selectedSpacesCount() {
       return this.options.bulkOperationTotal
         ?? (this.options.allSpacesSelected ? this.options.spacesSize : this.options.selectedSpaces.length);
+    },
+    line1() {
+      // An operation's own line1 may be a "one | several" choice on the total
+      return this.labels.line1Plural
+        ? this.$tc(this.labels.line1, this.selectedSpacesCount, {0: this.selectedSpacesCount})
+        : this.$t(this.labels.line1, {0: this.selectedSpacesCount});
     },
     counterHidden() {
       return this.options.bulkOperationLabels ? 'true' : null;
