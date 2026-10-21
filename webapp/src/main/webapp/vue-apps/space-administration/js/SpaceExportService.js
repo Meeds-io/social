@@ -38,8 +38,10 @@
 
 const I18N_PREFIX = 'social.spaces.administration.manageSpaces';
 
+// line1 is a "one | several" choice on the total
 const PROCESSING_LABELS = {
-  line1: `${I18N_PREFIX}.exportInProgressSpacesCount`,
+  line1: `${I18N_PREFIX}.exportInProgressSpaces`,
+  line1Plural: true,
   line2: `${I18N_PREFIX}.exportPleaseWait`,
   line3: `${I18N_PREFIX}.exportDoNotClosePage`,
 };
