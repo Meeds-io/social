@@ -86,6 +86,7 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.application.localization.LocalizationFilter;
+import org.exoplatform.portal.rest.UserAccountConfirmation;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -162,6 +163,12 @@ import lombok.SneakyThrows;
 @Tag(name = VersionResources.VERSION_ONE +
     "/social/users", description = "Operations on users with their activities, connections and spaces")
 public class UserRest implements ResourceContainer, Startable {
+
+  private static final String EMAIL_OTP_METHOD             = "email";
+
+  private static final String BULK_ENABLE                  = "enable";
+
+  private static final String BULK_DISABLE                 = "disable";
 
   private static final String UPLOAD_ID_PROGRESS_NOT_FOUND = "UPLOAD_ID_PROGRESS:NOT_FOUND";
 
@@ -689,6 +696,9 @@ public class UserRest implements ResourceContainer, Startable {
                               "<br />\"firstname\": \"John\"," +
                               "<br />\"lastname\": \"Smith\"<br />}", required = true)
                           UserEntity model) throws Exception {
+    if (!UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
     if (model.isNotValid()) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -1138,6 +1148,9 @@ public class UserRest implements ResourceContainer, Startable {
     if (!StringUtils.equals(currentUser, username) && !RestUtils.isMemberOfAdminGroup()) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
+    if (!StringUtils.equals(currentUser, username) && !UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
 
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
 
@@ -1158,7 +1171,7 @@ public class UserRest implements ResourceContainer, Startable {
         }
       }
       if (Profile.EMAIL.equals(fieldName)) {
-        Response response = checkEmail(username, value, otpMethod, otpCode, locale);
+        Response response = checkEmail(username, value, otpCode, locale);
         if (response != null) {
           return response;
         }
@@ -1170,6 +1183,9 @@ public class UserRest implements ResourceContainer, Startable {
         identityManager.updateProfile(profile, getCurrentUser(), true);
       } else {
         updateProfileField(profile, fieldName, value, true,currentUser);
+        if (Profile.EMAIL.equals(fieldName)) {
+          consumeEmailOtp(username, otpCode);
+        }
       }
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attribute {}", currentUser, name);
@@ -1215,6 +1231,9 @@ public class UserRest implements ResourceContainer, Startable {
     if (!StringUtils.equals(currentUser, username) && !RestUtils.isMemberOfAdminGroup()) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
+    if (!StringUtils.equals(currentUser, username) && !UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
 
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
 
@@ -1235,9 +1254,9 @@ public class UserRest implements ResourceContainer, Startable {
       }
     }
     Identity identity = identityManager.getOrCreateUserIdentity(username);
-    if (email != null
-        && !StringUtils.equals(email, identity.getProfile().getEmail())) {
-      Response response = checkEmail(username, email, otpMethod, otpCode, locale);
+    boolean emailChange = email != null && !StringUtils.equals(email, identity.getProfile().getEmail());
+    if (emailChange) {
+      Response response = checkEmail(username, email, otpCode, locale);
       if (response != null) {
         return response;
       }
@@ -1246,6 +1265,9 @@ public class UserRest implements ResourceContainer, Startable {
     try {
       Map<String, Object> userProfileProperties = extractPropertiesFromEntities(profileEntity);
       saveProfile(username, userProfileProperties, currentUser);
+      if (emailChange) {
+        consumeEmailOtp(username, otpCode);
+      }
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attributes", currentUser);
       return Response.status(Status.UNAUTHORIZED).build();
@@ -1319,6 +1341,9 @@ public class UserRest implements ResourceContainer, Startable {
     if (!StringUtils.equals(currentUser, username) && !RestUtils.isMemberOfAdminGroup()) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
+    if (!StringUtils.equals(currentUser, username) && !UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
     Identity userIdentity = getUserIdentity(username);
     Profile profile = userIdentity.getProfile();
@@ -1382,6 +1407,8 @@ public class UserRest implements ResourceContainer, Startable {
   public Response deleteUserById(
                                  @Context
                                  UriInfo uriInfo,
+                                 @Context
+                                 HttpServletRequest request,
                                  @Parameter(description = "User name", required = true)
                                  @PathParam("id")
                                  String id,
@@ -1391,6 +1418,9 @@ public class UserRest implements ResourceContainer, Startable {
     // Check permission of current user
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
+    if (!UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
     }
     // an admin never deletes the account being used to perform the deletion
     if (StringUtils.equals(id, getCurrentUser())) {
@@ -1505,6 +1535,11 @@ public class UserRest implements ResourceContainer, Startable {
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
+    // Enabling is guarded like disabling: an unattended session could
+    // otherwise re-enable an account it holds the credentials of
+    if ((BULK_ENABLE.equals(action) || BULK_DISABLE.equals(action)) && !UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
     String currentUsername = request.getRemoteUser();
     List<String> updatedUsers = new ArrayList<>();
     switch (action) {
@@ -1514,12 +1549,12 @@ public class UserRest implements ResourceContainer, Startable {
         onboardUser(username, updatedUsers, url);
       }
       break;
-    case "enable":
+    case BULK_ENABLE:
       for (String username : users) {
         enableUser(username, updatedUsers);
       }
       break;
-    case "disable":
+    case BULK_DISABLE:
       for (String username : users) {
         disableUser(username, updatedUsers, currentUsername);
       }
@@ -1841,6 +1876,11 @@ public class UserRest implements ResourceContainer, Startable {
     if (StringUtils.isBlank(uploadId)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("UPLOAD_ID:MANDATORY").build();
     }
+    // Starting an import updates existing accounts: names, email, enabled
+    // flag, profile properties and group memberships
+    if (!clean && !progress && !UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
 
     Locale locale = request.getLocale();
     String url = getUrl(request);
@@ -2053,7 +2093,7 @@ public class UserRest implements ResourceContainer, Startable {
                                   Object value,
                                   boolean save,
                                   String modifierUsername) throws IllegalAccessException {
-    ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name);
+    ProfilePropertySetting propertySetting = getPropertySetting(name);
     if (propertySetting != null && !propertySetting.isEditable() && (modifierUsername==null || !userACL.getUserIdentity(modifierUsername).isMemberOf(userACL.getAdminGroups()))) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
     } else if (Profile.EXTERNAL.equals(name)) {
@@ -2098,14 +2138,31 @@ public class UserRest implements ResourceContainer, Startable {
     }
   }
 
-  private Response checkEmail(String username, String email, String otpMethod, String otpCode, Locale locale) throws Exception {
+  /**
+   * Looks the setting up among the stored settings: a by-name lookup would
+   * cache a miss for every request-supplied name that is no setting
+   */
+  private ProfilePropertySetting getPropertySetting(String name) {
+    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
+    return settings == null ? null
+                            : settings.stream()
+                                      .filter(setting -> StringUtils.equals(setting.getPropertyName(), name))
+                                      .findFirst()
+                                      .orElse(null);
+  }
+
+  /**
+   * Validates the code of an email change, always with the email method:
+   * the method a client names is ignored, so a code sent for another flow
+   * never confirms an email change. The code is consumed by
+   * {@link #consumeEmailOtp(String, String)} once the change is written.
+   */
+  private Response checkEmail(String username, String email, String otpCode, Locale locale) throws Exception {
     if (StringUtils.isBlank(otpCode)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_MANDATORY").build();
-    } else if (StringUtils.isBlank(otpMethod)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_METHOD_MANDATORY").build();
     }
     try {
-      otpService.validateOtp(username, otpMethod, otpCode);
+      otpService.validateOtp(username, EMAIL_OTP_METHOD, otpCode);
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_WRONG").build();
     }
@@ -2118,6 +2175,17 @@ public class UserRest implements ResourceContainer, Startable {
       return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
     }
     return null;
+  }
+
+  /**
+   * Consumes the code of an email change once the change is written, so that
+   * it never confirms another one, while a refused request burns nothing.
+   * When another request consumed it in between, this change stands.
+   */
+  private void consumeEmailOtp(String username, String otpCode) {
+    if (!otpService.consumeOtp(username, EMAIL_OTP_METHOD, otpCode)) {
+      LOG.warn("The email change code of user {} was consumed by another request while this change was written", username);
+    }
   }
 
   @SneakyThrows

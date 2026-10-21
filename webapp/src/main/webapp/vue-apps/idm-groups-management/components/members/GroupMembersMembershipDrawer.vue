@@ -234,23 +234,58 @@ export default {
     },
     async apply() {
       this.saving = true;
+      const newMemberships = this.memberships.filter(m => !this.originalMemberships.find(om => om.groupId === m.groupId && om.membershipType === m.membershipType));
+      const toDeleteMemberships = this.originalMemberships.filter(m => !this.memberships.find(om => om.groupId === m.groupId && om.membershipType === m.membershipType));
+      // One call at a time, stopping at the first refusal: an unconfirmed
+      // session is refused at the first call with nothing written, and the
+      // whole batch is applied once the session is confirmed
+      let appliedCount = 0;
+      let current = null;
       try {
-        const newMemberships = this.memberships.filter(m => !this.originalMemberships.find(om => om.groupId === m.groupId && om.membershipType === m.membershipType));
-        if (newMemberships?.length) {
-          await Promise.all(newMemberships.map(this.createMembership));
-        }
-        const toDeleteMemberships = this.originalMemberships.filter(m => !this.memberships.find(om => om.groupId === m.groupId && om.membershipType === m.membershipType));
-        if (toDeleteMemberships?.length) {
-          await Promise.all(toDeleteMemberships.map(this.deleteMembership));
-        }
+        const changes = [
+          ...newMemberships.map(membership => ({membership, apply: this.createMembership})),
+          ...toDeleteMemberships.map(membership => ({membership, apply: this.deleteMembership})),
+        ];
+        await changes.reduce((previous, change) => previous.then(() => {
+          current = change.membership;
+          return change.apply(change.membership);
+        }).then(() => {
+          appliedCount++;
+          this.recordApplied(change);
+        }), Promise.resolve());
         this.close();
+      } catch (error) {
+        if (!this.$userAccountConfirmationService.isCancelled(error)) {
+          this.handleApplyError(error, current, appliedCount);
+        }
       } finally {
         this.saving = false;
         this.$root.$emit('refresh-group-members');
       }
     },
+    // An applied change becomes part of the original state, so that a new
+    // Apply after a refusal sends only what is left
+    recordApplied(change) {
+      if (change.apply === this.createMembership) {
+        this.originalMemberships.push(JSON.parse(JSON.stringify(change.membership)));
+      } else {
+        this.originalMemberships = this.originalMemberships.filter(m => m.groupId !== change.membership.groupId || m.membershipType !== change.membership.membershipType);
+      }
+    },
+    handleApplyError(error, membership, appliedCount) {
+      const message = error?.message || this.$t('IDMManagement.error.UnknownServerError');
+      if (appliedCount) {
+        this.$root.$emit('alert-message', this.$t('UsersManagement.memberships.applyStopped', {
+          0: `${membership.membershipType}:${membership.groupId}`,
+          1: appliedCount,
+          2: message,
+        }), 'error');
+      } else {
+        this.$root.$emit('alert-message', message, 'error');
+      }
+    },
     async createMembership(membership) {
-      const resp = await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships`, {
+      const resp = await this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -259,26 +294,18 @@ export default {
         body: JSON.stringify(membership),
       });
       if (!resp?.ok) {
-        if (resp.status === 400) {
-          return resp.text()
-            .then(error => this.$root.$emit('alert-message', error, 'error'));
-        } else {
-          this.$root.$emit('alert-message', this.$t('IDMManagement.error.UnknownServerError'), 'error');
-        }
+        const error = resp?.status === 400 ? await resp.text() : this.$t('IDMManagement.error.UnknownServerError');
+        throw new Error(error);
       }
     },
     async deleteMembership(membership) {
-      const resp = await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${membership.membershipType}:${this.user.userName}:${membership.groupId}`, {
+      const resp = await this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${membership.membershipType}:${this.user.userName}:${membership.groupId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
       if (!resp?.ok) {
-        if (resp.status === 400) {
-          return resp.text()
-            .then(error => this.$root.$emit('alert-message', error, 'error'));
-        } else {
-          this.$root.$emit('alert-message', this.$t('IDMManagement.error.UnknownServerError'), 'error');
-        }
+        const error = resp?.status === 400 ? await resp.text() : this.$t('IDMManagement.error.UnknownServerError');
+        throw new Error(error);
       }
     },
   },
