@@ -230,16 +230,19 @@ export function init(isExternalFeatureEnabled) {
          * @param {boolean} refresh reload the whole displayed range from the first space
          * @param {boolean} clean empty the list before a refresh
          * @param {boolean} silent raise no alert on a load failure
-         * @returns {Promise} resolved once the load is over, never rejected
+         * @returns {Promise<boolean>} resolved once the load is over, with false
+         *          when it failed; never rejected
          */
         searchSpaces(refresh, clean, silent) {
           return this.loadSpaces(refresh, clean)
+            .then(() => true)
             .catch(e => {
               // eslint-disable-next-line no-console
               console.error('Error loading spaces', e);
               if (!silent) {
                 this.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.errorSpacesBulkOperation'), 'error');
               }
+              return false;
             });
         },
         /**
@@ -335,9 +338,30 @@ export function init(isExternalFeatureEnabled) {
           const ids = new Set();
           return spaces.filter(space => space && !ids.has(space.id) && ids.add(space.id));
         },
-        loadNextPage() {
+        async loadNextPage() {
+          const loadedSpacesCount = this.spaces.length;
           this.offset += this.pageSize;
-          return this.searchSpaces();
+          const loaded = await this.searchSpaces();
+          if (loaded
+              && !this.customSort
+              && this.spaces.length === loadedSpacesCount
+              && loadedSpacesCount < this.spacesSize) {
+            // The page held only spaces already listed, sorted in before the
+            // offset since the last load: the whole displayed range is
+            // reloaded, and the selection is kept on the spaces still listed
+            const allSpacesSelected = this.allSpacesSelected;
+            const selectedIds = new Set(this.selectedSpaces.map(space => space.id));
+            // A failed reload keeps the rows displayed, and so the selection
+            await this.searchSpaces(true, false, true);
+            this.selectedSpaces = allSpacesSelected
+              ? this.spaces
+              : this.spaces.filter(space => selectedIds.has(space.id));
+            if (allSpacesSelected) {
+              // After the flush: the selectedSpaces watcher resets allSpacesSelected
+              await this.$nextTick();
+              this.allSpacesSelected = true;
+            }
+          }
         },
         /**
          * Applies callback on each selected space, in display order, while
