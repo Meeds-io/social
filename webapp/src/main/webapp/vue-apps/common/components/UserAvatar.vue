@@ -484,10 +484,7 @@ export default {
     },
   },
   created() {
-    if (this.username && this.mustRetrieveIdentity) {
-      this.$userService.getUser(this.username, 'settings')
-        .then(user => this.retrievedIdentity = user && JSON.parse(JSON.stringify(user)));
-    }
+    this.retrieveIdentity();
   },
   watch: {
     identity(newVal, oldVal) {
@@ -495,8 +492,29 @@ export default {
           || !oldVal
           || JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
         this.retrievedIdentity = null;
+        this.retrieveIdentity();
       }
-    }
+    },
+    profileId() {
+      // A list reusing this avatar for another user changes only the profile id:
+      // the user retrieved for the previous one would otherwise stay displayed.
+      this.retrievedIdentity = null;
+      this.retrieveIdentity();
+    },
+  },
+  methods: {
+    retrieveIdentity() {
+      const username = this.username;
+      if (username && this.mustRetrieveIdentity) {
+        this.$userService.getUser(username, 'settings')
+          .then(user => {
+            // The answer for a user this avatar no longer shows is dropped.
+            if (username === this.username) {
+              this.retrievedIdentity = user && JSON.parse(JSON.stringify(user));
+            }
+          });
+      }
+    },
   },
 };
 </script>
