@@ -25,7 +25,7 @@
       </div>
       <div
         v-else
-        :key="`${user}_withInfo`"
+        :key="`${user.userName}_withInfo`"
         :ripple="clickable"
         color="transparent py-1 border-box-sizing"
         @click="$emit('open-detail')">
