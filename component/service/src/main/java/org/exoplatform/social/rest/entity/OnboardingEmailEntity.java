@@ -20,13 +20,13 @@ package org.exoplatform.social.rest.entity;
 
 /**
  * The body of an onboarding email request: the message the administrator
- * writes above the link, plain text
+ * writes above the link, the rich editor's HTML, sanitized by the endpoint
  */
 public class OnboardingEmailEntity {
 
   /**
-   * The longest message the email carries: the form limits it, the endpoint
-   * refuses a longer one
+   * The longest message text the email carries, markup not counted: the
+   * editor limits it, the endpoint refuses a longer one
    */
   public static final int MESSAGE_MAX_LENGTH = 500;
 

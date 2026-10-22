@@ -32,30 +32,26 @@
       <div
         v-if="sendOnboardingEmail"
         class="mt-3 pa-2 border-radius light-grey-background text-color">
-        <div>{{ $t('UsersManagement.creation.email.hello', {0: fullName}) }}</div>
-        <div class="my-2">{{ $t('UsersManagement.creation.email.welcome', {0: companyName}) }}</div>
-        <v-textarea
+        <div class="mb-2">{{ $t('UsersManagement.creation.email.hello') }}</div>
+        <rich-editor
+          id="userInvitationMessageEditor"
           :value="message"
-          :placeholder="$t('UsersManagement.creation.email.messagePlaceholder')"
-          :counter="messageMaxLength"
-          :maxlength="messageMaxLength"
+          :max-length="messageMaxLength"
           :disabled="saving"
-          :error-messages="errorMessages"
-          class="white"
-          rows="3"
-          auto-grow
-          outlined
-          dense
-          @input="$emit('update:message', $event)" />
+          :tag-enabled="false"
+          class="white border-radius"
+          ck-editor-type="userInvitation"
+          disable-suggester
+          disable-image-attachment
+          @input="$emit('update:message', $event)"
+          @validity-updated="$emit('validity-updated', $event)" />
+        <div v-if="errorMessages" class="error--text text-caption">{{ errorMessages }}</div>
         <div class="mt-2">{{ $t('UsersManagement.creation.email.confirmLink') }}</div>
-        <div class="mt-2">{{ $t('UsersManagement.creation.email.tokenLink') }}</div>
+        <div class="mt-3">{{ $t('UsersManagement.creation.email.tokenLink') }}</div>
         <div class="font-italic">
           {{ $t('UsersManagement.creation.email.expiry', {0: validityLabel}) }}
         </div>
-        <div class="mt-2">{{ $t('UsersManagement.creation.email.bye') }}</div>
-        <div class="mt-3 text-caption text-sub-title">
-          {{ $t('UsersManagement.creation.email.sentIn', {0: languageName}) }}
-        </div>
+        <div class="mt-3">{{ $t('UsersManagement.creation.email.bye') }}</div>
       </div>
     </v-expand-transition>
   </div>
@@ -79,18 +75,6 @@ export default {
     errorMessages: {
       type: String,
       default: null,
-    },
-    fullName: {
-      type: String,
-      default: '',
-    },
-    companyName: {
-      type: String,
-      default: '',
-    },
-    languageName: {
-      type: String,
-      default: '',
     },
     validityLabel: {
       type: String,

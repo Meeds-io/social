@@ -108,7 +108,7 @@ export function sendInvitation(userName, message) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      message: (message || '').trim(),
+      message: message || '',
     }),
   }).then(resp => !!resp?.ok)
     .catch(() => false);
