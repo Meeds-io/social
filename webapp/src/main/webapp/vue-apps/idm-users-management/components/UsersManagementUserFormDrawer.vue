@@ -168,7 +168,6 @@ export default {
     },
   },
   created() {
-    this.$root.$on('addNewUser', this.addNewUser);
     this.$root.$on('editUser', this.editUser);
   },
   methods: {
@@ -183,13 +182,6 @@ export default {
       this.$refs.emailInput.setCustomValidity('');
       this.$refs.newPasswordInput.setCustomValidity('');
       this.$refs.confirmNewPassword.setCustomValidity('');
-    },
-    addNewUser() {
-      this.user = {
-        enabled: true,
-      };
-      this.newUser = true;
-      this.drawer = true;
     },
     editUser(user) {
       this.user = Object.assign({}, user);
