@@ -10,6 +10,7 @@
         @list-link-updated="exportUsersUrl = $event"
         @filter-updated="filter = $event" />
     </v-card>
+    <users-management-creation-drawer />
     <users-management-user-form-drawer />
     <users-management-user-membership-drawer />
     <users-management-filter-drawer @apply-advanced-filter="$root.$emit('apply-users-filter', $event)" />

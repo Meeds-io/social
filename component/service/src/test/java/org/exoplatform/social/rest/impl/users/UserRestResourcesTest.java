@@ -96,6 +96,12 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
+import org.exoplatform.services.organization.UserProfileHandler;
+import org.exoplatform.services.organization.UserProfile;
+import java.util.Locale;
+import org.mockito.ArgumentCaptor;
+import org.exoplatform.social.rest.entity.OnboardingEmailEntity;
+import org.exoplatform.portal.Constants;
 import org.exoplatform.ws.frameworks.cometd.ContinuationService;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -1762,6 +1768,110 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     Profile profile = identityManager.getOrCreateUserIdentity("john").getProfile();
     assertEquals("Hello", profile.getProperty(Profile.ABOUT_ME));
     assertEquals("123", profile.getProperty(Profile.ENROLLMENT_DATE));
+  }
+
+  /**
+   * The onboarding email carries the administrator's message and is written
+   * in the user's preferred language; the enrollment date is stamped once
+   * it was sent
+   */
+  public void testSendOnboardingEmailWithMessageInTheUserLanguage() throws Exception {
+    PasswordRecoveryService recoveryService = mock(PasswordRecoveryService.class);
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(true);
+    registerUserRestWith(recoveryService);
+    UserProfileHandler profileHandler = organizationService.getUserProfileHandler();
+    UserProfile profile = profileHandler.findUserProfileByName("john");
+    if (profile == null) {
+      profile = profileHandler.createUserProfileInstance("john");
+    }
+    profile.setAttribute(Constants.USER_LANGUAGE, "fr");
+    profileHandler.saveUserProfile(profile, true);
+    startSessionAs("root", true);
+
+    ContainerResponse response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"Welcome aboard\"}", "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+
+    ArgumentCaptor<Locale> locale = ArgumentCaptor.forClass(Locale.class);
+    verify(recoveryService).sendOnboardingEmail(any(), locale.capture(), any(), eq("Welcome aboard"));
+    assertEquals(Locale.FRENCH, locale.getValue());
+    assertNotNull(identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE));
+
+    // No body, as the row action and the bulk action send: no message, and
+    // the platform's default language for an account with none stored
+    profile.setAttribute(Constants.USER_LANGUAGE, null);
+    profileHandler.saveUserProfile(profile, true);
+    response = getResponseAs("PATCH", "/v1/social/users/onboard/mary", "", "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    verify(recoveryService).sendOnboardingEmail(any(),
+                                                eq(localeConfigService.getDefaultLocaleConfig().getLocale()),
+                                                any(),
+                                                isNull());
+  }
+
+  public void testSendOnboardingEmailRefusesATooLongMessage() throws Exception {
+    PasswordRecoveryService recoveryService = mock(PasswordRecoveryService.class);
+    registerUserRestWith(recoveryService);
+    startSessionAs("root", true);
+    // The profile outlives the tests: the stamp is compared with its value
+    // before the call, not with null
+    Object enrollmentBefore = identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE);
+
+    String message = "x".repeat(OnboardingEmailEntity.MESSAGE_MAX_LENGTH + 1);
+    ContainerResponse response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"" + message + "\"}", "root");
+    assertEquals(400, response.getStatus());
+    assertEquals(UserRest.MESSAGE_TOO_LONG, response.getEntity());
+    verify(recoveryService, never()).sendOnboardingEmail(any(), any(), any(), any());
+    assertEquals(enrollmentBefore, identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE));
+
+    message = "x".repeat(OnboardingEmailEntity.MESSAGE_MAX_LENGTH);
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(true);
+    response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"" + message + "\"}", "root");
+    assertEquals(200, response.getStatus());
+  }
+
+  /**
+   * A failed send is reported, and stamps nothing: the account stays listed
+   * among the ones to invite
+   */
+  public void testSendOnboardingEmailFailureIsReported() throws Exception {
+    PasswordRecoveryService recoveryService = mock(PasswordRecoveryService.class);
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(false);
+    registerUserRestWith(recoveryService);
+    startSessionAs("root", true);
+    Object enrollmentBefore = identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE);
+
+    ContainerResponse response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"Hi\"}", "root");
+    assertEquals(500, response.getStatus());
+    assertEquals(UserRest.ONBOARDING_SEND_FAILED, response.getEntity());
+    assertEquals(enrollmentBefore, identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE));
+
+    // The bulk action lists only the users whose email was sent
+    byte[] users = "[\"john\",\"mary\"]".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+    listHeaders.putSingle("content-type", "application/json");
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenAnswer(invocation -> "mary".equals(((User) invocation.getArgument(0)).getUserName()));
+    response = service("PATCH", getURLResource("users/bulk/onboard"), "", listHeaders, users, "root");
+    assertEquals(200, response.getStatus());
+    assertEquals(List.of("mary"), response.getEntity());
+  }
+
+  private void registerUserRestWith(PasswordRecoveryService recoveryService) throws Exception {
+    removeResource(UserRest.class);
+    registry(new UserRest(userACL,
+                          organizationService,
+                          identityManager,
+                          relationshipManager,
+                          userStateService,
+                          spaceService,
+                          uploadService,
+                          userExportService,
+                          userImportService,
+                          imageThumbnailService,
+                          profilePropertyServiceSpy,
+                          recoveryService,
+                          localeConfigService,
+                          settingService,
+                          otpService));
   }
 
   private ContainerResponse getResponseAs(String method, String path, String input, String remoteUser) throws Exception {
