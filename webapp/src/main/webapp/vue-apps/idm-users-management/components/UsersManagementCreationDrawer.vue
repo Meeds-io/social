@@ -82,11 +82,9 @@
             :message.sync="message"
             :message-max-length="messageMaxLength"
             :error-messages="fieldErrors.message"
-            :full-name="fullName"
-            :company-name="companyName"
-            :language-name="selectedLanguageName"
             :validity-label="linkValidityLabel"
-            :saving="saving" />
+            :saving="saving"
+            @validity-updated="messageValid = $event" />
         </v-stepper-content>
       </v-stepper>
     </template>
@@ -133,6 +131,7 @@ export default {
     customizePassword: false,
     sendOnboardingEmail: false,
     message: '',
+    messageValid: true,
     confirmPassword: '',
     user: {},
     fieldErrors: {},
@@ -145,9 +144,6 @@ export default {
   computed: {
     fullName() {
       return `${this.user.firstName || ''} ${this.user.lastName || ''}`.trim();
-    },
-    selectedLanguageName() {
-      return this.languages.find(language => language.value === this.user.language)?.text || this.user.language || '';
     },
     // The validity as the email states it: the server says whether it is a
     // whole number of days, by the rule the email applies
@@ -172,7 +168,7 @@ export default {
       switch (this.stepper) {
       case 1: return this.profileStepValid;
       case 2: return !!this.user.role;
-      case 3: return !this.sendOnboardingEmail || (this.message || '').length <= this.messageMaxLength;
+      case 3: return !this.sendOnboardingEmail || this.messageValid;
       default: return false;
       }
     },
@@ -214,7 +210,9 @@ export default {
       this.customizeUsername = false;
       this.customizePassword = false;
       this.sendOnboardingEmail = false;
-      this.message = '';
+      // The message the design proposes, editable, counted
+      this.message = this.$t('UsersManagement.creation.email.defaultMessage', {0: this.companyName});
+      this.messageValid = true;
       this.confirmPassword = '';
       this.fieldErrors = {};
       this.user = {

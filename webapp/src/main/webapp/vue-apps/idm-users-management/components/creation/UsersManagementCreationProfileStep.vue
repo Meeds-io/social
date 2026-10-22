@@ -20,7 +20,7 @@
 -->
 <template>
   <form
-    class="px-4 pb-2"
+    class="px-4 py-2"
     autocomplete="off"
     @submit.prevent="$emit('next')">
     <div class="d-flex align-center justify-space-between">
@@ -47,7 +47,7 @@
       name="userName"
       autocomplete="off"
       maxlength="2000"
-      prepend-inner-icon="fa-at"
+      prepend-inner-icon="far fa-id-card"
       outlined
       dense
       required
@@ -75,7 +75,7 @@
       name="lastName"
       autocomplete="off"
       maxlength="2000"
-      prepend-inner-icon="fa-user"
+      prepend-inner-icon="fa-user-alt"
       outlined
       dense
       required
@@ -90,7 +90,7 @@
       type="email"
       autocomplete="off"
       maxlength="2000"
-      prepend-inner-icon="fa-envelope"
+      prepend-inner-icon="far fa-envelope"
       outlined
       dense
       required
@@ -104,7 +104,7 @@
       class="pt-2"
       item-text="text"
       item-value="value"
-      prepend-inner-icon="fa-language"
+      prepend-inner-icon="far fa-closed-captioning"
       outlined
       dense
       @change="$emit('update-field', 'language', $event)">
@@ -114,7 +114,7 @@
         </span>
       </template>
     </v-select>
-    <div class="d-flex align-center justify-space-between">
+    <div class="d-flex align-center justify-space-between pt-2">
       <label for="userCreationCustomizePassword" class="text-color">
         {{ $t('UsersManagement.creation.customizePassword') }}
       </label>
