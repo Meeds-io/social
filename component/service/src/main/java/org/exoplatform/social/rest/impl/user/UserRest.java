@@ -68,6 +68,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 import org.exoplatform.services.organization.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,6 +85,7 @@ import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.commons.utils.HTMLSanitizer;
 import org.exoplatform.portal.Constants;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.application.localization.LocalizationFilter;
@@ -1516,7 +1518,8 @@ public class UserRest implements ResourceContainer, Startable {
   @Operation(summary = "Send onBoarding email to a specific user",
              method = "PATCH",
              description = "Sends the onboarding email to a user, in the user's preferred language, with the message"
-                 + " the administrator wrote above the link when the body carries one (500 characters at most)")
+                 + " the administrator wrote above the link when the body carries one: HTML, sanitized, its text"
+                 + " 500 characters at most")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Email sent"),
       @ApiResponse(responseCode = "400", description = "Unknown user, or message too long: MESSAGE:TOO_LONG"),
@@ -1532,9 +1535,15 @@ public class UserRest implements ResourceContainer, Startable {
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
-    String message = onboardingEmail == null ? null : onboardingEmail.getMessage();
-    if (message != null && message.length() > OnboardingEmailEntity.MESSAGE_MAX_LENGTH) {
+    // The message is the rich editor's HTML: sanitized here, its text
+    // counted, so that the email carries only what the editor offers
+    String message = onboardingEmail == null || StringUtils.isBlank(onboardingEmail.getMessage()) ? null
+                                                                                                   : HTMLSanitizer.sanitize(onboardingEmail.getMessage());
+    if (message != null && Jsoup.parse(message).text().length() > OnboardingEmailEntity.MESSAGE_MAX_LENGTH) {
       return Response.status(Response.Status.BAD_REQUEST).entity(MESSAGE_TOO_LONG).build();
+    }
+    if (message != null && StringUtils.isBlank(Jsoup.parse(message).text())) {
+      message = null;
     }
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.findUserByName(id);
