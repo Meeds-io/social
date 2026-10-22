@@ -1823,10 +1823,36 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     verify(recoveryService, never()).sendOnboardingEmail(any(), any(), any(), any());
     assertEquals(enrollmentBefore, identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE));
 
-    message = "x".repeat(OnboardingEmailEntity.MESSAGE_MAX_LENGTH);
+    // The text is counted, not the markup
+    message = "<p>" + "x".repeat(OnboardingEmailEntity.MESSAGE_MAX_LENGTH) + "</p>";
     when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(true);
     response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"" + message + "\"}", "root");
     assertEquals(200, response.getStatus());
+  }
+
+  /**
+   * The message is the editor's HTML: scripts and event attributes are
+   * removed, the editor's formatting kept, and a message with no text is no
+   * message
+   */
+  public void testSendOnboardingEmailSanitizesTheMessage() throws Exception {
+    PasswordRecoveryService recoveryService = mock(PasswordRecoveryService.class);
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(true);
+    registerUserRestWith(recoveryService);
+    startSessionAs("root", true);
+
+    String message = "<p onclick=\\\"x()\\\">Hi <b>Jane</b><script>alert(1)</script></p>";
+    ContainerResponse response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"" + message + "\"}", "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    ArgumentCaptor<String> sent = ArgumentCaptor.forClass(String.class);
+    verify(recoveryService).sendOnboardingEmail(any(), any(), any(), sent.capture());
+    assertTrue(sent.getValue(), sent.getValue().contains("<b>Jane</b>"));
+    assertFalse(sent.getValue(), sent.getValue().contains("script"));
+    assertFalse(sent.getValue(), sent.getValue().contains("onclick"));
+
+    response = getResponseAs("PATCH", "/v1/social/users/onboard/mary", "{\"message\":\"<p>&nbsp;</p>\"}", "root");
+    assertEquals(200, response.getStatus());
+    verify(recoveryService).sendOnboardingEmail(any(), any(), any(), isNull());
   }
 
   /**
