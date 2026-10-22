@@ -84,6 +84,7 @@ import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.Constants;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.application.localization.LocalizationFilter;
 import org.exoplatform.portal.rest.UserAccountConfirmation;
@@ -91,6 +92,7 @@ import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.idm.UserImpl;
+import org.exoplatform.services.resources.LocaleConfig;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.http.PATCH;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -124,6 +126,7 @@ import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ExperienceEntity;
 import org.exoplatform.social.rest.entity.IMEntity;
+import org.exoplatform.social.rest.entity.OnboardingEmailEntity;
 import org.exoplatform.social.rest.entity.PhoneEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
@@ -235,6 +238,16 @@ public class UserRest implements ResourceContainer, Startable {
   private static final UserFieldValidator FIRSTNAME_VALIDATOR         = new UserFieldValidator("firstName", false, true);
 
   private static final UserFieldValidator PASSWORD_VALIDATOR          = new UserFieldValidator("password", false, false, 8, 255);
+
+  /**
+   * Code answered as 400 when the onboarding message exceeds its limit
+   */
+  public static final String              MESSAGE_TOO_LONG            = "MESSAGE:TOO_LONG";
+
+  /**
+   * Code answered as 500 when the onboarding email could not be sent
+   */
+  public static final String              ONBOARDING_SEND_FAILED      = "ONBOARDING:SEND_FAILED";
 
   private UserACL                         userACL;
 
@@ -1500,14 +1513,28 @@ public class UserRest implements ResourceContainer, Startable {
   @Path("onboard/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(summary = "Send onBoarding email to a specific user", method = "PATCH", description = "This send onBoarding email to a specific user.")
+  @Operation(summary = "Send onBoarding email to a specific user",
+             method = "PATCH",
+             description = "Sends the onboarding email to a user, in the user's preferred language, with the message"
+                 + " the administrator wrote above the link when the body carries one (500 characters at most)")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Email sent"),
+      @ApiResponse(responseCode = "400", description = "Unknown user, or message too long: MESSAGE:TOO_LONG"),
+      @ApiResponse(responseCode = "500", description = "The email could not be sent: ONBOARDING:SEND_FAILED"),
+  })
   public Response sendOnBoardingEmail(@Context
   HttpServletRequest request,
                                       @Parameter(description = "User name", required = true)
                                       @PathParam("id")
-                                      String id) throws Exception {
+                                      String id,
+                                      @RequestBody(description = "The message shown above the link, optional")
+                                      OnboardingEmailEntity onboardingEmail) throws Exception {
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
+    String message = onboardingEmail == null ? null : onboardingEmail.getMessage();
+    if (message != null && message.length() > OnboardingEmailEntity.MESSAGE_MAX_LENGTH) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(MESSAGE_TOO_LONG).build();
     }
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.findUserByName(id);
@@ -1515,7 +1542,9 @@ public class UserRest implements ResourceContainer, Startable {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
     String url = getUrl(request);
-    sendOnBoardingEmail((UserImpl) user, new StringBuilder(url));
+    if (!sendOnBoardingEmail((UserImpl) user, new StringBuilder(url), message)) {
+      return Response.serverError().entity(ONBOARDING_SEND_FAILED).build();
+    }
     return Response.ok().build();
   }
 
@@ -2077,14 +2106,22 @@ public class UserRest implements ResourceContainer, Startable {
     return builder;
   }
 
-  private void sendOnBoardingEmail(UserImpl user, StringBuilder url) throws IllegalAccessException {
-    Locale locale = localeConfigService.getDefaultLocaleConfig().getLocale();
-    boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
+  /**
+   * Sends the onboarding email in the user's preferred language, the
+   * platform's default one when none is stored, and stamps the enrollment
+   * date only once the email was sent
+   *
+   * @return true when the email was sent
+   */
+  private boolean sendOnBoardingEmail(UserImpl user, StringBuilder url, String message) throws IllegalAccessException {
+    Locale locale = getUserLocale(user.getUserName());
+    boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url, message);
     if (onBoardingEmailSent) {
       Identity userIdentity = identityManager.getOrCreateUserIdentity(user.getUserName());
       Profile profile = userIdentity.getProfile();
       updateProfileField(profile, Profile.ENROLLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true,null);
     }
+    return onBoardingEmailSent;
   }
 
   @SneakyThrows
@@ -2201,8 +2238,9 @@ public class UserRest implements ResourceContainer, Startable {
       } else if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
         LOG.warn("User {} is already logged in, he cannot be enrolled", username);
       } else {
-        sendOnBoardingEmail((UserImpl) user, new StringBuilder(url));
-        updatedUsers.add(username);
+        if (sendOnBoardingEmail((UserImpl) user, new StringBuilder(url), null)) {
+          updatedUsers.add(username);
+        }
       }
     }
   }
@@ -2231,6 +2269,27 @@ public class UserRest implements ResourceContainer, Startable {
       organizationService.getUserHandler().setEnabled(username, false, true);
       updatedUsers.add(username);
     }
+  }
+
+  /**
+   * The locale an email to the user is written in: the preferred language
+   * stored on the user's profile when it names a supported locale, the
+   * platform's default one otherwise
+   */
+  private Locale getUserLocale(String username) {
+    try {
+      UserProfile profile = organizationService.getUserProfileHandler().findUserProfileByName(username);
+      String language = profile == null ? null : profile.getAttribute(Constants.USER_LANGUAGE);
+      if (StringUtils.isNotBlank(language)) {
+        LocaleConfig localeConfig = localeConfigService.getLocaleConfig(language);
+        if (localeConfig != null && localeConfig.getLocale() != null) {
+          return localeConfig.getLocale();
+        }
+      }
+    } catch (Exception e) {
+      LOG.debug("The preferred language of {} could not be read, the default one is used", username, e);
+    }
+    return localeConfigService.getDefaultLocaleConfig().getLocale();
   }
 
   private String getUrl(HttpServletRequest request) {
