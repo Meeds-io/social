@@ -585,13 +585,13 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertTrue("Returned result count is not consistent", result.size() == 7);
     assertSorted(remoteIdPrefix, fieldName, result);
 
+    // External users can be enrolled like the others: none of these
+    // accounts signed in, so none is one that needs no enrollment
     result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, "noEnrollmentPossible", offset, limit);
-    assertTrue("Returned result count is not consistent", result.size() == 3);
-    assertSorted(remoteIdPrefix, fieldName, result);
+    assertEquals(0, result.size());
 
     result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, "noEnrollmentPossible", remoteIds, offset, limit);
-    assertEquals( result.size(), 1);
-    assertSorted(remoteIdPrefix, fieldName, result);
+    assertEquals(0, result.size());
 
     result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, "enrolled", offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 3);
@@ -720,14 +720,45 @@ public class IdentityStorageTest extends AbstractCoreTest {
     pf.setEnrollmentStatus("enrolled");
     assertEquals(1, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
 
-    // set notEnrolled users
+    // set notEnrolled users: the never invited, never connected accounts,
+    // the external one included, as the Pending Users' Creation tab lists
+    // them, its count and its rows from the same filter
     pf.setEnrollmentStatus("notEnrolled");
-    assertEquals(5, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+    assertEquals(6, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+    List<String> notEnrolled = identityStorage.getIdentities(OrganizationIdentityProvider.NAME, SortBy.FULLNAME.getFieldName(), OrderBy.ASC.name(), true, null, false, "notEnrolled", 0, Integer.MAX_VALUE)
+                                              .stream()
+                                              .map(Identity::getRemoteId)
+                                              .toList();
+    assertEquals(6, notEnrolled.size());
+    assertTrue(notEnrolled.contains("username6"));
+    assertFalse(notEnrolled.contains("username7"));
 
-    // set no possible enrollment users
+    // set no possible enrollment users: connected and never invited, an
+    // external account being no exception
     pf.setEnrollmentStatus("noEnrollmentPossible");
-    identityStorage.getIdentities(OrganizationIdentityProvider.NAME, SortBy.FULLNAME.getFieldName(), OrderBy.ASC.name(), true, null, null, "noEnrollmentPossible", 0, Integer.MAX_VALUE);
+    assertEquals(0, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+    assertEquals(0, identityStorage.getIdentities(OrganizationIdentityProvider.NAME, SortBy.FULLNAME.getFieldName(), OrderBy.ASC.name(), true, null, false, "noEnrollmentPossible", 0, Integer.MAX_VALUE).size());
+
+    // whatever the connection: the one account that signed in without an
+    // invitation, never the external one that did not sign in
+    pf.setConnected(null);
     assertEquals(1, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+    List<String> noEnrollmentPossible = identityStorage.getIdentities(OrganizationIdentityProvider.NAME, SortBy.FULLNAME.getFieldName(), OrderBy.ASC.name(), true, null, null, "noEnrollmentPossible", 0, Integer.MAX_VALUE)
+                                                       .stream()
+                                                       .map(Identity::getRemoteId)
+                                                       .toList();
+    assertEquals(List.of("username8"), noEnrollmentPossible);
+
+    // the Pending Users' Invitations tab: invited and never connected, its
+    // rows as its count
+    pf.setConnected(false);
+    pf.setEnrollmentStatus("enrolled");
+    assertEquals(1, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+    List<String> invited = identityStorage.getIdentities(OrganizationIdentityProvider.NAME, SortBy.FULLNAME.getFieldName(), OrderBy.ASC.name(), true, null, false, "enrolled", 0, Integer.MAX_VALUE)
+                                          .stream()
+                                          .map(Identity::getRemoteId)
+                                          .toList();
+    assertEquals(List.of("username7"), invited);
   }
 
   /**
