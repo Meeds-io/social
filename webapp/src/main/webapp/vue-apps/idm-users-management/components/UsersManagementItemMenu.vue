@@ -59,7 +59,7 @@
         <template #activator="{on, attrs}">
           <div v-on="on" v-bind="attrs">
             <v-list-item
-              :disabled="item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'"
+              :disabled="!item.neverConnected"
               class="px-2"
               dense
               @click="$emit('onboard')">
@@ -67,7 +67,7 @@
                 <v-icon
                   size="14"
                   :class="{
-                    'icon-disabled-color': item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'
+                    'icon-disabled-color': !item.neverConnected
                   }">
                   fa-user-plus
                 </v-icon>
