@@ -434,6 +434,27 @@ export function multiSelectAction(action, selectedUsers) {
   });
 }
 
+export function saveUserCardSettings(settings) {
+  return fetch('/social/rest/user-card/settings', {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      firstField: settings.firstField,
+      secondField: settings.secondField,
+      thirdField: settings.thirdField,
+      displayedPhone: settings.displayedPhone || null,
+      displayedEmail: settings.displayedEmail || null,
+    }),
+  }).then((resp) => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error while saving user card settings');
+    }
+  });
+}
+
 export function getUserCardSettings() {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/userCardSettings`, {
     method: 'GET',

@@ -121,7 +121,7 @@ export default {
       } else {
         let url = navigation.pageLink || `/portal/${navigation.siteKey.name}/${navigation.uri}`;
         if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
-          url = `//${url}`;
+          url = Autolinker.parse(url, {urls: true})?.[0]?.getUrl?.() || `//${url}`;
         }
         return url;
       }
@@ -135,7 +135,7 @@ export default {
     },
     changeHome() {
       const url = this.navigationUri(this.selectedNavigation);
-      this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', url)
+      this.$navigationService.saveUserHomePage(url)
         .then(() => {
           this.homeLink = eXo.env.portal.homeLink = url;
           if (document.querySelector('#UserHomePortalLink')) {
@@ -143,7 +143,11 @@ export default {
           }
           document.dispatchEvent(new CustomEvent('homeLinkUpdated', {detail: this.homeLink}));
           this.selectedNavigation = null;
-        });
+        })
+        .catch(() => document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          alertMessage: this.$t('navigation.home.invalidUri'),
+          alertType: 'error',
+        }})));
     }
   }
 
