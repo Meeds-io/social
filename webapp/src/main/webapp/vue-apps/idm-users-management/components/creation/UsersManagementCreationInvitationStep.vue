@@ -29,30 +29,16 @@
       dense
       @change="$emit('update:send-onboarding-email', !!$event)" />
     <v-expand-transition>
-      <div
+      <users-management-onboarding-email-form
         v-if="sendOnboardingEmail"
-        class="mt-3 pa-2 border-radius light-grey-background text-color">
-        <div class="mb-2">{{ $t('UsersManagement.creation.email.hello') }}</div>
-        <rich-editor
-          id="userInvitationMessageEditor"
-          :value="message"
-          :max-length="messageMaxLength"
-          :disabled="saving"
-          :tag-enabled="false"
-          class="white border-radius"
-          ck-editor-type="userInvitation"
-          disable-suggester
-          disable-image-attachment
-          @input="$emit('update:message', $event)"
-          @validity-updated="$emit('validity-updated', $event)" />
-        <div v-if="errorMessages" class="error--text text-caption">{{ errorMessages }}</div>
-        <div class="mt-2">{{ $t('UsersManagement.creation.email.confirmLink') }}</div>
-        <div class="mt-3">{{ $t('UsersManagement.creation.email.tokenLink') }}</div>
-        <div class="font-italic">
-          {{ $t('UsersManagement.creation.email.expiry', {0: validityLabel}) }}
-        </div>
-        <div class="mt-3">{{ $t('UsersManagement.creation.email.bye') }}</div>
-      </div>
+        :message="message"
+        :message-max-length="messageMaxLength"
+        :error-messages="errorMessages"
+        :validity-label="validityLabel"
+        :saving="saving"
+        class="mt-3"
+        @update:message="$emit('update:message', $event)"
+        @validity-updated="$emit('validity-updated', $event)" />
     </v-expand-transition>
   </div>
 </template>

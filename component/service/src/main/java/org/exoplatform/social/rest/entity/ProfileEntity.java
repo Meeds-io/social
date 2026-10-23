@@ -86,6 +86,8 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String ENROLLMENT_DATE         = "enrollmentDate";
 
+  public static final String NEVER_CONNECTED         = "neverConnected";
+
   public static final String SYNCHRONIZED_DATE       = "synchronizedDate";
 
   public static final String CREATED_DATE            = "createdDate";
@@ -491,6 +493,21 @@ public class ProfileEntity extends BaseEntity {
 
   public String isExternal() {
     return getString(EXTERNAL);
+  }
+
+  /**
+   * @param neverConnected true when the user never signed in: the social
+   *          profile holds no last login time, the source of the
+   *          {@code isConnected} filter of the users list
+   * @return this entity
+   */
+  public ProfileEntity setNeverConnected(boolean neverConnected) {
+    setProperty(NEVER_CONNECTED, neverConnected);
+    return this;
+  }
+
+  public Boolean getNeverConnected() {
+    return (Boolean) getProperty(NEVER_CONNECTED);
   }
 
   public ProfileEntity setLastLoginTime(String lastLoginTime) {
