@@ -207,15 +207,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
 
   @Override
   public int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean isEnabled, String enrollmentStatus, List<String> remoteIds, List<String> groupIds, String membershipType, boolean includeInheritedMemberships) {
-    boolean noEnrollmentPossible = enrollmentStatus != null && !enrollmentStatus.isEmpty() && enrollmentStatus.equals(NO_ENROLLMENT_POSSIBLE);
     Query query = getIdentitiesQueryCount(providerId, userType, isConnected, isEnabled, enrollmentStatus, remoteIds, groupIds, membershipType, includeInheritedMemberships);
-    int totalCount = ((Number) query.getSingleResult()).intValue();
-    if(noEnrollmentPossible) {
-      Query externalQuery = getExternalIdentitiesQueryCount(providerId, isEnabled);
-      totalCount += ((Number) externalQuery.getSingleResult()).intValue();
-    }
-
-    return totalCount;
+    return ((Number) query.getSingleResult()).intValue();
   }
   
 
@@ -459,12 +452,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
           queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
           queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' )\n");
 
-          queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_external \n");
-          queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_external.identity_id \n");
-          queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
-          queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-          queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
-          queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
           break;
         }
 
@@ -479,12 +466,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
           queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_lastLoginTime.identity_id \n");
           queryStringBuilder.append("   AND identity_prop_enroll_lastLoginTime.name = 'lastLoginTime' \n");
 
-          queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_external \n");
-          queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_external.identity_id \n");
-          queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
-          queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-          queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
-          queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
           break;
         }
         default:
@@ -507,26 +488,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     setGroupPermissionParameters(query, groupIds, membershipType);
     return query;
   }
-
-  private Query getExternalIdentitiesQueryCount(String providerId, boolean isEnabled) {
-
-    StringBuilder queryStringBuilder = new StringBuilder("SELECT COUNT(DISTINCT identity_1.remote_id)\n");
-    queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
-
-    queryStringBuilder.append("   INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_external \n");
-    queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_external.identity_id \n");
-    queryStringBuilder.append("   AND EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
-    queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-    queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
-    queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
-
-    queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
-    queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
-    queryStringBuilder.append(" AND identity_1.enabled = ").append(isEnabled).append(" \n");
-
-    return getEntityManager().createNativeQuery(queryStringBuilder.toString());
-  }
-
 
   private Query getIdentitiesQuerySortedByField(String providerId,
                                                 String sortField,
@@ -598,12 +559,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
             queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
             queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' )\n");
 
-            queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_external \n");
-            queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_external.identity_id \n");
-            queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
-            queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-            queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
-            queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
             break;
           }
 
@@ -644,37 +599,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       queryStringBuilder.append(" AND identity_1.remote_id IN (:remoteIds) \n");
     }
     appendGroupPermissionExists(queryStringBuilder, groupIds, membershipType, includeInheritedMemberships);
-    if(isEnrollmentStatusFilter && enrollmentStatus.equals(NO_ENROLLMENT_POSSIBLE)) {
-      queryStringBuilder.append(" \n");
-      queryStringBuilder.append("UNION").append(" \n");
-      queryStringBuilder.append("SELECT DISTINCT identity_1.remote_id, identity_1.identity_id ");
-      if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
-        queryStringBuilder.append(", lower(identity_prop.value) AS prop_order_field \n");
-      } else {
-        queryStringBuilder.append(" \n");
-      }
-      queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
-      queryStringBuilder.append("   INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_external \n");
-      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_external.identity_id \n");
-      queryStringBuilder.append("   AND EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
-      queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-      queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
-      queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
-
-      if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
-        queryStringBuilder.append(" LEFT JOIN SOC_IDENTITY_PROPERTIES identity_prop \n");
-        queryStringBuilder.append("   ON identity_1.identity_id = identity_prop.identity_id \n");
-        queryStringBuilder.append("       AND identity_prop.name = '").append(sortField).append("' \n");
-      }
-      queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
-      queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
-      queryStringBuilder.append(" AND identity_1.enabled = ").append(isEnabled).append(" \n");
-      if (CollectionUtils.isNotEmpty(remoteIds)) {
-        queryStringBuilder.append(" AND identity_1.remote_id IN (:remoteIds) \n");
-      }
-      appendGroupPermissionExists(queryStringBuilder, groupIds, membershipType, includeInheritedMemberships);
-    }
-
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
       queryStringBuilder.append(" ORDER BY prop_order_field " + sortDirection);
     }
