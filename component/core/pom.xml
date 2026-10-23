@@ -124,4 +124,28 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <!-- Opt-in: the parent's run-its profile runs the *IT classes with failsafe; here against the
+           Elasticsearch at es.it.url, the unit suites keeping their unreachable address -->
+      <id>run-its</id>
+      <properties>
+        <es.it.url>http://127.0.0.1:9200</es.it.url>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <exo.es.search.server.url>${es.it.url}</exo.es.search.server.url>
+                <exo.es.index.server.url>${es.it.url}</exo.es.index.server.url>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
