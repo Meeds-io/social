@@ -59,7 +59,7 @@
         <template #activator="{on, attrs}">
           <div v-on="on" v-bind="attrs">
             <v-list-item
-              :disabled="item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'"
+              :disabled="!canOnboard"
               class="px-2"
               dense
               @click="$emit('onboard')">
@@ -67,7 +67,7 @@
                 <v-icon
                   size="14"
                   :class="{
-                    'icon-disabled-color': item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'
+                    'icon-disabled-color': !canOnboard
                   }">
                   fa-user-plus
                 </v-icon>
@@ -76,7 +76,7 @@
             </v-list-item>
           </div>
         </template>
-        <span>{{ item.enrollmentDetails }}</span>
+        <span>{{ onboardTooltip }}</span>
       </v-tooltip>
       <v-list-item
         class="px-2"
@@ -148,6 +148,20 @@ export default {
   data: () => ({
     menu: false,
   }),
+  computed: {
+    // The onboarding email goes to an enabled account that never signed in:
+    // the server finds no deactivated account to send it to
+    canOnboard() {
+      return !!this.item?.enabled && !!this.item?.neverConnected;
+    },
+    // Why the action is offered or not: the invitation state, or the account
+    // to enable first
+    onboardTooltip() {
+      return this.item?.neverConnected && !this.item?.enabled
+        ? this.$t('UsersManagement.onboard.deactivatedAccount')
+        : this.item?.enrollmentDetails;
+    },
+  },
   watch: {
     menu: {
       immediate: true,
