@@ -359,6 +359,9 @@ public class EntityBuilder {
     userEntity.setDefaultAvatar(profile.isDefaultAvatar());
     userEntity.setIsAdmin(isAdmin);
     if (isAdmin) {
+      // The source of the users list's connection filter, so that a row and
+      // the lists filtered on it never disagree
+      userEntity.setNeverConnected(profile.getProperty(Profile.LAST_LOGIN_TIME) == null);
       if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
         userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
       }
