@@ -37,8 +37,9 @@
                 v-if="expand && $slots.fullAppLeftTitle"
                 :width="drawerWidth"
                 :max-width="drawerWidth"
+                :class="fullAppLeftBackgroundClass"
                 min-height="60"
-                class="px-4 border-box-sizing text-title d-flex align-center light-grey-background-color"
+                class="px-4 border-box-sizing text-title d-flex align-center"
                 flat>
                 <slot name="fullAppLeftTitle"></slot>
               </v-card>
@@ -156,7 +157,8 @@
             <v-card
               v-if="expand && $slots.fullAppLeftContent"
               :width="drawerWidth"
-              class="flex-grow-0 flex-shrink-0 fill-height light-grey-background-color overflow-x-auto overflow-y-auto specific-scrollbar"
+              :class="fullAppLeftBackgroundClass"
+              class="flex-grow-0 flex-shrink-0 fill-height overflow-x-auto overflow-y-auto specific-scrollbar"
               flat>
               <slot name="fullAppLeftContent"></slot>
             </v-card>
@@ -311,6 +313,10 @@ export default {
       type: String,
       default: null
     },
+    fullAppLeftClass: {
+      type: String,
+      default: null
+    },
     autofocus: {
       type: Boolean,
       default: true
@@ -342,6 +348,10 @@ export default {
     },
     bottomDrawer() {
       return this.bottom && this.isMobile;
+    },
+    fullAppLeftBackgroundClass() {
+      // The expanded side panel shows the drawer background unless its consumer shades it
+      return this.fullAppLeftClass || 'transparent';
     },
     width() {
       return this.expand && '100%' || this.drawerWidth;

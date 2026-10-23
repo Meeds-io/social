@@ -22,7 +22,7 @@
     ref="categoryTabs"
     v-model="selectedCategoryIndex"
     class="d-flex align-center justify-space-between"
-    background-color="background-grey-primary"
+    background-color="transparent"
     grow>
     <v-tab
       v-for="(category, index) in categories"
@@ -33,7 +33,7 @@
       <v-btn
         :title="$t(`emojiPicker.category.${category.name}.label`)"
         min-width="38"
-        class="pa-0 btn full-height btn-default no-border background-grey-primary"
+        class="pa-0 btn full-height btn-default no-border transparent"
         @click="$emit('select', index)">
         <v-icon
           class="icon-default-color"

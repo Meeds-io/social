@@ -45,7 +45,7 @@
         name="membershipUser"
         height="100"
         append-icon=""
-        menu-props="closeOnClick, maxHeight = 100"
+        :menu-props="{ closeOnClick: true, contentClass: 'application-menu layout-drawer' }"
         class="identitySuggester mx-4 border-color-grey"
         content-class="identitySuggesterContent"
         width="100%"

@@ -23,7 +23,7 @@
     :close-on-content-click="false"
     :position-x="menuX"
     :position-y="menuY"
-    content-class="z-index-modal pickerMenu border-radius overflow-hidden"
+    content-class="z-index-modal pickerMenu border-radius overflow-hidden layout-drawer"
     :max-height="maxHeight"
     :max-width="maxWidth"
     absolute

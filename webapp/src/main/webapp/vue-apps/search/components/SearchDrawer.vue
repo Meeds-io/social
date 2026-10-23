@@ -12,12 +12,12 @@
     <template v-if="drawer" #content>
       <v-card
         :class="!$root.isMobile && 'pa-4' || ''"
-        class="d-flex flex-column light-grey-background-color"
+        class="d-flex flex-column page-background"
         min-height="100%"
         flat>
         <v-card
           :class="!$root.isMobile && 'singlePageApplication card-border-radius' || ''"
-          class="pa-0 flex-grow-1 d-flex flex-column fill-height white overflow-hidden"
+          class="pa-0 flex-grow-1 d-flex flex-column fill-height overflow-hidden layout-drawer"
           flat>
           <search-toolbar
             ref="toolbar"
