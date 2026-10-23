@@ -120,9 +120,10 @@
 <script>
 import * as userCreationService from '../js/UserCreationService.js';
 import UsersManagementCreationOutcomes from './creation/UsersManagementCreationOutcomes.js';
+import UsersManagementOnboardingSettings from './onboarding/UsersManagementOnboardingSettings.js';
 
 export default {
-  mixins: [UsersManagementCreationOutcomes],
+  mixins: [UsersManagementCreationOutcomes, UsersManagementOnboardingSettings],
   data: () => ({
     drawer: false,
     stepper: 0,
@@ -130,31 +131,15 @@ export default {
     customizeUsername: false,
     customizePassword: false,
     sendOnboardingEmail: false,
-    message: '',
-    messageValid: true,
     confirmPassword: '',
     user: {},
     fieldErrors: {},
     languages: [],
     defaultLanguage: null,
-    onboardingSettings: null,
-    messageMaxLength: userCreationService.MESSAGE_MAX_LENGTH,
-    companyName: eXo?.env?.portal?.companyName || '',
   }),
   computed: {
     fullName() {
       return `${this.user.firstName || ''} ${this.user.lastName || ''}`.trim();
-    },
-    // The validity as the email states it: the server says whether it is a
-    // whole number of days, by the rule the email applies
-    linkValidityLabel() {
-      if (!this.onboardingSettings) {
-        return '…';
-      } else if (this.onboardingSettings.linkValidityWholeDays) {
-        return this.$t('UsersManagement.creation.email.expiry.days', {0: this.onboardingSettings.linkValidityDays});
-      } else {
-        return this.$t('UsersManagement.creation.email.expiry.hours', {0: this.onboardingSettings.linkValidityHours});
-      }
     },
     profileStepValid() {
       return (!this.customizeUsername || !!this.user.userName?.trim())
@@ -210,9 +195,7 @@ export default {
       this.customizeUsername = false;
       this.customizePassword = false;
       this.sendOnboardingEmail = false;
-      // The message the design proposes, editable, counted
-      this.message = this.$t('UsersManagement.creation.email.defaultMessage', {0: this.companyName});
-      this.messageValid = true;
+      this.resetOnboardingEmail();
       this.confirmPassword = '';
       this.fieldErrors = {};
       this.user = {
@@ -225,7 +208,6 @@ export default {
         role: 'INTERNAL',
       };
       this.stepper = 1;
-      this.onboardingSettings = null;
       userCreationService.getSupportedLanguages()
         .then(configuration => {
           this.languages = configuration.languages;
@@ -237,9 +219,6 @@ export default {
           }
         })
         .catch(() => this.$root.$emit('alert-message', this.$t('IDMManagement.error.UnknownServerError'), 'error'));
-      userCreationService.getOnboardingSettings()
-        .then(settings => this.onboardingSettings = settings)
-        .catch(() => this.onboardingSettings = null);
       this.$nextTick(() => this.$refs.profileStep?.$el?.querySelector('input[name="firstName"]')?.focus());
     },
     setField(field, value) {
