@@ -12,6 +12,7 @@
       :left="left"
       :attach="attach"
       :allow-overflow="allowOverflow"
+      :z-index="zIndex"
       class="datePickerMenu"
       transition="scale-transition"
       offset-y
@@ -130,6 +131,18 @@ export default {
       type: Boolean,
       default: function() {
         return true;
+      },
+    },
+    /**
+     * Stacking order of the detached menu. Left null, Vuetify computes it
+     * from the field's ancestors and the other open overlays (8 at least),
+     * which can be lower than a drawer hosting the field: a caller in such a
+     * container sets it.
+     */
+    zIndex: {
+      type: [Number, String],
+      default: function() {
+        return null;
       },
     },
     allowOverflow: {
