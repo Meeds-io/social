@@ -267,6 +267,9 @@ export default {
               const partialKey = action === 'onboard' ? 'UsersManagement.selection.partial.onboard' : 'UsersManagement.selection.partial';
               this.$root.$emit('alert-message', this.$t(partialKey, {0: data.length, 1: selectedUsers.length}), 'warning');
             }
+            if (data.length > 0) {
+              this.$root.$emit('pending-users-changed');
+            }
           })
           .then(this.searchUsers)
           .catch(error => {
@@ -328,6 +331,7 @@ export default {
             }
           } else {
             self.users = self.users.filter(u => u.userName !== userNameDeleted);
+            this.$root.$emit('pending-users-changed');
           }
         })
         .catch(error => {
@@ -449,6 +453,8 @@ export default {
           } else {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
+        } else {
+          this.$root.$emit('pending-users-changed');
         }
       })
         .then(this.searchUsers)
