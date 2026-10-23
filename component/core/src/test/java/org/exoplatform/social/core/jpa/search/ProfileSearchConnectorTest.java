@@ -205,12 +205,7 @@ public class ProfileSearchConnectorTest {
                                   "exists": {
                                     "field": "lastLoginTime"
                                   }
-                                }],
-                                "must": {
-                                 "term": {
-                                   "external": false
-                                   }
-                                }
+                                }]
                               }
                             }          ],
                     "minimum_should_match" : 1
@@ -325,11 +320,6 @@ public class ProfileSearchConnectorTest {
                                     "field": "lastLoginTime"
                                   }
                                 }
-                              }
-                            },
-                            {
-                              "term": {
-                                "external": true
                               }
                             }          ],
                     "minimum_should_match" : 1
@@ -539,11 +529,6 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            },
-                            {
-                              "term": {
-                                "external": true
-                              }
                             }          ],
                     "minimum_should_match" : 1
                   }
@@ -670,11 +655,6 @@ public class ProfileSearchConnectorTest {
                                     "field": "lastLoginTime"
                                   }
                                 }
-                              }
-                            },
-                            {
-                              "term": {
-                                "external": true
                               }
                             }          ],
                     "minimum_should_match" : 1
@@ -803,11 +783,6 @@ public class ProfileSearchConnectorTest {
                                     "field": "lastLoginTime"
                                   }
                                 }
-                              }
-                            },
-                            {
-                              "term": {
-                                "external": true
                               }
                             }          ],
                     "minimum_should_match" : 1
@@ -1166,11 +1141,6 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            },
-                            {
-                              "term": {
-                                "external": true
-                              }
                             }          ],
                     "minimum_should_match" : 1
                   }
@@ -1278,11 +1248,6 @@ public class ProfileSearchConnectorTest {
                                 }
                               }
                             }
-                          },
-                          {
-                            "term": {
-                              "external": true
-                            }
                           }          ],
                   "minimum_should_match" : 1
                 }
@@ -1309,6 +1274,43 @@ public class ProfileSearchConnectorTest {
       long limit = 10;
       List<String> result = profileSearchConnector.search(null, filter, null, offset, limit);
       Assert.assertEquals(1, result.size());
+    }
+
+    /**
+     * The enrollment filters behind the Pending Users tabs are valid JSON
+     * once written, parsed strictly, and name no user type: an external
+     * account is enrolled, or not, like any other
+     */
+    @Test
+    public void testEnrollmentFiltersAreStrictJsonAndIgnoreTheUserType() {
+      ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
+      profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService, userPermissionService);
+      when(elasticSearchClient.sendRequest(anyString(), anyString())).thenReturn("{\"hits\":{\"hits\":[]}}");
+      Map<String, String> expectedClauses = new LinkedHashMap<>();
+      expectedClauses.put("notEnrolled",
+                          "{\"bool\":{\"must_not\":[{\"exists\":{\"field\":\"enrollmentDate\"}},{\"exists\":{\"field\":\"lastLoginTime\"}}]}}");
+      expectedClauses.put("enrolled", "{\"bool\":{\"must\":{\"exists\":{\"field\":\"enrollmentDate\"}}}}");
+      expectedClauses.put("noEnrollmentPossible",
+                          "{\"bool\":{\"must_not\":{\"exists\":{\"field\":\"enrollmentDate\"}},\"must\":{\"exists\":{\"field\":\"lastLoginTime\"}}}}");
+      for (Map.Entry<String, String> expected : expectedClauses.entrySet()) {
+        ProfileFilter filter = new ProfileFilter();
+        filter.setConnected(false);
+        filter.setEnrollmentStatus(expected.getKey());
+        profileSearchConnector.search(null, filter, null, 0, 10);
+
+        ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
+        verify(elasticSearchClient, Mockito.atLeastOnce()).sendRequest(query.capture(), anyString());
+        JsonNode request;
+        try {
+          request = new ObjectMapper().readTree(query.getValue());
+        } catch (JacksonException e) {
+          throw new AssertionError(expected.getKey() + " writes an invalid request: " + query.getValue(), e);
+        }
+        String compact = request.toString();
+        Assert.assertTrue(expected.getKey() + ": " + compact, compact.contains("{\"should\":[" + expected.getValue() + "],\"minimum_should_match\":1}"));
+        Assert.assertFalse(expected.getKey() + ": " + compact, compact.contains("\"external\""));
+        Mockito.clearInvocations(elasticSearchClient);
+      }
     }
 
     private String buildAdvancedFilterQuery(ProfileFilter filter) throws NoSuchMethodException,
