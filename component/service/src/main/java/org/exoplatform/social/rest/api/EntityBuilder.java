@@ -110,6 +110,7 @@ import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationRepor
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
@@ -256,6 +257,8 @@ public class EntityBuilder {
 
   private static OrganizationService organizationService;
 
+  private static PasswordRecoveryService passwordRecoveryService;
+
   private static RelationshipManager relationshipManager;
 
   private static IdentityManager     identityManager;
@@ -361,9 +364,14 @@ public class EntityBuilder {
     if (isAdmin) {
       // The source of the users list's connection filter, so that a row and
       // the lists filtered on it never disagree
-      userEntity.setNeverConnected(profile.getProperty(Profile.LAST_LOGIN_TIME) == null);
+      boolean neverConnected = profile.getProperty(Profile.LAST_LOGIN_TIME) == null;
+      userEntity.setNeverConnected(neverConnected);
       if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
-        userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
+        String enrollmentDate = profile.getProperty(Profile.ENROLLMENT_DATE).toString();
+        userEntity.setEnrollmentDate(enrollmentDate);
+        if (neverConnected) {
+          userEntity.setEnrollmentExpired(isEnrollmentExpired(enrollmentDate));
+        }
       }
       if (profile.getProperty(Profile.SYNCHRONIZED_DATE) != null) {
         userEntity.setSynchronizedDate((String) profile.getProperty(Profile.SYNCHRONIZED_DATE));
@@ -2330,6 +2338,36 @@ public class EntityBuilder {
       spaceService = ExoContainerContext.getService(SpaceService.class);
     }
     return spaceService;
+  }
+
+  /**
+   * An invitation is expired once the onboarding link validity has passed
+   * since it was sent: computed from the enrollment date the row carries,
+   * the token itself not being read. A token keeps the validity it was
+   * created with, so after a change of the validity the state shown follows
+   * the new value until the invitation is sent again
+   *
+   * @param enrollmentDate the time the onboarding email was sent, in
+   *          milliseconds
+   * @return true when the link sent then is expired
+   */
+  public static boolean isEnrollmentExpired(String enrollmentDate) {
+    if (!StringUtils.isNumeric(enrollmentDate)) {
+      return false;
+    }
+    try {
+      long sentAt = Long.parseLong(enrollmentDate);
+      return sentAt + getPasswordRecoveryService().getOnboardingTokenValidity() < System.currentTimeMillis();
+    } catch (NumberFormatException e) {
+      return false;
+    }
+  }
+
+  public static PasswordRecoveryService getPasswordRecoveryService() {
+    if (passwordRecoveryService == null) {
+      passwordRecoveryService = ExoContainerContext.getService(PasswordRecoveryService.class);
+    }
+    return passwordRecoveryService;
   }
 
   public static OrganizationService getOrganizationService() {

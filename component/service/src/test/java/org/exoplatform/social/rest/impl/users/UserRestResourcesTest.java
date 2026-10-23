@@ -104,6 +104,7 @@ import org.exoplatform.services.organization.idm.UserImpl;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.exoplatform.services.organization.idm.cache.CacheableUserHandlerImpl;
 import org.mockito.ArgumentCaptor;
+import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.entity.OnboardingEmailEntity;
 import org.exoplatform.portal.Constants;
 import org.exoplatform.ws.frameworks.cometd.ContinuationService;
@@ -1933,6 +1934,54 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       identityManager.updateProfile(maryProfile);
       johnProfile.removeProperty(Profile.LAST_LOGIN_TIME);
       identityManager.updateProfile(johnProfile);
+    }
+  }
+
+  /**
+   * The Pending Users' Invitations tab shows "Token expired" from the row
+   * alone: an invitation is expired once the onboarding link validity has
+   * passed since its enrollment date, on both sides of that bound, and only
+   * for an account that never signed in
+   */
+  public void testInvitationExpiryIsComputedFromTheEnrollmentDate() throws Exception {
+    long validity = EntityBuilder.getPasswordRecoveryService().getOnboardingTokenValidity();
+    long now = System.currentTimeMillis();
+    Profile johnProfile = identityManager.getOrCreateUserIdentity("john").getProfile();
+    johnProfile.setProperty(Profile.ENROLLMENT_DATE, String.valueOf(now - validity + 3600000L));
+    identityManager.updateProfile(johnProfile);
+    Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    maryProfile.setProperty(Profile.ENROLLMENT_DATE, String.valueOf(now - validity - 60000L));
+    identityManager.updateProfile(maryProfile);
+    Profile demoProfile = identityManager.getOrCreateUserIdentity("demo").getProfile();
+    demoProfile.setProperty(Profile.ENROLLMENT_DATE, String.valueOf(now - validity - 60000L));
+    demoProfile.setProperty(Profile.LAST_LOGIN_TIME, now);
+    identityManager.updateProfile(demoProfile);
+    try {
+      startSessionAs("root", true);
+      ContainerResponse response = service("GET",
+                                           getURLResource("users?limit=10&offset=0&enrollmentStatus=enrolled"),
+                                           "",
+                                           null,
+                                           null);
+      assertEquals(200, response.getStatus());
+      Map<String, ProfileEntity> rows = new HashMap<>();
+      for (Object entity : ((CollectionEntity) response.getEntity()).getEntities()) {
+        ProfileEntity row = getBaseEntity(entity, ProfileEntity.class);
+        rows.put(row.getUsername(), row);
+      }
+      assertEquals(Boolean.FALSE, rows.get("john").getEnrollmentExpired());
+      assertEquals(Boolean.TRUE, rows.get("mary").getEnrollmentExpired());
+      // Signed in once: the invitation was accepted, nothing is pending
+      assertNull(rows.get("demo").getEnrollmentExpired());
+      assertFalse(rows.containsKey("root"));
+    } finally {
+      johnProfile.removeProperty(Profile.ENROLLMENT_DATE);
+      identityManager.updateProfile(johnProfile);
+      maryProfile.removeProperty(Profile.ENROLLMENT_DATE);
+      identityManager.updateProfile(maryProfile);
+      demoProfile.removeProperty(Profile.ENROLLMENT_DATE);
+      demoProfile.removeProperty(Profile.LAST_LOGIN_TIME);
+      identityManager.updateProfile(demoProfile);
     }
   }
 
