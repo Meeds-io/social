@@ -295,12 +295,7 @@ public class ProfileSearchConnector {
             + "                        \"exists\": {\n"
             + "                          \"field\": \"lastLoginTime\"\n"
             + "                        }\n"
-            + "                      }],\n"
-            + "                      \"must\": {\n"
-            + "                       \"term\": {\n"
-            + "                         \"external\": false\n"
-            + "                         }\n"
-            + "                      }\n"
+            + "                      }]\n"
             + "                    }\n"
             + "                  }");
           break;
@@ -319,11 +314,6 @@ public class ProfileSearchConnector {
             + "                          \"field\": \"lastLoginTime\"\n"
             + "                        }\n"
             + "                      }\n"
-            + "                    }\n"
-            + "                  }");
-          enrollmentShoulds.add("                  {\n"
-            + "                    \"term\": {\n"
-            + "                      \"external\": true\n"
             + "                    }\n"
             + "                  }");
           break;
