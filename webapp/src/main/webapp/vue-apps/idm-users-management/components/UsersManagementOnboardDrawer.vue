@@ -104,6 +104,7 @@ export default {
           if (sent) {
             this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.sent', {0: fullName}), 'success');
             this.$root.$emit('refreshUsers');
+            this.$root.$emit('pending-users-changed');
             this.close();
           } else {
             this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.notSent', {0: fullName}), 'error');
