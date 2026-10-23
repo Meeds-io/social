@@ -14,6 +14,8 @@ import UsersManagementExportCSVResult from './components/UsersManagementExportCS
 import UsersManagementFilterDrawer from './components/UsersManagementFilterDrawer.vue';
 import UsersManagementItemMenu from './components/UsersManagementItemMenu.vue';
 import UsersManagementOnboardDrawer from './components/UsersManagementOnboardDrawer.vue';
+import UsersManagementPendingUsersDrawer from './components/UsersManagementPendingUsersDrawer.vue';
+import UsersManagementPendingUsersReminders from './components/UsersManagementPendingUsersReminders.vue';
 import UsersManagementOnboardingEmailForm from './components/onboarding/UsersManagementOnboardingEmailForm.vue';
 
 const components = {
@@ -33,6 +35,8 @@ const components = {
   'users-management-filter-drawer': UsersManagementFilterDrawer,
   'users-management-item-menu': UsersManagementItemMenu,
   'users-management-onboard-drawer': UsersManagementOnboardDrawer,
+  'users-management-pending-users-drawer': UsersManagementPendingUsersDrawer,
+  'users-management-pending-users-reminders': UsersManagementPendingUsersReminders,
   'users-management-onboarding-email-form': UsersManagementOnboardingEmailForm,
 };
 
