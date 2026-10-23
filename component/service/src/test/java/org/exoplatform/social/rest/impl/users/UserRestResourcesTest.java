@@ -99,6 +99,10 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.organization.UserProfile;
 import java.util.Locale;
+import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.idm.UserImpl;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.exoplatform.services.organization.idm.cache.CacheableUserHandlerImpl;
 import org.mockito.ArgumentCaptor;
 import org.exoplatform.social.rest.entity.OnboardingEmailEntity;
 import org.exoplatform.portal.Constants;
@@ -1629,9 +1633,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     try {
       response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
       assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of("john"), response.getEntity());
       assertFalse(organizationService.getUserHandler().findUserByName("john", UserStatus.ANY).isEnabled());
       response = service("PATCH", getURLResource("users/bulk/enable"), "", listHeaders, users, "root");
       assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of("john"), response.getEntity());
       assertTrue(organizationService.getUserHandler().findUserByName("john", UserStatus.ANY).isEnabled());
     } finally {
       organizationService.getUserHandler().setEnabled("john", true, true);
@@ -1881,10 +1887,121 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(List.of("mary"), response.getEntity());
   }
 
+  /**
+   * A row says whether its user never signed in by the social profile's last
+   * login time, the source of the list's connection filter; the bulk onboard
+   * sends to every such account, an external one included, and skips an
+   * account that signed in once
+   */
+  public void testNeverConnectedAccountsAreFlaggedAndOnboardedWhateverTheirType() throws Exception {
+    PasswordRecoveryService recoveryService = mock(PasswordRecoveryService.class);
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(true);
+    registerUserRestWith(recoveryService);
+    Profile johnProfile = identityManager.getOrCreateUserIdentity("john").getProfile();
+    johnProfile.setProperty(Profile.LAST_LOGIN_TIME, System.currentTimeMillis());
+    identityManager.updateProfile(johnProfile);
+    Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    maryProfile.setProperty(Profile.EXTERNAL, "true");
+    identityManager.updateProfile(maryProfile);
+    try {
+      assertNull(identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.LAST_LOGIN_TIME));
+      startSessionAs("root", true);
+
+      ContainerResponse response = service("GET", getURLResource("users?limit=10&offset=0&userType=ALL"), "", null, null);
+      assertEquals(200, response.getStatus());
+      Map<String, ProfileEntity> rows = new HashMap<>();
+      for (Object entity : ((CollectionEntity) response.getEntity()).getEntities()) {
+        ProfileEntity row = getBaseEntity(entity, ProfileEntity.class);
+        rows.put(row.getUsername(), row);
+      }
+      assertEquals(Boolean.FALSE, rows.get("john").getNeverConnected());
+      assertEquals(Boolean.TRUE, rows.get("mary").getNeverConnected());
+
+      byte[] users = "[\"john\",\"mary\"]".getBytes(StandardCharsets.UTF_8);
+      MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+      listHeaders.putSingle("content-type", "application/json");
+      response = service("PATCH", getURLResource("users/bulk/onboard"), "", listHeaders, users, "root");
+      assertEquals(200, response.getStatus());
+      assertEquals(List.of("mary"), response.getEntity());
+      ArgumentCaptor<User> sent = ArgumentCaptor.forClass(User.class);
+      verify(recoveryService).sendOnboardingEmail(sent.capture(), any(), any(), any());
+      assertEquals("mary", sent.getValue().getUserName());
+    } finally {
+      // The fixture's identities outlive the test: the other tests count
+      // internal, never connected accounts
+      maryProfile.removeProperty(Profile.EXTERNAL);
+      identityManager.updateProfile(maryProfile);
+      johnProfile.removeProperty(Profile.LAST_LOGIN_TIME);
+      identityManager.updateProfile(johnProfile);
+    }
+  }
+
+  /**
+   * A bulk deactivation the store swallows, as with the deactivation option
+   * of the identity store off, leaves the user out of the updated ones
+   */
+  public void testBulkStatusChangeListsOnlyTheUsersWhoseStatusHolds() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    confirmedSessionUser = "root";
+    UserHandler realHandler = organizationService.getUserHandler();
+    // The test container's handler is an in-memory one: no cache to evict
+    UserHandler swallowingHandler = spy(realHandler);
+    doReturn(null).when(swallowingHandler).setEnabled(anyString(), anyBoolean(), anyBoolean());
+    OrganizationService swallowingService = mock(OrganizationService.class);
+    when(swallowingService.getUserHandler()).thenReturn(swallowingHandler);
+    registerUserRestWith(passwordRecoveryService, swallowingService);
+
+    byte[] users = "[\"john\"]".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+    listHeaders.putSingle("content-type", "application/json");
+    ContainerResponse response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    assertEquals(List.of(), response.getEntity());
+    assertTrue(realHandler.findUserByName("john", UserStatus.ANY).isEnabled());
+  }
+
+  /**
+   * The bulk read-back evicts the user's cache entry after the restart: a
+   * cache still holding the attempted status would list a user the store
+   * did not update
+   */
+  public void testBulkStatusReadBackEvictsTheCachedUser() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    confirmedSessionUser = "root";
+    User stored = organizationService.getUserHandler().findUserByName("john", UserStatus.ANY);
+    UserImpl attempted = new UserImpl("john");
+    attempted.setEnabled(false);
+    AtomicBoolean evicted = new AtomicBoolean(false);
+    CacheableUserHandlerImpl cachedHandler = mock(CacheableUserHandlerImpl.class);
+    when(cachedHandler.findUserByName("john", UserStatus.ENABLED)).thenReturn(stored);
+    when(cachedHandler.findUserByName("john", UserStatus.ANY)).thenAnswer(invocation -> evicted.get() ? stored : attempted);
+    doAnswer(invocation -> {
+      evicted.set(true);
+      return null;
+    }).when(cachedHandler).clearCache("john");
+    OrganizationService cachedService = mock(OrganizationService.class);
+    when(cachedService.getUserHandler()).thenReturn(cachedHandler);
+    registerUserRestWith(passwordRecoveryService, cachedService);
+
+    byte[] users = "[\"john\"]".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+    listHeaders.putSingle("content-type", "application/json");
+    ContainerResponse response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    assertEquals(List.of(), response.getEntity());
+    assertTrue(evicted.get());
+  }
+
   private void registerUserRestWith(PasswordRecoveryService recoveryService) throws Exception {
+    registerUserRestWith(recoveryService, organizationService);
+  }
+
+  private void registerUserRestWith(PasswordRecoveryService recoveryService, OrganizationService orgService) throws Exception {
     removeResource(UserRest.class);
     registry(new UserRest(userACL,
-                          organizationService,
+                          orgService,
                           identityManager,
                           relationshipManager,
                           userStateService,

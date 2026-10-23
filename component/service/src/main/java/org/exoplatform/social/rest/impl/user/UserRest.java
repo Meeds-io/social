@@ -69,6 +69,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.organization.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,6 +95,7 @@ import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.idm.UserImpl;
+import org.exoplatform.services.organization.idm.cache.CacheableUserHandlerImpl;
 import org.exoplatform.services.resources.LocaleConfig;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.http.PATCH;
@@ -135,7 +137,6 @@ import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.social.rest.entity.URLEntity;
 import org.exoplatform.social.rest.entity.UserEntity;
-import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
@@ -2241,10 +2242,11 @@ public class UserRest implements ResourceContainer, Startable {
     if (user == null) {
       LOG.warn("Cannot find user by username {} for onboarding, he is disabled or not existing", username);
     } else {
+      // External users are onboarded like the others; an account that
+      // signed in once is skipped, by the same source as the row's Onboard
+      // action and the users list's connection filter
       Identity identity = identityManager.getOrCreateUserIdentity(username);
-      if (Util.isExternal(identity.getId())) {
-        LOG.warn("User {} is external, he cannot be enrolled.", username);
-      } else if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
+      if (identity.getProfile().getProperty(Profile.LAST_LOGIN_TIME) != null) {
         LOG.warn("User {} is already logged in, he cannot be enrolled", username);
       } else {
         if (sendOnBoardingEmail((UserImpl) user, new StringBuilder(url), null)) {
@@ -2261,7 +2263,7 @@ public class UserRest implements ResourceContainer, Startable {
       LOG.warn("Username {} is not found in disabled user list. He does not exists, or he is already enabled", username);
     } else {
       organizationService.getUserHandler().setEnabled(username, true, true);
-      updatedUsers.add(username);
+      addWhenStatusHolds(username, true, updatedUsers);
     }
   }
 
@@ -2276,7 +2278,29 @@ public class UserRest implements ResourceContainer, Startable {
       LOG.warn("Try to suspend superuser account {}. Not allowed", username);
     } else {
       organizationService.getUserHandler().setEnabled(username, false, true);
+      addWhenStatusHolds(username, false, updatedUsers);
+    }
+  }
+
+  /**
+   * Lists a user as updated only once the status reads back as requested, in
+   * a new transaction: the store swallows a failed write, and writes nothing
+   * when the deactivation option of the identity store is off
+   */
+  private void addWhenStatusHolds(String username, boolean enabled, List<String> updatedUsers) throws Exception {
+    RequestLifeCycle.restartTransaction();
+    UserHandler userHandler = organizationService.getUserHandler();
+    if (userHandler instanceof CacheableUserHandlerImpl cachedUsers) {
+      cachedUsers.clearCache(username);
+    }
+    User stored = userHandler.findUserByName(username, UserStatus.ANY);
+    if (stored != null && stored.isEnabled() == enabled) {
       updatedUsers.add(username);
+    } else {
+      LOG.error("User {} reads back {} after being {}: left out of the updated users",
+                username,
+                stored == null ? "missing" : (stored.isEnabled() ? "enabled" : "deactivated"),
+                enabled ? "enabled" : "deactivated");
     }
   }
 

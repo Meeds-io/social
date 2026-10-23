@@ -93,6 +93,53 @@ export function createAccount(account) {
 }
 
 /**
+ * Reads an account as the administration knows it, its preferred language
+ * included
+ *
+ * @param {string} userName the login of the account
+ * @returns {Promise<object>} the account
+ */
+export function getAccount(userName) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${encodeURIComponent(userName)}`, {
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+    return resp.json();
+  });
+}
+
+/**
+ * Updates an account, after the session's confirmation when the server
+ * asks for it. A blank password leaves it unchanged, and so does a blank
+ * language
+ *
+ * @param {object} account the account as the form describes it
+ * @returns {Promise<object>} `{ ok: true }` when updated, `{ ok: false,
+ *          status, code }` when the server refused it (400) or could not
+ *          prove it (500), the code being null for any other status
+ */
+export function updateAccount(account) {
+  return Vue.prototype.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(account),
+  }).then(resp => {
+    if (resp?.ok) {
+      return {ok: true};
+    } else if (resp?.status === 400 || resp?.status === 500) {
+      return resp.text().then(code => ({ok: false, status: resp.status, code}));
+    } else {
+      return {ok: false, status: resp?.status, code: null};
+    }
+  });
+}
+
+/**
  * Sends the onboarding email of a created account with the administrator's
  * message
  *
