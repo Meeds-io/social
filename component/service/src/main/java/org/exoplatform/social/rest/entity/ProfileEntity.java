@@ -88,6 +88,8 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String NEVER_CONNECTED         = "neverConnected";
 
+  public static final String ENROLLMENT_EXPIRED      = "enrollmentExpired";
+
   public static final String SYNCHRONIZED_DATE       = "synchronizedDate";
 
   public static final String CREATED_DATE            = "createdDate";
@@ -508,6 +510,20 @@ public class ProfileEntity extends BaseEntity {
 
   public Boolean getNeverConnected() {
     return (Boolean) getProperty(NEVER_CONNECTED);
+  }
+
+  /**
+   * @param enrollmentExpired true when the onboarding link sent to a user who
+   *          never signed in has outlived the onboarding link validity
+   * @return this entity
+   */
+  public ProfileEntity setEnrollmentExpired(boolean enrollmentExpired) {
+    setProperty(ENROLLMENT_EXPIRED, enrollmentExpired);
+    return this;
+  }
+
+  public Boolean getEnrollmentExpired() {
+    return (Boolean) getProperty(ENROLLMENT_EXPIRED);
   }
 
   public ProfileEntity setLastLoginTime(String lastLoginTime) {
