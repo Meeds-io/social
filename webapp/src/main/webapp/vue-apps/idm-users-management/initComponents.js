@@ -13,6 +13,8 @@ import UsersManagementImportCSVResult from './components/UsersManagementImportCS
 import UsersManagementExportCSVResult from './components/UsersManagementExportCSVResult.vue';
 import UsersManagementFilterDrawer from './components/UsersManagementFilterDrawer.vue';
 import UsersManagementItemMenu from './components/UsersManagementItemMenu.vue';
+import UsersManagementOnboardDrawer from './components/UsersManagementOnboardDrawer.vue';
+import UsersManagementOnboardingEmailForm from './components/onboarding/UsersManagementOnboardingEmailForm.vue';
 
 const components = {
   'users-management': UsersManagement,
@@ -30,6 +32,8 @@ const components = {
   'users-management-export-csv-result': UsersManagementExportCSVResult,
   'users-management-filter-drawer': UsersManagementFilterDrawer,
   'users-management-item-menu': UsersManagementItemMenu,
+  'users-management-onboard-drawer': UsersManagementOnboardDrawer,
+  'users-management-onboarding-email-form': UsersManagementOnboardingEmailForm,
 };
 
 for (const key in components) {
