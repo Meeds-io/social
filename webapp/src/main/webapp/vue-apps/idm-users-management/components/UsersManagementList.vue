@@ -77,7 +77,7 @@
       <template #item.actions="{ item }">
         <users-management-item-menu
           :item="item"
-          @onboard="sendOnBoardingEmail(item.username)"
+          @onboard="$root.$emit('openOnboardUser', item)"
           @enable="saveUserStatus(item, true)"
           @disable="saveUserStatus(item, false)"
           @delete="deleteUser(item)" />
@@ -260,8 +260,15 @@ export default {
         this.loading = true;
         this.$userService.multiSelectAction(action, selectedUsers)
           .then(data => {
-            if (data.length > 0) {
+            // The server lists the users it updated, each read back
+            if (data.length === selectedUsers.length) {
               this.$root.$emit('alert-message', `UsersManagement.selection.success.${action}`, 'success');
+            } else {
+              const partialKey = action === 'onboard' ? 'UsersManagement.selection.partial.onboard' : 'UsersManagement.selection.partial';
+              this.$root.$emit('alert-message', this.$t(partialKey, {0: data.length, 1: selectedUsers.length}), 'warning');
+            }
+            if (data.length > 0) {
+              this.$root.$emit('pending-users-changed');
             }
           })
           .then(this.searchUsers)
@@ -324,6 +331,7 @@ export default {
             }
           } else {
             self.users = self.users.filter(u => u.userName !== userNameDeleted);
+            this.$root.$emit('pending-users-changed');
           }
         })
         .catch(error => {
@@ -375,6 +383,12 @@ export default {
             }
             if (user.lastLoginTime) {
               user.lastLoginTime = Number(user.lastLoginTime);
+            } else {
+              user.connectionStatus = this.$t('UsersManagement.lastConnection.neverConnected');
+            }
+            // Onboarding follows the same "never signed in" source as the
+            // Pending Users tabs, whatever the account's type
+            if (!user.neverConnected) {
               if (user.enrollmentDate != null) {
                 user.enrollmentStatus = 'invitationAccepted';
                 user.enrollmentDetails= this.$t('UsersManagement.enrollment.invitationAccepted', {0: this.formatDate(Number(user.enrollmentDate))});
@@ -382,18 +396,12 @@ export default {
                 user.enrollmentStatus = 'alreadyConnected';
                 user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
               }
+            } else if (user.enrollmentDate != null) {
+              user.enrollmentStatus = 'reInviteToJoin';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
             } else {
-              user.connectionStatus = this.$t('UsersManagement.lastConnection.neverConnected');
-              if (user.external === 'true') {
-                user.enrollmentStatus = 'cannotBeEnrolled';
-                user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
-              } else if (user.enrollmentDate != null) {
-                user.enrollmentStatus = 'reInviteToJoin';
-                user.enrollmentDetails = this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
-              } else {
-                user.enrollmentStatus = 'inviteToJoin';
-                user.enrollmentDetails = this.$t('UsersManagement.enrollment.inviteToJoin');
-              }
+              user.enrollmentStatus = 'inviteToJoin';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.inviteToJoin');
             }
           });
           this.users = entities;
@@ -434,9 +442,19 @@ export default {
                 this.error = null;
               }, 5000);
             });
+          } else if (resp.status === 500) {
+            // A status the server could not prove: the table shows the
+            // stored one once refreshed
+            return resp.text().then(code => {
+              const key = `UsersManagement.edit.error.${(code || '').replace(/:/g, '.')}`;
+              const label = this.$t(key);
+              this.$root.$emit('alert-message', label === key ? this.$t('IDMManagement.error.UnknownServerError') : label, 'error');
+            });
           } else {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
+        } else {
+          this.$root.$emit('pending-users-changed');
         }
       })
         .then(this.searchUsers)
@@ -449,21 +467,6 @@ export default {
     },
     formatDate(time) {
       return this.$dateUtil.formatDateObjectToDisplay(new Date(time),this.fullDateFormat, this.lang);
-    },
-    sendOnBoardingEmail(username) {
-      this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/onboard/${username}`, {
-        method: 'PATCH',
-        credentials: 'include',
-      })
-        .then((resp) => {
-          if (!resp?.ok) {
-            throw new Error('Error sending onBoarding email');
-          }
-        })
-        .then(this.$nextTick)
-        .then(this.searchUsers)
-        .finally(() => this.loading = false);
     },
     applyAdvancedFilter(filter) {
       this.filter = filter;

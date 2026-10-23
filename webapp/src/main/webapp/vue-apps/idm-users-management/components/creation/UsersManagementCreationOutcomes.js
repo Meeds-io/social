@@ -32,6 +32,7 @@ export default {
         : Promise.resolve(true);
       return invitation.then(sent => {
         this.$root.$emit('refreshUsers');
+        this.$root.$emit('pending-users-changed');
         if (sent) {
           this.$root.$emit('alert-message', this.$t('UsersManagement.creation.success', {0: userName}), 'success');
         } else {
@@ -53,8 +54,8 @@ export default {
       this.stepper = refusal.field === 'role' ? 2 : 1;
     },
     // Nothing created: the drawer stays open on the error. An account created
-    // without all its parts: the drawer closes, and the memberships drawer,
-    // the one completion the table allows today, opens on the account
+    // without all its parts: the drawer closes, and the drawer completing
+    // the missing part opens on the account
     showFailure(code) {
       const incomplete = userCreationService.parseIncomplete(code);
       if (!incomplete) {
@@ -64,9 +65,17 @@ export default {
       const key = incomplete.deactivated ? 'UsersManagement.creation.incomplete' : 'UsersManagement.creation.incompleteEnabled';
       this.$root.$emit('alert-message', this.$t(key, {0: incomplete.userName, 1: missingLabels}), incomplete.deactivated ? 'warning' : 'error');
       this.$root.$emit('refreshUsers');
+      this.$root.$emit('pending-users-changed');
       this.close();
+      // The drawer that completes the first missing part: the memberships,
+      // else the language; the activation status is the row's own action
       if (incomplete.missing.includes('MEMBERSHIPS')) {
         this.$root.$emit('openUserMemberships', {
+          userName: incomplete.userName,
+          fullname: this.fullName || incomplete.userName,
+        });
+      } else if (incomplete.missing.includes('LANGUAGE')) {
+        this.$root.$emit('editUser', {
           userName: incomplete.userName,
           fullname: this.fullName || incomplete.userName,
         });
