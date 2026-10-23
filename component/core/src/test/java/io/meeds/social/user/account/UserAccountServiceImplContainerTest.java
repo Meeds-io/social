@@ -24,8 +24,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -38,6 +44,7 @@ import org.exoplatform.portal.Constants;
 import org.exoplatform.portal.rest.UserAccount;
 import org.exoplatform.portal.rest.UserAccountCreationException;
 import org.exoplatform.portal.rest.UserAccountService;
+import org.exoplatform.portal.rest.UserAccountUpdateException;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.OrganizationService;
@@ -46,6 +53,8 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.web.login.recovery.ChangePasswordConnector;
+import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.social.core.identity.model.Identity;
 
 import io.meeds.social.AbstractSpringConfigurationTest;
@@ -54,7 +63,9 @@ import io.meeds.web.security.service.UserAccountServiceImpl;
 import lombok.SneakyThrows;
 
 /**
- * The creation service against the real store and social's listeners: the
+ * The account creation and update services on this test container's
+ * organization service, an in-memory one (InMemoryUserHandler), with social's
+ * listeners: the
  * platform users membership granted at creation, the identity created, the
  * deleted-login veto, and the read-back after the commits the listeners
  * cause. The service, portal's Spring bean, is wired by hand on the shared
@@ -83,7 +94,11 @@ public class UserAccountServiceImplContainerTest extends AbstractSpringConfigura
 
   @SneakyThrows
   private static void inject(Object target, Class<?> type, Object value) {
-    for (Field field : target.getClass().getDeclaredFields()) {
+    Class<?> owner = target.getClass();
+    while (owner != null && !UserAccountServiceImpl.class.equals(owner)) {
+      owner = owner.getSuperclass();
+    }
+    for (Field field : (owner == null ? target.getClass() : owner).getDeclaredFields()) {
       if (field.getType() == type) {
         field.setAccessible(true);
         field.set(target, value);
@@ -195,13 +210,14 @@ public class UserAccountServiceImplContainerTest extends AbstractSpringConfigura
   }
 
   /**
-   * A store write failing midway, on the real store: the membership write
-   * is refused by a listener, the read-back finds the part missing, the
+   * A write the store does not keep, on this container's in-memory
+   * organization service, which cannot fail at flush: the membership write
+   * is refused by a listener veto, the read-back finds the part missing, the
    * account is deactivated and reported with that part
    */
   @Test
   @SneakyThrows
-  public void testAnIncompleteAccountIsDeactivatedOnTheRealStore() {
+  public void testAnIncompleteAccountIsDeactivatedOnTheContainerStore() {
     MembershipEventListener refusal = new MembershipEventListener() {
       @Override
       public void preSave(Membership m, boolean isNew) throws Exception {
@@ -228,6 +244,112 @@ public class UserAccountServiceImplContainerTest extends AbstractSpringConfigura
     assertTrue(holds(login, "/platform/users", "member"));
     assertFalse(holds(login, "/platform/administrators", "manager"));
     assertEquals("fr", organizationService.getUserProfileHandler().findUserProfileByName(login).getAttribute(Constants.USER_LANGUAGE));
+  }
+
+  /**
+   * The edit on this test container's organization service: the names, the
+   * email and the language are written, then read back in a new transaction
+   */
+  @Test
+  @SneakyThrows
+  public void testUpdateUserOnTheContainerStore() {
+    String login = userAccountService.createUser(account("edit" + System.nanoTime(), "INTERNAL", null, null), Locale.ENGLISH);
+    restartTransaction();
+    UserAccount edit = account(login, null, "fr", null);
+    edit.setFirstName("Janet");
+    edit.setEmail("janet." + login + "@example.com");
+    userAccountService.updateUser(edit, Locale.ENGLISH, "root");
+
+    restartTransaction();
+    User user = organizationService.getUserHandler().findUserByName(login, UserStatus.ANY);
+    assertEquals("Janet", user.getFirstName());
+    assertEquals("janet." + login + "@example.com", user.getEmail());
+    assertTrue(user.isEnabled());
+    assertEquals("fr", organizationService.getUserProfileHandler().findUserProfileByName(login).getAttribute(Constants.USER_LANGUAGE));
+  }
+
+  /**
+   * The read-back reads the store in a new transaction after the caches are
+   * evicted: this test container's organization service is an in-memory one,
+   * which cannot fail at flush, so the stored names are altered between the
+   * writes and the read-back, and the edit is reported incomplete
+   */
+  @Test
+  @SneakyThrows
+  public void testAnUpdateTheStoreDoesNotHoldIsReportedOnTheContainerStore() {
+    String login = userAccountService.createUser(account("keep" + System.nanoTime(), "INTERNAL", null, null), Locale.ENGLISH);
+    restartTransaction();
+    AtomicBoolean alter = new AtomicBoolean(true);
+    UserAccountServiceImpl altering = new UserAccountServiceImpl() {
+      @Override
+      @SneakyThrows
+      protected void restartTransaction() {
+        super.restartTransaction();
+        if (alter.getAndSet(false)) {
+          User stored = organizationService.getUserHandler().findUserByName(login, UserStatus.ANY);
+          stored.setFirstName("Jane");
+          organizationService.getUserHandler().saveUser(stored, false);
+          super.restartTransaction();
+        }
+      }
+    };
+    wire(altering);
+    UserAccount edit = account(login, null, null, null);
+    edit.setFirstName("Janet");
+    UserAccountUpdateException e = assertThrows(UserAccountUpdateException.class,
+                                                () -> altering.updateUser(edit, Locale.ENGLISH, "root"));
+    assertEquals(UserAccountService.USER_UPDATE_INCOMPLETE, e.getMessage());
+  }
+
+  /**
+   * The new password is proven before any other write, on the organization
+   * service of this test container, an in-memory one: an active account's
+   * through the handler's authenticate, the connector being a test double
+   * that stores the password through saveUser, and a change the store did
+   * not keep is reported with
+   * nothing else written. A deactivated account's password is not run here:
+   * the in-memory handler refuses any save of a deactivated user, and the
+   * unit tests cover that branch
+   */
+  @Test
+  @SneakyThrows
+  public void testTheNewPasswordIsProvenOnTheContainerStore() {
+    ChangePasswordConnector storing = mock(ChangePasswordConnector.class);
+    doAnswer(invocation -> {
+      User user = organizationService.getUserHandler().findUserByName(invocation.getArgument(0), UserStatus.ANY);
+      user.setPassword(invocation.getArgument(1));
+      organizationService.getUserHandler().saveUser(user, false);
+      return null;
+    }).when(storing).changePassword(anyString(), anyString());
+    PasswordRecoveryService recovery = mock(PasswordRecoveryService.class);
+    when(recovery.getActiveChangePasswordConnector()).thenReturn(storing);
+    UserAccountServiceImpl service = new UserAccountServiceImpl();
+    wire(service);
+    inject(service, PasswordRecoveryService.class, recovery);
+
+    String login = service.createUser(account("pwd" + System.nanoTime(), "INTERNAL", null, null), Locale.ENGLISH);
+    restartTransaction();
+    UserAccount edit = account(login, null, null, "NewPassword1");
+    service.updateUser(edit, Locale.ENGLISH, "root");
+    restartTransaction();
+    assertTrue(organizationService.getUserHandler().authenticate(login, "NewPassword1"));
+
+    doNothing().when(storing).changePassword(anyString(), anyString());
+    String keptLogin = service.createUser(account("pwd" + System.nanoTime(), "INTERNAL", null, null), Locale.ENGLISH);
+    restartTransaction();
+    UserAccount keptEdit = account(keptLogin, null, null, "NewPassword1");
+    keptEdit.setFirstName("Janet");
+    UserAccountUpdateException e = assertThrows(UserAccountUpdateException.class,
+                                                () -> service.updateUser(keptEdit, Locale.ENGLISH, "root"));
+    assertEquals(UserAccountService.USER_PASSWORD_NOT_STORED, e.getMessage());
+    restartTransaction();
+    assertEquals("Jane", organizationService.getUserHandler().findUserByName(keptLogin, UserStatus.ANY).getFirstName());
+  }
+
+  private void wire(UserAccountServiceImpl service) {
+    inject(service, OrganizationService.class, organizationService);
+    inject(service, UserACL.class, getContainer().getComponentInstanceOfType(UserACL.class));
+    inject(service, LocaleConfigService.class, getContainer().getComponentInstanceOfType(LocaleConfigService.class));
   }
 
   private boolean holds(String login, String groupId, String type) throws Exception {
