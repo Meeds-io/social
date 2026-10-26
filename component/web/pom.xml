@@ -22,7 +22,7 @@
   <parent>
     <artifactId>social-component</artifactId>
     <groupId>io.meeds.social</groupId>
-    <version>7.3.x-ai-contribution-SNAPSHOT</version>
+    <version>7.3.x-rtd-SNAPSHOT</version>
   </parent>
   <groupId>io.meeds.social</groupId>
   <artifactId>social-component-web</artifactId>
