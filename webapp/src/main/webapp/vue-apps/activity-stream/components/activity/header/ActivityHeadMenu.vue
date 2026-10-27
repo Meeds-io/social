@@ -5,7 +5,7 @@
       :left="!$vuetify.rtl"
       :right="$vuetify.rtl"
       :close-on-content-click="!$root.isMobile"
-      content-class="layout-drawer"
+      content-class="application-menu layout-drawer"
       bottom
       offset-y
       attach>
@@ -29,7 +29,7 @@
           :disabled="!action.children.length"
           :left="!$vuetify.rtl"
           :right="$vuetify.rtl"
-          content-class="layout-drawer"
+          content-class="application-menu layout-drawer"
           open-on-hover
           offset-x>
           <template #activator="{ on, attrs }">
