@@ -662,8 +662,8 @@ public class EntityBuilder {
                                                                                                                   .getId()));
 
     Map<Long, ProfilePropertySettingEntity> properties = new HashMap<>();
-    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings()
-                                                                  .stream()
+    List<ProfilePropertySetting> allSettings = profilePropertyService.getPropertySettings();
+    List<ProfilePropertySetting> settings = allSettings.stream()
                                                                   .filter(prop -> prop.isVisible()
                                                                                   || (prop.isEditable() && isCurrentUser)
                                                                                   || isAdmin)
@@ -716,11 +716,10 @@ public class EntityBuilder {
                 if (StringUtils.isNotEmpty(subProperty.get("value"))) {
                   ProfilePropertySettingEntity subProfilePropertySettingEntity = new ProfilePropertySettingEntity();
                   if (StringUtils.isNotEmpty(subProperty.get("key"))) {
-                    ProfilePropertySetting propertySetting =
-                                                           profilePropertyService.getProfileSettingByName(property.getPropertyName() +
-                                                               "." + subProperty.get("key"));
+                    ProfilePropertySetting propertySetting = findSetting(allSettings,
+                                                                         property.getPropertyName() + "." + subProperty.get("key"));
                     if (propertySetting == null) {
-                      propertySetting = profilePropertyService.getProfileSettingByName(subProperty.get("key"));
+                      propertySetting = findSetting(allSettings, subProperty.get("key"));
                     }
                     if (propertySetting != null) {
                       subProfilePropertySettingEntity =
@@ -789,6 +788,18 @@ public class EntityBuilder {
       }
     }
     return new ArrayList<>(properties.values());
+  }
+
+  /**
+   * Looks a setting up among the stored settings: a by-name lookup would
+   * cache a miss for every stored child key that is no setting
+   */
+  private static ProfilePropertySetting findSetting(List<ProfilePropertySetting> settings, String name) {
+    return settings == null ? null
+                            : settings.stream()
+                                      .filter(setting -> StringUtils.equals(setting.getPropertyName(), name))
+                                      .findFirst()
+                                      .orElse(null);
   }
 
   public static void buildUrlEntities(Profile profile, ProfileEntity userEntity) {
