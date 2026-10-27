@@ -94,6 +94,7 @@ import io.meeds.social.organizationalunit.listener.OrganizationalUnitGroupListen
 import io.meeds.social.group.plugin.GroupAclPluginTest;
 import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
 import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
+import io.meeds.social.analytics.CollaborativeActivityDeclarationTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -167,7 +168,8 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     PageFavoriteACLPluginTest.class,
     AccountDeactivationServiceTest.class,
     BrandedEmailSenderTest.class,
-    PortableSequenceChangelogCoverageTest.class
+    PortableSequenceChangelogCoverageTest.class,
+    CollaborativeActivityDeclarationTest.class
 })
 public class NoContainerTestSuite {
 
