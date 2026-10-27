@@ -41,6 +41,7 @@ import org.exoplatform.portal.config.model.Application;
 import org.exoplatform.portal.config.model.ApplicationState;
 import org.exoplatform.portal.config.model.ModelObject;
 import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
@@ -209,6 +210,20 @@ public class PageContentBlockIndexingListenerTest {
     verify(layoutService, never()).getPage(any(PageKey.class));
     verify(indexingService, never()).reindex(any(), any());
     verify(indexingService, never()).unindex(any(), any());
+  }
+
+  @Test
+  public void shouldUnindexEveryDocumentOfAPageOfASiteUsersDontNavigate() throws Exception {
+    PageKey templatePageKey = new PageKey(SiteKey.groupTemplate("/spaces/template"), "home");
+    when(layoutService.getPage(templatePageKey)).thenReturn(page);
+    String blockId = PageContentIndexingConnector.buildBlockId(STORAGE_ID, CONTENT_TYPE, "name");
+    when(searchConnector.findIndexedDocumentIds(STORAGE_ID)).thenReturn(List.of(blockId, STORAGE_ID));
+
+    listener.onEvent(new Event<>("layout.page.updated", "user", templatePageKey.format()));
+
+    verify(indexingService, never()).reindex(any(), any());
+    verify(indexingService).unindex(PageContentIndexingConnector.TYPE, blockId);
+    verify(indexingService).unindex(PageContentIndexingConnector.TYPE, STORAGE_ID);
   }
 
   @Test
