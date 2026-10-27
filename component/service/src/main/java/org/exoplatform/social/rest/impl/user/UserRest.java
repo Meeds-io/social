@@ -2235,24 +2235,31 @@ public class UserRest implements ResourceContainer, Startable {
     }
   }
 
-  @SneakyThrows
-  private void onboardUser(String username, List<String> updatedUsers, String url) throws IllegalAccessException {
-    UserHandler userHandler = organizationService.getUserHandler();
-    User user = userHandler.findUserByName(username);
-    if (user == null) {
-      LOG.warn("Cannot find user by username {} for onboarding, he is disabled or not existing", username);
-    } else {
-      // External users are onboarded like the others; an account that
-      // signed in once is skipped, by the same source as the row's Onboard
-      // action and the users list's connection filter
+  /**
+   * Sends the onboarding email to one user of the bulk action, after reading
+   * the account again: enabled, and never signed in by the social profile's
+   * last login time, the source of the row's Onboard action and of the users
+   * list's connection filter. External users are onboarded like the others.
+   * The check and the send are two reads apart: a sign-in between them still
+   * receives the email. A failure on one user is logged and leaves that user
+   * out, so the users already emailed stay listed and the rest are tried
+   */
+  private void onboardUser(String username, List<String> updatedUsers, String url) {
+    try {
+      UserHandler userHandler = organizationService.getUserHandler();
+      User user = userHandler.findUserByName(username);
+      if (user == null) {
+        LOG.warn("Cannot find user by username {} for onboarding, he is disabled or not existing", username);
+        return;
+      }
       Identity identity = identityManager.getOrCreateUserIdentity(username);
       if (identity.getProfile().getProperty(Profile.LAST_LOGIN_TIME) != null) {
         LOG.warn("User {} is already logged in, he cannot be enrolled", username);
-      } else {
-        if (sendOnBoardingEmail((UserImpl) user, new StringBuilder(url), null)) {
-          updatedUsers.add(username);
-        }
+      } else if (sendOnBoardingEmail((UserImpl) user, new StringBuilder(url), null)) {
+        updatedUsers.add(username);
       }
+    } catch (Exception e) {
+      LOG.warn("The onboarding email of {} could not be sent, the user is left out of the updated users", username, e);
     }
   }
 
