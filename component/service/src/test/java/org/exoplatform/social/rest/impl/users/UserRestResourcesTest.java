@@ -1886,6 +1886,18 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     response = service("PATCH", getURLResource("users/bulk/onboard"), "", listHeaders, users, "root");
     assertEquals(200, response.getStatus());
     assertEquals(List.of("mary"), response.getEntity());
+
+    // A send that throws for one user leaves that user out and does not
+    // abort the batch: the next user is still emailed and listed
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenAnswer(invocation -> {
+      if ("john".equals(((User) invocation.getArgument(0)).getUserName())) {
+        throw new IllegalStateException("transport down");
+      }
+      return true;
+    });
+    response = service("PATCH", getURLResource("users/bulk/onboard"), "", listHeaders, users, "root");
+    assertEquals(200, response.getStatus());
+    assertEquals(List.of("mary"), response.getEntity());
   }
 
   /**
