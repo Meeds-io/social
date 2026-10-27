@@ -169,12 +169,18 @@ public class EmailOtpPluginTest {
   public void testValidateOtpValid() {
     when(otpCache.get("email:john")).thenReturn(OTP_CODE);
     assertTrue(plugin.validateOtp("john", OTP_CODE));
+    verify(otpSendLockCache, never()).remove(anyString());
   }
 
+  /**
+   * A wrong code lifts the send lock, so that a new code can be asked for at
+   * once; a right one leaves it
+   */
   @Test
   public void testValidateOtpInvalid() {
     when(otpCache.get("email:john")).thenReturn("999999");
     assertFalse(plugin.validateOtp("john", OTP_CODE));
+    verify(otpSendLockCache).remove("email:john");
   }
 
   @Test
