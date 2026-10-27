@@ -147,7 +147,7 @@
         :value="confirmPassword"
         :placeholder="$t('UsersManagement.creation.confirmPassword')"
         :disabled="saving"
-        :error-messages="fieldErrors.confirmPassword"
+        :error-messages="confirmPasswordErrors"
         class="pt-2"
         name="confirmPassword"
         type="password"
@@ -156,7 +156,8 @@
         outlined
         dense
         required
-        @input="$emit('update:confirm-password', $event)" />
+        @input="$emit('update:confirm-password', $event)"
+        @blur="confirmPasswordLeft = true" />
     </template>
   </form>
 </template>
@@ -191,6 +192,31 @@ export default {
     saving: {
       type: Boolean,
       default: false,
+    },
+  },
+  data: () => ({
+    confirmPasswordLeft: false,
+  }),
+  computed: {
+    passwordMismatch() {
+      return (this.user.password || '') !== (this.confirmPassword || '');
+    },
+    // Next stays disabled while the two passwords differ, so the mismatch
+    // is shown on the confirmation as soon as it is typed or left
+    confirmPasswordErrors() {
+      if (this.fieldErrors.confirmPassword) {
+        return this.fieldErrors.confirmPassword;
+      }
+      return this.passwordMismatch && (this.confirmPassword || this.confirmPasswordLeft)
+        ? this.$t('UsersManagement.newPasswordsDoesNotMatch')
+        : null;
+    },
+  },
+  watch: {
+    customizePassword() {
+      if (!this.customizePassword) {
+        this.confirmPasswordLeft = false;
+      }
     },
   },
 };

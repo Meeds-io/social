@@ -197,6 +197,10 @@ export default {
         this.$refs.modal.close();
       } catch (e) {
         this.errorMessage = this.$t('userAccountConfirmation.invalidCode');
+        // A wrong code lifts the server's send lock: a new code can be sent
+        // at once, without waiting out the interval
+        this.lastSentAt = null;
+        this.sentByAnother = false;
         this.$nextTick(() => this.$refs.codeInput?.focus?.());
       } finally {
         this.confirming = false;
