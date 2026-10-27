@@ -1,0 +1,15 @@
+{
+  "modules": ["social"],
+  "excludedActivityTypes": [
+    "USER_PROFILE_ACTIVITY",
+    "exosocial:people",
+    "USER_ACTIVITIES_FOR_RELATIONSHIP",
+    "USER_COMMENTS_ACTIVITY_FOR_RELATIONSHIP"
+  ],
+  "labels": {
+    "notCounted": [
+      "social.collaborativeActivity.help.notCounted.profile",
+      "social.collaborativeActivity.help.notCounted.connection"
+    ]
+  }
+}
