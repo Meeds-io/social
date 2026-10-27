@@ -1889,12 +1889,13 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     // A send that throws for one user leaves that user out and does not
     // abort the batch: the next user is still emailed and listed
-    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenAnswer(invocation -> {
+    // doAnswer: a when() on the already stubbed mock would run the previous answer on null arguments
+    doAnswer(invocation -> {
       if ("john".equals(((User) invocation.getArgument(0)).getUserName())) {
         throw new IllegalStateException("transport down");
       }
       return true;
-    });
+    }).when(recoveryService).sendOnboardingEmail(any(), any(), any(), any());
     response = service("PATCH", getURLResource("users/bulk/onboard"), "", listHeaders, users, "root");
     assertEquals(200, response.getStatus());
     assertEquals(List.of("mary"), response.getEntity());
