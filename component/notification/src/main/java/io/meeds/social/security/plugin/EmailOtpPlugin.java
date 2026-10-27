@@ -109,9 +109,19 @@ public class EmailOtpPlugin implements OtpPlugin {
     return true;
   }
 
+  /**
+   * A wrong code lifts the send lock: the user may ask for a new code at
+   * once instead of waiting out the send interval. The attempts the
+   * validating service counts bound how often this happens per code
+   */
   @Override
   public boolean validateOtp(String userName, String otpCode) {
-    return StringUtils.equals(otpCode, getOtpCache().get(getCacheKey(userName)));
+    String cacheKey = getCacheKey(userName);
+    boolean valid = StringUtils.equals(otpCode, getOtpCache().get(cacheKey));
+    if (!valid) {
+      getOtpSendLockCache().remove(cacheKey);
+    }
+    return valid;
   }
 
   /**
