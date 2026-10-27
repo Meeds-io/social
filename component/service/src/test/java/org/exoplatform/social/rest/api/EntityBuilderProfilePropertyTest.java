@@ -19,6 +19,7 @@
 package org.exoplatform.social.rest.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -32,13 +33,19 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.portal.localization.LocaleContextInfoUtils;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.social.core.profilelabel.ProfileLabelService;
+import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -96,6 +103,49 @@ public class EntityBuilderProfilePropertyTest {
       assertEquals("Engineer", EntityBuilder.getProfilePropertyValue(profile(String.valueOf(OPTION_ID)), PROPERTY));
     }
     verify(translationService).getTranslationLabelOrDefault(anyString(), eq(OPTION_ID), anyString(), eq(Locale.ENGLISH));
+  }
+
+  /**
+   * A stored child key of a multi-valued property is matched against the
+   * stored settings, never looked up by name: a by-name lookup caches a miss
+   * per key, and a child key with no setting is still rendered under its key
+   */
+  @Test
+  public void testChildKeyWithoutASettingIsRenderedWithoutAByNameLookup() throws Exception {
+    ProfilePropertySetting phones = new ProfilePropertySetting();
+    phones.setId(1L);
+    phones.setPropertyName("phones");
+    phones.setVisible(true);
+    phones.setMultiValued(true);
+    ProfilePropertySetting work = new ProfilePropertySetting();
+    work.setId(2L);
+    work.setPropertyName("phones.work");
+    work.setParentId(1L);
+    work.setVisible(true);
+    when(profilePropertyService.getPropertySettings()).thenReturn(List.of(phones, work));
+    when(profilePropertyService.getHiddenProfilePropertyIds(anyLong())).thenReturn(List.of());
+    OrganizationService organizationService = mock(OrganizationService.class);
+    when(organizationService.getUserHandler()).thenReturn(mock(UserHandler.class));
+    setStaticField("organizationService", organizationService);
+    org.exoplatform.social.core.identity.model.Identity identity = new org.exoplatform.social.core.identity.model.Identity("7");
+    identity.setRemoteId(USERNAME);
+    Profile profile = new Profile(identity);
+    profile.setProperty("phones", List.of(Map.of("key", "work", "value", "111"), Map.of("key", "other", "value", "222")));
+    try (MockedStatic<CommonsUtils> commonsUtils = mockStatic(CommonsUtils.class)) {
+      commonsUtils.when(() -> CommonsUtils.getService(ProfileLabelService.class)).thenReturn(mock(ProfileLabelService.class));
+      List<ProfilePropertySettingEntity> properties = EntityBuilder.buildProperties(profile, true, true);
+      assertEquals(1, properties.size());
+      List<ProfilePropertySettingEntity> children = properties.get(0).getChildren();
+      assertEquals(2, children.size());
+      assertEquals(Long.valueOf(2L), children.get(0).getId());
+      assertEquals("111", children.get(0).getValue());
+      assertNull(children.get(1).getId());
+      assertEquals("other", children.get(1).getPropertyName());
+      assertEquals("222", children.get(1).getValue());
+    } finally {
+      setStaticField("organizationService", null);
+    }
+    verify(profilePropertyService, never()).getProfileSettingByName(anyString());
   }
 
   @Test
