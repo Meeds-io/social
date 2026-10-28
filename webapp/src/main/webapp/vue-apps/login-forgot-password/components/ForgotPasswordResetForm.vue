@@ -34,11 +34,11 @@
         <v-row class="ma-0 pa-0">
           <v-text-field
             id="username"
-            v-model="usernameParam"
-            :title="$t('portal.login.Username')"
-            :placeholder="$t('portal.login.Username')"
+            :value="accountIdentifier"
+            :title="accountIdentifierLabel"
+            :placeholder="accountIdentifierLabel"
+            :prepend-inner-icon="`${accountIdentifierIcon} ms-n2 grey--text text--lighten-1`"
             name="username"
-            prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
             class="login-username border-box-sizing pt-0"
             aria-required="true"
             type="text"
@@ -123,6 +123,10 @@ export default {
       type: String,
       default: null,
     },
+    emailParam: {
+      type: String,
+      default: null,
+    },
     tokenParam: {
       type: String,
       default: null,
@@ -135,6 +139,16 @@ export default {
     showConfirmPassword: false,
   }),
   computed: {
+    // The account is shown by its email, which signs in as well
+    accountIdentifier() {
+      return this.emailParam || this.usernameParam;
+    },
+    accountIdentifierLabel() {
+      return this.emailParam ? this.$t('UILoginForm.label.email') : this.$t('portal.login.Username');
+    },
+    accountIdentifierIcon() {
+      return this.emailParam ? 'fas fa-envelope' : 'fas fa-user';
+    },
     passwordType() {
       return this.showPassword ? 'text' :'password';
     },
@@ -164,7 +178,7 @@ export default {
           }
         } else {
           if (resp.redirected) {
-            sessionStorage.setItem('email',this.usernameParam);
+            sessionStorage.setItem('email', this.accountIdentifier);
             window.location.href = resp.url;
           }
         }

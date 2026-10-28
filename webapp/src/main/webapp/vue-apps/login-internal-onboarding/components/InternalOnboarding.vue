@@ -30,8 +30,9 @@
         v-else-if="action === 'expired'" />
       <portal-internal-onboarding-reset-form
         v-else-if="action === 'createUser'"
-        :username-param="this.username"
-        :token-param="this.token" />
+        :username-param="username"
+        :email-param="email"
+        :token-param="token" />
     </v-card>
   </v-app>
 </template>
@@ -39,6 +40,8 @@
 export default {
   data: () => ({
     username: '',
+    email: '',
+    token: null,
     action: '',
   }),
   computed: {
@@ -57,6 +60,7 @@ export default {
         } else {
           resp.json().then((data) => {
             this.username = data.username || '';
+            this.email = data.email || '';
             this.action = 'createUser';
           });
         }
