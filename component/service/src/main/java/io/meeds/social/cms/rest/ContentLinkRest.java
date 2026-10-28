@@ -133,10 +133,10 @@ public class ContentLinkRest {
                                                    @RequestParam("query")
                                                    String query,
                                                    @Parameter(description = "Search result offset")
-                                                   @RequestParam(name = "fieldName", required = false, defaultValue = "0")
+                                                   @RequestParam(name = "offset", required = false, defaultValue = "0")
                                                    int offset,
                                                    @Parameter(description = "Search result limit")
-                                                   @RequestParam(name = "fieldName", required = false, defaultValue = "10")
+                                                   @RequestParam(name = "limit", required = false, defaultValue = "10")
                                                    int limit) {
     try {
       return contentLinkService.searchLinks(objectType,
