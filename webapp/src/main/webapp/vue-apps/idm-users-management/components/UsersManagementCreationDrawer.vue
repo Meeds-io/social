@@ -36,10 +36,8 @@
         flat>
         <v-stepper-step
           :step="1"
-          :complete="stepper > 1"
-          :editable="stepper > 1"
           class="ma-4 pa-0"
-          color="error">
+          editable>
           {{ $t('UsersManagement.creation.step.profile') }}
         </v-stepper-step>
         <v-stepper-content :step="1" class="pa-0 ma-0 no-border">
@@ -57,10 +55,8 @@
         </v-stepper-content>
         <v-stepper-step
           :step="2"
-          :complete="stepper > 2"
-          :editable="stepper > 2"
-          class="ma-4 pa-0"
-          color="error">
+          :editable="profileStepValid"
+          class="ma-4 pa-0">
           {{ $t('UsersManagement.creation.step.role') }}
         </v-stepper-step>
         <v-stepper-content :step="2" class="pa-0 ma-0 no-border">
@@ -72,8 +68,8 @@
         </v-stepper-content>
         <v-stepper-step
           :step="3"
-          class="ma-4 pa-0"
-          color="error">
+          :editable="invitationStepReachable"
+          class="ma-4 pa-0">
           {{ $t('UsersManagement.creation.step.invitation') }}
         </v-stepper-step>
         <v-stepper-content :step="3" class="pa-0 ma-0 no-border">
@@ -148,6 +144,10 @@ export default {
         && !!this.user.email?.trim()
         && !!this.user.language
         && (!this.customizePassword || (!!this.user.password && this.user.password === this.confirmPassword));
+    },
+    // The third step is reachable once the two before it are valid
+    invitationStepReachable() {
+      return this.profileStepValid && !!this.user.role;
     },
     currentStepValid() {
       switch (this.stepper) {
