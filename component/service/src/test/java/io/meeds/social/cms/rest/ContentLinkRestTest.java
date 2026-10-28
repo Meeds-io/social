@@ -19,6 +19,8 @@
 package io.meeds.social.cms.rest;
 
 import static io.meeds.social.util.JsonUtils.toJsonString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,6 +99,26 @@ public class ContentLinkRestTest {
     mockMvc = MockMvcBuilders.webAppContextSetup(context)
                              .addFilters(filterChain.getFilters().toArray(new Filter[0]))
                              .build();
+  }
+
+  /**
+   * The search pages its results with the offset and the limit the client
+   * sends, each from its own parameter.
+   */
+  @Test
+  @SneakyThrows
+  public void searchLinksPagesWithTheOffsetAndLimitSent() {
+    mockMvc.perform(get("/contentLinks/task/search?query=acme&offset=20&limit=5").with(testSimpleUser()))
+           .andExpect(status().isOk());
+    verify(contentLinkService).searchLinks(eq("task"), eq("acme"), eq(TEST_USER), any(), eq(20), eq(5));
+  }
+
+  /** Without paging parameters, the search returns its first ten results. */
+  @Test
+  @SneakyThrows
+  public void searchLinksPagesFromTheFirstTenByDefault() {
+    mockMvc.perform(get("/contentLinks/task/search?query=acme").with(testSimpleUser())).andExpect(status().isOk());
+    verify(contentLinkService).searchLinks(eq("task"), eq("acme"), eq(TEST_USER), any(), eq(0), eq(10));
   }
 
   @Test
