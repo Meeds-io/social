@@ -56,6 +56,9 @@ import jakarta.servlet.http.HttpServletRequest;
 @Tag(name = "/social/rest/contentLinks", description = "Manage Content Links")
 public class ContentLinkRest {
 
+  /** The most results one search page returns; a larger limit is lowered to it. */
+  public static final int    SEARCH_MAX_LIMIT = 50;
+
   @Autowired
   private ContentLinkService contentLinkService;
 
@@ -138,13 +141,16 @@ public class ContentLinkRest {
                                                    @Parameter(description = "Search result limit")
                                                    @RequestParam(name = "limit", required = false, defaultValue = "10")
                                                    int limit) {
+    if (offset < 0 || limit < 1) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "offset must be 0 or more and limit 1 or more");
+    }
     try {
       return contentLinkService.searchLinks(objectType,
                                             query,
                                             request.getRemoteUser(),
                                             request.getLocale(),
                                             offset,
-                                            limit);
+                                            Math.min(limit, SEARCH_MAX_LIMIT));
     } catch (ObjectNotFoundException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
     }

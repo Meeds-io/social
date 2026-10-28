@@ -113,6 +113,20 @@ public class ContentLinkRestTest {
     verify(contentLinkService).searchLinks(eq("task"), eq("acme"), eq(TEST_USER), any(), eq(20), eq(5));
   }
 
+  /**
+   * A negative offset or a limit under 1 is refused; a limit above the most
+   * results of one page is lowered to it.
+   */
+  @Test
+  @SneakyThrows
+  public void searchLinksPagingIsBounded() {
+    mockMvc.perform(get("/contentLinks/task/search?query=acme&offset=-1").with(testSimpleUser())).andExpect(status().isBadRequest());
+    mockMvc.perform(get("/contentLinks/task/search?query=acme&limit=0").with(testSimpleUser())).andExpect(status().isBadRequest());
+    mockMvc.perform(get("/contentLinks/task/search?query=acme&limit=100000").with(testSimpleUser())).andExpect(status().isOk());
+    verify(contentLinkService).searchLinks(eq("task"), eq("acme"), eq(TEST_USER), any(), eq(0), eq(ContentLinkRest.SEARCH_MAX_LIMIT));
+    verify(contentLinkService, org.mockito.Mockito.never()).searchLinks(any(), any(), any(), any(), eq(-1), org.mockito.ArgumentMatchers.anyInt());
+  }
+
   /** Without paging parameters, the search returns its first ten results. */
   @Test
   @SneakyThrows
