@@ -29,7 +29,7 @@
       icon
       @click="$root.$emit('openPendingUsers', reminder.tab)">
       <v-badge
-        :content="reminder.count"
+        :content="reminder.badge"
         :style="{'--badge-background-color': reminder.color}"
         class="badge-display"
         flat
@@ -67,12 +67,14 @@ export default {
       return [{
         tab: 'creation',
         count: this.counts.creation,
+        badge: this.badgeOf(this.counts.creation),
         color: 'var(--allPagesPrimaryColor, #578dc9)',
         icon: 'fa-user-plus',
         title: this.$t('UsersManagement.pending.creationReminder', {0: this.counts.creation}),
       }, {
         tab: 'invitations',
         count: this.counts.invitations,
+        badge: this.badgeOf(this.counts.invitations),
         // the top bar's notification badge color
         color: 'var(--allPagesBadgePrimaryColor, #d32a2a)',
         icon: 'fa-user-clock',
@@ -90,6 +92,11 @@ export default {
     this.$root.$off('pending-users-size', this.applyTabSize);
   },
   methods: {
+    // The badge is capped like the top bar's notification badge; the title
+    // keeps the exact count
+    badgeOf(count) {
+      return count > 99 ? '99+' : count;
+    },
     refresh() {
       // A monotonic clock, the one the drawer stamps its pages with; a count
       // that could not be read leaves the shown one as it is
