@@ -27,6 +27,7 @@ import nl.captcha.Captcha;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.idm.UserDAOImpl;
 import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
@@ -62,6 +63,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -117,6 +119,46 @@ public class LoginRestTest {
     ResultActions response = mockMvc.perform(get("/login/verify?token=123456789"));
     response.andExpect(status().isOk())
             .andExpect(content().string(new JSONObject().put("username", "john").toString()));
+  }
+
+  /**
+   * The verified token answers the account's email with its username, so the
+   * onboarding and password reset forms show the email in place of the username
+   */
+  @Test
+  @SneakyThrows
+  public void testVerifyWorkingTokenAnswersTheEmail() {
+    UserImpl user = new UserImpl("john");
+    user.setEmail("john@acme.com");
+    when(userHandler.findUserByName("john", UserStatus.ANY)).thenReturn(user);
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
+    when(passwordRecoveryService.verifyToken("123456789", "onboard")).thenReturn("john");
+    ResultActions response = mockMvc.perform(get("/login/verify?token=123456789&tokenType=onboard"));
+    response.andExpect(status().isOk())
+            .andExpect(jsonPath("$.username").value("john"))
+            .andExpect(jsonPath("$.email").value("john@acme.com"));
+  }
+
+  /**
+   * An account without an email, or one the lookup fails on, answers the
+   * username alone
+   */
+  @Test
+  @SneakyThrows
+  public void testVerifyWorkingTokenWithoutEmail() {
+    when(userHandler.findUserByName("john", UserStatus.ANY)).thenReturn(new UserImpl("john"));
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
+    when(passwordRecoveryService.verifyToken("123456789", "onboard")).thenReturn("john");
+    mockMvc.perform(get("/login/verify?token=123456789&tokenType=onboard"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.username").value("john"))
+           .andExpect(jsonPath("$.email").doesNotExist());
+
+    when(userHandler.findUserByName("john", UserStatus.ANY)).thenThrow(new IllegalStateException("store down"));
+    mockMvc.perform(get("/login/verify?token=123456789&tokenType=onboard"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.username").value("john"))
+           .andExpect(jsonPath("$.email").doesNotExist());
   }
 
   @Test
