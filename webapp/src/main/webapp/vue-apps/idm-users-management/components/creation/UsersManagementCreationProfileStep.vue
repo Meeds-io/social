@@ -31,10 +31,8 @@
         id="userCreationCustomizeUsername"
         :input-value="customizeUsername"
         :disabled="saving"
-        class="mt-0 pt-0 me-n2"
+        class="ma-0 pa-0"
         hide-details
-        dense
-        inset
         @change="$emit('update:customize-username', !!$event)" />
     </div>
     <v-text-field
@@ -104,7 +102,7 @@
       class="pt-2"
       item-text="text"
       item-value="value"
-      prepend-inner-icon="far fa-closed-captioning"
+      prepend-inner-icon="fas fa-language"
       outlined
       dense
       @change="$emit('update-field', 'language', $event)">
@@ -122,10 +120,8 @@
         id="userCreationCustomizePassword"
         :input-value="customizePassword"
         :disabled="saving"
-        class="mt-0 pt-0 me-n2"
+        class="ma-0 pa-0"
         hide-details
-        dense
-        inset
         @change="$emit('update:customize-password', !!$event)" />
     </div>
     <template v-if="customizePassword">
