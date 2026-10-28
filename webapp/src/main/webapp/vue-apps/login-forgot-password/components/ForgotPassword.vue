@@ -29,8 +29,9 @@
         v-if="action === 'expired'" />
       <portal-forgot-password-reset-form
         v-else-if="action === 'resetPassword'"
-        :username-param="this.username"
-        :token-param="this.token" />
+        :username-param="username"
+        :email-param="email"
+        :token-param="token" />
       <portal-forgot-password-email-form
         v-else />
     </v-card>
@@ -40,6 +41,7 @@
 export default {
   data: () => ({
     username: '',
+    email: '',
     action: '',
     token: ''
   }),
@@ -52,6 +54,7 @@ export default {
         } else {
           resp.json().then((data) => {
             this.username = data.username || '';
+            this.email = data.email || '';
             this.action = 'resetPassword';
           });
         }
