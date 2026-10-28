@@ -141,8 +141,12 @@ public class LoginRest {
 
     String username = passwordRecoveryService.verifyToken(token, tokenType);
     if (username != null) {
-      return ResponseEntity.ok().body(new JSONObject()
-                                          .put("username", username).toString());
+      JSONObject body = new JSONObject().put("username", username);
+      String email = findEmail(username);
+      if (StringUtils.isNotBlank(email)) {
+        body.put("email", email);
+      }
+      return ResponseEntity.ok().body(body.toString());
     } else {
       return ResponseEntity.notFound().build();
     }
@@ -561,6 +565,21 @@ public class LoginRest {
                                                   .put(ERROR_MESSAGE_PARAM, errorMessage).toString());
     }
 
+  }
+
+  /**
+   * The email of the account a token names, which the onboarding and the
+   * password reset forms show in place of its username; null when the
+   * account or its email is not found, and the forms then show the username
+   */
+  private String findEmail(String username) {
+    try {
+      User user = organizationService.getUserHandler().findUserByName(username, UserStatus.ANY);
+      return user == null ? null : user.getEmail();
+    } catch (Exception e) {
+      LOG.debug("Email of user {} not found", username, e);
+      return null;
+    }
   }
 
   private User findUser(String usernameOrEmail) {
