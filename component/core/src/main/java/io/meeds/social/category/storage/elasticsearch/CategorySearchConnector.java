@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,9 +59,7 @@ public class CategorySearchConnector {
               "bool":{
                 @term_query@
                 "must":[
-                  @owner_id_query@
-                  @parent_id_query@
-                  @permissions_query@
+                  @must_queries@
                 ]
               }
             },
@@ -75,9 +74,7 @@ public class CategorySearchConnector {
               "bool":{
                 @term_query@
                 "must":[
-                  @owner_id_query@
-                  @parent_id_query@
-                  @permissions_query@
+                  @must_queries@
                 ]
               }
             }
@@ -126,6 +123,14 @@ public class CategorySearchConnector {
       }
       """;
 
+  public static final String     IDS_QUERY                        = """
+      {
+        "ids":{
+          "values": [@ids@]
+        }
+      }
+      """;
+
   public static final String     SORT_QUERY_BY_NAME               = """
       "sort" : [
         { "@sort_field@.raw" : "@sort_direction@" }
@@ -152,17 +157,15 @@ public class CategorySearchConnector {
 
   private static final String    OWNER_ID_REPLACEMENT             = "@ownerId@";
 
-  private static final String    OWNER_ID_QUERY_NAME              = "owner_id_query";
-
   private static final String    PARENT_ID_REPLACEMENT            = "@parentId@";
-
-  private static final String    PARENT_ID_QUERY_NAME             = "parent_id_query";
 
   private static final String    PERMISSIONS_REPLACEMENT          = "@permissions@";
 
   private static final String    PERMISSIONS_FIELD_REPLACEMENT    = "@permissions_field@";
 
-  private static final String    PERMISSIONS_QUERY_NAME           = "permissions_query";
+  private static final String    MUST_QUERIES_NAME                = "must_queries";
+
+  private static final String    IDS_REPLACEMENT                  = "@ids@";
 
   private static final String    SORT_FIELD_QUERY_REPLACEMENT     = "@sort_field@";
 
@@ -178,40 +181,56 @@ public class CategorySearchConnector {
   private ElasticSearchingClient client;
 
   public List<Long> search(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
-    String esQuery = buildSearchQuery(SEARCH_QUERY_TERM, filter, identityIds, locale);
+    return search(filter, identityIds, null, locale);
+  }
+
+  /**
+   * @param filter search filter
+   * @param identityIds identities of the user, used for link permissions
+   * @param categoryIds when not null, only these categories may match
+   * @param locale locale of the searched and sorted name
+   * @return the matching category ids
+   */
+  public List<Long> search(CategorySearchFilter filter, List<Long> identityIds, List<Long> categoryIds, Locale locale) {
+    String esQuery = buildSearchQuery(SEARCH_QUERY_TERM, filter, identityIds, categoryIds, locale);
     String jsonResponse = this.client.sendRequest(esQuery, CATEGORY_INDEX);
     return buildResult(jsonResponse);
   }
 
   public int count(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
-    String esQuery = buildSearchQuery(COUNT_QUERY_TERM, filter, identityIds, locale);
+    String esQuery = buildSearchQuery(COUNT_QUERY_TERM, filter, identityIds, null, locale);
     String jsonResponse = this.client.countRequest(esQuery, CATEGORY_INDEX);
     return buildCount(jsonResponse);
   }
 
-  private String buildSearchQuery(String queryBase, CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
+  String buildSearchQuery(String queryBase,
+                          CategorySearchFilter filter,
+                          List<Long> identityIds,
+                          List<Long> categoryIds,
+                          Locale locale) {
     // each fragment is built on its own, then the base is filled in one pass:
     // a placeholder name typed in the term stays literal
     Map<String, String> values = new HashMap<>();
     values.put(OFFSET_NAME, String.valueOf(filter.getOffset()));
     values.put(LIMIT_NAME, String.valueOf(filter.getLimit() < 1 ? DEFAULT_LIMIT : filter.getLimit()));
-    String append = "";
+    List<String> mustQueries = new ArrayList<>();
     if (filter.getParentId() > 0) {
-      values.put(PARENT_ID_QUERY_NAME,
-                 PARENT_ID_QUERY.replace(PARENT_ID_REPLACEMENT, String.format(STRING_VALUE_FORMAT, filter.getParentId())));
-      append = ",";
+      mustQueries.add(PARENT_ID_QUERY.replace(PARENT_ID_REPLACEMENT, String.format(STRING_VALUE_FORMAT, filter.getParentId())));
     } else if (filter.getOwnerId() > 0) {
-      values.put(OWNER_ID_QUERY_NAME,
-                 OWNER_ID_QUERY.replace(OWNER_ID_REPLACEMENT, String.format(STRING_VALUE_FORMAT, filter.getOwnerId())));
-      append = ",";
+      mustQueries.add(OWNER_ID_QUERY.replace(OWNER_ID_REPLACEMENT, String.format(STRING_VALUE_FORMAT, filter.getOwnerId())));
     }
     if (CollectionUtils.isNotEmpty(identityIds) && filter.isLinkPermission()) {
-      values.put(PERMISSIONS_QUERY_NAME,
-                 append + PERMISSIONS_QUERY.replace(PERMISSIONS_REPLACEMENT,
-                                                    String.format(STRING_VALUE_FORMAT,
-                                                                  StringUtils.join(identityIds, "\",\"")))
-                                           .replace(PERMISSIONS_FIELD_REPLACEMENT, "linkPermissions"));
+      mustQueries.add(PERMISSIONS_QUERY.replace(PERMISSIONS_REPLACEMENT,
+                                                String.format(STRING_VALUE_FORMAT, StringUtils.join(identityIds, "\",\"")))
+                                       .replace(PERMISSIONS_FIELD_REPLACEMENT, "linkPermissions"));
     }
+    if (categoryIds != null) {
+      mustQueries.add(IDS_QUERY.replace(IDS_REPLACEMENT,
+                                        categoryIds.stream()
+                                                   .map(id -> String.format(STRING_VALUE_FORMAT, id))
+                                                   .collect(Collectors.joining(","))));
+    }
+    values.put(MUST_QUERIES_NAME, String.join(",", mustQueries));
     if (StringUtils.isNotBlank(filter.getTerm())) {
       values.put(TERM_QUERY_NAME,
                  StorageUtils.fillQueryTemplate(TERM_QUERY,

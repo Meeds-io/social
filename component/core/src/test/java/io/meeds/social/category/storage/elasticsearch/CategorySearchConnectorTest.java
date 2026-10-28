@@ -18,9 +18,10 @@
  */
 package io.meeds.social.category.storage.elasticsearch;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -28,14 +29,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.StreamSupport;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -45,12 +47,13 @@ import io.meeds.social.category.model.CategorySearchFilter;
 
 /**
  * The query the connector builds is text: every test parses the captured
- * request with a strict JSON parser and reads the query as Elasticsearch
- * reads it. What the query matches is the engine's (the ngram name field's
- * own search analyzer tokenizes the text; a text with no token matches
- * nothing), checked on Elasticsearch 8.13.4, not by this suite.
+ * request with a strict JSON parser (a trailing or a missing comma between the
+ * must clauses fails, as Elasticsearch would) and reads the query as
+ * Elasticsearch reads it. What the query matches is the engine's (the ngram
+ * name field's own search analyzer tokenizes the text; a text with no token
+ * matches nothing), checked on Elasticsearch 8.13.4, not by this suite.
  */
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CategorySearchConnectorTest {
 
   private static final String     INDEX      = "category_alias";
@@ -75,11 +78,12 @@ public class CategorySearchConnectorTest {
     assertEquals("a/b", searchedQueryText("a/b"));
     assertEquals("@limit@", searchedQueryText("@limit@"));
     assertEquals("@sort_query@", searchedQueryText("@sort_query@"));
+    assertEquals("@must_queries@", searchedQueryText("@must_queries@"));
     assertEquals("@name_field@ @term@", searchedQueryText("@name_field@ @term@"));
     assertEquals("#release\"", searchedQueryText("#release\""));
     assertEquals("test-tes", searchedQueryText("tést-tés"));
     assertEquals("Publie", searchedQueryText("Publié"));
-    assertEquals("\ud55c\uad6d\uc5b4 \u304c\u3063\u3053\u3046", searchedQueryText("\ud55c\uad6d\uc5b4 \u304c\u3063\u3053\u3046"));
+    assertEquals("한국어 がっこう", searchedQueryText("한국어 がっこう"));
     assertEquals("a\tb\r\nc", searchedQueryText("a\tb\r\nc"));
     assertEquals("(test) AND {x} OR [y] NOT ^~*?:+-=&|><!", searchedQueryText("(test) AND {x} OR [y] NOT ^~*?:+-=&|><!"));
     assertEquals("\" \\ /", searchedQueryText("\" \\ /"));
@@ -89,9 +93,9 @@ public class CategorySearchConnectorTest {
   public void testSearchWritesAnAndMatchOnTheNameFieldOfTheLocale() {
     JsonNode request = search(filter("test"));
     JsonNode match = request.at("/query/bool/filter/match/" + NAME_FIELD);
-    assertEquals("test", match.get("query").asText(), request.toString());
+    assertEquals(request.toString(), "test", match.get("query").asText());
     assertEquals("and", match.get("operator").asText());
-    assertTrue(request.at("/query/bool/filter/query_string").isMissingNode(), request.toString());
+    assertTrue(request.toString(), request.at("/query/bool/filter/query_string").isMissingNode());
     assertEquals("0", request.get("from").asText());
     assertEquals("100", request.get("size").asText());
     assertEquals("_score", request.get("sort").get(0).asText());
@@ -107,7 +111,7 @@ public class CategorySearchConnectorTest {
     filter.setSortByName(true);
     JsonNode request = search(filter, List.of(1L, 2L));
     JsonNode must = request.at("/query/bool/must");
-    assertEquals(2, must.size(), request.toString());
+    assertEquals(request.toString(), 2, must.size());
     assertEquals("5", must.get(0).at("/term/parentId").asText());
     assertEquals(2, must.get(1).at("/terms/linkPermissions").size());
     assertEquals("1", must.get(1).at("/terms/linkPermissions").get(0).asText());
@@ -124,10 +128,45 @@ public class CategorySearchConnectorTest {
     filter.setLinkPermission(true);
     JsonNode request = search(filter, List.of(3L));
     JsonNode must = request.at("/query/bool/must");
-    assertEquals(2, must.size(), request.toString());
+    assertEquals(request.toString(), 2, must.size());
     assertEquals("7", must.get(0).at("/term/ownerId").asText());
     assertEquals("3", must.get(1).at("/terms/linkPermissions").get(0).asText());
-    assertFalse(request.at("/query/bool").has("filter"), request.toString());
+    assertFalse(request.toString(), request.at("/query/bool").has("filter"));
+  }
+
+  @Test
+  public void testSearchWithoutAllowedIdsHasNoIdsClause() {
+    CategorySearchFilter filter = filter("test");
+    filter.setParentId(5);
+    filter.setLinkPermission(true);
+    JsonNode must = search(filter, List.of(3L, 4L)).at("/query/bool/must");
+    assertEquals(must.toString(), 2, must.size());
+    assertNull(clause(must, "ids"));
+  }
+
+  @Test
+  public void testSearchRestrictedToAllowedIds() {
+    CategorySearchFilter filter = filter("test");
+    filter.setParentId(5);
+    filter.setLinkPermission(true);
+    JsonNode must = search(filter, List.of(3L, 4L), List.of(7L, 9L)).at("/query/bool/must");
+    assertEquals(must.toString(), 3, must.size());
+    assertEquals("5", clause(must, "term").get("parentId").asText());
+    assertEquals(2, clause(must, "terms").get("linkPermissions").size());
+    assertEquals("[\"7\",\"9\"]", clause(must, "ids").get("values").toString());
+  }
+
+  @Test
+  public void testSearchWithAllowedIdsAlone() {
+    JsonNode must = search(filter("test"), List.of(3L, 4L), List.of(7L)).at("/query/bool/must");
+    assertEquals(must.toString(), 1, must.size());
+    assertEquals("[\"7\"]", clause(must, "ids").get("values").toString());
+  }
+
+  @Test
+  public void testSearchWithoutAnyClause() {
+    JsonNode must = search(filter("test"), List.of(3L, 4L)).at("/query/bool/must");
+    assertTrue(must.toString(), must.isEmpty());
   }
 
   @Test
@@ -142,7 +181,28 @@ public class CategorySearchConnectorTest {
     assertEquals("test\" a/b", request.at("/query/bool/filter/match/" + NAME_FIELD + "/query").asText());
     assertEquals("and", request.at("/query/bool/filter/match/" + NAME_FIELD + "/operator").asText());
     assertEquals("1", request.at("/query/bool/must/0/terms/linkPermissions/0").asText());
-    assertTrue(request.get("from") == null, request.toString());
+    assertTrue(request.toString(), request.get("from") == null);
+  }
+
+  @Test
+  public void testCountWithoutAllowedIdsHasNoIdsClause() {
+    when(client.countRequest(anyString(), anyString())).thenReturn("{\"count\": 3}");
+    CategorySearchFilter filter = filter("test");
+    filter.setOwnerId(2);
+    assertEquals(3, connector.count(filter, List.of(3L, 4L), Locale.ENGLISH));
+    ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
+    verify(client).countRequest(query.capture(), eq(INDEX));
+    JsonNode must = new ObjectMapper().readTree(query.getValue()).at("/query/bool/must");
+    assertEquals(must.toString(), 1, must.size());
+    assertNull(clause(must, "ids"));
+    must = new ObjectMapper().readTree(connector.buildSearchQuery("{\"query\":{\"bool\":{\"must\":[@must_queries@]}}}",
+                                                                 filter,
+                                                                 List.of(3L, 4L),
+                                                                 null,
+                                                                 Locale.ENGLISH))
+                             .at("/query/bool/must");
+    assertEquals(must.toString(), 1, must.size());
+    assertNull(clause(must, "ids"));
   }
 
   private String searchedQueryText(String term) {
@@ -161,12 +221,24 @@ public class CategorySearchConnectorTest {
   }
 
   private JsonNode search(CategorySearchFilter filter, List<Long> identityIds) {
+    return search(filter, identityIds, null);
+  }
+
+  private JsonNode search(CategorySearchFilter filter, List<Long> identityIds, List<Long> categoryIds) {
     when(client.sendRequest(anyString(), anyString())).thenReturn("{}");
-    assertTrue(connector.search(filter, identityIds, Locale.ENGLISH).isEmpty());
+    assertTrue(connector.search(filter, identityIds, categoryIds, Locale.ENGLISH).isEmpty());
     ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
     verify(client).sendRequest(query.capture(), eq(INDEX));
     Mockito.clearInvocations(client);
     return new ObjectMapper().readTree(query.getValue());
+  }
+
+  private static JsonNode clause(JsonNode must, String name) {
+    return StreamSupport.stream(must.spliterator(), false)
+                        .filter(node -> node.has(name))
+                        .map(node -> node.get(name))
+                        .findFirst()
+                        .orElse(null);
   }
 
 }

@@ -159,9 +159,18 @@ public class CategoryServiceImpl implements CategoryService {
     if (CollectionUtils.isEmpty(identityIds)) {
       return Collections.emptyList();
     }
+    List<Long> allowedIds = null;
+    if (StringUtils.isNotBlank(filter.getObjectType())) {
+      // Only the categories having at least one object of the type linked directly
+      allowedIds = categoryPluginService.getCategoryIds(filter.getObjectType(), 0, username);
+      if (CollectionUtils.isEmpty(allowedIds)) {
+        return Collections.emptyList();
+      }
+    }
     filter = filter.clone();
     filter.setLimit(limit);
-    List<Category> categories = categoryStorage.findCategories(filter, identityIds, locale);
+    List<Category> categories = allowedIds == null ? categoryStorage.findCategories(filter, identityIds, locale) :
+                                                   categoryStorage.findCategories(filter, identityIds, allowedIds, locale);
     return categories.stream()
                      .map(CategorySearchResult::new)
                      .map(categorySearchResult -> {

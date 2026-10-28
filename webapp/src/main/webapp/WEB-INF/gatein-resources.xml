@@ -29,14 +29,6 @@
 
   <portal-skin>
     <skin-name>Enterprise</skin-name>
-    <skin-module>StylingInputs</skin-module>
-    <css-path>/skin/css/portlet/StylingInputs/Style.css</css-path>
-    <css-priority>500</css-priority>
-    <filtered>true</filtered>
-  </portal-skin>
-
-  <portal-skin>
-    <skin-name>Enterprise</skin-name>
     <skin-module>ActivityReactions</skin-module>
     <css-path>/skin/css/portlet/ActivityReactions/Style.css</css-path>
     <css-priority>500</css-priority>
@@ -48,7 +40,6 @@
     <portlet-name>GeneralSettings</portlet-name>
     <skin-name>Enterprise</skin-name>
     <additional-module>ImageCropper</additional-module>
-    <additional-module>StylingInputs</additional-module>
   </portlet-skin>
 
   <portlet-skin>
@@ -2879,9 +2870,9 @@
   </module>
 
   <module>
-    <!-- the styling inputs (background, text, text background, margins, border, radius, colour picker)
-         shared by the layout editors (Meeds-io/layout re-registers them under its layout-editor-* tags) and by
-         Branding and Theme. Not part of commonVueComponents nor of layout's commonLayoutComponents (loaded on every
+    <!-- the styling inputs (background, text, text background, margins, border, radius, and the common colour picker
+         under its styling-color-picker name) shared by the layout editors (Meeds-io/layout re-registers them under its
+         layout-editor-* tags) and by Branding and Theme. Not part of commonVueComponents nor of layout's commonLayoutComponents (loaded on every
          page view): declared as a dependency of the layout editor portlets and of the GeneralSettings portlet only. -->
     <name>stylingInputs</name>
     <script>
