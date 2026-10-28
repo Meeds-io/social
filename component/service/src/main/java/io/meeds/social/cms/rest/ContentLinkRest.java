@@ -59,6 +59,12 @@ public class ContentLinkRest {
   /** The most results one search page returns; a larger limit is lowered to it. */
   public static final int    SEARCH_MAX_LIMIT = 50;
 
+  /**
+   * The most results a search reaches, offset and limit together: the default
+   * result window of Elasticsearch, which the activity search queries.
+   */
+  public static final int    SEARCH_MAX_WINDOW = 10_000;
+
   @Autowired
   private ContentLinkService contentLinkService;
 
@@ -141,8 +147,10 @@ public class ContentLinkRest {
                                                    @Parameter(description = "Search result limit")
                                                    @RequestParam(name = "limit", required = false, defaultValue = "10")
                                                    int limit) {
-    if (offset < 0 || limit < 1) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "offset must be 0 or more and limit 1 or more");
+    if (offset < 0 || limit < 1 || offset > SEARCH_MAX_WINDOW - Math.min(limit, SEARCH_MAX_LIMIT)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                        "offset must be 0 or more, limit 1 or more, and offset plus limit at most "
+                                            + SEARCH_MAX_WINDOW);
     }
     try {
       return contentLinkService.searchLinks(objectType,
