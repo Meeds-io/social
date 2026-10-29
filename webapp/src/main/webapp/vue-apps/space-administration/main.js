@@ -208,6 +208,10 @@ export function init(isExternalFeatureEnabled) {
           this.bulkExtensions = extensionRegistry.loadExtensions('spaces-administration', 'bulk-action') || [];
           this.itemMenuExtensions = extensionRegistry.loadExtensions('spaces-administration', 'menu-action') || [];
           this.mainExtensions = extensionRegistry.loadExtensions('spaces-administration', 'main') || [];
+          // {rank, name, titleKey, header, componentName, headerComponentName, sortBy, customSort, export}:
+          // header is the Vuetify header (value, align, sortable, class, width); componentName renders the
+          // cell with the space as a prop; headerComponentName, optional, renders after the header label with
+          // the header as a prop; sortBy and customSort contribute a sort; export is read by SpaceExportService
           this.tableColumnExtensions = extensionRegistry.loadExtensions('spaces-administration', 'table-column') || [];
           // {id, pending}: a contributor registers its gate pending, then again with pending false once settled
           this.exportGates = extensionRegistry.loadExtensions('spaces-administration', 'export-gate') || [];
