@@ -94,6 +94,7 @@ export default {
   },
   data: () => ({
     selectedNavigation: null,
+    selectedHomeUri: null,
     homeLink: eXo.env.portal.homeLink,
   }),
   computed: {
@@ -112,29 +113,16 @@ export default {
     document.removeEventListener('homeLinkUpdated', () => this.homeLink = eXo.env.portal.homeLink);
   },
   methods: {
-    navigationUri(navigation) {
-      if (!navigation.pageKey && !navigation.url) {
-        return '';
-      }
-      if (navigation.url) {
-        return navigation.url;
-      } else {
-        let url = navigation.pageLink || `/portal/${navigation.siteKey.name}/${navigation.uri}`;
-        if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
-          url = Autolinker.parse(url, {urls: true})?.[0]?.getUrl?.() || `${window.location.protocol}//${url}`;
-        }
-        return url;
-      }
-    },
-    selectHome(nav) {
-      if (!nav?.pageKey && !nav.url) {
+    selectHome(nav, homeUri) {
+      if (!nav?.pageKey && !nav.url || !homeUri) {
         return;
       }
       this.selectedNavigation = nav;
+      this.selectedHomeUri = homeUri;
       this.$refs?.confirmDialog?.open?.();
     },
     changeHome() {
-      const url = this.navigationUri(this.selectedNavigation);
+      const url = this.selectedHomeUri;
       this.$navigationService.saveUserHomePage(url)
         .then(() => {
           this.homeLink = eXo.env.portal.homeLink = url;
@@ -143,6 +131,7 @@ export default {
           }
           document.dispatchEvent(new CustomEvent('homeLinkUpdated', {detail: this.homeLink}));
           this.selectedNavigation = null;
+          this.selectedHomeUri = null;
         })
         .catch(() => document.dispatchEvent(new CustomEvent('alert-message', {detail: {
           alertMessage: this.$t('navigation.home.invalidUri'),

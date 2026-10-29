@@ -20,13 +20,48 @@
 export function getNavigationNodeUri(baseSiteUri, navigation) {
   const hasPage = !!navigation?.pageKey;
   const pageUrl = hasPage && `${baseSiteUri}${navigation.uri}`;
-  const pageLink = navigation?.pageLink && Autolinker.parse(navigation?.pageLink, {
+  navigation.nodeUri = getLinkNodeUri(navigation?.pageLink) || pageUrl;
+  return navigation.nodeUri;
+}
+
+// the URL a link page leads to: a path of this site as stored, else the link
+// Autolinker recognises in it, else the link as stored
+export function getLinkNodeUri(link) {
+  return link && !link.startsWith?.('/') && Autolinker.parse(link, {
     urls: true,
     email: true,
     phone: true,
-  })?.[0]?.getUrl?.() || navigation?.pageLink;
-  navigation.nodeUri = pageLink || pageUrl;
-  return navigation.nodeUri;
+  })?.[0]?.getUrl?.() || link;
+}
+
+// the rule UserHomePageService applies to a home page: a path of this site or
+// an http(s) URL, with no whitespace, control character, quote, `<`, `>`, `$`
+// or backslash
+const HOME_URI_PATTERN = /^(\/(?![/\\])|https?:\/\/)[^ \t\n\x0B\f\r\x00-\x1F\x7F<>"'`$\\]*$/i;
+
+const HOME_URI_MAX_LENGTH = 2048;
+
+// a host name whose last label starts with a letter, an optional port, then
+// a path, a query, a fragment or nothing; an address of digits only (an IP
+// address, a dotted phone number alike) needs its scheme in the link
+const HOST_PREFIX_PATTERN = /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)*[a-z]([a-z0-9-]*[a-z0-9])?(:\d+)?([/?#]|$)/i;
+
+// the URL a navigation node is saved, and recognised, as a user's home page,
+// from the URL the node leads to (getNavigationNodeUri, getLinkNodeUri): a link
+// still without a scheme takes the page's own, and a link the home page can't
+// be gives null
+export function getNavigationNodeHomeUri(nodeUri) {
+  if (!nodeUri || /^(mailto|tel|sms|javascript|data|vbscript|file):/i.test(nodeUri)) {
+    return null;
+  }
+  const hasScheme = /^([a-z][a-z0-9+.-]*:(?!\d)|\/)/i.test(nodeUri);
+  if (!hasScheme && !HOST_PREFIX_PATTERN.test(nodeUri)) {
+    // without a scheme, only a link that starts with a host name leads to a
+    // page: not an email address nor a phone number
+    return null;
+  }
+  const uri = hasScheme ? nodeUri : `${window.location.protocol}//${nodeUri}`;
+  return uri.length <= HOME_URI_MAX_LENGTH && HOME_URI_PATTERN.test(uri) ? uri : null;
 }
 
 export function getNavigationNodeTarget(navigation) {

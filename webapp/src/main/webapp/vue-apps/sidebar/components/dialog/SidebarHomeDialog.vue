@@ -35,13 +35,14 @@ export default {
   data: () => ({
     selectedSpace: null,
     selectedPage: null,
+    selectedPageUri: null,
   }),
   computed: {
     name() {
       return this.selectedSpace?.displayName || this.selectedPage?.name;
     },
     url() {
-      return this.selectedPage?.url || `${eXo.env.portal.context}/s/${this.selectedSpace?.id}`;
+      return this.selectedPage && this.selectedPageUri || `${eXo.env.portal.context}/s/${this.selectedSpace?.id}`;
     },
     confirmMessage() {
       return this.$t('menu.confirmation.message.changeHome', {
@@ -72,10 +73,12 @@ export default {
     selectSpaceHome(space) {
       this.selectedSpace = space;
       this.selectedPage = null;
+      this.selectedPageUri = null;
       this.openDialog();
     },
-    selectPageHome(page) {
+    selectPageHome(page, pageUri) {
       this.selectedPage = page;
+      this.selectedPageUri = pageUri;
       this.selectedSpace = null;
       this.openDialog();
     },
