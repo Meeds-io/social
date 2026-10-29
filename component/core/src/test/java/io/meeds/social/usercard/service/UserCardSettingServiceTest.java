@@ -146,6 +146,23 @@ public class UserCardSettingServiceTest {
     assertInvalid(new UserCardSettings("position", "team", "city", null, "deletedPhone"));
   }
 
+  @Test
+  public void saveSettingsKeepsADefaultPropertyThatCantBeDisplayedAnymore() throws IllegalAccessException {
+    // Nothing stored: the drawer sends back the default properties, one of them
+    // deleted since
+    when(profilePropertyService.getProfileSettingByName("team")).thenReturn(null);
+    userCardSettingService.saveSettings(new UserCardSettings("position", "team", "city", "workPhone", null), ADMIN);
+    assertSaved(UserCardSettingService.SECOND_FIELD_KEY, "team");
+    assertSaved(UserCardSettingService.PHONE_KEY, "workPhone");
+
+    // The default of another place is still refused
+    assertInvalid(new UserCardSettings("team", "position", "city", null, null));
+
+    // Once a property is stored for the place, its default is refused too
+    when(settingService.get(Context.GLOBAL, SCOPE, UserCardSettingService.SECOND_FIELD_KEY)).thenAnswer(invocation -> SettingValue.create("city"));
+    assertInvalid(new UserCardSettings("position", "team", "city", null, null));
+  }
+
   private void mockProperty(String name, String type, boolean multiValued, boolean hasChildren) {
     ProfilePropertySetting property = new ProfilePropertySetting();
     property.setPropertyName(name);
