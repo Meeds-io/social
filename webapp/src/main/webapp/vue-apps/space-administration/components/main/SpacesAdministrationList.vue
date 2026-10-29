@@ -51,6 +51,19 @@
             class="my-auto pt-2"
             @change="on.input" />
         </template>
+        <template
+          v-for="extension in headerExtensions"
+          :slot="`header.${extension.header.value}`"
+          slot-scope="{header}">
+          <span
+            :key="extension.name"
+            class="d-inline-flex align-center">
+            {{ header.text }}
+            <component
+              :is="extension.headerComponentName"
+              :header="header" />
+          </span>
+        </template>
         <template v-if="$root.selectedSpaces.length && !$root.isBulkProcessing" slot="body.prepend">
           <tr>
             <td :colspan="headers.length + 1" class="px-0">
@@ -236,6 +249,12 @@ export default {
         })));
       }
       return headers;
+    },
+    headerExtensions() {
+      // A contributed column may add a component after its header label,
+      // before the sort arrow: the label keeps its click, which sorts
+      return this.$root.tableColumnExtensions
+        .filter(extension => extension.headerComponentName && extension.header?.value);
     },
     selectionLabel() {
       if (this.$root.allSpacesSelected) {
