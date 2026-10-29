@@ -1168,10 +1168,10 @@ public class UserRest implements ResourceContainer, Startable {
           return response;
         }
       }
-      if (value.equals("DEFAULT_BANNER")) {
+      if (Profile.BANNER.equals(fieldName) && value.equals("DEFAULT_BANNER")) {
         profile.setListUpdateTypes(Arrays.asList(UpdateType.BANNER));
         profile.setBannerUrl("DEFAULT_BANNER");
-        profile.removeProperty(name);
+        profile.removeProperty(Profile.BANNER);
         identityManager.updateProfile(profile, getCurrentUser(), true);
       } else {
         updateProfileField(profile, fieldName, value, true,currentUser);

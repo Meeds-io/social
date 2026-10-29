@@ -849,6 +849,57 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
+   * The default banner value resets the banner only: sent with the account
+   * kind's name, it is a write of the account kind, refused, and the stored
+   * kind is kept.
+   */
+  public void testRemoveAccountKindWithTheDefaultBannerValueIsRefused() throws Exception {
+    Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    try {
+      profile.setProperty(Profile.ACCOUNT_KIND, TestAccountKindPlugin.KIND);
+      identityManager.updateProfile(profile);
+
+      startSessionAs("mary");
+      ContainerResponse response = patchProfileAttribute("mary", Profile.ACCOUNT_KIND, "DEFAULT_BANNER");
+      assertEquals(401, response.getStatus());
+      assertEquals(TestAccountKindPlugin.KIND,
+                   identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.ACCOUNT_KIND));
+    } finally {
+      profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.ACCOUNT_KIND);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * An account of a kind keeping its manager for administrators cannot remove
+   * its own manager with the default banner value, and can still reset its
+   * banner with it.
+   */
+  public void testRemoveManagerOfAccountOfKindWithTheDefaultBannerValueIsRefused() throws Exception {
+    setKindMembership("mary", true);
+    Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    try {
+      profile.setProperty(Profile.MANAGER, "root");
+      identityManager.updateProfile(profile);
+
+      startSessionAs("mary");
+      ContainerResponse response = patchProfileAttribute("mary", Profile.MANAGER, "DEFAULT_BANNER");
+      assertEquals(401, response.getStatus());
+      assertEquals("root", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
+
+      response = patchProfileAttribute("mary", Profile.BANNER, "DEFAULT_BANNER");
+      assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+      assertEquals("root", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
+    } finally {
+      setKindMembership("mary", false);
+      profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.MANAGER);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
    * An account of a kind keeping its manager for administrators cannot change
    * its own manager; an administrator can.
    */
