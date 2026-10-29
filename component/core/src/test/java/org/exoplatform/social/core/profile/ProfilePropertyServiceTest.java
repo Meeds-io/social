@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
@@ -63,6 +64,17 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     profilePropertyService.createPropertySetting(profilePropertySetting);
     profilePropertySetting = profilePropertyService.getProfileSettingByName(profilePropertySetting.getPropertyName());
     assertNotNull(profilePropertySetting.getId());
+  }
+
+  /**
+   * No profile property setting may be named after the account kind, which
+   * the identity providers and the profile synchronizations would then copy
+   * onto profiles.
+   */
+  public void testCreateAccountKindProfilePropertySettingIsRefused() {
+    ProfilePropertySetting accountKindSetting = createProfileSettingInstance(Profile.ACCOUNT_KIND);
+    assertThrows(IllegalArgumentException.class, () -> profilePropertyService.createPropertySetting(accountKindSetting));
+    assertNull(profilePropertyService.getProfileSettingByName(Profile.ACCOUNT_KIND));
   }
 
   public void testCreateDuplicatedProfilePropertySetting() throws Exception {
