@@ -251,8 +251,11 @@ export default {
       return headers;
     },
     headerExtensions() {
-      // A contributed column may add a component after its header label,
-      // before the sort arrow: the label keeps its click, which sorts
+      // A contributed column names a registered component in headerComponentName:
+      // its header slot renders the label, then that component with the Vuetify
+      // header as its `header` prop. Vuetify places its sort arrow after them, or
+      // before them for `align: 'end'`. A click on the header cell sorts, so a
+      // component that handles a click stops it
       return this.$root.tableColumnExtensions
         .filter(extension => extension.headerComponentName && extension.header?.value);
     },
