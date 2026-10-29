@@ -18,6 +18,8 @@
  */
 package io.meeds.social.usercard.service;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,6 +61,11 @@ public class UserCardSettingService {
 
   private static final String    EMAIL_TYPE               = "email";
 
+  /** The property the user card displays at a place while none is stored */
+  private static final Map<String, String> DEFAULT_PROPERTIES = Map.of(FIRST_FIELD_KEY, "position",
+                                                                      SECOND_FIELD_KEY, "team",
+                                                                      THIRD_FIELD_KEY, "city");
+
   @Autowired
   private SettingService         settingService;
 
@@ -95,16 +102,21 @@ public class UserCardSettingService {
   }
 
   /**
-   * A property stored before keeps being accepted for its place even when it
-   * was deleted or changed since, since the settings drawer sends it back with
-   * every save, whatever the field the administrator changed
+   * A property stored before, or the one displayed by default while none is
+   * stored, keeps being accepted for its place even when it was deleted or
+   * changed since, since the settings drawer sends it back with every save,
+   * whatever the field the administrator changed
    */
   private boolean isValidProperty(String key, String propertyName, String propertyType) {
     if (StringUtils.isBlank(propertyName)) {
       return false;
     }
     SettingValue<?> storedValue = settingService.get(Context.GLOBAL, USER_CARD_SCOPE, key);
-    if (storedValue != null && storedValue.getValue() != null && propertyName.equals(storedValue.getValue().toString())) {
+    if (storedValue != null && storedValue.getValue() != null) {
+      if (propertyName.equals(storedValue.getValue().toString())) {
+        return true;
+      }
+    } else if (propertyName.equals(DEFAULT_PROPERTIES.get(key))) {
       return true;
     }
     ProfilePropertySetting property = profilePropertyService.getProfileSettingByName(propertyName);
