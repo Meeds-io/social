@@ -18,8 +18,11 @@
  */
 package io.meeds.social.organizationalchart.rest;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +47,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @Tag(name = "/social/rest/organizational-chart", description = "Manages the settings of the organizational chart applications")
 public class OrganizationalChartSettingRest {
 
+  private static final String MESSAGE_KEY = "message";
+
   @Autowired
   private OrganizationalChartSettingService organizationalChartSettingService;
 
@@ -56,21 +61,22 @@ public class OrganizationalChartSettingRest {
     @ApiResponse(responseCode = "400", description = "Invalid application id or center user"),
     @ApiResponse(responseCode = "403", description = "Forbidden"),
   })
-  public void saveSettings(HttpServletRequest request,
-                           @Parameter(description = "Organizational chart application id", required = true)
-                           @PathVariable("applicationId")
-                           String applicationId,
-                           @RequestBody
-                           OrganizationalChartSettingsEntity settings) {
+  public ResponseEntity<Object> saveSettings(HttpServletRequest request,
+                                             @Parameter(description = "Organizational chart application id", required = true)
+                                             @PathVariable("applicationId")
+                                             String applicationId,
+                                             @RequestBody
+                                             OrganizationalChartSettingsEntity settings) {
     try {
       organizationalChartSettingService.saveSettings(applicationId,
                                                      settings.centerUser(),
                                                      settings.hasHeaderTitle(),
                                                      request.getRemoteUser());
+      return ResponseEntity.ok().build();
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
     } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+      return ResponseEntity.badRequest().body(Map.of(MESSAGE_KEY, e.getMessage()));
     }
   }
 
