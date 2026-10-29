@@ -197,6 +197,49 @@ public class MentionUtilsTest { // NOSONAR
   }
 
   /**
+   * A role mention whose role holds a {@code :} is resolved with the space
+   * identity id the mention pattern captured, and the role is the text before
+   * the last {@code :}.
+   */
+  @Test
+  public void testSubstituteRolesWithAColonInTheRole() {
+    when(identityManager.getIdentity(Long.parseLong(SPACE_IDENTITY_ID))).thenReturn(identity);
+    LINK_PROVIDER_UTIL.when(() -> LinkProvider.getGroupRoleLink("a:b", SPACE_IDENTITY_ID, Locale.ENGLISH))
+                      .thenReturn(MANAGER_ROLE_LINK);
+
+    assertEquals("<p>ping " + MANAGER_ROLE_LINK + "</p>",
+                 MentionUtils.substituteRoles(identityManager, "<p>ping @a:b:12</p>", Locale.ENGLISH));
+    assertEquals(Collections.singleton("a:b"), MentionUtils.getMentionedRoles("<p>ping @a:b:12</p>", SPACE_IDENTITY_ID));
+  }
+
+  /**
+   * A role mention with two {@code :} before the space identity id is resolved
+   * with the id the mention pattern captured, and the role keeps its trailing
+   * {@code :}.
+   */
+  @Test
+  public void testSubstituteRolesWithADoubleColonBeforeTheIdentityId() {
+    when(identityManager.getIdentity(Long.parseLong(SPACE_IDENTITY_ID))).thenReturn(identity);
+    LINK_PROVIDER_UTIL.when(() -> LinkProvider.getGroupRoleLink("manager:", SPACE_IDENTITY_ID, Locale.ENGLISH))
+                      .thenReturn(MANAGER_ROLE_LINK);
+
+    assertEquals("ping " + MANAGER_ROLE_LINK + " now",
+                 MentionUtils.substituteRoles(identityManager, "ping @manager::12 now", Locale.ENGLISH));
+    assertEquals(Collections.singleton("manager:"), MentionUtils.getMentionedRoles("ping @manager::12 now", SPACE_IDENTITY_ID));
+  }
+
+  /**
+   * A role mention whose space identity id does not fit in a long is skipped:
+   * the text stays as typed.
+   */
+  @Test
+  public void testSubstituteRolesSkipsAnIdentityIdOverflowingALong() {
+    String message = "@manager:99999999999999999999</p>";
+    assertEquals(message, MentionUtils.substituteRoles(identityManager, message, Locale.ENGLISH));
+    assertEquals(Collections.emptySet(), MentionUtils.getMentionedRoles(message, "99999999999999999999"));
+  }
+
+  /**
    * Sets the identity manager {@link MentionUtils} resolves lazily from the
    * container.
    *
