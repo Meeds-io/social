@@ -40,7 +40,7 @@ const I18N_PREFIX = 'social.spaces.administration.manageSpaces';
 
 // line1One is displayed instead of line1 when the total is one space
 const PROCESSING_LABELS = {
-  line1: `${I18N_PREFIX}.exportInProgressSpaces`,
+  line1: `${I18N_PREFIX}.exportInProgressSeveralSpaces`,
   line1One: `${I18N_PREFIX}.exportInProgressOneSpace`,
   line2: `${I18N_PREFIX}.exportPleaseWait`,
   line3: `${I18N_PREFIX}.exportDoNotClosePage`,
