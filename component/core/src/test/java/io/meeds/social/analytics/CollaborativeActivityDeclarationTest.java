@@ -68,12 +68,8 @@ public class CollaborativeActivityDeclarationTest {
     assertEquals(expectedTypes, new HashSet<>(excludedTypes));
     assertEquals("one entry per type", expectedTypes.size(), excludedTypes.size());
 
-    Map<String, Object> labels = (Map<String, Object>) declaration.get("labels");
-    assertEquals(List.of("social.collaborativeActivity.help.notCounted.profile",
-                         "social.collaborativeActivity.help.notCounted.connection"),
-                 labels.get("notCounted"));
     assertFalse("nothing of Social's own is counted: the post and the comment are analytics' labels",
-                labels.containsKey("counted"));
+                declaration.containsKey("labels"));
   }
 
 }
