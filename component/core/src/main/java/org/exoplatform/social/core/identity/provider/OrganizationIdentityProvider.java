@@ -141,7 +141,8 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
           Set<Entry<String, String>> entries = attributes.entrySet();
           for (Entry<String, String> entry : entries) {
             String key = entry.getKey();
-            if (key != null && profile.getProperty(key) == null) {
+            // The account kind is written from the memberships only
+            if (key != null && !Profile.ACCOUNT_KIND.equals(key) && profile.getProperty(key) == null) {
               profile.setProperty(key, entry.getValue());
             }
           }
