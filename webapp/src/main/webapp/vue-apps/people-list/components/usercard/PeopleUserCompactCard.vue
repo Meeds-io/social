@@ -74,7 +74,7 @@
             <span v-if="externalUser" class="externalFlagClass">
               {{ $t('peopleList.label.external') }}
             </span>
-            <span v-if="accountKind" class="accountKindFlagClass">
+            <span v-if="accountKind" class="accountKindFlagClass text-light-color font-weight-regular">
               ({{ $t(`accountKind.label.${accountKind}`) }})
             </span>
           </a>

@@ -52,7 +52,7 @@
           </v-icon>
         </span>
         <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
-        <span v-if="accountKind" class="muted font-weight-regular">{{ accountKindTag }} </span>
+        <span v-if="accountKind" class="accountKindFlagClass muted font-weight-regular">{{ accountKindTag }} </span>
       </span>
       <span v-if="$slots.subTitle" class="text-subtitle text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
@@ -99,7 +99,7 @@
             </v-icon>
           </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
-          <span v-if="accountKind" class="muted font-weight-regular">{{ accountKindTag }} </span>
+          <span v-if="accountKind" class="accountKindFlagClass muted font-weight-regular">{{ accountKindTag }} </span>
         </p>
         <p v-if="$slots.subTitle" class="text-subtitle text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
@@ -165,7 +165,7 @@
           </v-icon>
         </span>
         <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
-        <span v-if="accountKind" class="muted font-weight-regular">{{ accountKindTag }} </span>
+        <span v-if="accountKind" class="accountKindFlagClass muted font-weight-regular">{{ accountKindTag }} </span>
       </span>
       <span v-if="$slots.subTitle" class="text-subtitle text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
@@ -227,7 +227,7 @@
             </v-icon>
           </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
-          <span v-if="accountKind" class="muted font-weight-regular">{{ accountKindTag }} </span>
+          <span v-if="accountKind" class="accountKindFlagClass muted font-weight-regular">{{ accountKindTag }} </span>
         </p>
         <p v-if="$slots.subTitle" class="text-subtitle text-truncate text-left mb-0">
           <slot name="subTitle"></slot>

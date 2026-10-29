@@ -248,7 +248,7 @@ public class LinkProvider {
       profileLink = profileLink.append("<span class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(Locale.forLanguageTag(lang), "external.label.tag")).append(")").append("</span>");
     }
     if (accountKind != null) {
-      profileLink.append("<span class=\"accountKindFlagClass\">")
+      profileLink.append("<span class=\"accountKindFlagClass text-light-color font-weight-regular\">")
                  .append(" (")
                  .append(StringEscapeUtils.escapeHtml4(getAccountKindLabel(Locale.forLanguageTag(lang), accountKind)))
                  .append(")")

@@ -93,7 +93,7 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
       identityManager.updateProfile(profile);
       String link = LinkProvider.getProfileLink("john", "classic");
       assertTrue(link, link.contains(",accountKind: '" + TestAccountKindPlugin.KIND + "',"));
-      assertTrue(link, link.contains("<span class=\"accountKindFlagClass\"> (accountKind.label." + TestAccountKindPlugin.KIND + ")</span>"));
+      assertTrue(link, link.contains("<span class=\"accountKindFlagClass text-light-color font-weight-regular\"> (accountKind.label." + TestAccountKindPlugin.KIND + ")</span>"));
 
       profile.setProperty(Profile.ACCOUNT_KIND, "undeclared");
       identityManager.updateProfile(profile);
