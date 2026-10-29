@@ -44,6 +44,7 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
@@ -355,6 +356,10 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
     if (StringUtils.isBlank(profilePropertySetting.getPropertyName())) {
       throw new IllegalArgumentException("Profile property name is mandatory.");
+    }
+
+    if (Profile.ACCOUNT_KIND.equals(profilePropertySetting.getPropertyName())) {
+      throw new IllegalArgumentException("Profile property name is reserved: the account kind is written from the memberships only.");
     }
 
     if (profilePropertySetting.isDropdownList() && !"text".equals(profilePropertySetting.getPropertyType())) {
