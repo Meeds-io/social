@@ -18,8 +18,11 @@
  */
 package io.meeds.social.usercard.rest;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,6 +45,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @Tag(name = "/social/rest/user-card/settings", description = "Manages which profile properties the user card displays")
 public class UserCardSettingRest {
 
+  private static final String MESSAGE_KEY = "message";
+
   @Autowired
   private UserCardSettingService userCardSettingService;
 
@@ -54,15 +59,16 @@ public class UserCardSettingRest {
     @ApiResponse(responseCode = "400", description = "A property doesn't exist or can't be displayed at its place"),
     @ApiResponse(responseCode = "403", description = "Forbidden"),
   })
-  public void saveSettings(HttpServletRequest request,
-                           @RequestBody
-                           UserCardSettings settings) {
+  public ResponseEntity<Object> saveSettings(HttpServletRequest request,
+                                             @RequestBody
+                                             UserCardSettings settings) {
     try {
       userCardSettingService.saveSettings(settings, request.getRemoteUser());
+      return ResponseEntity.ok().build();
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
     } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+      return ResponseEntity.badRequest().body(Map.of(MESSAGE_KEY, e.getMessage()));
     }
   }
 

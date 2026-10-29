@@ -25,6 +25,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Before;
@@ -120,7 +121,8 @@ public class UserCardSettingRestTest {
     mockMvc.perform(put("/user-card/settings").contentType(MediaType.APPLICATION_JSON)
                                               .content(SETTINGS_BODY)
                                               .with(testAdminUser()))
-           .andExpect(status().isBadRequest());
+           .andExpect(status().isBadRequest())
+           .andExpect(jsonPath("$.message").value(UserCardSettingService.INVALID_PROPERTY_MESSAGE));
   }
 
   @Test

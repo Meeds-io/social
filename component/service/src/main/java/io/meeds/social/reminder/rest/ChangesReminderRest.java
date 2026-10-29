@@ -18,9 +18,10 @@
  */
 package io.meeds.social.reminder.rest;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import io.meeds.social.reminder.service.ChangesReminderService;
 
@@ -44,6 +44,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @Tag(name = "/social/rest/changes-reminder", description = "Remembers the changes reminders the current user already saw")
 public class ChangesReminderRest {
 
+  private static final String MESSAGE_KEY = "message";
+
   @Autowired
   private ChangesReminderService changesReminderService;
 
@@ -56,16 +58,16 @@ public class ChangesReminderRest {
     @ApiResponse(responseCode = "400", description = "Invalid reminder name"),
     @ApiResponse(responseCode = "403", description = "Forbidden"),
   })
-  public ResponseEntity<Boolean> isAcknowledged(HttpServletRequest request,
-                                                @Parameter(description = "Reminder name", required = true)
-                                                @PathVariable("name")
-                                                String name) {
+  public ResponseEntity<Object> isAcknowledged(HttpServletRequest request,
+                                               @Parameter(description = "Reminder name", required = true)
+                                               @PathVariable("name")
+                                               String name) {
     try {
       return ResponseEntity.ok()
                            .cacheControl(CacheControl.noStore())
                            .body(changesReminderService.isAcknowledged(request.getRemoteUser(), name));
     } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+      return ResponseEntity.badRequest().body(Map.of(MESSAGE_KEY, e.getMessage()));
     }
   }
 
@@ -78,14 +80,15 @@ public class ChangesReminderRest {
     @ApiResponse(responseCode = "400", description = "Invalid reminder name"),
     @ApiResponse(responseCode = "403", description = "Forbidden"),
   })
-  public void acknowledge(HttpServletRequest request,
-                          @Parameter(description = "Reminder name", required = true)
-                          @PathVariable("name")
-                          String name) {
+  public ResponseEntity<Object> acknowledge(HttpServletRequest request,
+                                            @Parameter(description = "Reminder name", required = true)
+                                            @PathVariable("name")
+                                            String name) {
     try {
       changesReminderService.acknowledge(request.getRemoteUser(), name);
+      return ResponseEntity.ok().build();
     } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+      return ResponseEntity.badRequest().body(Map.of(MESSAGE_KEY, e.getMessage()));
     }
   }
 

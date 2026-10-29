@@ -24,6 +24,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Before;
@@ -117,7 +118,8 @@ public class NavigationConfigurationRestTest {
     mockMvc.perform(put("/navigation/settings/home").contentType(MediaType.TEXT_PLAIN)
                                                     .content("x")
                                                     .with(testSimpleUser()))
-           .andExpect(status().isBadRequest());
+           .andExpect(status().isBadRequest())
+           .andExpect(jsonPath("$.message").value(UserHomePageService.INVALID_URI_MESSAGE));
   }
 
   private RequestPostProcessor testSimpleUser() {

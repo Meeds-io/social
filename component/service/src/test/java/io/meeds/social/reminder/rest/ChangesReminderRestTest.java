@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Before;
@@ -102,7 +103,9 @@ public class ChangesReminderRestTest {
   @Test
   public void isAcknowledgedWithInvalidName() throws Exception {
     when(changesReminderService.isAcknowledged(SIMPLE_USER, "bad")).thenThrow(new IllegalArgumentException(ChangesReminderService.INVALID_NAME_MESSAGE));
-    mockMvc.perform(get("/changes-reminder/bad").with(testSimpleUser())).andExpect(status().isBadRequest());
+    mockMvc.perform(get("/changes-reminder/bad").with(testSimpleUser()))
+           .andExpect(status().isBadRequest())
+           .andExpect(jsonPath("$.message").value(ChangesReminderService.INVALID_NAME_MESSAGE));
   }
 
   @Test
@@ -121,7 +124,9 @@ public class ChangesReminderRestTest {
   public void acknowledgeWithInvalidName() throws Exception {
     doThrow(new IllegalArgumentException(ChangesReminderService.INVALID_NAME_MESSAGE)).when(changesReminderService)
                                                                                       .acknowledge(SIMPLE_USER, "bad");
-    mockMvc.perform(put("/changes-reminder/bad").with(testSimpleUser())).andExpect(status().isBadRequest());
+    mockMvc.perform(put("/changes-reminder/bad").with(testSimpleUser()))
+           .andExpect(status().isBadRequest())
+           .andExpect(jsonPath("$.message").value(ChangesReminderService.INVALID_NAME_MESSAGE));
   }
 
   private RequestPostProcessor testSimpleUser() {

@@ -18,8 +18,11 @@
  */
 package io.meeds.social.navigation.rest;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +51,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/navigation/settings")
 @Tag(name = "/social/rest/navigation/settings", description = "Managing Topbar and Sidebar Navigation Configuration")
 public class NavigationConfigurationRest {
+
+  private static final String MESSAGE_KEY = "message";
 
   @Autowired
   private NavigationConfigurationService navigationConfigurationService;
@@ -106,15 +111,16 @@ public class NavigationConfigurationRest {
     @ApiResponse(responseCode = "400", description = "Invalid home page URI"),
     @ApiResponse(responseCode = "403", description = "Users aren't allowed to choose their home page"),
   })
-  public void saveUserHomePage(HttpServletRequest request,
-                               @RequestBody
-                               String uri) {
+  public ResponseEntity<Object> saveUserHomePage(HttpServletRequest request,
+                                                 @RequestBody
+                                                 String uri) {
     try {
       userHomePageService.saveUserHomePage(request.getRemoteUser(), uri);
+      return ResponseEntity.ok().build();
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
     } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+      return ResponseEntity.badRequest().body(Map.of(MESSAGE_KEY, e.getMessage()));
     }
   }
 
