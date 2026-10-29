@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
@@ -54,6 +55,8 @@ public class MentionUtils {
 
   private static final Pattern   ROLE_MENTION_PATTERN         =
                                                       Pattern.compile("@((?![\\s<>/%'\"=])[\\p{ASCII}])+:(\\d+)([<\\s]|$)");
+
+  private static final int       ROLE_MENTION_IDENTITY_ID_GROUP = 2;
 
   private static IdentityManager identityManager;
 
@@ -104,10 +107,10 @@ public class MentionUtils {
     Set<String> roles = new HashSet<>();
     Matcher matcher = ROLE_MENTION_PATTERN.matcher(message);
     while (matcher.find()) {
-      String[] roleParts = mentionText(matcher).split(":");
-      String role = roleParts[0];
-      String groupIdentityId = roleParts[1];
+      String role = mentionedRole(matcher);
+      String groupIdentityId = matcher.group(ROLE_MENTION_IDENTITY_ID_GROUP);
       if (StringUtils.isBlank(role)
+          || NumberUtils.toLong(groupIdentityId) == 0
           || !StringUtils.equals(identityId, groupIdentityId)) {
         continue;
       }
@@ -204,12 +207,12 @@ public class MentionUtils {
     String identityId = null;
     StringBuffer buf = new StringBuffer();
     while (matcher.find()) {
-      String[] roleParts = mentionText(matcher).split(":");
-      String role = roleParts[0];
-      identityId = roleParts[1];
-      Identity identity = identityManager.getIdentity(Long.parseLong(identityId));
+      String role = mentionedRole(matcher);
+      identityId = matcher.group(ROLE_MENTION_IDENTITY_ID_GROUP);
+      long spaceIdentityId = NumberUtils.toLong(identityId);
       if (StringUtils.isBlank(role)
-          || !isIdentityEnabled(identity)) {
+          || spaceIdentityId == 0
+          || !isIdentityEnabled(identityManager.getIdentity(spaceIdentityId))) {
         continue;
       }
       appendRoleReplacement(matcher, buf, role, identityId, locale);
@@ -335,6 +338,20 @@ public class MentionUtils {
   private static String mentionText(Matcher matcher) {
     String mention = matcher.group().substring(1).trim();
     return mention.endsWith("<") ? mention.substring(0, mention.length() - 1) : mention;
+  }
+
+  /**
+   * Gives the role of the current role mention match: the mention text before
+   * its last {@code :}, since the role itself may hold a {@code :}. The space
+   * identity id is read from the pattern's own group, which is digits only.
+   *
+   * @param matcher the matcher positioned on a {@code ROLE_MENTION_PATTERN}
+   *          match
+   * @return the mentioned role, without its {@code @} and its space identity id
+   */
+  private static String mentionedRole(Matcher matcher) {
+    String mention = mentionText(matcher);
+    return mention.substring(0, mention.lastIndexOf(':'));
   }
 
   /**
