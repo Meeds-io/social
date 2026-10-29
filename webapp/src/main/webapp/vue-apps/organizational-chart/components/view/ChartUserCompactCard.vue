@@ -49,7 +49,7 @@
                 </span>
                 <span
                   v-if="accountKind"
-                  class="grey--text">
+                  class="accountKindFlagClass grey--text">
                   ({{ $t(`accountKind.label.${accountKind}`) }})
                 </span>
               </p>
