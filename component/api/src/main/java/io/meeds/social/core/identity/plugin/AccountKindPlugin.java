@@ -30,6 +30,12 @@ import java.util.Set;
  * their profile. The group membership stays the only source of truth for a
  * permission decision; the profile property is a display copy of it.
  * <p>
+ * Social writes that copy when a membership in the group is saved or removed,
+ * and at no other time: a member who joined the group before its plugin was
+ * declared, or while its plugin was refused, shows no label until one of its
+ * memberships in the group is saved or removed. Decisions read the
+ * membership, so they do not depend on the copy.
+ * <p>
  * An add-on contributes a kind by declaring its plugin as a Spring bean
  * annotated {@code @Service}, which {@code AccountKindService} collects with
  * every other plugin bean. From another web application than social's, only an
