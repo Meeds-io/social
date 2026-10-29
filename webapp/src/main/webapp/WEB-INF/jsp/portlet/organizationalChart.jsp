@@ -89,7 +89,7 @@
 			<div class="my-auto white border-radius pa-5 card-border-radius v-card v-sheet v-sheet--outlined theme--light" style="margin:0 auto;">
 			  <div class="d-flex mb-2 v-sheet theme--light" style="height: 28px;">
 			    <p class="my-auto text-header">
-			      <span class="text-truncate"><%=headerTitle%></span>
+			      <span class="text-truncate"><%=StringEscapeUtils.escapeHtml4(headerTitle)%></span>
 			    </p>
 			  </div>
               <p class="mt-2">
