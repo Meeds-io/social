@@ -1,9 +1,14 @@
 {
   "modules": ["social"],
+  "operations": ["createActivity", "createComment"],
   "excludedActivityTypes": [
     "USER_PROFILE_ACTIVITY",
     "exosocial:people",
     "USER_ACTIVITIES_FOR_RELATIONSHIP",
     "USER_COMMENTS_ACTIVITY_FOR_RELATIONSHIP"
-  ]
+  ],
+  "labels": {
+    "title": "social.collaborativeActivity.help.title",
+    "counted": ["social.collaborativeActivity.help.counted"]
+  }
 }

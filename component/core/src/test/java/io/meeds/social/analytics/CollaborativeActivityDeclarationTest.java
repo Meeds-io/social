@@ -37,10 +37,11 @@ import org.exoplatform.social.core.application.RelationshipPublisher;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * The collaborative activity declaration analytics reads from this jar: it
- * names the system posts and comments Social writes in a stream, so that
- * none of them counts as a user's collaborative act. The types are the exact
- * strings the publishers set, read from their constants.
+ * The collaborative activity declaration analytics reads from this jar: a
+ * stream post and a stream comment count, under the operation names
+ * analytics records them with, and the system posts and comments Social
+ * writes in a stream do not. The types are the exact strings the publishers
+ * set, read from their constants.
  */
 public class CollaborativeActivityDeclarationTest {
 
@@ -48,7 +49,7 @@ public class CollaborativeActivityDeclarationTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void theDeclarationExcludesEverySystemTypeTheStreamPublishersSet() throws IOException {
+  public void theDeclarationCountsThePostAndTheCommentAndExcludesEverySystemType() throws IOException {
     Map<String, Object> declaration;
     try (InputStream content = getClass().getClassLoader().getResourceAsStream(DECLARATION_FILE)) {
       assertNotNull("the declaration ships at the root of the core jar, which lands in /lib", content);
@@ -56,7 +57,9 @@ public class CollaborativeActivityDeclarationTest {
     }
 
     assertEquals(List.of("social"), declaration.get("modules"));
-    assertFalse("the stream events are declared by analytics itself, not here", declaration.containsKey("operations"));
+    assertEquals("the names AnalyticsActivityListener records a post and a comment with",
+                 List.of("createActivity", "createComment"),
+                 declaration.get("operations"));
     assertFalse(declaration.containsKey("legacyOperations"));
     assertFalse(declaration.containsKey("browserOperations"));
 
@@ -68,8 +71,9 @@ public class CollaborativeActivityDeclarationTest {
     assertEquals(expectedTypes, new HashSet<>(excludedTypes));
     assertEquals("one entry per type", expectedTypes.size(), excludedTypes.size());
 
-    assertFalse("nothing of Social's own is counted: the post and the comment are analytics' labels",
-                declaration.containsKey("labels"));
+    Map<String, Object> labels = (Map<String, Object>) declaration.get("labels");
+    assertEquals("social.collaborativeActivity.help.title", labels.get("title"));
+    assertEquals(List.of("social.collaborativeActivity.help.counted"), labels.get("counted"));
   }
 
 }
