@@ -20,6 +20,7 @@ package io.meeds.social.organizationalchart.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,6 +49,8 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
+
+import io.meeds.common.ContainerTransactional;
 
 @SpringBootTest(classes = {
   OrganizationalChartSettingService.class,
@@ -187,6 +190,18 @@ public class OrganizationalChartSettingServiceTest {
                                                                                                            true,
                                                                                                            ADMIN));
     assertEquals(message, exception.getMessage());
+  }
+
+  @Test
+  public void saveSettingsWritesBothKeysInOneTransaction() throws NoSuchMethodException {
+    ContainerTransactional transactional = OrganizationalChartSettingService.class.getMethod("saveSettings",
+                                                                                             String.class,
+                                                                                             String.class,
+                                                                                             boolean.class,
+                                                                                             String.class)
+                                                                                  .getAnnotation(ContainerTransactional.class);
+    assertNotNull(transactional);
+    assertTrue(transactional.atomic());
   }
 
 }
