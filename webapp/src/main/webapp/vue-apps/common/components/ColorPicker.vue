@@ -26,7 +26,15 @@
     color="white"
     width="290px">
     <template #activator="{ on, attrs }">
+      <!-- A caller may draw its own activator, bound to on and attrs; color is the colour shown, or null -->
+      <slot
+        v-if="$scopedSlots.activator"
+        name="activator"
+        :on="on"
+        :attrs="attrs"
+        :color="displayedColor"></slot>
       <v-list-item
+        v-else
         class="pa-0"
         dense>
         <v-list-item-action class="my-0 me-2 color-picker-swatch">
