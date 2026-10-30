@@ -49,6 +49,7 @@
         <v-btn
           :disabled="sending || !messageValid"
           :loading="sending"
+          id="usersManagementOnboardInviteButton"
           class="btn btn-primary"
           @click="invite">
           {{ $t('UsersManagement.onboard.invite') }}

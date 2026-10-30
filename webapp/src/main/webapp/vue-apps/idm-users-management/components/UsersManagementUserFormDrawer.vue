@@ -116,6 +116,7 @@
         <v-btn
           :disabled="saving || !valid"
           :loading="saving"
+          id="usersManagementUpdateButton"
           class="btn btn-primary"
           @click="saveUser">
           {{ $t('UsersManagement.button.update') }}
