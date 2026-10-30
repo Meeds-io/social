@@ -2263,29 +2263,37 @@ public class UserRest implements ResourceContainer, Startable {
     }
   }
 
-  private void enableUser(String username, List<String> updatedUsers) throws Exception {
-    UserHandler userHandler = organizationService.getUserHandler();
-    User user = userHandler.findUserByName(username, UserStatus.DISABLED);
-    if (user == null) {
-      LOG.warn("Username {} is not found in disabled user list. He does not exists, or he is already enabled", username);
-    } else {
-      organizationService.getUserHandler().setEnabled(username, true, true);
-      addWhenStatusHolds(username, true, updatedUsers);
+  private void enableUser(String username, List<String> updatedUsers) {
+    try {
+      UserHandler userHandler = organizationService.getUserHandler();
+      User user = userHandler.findUserByName(username, UserStatus.DISABLED);
+      if (user == null) {
+        LOG.warn("Username {} is not found in disabled user list. He does not exists, or he is already enabled", username);
+      } else {
+        organizationService.getUserHandler().setEnabled(username, true, true);
+        addWhenStatusHolds(username, true, updatedUsers);
+      }
+    } catch (Exception e) {
+      LOG.warn("The account {} could not be enabled, the user is left out of the updated users", username, e);
     }
   }
 
-  private void disableUser(String username, List<String> updatedUsers, String currentUsername) throws Exception {
-    UserHandler userHandler = organizationService.getUserHandler();
-    User user = userHandler.findUserByName(username, UserStatus.ENABLED);
-    if (user == null) {
-      LOG.warn("Username {} is not found in enabled user list. He does not exists, or he is already disabled", username);
-    } else if (StringUtils.equals(currentUsername, user.getUserName())) {
-      LOG.warn("User {} tries to suspend his own account. Not allowed", currentUsername);
-    } else if (StringUtils.equals(userACL.getSuperUser(), user.getUserName())) {
-      LOG.warn("Try to suspend superuser account {}. Not allowed", username);
-    } else {
-      organizationService.getUserHandler().setEnabled(username, false, true);
-      addWhenStatusHolds(username, false, updatedUsers);
+  private void disableUser(String username, List<String> updatedUsers, String currentUsername) {
+    try {
+      UserHandler userHandler = organizationService.getUserHandler();
+      User user = userHandler.findUserByName(username, UserStatus.ENABLED);
+      if (user == null) {
+        LOG.warn("Username {} is not found in enabled user list. He does not exists, or he is already disabled", username);
+      } else if (StringUtils.equals(currentUsername, user.getUserName())) {
+        LOG.warn("User {} tries to suspend his own account. Not allowed", currentUsername);
+      } else if (StringUtils.equals(userACL.getSuperUser(), user.getUserName())) {
+        LOG.warn("Try to suspend superuser account {}. Not allowed", username);
+      } else {
+        organizationService.getUserHandler().setEnabled(username, false, true);
+        addWhenStatusHolds(username, false, updatedUsers);
+      }
+    } catch (Exception e) {
+      LOG.warn("The account {} could not be deactivated, the user is left out of the updated users", username, e);
     }
   }
 
