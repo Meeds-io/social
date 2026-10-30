@@ -82,6 +82,13 @@ public class OrganizationalChartSettingService {
                            String centerUser,
                            boolean hasHeaderTitle,
                            String username) throws IllegalAccessException {
+    saveSettingsInTransaction(applicationId, centerUser, hasHeaderTitle, username);
+  }
+
+  void saveSettingsInTransaction(String applicationId,
+                                 String centerUser,
+                                 boolean hasHeaderTitle,
+                                 String username) throws IllegalAccessException {
     if (!canEdit(username)) {
       throw new IllegalAccessException("User " + username + " can't edit the organizational chart settings");
     }

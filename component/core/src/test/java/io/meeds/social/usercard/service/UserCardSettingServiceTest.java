@@ -94,7 +94,7 @@ public class UserCardSettingServiceTest {
 
   @Test
   public void saveSettingsStoresEveryField() throws IllegalAccessException {
-    userCardSettingService.saveSettings(new UserCardSettings("position", "team", "city", "workPhone", "workEmail"), ADMIN);
+    userCardSettingService.saveSettingsInTransaction(new UserCardSettings("position", "team", "city", "workPhone", "workEmail"), ADMIN);
     assertSaved(UserCardSettingService.FIRST_FIELD_KEY, "position");
     assertSaved(UserCardSettingService.SECOND_FIELD_KEY, "team");
     assertSaved(UserCardSettingService.THIRD_FIELD_KEY, "city");
@@ -104,7 +104,7 @@ public class UserCardSettingServiceTest {
 
   @Test
   public void saveSettingsWithoutPhoneAndEmailRemovesThem() throws IllegalAccessException {
-    userCardSettingService.saveSettings(new UserCardSettings("position", "team", "city", null, null), ADMIN);
+    userCardSettingService.saveSettingsInTransaction(new UserCardSettings("position", "team", "city", null, null), ADMIN);
     verify(settingService).remove(Context.GLOBAL, SCOPE, UserCardSettingService.PHONE_KEY);
     verify(settingService).remove(Context.GLOBAL, SCOPE, UserCardSettingService.EMAIL_KEY);
   }
@@ -112,10 +112,10 @@ public class UserCardSettingServiceTest {
   @Test
   public void saveSettingsRefusesANonAdministrator() {
     assertThrows(IllegalAccessException.class,
-                 () -> userCardSettingService.saveSettings(new UserCardSettings("position", "team", "city", null, null),
+                 () -> userCardSettingService.saveSettingsInTransaction(new UserCardSettings("position", "team", "city", null, null),
                                                            USER));
     assertThrows(IllegalAccessException.class,
-                 () -> userCardSettingService.saveSettings(new UserCardSettings("position", "team", "city", null, null),
+                 () -> userCardSettingService.saveSettingsInTransaction(new UserCardSettings("position", "team", "city", null, null),
                                                            null));
     verify(settingService, never()).set(any(), any(), anyString(), any());
   }
@@ -142,7 +142,7 @@ public class UserCardSettingServiceTest {
     // A phone property deleted after it was saved: the drawer sends it back
     // with every save
     when(settingService.get(Context.GLOBAL, SCOPE, UserCardSettingService.PHONE_KEY)).thenAnswer(invocation -> SettingValue.create("deletedPhone"));
-    userCardSettingService.saveSettings(new UserCardSettings("position", "team", "city", "deletedPhone", null), ADMIN);
+    userCardSettingService.saveSettingsInTransaction(new UserCardSettings("position", "team", "city", "deletedPhone", null), ADMIN);
     assertSaved(UserCardSettingService.PHONE_KEY, "deletedPhone");
 
     // Stored for another place of the card, it is still refused
@@ -154,7 +154,7 @@ public class UserCardSettingServiceTest {
     // Nothing stored: the drawer sends back the default properties, one of them
     // deleted since
     when(profilePropertyService.getProfileSettingByName("team")).thenReturn(null);
-    userCardSettingService.saveSettings(new UserCardSettings("position", "team", "city", "workPhone", null), ADMIN);
+    userCardSettingService.saveSettingsInTransaction(new UserCardSettings("position", "team", "city", "workPhone", null), ADMIN);
     assertSaved(UserCardSettingService.SECOND_FIELD_KEY, "team");
     assertSaved(UserCardSettingService.PHONE_KEY, "workPhone");
 
@@ -181,12 +181,15 @@ public class UserCardSettingServiceTest {
 
   private void assertInvalid(UserCardSettings settings) {
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                                                      () -> userCardSettingService.saveSettings(settings, ADMIN));
+                                                      () -> userCardSettingService.saveSettingsInTransaction(settings, ADMIN));
     assertEquals(UserCardSettingService.INVALID_PROPERTY_MESSAGE, exception.getMessage());
   }
 
+  /**
+   * Fails when the save loses its annotation or runs with atomic = false
+   */
   @Test
-  public void saveSettingsWritesEveryFieldInOneTransaction() throws NoSuchMethodException {
+  public void saveSettingsIsDeclaredAtomic() throws NoSuchMethodException {
     ContainerTransactional transactional = UserCardSettingService.class.getMethod("saveSettings",
                                                                                   UserCardSettings.class,
                                                                                   String.class)

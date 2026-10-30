@@ -85,6 +85,10 @@ public class UserCardSettingService {
    */
   @ContainerTransactional(atomic = true)
   public void saveSettings(UserCardSettings settings, String username) throws IllegalAccessException {
+    saveSettingsInTransaction(settings, username);
+  }
+
+  void saveSettingsInTransaction(UserCardSettings settings, String username) throws IllegalAccessException {
     if (StringUtils.isBlank(username) || !userAcl.isAdministrator(userAcl.getUserIdentity(username))) {
       throw new IllegalAccessException("User " + username + " can't edit the user card settings");
     }

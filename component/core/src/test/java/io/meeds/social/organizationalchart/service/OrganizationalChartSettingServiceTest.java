@@ -98,13 +98,13 @@ public class OrganizationalChartSettingServiceTest {
   @Test
   public void saveSettingsRefusesANonAdministrator() {
     assertThrows(IllegalAccessException.class,
-                 () -> organizationalChartSettingService.saveSettings(APPLICATION_ID, "@connected@", true, USER));
+                 () -> organizationalChartSettingService.saveSettingsInTransaction(APPLICATION_ID, "@connected@", true, USER));
     verify(settingService, never()).set(any(), any(), anyString(), any());
   }
 
   @Test
   public void saveSettingsStoresTheConnectedUserMarker() throws IllegalAccessException {
-    organizationalChartSettingService.saveSettings(APPLICATION_ID, "@connected@", false, ADMIN);
+    organizationalChartSettingService.saveSettingsInTransaction(APPLICATION_ID, "@connected@", false, ADMIN);
     verify(settingService).set(eq(Context.GLOBAL),
                                eq(SCOPE),
                                eq("organizationalChartCenterUser"),
@@ -118,7 +118,7 @@ public class OrganizationalChartSettingServiceTest {
   @Test
   public void saveSettingsStoresAnEnabledUserIdentity() throws IllegalAccessException {
     mockIdentity("12", OrganizationIdentityProvider.NAME, true, false);
-    organizationalChartSettingService.saveSettings(APPLICATION_ID, "12", true, ADMIN);
+    organizationalChartSettingService.saveSettingsInTransaction(APPLICATION_ID, "12", true, ADMIN);
     verify(settingService).set(eq(Context.GLOBAL),
                                eq(SCOPE),
                                eq("organizationalChartCenterUser"),
@@ -131,7 +131,7 @@ public class OrganizationalChartSettingServiceTest {
 
   @Test
   public void saveSettingsWithoutCenterUserKeepsTheSavedOne() throws IllegalAccessException {
-    organizationalChartSettingService.saveSettings(APPLICATION_ID, null, true, ADMIN);
+    organizationalChartSettingService.saveSettingsInTransaction(APPLICATION_ID, null, true, ADMIN);
     verify(settingService, never()).set(any(), any(), eq("organizationalChartCenterUser"), any());
     verify(settingService).set(eq(Context.GLOBAL), eq(SCOPE), eq("organizationalChartHasHeaderTitle"), any());
   }
@@ -165,7 +165,7 @@ public class OrganizationalChartSettingServiceTest {
   public void saveSettingsKeepsAStoredCenterUserDisabledSince() throws IllegalAccessException {
     mockIdentity("21", OrganizationIdentityProvider.NAME, false, false);
     when(settingService.get(Context.GLOBAL, SCOPE, "organizationalChartCenterUser")).thenAnswer(invocation -> SettingValue.create("21"));
-    organizationalChartSettingService.saveSettings(APPLICATION_ID, "21", false, ADMIN);
+    organizationalChartSettingService.saveSettingsInTransaction(APPLICATION_ID, "21", false, ADMIN);
     verify(settingService).set(eq(Context.GLOBAL),
                                eq(SCOPE),
                                eq("organizationalChartCenterUser"),
@@ -185,15 +185,18 @@ public class OrganizationalChartSettingServiceTest {
 
   private void assertInvalid(String applicationId, String centerUser, String message) {
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                                                      () -> organizationalChartSettingService.saveSettings(applicationId,
+                                                      () -> organizationalChartSettingService.saveSettingsInTransaction(applicationId,
                                                                                                            centerUser,
                                                                                                            true,
                                                                                                            ADMIN));
     assertEquals(message, exception.getMessage());
   }
 
+  /**
+   * Fails when the save loses its annotation or runs with atomic = false
+   */
   @Test
-  public void saveSettingsWritesBothKeysInOneTransaction() throws NoSuchMethodException {
+  public void saveSettingsIsDeclaredAtomic() throws NoSuchMethodException {
     ContainerTransactional transactional = OrganizationalChartSettingService.class.getMethod("saveSettings",
                                                                                              String.class,
                                                                                              String.class,
