@@ -51,6 +51,19 @@
             class="my-auto pt-2"
             @change="on.input" />
         </template>
+        <template
+          v-for="extension in headerExtensions"
+          :slot="`header.${extension.header.value}`"
+          slot-scope="{header}">
+          <span
+            :key="extension.name"
+            class="d-inline-flex align-center">
+            {{ header.text }}
+            <component
+              :is="extension.headerComponentName"
+              :header="header" />
+          </span>
+        </template>
         <template v-if="$root.selectedSpaces.length && !$root.isBulkProcessing" slot="body.prepend">
           <tr>
             <td :colspan="headers.length + 1" class="px-0">
@@ -236,6 +249,15 @@ export default {
         })));
       }
       return headers;
+    },
+    headerExtensions() {
+      // A contributed column names a registered component in headerComponentName:
+      // its header slot renders the label, then that component with the Vuetify
+      // header as its `header` prop. Vuetify places its sort arrow after them, or
+      // before them for `align: 'end'`. A click on the header cell sorts, so a
+      // component that handles a click stops it
+      return this.$root.tableColumnExtensions
+        .filter(extension => extension.headerComponentName && extension.header?.value);
     },
     selectionLabel() {
       if (this.$root.allSpacesSelected) {
