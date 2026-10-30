@@ -26,7 +26,6 @@ import * as suggesterService from './js/SuggesterService.js';
 import * as uploadService from './js/UploadService.js';
 import * as identityService from './js/IdentityService.js';
 import * as dateUtil from './js/DateUtil.js';
-import * as settingService from './js/SettingService.js';
 import * as featureService from './js/FeatureService.js';
 import * as changesReminderService from './js/ChangesReminderService.js';
 import * as activityService from './js/ActivityService.js';
@@ -87,9 +86,6 @@ window.Object.defineProperty(Vue.prototype, '$identityService', {
 });
 window.Object.defineProperty(Vue.prototype, '$dateUtil', {
   value: dateUtil,
-});
-window.Object.defineProperty(Vue.prototype, '$settingService', {
-  value: settingService,
 });
 window.Object.defineProperty(Vue.prototype, '$featureService', {
   value: featureService,
