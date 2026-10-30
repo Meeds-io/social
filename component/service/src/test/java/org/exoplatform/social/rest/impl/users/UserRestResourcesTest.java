@@ -2054,29 +2054,34 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
-   * The mirror path: a thrown failure on a bulk enable leaves the user out
-   * and answers 200, the account staying disabled
+   * The mirror path: a thrown failure on a bulk enable leaves that user out
+   * and the batch carries on with the next, answering 200: the first user's
+   * write throws and the account stays disabled, the second is applied and
+   * listed
    */
-  public void testBulkEnableLeavesOutAUserWhoseWriteThrows() throws Exception {
+  public void testBulkEnableLeavesOutAUserWhoseWriteThrowsAndCarriesOn() throws Exception {
     confirmationSettings.setEnabled(true);
     startSessionAs("root", true);
     confirmedSessionUser = "root";
     UserHandler realHandler = organizationService.getUserHandler();
+    realHandler.setEnabled("john", false, false);
     realHandler.setEnabled("mary", false, false);
     UserHandler throwingHandler = spy(realHandler);
-    doThrow(new IllegalStateException("store down")).when(throwingHandler).setEnabled(eq("mary"), anyBoolean(), anyBoolean());
+    doThrow(new IllegalStateException("store down")).when(throwingHandler).setEnabled(eq("john"), anyBoolean(), anyBoolean());
     OrganizationService throwingService = mock(OrganizationService.class);
     when(throwingService.getUserHandler()).thenReturn(throwingHandler);
     registerUserRestWith(passwordRecoveryService, throwingService);
     try {
-      byte[] users = "[\"mary\"]".getBytes(StandardCharsets.UTF_8);
+      byte[] users = "[\"john\",\"mary\"]".getBytes(StandardCharsets.UTF_8);
       MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
       listHeaders.putSingle("content-type", "application/json");
       ContainerResponse response = service("PATCH", getURLResource("users/bulk/enable"), "", listHeaders, users, "root");
       assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
-      assertEquals(List.of(), response.getEntity());
-      assertFalse(realHandler.findUserByName("mary", UserStatus.ANY).isEnabled());
+      assertEquals(List.of("mary"), response.getEntity());
+      assertFalse(realHandler.findUserByName("john", UserStatus.ANY).isEnabled());
+      assertTrue(realHandler.findUserByName("mary", UserStatus.ANY).isEnabled());
     } finally {
+      realHandler.setEnabled("john", true, false);
       realHandler.setEnabled("mary", true, false);
     }
   }
