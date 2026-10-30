@@ -28,10 +28,11 @@
     @change="$emit('input', $event)">
     <v-radio
       v-for="role in roles"
+      :id="role.id"
       :key="role.value"
       :value="role.value"
       :label="role.text"
-      class="mb-3" />
+      class="userRoleRadio mb-3" />
   </v-radio-group>
 </template>
 
@@ -55,12 +56,15 @@ export default {
     roles() {
       return [{
         value: 'INTERNAL',
+        id: 'userRoleRadioInternal',
         text: this.$t('UsersManagement.creation.role.internal'),
       }, {
         value: 'EXTERNAL',
+        id: 'userRoleRadioExternal',
         text: this.$t('UsersManagement.creation.role.external'),
       }, {
         value: 'ADMINISTRATOR',
+        id: 'userRoleRadioAdministrator',
         text: this.$t('UsersManagement.creation.role.administrator'),
       }];
     },
