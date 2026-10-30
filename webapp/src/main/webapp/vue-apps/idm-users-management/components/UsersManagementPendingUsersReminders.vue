@@ -22,10 +22,11 @@
   <div class="d-flex align-center">
     <v-btn
       v-for="reminder in visibleReminders"
+      :id="reminder.id"
       :key="reminder.tab"
       :title="reminder.title"
       :aria-label="reminder.title"
-      class="ms-2"
+      class="pendingUsersReminderButton ms-2"
       icon
       @click="$root.$emit('openPendingUsers', reminder.tab)">
       <v-badge
@@ -66,6 +67,7 @@ export default {
     visibleReminders() {
       return [{
         tab: 'creation',
+        id: 'pendingUsersReminderCreation',
         count: this.counts.creation,
         badge: this.badgeOf(this.counts.creation),
         color: 'var(--allPagesPrimaryColor, #578dc9)',
@@ -73,6 +75,7 @@ export default {
         title: this.$t('UsersManagement.pending.creationReminder', {0: this.counts.creation}),
       }, {
         tab: 'invitations',
+        id: 'pendingUsersReminderInvitations',
         count: this.counts.invitations,
         badge: this.badgeOf(this.counts.invitations),
         // the top bar's notification badge color

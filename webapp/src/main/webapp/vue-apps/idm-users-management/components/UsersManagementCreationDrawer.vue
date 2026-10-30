@@ -35,8 +35,9 @@
         vertical
         flat>
         <v-stepper-step
+          id="usersManagementCreationProfileStep"
           :step="1"
-          class="ma-4 pa-0"
+          class="usersManagementCreationStep ma-4 pa-0"
           editable>
           {{ $t('UsersManagement.creation.step.profile') }}
         </v-stepper-step>
@@ -54,9 +55,10 @@
             @next="next" />
         </v-stepper-content>
         <v-stepper-step
+          id="usersManagementCreationRoleStep"
           :step="2"
           :editable="profileStepValid"
-          class="ma-4 pa-0">
+          class="usersManagementCreationStep ma-4 pa-0">
           {{ $t('UsersManagement.creation.step.role') }}
         </v-stepper-step>
         <v-stepper-content :step="2" class="pa-0 ma-0 no-border">
@@ -67,9 +69,10 @@
             @input="clearError('role')" />
         </v-stepper-content>
         <v-stepper-step
+          id="usersManagementCreationInvitationStep"
           :step="3"
           :editable="invitationStepReachable"
-          class="ma-4 pa-0">
+          class="usersManagementCreationStep ma-4 pa-0">
           {{ $t('UsersManagement.creation.step.invitation') }}
         </v-stepper-step>
         <v-stepper-content :step="3" class="pa-0 ma-0 no-border">
@@ -96,6 +99,7 @@
         <v-btn
           v-if="stepper < 3"
           :disabled="saving || !currentStepValid"
+          id="usersManagementCreationNextButton"
           class="btn btn-primary"
           @click="next">
           {{ $t('UsersManagement.button.next') }}
@@ -104,6 +108,7 @@
           v-else
           :disabled="saving || !currentStepValid"
           :loading="saving"
+          id="usersManagementCreateButton"
           class="btn btn-primary"
           @click="create">
           {{ $t('UsersManagement.button.create') }}

@@ -68,6 +68,7 @@
             <v-btn
               :title="actionTitle"
               :aria-label="actionTitle"
+              class="pendingUserActionButton"
               icon
               small
               @click="$root.$emit('openOnboardUser', toRow(user))">

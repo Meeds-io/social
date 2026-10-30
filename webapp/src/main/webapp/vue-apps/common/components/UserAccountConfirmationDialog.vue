@@ -46,6 +46,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
           prepend-inner-icon="fa-lock"
           autocomplete="one-time-code"
           inputmode="numeric"
+          id="userAccountConfirmationCodeInput"
           class="pt-0"
           outlined
           dense
@@ -56,6 +57,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
         <v-btn
           :disabled="!canSendAgain"
           :loading="sending"
+          id="userAccountConfirmationSendAgainButton"
           class="btn me-2"
           @click="sendCode">
           {{ $t('userAccountConfirmation.sendAgain') }}
@@ -63,6 +65,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
         <v-btn
           :disabled="!otpCode"
           :loading="confirming"
+          id="userAccountConfirmationVerifyButton"
           class="btn btn-primary"
           type="submit">
           {{ $t('userAccountConfirmation.confirm') }}
