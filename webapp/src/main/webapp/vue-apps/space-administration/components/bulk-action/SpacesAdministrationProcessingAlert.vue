@@ -65,10 +65,9 @@ export default {
         ?? (this.options.allSpacesSelected ? this.options.spacesSize : this.options.selectedSpaces.length);
     },
     line1() {
-      // An operation's own line1 may be a "one | several" choice on the total
-      return this.labels.line1Plural
-        ? this.$tc(this.labels.line1, this.selectedSpacesCount, {0: this.selectedSpacesCount})
-        : this.$t(this.labels.line1, {0: this.selectedSpacesCount});
+      // An operation may have its own line1 for a total of one space
+      const key = (this.labels.line1One && this.selectedSpacesCount === 1) ? this.labels.line1One : this.labels.line1;
+      return this.$t(key, {0: this.selectedSpacesCount});
     },
     counterHidden() {
       return this.options.bulkOperationLabels ? 'true' : null;
