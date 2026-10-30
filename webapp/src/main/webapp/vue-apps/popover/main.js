@@ -98,8 +98,10 @@ function showRawPopover(event) {
 
 function getRawPopoverUser(username) {
   if (!rawPopoverUsers.has(username)) {
-    rawPopoverUsers.set(username, Vue.prototype.$userService.getUser(encodeURIComponent(username), 'settings')
+    // no expand: the same URL as the popover's own enabled/deleted check
+    rawPopoverUsers.set(username, Vue.prototype.$userService.getUser(encodeURIComponent(username))
       .catch(() => {
+        // not kept: a transient failure is retried on the next hover
         rawPopoverUsers.delete(username);
         return null;
       }));
