@@ -24,6 +24,7 @@
       :input-value="sendOnboardingEmail"
       :label="$t('UsersManagement.creation.sendOnboardingEmail')"
       :disabled="saving"
+      id="usersManagementSendOnboardingEmailCheckbox"
       class="mt-0 pt-0"
       hide-details
       dense
