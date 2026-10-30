@@ -248,6 +248,9 @@ public class LinkProvider {
    * inside a double-quoted HTML attribute. The value is escaped for the
    * JavaScript string first, then for the HTML attribute, which the browser
    * decodes before Vue evaluates the literal. A null value is an empty string.
+   * Content rendered as raw HTML is not compiled by Vue: there, the popover
+   * module reads the literal itself (parseIdentityPopoverValue in
+   * vue-apps/popover/main.js), so an escape added here must be undone there.
    */
   static String toPopoverValue(Object value) {
     if (value == null) {
