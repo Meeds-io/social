@@ -26,7 +26,7 @@ export function getNavigationNodeUri(baseSiteUri, navigation) {
 
 // the URL a link page leads to: a path of this site as stored, else the link
 // Autolinker recognises in it, else the link as stored
-export function getLinkNodeUri(link) {
+function getLinkNodeUri(link) {
   return link && !link.startsWith?.('/') && Autolinker.parse(link, {
     urls: true,
     email: true,
@@ -48,9 +48,8 @@ const HOME_URI_MAX_LENGTH = 2048;
 const HOST_PREFIX_PATTERN = /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)*[a-z]([a-z0-9-]*[a-z0-9])?(:\d+)?([/?#]|$)/i;
 
 // the URL a navigation node is saved, and recognised, as a user's home page,
-// from the URL the node leads to (getNavigationNodeUri, getLinkNodeUri): a link
-// still without a scheme takes the page's own, and a link the home page can't
-// be gives null
+// from the link a link page stores, else the node's path: a link without a
+// scheme takes the page's own, and a link the home page can't be gives null
 export function getNavigationNodeHomeUri(nodeUri) {
   if (!nodeUri || /^(mailto|tel|sms|javascript|data|vbscript|file):/i.test(nodeUri)) {
     return null;
