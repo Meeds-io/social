@@ -19,7 +19,9 @@
 package io.meeds.social.usercard.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -45,6 +47,7 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
+import io.meeds.common.ContainerTransactional;
 import io.meeds.social.usercard.model.UserCardSettings;
 
 @SpringBootTest(classes = {
@@ -180,6 +183,16 @@ public class UserCardSettingServiceTest {
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                                                       () -> userCardSettingService.saveSettings(settings, ADMIN));
     assertEquals(UserCardSettingService.INVALID_PROPERTY_MESSAGE, exception.getMessage());
+  }
+
+  @Test
+  public void saveSettingsWritesEveryFieldInOneTransaction() throws NoSuchMethodException {
+    ContainerTransactional transactional = UserCardSettingService.class.getMethod("saveSettings",
+                                                                                  UserCardSettings.class,
+                                                                                  String.class)
+                                                                       .getAnnotation(ContainerTransactional.class);
+    assertNotNull(transactional);
+    assertTrue(transactional.atomic());
   }
 
 }

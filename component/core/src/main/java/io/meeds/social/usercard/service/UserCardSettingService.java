@@ -32,6 +32,7 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
+import io.meeds.common.ContainerTransactional;
 import io.meeds.social.usercard.model.UserCardSettings;
 
 /**
@@ -82,6 +83,7 @@ public class UserCardSettingService {
    * @throws IllegalArgumentException when a property doesn't exist or can't
    *           be displayed at its place in the user card
    */
+  @ContainerTransactional(atomic = true)
   public void saveSettings(UserCardSettings settings, String username) throws IllegalAccessException {
     if (StringUtils.isBlank(username) || !userAcl.isAdministrator(userAcl.getUserIdentity(username))) {
       throw new IllegalAccessException("User " + username + " can't edit the user card settings");

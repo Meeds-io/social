@@ -33,6 +33,8 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 
+import io.meeds.common.ContainerTransactional;
+
 /**
  * Saves the settings of an organizational chart application: the user the
  * chart is centered on and whether its header title is displayed. The settings
@@ -75,6 +77,7 @@ public class OrganizationalChartSettingService {
    * @throws IllegalArgumentException when the application id or the center
    *           user is invalid
    */
+  @ContainerTransactional(atomic = true)
   public void saveSettings(String applicationId,
                            String centerUser,
                            boolean hasHeaderTitle,
