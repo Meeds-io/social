@@ -144,6 +144,30 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     assertEquals("call", profilePropertyService.getProfileSettingById(propertySetting2.getId()).getPropertyType());
   }
 
+  public void testUpdateProfilePropertySettingWithoutType() throws Exception {
+    ProfilePropertySetting propertySetting = createProfileSettingInstance("untypedProperty");
+    propertySetting.setPropertyType(null);
+    propertySetting = profilePropertyService.createPropertySetting(propertySetting);
+    assertNull(propertySetting.getPropertyType());
+
+    propertySetting.setActive(false);
+    profilePropertyService.updatePropertySetting(propertySetting);
+    assertFalse(profilePropertyService.getProfileSettingById(propertySetting.getId()).isActive());
+
+    propertySetting.setPropertyName("renamedUntypedProperty");
+    profilePropertyService.updatePropertySetting(propertySetting);
+    assertEquals("renamedUntypedProperty",
+                 profilePropertyService.getProfileSettingById(propertySetting.getId()).getPropertyName());
+
+    propertySetting.setPropertyType("user");
+    ProfilePropertySetting toUserPropertySetting = propertySetting;
+    assertThrows(IllegalArgumentException.class, () -> profilePropertyService.updatePropertySetting(toUserPropertySetting));
+
+    propertySetting.setPropertyType("text");
+    profilePropertyService.updatePropertySetting(propertySetting);
+    assertEquals("text", profilePropertyService.getProfileSettingById(propertySetting.getId()).getPropertyType());
+  }
+
   public void testGetUnhiddenableProperties() {
     assertNotNull(profilePropertyService.getUnhiddenableProfileProperties());
     assertFalse(profilePropertyService.getUnhiddenableProfileProperties().isEmpty());
