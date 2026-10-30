@@ -37,6 +37,7 @@ export function getLinkNodeUri(link) {
 // the rule UserHomePageService applies to a home page: a path of this site or
 // an http(s) URL, with no whitespace, control character, quote, `<`, `>`, `$`
 // or backslash
+// eslint-disable-next-line no-control-regex -- the control characters the server refuses
 const HOME_URI_PATTERN = /^(\/(?![/\\])|https?:\/\/)[^ \t\n\x0B\f\r\x00-\x1F\x7F<>"'`$\\]*$/i;
 
 const HOME_URI_MAX_LENGTH = 2048;
