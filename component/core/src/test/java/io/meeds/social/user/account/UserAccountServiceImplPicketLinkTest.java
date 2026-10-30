@@ -19,6 +19,7 @@
 package io.meeds.social.user.account;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
@@ -45,6 +46,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.api.Attribute;
+import org.picketlink.idm.api.IdentitySession;
 import org.picketlink.idm.impl.api.SimpleAttribute;
 
 import org.exoplatform.component.test.ConfigurationUnit;
@@ -96,6 +98,10 @@ public class UserAccountServiceImplPicketLinkTest {
 
   private static final String IDM_DATASOURCE  = "java:/comp/env/exo-idm_portal";
 
+  private static final String A_PASSWORD      = "JaneDoeA-2026-first";
+
+  private static final String B_PASSWORD      = "JaneDoeB-2026-second";
+
   private PortalContainer     container;
 
   private OrganizationService organizationService;
@@ -130,11 +136,12 @@ public class UserAccountServiceImplPicketLinkTest {
   @SneakyThrows
   public void testTheSameLoginCreatedTwiceInSequence() {
     String login = "seq" + System.nanoTime();
-    userAccountService.createUser(account(login, "a"), Locale.ENGLISH);
+    userAccountService.createUser(account(login, "a", A_PASSWORD), Locale.ENGLISH);
     RequestLifeCycle.restartTransaction();
 
     IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                                              () -> userAccountService.createUser(account(login, "b"), Locale.ENGLISH));
+                                              () -> userAccountService.createUser(account(login, "b", B_PASSWORD),
+                                                                                  Locale.ENGLISH));
     assertEquals(UserAccountService.USERNAME_ALREADY_EXISTS, e.getMessage());
 
     RequestLifeCycle.restartTransaction();
@@ -143,6 +150,8 @@ public class UserAccountServiceImplPicketLinkTest {
     assertNotNull(stored);
     assertTrue(stored.isEnabled());
     assertEquals("jane.a." + login + "@example.com", stored.getEmail());
+    assertTrue("The first account no longer authenticates with its own password", authenticatesWith(stored, A_PASSWORD));
+    assertFalse("The first account authenticates with the second creation's password", authenticatesWith(stored, B_PASSWORD));
   }
 
   /**
@@ -150,8 +159,12 @@ public class UserAccountServiceImplPicketLinkTest {
    * session's createUser, then its save) and holds its request open; thread
    * B runs the service's creation of the same login in its own request: its
    * pre-check cannot see A's uncommitted row, so B reaches the store, where it
-   * waits on A's row. Once B waits there, A's request ends and commits. B answers USER:CREATION_FAILED, nothing of B is written on A's
-   * account, and A's account stays enabled with its own creation date
+   * waits on A's row. Once B waits there, A's request ends and commits. B
+   * answers USER:CREATION_FAILED, nothing of B is written on A's account,
+   * and A's account stays enabled with its own creation date and its own
+   * password: each creation carries a custom password, since a password
+   * routes persistUserInfo through updatePassword before any attribute
+   * write, a first store call the no-password path never makes
    */
   @Test
   @SneakyThrows
@@ -172,6 +185,7 @@ public class UserAccountServiceImplPicketLinkTest {
         user.setFirstName("Jane");
         user.setLastName("DoeA");
         user.setEmail("jane.a." + login + "@example.com");
+        user.setPassword(A_PASSWORD);
         userHandler.createUser(user, false);
         aCreatedDate.set(user.getCreatedDate());
         aInserted.countDown();
@@ -194,7 +208,7 @@ public class UserAccountServiceImplPicketLinkTest {
       ExoContainerContext.setCurrentContainer(container);
       RequestLifeCycle.begin(container);
       try {
-        userAccountService.createUser(account(login, "b"), Locale.ENGLISH);
+        userAccountService.createUser(account(login, "b", B_PASSWORD), Locale.ENGLISH);
       } catch (Throwable t) { // NOSONAR the outcome is asserted by the test thread
         bOutcome.set(t);
       } finally {
@@ -223,25 +237,26 @@ public class UserAccountServiceImplPicketLinkTest {
     RequestLifeCycle.restartTransaction();
     assertEquals(List.of(), damageOnTheFirstAccount(login, aCreatedDate.get()));
 
-    // The damage this interleaving can cause, B's creation date written on
-    // A's row and A's account disabled by B's compensation, is what the
-    // assertion above reports
+    // The damage this interleaving can cause, B's creation date and B's
+    // password written on A's row and A's account disabled by B's
+    // compensation, is what the assertion above reports
     Date bCreatedDate = new Date(aCreatedDate.get().getTime() + 1000);
-    container.getComponentInstanceOfType(PicketLinkIDMService.class)
-             .getIdentitySession()
-             .getAttributesManager()
-             .updateAttributes(login,
-                               new Attribute[] { new SimpleAttribute(UserDAOImpl.USER_CREATED_DATE,
-                                                                     String.valueOf(bCreatedDate.getTime())) });
+    IdentitySession identitySession = container.getComponentInstanceOfType(PicketLinkIDMService.class).getIdentitySession();
+    identitySession.getAttributesManager()
+                   .updateAttributes(login,
+                                     new Attribute[] { new SimpleAttribute(UserDAOImpl.USER_CREATED_DATE,
+                                                                           String.valueOf(bCreatedDate.getTime())) });
+    identitySession.getAttributesManager().updatePassword(identitySession.getPersistenceManager().findUser(login), B_PASSWORD);
     organizationService.getUserHandler().setEnabled(login, false, false);
     RequestLifeCycle.restartTransaction();
-    assertEquals(List.of("disabled", "createdDate " + bCreatedDate.getTime()),
+    assertEquals(List.of("disabled", "createdDate " + bCreatedDate.getTime(), "password not the first's", "password the second's"),
                  damageOnTheFirstAccount(login, aCreatedDate.get()));
   }
 
   /**
    * What the second creation left on the account of the first: none when one
-   * row holds the login, enabled, with the first's creation date and email
+   * row holds the login, enabled, with the first's creation date, email and
+   * password, and not the second's password
    */
   private List<String> damageOnTheFirstAccount(String login, Date aCreatedDate) throws Exception {
     List<String> damage = new ArrayList<>();
@@ -263,7 +278,21 @@ public class UserAccountServiceImplPicketLinkTest {
     if (!("jane.a." + login + "@example.com").equals(stored.getEmail()) || !"DoeA".equals(stored.getLastName())) {
       damage.add("names " + stored.getEmail() + " " + stored.getLastName());
     }
+    if (!authenticatesWith(stored, A_PASSWORD)) {
+      damage.add("password not the first's");
+    }
+    if (authenticatesWith(stored, B_PASSWORD)) {
+      damage.add("password the second's");
+    }
     return damage;
+  }
+
+  /**
+   * The stored credential, read whatever the enabled flag: authenticate()
+   * refuses a disabled account before reading its password
+   */
+  private boolean authenticatesWith(User stored, String password) throws Exception {
+    return ((UserDAOImpl) organizationService.getUserHandler()).authenticateDB(stored, password);
   }
 
   /**
@@ -321,12 +350,13 @@ public class UserAccountServiceImplPicketLinkTest {
     }
   }
 
-  private static UserAccount account(String login, String marker) {
+  private static UserAccount account(String login, String marker, String password) {
     UserAccount account = new UserAccount();
     account.setUserName(login);
     account.setFirstName("Jane");
     account.setLastName("Doe" + marker.toUpperCase());
     account.setEmail("jane." + marker + "." + login + "@example.com");
+    account.setPassword(password);
     account.setEnabled(true);
     return account;
   }
