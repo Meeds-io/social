@@ -215,7 +215,7 @@ export default {
       return this.$root.defaultUserPath;
     },
     homeUri() {
-      return this.isPage && this.$navigationUtils.getNavigationNodeHomeUri(this.$navigationUtils.getLinkNodeUri(this.item?.url));
+      return this.isPage && this.$navigationUtils.getNavigationNodeHomeUri(this.item?.url);
     },
     isHome() {
       return !!this.homeUri && this.defaultUserPath === this.homeUri;

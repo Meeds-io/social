@@ -137,7 +137,7 @@ export default {
       return !this.navigation.pageKey;
     },
     homeUri() {
-      return this.$navigationUtils.getNavigationNodeHomeUri(this.uri);
+      return this.$navigationUtils.getNavigationNodeHomeUri(this.navigation?.pageLink || this.uri);
     },
     isHomeLink() {
       return this.homeUri === this.homeLink;
