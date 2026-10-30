@@ -59,4 +59,13 @@ public class UserAccountEmailOtpPlugin extends EmailOtpPlugin {
     return "social.userAccount.otp.email.subject";
   }
 
+  /**
+   * The confirmation dialog offers a new code right after a wrong one, so
+   * this method alone lifts its send lock on a wrong code
+   */
+  @Override
+  protected boolean releasesSendLockOnWrongCode() {
+    return true;
+  }
+
 }
