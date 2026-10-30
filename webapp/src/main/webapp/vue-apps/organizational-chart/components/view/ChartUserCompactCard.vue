@@ -47,6 +47,11 @@
                   class="grey--text">
                   {{ $t('peopleList.label.external') }}
                 </span>
+                <span
+                  v-if="accountKind"
+                  class="accountKindFlagClass grey--text">
+                  ({{ $t(`accountKind.label.${accountKind}`) }})
+                </span>
               </p>
             </v-list-item-title>
             <v-list-item-subtitle>
@@ -102,6 +107,9 @@ export default {
     },
     externalUser() {
       return this.user?.external === 'true';
+    },
+    accountKind() {
+      return this.user?.accountKind || null;
     },
   }
 };

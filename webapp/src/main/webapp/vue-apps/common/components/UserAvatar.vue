@@ -52,6 +52,7 @@
           </v-icon>
         </span>
         <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
+        <span v-if="accountKind" class="accountKindFlagClass muted font-weight-regular">{{ accountKindTag }} </span>
       </span>
       <span v-if="$slots.subTitle" class="text-subtitle text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
@@ -98,6 +99,7 @@
             </v-icon>
           </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
+          <span v-if="accountKind" class="accountKindFlagClass muted font-weight-regular">{{ accountKindTag }} </span>
         </p>
         <p v-if="$slots.subTitle" class="text-subtitle text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
@@ -163,6 +165,7 @@
           </v-icon>
         </span>
         <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
+        <span v-if="accountKind" class="accountKindFlagClass muted font-weight-regular">{{ accountKindTag }} </span>
       </span>
       <span v-if="$slots.subTitle" class="text-subtitle text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
@@ -224,6 +227,7 @@
             </v-icon>
           </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
+          <span v-if="accountKind" class="accountKindFlagClass muted font-weight-regular">{{ accountKindTag }} </span>
         </p>
         <p v-if="$slots.subTitle" class="text-subtitle text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
@@ -432,6 +436,12 @@ export default {
     externalTag() {
       return `( ${this.$t('userAvatar.external.label')} )`;
     },
+    accountKind() {
+      return this.userIdentity?.accountKind || null;
+    },
+    accountKindTag() {
+      return `( ${this.$t(`accountKind.label.${this.accountKind}`)} )`;
+    },
     fullnameStyle() {
       return `${this.boldTitle && 'font-weight-bold ' || ''}${this.smallFontSize && 'caption ' || ''}`;
     },
@@ -463,6 +473,7 @@ export default {
         primaryProperty: this.primaryProperty,
         avatar: this.userAvatarUrl,
         external: this.isExternal,
+        accountKind: this.accountKind,
         displayedEmail: this.displayedEmail,
         displayedPhone: this.displayedPhone,
         allowAnimation: this.compact && this.allowAnimation,

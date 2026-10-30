@@ -26,6 +26,9 @@
           <span v-if="user.external === 'true'" class="externalTagClass">
             ({{ $t('UserProfilePopup.label.profile.external') }})
           </span>
+          <span v-if="user.accountKind" class="accountKindFlagClass text-light-color font-weight-regular">
+            ({{ $t(`accountKind.label.${user.accountKind}`) }})
+          </span>
         </a>
       </v-list-item-title>
       <v-list-item-subtitle>

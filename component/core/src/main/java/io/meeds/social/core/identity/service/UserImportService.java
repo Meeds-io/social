@@ -201,6 +201,10 @@ public class UserImportService {
   @Autowired
   private UserACL                               userAcl;
 
+  @Autowired
+  @Setter
+  private AccountKindService                    accountKindService;
+
   private Group                                 externalsGroup                    = null;
 
   private MembershipType                        memberMembershipType              = null;
@@ -609,11 +613,28 @@ public class UserImportService {
     }
   }
 
+  /**
+   * Sets one property of an imported user's profile, refusing the properties
+   * an import may not write: a non-editable property to a non-administrator,
+   * the external flag, the account kind and the user name to anyone, and a
+   * property an account kind keeps for administrators to a non-administrator
+   * on an account of that kind.
+   *
+   * @param profile the profile to update
+   * @param name the property name
+   * @param value the property value, or the upload id of an avatar or a banner
+   * @param save whether to save the profile once the property is set
+   * @param modifierUsername the user who runs the import
+   * @throws IllegalAccessException when the property may not be written by
+   *           the modifier
+   * @throws IOException when an uploaded avatar or banner cannot be read
+   */
   protected void updateProfileField(Profile profile,
                                     String name,
                                     Object value,
                                     boolean save,
                                     String modifierUsername) throws IllegalAccessException, IOException {
+    accountKindService.checkPropertyUpdate(profile, name, modifierUsername);
     ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name);
     if (propertySetting != null && !propertySetting.isEditable() && !userAcl.getUserIdentity(modifierUsername).isMemberOf(userAcl.getAdminGroups())) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));

@@ -325,6 +325,20 @@ public class EntityBuilder {
   public static ProfileEntity buildEntityProfile(Profile profile, String restPath, String expand) { // NOSONAR
     return buildEntityProfile(profile, restPath, null, expand);
   }
+
+  /**
+   * Builds the REST entity of a user profile. The {@code external} flag is
+   * always present, as the string {@code "true"} or {@code "false"} the
+   * clients compare against; the {@code accountKind} is present only for an
+   * account of a kind an add-on declares.
+   *
+   * @param profile the user profile
+   * @param restPath the REST path the entity links are built from
+   * @param groupIds a single group id whose roles of the user the entity
+   *          carries, null or any other size for none
+   * @param expand the comma-separated fields to expand
+   * @return the profile entity
+   */
   public static ProfileEntity buildEntityProfile(Profile profile, String restPath, List<String> groupIds, String expand) { // NOSONAR
     ProfileEntity userEntity = new ProfileEntity(profile.getId());
     userEntity.setHref(RestUtils.getRestUrl(USERS_TYPE, profile.getIdentity().getRemoteId(), restPath));
@@ -395,6 +409,7 @@ public class EntityBuilder {
     } else {
       userEntity.setIsExternal("false");
     }
+    userEntity.setAccountKind(LinkProvider.getDisplayedAccountKind(profile));
     if (canViewProperties || isProfilePropertyVisible(Profile.COMPANY)) {
       userEntity.setCompany((String) profile.getProperty(Profile.COMPANY));
     }

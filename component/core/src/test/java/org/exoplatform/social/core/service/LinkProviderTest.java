@@ -28,6 +28,8 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
+import io.meeds.social.core.identity.plugin.TestAccountKindPlugin;
+
 public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
 
   public void testGetProfileLink() {
@@ -72,6 +74,38 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
     } finally {
       profile.setProperty(Profile.DISPLAYED_EMAIL, null);
       profile.setProperty(Profile.DISPLAYED_PHONE, null);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * The link of an account of a declared kind carries the kind in the
+   * popover literal, escaped like the other strings, and the kind's label
+   * after the name; a kind no plugin declares, or no kind, carries neither.
+   * The test container serves no shared bundle, so the label is its key.
+   */
+  public void testGetProfileLinkShowsADeclaredAccountKind() {
+    Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+    Profile profile = johnIdentity.getProfile();
+    Object previous = profile.getProperty(Profile.ACCOUNT_KIND);
+    try {
+      profile.setProperty(Profile.ACCOUNT_KIND, TestAccountKindPlugin.KIND);
+      identityManager.updateProfile(profile);
+      String link = LinkProvider.getProfileLink("john", "classic");
+      assertTrue(link, link.contains(",accountKind: '" + TestAccountKindPlugin.KIND + "',"));
+      assertTrue(link, link.contains("<span class=\"accountKindFlagClass text-light-color font-weight-regular\"> (accountKind.label." + TestAccountKindPlugin.KIND + ")</span>"));
+
+      profile.setProperty(Profile.ACCOUNT_KIND, "undeclared");
+      identityManager.updateProfile(profile);
+      link = LinkProvider.getProfileLink("john", "classic");
+      assertFalse(link, link.contains("accountKind"));
+
+      profile.removeProperty(Profile.ACCOUNT_KIND);
+      identityManager.updateProfile(profile);
+      link = LinkProvider.getProfileLink("john", "classic");
+      assertFalse(link, link.contains("accountKind"));
+    } finally {
+      profile.setProperty(Profile.ACCOUNT_KIND, previous);
       identityManager.updateProfile(profile);
     }
   }

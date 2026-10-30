@@ -82,6 +82,8 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String EXTERNAL                = "external";
 
+  public static final String ACCOUNT_KIND            = "accountKind";
+
   public static final String LAST_LOGIN_TIME         = "lastLoginTime";
 
   public static final String ENROLLMENT_DATE         = "enrollmentDate";
@@ -491,6 +493,29 @@ public class ProfileEntity extends BaseEntity {
 
   public String isExternal() {
     return getString(EXTERNAL);
+  }
+
+  /**
+   * Sets the account kind the profile shows, omitted when null.
+   *
+   * @param accountKind the account kind, such as {@code bot}, or null for
+   *          none
+   * @return this entity
+   */
+  public ProfileEntity setAccountKind(String accountKind) {
+    if (accountKind != null) {
+      setProperty(ACCOUNT_KIND, accountKind);
+    }
+    return this;
+  }
+
+  /**
+   * Gives the account kind the profile shows.
+   *
+   * @return the account kind, null when the profile shows none
+   */
+  public String getAccountKind() {
+    return getString(ACCOUNT_KIND);
   }
 
   public ProfileEntity setLastLoginTime(String lastLoginTime) {

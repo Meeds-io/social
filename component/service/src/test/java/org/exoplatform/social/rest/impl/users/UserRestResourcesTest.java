@@ -21,7 +21,9 @@ package org.exoplatform.social.rest.impl.users;
 import io.meeds.portal.plugin.AclPlugin;
 import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
+import io.meeds.social.core.identity.plugin.TestAccountKindPlugin;
 import io.meeds.social.core.identity.service.UserExportService;
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.web.security.service.OtpService;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -139,6 +141,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private UserImportService            userImportService;
 
+  private AccountKindService           accountKindService;
+
   private ImageThumbnailService        imageThumbnailService;
 
   private PasswordRecoveryService      passwordRecoveryService;
@@ -178,7 +182,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     userExportService = mock(UserExportService.class);
+    accountKindService = getContainer().getComponentInstanceOfType(AccountKindService.class);
     userImportService = new UserImportService();
+    userImportService.setAccountKindService(accountKindService);
     userImportService.setIdentityManager(identityManager);
     userImportService.setOrganizationService(organizationService);
     userImportService.setProfilePropertyService(profilePropertyService);
@@ -214,7 +220,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 passwordRecoveryService,
                                                 localeConfigService,
                                                 settingService,
-                                                otpService);
+                                                otpService,
+                                                accountKindService);
     registry(userRestResourcesV1);
   }
 
@@ -296,7 +303,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               passwordRecoveryService,
                                               localeConfigService,
                                               settingService,
-                                              otpService);
+                                              otpService,
+                                              accountKindService);
     registry(userRestResources);
 
     // when
@@ -817,6 +825,227 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     } finally {
       // The profile property outlives this test in the shared test database
       markExternal(demoIdentity, false);
+    }
+  }
+
+  /**
+   * No user, an administrator included, may write the account kind through
+   * the single-property PATCH nor through the profile properties PATCH.
+   */
+  public void testUpdateProfileAccountKindIsRefused() throws Exception {
+    startSessionAs("root", true);
+    ContainerResponse response = patchProfileAttribute("root", Profile.ACCOUNT_KIND, "bot");
+    assertEquals(401, response.getStatus());
+    assertNull(identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.ACCOUNT_KIND));
+
+    ProfilePropertySettingEntity kindProperty = new ProfilePropertySettingEntity();
+    kindProperty.setPropertyName(Profile.ACCOUNT_KIND);
+    kindProperty.setValue("bot");
+    response = getResponse("PATCH",
+                           "/v1/social/users/root/profile/properties",
+                           new JSONArray(Collections.singletonList(kindProperty)).toString());
+    assertEquals(401, response.getStatus());
+    assertNull(identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.ACCOUNT_KIND));
+  }
+
+  /**
+   * The default banner value resets the banner only: sent with the account
+   * kind's name, it is a write of the account kind, refused, and the stored
+   * kind is kept.
+   */
+  public void testRemoveAccountKindWithTheDefaultBannerValueIsRefused() throws Exception {
+    Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    try {
+      profile.setProperty(Profile.ACCOUNT_KIND, TestAccountKindPlugin.KIND);
+      identityManager.updateProfile(profile);
+
+      startSessionAs("mary");
+      ContainerResponse response = patchProfileAttribute("mary", Profile.ACCOUNT_KIND, "DEFAULT_BANNER");
+      assertEquals(401, response.getStatus());
+      assertEquals(TestAccountKindPlugin.KIND,
+                   identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.ACCOUNT_KIND));
+    } finally {
+      profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.ACCOUNT_KIND);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * An account of a kind keeping its manager for administrators cannot remove
+   * its own manager with the default banner value, and can still reset its
+   * banner with it.
+   */
+  public void testRemoveManagerOfAccountOfKindWithTheDefaultBannerValueIsRefused() throws Exception {
+    setKindMembership("mary", true);
+    Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    try {
+      profile.setProperty(Profile.MANAGER, "root");
+      identityManager.updateProfile(profile);
+
+      startSessionAs("mary");
+      ContainerResponse response = patchProfileAttribute("mary", Profile.MANAGER, "DEFAULT_BANNER");
+      assertEquals(401, response.getStatus());
+      assertEquals("root", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
+
+      response = patchProfileAttribute("mary", Profile.BANNER, "DEFAULT_BANNER");
+      assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+      assertEquals("root", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
+    } finally {
+      setKindMembership("mary", false);
+      profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.MANAGER);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * An account of a kind keeping its manager for administrators cannot change
+   * its own manager; an administrator can.
+   */
+  public void testUpdateManagerOfAccountOfKind() throws Exception {
+    setKindMembership("mary", true);
+    try {
+      startSessionAs("mary");
+      ContainerResponse response = patchProfileAttribute("mary", Profile.MANAGER, "demo");
+      assertEquals(401, response.getStatus());
+      assertNotEquals("demo", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
+
+      startSessionAs("root", true);
+      response = patchProfileAttribute("mary", Profile.MANAGER, "root");
+      assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+      assertEquals("root", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
+    } finally {
+      setKindMembership("mary", false);
+      Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.MANAGER);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * Such an account cannot change its own manager through the profile
+   * properties PATCH either, where the multi-valued manager comes as children.
+   */
+  public void testUpdateManagerOfAccountOfKindThroughTheProfileProperties() throws Exception {
+    setKindMembership("mary", true);
+    try {
+      startSessionAs("mary");
+      JSONObject manager = new JSONObject();
+      manager.put("propertyName", Profile.MANAGER);
+      manager.put("multiValued", true);
+      manager.put("children", new JSONArray(Collections.singletonList(new JSONObject().put("value", "demo"))));
+      ContainerResponse response = getResponse("PATCH",
+                                               "/v1/social/users/mary/profile/properties",
+                                               new JSONArray(Collections.singletonList(manager)).toString());
+      assertEquals(401, response.getStatus());
+      assertFalse(String.valueOf(identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER))
+                        .contains("demo"));
+    } finally {
+      setKindMembership("mary", false);
+      Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.MANAGER);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * No user, an administrator included, may write the account kind through
+   * the profile entity PATCH, which reads it through its {@code accountKind}
+   * setter.
+   */
+  public void testUpdateAccountKindThroughTheProfileEntityIsRefused() throws Exception {
+    startSessionAs("root", true);
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.ACCOUNT_KIND, TestAccountKindPlugin.KIND);
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/root/profile", data.toString());
+    assertEquals(String.valueOf(response.getEntity()), 401, response.getStatus());
+    assertNull(identityManager.getOrCreateUserIdentity("root").getProfile().getProperty(Profile.ACCOUNT_KIND));
+  }
+
+  /**
+   * A user who is not an account of the kind changes its own manager, as
+   * before.
+   */
+  public void testUpdateManagerOfAccountNotOfKind() throws Exception {
+    setKindMembership("mary", false);
+    try {
+      startSessionAs("mary");
+      ContainerResponse response = patchProfileAttribute("mary", Profile.MANAGER, "demo");
+      assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+      assertEquals("demo", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.MANAGER));
+    } finally {
+      Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.MANAGER);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * The user entity carries the account kind of an account of a declared
+   * kind, and no {@code accountKind} field for a kind no plugin declares or
+   * for no kind.
+   */
+  public void testGetUserExposesADeclaredAccountKind() throws Exception {
+    startSessionAs("root");
+    Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    try {
+      profile.setProperty(Profile.ACCOUNT_KIND, TestAccountKindPlugin.KIND);
+      identityManager.updateProfile(profile);
+      assertEquals(TestAccountKindPlugin.KIND, getUserEntity("mary").getDataEntity().get(ProfileEntity.ACCOUNT_KIND));
+
+      profile.setProperty(Profile.ACCOUNT_KIND, "undeclared");
+      identityManager.updateProfile(profile);
+      assertFalse(getUserEntity("mary").getDataEntity().containsKey(ProfileEntity.ACCOUNT_KIND));
+
+      profile.removeProperty(Profile.ACCOUNT_KIND);
+      identityManager.updateProfile(profile);
+      assertFalse(getUserEntity("mary").getDataEntity().containsKey(ProfileEntity.ACCOUNT_KIND));
+    } finally {
+      profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      profile.removeProperty(Profile.ACCOUNT_KIND);
+      identityManager.updateProfile(profile);
+    }
+  }
+
+  /**
+   * Reads the user entity of a user.
+   *
+   * @param userName the user
+   * @return the user entity
+   */
+  private ProfileEntity getUserEntity(String userName) throws Exception {
+    ContainerResponse response = service("GET", getURLResource("users/" + userName), "", null, null);
+    assertEquals(200, response.getStatus());
+    return getBaseEntity(response.getEntity(), ProfileEntity.class);
+  }
+
+  /**
+   * Sends the single-property PATCH of a user profile.
+   *
+   * @param userName the user whose profile is updated
+   * @param name the property name
+   * @param value the property value
+   * @return the response
+   */
+  private ContainerResponse patchProfileAttribute(String userName, String name, String value) throws Exception {
+    byte[] formData = ("name=" + name + "&value=" + value).getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    return service("PATCH", getURLResource("users/" + userName), "", headers, formData);
+  }
+
+  /**
+   * Registers the test account kind and makes the user a member of its group,
+   * or removes every membership the user holds in it.
+   *
+   * @param userName the user
+   * @param member whether the user must be a member of the kind's group
+   */
+  private void setKindMembership(String userName, boolean member) throws Exception {
+    TestAccountKindPlugin.removeMemberships(organizationService, userName);
+    if (member) {
+      TestAccountKindPlugin.linkMembership(organizationService, userName, "member");
     }
   }
 

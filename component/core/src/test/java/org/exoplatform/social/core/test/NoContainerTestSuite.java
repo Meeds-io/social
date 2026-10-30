@@ -24,6 +24,8 @@ import io.meeds.social.cms.service.PageContentBlockPluginServiceImplTest;
 import io.meeds.social.cms.service.PageUrlResolverServiceImplTest;
 import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnectorTest;
 import io.meeds.social.cms.storage.elasticsearch.PageContentSearchConnectorTest;
+import org.exoplatform.social.core.listeners.AccountKindUsersListenerImplUnitTest;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProviderPopulateProfileTest;
 import org.exoplatform.social.core.plugin.PageFavoriteACLPluginTest;
 import io.meeds.social.space.invitation.storage.SpaceInvitationLinkLinkStorageTest;
 import io.meeds.social.space.listener.SpaceGroupCacheListenerTest;
@@ -67,6 +69,8 @@ import io.meeds.social.coediting.service.CoeditingServiceTest;
 import io.meeds.social.core.mail.BrandedEmailSenderTest;
 import io.meeds.social.publication.service.ContentPublicationServiceTest;
 import io.meeds.social.security.service.AccountDeactivationServiceTest;
+import io.meeds.social.core.identity.service.AccountKindServiceSpringTest;
+import io.meeds.social.core.identity.service.AccountKindServiceTest;
 import io.meeds.social.core.identity.service.UserExportServiceTest;
 import io.meeds.social.core.identity.service.UserImportServiceTest;
 import io.meeds.social.core.plugin.SiteAttachmentPluginTest;
@@ -141,6 +145,10 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     SiteAttachmentPluginTest.class,
     UserExportServiceTest.class,
     UserImportServiceTest.class,
+    AccountKindServiceTest.class,
+    AccountKindUsersListenerImplUnitTest.class,
+    OrganizationIdentityProviderPopulateProfileTest.class,
+    AccountKindServiceSpringTest.class,
     UserAclPluginTest.class,
     RemoveProfilePropertyUpgradePlugin.class,
     SpaceInvitationLinkLinkJoinListenerTest.class,
