@@ -50,7 +50,8 @@ const HOST_PREFIX_PATTERN = /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)*[a-z]([a-z0-9-]*
 // the URL a navigation node is saved, and recognised, as a user's home page,
 // from the link a link page stores, else the node's path: a link without a
 // scheme takes the page's own, and a link the home page can't be gives null
-export function getNavigationNodeHomeUri(nodeUri) {
+export function getNavigationNodeHomeUri(link) {
+  const nodeUri = link?.trim?.();
   if (!nodeUri || /^(mailto|tel|sms|javascript|data|vbscript|file):/i.test(nodeUri)) {
     return null;
   }
