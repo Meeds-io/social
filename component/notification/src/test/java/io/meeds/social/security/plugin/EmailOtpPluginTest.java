@@ -173,14 +173,14 @@ public class EmailOtpPluginTest {
   }
 
   /**
-   * A wrong code lifts the send lock, so that a new code can be asked for at
-   * once; a right one leaves it
+   * A wrong code keeps the send lock of the email method: the email change
+   * and API key flows wait out the send interval, as before
    */
   @Test
   public void testValidateOtpInvalid() {
     when(otpCache.get("email:john")).thenReturn("999999");
     assertFalse(plugin.validateOtp("john", OTP_CODE));
-    verify(otpSendLockCache).remove("email:john");
+    verify(otpSendLockCache, never()).remove(anyString());
   }
 
   @Test
