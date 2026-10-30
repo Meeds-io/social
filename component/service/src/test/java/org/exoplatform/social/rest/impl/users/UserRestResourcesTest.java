@@ -27,6 +27,7 @@ import io.meeds.web.security.service.OtpService;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -2021,6 +2022,63 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
     assertEquals(List.of(), response.getEntity());
     assertTrue(realHandler.findUserByName("john", UserStatus.ANY).isEnabled());
+  }
+
+  /**
+   * A store failure thrown for one user leaves that user out of the updated
+   * list and the batch carries on with the next, as a failed onboard does:
+   * the first user's write throws, the second is applied and listed
+   */
+  public void testBulkDisableLeavesOutAUserWhoseWriteThrowsAndCarriesOn() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    confirmedSessionUser = "root";
+    UserHandler realHandler = organizationService.getUserHandler();
+    UserHandler throwingHandler = spy(realHandler);
+    doThrow(new IllegalStateException("store down")).when(throwingHandler).setEnabled(eq("john"), anyBoolean(), anyBoolean());
+    OrganizationService throwingService = mock(OrganizationService.class);
+    when(throwingService.getUserHandler()).thenReturn(throwingHandler);
+    registerUserRestWith(passwordRecoveryService, throwingService);
+    try {
+      byte[] users = "[\"john\",\"mary\"]".getBytes(StandardCharsets.UTF_8);
+      MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+      listHeaders.putSingle("content-type", "application/json");
+      ContainerResponse response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of("mary"), response.getEntity());
+      assertTrue(realHandler.findUserByName("john", UserStatus.ANY).isEnabled());
+      assertFalse(realHandler.findUserByName("mary", UserStatus.ANY).isEnabled());
+    } finally {
+      realHandler.setEnabled("mary", true, false);
+    }
+  }
+
+  /**
+   * The mirror path: a thrown failure on a bulk enable leaves the user out
+   * and answers 200, the account staying disabled
+   */
+  public void testBulkEnableLeavesOutAUserWhoseWriteThrows() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    confirmedSessionUser = "root";
+    UserHandler realHandler = organizationService.getUserHandler();
+    realHandler.setEnabled("mary", false, false);
+    UserHandler throwingHandler = spy(realHandler);
+    doThrow(new IllegalStateException("store down")).when(throwingHandler).setEnabled(eq("mary"), anyBoolean(), anyBoolean());
+    OrganizationService throwingService = mock(OrganizationService.class);
+    when(throwingService.getUserHandler()).thenReturn(throwingHandler);
+    registerUserRestWith(passwordRecoveryService, throwingService);
+    try {
+      byte[] users = "[\"mary\"]".getBytes(StandardCharsets.UTF_8);
+      MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+      listHeaders.putSingle("content-type", "application/json");
+      ContainerResponse response = service("PATCH", getURLResource("users/bulk/enable"), "", listHeaders, users, "root");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of(), response.getEntity());
+      assertFalse(realHandler.findUserByName("mary", UserStatus.ANY).isEnabled());
+    } finally {
+      realHandler.setEnabled("mary", true, false);
+    }
   }
 
   /**
