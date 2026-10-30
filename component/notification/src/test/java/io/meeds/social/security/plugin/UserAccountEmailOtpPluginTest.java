@@ -162,6 +162,21 @@ public class UserAccountEmailOtpPluginTest {
     assertFalse(plugin.validateOtp("john", "999999"));
   }
 
+  /**
+   * A wrong code lifts this method's send lock, so the confirmation dialog
+   * can send a new code at once; a right one leaves it
+   */
+  @Test
+  public void testWrongCodeLiftsTheSendLockOfThisMethodOnly() {
+    when(otpCache.get("userAccountEmail:john")).thenReturn("999999");
+    assertFalse(plugin.validateOtp("john", OTP_CODE));
+    verify(otpSendLockCache).remove("userAccountEmail:john");
+
+    when(otpCache.get("userAccountEmail:john")).thenReturn(OTP_CODE);
+    assertTrue(plugin.validateOtp("john", OTP_CODE));
+    verify(otpSendLockCache, org.mockito.Mockito.times(1)).remove("userAccountEmail:john");
+  }
+
   @Test
   public void testValidateOtpIgnoresOtherPurposeCodes() {
     when(otpCache.get("email:john")).thenReturn(OTP_CODE);
