@@ -4,9 +4,6 @@
 <%@ page import="org.exoplatform.commons.api.settings.data.Scope" %>
 <%@ page import="org.exoplatform.commons.api.settings.SettingValue" %>
 <%@ page import="org.exoplatform.portal.webui.application.UIPortlet" %>
-<%@ page import="org.exoplatform.social.core.space.model.Space" %>
-<%@ page import="org.exoplatform.social.core.space.spi.SpaceService" %>
-<%@ page import="org.exoplatform.social.core.space.SpaceUtils" %>
 <%@ page import="org.exoplatform.social.core.profileproperty.ProfilePropertyService" %>
 <%@ page import="org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting" %>
 <%@ page import="java.util.Objects" %>
@@ -17,6 +14,7 @@
 <%@ page import="io.meeds.social.translation.service.TranslationService" %>
 <%@ page import="io.meeds.social.translation.model.TranslationField" %>
 <%@ page import="java.util.Locale" %>
+<%@ page import="org.apache.commons.text.StringEscapeUtils" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
@@ -51,7 +49,7 @@
     if (labels != null && !labels.isEmpty()) {
         headerTitle = labels.get(request.getLocale());
         ObjectMapper mapper = new ObjectMapper();
-        headerTranslations = mapper.writeValueAsString(labels);
+        headerTranslations = mapper.writeValueAsString(labels).replace("</", "<\\/");
     }
     PortletPreferences preferences = renderRequest.getPreferences();
     boolean canUpdateCenterUser = Boolean.parseBoolean(preferences.getValue("canUpdateCenterUser", "true"));
@@ -71,13 +69,6 @@
     if (Objects.equals(centerUser, "@connected@")) {
         centerUser = Utils.getOwnerIdentityId();
     }
-
-    boolean isManager = false;
-    Space space = SpaceUtils.getSpaceByContext();
-    if (space != null) {
-      SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-      isManager = spaceService.canManageSpace(space, request.getRemoteUser());
-    }
 %>
 
 <div class="VuetifyApp" id="organizationalChartParent">
@@ -87,19 +78,18 @@
         <% if (propertySetting.isActive()) { %>
             <script type="text/javascript">
                 require(['PORTLET/social/OrganizationalChart'], app => app.init('<%=id%>', {
-                                                                                                       userId: "<%=centerUser%>" !== 'null' && "<%=centerUser%>" || null,
-                                                                                                       title: "<%=headerTitle%>" !== 'null' && "<%=headerTitle%>" || null,
+                                                                                                       userId: "<%=StringEscapeUtils.escapeEcmaScript(centerUser)%>" !== 'null' && "<%=StringEscapeUtils.escapeEcmaScript(centerUser)%>" || null,
+                                                                                                       title: "<%=StringEscapeUtils.escapeEcmaScript(headerTitle)%>" !== 'null' && "<%=StringEscapeUtils.escapeEcmaScript(headerTitle)%>" || null,
                                                                                                        headerTranslations: <%=headerTranslations%>,
                                                                                                        canUpdateCenterUser: <%=canUpdateCenterUser%>,
-                                                                                                       hasHeaderTitle: <%=hasHeaderTitle%>,
-                                                                                                       isSpaceManager: <%=isManager%>
+                                                                                                       hasHeaderTitle: <%=hasHeaderTitle%>
                                                                                                    }));
             </script>
         <% } else {%>
 			<div class="my-auto white border-radius pa-5 card-border-radius v-card v-sheet v-sheet--outlined theme--light" style="margin:0 auto;">
 			  <div class="d-flex mb-2 v-sheet theme--light" style="height: 28px;">
 			    <p class="my-auto text-header">
-			      <span class="text-truncate"><%=headerTitle%></span>
+			      <span class="text-truncate"><%=StringEscapeUtils.escapeHtml4(headerTitle)%></span>
 			    </p>
 			  </div>
               <p class="mt-2">

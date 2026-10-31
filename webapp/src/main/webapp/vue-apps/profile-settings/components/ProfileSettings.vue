@@ -85,13 +85,6 @@ export default {
       excludedAnalyticsIndexProperties: [],
       fieldsToRetrieve: 'settings',
       excludedSettingsProp: [],
-      userCardSettingsContextKey: 'GLOBAL',
-      userCardSettingScopeKey: 'GLOBAL',
-      userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
-      userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
-      userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
-      userPhonePropertyKey: 'UserDisplayedPhonePropertySetting',
-      userEmailPropertyKey: 'UserDisplayedEmailPropertySetting',
       isSavingCardSettings: false,
       savedCardSettings: null,
       settingOptionObjectType: 'propertySettingOption',
@@ -297,20 +290,12 @@ export default {
           && this.$t(`profileSettings.property.name.${property.propertyName}`)
           || property.propertyName;
     },
-    saveCardSetting(settingKey, settingValue) {
-      return this.$settingService.setSettingValue(this.userCardSettingsContextKey, '',
-        this.userCardSettingScopeKey, 'UserCardSettings', settingKey, settingValue);
-    },
     getSavedUserCardSettings() {
       return this.$userService.getUserCardSettings().then(userCardSettings => this.savedCardSettings = userCardSettings);
     },
     saveUserCardSettings(settings) {
       this.isSavingCardSettings = true;
-      return this.saveCardSetting(this.userCardFirstFieldSettingKey, settings.firstField)
-        .then(() => this.saveCardSetting(this.userCardSecondFieldSettingKey, settings.secondField))
-        .then(() => this.saveCardSetting(this.userCardThirdFieldSettingKey, settings.thirdField))
-        .then(() => this.saveCardSetting(this.userPhonePropertyKey, settings.displayedPhone))
-        .then(() => this.saveCardSetting(this.userEmailPropertyKey, settings.displayedEmail))
+      return this.$userService.saveUserCardSettings(settings)
         .then(() => {
           this.savedCardSettings = {
             firstField: settings.firstField,

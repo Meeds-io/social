@@ -82,6 +82,7 @@ import io.meeds.social.observer.plugin.ActivityOberverPluginTest;
 import io.meeds.social.observer.service.ObserverServiceTest;
 import io.meeds.social.report.service.ActivityReportServiceTest;
 import io.meeds.social.richeditor.RichEditorConfigurationServiceTest;
+import io.meeds.social.usercard.service.UserCardSettingServiceTransactionTest;
 import io.meeds.social.translation.service.TranslationServiceTest;
 
 @SuiteClasses({
@@ -128,6 +129,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   CMSServiceTest.class,
   ImageThumbnailServiceImplTest.class,
   RichEditorConfigurationServiceTest.class,
+  UserCardSettingServiceTransactionTest.class,
   TranslationServiceTest.class,
   ActivityOberverPluginTest.class,
   AttachmentActivityProcessorTest.class,
