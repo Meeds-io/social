@@ -43,7 +43,7 @@
             :class="{'clickable': !item.isInternal}">
             <v-list-item
               :disabled="!item.isInternal"
-              class="px-2"
+              class="usersManagementEditMenuItem px-2"
               dense
               @click="$root.$emit('editUser', item)">
               <v-list-item-icon class="mx-1 justify-center">
@@ -60,7 +60,7 @@
           <div v-on="on" v-bind="attrs">
             <v-list-item
               :disabled="!canOnboard"
-              class="px-2"
+              class="usersManagementOnboardMenuItem px-2"
               dense
               @click="$emit('onboard')">
               <v-list-item-icon class="mx-1 justify-center">
@@ -79,7 +79,7 @@
         <span>{{ onboardTooltip }}</span>
       </v-tooltip>
       <v-list-item
-        class="px-2"
+        class="usersManagementMembershipsMenuItem px-2"
         dense
         @click="$root.$emit('openUserMemberships', item)">
         <v-list-item-icon class="mx-1 justify-center">
@@ -89,7 +89,7 @@
       </v-list-item>
       <v-list-item
         v-if="item.enabled"
-        class="px-2"
+        class="usersManagementDisableMenuItem px-2"
         dense
         @click="$emit('disable')">
         <v-list-item-icon class="mx-1 justify-center">
@@ -99,7 +99,7 @@
       </v-list-item>
       <v-list-item
         v-else
-        class="px-2"
+        class="usersManagementEnableMenuItem px-2"
         dense
         @click="$emit('enable')">
         <v-list-item-icon class="mx-1 justify-center">
@@ -115,7 +115,7 @@
           <div v-on="on" v-bind="attrs">
             <v-list-item
               :disabled="!item.isInternal"
-              class="px-2"
+              class="usersManagementDeleteMenuItem px-2"
               dense
               @click="$emit('delete')">
               <v-list-item-icon class="mx-1 justify-center">
