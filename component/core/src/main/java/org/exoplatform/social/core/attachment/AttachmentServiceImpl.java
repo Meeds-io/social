@@ -767,6 +767,8 @@ public class AttachmentServiceImpl implements AttachmentService {
 
       if (properties != null && properties.containsKey(ATTACHMENT_ALT_TEXT)) {
         attachment.setAltText(properties.get(ATTACHMENT_ALT_TEXT));
+      }
+      if (properties != null && properties.containsKey(ATTACHMENT_FORMAT)) {
         attachment.setFormat(properties.get(ATTACHMENT_FORMAT));
       }
       if (properties != null && properties.containsKey(ATTACHMENT_LINK_URL)) {
