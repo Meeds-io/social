@@ -690,6 +690,28 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertEquals(FORMAT, attachmentDetail.getFormat());
   }
   
+  public void testGetAttachmentsKeepsTheFormatOfAnAttachmentWithoutAltText() throws Exception {
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    hasEditPermission.set(true);
+    hasViewPermission.set(true);
+    uploadResource();
+    FileAttachmentObject fileAttachmentObject = new FileAttachmentObject();
+    fileAttachmentObject.setUploadId(UPLOAD_ID);
+    fileAttachmentObject.setFormat("square");
+
+    ObjectAttachmentDetail createdAttachment = attachmentService.createAttachment(PUBLIC_OBJECT_TYPE,
+                                                                                  objectId,
+                                                                                  fileAttachmentObject,
+                                                                                  userAcl);
+
+    ObjectAttachmentDetail attachmentDetail = attachmentService.getAttachments(PUBLIC_OBJECT_TYPE, objectId)
+                                                               .getAttachments()
+                                                               .getFirst();
+    assertEquals(createdAttachment.getId(), attachmentDetail.getId());
+    assertNull(attachmentDetail.getAltText());
+    assertEquals("square", attachmentDetail.getFormat());
+  }
+
   private AttachmentPlugin createAttachmentPlugin(String objectType, boolean canUpdateList) {
     return new AttachmentPlugin() {
       @Override
