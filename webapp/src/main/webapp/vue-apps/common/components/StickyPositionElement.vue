@@ -26,7 +26,7 @@
     flat>
     <div
       :style="parentStyle"
-      class="white ms-n6">
+      class="application-background-color ms-n6">
       <v-divider
         v-if="elevate" />
       <slot></slot>
