@@ -50,7 +50,7 @@
           </div>
           <dynamic-html-element
             v-if="summary"
-            :child="summaryElement"
+            :html="summary"
             :class="bodyClass"
             class="text-subtitle mt-3 text-color text-truncate-2 text-wrap text-break reset-style-box rich-editor-content mb-0"
             dir="auto" />
@@ -120,14 +120,15 @@
       </v-avatar>
       <div
         class="no-min-width position-relative d-flex flex-column flex-grow-1 mx-3">
-        <dynamic-html-element
+        <div
           v-if="title"
-          :child="titleElement"
           class="text-truncate text-body mb-3 mt-2 font-weight-bold text-color mx-0 mt-0 text-wrap text-break"
-          dir="auto" />
+          dir="auto">
+          <span v-html="titleHtml"></span>
+        </div>
         <dynamic-html-element
           v-if="summary"
-          :child="summaryElement"
+          :html="summary"
           :class="bodyClass"
           class="text-subtitle text-color text-wrap text-break reset-style-box rich-editor-content mb-0"
           dir="auto" />
@@ -303,15 +304,10 @@ export default {
     summaryText() {
       return this.summary && this.$utils.htmlToText(this.summary) || '';
     },
-    summaryElement() {
-      return {
-        template: this.summary && ExtendedDomPurify.purify(`<div>${this.summary}</div>`) || '',
-      };
-    },
-    titleElement() {
-      return {
-        template: this.title && ExtendedDomPurify.purify(`<span>${this.title}</span>`) || '',
-      };
+    titleHtml() {
+      // The title, like the summary, is rendered as HTML and never compiled as a Vue template:
+      // both hold text their author controls.
+      return this.title && ExtendedDomPurify.purify(this.title) || '';
     },
     bodyClass() {
       return `${this.textTruncate || ''} ${!this.useEllipsisOnSummary && this.collapsed && !this.fullContent && 'text-truncate-4' || ''} ${this.regularFontSizeOnSummary && 'text-font-size' || 'caption'}`;
