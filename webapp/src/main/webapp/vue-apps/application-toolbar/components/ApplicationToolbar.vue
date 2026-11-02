@@ -104,7 +104,7 @@
         <div
           v-if="showRightContent"
           id="applicationToolbarRight"
-          :class="rightCols"
+          :class="[rightCols, rightClass]"
           class="d-flex flex-nowrap flex-grow-1 align-center justify-end text-truncate pa-0">
           <v-btn
             v-if="expandFilter"
@@ -347,6 +347,10 @@ export default {
       type: [Number, String],
       default: null,
     },
+    rightClass: { // Classes added to the right content
+      type: String,
+      default: null,
+    },
     dense: { // Reduces the height of the toolbar content to 48px
       type: Boolean,
       default: false,
@@ -454,12 +458,19 @@ export default {
     showRightContent() {
       return !this.hideRight && (!this.isCompact || this.hasRightContent);
     },
+    isLeftColAuto() {
+      return !this.expandFilter && this.colsAuto && (this.showRightContent || this.showCenterContent) && Boolean(this.showRightContent) !== Boolean(this.showCenterContent);
+    },
     leftCols() {
       return {
         'd-none': this.expandFilter,
         'col-12': !this.expandFilter && !this.showRightContent && !this.showCenterContent,
         'col-6': !this.expandFilter && !this.colsAuto && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
-        'col-auto': !this.expandFilter && this.colsAuto && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
+        'col-auto': this.isLeftColAuto,
+        // An auto-sized left content that is not truncated shrinks down to its
+        // minimum width, so that a wrapping content wraps instead of pushing
+        // the right content out of the toolbar
+        'flex-shrink-1': this.isLeftColAuto && this.noTextTruncate,
         'col-4': !this.expandFilter && (this.showRightContent || this.showCenterContent) && (!this.showRightContent === !this.showCenterContent),
         'text-truncate': !this.noTextTruncate,
       };
