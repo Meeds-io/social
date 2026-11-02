@@ -24,7 +24,8 @@
     <widget-wrapper
       :title="$t('social.admins.label')"
       ref="admins"
-      key="admins">
+      key="admins"
+      extra-class="application-body">
       <template #action>
         <div class="position-relative">
           <exo-user-avatars-list
