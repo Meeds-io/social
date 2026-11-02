@@ -56,7 +56,9 @@ public interface AttachmentService {
    *                                   {@link FileAttachmentResourceList}
    *                                   doesn't exists
    * @throws IllegalAccessException  when user doesn't have "write" permission
-   *                                   on selected object
+   *                                   on selected object, or when an uploaded
+   *                                   content is sent for a file that isn't
+   *                                   an attachment of the object
    */
   ObjectAttachmentOperationReport saveAttachments(FileAttachmentResourceList attachment,
                                                   Identity userAclIdentity) throws ObjectNotFoundException,
