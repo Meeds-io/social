@@ -178,6 +178,8 @@ export default {
     },
     deleteImage(image) {
       if (image.uploadId) {
+        // stops the upload's progress polling and its error alert
+        image.removed = true;
         const index = this.images.findIndex(file => file.uploadId === image.uploadId);
         if (index >= 0) {
           this.images.splice(index, 1);
