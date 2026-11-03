@@ -20,26 +20,20 @@
 -->
 <template>
   <div v-if="$root.isAllSections">
-    <v-card flat>
-      <v-list class="pa-0" dense>
-        <v-list-item class="pa-0">
-          <v-list-item-content>
-            <v-list-item-title class="text-title error--text py-1">
-              {{ $t('spaceSetting.delete.label') }}
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn
-              :aria-label="$t('spaceSetting.space.delete.label')"
-              small
-              icon
-              @click="removeSpaceConfirm">
-              <v-icon size="18" class="error--text">fa-trash</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <space-setting-row
+      :title="$t('spaceSetting.delete.label')"
+      :summary="$t('spaceSetting.delete.summary')"
+      danger>
+      <template #action>
+        <v-btn
+          :aria-label="$t('spaceSetting.space.delete.label')"
+          small
+          icon
+          @click="removeSpaceConfirm">
+          <v-icon size="18" class="error--text">fa-trash</v-icon>
+        </v-btn>
+      </template>
+    </space-setting-row>
     <exo-confirm-dialog
       ref="deleteSpaceConfirmDialog"
       :message="$t('spaceSetting.message.deleteSpace')"
@@ -52,14 +46,27 @@
 <script>
 export default {
   computed: {
+    /**
+     * @returns {Object} the space whose settings are displayed
+     */
     space() {
       return this.$root.space;
     }
   },
   methods: {
+    /**
+     * Asks the user to confirm the deletion of the space.
+     *
+     * @returns {void}
+     */
     removeSpaceConfirm() {
       this.$refs.deleteSpaceConfirmDialog.open();
     },
+    /**
+     * Deletes the space, then leaves its pages.
+     *
+     * @returns {Promise} resolved once the space is deleted or the error shown
+     */
     async removeSpace() {
       try {
         await this.$spaceService.removeSpace(this.space?.id);
