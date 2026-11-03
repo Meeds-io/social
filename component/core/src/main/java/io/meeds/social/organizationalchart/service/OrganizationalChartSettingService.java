@@ -43,7 +43,8 @@ import io.meeds.common.ContainerTransactional;
  * Saves the settings of an organizational chart application: the user the
  * chart is centered on and whether its header title is displayed. The settings
  * are read by the application's portlet when it renders. They are edited by an
- * administrator, or by a manager of the space whose page holds the chart.
+ * administrator, or by a manager of the space recorded for the chart (see
+ * {@link #saveApplicationSpace}).
  */
 @Service
 public class OrganizationalChartSettingService {

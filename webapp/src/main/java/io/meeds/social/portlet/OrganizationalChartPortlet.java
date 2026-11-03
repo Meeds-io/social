@@ -75,7 +75,7 @@ public class OrganizationalChartPortlet extends CMSPortlet {
    * Records the space of the page that holds the window; a window of a site
    * or shared layout has no page ancestor and records none
    */
-  private void saveApplicationSpace(String id) {
+  void saveApplicationSpace(String id) {
     UIPortlet uiPortlet = UIPortlet.getCurrentUIPortlet();
     UIPage uiPage = uiPortlet == null ? null : uiPortlet.getAncestorOfType(UIPage.class);
     if (uiPage != null && StringUtils.isNotBlank(uiPage.getPageId())) {
@@ -83,6 +83,10 @@ public class OrganizationalChartPortlet extends CMSPortlet {
                                                                   uiPortlet.getStorageId(),
                                                                   PageKey.parse(uiPage.getPageId()).getSite());
     }
+  }
+
+  void setOrganizationalChartSettingService(OrganizationalChartSettingService organizationalChartSettingService) {
+    this.organizationalChartSettingService = organizationalChartSettingService;
   }
 
   private OrganizationalChartSettingService getOrganizationalChartSettingService() {
