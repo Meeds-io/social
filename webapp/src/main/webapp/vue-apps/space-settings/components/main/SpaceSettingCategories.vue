@@ -21,6 +21,7 @@
 <template>
   <div v-if="$root.isAllSections">
     <space-setting-row
+      :divider="divider"
       :title="$t('SpaceSettings.categories')"
       :summary="summary">
       <template #action>
@@ -38,6 +39,15 @@
 </template>
 <script>
 export default {
+  props: {
+    /**
+     * Whether a divider separates this row from the row above it in its group
+     */
+    divider: {
+      type: Boolean,
+      default: false,
+    },
+  },
   computed: {
     /**
      * @returns {Number} the number of categories the space is tagged with
