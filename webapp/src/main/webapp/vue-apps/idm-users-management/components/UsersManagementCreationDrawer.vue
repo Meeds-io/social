@@ -122,11 +122,10 @@
 <script>
 import * as userCreationService from '../js/UserCreationService.js';
 import UsersManagementCreationOutcomes from './creation/UsersManagementCreationOutcomes.js';
-import UsersManagementFieldRules from './UsersManagementFieldRules.js';
 import UsersManagementOnboardingSettings from './onboarding/UsersManagementOnboardingSettings.js';
 
 export default {
-  mixins: [UsersManagementCreationOutcomes, UsersManagementFieldRules, UsersManagementOnboardingSettings],
+  mixins: [UsersManagementCreationOutcomes, UsersManagementOnboardingSettings],
   data: () => ({
     drawer: false,
     stepper: 0,
@@ -148,7 +147,7 @@ export default {
     // been left yet or not
     profileRuleBroken() {
       return ['userName', 'firstName', 'lastName', 'email', 'password']
-        .some(field => this.fieldRuleError(field, this.user[field]));
+        .some(field => this.$usersManagementFieldRules.fieldRuleError(field, this.user[field]));
     },
     profileStepValid() {
       return (!this.customizeUsername || !!this.user.userName?.trim())
@@ -252,9 +251,9 @@ export default {
     // refusal still shown is not cleared by a mere focus; the confirmation's
     // mismatch is the step's own, shown as it is typed or left
     checkField(field) {
-      const error = this.fieldRuleError(field, this.user[field]);
-      if (error) {
-        this.setError(field, error);
+      const rule = this.$usersManagementFieldRules.fieldRuleError(field, this.user[field]);
+      if (rule) {
+        this.setError(field, this.$t(rule));
       }
     },
     next() {
