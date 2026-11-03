@@ -20,28 +20,18 @@
 -->
 <template>
   <div v-if="$root.isAllSections">
-    <v-card flat>
-      <v-list class="pa-0" dense>
-        <v-list-item class="pa-0">
-          <v-list-item-content>
-            <v-list-item-title class="text-title py-1">
-              {{ $t('SpaceSettings.sovereignty') }}
-            </v-list-item-title>
-            <v-list-item-subtitle class="pt-0 pb-1">
-              {{ $t('SpaceSettings.sovereignty.description') }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-switch
-              id="SpaceSettingRestrictContent"
-              v-model="$root.space.sovereign"
-              :loading="saving"
-              class="ma-0"
-              @click="switchSpaceSovereignty" />
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <space-setting-row
+      :title="$t('SpaceSettings.sovereignty')"
+      :summary="summary">
+      <template #action>
+        <v-switch
+          id="SpaceSettingRestrictContent"
+          v-model="$root.space.sovereign"
+          :loading="saving"
+          class="ma-0"
+          @click="switchSpaceSovereignty" />
+      </template>
+    </space-setting-row>
   </div>
 </template>
 <script>
@@ -49,7 +39,22 @@ export default {
   data: () => ({
     saving: false,
   }),
+  computed: {
+    /**
+     * @returns {String} whether the space is sovereign, and what it means for its data
+     */
+    summary() {
+      return this.$root.space.sovereign
+        ? this.$t('SpaceSettings.sovereignty.summary.on')
+        : this.$t('SpaceSettings.sovereignty.summary.off');
+    },
+  },
   methods: {
+    /**
+     * Saves the sovereignty the switch now shows.
+     *
+     * @returns {Promise} resolved once the space is saved
+     */
     async switchSpaceSovereignty() {
       this.saving = true;
       try {
