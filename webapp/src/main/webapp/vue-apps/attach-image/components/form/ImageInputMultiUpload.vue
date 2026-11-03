@@ -145,7 +145,7 @@ export default {
     uploadFileToServer(file, fileDetails) {
       fileDetails.uploadPending = true;
       this.pendingUploadsCount++;
-      new Promise(resolve => resolve(this.$uploadService.upload(file, fileDetails.uploadId)))
+      Promise.resolve().then(() => this.$uploadService.upload(file, fileDetails.uploadId))
         .then(uploadId => {
           if (!uploadId) {
             throw new Error(UPLOAD_ERROR_KEY);
