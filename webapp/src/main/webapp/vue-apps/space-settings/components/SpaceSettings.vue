@@ -26,11 +26,12 @@
         One card per group, as the user Settings page draws its sections. Social
         places its own rows; an extension row goes to the group its registration
         names in `group`, Applications when it names none. The Identity and Roles
-        sections open inside their group's card.
+        sections open inside their group's card, with the padding they are laid out for.
       -->
       <v-card
         v-if="isActiveSection || $root.isOverviewSection"
         id="SpaceSettingsGroupGeneralCard"
+        :class="!isActiveSection && 'px-5 py-1'"
         class="space-settings-group application-layout-style mb-4"
         flat>
         <space-setting-group-title
@@ -58,6 +59,7 @@
       <v-card
         v-if="isActiveSection || $root.isRolesSection"
         id="SpaceSettingsGroupMembersCard"
+        :class="!isActiveSection && 'px-5 py-1'"
         class="space-settings-group application-layout-style mb-4"
         flat>
         <space-setting-group-title
