@@ -21,6 +21,7 @@
 <template>
   <div v-if="$root.isAllSections">
     <space-setting-row
+      :divider="divider"
       :title="$t('SpaceSettings.sovereignty')"
       :summary="summary">
       <template #action>
@@ -36,6 +37,15 @@
 </template>
 <script>
 export default {
+  props: {
+    /**
+     * Whether a divider separates this row from the row above it in its group
+     */
+    divider: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
     saving: false,
     savedSovereign: null,
