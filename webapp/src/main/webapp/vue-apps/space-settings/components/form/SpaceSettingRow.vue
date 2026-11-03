@@ -29,10 +29,20 @@
           class="space-setting-row-title">
           {{ title }}
         </v-list-item-title>
+        <!--
+          No content between the slot's tags: the webapp's template compiler
+          emits it as a function the platform's Vue 2.6 runtime never renders
+          (pitfall social/vue27-slot-fallback-on-vue26-runtime).
+        -->
         <v-list-item-subtitle
-          v-if="summary || $slots.summary"
+          v-if="$scopedSlots.summary"
           class="space-setting-row-summary text-wrap">
-          <slot name="summary">{{ summary }}</slot>
+          <slot name="summary"></slot>
+        </v-list-item-subtitle>
+        <v-list-item-subtitle
+          v-else-if="summary"
+          class="space-setting-row-summary text-wrap">
+          {{ summary }}
         </v-list-item-subtitle>
       </v-list-item-content>
       <v-list-item-action>
