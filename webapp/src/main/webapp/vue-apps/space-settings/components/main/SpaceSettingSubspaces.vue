@@ -21,6 +21,7 @@
 <template>
   <div v-if="$root.isAllSections">
     <space-setting-row
+      :divider="divider"
       :title="$t('spaceSetting.subspaces')"
       :summary="summary">
       <template #action>
@@ -37,6 +38,15 @@
 </template>
 <script>
 export default {
+  props: {
+    /**
+     * Whether a divider separates this row from the row above it in its group
+     */
+    divider: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
     subspacesCount: null,
   }),

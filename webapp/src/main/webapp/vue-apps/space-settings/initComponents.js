@@ -45,6 +45,8 @@ import SpaceSettingRolesTableItem from './components/section/roles/SpaceSettingR
 import SpaceSettingSubspacesItem from './components/form/SpaceSettingSubspacesItem.vue';
 import SpaceSettingDeletion from './components/main/SpaceSettingDeletion.vue';
 import SpaceSettingRow from './components/form/SpaceSettingRow.vue';
+import SpaceSettingGroupTitle from './components/form/SpaceSettingGroupTitle.vue';
+import SpaceSettingGroupExtensions from './components/form/SpaceSettingGroupExtensions.vue';
 
 const components = {
   'space-settings': SpaceSettings,
@@ -75,6 +77,8 @@ const components = {
   'space-setting-subspaces-item': SpaceSettingSubspacesItem,
   'space-setting-delete-space': SpaceSettingDeletion,
   'space-setting-row': SpaceSettingRow,
+  'space-setting-group-title': SpaceSettingGroupTitle,
+  'space-setting-group-extensions': SpaceSettingGroupExtensions,
 };
 
 for (const key in components) {
