@@ -22,26 +22,33 @@
   <div v-if="$root.isRolesSection || $root.isAllSections">
     <space-setting-roles-section
       v-if="$root.isRolesSection" />
-    <v-card
+    <space-setting-row
       v-else
-      flat>
-      <v-list class="pa-0" dense>
-        <v-list-item class="pa-0">
-          <v-list-item-content>
-            <v-list-item-title class="text-title py-1">
-              {{ $t('SpaceSettings.roles') }}
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn
-              small
-              icon
-              @click="$root.showSection('roles')">
-              <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-card>
+      :title="$t('SpaceSettings.roles')"
+      :summary="summary">
+      <template #action>
+        <v-btn
+          small
+          icon
+          @click="$root.showSection('roles')">
+          <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
+        </v-btn>
+      </template>
+    </space-setting-row>
   </div>
 </template>
+<script>
+export default {
+  computed: {
+    /**
+     * @returns {String} the number of members of the space, as one line
+     */
+    summary() {
+      const membersCount = this.$root.space.membersCount || 0;
+      return membersCount === 1
+        ? this.$t('SpaceSettings.roles.summary.one')
+        : this.$t('SpaceSettings.roles.summary.many', {0: membersCount});
+    },
+  },
+};
+</script>
