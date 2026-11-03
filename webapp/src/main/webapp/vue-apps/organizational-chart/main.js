@@ -54,6 +54,7 @@ export function init(applicationId, settings) {
       },
       template: `<organizational-chart-app 
                    id="${appId}"
+                   :can-edit-settings="${settings?.canEditSettings === true}"
                    :initial-user-id="${settings?.userId}"/>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,

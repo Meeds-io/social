@@ -41,7 +41,7 @@ public class OrganizationalChartHeaderTranslation extends TranslationPlugin {
 
   @Override
   public boolean hasEditPermission(String objectId, String username) {
-    return getOrganizationalChartSettingService().canEdit(username);
+    return getOrganizationalChartSettingService().canEdit(objectId, username);
   }
 
   @Override

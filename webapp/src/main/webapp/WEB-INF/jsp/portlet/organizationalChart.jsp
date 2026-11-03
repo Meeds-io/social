@@ -31,6 +31,7 @@
         applicationId = (String) applicationIdParam;
     }
     String id = applicationId.substring(appObjectType.length());
+    boolean canEditSettings = Boolean.TRUE.equals(request.getAttribute("canEditSettings"));
     SettingService settingsService = CommonsUtils.getService(SettingService.class);
     SettingValue<?> centerUserSettingValue = settingsService
             .get(Context.GLOBAL, Scope.APPLICATION.id(applicationId), "organizationalChartCenterUser");
@@ -82,7 +83,8 @@
                                                                                                        title: "<%=StringEscapeUtils.escapeEcmaScript(headerTitle)%>" !== 'null' && "<%=StringEscapeUtils.escapeEcmaScript(headerTitle)%>" || null,
                                                                                                        headerTranslations: <%=headerTranslations%>,
                                                                                                        canUpdateCenterUser: <%=canUpdateCenterUser%>,
-                                                                                                       hasHeaderTitle: <%=hasHeaderTitle%>
+                                                                                                       hasHeaderTitle: <%=hasHeaderTitle%>,
+                                                                                                       canEditSettings: <%=canEditSettings%>
                                                                                                    }));
             </script>
         <% } else {%>
