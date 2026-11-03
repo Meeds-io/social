@@ -47,10 +47,12 @@
 <script>
 /**
  * The rows that applications add to one group of the Space settings page,
- * with a divider between two rows. Nothing is drawn when no row of the group
- * is enabled: a group made of these rows only (`title` set) carries its title
- * with them, and rows following or preceding social's rows get the divider
- * that separates them (`divider-first`, `divider-last`).
+ * with a divider between two rows. A row counts once its registration's
+ * `isEnabled` accepts it, so an application whose row may hide itself says so
+ * there. Nothing is drawn when no row of the group counts: a group made of
+ * these rows only (`title` set) carries its title with them, and rows
+ * following or preceding social's rows get the divider that separates them
+ * (`divider-first`, `divider-last`).
  */
 export default {
   props: {
