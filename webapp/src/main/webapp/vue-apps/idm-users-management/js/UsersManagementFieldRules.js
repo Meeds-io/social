@@ -1,7 +1,7 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
+ * Copyright (C) 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -49,33 +49,33 @@ function withinLength(text) {
 }
 
 /**
- * The rules of the account fields, checked when the administrator leaves a
- * field, before the server applies them. Uniqueness, and a policy a
- * deployment configures, stay the server's: its refusal is put on the field
- * by the drawer and cleared by the next input only
+ * The label key of the rule the value breaks, null when it passes or when
+ * it is blank, which the disabled button already tells. Checked when the
+ * administrator leaves a field, before the server applies the same rules.
+ * Uniqueness, and a policy a deployment configures, stay the server's: its
+ * refusal is put on the field by the drawer and cleared by the next input
+ * only
+ *
+ * @param {string} field the field name: userName, firstName, lastName, email or password
+ * @param {string} value the field value
+ * @returns {string} the label key of the broken rule, null when none
  */
-export default {
-  methods: {
-    // The message of the rule the value breaks, null when it passes or when
-    // it is blank, which the disabled button already tells
-    fieldRuleError(field, value) {
-      const text = field === 'password' ? (value || '') : (value || '').trim();
-      if (!text) {
-        return null;
-      }
-      switch (field) {
-      case 'userName':
-        return withinLength(text) && USERNAME_PATTERN.test(text) ? null : this.$t('UsersManagement.creation.invalidUsername');
-      case 'firstName':
-      case 'lastName':
-        return withinLength(text) && NAME_PATTERN.test(text) ? null : this.$t('UsersManagement.creation.invalidName');
-      case 'email':
-        return withinLength(text) && EMAIL_PATTERN.test(text) ? null : this.$t('UsersManagement.creation.invalidEmail');
-      case 'password':
-        return PASSWORD_PATTERN.test(text) ? null : this.$t('UsersManagement.creation.passwordCondition');
-      default:
-        return null;
-      }
-    },
-  },
-};
+export function fieldRuleError(field, value) {
+  const text = field === 'password' ? (value || '') : (value || '').trim();
+  if (!text) {
+    return null;
+  }
+  switch (field) {
+  case 'userName':
+    return withinLength(text) && USERNAME_PATTERN.test(text) ? null : 'UsersManagement.creation.invalidUsername';
+  case 'firstName':
+  case 'lastName':
+    return withinLength(text) && NAME_PATTERN.test(text) ? null : 'UsersManagement.creation.invalidName';
+  case 'email':
+    return withinLength(text) && EMAIL_PATTERN.test(text) ? null : 'UsersManagement.creation.invalidEmail';
+  case 'password':
+    return PASSWORD_PATTERN.test(text) ? null : 'UsersManagement.creation.passwordCondition';
+  default:
+    return null;
+  }
+}

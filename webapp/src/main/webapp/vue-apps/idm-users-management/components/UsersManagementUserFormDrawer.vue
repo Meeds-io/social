@@ -132,14 +132,12 @@
 
 <script>
 import * as userCreationService from '../js/UserCreationService.js';
-import UsersManagementFieldRules from './UsersManagementFieldRules.js';
 
 /**
  * Edits an existing account: names, email, preferred language and, for an
  * account of the internal store, its password, typed twice
  */
 export default {
-  mixins: [UsersManagementFieldRules],
   data: () => ({
     drawer: false,
     saving: false,
@@ -164,7 +162,7 @@ export default {
     // been left yet or not; a blank password leaves it unchanged
     ruleBroken() {
       return ['firstName', 'lastName', 'email', 'password']
-        .some(field => this.fieldRuleError(field, this.user[field]));
+        .some(field => this.$usersManagementFieldRules.fieldRuleError(field, this.user[field]));
     },
     valid() {
       return this.user.enabled != null
@@ -251,9 +249,9 @@ export default {
     // next input. A value passing it leaves the field as it is, so a server
     // refusal still shown is not cleared by a mere focus
     checkField(field) {
-      const error = this.fieldRuleError(field, this.user[field]);
-      if (error) {
-        this.setError(field, error);
+      const rule = this.$usersManagementFieldRules.fieldRuleError(field, this.user[field]);
+      if (rule) {
+        this.setError(field, this.$t(rule));
       }
     },
     // A stored name or email the rule refuses, which the update would refuse
