@@ -90,7 +90,7 @@
             <span v-if="!isCompact && buttonToggle.icon && buttonToggle.text" class="ms-2"></span>
             <span
               v-if="!isCompact && buttonToggle.text"
-              :class="buttonToggle.value === toggle && 'primary--text' || 'dark-grey-color'"
+              :class="buttonToggle.value === toggle && 'primary--text' || 'text-color'"
               class="text-truncate text-none">
               {{ buttonToggle.text }}
             </span>
