@@ -26,7 +26,8 @@
           outlined
           dense
           required
-          @input="clearError('firstName')" />
+          @input="clearError('firstName')"
+          @blur="checkField('firstName')" />
         <v-text-field
           v-model="user.lastName"
           :placeholder="$t('UsersManagement.creation.enterLastName')"
@@ -40,7 +41,8 @@
           outlined
           dense
           required
-          @input="clearError('lastName')" />
+          @input="clearError('lastName')"
+          @blur="checkField('lastName')" />
         <v-text-field
           v-model="user.email"
           :placeholder="$t('UsersManagement.creation.enterEmail')"
@@ -55,7 +57,8 @@
           outlined
           dense
           required
-          @input="clearError('email')" />
+          @input="clearError('email')"
+          @blur="checkField('email')" />
         <v-select
           v-model="user.language"
           :items="languages"
@@ -88,7 +91,8 @@
           prepend-inner-icon="fa-lock"
           outlined
           dense
-          @input="clearError('password')" />
+          @input="clearError('password')"
+          @blur="checkField('password')" />
         <v-text-field
           v-model="confirmPassword"
           :placeholder="$t('UsersManagement.creation.confirmPassword')"
@@ -128,12 +132,14 @@
 
 <script>
 import * as userCreationService from '../js/UserCreationService.js';
+import UsersManagementFieldRules from './UsersManagementFieldRules.js';
 
 /**
  * Edits an existing account: names, email, preferred language and, for an
  * account of the internal store, its password, typed twice
  */
 export default {
+  mixins: [UsersManagementFieldRules],
   data: () => ({
     drawer: false,
     saving: false,
@@ -154,12 +160,19 @@ export default {
         ? this.$t('UsersManagement.newPasswordsDoesNotMatch')
         : null;
     },
+    // A value breaking its rule keeps Update disabled, whether the field has
+    // been left yet or not; a blank password leaves it unchanged
+    ruleBroken() {
+      return ['firstName', 'lastName', 'email', 'password']
+        .some(field => this.fieldRuleError(field, this.user[field]));
+    },
     valid() {
       return this.user.enabled != null
         && !!this.user.firstName?.trim()
         && !!this.user.lastName?.trim()
         && !!this.user.email?.trim()
-        && !this.passwordMismatch;
+        && !this.passwordMismatch
+        && !this.ruleBroken;
     },
   },
   created() {
@@ -187,6 +200,7 @@ export default {
         language: null,
         password: null,
       };
+      this.checkStoredFields();
       this.drawer = true;
       userCreationService.getSupportedLanguages()
         .then(configuration => this.languages = configuration.languages)
@@ -207,6 +221,7 @@ export default {
               fullname: this.user.fullname || account.fullName,
               language: this.user.language || account.language || null,
             });
+            this.checkStoredFields();
           }
         })
         .catch(() => {
@@ -231,6 +246,20 @@ export default {
     },
     setError(field, message) {
       this.fieldErrors = Object.assign({}, this.fieldErrors, {[field]: message});
+    },
+    // A field left with a value breaking its rule: the message, until the
+    // next input. A value passing it leaves the field as it is, so a server
+    // refusal still shown is not cleared by a mere focus
+    checkField(field) {
+      const error = this.fieldRuleError(field, this.user[field]);
+      if (error) {
+        this.setError(field, error);
+      }
+    },
+    // A stored name or email the rule refuses, which the update would refuse
+    // too, says so from the opening rather than through a disabled button
+    checkStoredFields() {
+      ['firstName', 'lastName', 'email'].forEach(field => this.checkField(field));
     },
     saveUser() {
       if (this.saving || !this.valid) {
