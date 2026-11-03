@@ -32,7 +32,7 @@
     :min-width="280"
     :close-on-content-click="false"
     :close-on-click="false"
-    content-class="z-index-modal white"
+    content-class="z-index-modal layout-drawer"
     absolute
     eager
     top
