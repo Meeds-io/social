@@ -18,32 +18,20 @@
  */
 package io.meeds.social.portlet;
 
-import java.io.IOException;
+import org.exoplatform.portal.webui.application.UIPortlet;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletPreferences;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-
-import org.apache.commons.lang3.StringUtils;
-
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.portal.mop.page.PageKey;
-import org.exoplatform.portal.webui.application.UIPortlet;
-import org.exoplatform.portal.webui.page.UIPage;
-
-import io.meeds.social.organizationalchart.service.OrganizationalChartSettingService;
+import java.io.IOException;
 
 public class OrganizationalChartPortlet extends CMSPortlet {
 
-  private static final String               OBJECT_TYPE       = "organizationalChart";
+  private static final String OBJECT_TYPE    = "organizationalChart";
 
-  private static final String               APPLICATION_ID    = "applicationId";
-
-  private static final String               CAN_EDIT_SETTINGS = "canEditSettings";
-
-  private OrganizationalChartSettingService organizationalChartSettingService;
+  private static final String APPLICATION_ID = "applicationId";
 
   @Override
   public void init(PortletConfig config) throws PortletException {
@@ -54,10 +42,7 @@ public class OrganizationalChartPortlet extends CMSPortlet {
   @Override
   public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
     String applicationId = getOrCreateApplicationId(request.getPreferences());
-    String id = StringUtils.removeStart(applicationId, OBJECT_TYPE);
-    saveApplicationSpace(id);
     request.setAttribute(APPLICATION_ID, applicationId);
-    request.setAttribute(CAN_EDIT_SETTINGS, getOrganizationalChartSettingService().canEdit(id, request.getRemoteUser()));
     super.doView(request, response);
   }
 
@@ -69,31 +54,6 @@ public class OrganizationalChartPortlet extends CMSPortlet {
       savePreference(APPLICATION_ID, applicationId);
     }
     return applicationId;
-  }
-
-  /**
-   * Records the space of the page that holds the window; a window of a site
-   * or shared layout has no page ancestor and records none
-   */
-  void saveApplicationSpace(String id) {
-    UIPortlet uiPortlet = UIPortlet.getCurrentUIPortlet();
-    UIPage uiPage = uiPortlet == null ? null : uiPortlet.getAncestorOfType(UIPage.class);
-    if (uiPage != null && StringUtils.isNotBlank(uiPage.getPageId())) {
-      getOrganizationalChartSettingService().saveApplicationSpace(id,
-                                                                  uiPortlet.getStorageId(),
-                                                                  PageKey.parse(uiPage.getPageId()).getSite());
-    }
-  }
-
-  void setOrganizationalChartSettingService(OrganizationalChartSettingService organizationalChartSettingService) {
-    this.organizationalChartSettingService = organizationalChartSettingService;
-  }
-
-  private OrganizationalChartSettingService getOrganizationalChartSettingService() {
-    if (organizationalChartSettingService == null) {
-      organizationalChartSettingService = ExoContainerContext.getService(OrganizationalChartSettingService.class);
-    }
-    return organizationalChartSettingService;
   }
 
 }

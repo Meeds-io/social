@@ -46,9 +46,8 @@ public class OrganizationalChartHeaderTranslationPermissionTest {
 
   @Test
   public void hasEditPermissionOnlyForWhoCanEditTheSettings() {
-    when(organizationalChartSettingService.canEdit("125", "mary")).thenReturn(true);
-    assertTrue(plugin.hasEditPermission("125", "mary"));
-    assertFalse(plugin.hasEditPermission("126", "mary"));
+    when(organizationalChartSettingService.canEdit("admin")).thenReturn(true);
+    assertTrue(plugin.hasEditPermission("125", "admin"));
     assertFalse(plugin.hasEditPermission("125", "john"));
   }
 

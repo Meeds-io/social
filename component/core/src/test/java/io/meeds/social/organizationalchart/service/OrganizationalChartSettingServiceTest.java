@@ -45,13 +45,10 @@ import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.portal.config.UserACL;
-import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.common.ContainerTransactional;
 
@@ -64,19 +61,6 @@ public class OrganizationalChartSettingServiceTest {
   private static final String               ADMIN          = "admin";
 
   private static final String               USER           = "john";
-
-  /** Manager of the space whose page holds the chart */
-  private static final String               MANAGER        = "mary";
-
-  /** Manager of another space only */
-  private static final String               OTHER_MANAGER  = "james";
-
-  /** Member of the space whose page holds the chart */
-  private static final String               MEMBER         = "jack";
-
-  private static final String               SPACE_ID       = "3";
-
-  private static final String               SPACE_GROUP_ID = "/spaces/sales";
 
   private static final String               APPLICATION_ID = "125";
 
@@ -91,9 +75,6 @@ public class OrganizationalChartSettingServiceTest {
   @MockitoBean
   private UserACL                           userAcl;
 
-  @MockitoBean
-  private SpaceService                      spaceService;
-
   @Autowired
   private OrganizationalChartSettingService organizationalChartSettingService;
 
@@ -104,110 +85,14 @@ public class OrganizationalChartSettingServiceTest {
     when(userAcl.getUserIdentity(ADMIN)).thenReturn(adminAclIdentity);
     when(userAcl.getUserIdentity(USER)).thenReturn(userAclIdentity);
     when(userAcl.isAdministrator(adminAclIdentity)).thenReturn(true);
-
-    Space space = new Space();
-    space.setId(SPACE_ID);
-    space.setGroupId(SPACE_GROUP_ID);
-    Space otherSpace = new Space();
-    otherSpace.setId("4");
-    when(spaceService.getSpaceById(SPACE_ID)).thenReturn(space);
-    when(spaceService.getSpaceById("4")).thenReturn(otherSpace);
-    when(spaceService.getSpaceByGroupId(SPACE_GROUP_ID)).thenReturn(space);
-    when(spaceService.canManageSpace(space, MANAGER)).thenReturn(true);
-    when(spaceService.canManageSpace(otherSpace, OTHER_MANAGER)).thenReturn(true);
   }
 
   @Test
-  public void canEditForAdministratorsWhateverTheChart() {
-    assertTrue(organizationalChartSettingService.canEdit(APPLICATION_ID, ADMIN));
-    assertTrue(organizationalChartSettingService.canEdit(null, ADMIN));
-    assertFalse(organizationalChartSettingService.canEdit(APPLICATION_ID, USER));
-    assertFalse(organizationalChartSettingService.canEdit(APPLICATION_ID, null));
-    assertFalse(organizationalChartSettingService.canEdit(APPLICATION_ID, " "));
-  }
-
-  @Test
-  public void canEditForTheManagerOfTheChartSpaceOnly() {
-    mockStoredSpace(SPACE_ID);
-    assertTrue(organizationalChartSettingService.canEdit(APPLICATION_ID, MANAGER));
-    assertFalse(organizationalChartSettingService.canEdit(APPLICATION_ID, OTHER_MANAGER));
-    assertFalse(organizationalChartSettingService.canEdit(APPLICATION_ID, MEMBER));
-
-    // Another chart, with no space recorded, stays administrator-only
-    assertFalse(organizationalChartSettingService.canEdit("126", MANAGER));
-  }
-
-  @Test
-  public void canEditRefusesAManagerWhenNoSpaceIsRecorded() {
-    assertFalse(organizationalChartSettingService.canEdit(APPLICATION_ID, MANAGER));
-
-    // A stored space id that is no number is never looked up
-    Space space = spaceService.getSpaceById(SPACE_ID);
-    when(spaceService.getSpaceById("3 ")).thenReturn(space);
-    mockStoredSpace("3 ");
-    assertFalse(organizationalChartSettingService.canEdit(APPLICATION_ID, MANAGER));
-
-    // A recorded space that no longer exists
-    mockStoredSpace("99");
-    assertFalse(organizationalChartSettingService.canEdit(APPLICATION_ID, MANAGER));
-
-    // An application id that is no number is never read
-    when(settingService.get(Context.GLOBAL,
-                            Scope.APPLICATION.id("organizationalChart../125"),
-                            "organizationalChartSpaceId")).thenAnswer(invocation -> SettingValue.create(SPACE_ID));
-    assertFalse(organizationalChartSettingService.canEdit("../125", MANAGER));
-  }
-
-  @Test
-  public void saveSettingsByTheManagerOfTheChartSpace() throws IllegalAccessException {
-    mockStoredSpace(SPACE_ID);
-    organizationalChartSettingService.saveSettingsInTransaction(APPLICATION_ID, "@connected@", true, MANAGER);
-    verify(settingService).set(eq(Context.GLOBAL),
-                               eq(SCOPE),
-                               eq("organizationalChartCenterUser"),
-                               argThat(value -> "@connected@".equals(value.getValue())));
-  }
-
-  @Test
-  public void saveSettingsRefusesTheManagerOfAnotherSpaceAndAMember() {
-    mockStoredSpace(SPACE_ID);
-    assertThrows(IllegalAccessException.class,
-                 () -> organizationalChartSettingService.saveSettingsInTransaction(APPLICATION_ID, "@connected@", true, OTHER_MANAGER));
-    assertThrows(IllegalAccessException.class,
-                 () -> organizationalChartSettingService.saveSettingsInTransaction(APPLICATION_ID, "@connected@", true, MEMBER));
-    verify(settingService, never()).set(any(), any(), anyString(), any());
-  }
-
-  @Test
-  public void saveApplicationSpaceRecordsTheSpaceOfTheWindowPage() {
-    organizationalChartSettingService.saveApplicationSpace(APPLICATION_ID, APPLICATION_ID, SiteKey.group(SPACE_GROUP_ID));
-    verify(settingService).set(eq(Context.GLOBAL),
-                               eq(SCOPE),
-                               eq("organizationalChartSpaceId"),
-                               argThat(value -> SPACE_ID.equals(value.getValue())));
-  }
-
-  @Test
-  public void saveApplicationSpaceIgnoresAnotherWindowAndANonSpacePage() {
-    // A window whose preference names another window's application id
-    organizationalChartSettingService.saveApplicationSpace(APPLICATION_ID, "126", SiteKey.group(SPACE_GROUP_ID));
-    // A window of a site or shared layout
-    organizationalChartSettingService.saveApplicationSpace(APPLICATION_ID, APPLICATION_ID, null);
-    // A page of a portal site, of a site or space template, of a group that is no space
-    organizationalChartSettingService.saveApplicationSpace(APPLICATION_ID, APPLICATION_ID, SiteKey.portal("dw"));
-    organizationalChartSettingService.saveApplicationSpace(APPLICATION_ID, APPLICATION_ID, SiteKey.groupTemplate(SPACE_GROUP_ID));
-    organizationalChartSettingService.saveApplicationSpace(APPLICATION_ID, APPLICATION_ID, SiteKey.group("/platform/users"));
-    // An invalid application id
-    organizationalChartSettingService.saveApplicationSpace("../125", "../125", SiteKey.group(SPACE_GROUP_ID));
-    organizationalChartSettingService.saveApplicationSpace(null, null, SiteKey.group(SPACE_GROUP_ID));
-    verify(settingService, never()).set(any(), any(), anyString(), any());
-  }
-
-  @Test
-  public void saveApplicationSpaceKeepsTheRecordedSpace() {
-    mockStoredSpace("4");
-    organizationalChartSettingService.saveApplicationSpace(APPLICATION_ID, APPLICATION_ID, SiteKey.group(SPACE_GROUP_ID));
-    verify(settingService, never()).set(any(), any(), anyString(), any());
+  public void canEditOnlyForAdministrators() {
+    assertTrue(organizationalChartSettingService.canEdit(ADMIN));
+    assertFalse(organizationalChartSettingService.canEdit(USER));
+    assertFalse(organizationalChartSettingService.canEdit(null));
+    assertFalse(organizationalChartSettingService.canEdit(" "));
   }
 
   @Test
@@ -288,10 +173,6 @@ public class OrganizationalChartSettingServiceTest {
 
     // Stored for another application, it is still refused
     assertInvalid("126", "21", OrganizationalChartSettingService.INVALID_CENTER_USER_MESSAGE);
-  }
-
-  private void mockStoredSpace(String spaceId) {
-    when(settingService.get(Context.GLOBAL, SCOPE, "organizationalChartSpaceId")).thenAnswer(invocation -> SettingValue.create(spaceId));
   }
 
   private void mockIdentity(String id, String providerId, boolean enabled, boolean deleted) {

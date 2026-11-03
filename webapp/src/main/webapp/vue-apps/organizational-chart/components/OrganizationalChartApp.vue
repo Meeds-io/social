@@ -114,10 +114,6 @@ export default {
       type: String,
       default: null
     },
-    canEditSettings: {
-      type: Boolean,
-      default: false
-    },
   },
   watch: {
     initialUserId() {
@@ -137,7 +133,7 @@ export default {
       return this.hasSettings || (!this.hasSettings && this.isAdmin) || this.preview;
     },
     isAdmin() {
-      return this.user?.isAdmin === 'true' || this.canEditSettings;
+      return this.user?.isAdmin === 'true';
     },
     savedHeaderTranslations() {
       return this.$root.settings?.headerTranslations;
