@@ -366,6 +366,25 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     }
   }
 
+  public void testDeleteAttachmentsKeepsAFileAnotherObjectLinks() throws Exception { // NOSONAR
+    startSessionAndRegisterAs(USERNAME);
+    long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(USERNAME).getId());
+    String fileId = createAttachment(USERNAME);
+    String linkingObjectId = "objectId" + RANDOM.nextInt();
+    attachmentService.createAttachment(fileId, OBJECT_TYPE, linkingObjectId, null, userIdentityId, Collections.emptyMap());
+
+    attachmentService.deleteAttachments(OBJECT_TYPE, linkingObjectId);
+
+    assertTrue(attachmentService.getAttachmentFileIds(OBJECT_TYPE, linkingObjectId).isEmpty());
+    assertEquals(List.of(fileId), attachmentService.getAttachmentFileIds(OBJECT_TYPE, objectId));
+    assertEquals(FILE_NAME, attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, objectId)).getName());
+
+    attachmentService.deleteAttachment(OBJECT_TYPE, objectId, fileId);
+
+    assertTrue(attachmentService.getAttachmentFileIds(OBJECT_TYPE, objectId).isEmpty());
+    assertNull(attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, objectId)));
+  }
+
   public void testGetAttachments() throws Exception { // NOSONAR
 
     Identity userAcl = startSessionAndRegisterAs(USERNAME);

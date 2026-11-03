@@ -82,7 +82,9 @@ public interface AttachmentService {
    * @param userIdentityId User {@link org.exoplatform.social.core.identity.model.Identity} id
    * @throws IOException when an error occurred while accessing uploaded resource
    * @throws ObjectAlreadyExistsException when attachment already exists for given object
-   * @throws ObjectNotFoundException when attachment not found
+   * @throws ObjectNotFoundException when attachment not found, or when an
+   *           uploaded content is sent for a file that isn't an attachment
+   *           of the object
    */
   void saveAttachment(UploadedAttachmentDetail uploadedAttachmentDetail,
                       String objectType,
