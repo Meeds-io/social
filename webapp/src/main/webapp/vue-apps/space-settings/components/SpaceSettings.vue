@@ -82,16 +82,13 @@
         title-id="SpaceSettingsGroupApplications"
         class="space-settings-group application-layout-style mb-4" />
 
+      <!-- The last card carries no title: Delete space, and the rows that name the danger group -->
       <template v-if="isActiveSection">
         <v-card
           v-if="canDelete"
           id="SpaceSettingsGroupDangerCard"
           class="space-settings-group application-layout-style mb-4"
           flat>
-          <space-setting-group-title
-            id="SpaceSettingsGroupDanger"
-            :title="$t('SpaceSettings.group.danger')"
-            danger />
           <space-setting-group-extensions
             :params="extensionParams"
             :filter="groupFilters.danger"
@@ -103,10 +100,7 @@
           id="SpaceSettingsGroupDangerCard"
           :params="extensionParams"
           :filter="groupFilters.danger"
-          :title="$t('SpaceSettings.group.danger')"
-          title-id="SpaceSettingsGroupDanger"
-          class="space-settings-group application-layout-style mb-4"
-          danger />
+          class="space-settings-group application-layout-style mb-4" />
       </template>
     </v-main>
   </v-app>
