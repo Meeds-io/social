@@ -66,7 +66,7 @@ export default {
   methods: {
     /**
      * Counts the subspaces with the query the subspaces drawer lists them with,
-     * reading only the size of its answer.
+     * asking for one space only and reading the total size of the answer.
      *
      * @returns {Promise} resolved once counted
      */
