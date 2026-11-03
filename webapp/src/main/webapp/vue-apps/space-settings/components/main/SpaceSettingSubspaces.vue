@@ -66,18 +66,24 @@ export default {
   methods: {
     /**
      * Counts the subspaces with the query the subspaces drawer lists them with,
-     * asking for one space only and reading the total size of the answer.
+     * asking for one space only and reading the total size of the answer; a
+     * failed count leaves the row without a summary.
      *
      * @returns {Promise} resolved once counted
      */
     async countSubspaces() {
-      const data = await this.$spaceService.getSpacesByFilter({
-        filter: 'all',
-        parentSpaceId: this.$root.space.id,
-        offset: 0,
-        limit: 1,
-      });
-      this.subspacesCount = data?.size || 0;
+      try {
+        const data = await this.$spaceService.getSpacesByFilter({
+          filter: 'all',
+          parentSpaceId: this.$root.space.id,
+          offset: 0,
+          limit: 1,
+        });
+        this.subspacesCount = data?.size || 0;
+      } catch (e) {
+        // The row then shows no summary
+        this.subspacesCount = null;
+      }
     },
     /**
      * Opens the drawer listing the subspaces.
