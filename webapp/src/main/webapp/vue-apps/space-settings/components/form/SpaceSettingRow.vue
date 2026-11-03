@@ -45,9 +45,10 @@
 /**
  * One row of the Space settings page, drawn as the rows of the user Settings
  * page: the setting's title, one line saying its current state, and the action
- * that opens or toggles it, with an optional divider above. Applications that
- * add a row to the page draw it with this component, so every row looks alike.
- * The `summary` slot replaces the summary text when the state needs markup.
+ * that opens or toggles it, with an optional divider above. Social's own rows
+ * use it; an application that adds a row draws the same markup itself, so it
+ * renders on any social version. The `summary` slot replaces the summary text
+ * when the state needs markup.
  */
 export default {
   props: {
