@@ -21,6 +21,7 @@
 <template>
   <div v-if="$root.isAllSections">
     <space-setting-row
+      :divider="divider"
       :title="$t('SpaceSettings.publicSite')"
       :summary="summary">
       <template #action>
@@ -48,6 +49,15 @@ const VISIBILITY_LABELS = {
 };
 
 export default {
+  props: {
+    /**
+     * Whether a divider separates this row from the row above it in its group
+     */
+    divider: {
+      type: Boolean,
+      default: false,
+    },
+  },
   computed: {
     /**
      * @returns {String} whether the space has a public site, and who can see it
