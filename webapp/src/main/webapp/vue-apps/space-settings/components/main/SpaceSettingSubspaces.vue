@@ -20,31 +20,70 @@
 -->
 <template>
   <div v-if="$root.isAllSections">
-    <v-card flat>
-      <v-list class="pa-0" dense>
-        <v-list-item class="pa-0">
-          <v-list-item-content>
-            <v-list-item-title class="text-title py-1">
-              {{ $t('spaceSetting.subspaces') }}
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn
-              small
-              icon
-              @click="openDrawer">
-              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <space-setting-row
+      :title="$t('spaceSetting.subspaces')"
+      :summary="summary">
+      <template #action>
+        <v-btn
+          small
+          icon
+          @click="openDrawer">
+          <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+        </v-btn>
+      </template>
+    </space-setting-row>
     <space-setting-subspaces-drawer ref="subspacesDrawer" />
   </div>
 </template>
 <script>
 export default {
+  data: () => ({
+    subspacesCount: null,
+  }),
+  computed: {
+    /**
+     * @returns {String} the number of subspaces, once counted
+     */
+    summary() {
+      if (this.subspacesCount === null) {
+        return null;
+      } else if (!this.subspacesCount) {
+        return this.$t('spaceSetting.subspaces.summary.none');
+      } else if (this.subspacesCount === 1) {
+        return this.$t('spaceSetting.subspaces.summary.one');
+      } else {
+        return this.$t('spaceSetting.subspaces.summary.many', {0: this.subspacesCount});
+      }
+    },
+  },
+  created() {
+    this.$root.$on('subspaces-list-refresh', this.countSubspaces);
+    this.countSubspaces();
+  },
+  beforeDestroy() {
+    this.$root.$off('subspaces-list-refresh', this.countSubspaces);
+  },
   methods: {
+    /**
+     * Counts the subspaces with the query the subspaces drawer lists them with,
+     * reading only the size of its answer.
+     *
+     * @returns {Promise} resolved once counted
+     */
+    async countSubspaces() {
+      const data = await this.$spaceService.getSpacesByFilter({
+        filter: 'all',
+        parentSpaceId: this.$root.space.id,
+        offset: 0,
+        limit: 1,
+      });
+      this.subspacesCount = data?.size || 0;
+    },
+    /**
+     * Opens the drawer listing the subspaces.
+     *
+     * @returns {void}
+     */
     openDrawer() {
       this.$refs.subspacesDrawer.open(this.$root.space.id);
     },
