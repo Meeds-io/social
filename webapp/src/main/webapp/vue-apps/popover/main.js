@@ -58,10 +58,11 @@ Vue.directive('identity-popover', (el, binding) => {
 // v-identity-popover stays a plain attribute that no directive binds, while a
 // compiled element no longer carries it. Such elements are handled here, the
 // attribute read as data and never evaluated. Any author can write that
-// attribute in content, so only its username is used: the displayed identity
-// is the one the server returns for that username.
+// attribute in content, so only a user's username or a space's id is used: the
+// displayed identity is the one the server returns for it.
 const POPOVER_JS_ESCAPES = {n: '\n', r: '\r', u2028: '\u2028', u2029: '\u2029'};
 const rawPopoverUsers = new Map();
+const rawPopoverSpaces = new Map();
 
 document.addEventListener('mouseover', showRawPopover);
 document.addEventListener('focusin', showRawPopover);
@@ -70,13 +71,31 @@ document.addEventListener('focusout', event => {
     document.dispatchEvent(new CustomEvent('popover-identity-hide'));
   }
 });
+// a favorite toggled in a raw space popover is kept on the space it was loaded
+// from, which the next hover shows again
+document.addEventListener('metadata.favorite.updated', event => {
+  const metadata = event?.detail;
+  const spaceId = metadata?.objectType === 'space' && `${metadata.objectId}`;
+  if (spaceId && rawPopoverSpaces.has(spaceId)) {
+    rawPopoverSpaces.get(spaceId).then(space => {
+      if (space) {
+        space.isFavorite = `${metadata.favorite}`;
+      }
+    });
+  }
+});
 
 function showRawPopover(event) {
   const el = getRawPopoverElement(event);
-  const username = el && parseIdentityPopoverValue(el.getAttribute('v-identity-popover'))?.username;
-  if (!username) {
-    return;
+  const identity = el && parseIdentityPopoverValue(el.getAttribute('v-identity-popover'));
+  if (identity?.username) {
+    showRawUserPopover(el, identity.username);
+  } else if (identity?.identityType?.toLowerCase() === 'space' && /^\d+$/.test(identity.id || '')) {
+    showRawSpacePopover(el, identity.id);
   }
+}
+
+function showRawUserPopover(el, username) {
   getRawPopoverUser(username).then(user => {
     // the user is loaded asynchronously: no popover once the mention is left
     if (user?.username && (el.matches(':hover') || el.contains(document.activeElement))) {
@@ -94,6 +113,28 @@ function showRawPopover(event) {
       }, true);
     }
   });
+}
+
+function showRawSpacePopover(el, spaceId) {
+  getRawPopoverSpace(spaceId).then(space => {
+    // the space is loaded asynchronously: no popover once the link is left
+    if (space?.id && (el.matches(':hover') || el.contains(document.activeElement))) {
+      showPopover(el, space, false);
+    }
+  });
+}
+
+function getRawPopoverSpace(spaceId) {
+  if (!rawPopoverSpaces.has(spaceId)) {
+    // the same expand as the space popover's own load
+    rawPopoverSpaces.set(spaceId, Vue.prototype.$spaceService.getSpaceById(spaceId, 'favorite')
+      .catch(() => {
+        // not kept: a transient failure is retried on the next hover
+        rawPopoverSpaces.delete(spaceId);
+        return null;
+      }));
+  }
+  return rawPopoverSpaces.get(spaceId);
 }
 
 function getRawPopoverUser(username) {
@@ -114,10 +155,12 @@ function getRawPopoverElement(event) {
   return el && !el.isContentEditable && el || null;
 }
 
-// Reads the literal built by LinkProvider#getProfileLink: single-quoted values
-// whose JS escapes, added by LinkProvider#toPopoverValue, are undone here
+// Reads the literal LinkProvider#getProfileLink builds (values escaped by
+// LinkProvider#toPopoverValue) and the one kudos builds with JSON.stringify and
+// quoted keys: their single-quoted values are unescaped here, and only username,
+// id and identityType are used
 function parseIdentityPopoverValue(value) {
-  const entryPattern = /(\w+)\s*:\s*'((?:[^'\\]|\\[\s\S])*)'/g;
+  const entryPattern = /'?(\w+)'?\s*:\s*'((?:[^'\\]|\\[\s\S])*)'/g;
   const identity = {};
   let entry;
   while ((entry = entryPattern.exec(value || ''))) {
