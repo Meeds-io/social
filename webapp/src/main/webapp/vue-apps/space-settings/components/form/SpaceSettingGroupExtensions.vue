@@ -30,8 +30,7 @@
     <template v-if="title" #header>
       <space-setting-group-title
         :id="titleId"
-        :title="title"
-        :danger="danger" />
+        :title="title" />
     </template>
     <template v-else-if="dividerFirst" #header>
       <v-divider class="mx-4" />
@@ -71,10 +70,6 @@ export default {
     titleId: {
       type: String,
       default: null,
-    },
-    danger: {
-      type: Boolean,
-      default: false,
     },
     dividerFirst: {
       type: Boolean,

@@ -22,9 +22,7 @@
 <template>
   <v-list-item class="space-settings-group-title">
     <v-list-item-content>
-      <v-list-item-title
-        :class="danger && 'error--text'"
-        class="text-title">
+      <v-list-item-title class="text-title">
         {{ title }}
       </v-list-item-title>
     </v-list-item-content>
@@ -40,10 +38,6 @@ export default {
     title: {
       type: String,
       default: null,
-    },
-    danger: {
-      type: Boolean,
-      default: false,
     },
   },
 };
