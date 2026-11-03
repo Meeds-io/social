@@ -46,7 +46,7 @@ export default {
   data: () => ({
     filesArray: [],
     display: true,
-    pendingUploadsCount: 0,
+    pendingUploads: [],
   }),
   watch: {
     filesArray() {
@@ -67,6 +67,8 @@ export default {
   },
   methods: {
     async reset() {
+      // an image dropped here stops its polling and frees the picker
+      this.filesArray.forEach(fileDetails => fileDetails.removed = true);
       this.filesArray = [];
       await this.refresh();
     },
@@ -89,10 +91,10 @@ export default {
       }
       // Cleared here, when the picker opens, rather than re-created after a
       // pick, so that picking the same image again is a change. This code
-      // never clears it while an upload request is pending: on iOS Safari a
-      // picked photo may not stay readable once its input is cleared
-      // (inferred, not reproduced on a device).
-      if (!this.pendingUploadsCount) {
+      // never clears it while the request of an image still in the list is
+      // pending: on iOS Safari a picked photo may not stay readable once its
+      // input is cleared (inferred, not reproduced on a device).
+      if (!this.pendingUploads.some(fileDetails => !fileDetails.removed)) {
         input.value = '';
       }
       input.click();
@@ -144,17 +146,18 @@ export default {
     },
     uploadFileToServer(file, fileDetails) {
       fileDetails.uploadPending = true;
-      this.pendingUploadsCount++;
+      this.pendingUploads.push(fileDetails);
       Promise.resolve().then(() => this.$uploadService.upload(file, fileDetails.uploadId))
         .then(uploadId => {
           if (!uploadId) {
             throw new Error(UPLOAD_ERROR_KEY);
           }
+          fileDetails.uploadAnswered = true;
         })
         .catch(() => this.handleUploadFileError(fileDetails))
         .finally(() => {
           fileDetails.uploadPending = false;
-          this.pendingUploadsCount--;
+          this.pendingUploads.splice(this.pendingUploads.indexOf(fileDetails), 1);
         });
       this.controlUpload(fileDetails);
     },
@@ -164,10 +167,17 @@ export default {
           return;
         }
         const sentWhileUploadPending = fileDetails.uploadPending;
+        const sentAfterUploadAnswered = fileDetails.uploadAnswered;
         this.$uploadService.getUploadProgress(fileDetails.uploadId)
           .then(percent => {
-            fileDetails.progress = Number(percent);
-            if (!fileDetails.error && (!fileDetails.progress || fileDetails.progress < 100)) {
+            if (fileDetails.error || fileDetails.removed) {
+              return;
+            }
+            // A poll reads 100 once the body has arrived, before the server
+            // has written and validated the file: only a poll sent after the
+            // upload request answered completes the image.
+            fileDetails.progress = sentAfterUploadAnswered ? Number(percent) : Math.min(Number(percent), 99);
+            if (!fileDetails.progress || fileDetails.progress < 100) {
               this.controlUpload(fileDetails);
             }
           })
@@ -176,9 +186,9 @@ export default {
               return;
             } else if (sentWhileUploadPending && error?.message !== UPLOAD_FAILED_MESSAGE) {
               // The server knows an upload only once its request reaches it,
-              // which can be well after the first poll: a slow network, or a
-              // browser that prepares the body before sending it, starts the
-              // request late.
+              // and a poll sent before then finds none; a late start (a slow
+              // network, a browser preparing the body) is the inferred cause of
+              // the iPhone uploads that stayed at 0%.
               this.controlUpload(fileDetails);
             } else {
               this.handleUploadFileError(fileDetails);
