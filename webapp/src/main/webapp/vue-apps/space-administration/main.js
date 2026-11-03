@@ -238,8 +238,9 @@ export function init(isExternalFeatureEnabled) {
         },
         /**
          * Loads a page of spaces, or the whole displayed range when refresh
-         * is set. A load failure keeps the displayed rows and raises the
-         * generic error alert, unless silent is set.
+         * is set. A load failure keeps the displayed rows and raises an error
+         * alert, unless silent is set: the loading error under a contributed
+         * sort, the generic error otherwise.
          *
          * @param {boolean} refresh reload the whole displayed range from the first space
          * @param {boolean} clean empty the list before a refresh
@@ -254,7 +255,12 @@ export function init(isExternalFeatureEnabled) {
               // eslint-disable-next-line no-console
               console.error('Error loading spaces', e);
               if (!silent) {
-                this.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.errorSpacesBulkOperation'), 'error');
+                // The sort the failed load ran, tagged by fetchSpaces: a
+                // keyword typed meanwhile resets the current one
+                const messageKey = e?.contributedSort
+                  ? 'social.spaces.administration.manageSpaces.spacesLoadingError'
+                  : 'social.spaces.administration.manageSpaces.errorSpacesBulkOperation';
+                this.$emit('alert-message', this.$t(messageKey), 'error');
               }
               return false;
             });
@@ -300,9 +306,9 @@ export function init(isExternalFeatureEnabled) {
           const limit = refresh ? this.offset + this.pageSize : this.pageSize;
 
           const displayedSpaces = this.spaces;
+          const customSort = this.customSort;
           this.loadingSpaces = true;
           try {
-            const customSort = this.customSort;
             if (customSort) {
               const spaces = await customSort({
                 offset: offset,
@@ -313,7 +319,24 @@ export function init(isExternalFeatureEnabled) {
                 currentSpaces: this.spaces,
                 currentSpacesSize: this.spacesSize,
               });
+              // A contributed sort lists the spaces of Social's listing: the
+              // count, which "load more" and the select-all follow, is
+              // Social's, read with the default path's call
+              const data = await this.$spaceService.getSpacesByFilter({
+                query: this.keyword,
+                visibility: this.selectedVisibility?.length ? this.selectedVisibility : null,
+                registration: this.selectedRegistration?.length ? this.selectedRegistration : null,
+                templateId: this.selectedTemplateId && Number(this.selectedTemplateId),
+                filter: 'all',
+                expand: this.expand,
+                offset: 0,
+                limit: 1,
+                sortBy: 'title',
+                sortDirection: 'asc',
+              });
               this.spaces = offset ? this.uniqueSpaces(spaces) : spaces;
+              this.spacesSize = data?.size || 0;
+              this.$emit('loaded', this.spacesSize);
             } else {
               if (!offset && clean) {
                 this.spaces = [];
@@ -341,6 +364,9 @@ export function init(isExternalFeatureEnabled) {
           } catch (e) {
             // A failed load keeps the rows displayed before it
             this.spaces = displayedSpaces;
+            if (e && typeof e === 'object') {
+              e.contributedSort = !!customSort;
+            }
             throw e;
           } finally {
             this.loadingSpaces = false;
