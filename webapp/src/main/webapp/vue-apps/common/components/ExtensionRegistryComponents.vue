@@ -127,6 +127,15 @@ export default {
       type: Boolean,
       default: false,
     },
+    /**
+     * Optional predicate on a registered component: a component it refuses is
+     * neither initialized nor rendered by this instance, so several instances
+     * can split one extension point between them.
+     */
+    filter: {
+      type: Function,
+      default: null,
+    },
   },
   data: () => ({
     components: [],
@@ -166,6 +175,9 @@ export default {
       }
     },
     registerComponent(component, components) {
+      if (this.filter && !this.filter(component)) {
+        return;
+      }
       if (component.componentOptions.init) {
         const initResult = component.componentOptions.init(this.params);
         if (initResult.then) {
