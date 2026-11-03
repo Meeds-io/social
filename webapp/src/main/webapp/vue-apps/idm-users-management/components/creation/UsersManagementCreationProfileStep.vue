@@ -49,7 +49,8 @@
       outlined
       dense
       required
-      @input="$emit('update-field', 'userName', $event)" />
+      @input="$emit('update-field', 'userName', $event)"
+      @blur="$emit('check-field', 'userName')" />
     <v-text-field
       :value="user.firstName"
       :placeholder="$t('UsersManagement.creation.enterFirstName')"
@@ -63,7 +64,8 @@
       outlined
       dense
       required
-      @input="$emit('update-field', 'firstName', $event)" />
+      @input="$emit('update-field', 'firstName', $event)"
+      @blur="$emit('check-field', 'firstName')" />
     <v-text-field
       :value="user.lastName"
       :placeholder="$t('UsersManagement.creation.enterLastName')"
@@ -77,7 +79,8 @@
       outlined
       dense
       required
-      @input="$emit('update-field', 'lastName', $event)" />
+      @input="$emit('update-field', 'lastName', $event)"
+      @blur="$emit('check-field', 'lastName')" />
     <v-text-field
       :value="user.email"
       :placeholder="$t('UsersManagement.creation.enterEmail')"
@@ -92,7 +95,8 @@
       outlined
       dense
       required
-      @input="$emit('update-field', 'email', $event)" />
+      @input="$emit('update-field', 'email', $event)"
+      @blur="$emit('check-field', 'email')" />
     <v-select
       :value="user.language"
       :items="languages"
@@ -138,7 +142,8 @@
         outlined
         dense
         required
-        @input="$emit('update-field', 'password', $event)" />
+        @input="$emit('update-field', 'password', $event)"
+        @blur="$emit('check-field', 'password')" />
       <v-text-field
         :value="confirmPassword"
         :placeholder="$t('UsersManagement.creation.confirmPassword')"
