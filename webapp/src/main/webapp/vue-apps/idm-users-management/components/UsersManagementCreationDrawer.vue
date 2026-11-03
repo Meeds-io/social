@@ -52,6 +52,7 @@
             :languages="languages"
             :saving="saving"
             @update-field="setField"
+            @check-field="checkField"
             @next="next" />
         </v-stepper-content>
         <v-stepper-step
@@ -121,10 +122,11 @@
 <script>
 import * as userCreationService from '../js/UserCreationService.js';
 import UsersManagementCreationOutcomes from './creation/UsersManagementCreationOutcomes.js';
+import UsersManagementFieldRules from './UsersManagementFieldRules.js';
 import UsersManagementOnboardingSettings from './onboarding/UsersManagementOnboardingSettings.js';
 
 export default {
-  mixins: [UsersManagementCreationOutcomes, UsersManagementOnboardingSettings],
+  mixins: [UsersManagementCreationOutcomes, UsersManagementFieldRules, UsersManagementOnboardingSettings],
   data: () => ({
     drawer: false,
     stepper: 0,
@@ -142,13 +144,20 @@ export default {
     fullName() {
       return `${this.user.firstName || ''} ${this.user.lastName || ''}`.trim();
     },
+    // A value breaking its rule keeps Next disabled, whether the field has
+    // been left yet or not
+    profileRuleBroken() {
+      return ['userName', 'firstName', 'lastName', 'email', 'password']
+        .some(field => this.fieldRuleError(field, this.user[field]));
+    },
     profileStepValid() {
       return (!this.customizeUsername || !!this.user.userName?.trim())
         && !!this.user.firstName?.trim()
         && !!this.user.lastName?.trim()
         && !!this.user.email?.trim()
         && !!this.user.language
-        && (!this.customizePassword || (!!this.user.password && this.user.password === this.confirmPassword));
+        && (!this.customizePassword || (!!this.user.password && this.user.password === this.confirmPassword))
+        && !this.profileRuleBroken;
     },
     // The third step is reachable once the two before it are valid
     invitationStepReachable() {
@@ -237,6 +246,16 @@ export default {
     },
     setError(field, message) {
       this.fieldErrors = Object.assign({}, this.fieldErrors, {[field]: message});
+    },
+    // A field left with a value breaking its rule: the message, until the
+    // next input. A value passing it leaves the field as it is, so a server
+    // refusal still shown is not cleared by a mere focus; the confirmation's
+    // mismatch is the step's own, shown as it is typed or left
+    checkField(field) {
+      const error = this.fieldRuleError(field, this.user[field]);
+      if (error) {
+        this.setError(field, error);
+      }
     },
     next() {
       if (this.stepper === 1 && this.customizePassword && this.user.password !== this.confirmPassword) {
