@@ -20,31 +20,54 @@
 -->
 <template>
   <div v-if="$root.isAllSections">
-    <v-card flat>
-      <v-list class="pa-0" dense>
-        <v-list-item class="pa-0">
-          <v-list-item-content>
-            <v-list-item-title class="text-title py-1">
-              {{ $t('SpaceSettings.publicSite') }}
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn
-              small
-              icon
-              @click="openDrawer">
-              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <space-setting-row
+      :title="$t('SpaceSettings.publicSite')"
+      :summary="summary">
+      <template #action>
+        <v-btn
+          small
+          icon
+          @click="openDrawer">
+          <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+        </v-btn>
+      </template>
+    </space-setting-row>
     <space-setting-public-site-drawer ref="publicSiteDrawer" />
   </div>
 </template>
 <script>
+/**
+ * The label of each public site visibility, as the public site drawer offers it.
+ */
+const VISIBILITY_LABELS = {
+  manager: 'SpaceSettings.publicSite.drawer.accessChoiceAdmins',
+  member: 'SpaceSettings.publicSite.drawer.accessChoiceMembers',
+  internal: 'SpaceSettings.publicSite.drawer.accessChoiceUsersNoGuests',
+  authenticated: 'SpaceSettings.publicSite.drawer.accessChoiceUsersWithGuests',
+  everyone: 'SpaceSettings.publicSite.drawer.accessChoiceAnonymous',
+};
+
 export default {
+  computed: {
+    /**
+     * @returns {String} whether the space has a public site, and who can see it
+     */
+    summary() {
+      if (!this.$root.space.publicSiteId) {
+        return this.$t('SpaceSettings.publicSite.summary.notPublished');
+      }
+      const visibilityLabel = VISIBILITY_LABELS[this.$root.space.publicSiteVisibility || 'manager'];
+      return visibilityLabel
+        ? this.$t('SpaceSettings.publicSite.summary.published', {0: this.$t(visibilityLabel)})
+        : this.$t('SpaceSettings.publicSite.summary.publishedNoVisibility');
+    },
+  },
   methods: {
+    /**
+     * Opens the drawer editing the public site of the space.
+     *
+     * @returns {void}
+     */
     openDrawer() {
       this.$refs.publicSiteDrawer.open();
     },

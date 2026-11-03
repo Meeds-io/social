@@ -22,26 +22,18 @@
   <div v-if="$root.isOverviewSection || $root.isAllSections">
     <space-setting-overview-section
       v-if="$root.isOverviewSection" />
-    <v-card
+    <space-setting-row
       v-else
-      flat>
-      <v-list class="pa-0" dense>
-        <v-list-item class="pa-0">
-          <v-list-item-content>
-            <v-list-item-title class="text-title py-1">
-              {{ $t('SpaceSettings.overview') }}
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn
-              small
-              icon
-              @click="$root.showSection('overview')">
-              <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-card>
+      :title="$t('SpaceSettings.overview')"
+      :summary="$root.space.displayName">
+      <template #action>
+        <v-btn
+          small
+          icon
+          @click="$root.showSection('overview')">
+          <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
+        </v-btn>
+      </template>
+    </space-setting-row>
   </div>
 </template>
