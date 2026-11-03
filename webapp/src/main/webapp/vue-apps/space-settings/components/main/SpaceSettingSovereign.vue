@@ -38,30 +38,39 @@
 export default {
   data: () => ({
     saving: false,
+    savedSovereign: null,
   }),
   computed: {
     /**
-     * @returns {String} whether the space is sovereign, and what it means for its data
+     * @returns {String} whether the space is stored as sovereign, and what it means for its data
      */
     summary() {
-      return this.$root.space.sovereign
+      const sovereign = this.savedSovereign === null ? this.$root.space.sovereign : this.savedSovereign;
+      return sovereign
         ? this.$t('SpaceSettings.sovereignty.summary.on')
         : this.$t('SpaceSettings.sovereignty.summary.off');
     },
   },
   methods: {
     /**
-     * Saves the sovereignty the switch now shows.
+     * Saves the sovereignty the switch now shows; a failed save puts the
+     * switch back and says so.
      *
      * @returns {Promise} resolved once the space is saved
      */
     async switchSpaceSovereignty() {
+      const sovereign = this.$root.space.sovereign;
       this.saving = true;
       try {
         await this.$spaceService.updateSpace({
           id: this.$root.spaceId,
-          sovereign: this.$root.space.sovereign,
+          sovereign,
         });
+        this.savedSovereign = sovereign;
+      } catch (e) {
+        this.$root.space.sovereign = !sovereign;
+        this.savedSovereign = !sovereign;
+        this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingSpace'), 'error');
       } finally {
         this.saving = false;
       }
