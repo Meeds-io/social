@@ -20,31 +20,47 @@
 -->
 <template>
   <div v-if="$root.isAllSections">
-    <v-card flat>
-      <v-list class="pa-0" dense>
-        <v-list-item class="pa-0">
-          <v-list-item-content>
-            <v-list-item-title class="text-title py-1">
-              {{ $t('SpaceSettings.accessAndVisibility') }}
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn
-              small
-              icon
-              @click="openDrawer">
-              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <space-setting-row
+      :title="$t('SpaceSettings.accessAndVisibility')"
+      :summary="summary">
+      <template #action>
+        <v-btn
+          small
+          icon
+          @click="openDrawer">
+          <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+        </v-btn>
+      </template>
+    </space-setting-row>
     <space-setting-access-drawer ref="accessSettingDrawer" />
   </div>
 </template>
 <script>
 export default {
+  computed: {
+    /**
+     * @returns {String} the visibility and the access rule of the space, with
+     *          the labels its drawer offers them under
+     */
+    summary() {
+      const visibilityKey = `SpaceSettings.label.${this.$root.space.visibility?.toLowerCase?.()}`;
+      const subscriptionKey = `SpaceSettings.label.${this.$root.space.subscription?.toLowerCase?.()}`;
+      // A value the drawer does not offer (the legacy « public » visibility) has no label to show
+      if (!this.$te(visibilityKey) || !this.$te(subscriptionKey)) {
+        return null;
+      }
+      return this.$t('SpaceSettings.accessAndVisibility.summary', {
+        0: this.$t(visibilityKey),
+        1: this.$t(subscriptionKey),
+      });
+    },
+  },
   methods: {
+    /**
+     * Opens the drawer editing the visibility and the access rule.
+     *
+     * @returns {void}
+     */
     openDrawer() {
       this.$refs.accessSettingDrawer.open();
     },
