@@ -23,7 +23,7 @@
   <v-card
     height="227px"
     width="380px"
-    class="d-flex flex-column"
+    class="d-flex flex-column layout-drawer"
     flat>
     <v-list class="pa-0 transparent">
       <v-list-item class="pa-0">
