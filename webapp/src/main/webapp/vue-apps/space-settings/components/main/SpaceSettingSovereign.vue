@@ -39,41 +39,53 @@ export default {
   data: () => ({
     saving: false,
     savedSovereign: null,
+    lastSave: Promise.resolve(),
+    savesCount: 0,
   }),
   computed: {
     /**
      * @returns {String} whether the space is stored as sovereign, and what it means for its data
      */
     summary() {
-      const sovereign = this.savedSovereign === null ? this.$root.space.sovereign : this.savedSovereign;
-      return sovereign
+      return this.savedSovereign
         ? this.$t('SpaceSettings.sovereignty.summary.on')
         : this.$t('SpaceSettings.sovereignty.summary.off');
     },
   },
+  created() {
+    this.savedSovereign = !!this.$root.space.sovereign;
+  },
   methods: {
     /**
-     * Saves the sovereignty the switch now shows; a failed save puts the
-     * switch back and says so.
+     * Saves the sovereignty the switch now shows. Saves run one after the
+     * other, so the server applies them in the order they were made; when the
+     * last one fails, the switch goes back to the value last stored and the
+     * error is shown.
      *
-     * @returns {Promise} resolved once the space is saved
+     * @returns {Promise} resolved once this save is answered
      */
-    async switchSpaceSovereignty() {
+    switchSpaceSovereignty() {
       const sovereign = this.$root.space.sovereign;
+      const saveIndex = ++this.savesCount;
       this.saving = true;
-      try {
-        await this.$spaceService.updateSpace({
+      this.lastSave = this.lastSave
+        .then(() => this.$spaceService.updateSpace({
           id: this.$root.spaceId,
           sovereign,
+        }))
+        .then(() => this.savedSovereign = sovereign)
+        .catch(() => {
+          if (saveIndex === this.savesCount) {
+            this.$root.space.sovereign = this.savedSovereign;
+          }
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingSpace'), 'error');
+        })
+        .finally(() => {
+          if (saveIndex === this.savesCount) {
+            this.saving = false;
+          }
         });
-        this.savedSovereign = sovereign;
-      } catch (e) {
-        this.$root.space.sovereign = !sovereign;
-        this.savedSovereign = !sovereign;
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingSpace'), 'error');
-      } finally {
-        this.saving = false;
-      }
+      return this.lastSave;
     },
   },
 };
