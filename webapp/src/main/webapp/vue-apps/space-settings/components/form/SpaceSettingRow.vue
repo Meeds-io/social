@@ -20,32 +20,34 @@
 
 -->
 <template>
-  <v-card class="space-setting-row" flat>
-    <v-list class="pa-0" dense>
-      <v-list-item class="pa-0">
-        <v-list-item-content>
-          <v-list-item-title
-            :class="danger && 'error--text'"
-            class="text-title py-1">
-            {{ title }}
-          </v-list-item-title>
-          <v-list-item-subtitle
-            v-if="summary"
-            class="space-setting-row-summary pt-0 pb-1 text-wrap">
-            {{ summary }}
-          </v-list-item-subtitle>
-        </v-list-item-content>
-        <v-list-item-action>
-          <slot name="action"></slot>
-        </v-list-item-action>
-      </v-list-item>
-    </v-list>
-  </v-card>
+  <div class="space-setting-row">
+    <v-divider v-if="divider" class="mx-4" />
+    <v-list-item two-line>
+      <v-list-item-content>
+        <v-list-item-title
+          :class="danger ? 'error--text' : 'text-color'"
+          class="space-setting-row-title">
+          {{ title }}
+        </v-list-item-title>
+        <v-list-item-subtitle
+          v-if="summary || $slots.summary"
+          class="space-setting-row-summary text-wrap">
+          <slot name="summary">{{ summary }}</slot>
+        </v-list-item-subtitle>
+      </v-list-item-content>
+      <v-list-item-action>
+        <slot name="action"></slot>
+      </v-list-item-action>
+    </v-list-item>
+  </div>
 </template>
 <script>
 /**
- * One line of the Space settings page: the setting's title, one line saying
- * its current state, and the action that opens or toggles it.
+ * One row of the Space settings page, drawn as the rows of the user Settings
+ * page: the setting's title, one line saying its current state, and the action
+ * that opens or toggles it, with an optional divider above. Applications that
+ * add a row to the page draw it with this component, so every row looks alike.
+ * The `summary` slot replaces the summary text when the state needs markup.
  */
 export default {
   props: {
@@ -58,6 +60,10 @@ export default {
       default: null,
     },
     danger: {
+      type: Boolean,
+      default: false,
+    },
+    divider: {
       type: Boolean,
       default: false,
     },

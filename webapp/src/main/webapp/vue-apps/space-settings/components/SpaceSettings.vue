@@ -21,91 +21,93 @@
 -->
 <template>
   <v-app class="application-body">
-    <v-main v-if="$root.space" class="px-5 py-1 border-box-sizing">
+    <v-main v-if="$root.space" class="border-box-sizing">
       <!--
-        Four groups. Social places its own rows; an extension row goes to the
-        group its registration names in `group`, Applications when it names none.
+        One card per group, as the user Settings page draws its sections. Social
+        places its own rows; an extension row goes to the group its registration
+        names in `group`, Applications when it names none. The Identity and Roles
+        sections open inside their group's card.
       -->
-      <div
-        v-if="isActiveSection"
-        id="SpaceSettingsGroupGeneral"
-        class="space-settings-group-title text-caption font-weight-bold text-uppercase text-sub-title pt-4 pb-1">
-        {{ $t('SpaceSettings.group.general') }}
-      </div>
-      <space-setting-overview id="SpaceSettingsOverview" />
-      <space-setting-public-site
-        id="SpaceSettingsPublicAccess"
-        v-if="$root.space?.canManagePublicSite" />
-      <space-setting-categories id="SpaceSettingsCategories" />
-      <space-setting-sovereign />
-      <space-setting-subspaces id="SpaceSettingsSubspaces" v-if="isParentSpace" />
-      <extension-registry-components
-        v-if="isActiveSection"
-        :params="extensionParams"
-        :filter="groupFilters.general"
-        name="SpaceSettings"
-        type="space-settings-components"
-        parent-element="div"
-        element="div" />
+      <v-card
+        v-if="isActiveSection || $root.isOverviewSection"
+        id="SpaceSettingsGroupGeneralCard"
+        class="space-settings-group application-layout-style mb-4"
+        flat>
+        <space-setting-group-title
+          v-if="isActiveSection"
+          id="SpaceSettingsGroupGeneral"
+          :title="$t('SpaceSettings.group.general')" />
+        <space-setting-overview id="SpaceSettingsOverview" />
+        <space-setting-public-site
+          id="SpaceSettingsPublicAccess"
+          v-if="$root.space?.canManagePublicSite"
+          divider />
+        <space-setting-categories id="SpaceSettingsCategories" divider />
+        <space-setting-sovereign divider />
+        <space-setting-subspaces
+          id="SpaceSettingsSubspaces"
+          v-if="isParentSpace"
+          divider />
+        <space-setting-group-extensions
+          v-if="isActiveSection"
+          :params="extensionParams"
+          :filter="groupFilters.general"
+          divider-first />
+      </v-card>
 
-      <div
-        v-if="isActiveSection"
-        id="SpaceSettingsGroupMembers"
-        class="space-settings-group-title text-caption font-weight-bold text-uppercase text-sub-title pt-4 pb-1">
-        {{ $t('SpaceSettings.group.members') }}
-      </div>
-      <space-setting-roles id="SpaceSettingsRoles" />
-      <space-setting-access id="SpaceSettingsAccess" />
-      <extension-registry-components
-        v-if="isActiveSection"
-        :params="extensionParams"
-        :filter="groupFilters.members"
-        name="SpaceSettings"
-        type="space-settings-components"
-        parent-element="div"
-        element="div" />
+      <v-card
+        v-if="isActiveSection || $root.isRolesSection"
+        id="SpaceSettingsGroupMembersCard"
+        class="space-settings-group application-layout-style mb-4"
+        flat>
+        <space-setting-group-title
+          v-if="isActiveSection"
+          id="SpaceSettingsGroupMembers"
+          :title="$t('SpaceSettings.group.members')" />
+        <space-setting-roles id="SpaceSettingsRoles" />
+        <space-setting-access id="SpaceSettingsAccess" divider />
+        <space-setting-group-extensions
+          v-if="isActiveSection"
+          :params="extensionParams"
+          :filter="groupFilters.members"
+          divider-first />
+      </v-card>
 
-      <extension-registry-components
+      <space-setting-group-extensions
         v-if="isActiveSection"
+        id="SpaceSettingsGroupApplicationsCard"
         :params="extensionParams"
         :filter="groupFilters.applications"
-        name="SpaceSettings"
-        type="space-settings-components"
-        parent-element="div"
-        element="div">
-        <template #header>
-          <div
-            id="SpaceSettingsGroupApplications"
-            class="space-settings-group-title text-caption font-weight-bold text-uppercase text-sub-title pt-4 pb-1">
-            {{ $t('SpaceSettings.group.applications') }}
-          </div>
-        </template>
-      </extension-registry-components>
+        :title="$t('SpaceSettings.group.applications')"
+        title-id="SpaceSettingsGroupApplications"
+        class="space-settings-group application-layout-style mb-4" />
 
       <template v-if="isActiveSection">
-        <div
+        <v-card
           v-if="canDelete"
-          id="SpaceSettingsGroupDanger"
-          class="space-settings-group-title text-caption font-weight-bold text-uppercase error--text pt-4 pb-1">
-          {{ $t('SpaceSettings.group.danger') }}
-        </div>
-        <extension-registry-components
+          id="SpaceSettingsGroupDangerCard"
+          class="space-settings-group application-layout-style mb-4"
+          flat>
+          <space-setting-group-title
+            id="SpaceSettingsGroupDanger"
+            :title="$t('SpaceSettings.group.danger')"
+            danger />
+          <space-setting-group-extensions
+            :params="extensionParams"
+            :filter="groupFilters.danger"
+            divider-last />
+          <space-setting-delete-space />
+        </v-card>
+        <space-setting-group-extensions
+          v-else
+          id="SpaceSettingsGroupDangerCard"
           :params="extensionParams"
           :filter="groupFilters.danger"
-          name="SpaceSettings"
-          type="space-settings-components"
-          parent-element="div"
-          element="div">
-          <template v-if="!canDelete" #header>
-            <div
-              id="SpaceSettingsGroupDanger"
-              class="space-settings-group-title text-caption font-weight-bold text-uppercase error--text pt-4 pb-1">
-              {{ $t('SpaceSettings.group.danger') }}
-            </div>
-          </template>
-        </extension-registry-components>
+          :title="$t('SpaceSettings.group.danger')"
+          title-id="SpaceSettingsGroupDanger"
+          class="space-settings-group application-layout-style mb-4"
+          danger />
       </template>
-      <space-setting-delete-space v-if="canDelete" />
     </v-main>
   </v-app>
 </template>
