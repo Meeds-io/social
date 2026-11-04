@@ -35,12 +35,14 @@
     }"
     :filters-count="filtersCount"
     :height="toolbarHeight"
+    :right-class="toolbarHeight && 'align-self-start mt-3'"
     compact
     class="px-1"
     no-text-truncate
     cols-auto
     @filter-text-input-end-typing="$emit('keyword-changed', $event)"
     @filter-button-click="$root.$emit('spaces-administration-filter-drawer-open')"
+    @filter-expand="$nextTick(() => observeBulkActions())"
     @loading="$emit('loading', $event)">
     <template v-if="!$root.isMobile" #left>
       <div
@@ -112,12 +114,21 @@ export default {
   },
   methods: {
     observeBulkActions() {
-      if (this.$refs.bulkActions && this.$refs.bulkActions !== this.observedBulkActions) {
-        this.observedBulkActions = this.$refs.bulkActions;
-        this.resizeObserver?.observe(this.$refs.bulkActions);
-      } else if (!this.$refs.bulkActions && this.observedBulkActions) {
+      // The expanded text filter hides the toolbar's left content: the bulk
+      // actions are rendered again, in a new element, once it is collapsed.
+      // `filter-expand` is emitted before the toolbar re-renders its left
+      // content, so that element exists only on the next tick
+      const bulkActions = this.$refs.bulkActions || null;
+      if (bulkActions === this.observedBulkActions) {
+        return;
+      }
+      if (this.observedBulkActions) {
         this.resizeObserver?.unobserve(this.observedBulkActions);
-        this.observedBulkActions = null;
+      }
+      this.observedBulkActions = bulkActions;
+      if (bulkActions) {
+        this.resizeObserver?.observe(bulkActions);
+      } else {
         this.toolbarHeight = null;
       }
     },
