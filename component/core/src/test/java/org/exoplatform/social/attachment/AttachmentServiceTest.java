@@ -24,6 +24,7 @@ import static org.exoplatform.social.attachment.AttachmentService.ATTACHMENT_CRE
 import static org.exoplatform.social.attachment.AttachmentService.ATTACHMENT_DELETED_EVENT;
 import static org.junit.Assert.assertThrows;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +47,7 @@ import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.attachment.model.ObjectAttachmentId;
 import org.exoplatform.social.attachment.model.ObjectAttachmentList;
 import org.exoplatform.social.attachment.model.ObjectAttachmentOperationReport;
+import org.exoplatform.social.attachment.model.UploadedAttachmentDetail;
 import org.exoplatform.social.core.attachment.storage.FileAttachmentStorage;
 import org.exoplatform.social.core.mock.MockUploadService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
@@ -64,6 +66,10 @@ public class AttachmentServiceTest extends AbstractCoreTest {
   private static final String   FILE_NAME            = "cover.png";
 
   private static final String   UPLOAD_ID            = "1234";
+
+  private static final String   REPLACEMENT_UPLOAD_ID = "5678";
+
+  private static final String   REPLACEMENT_FILE_NAME = "replacement.png";
 
   private static final String   OBJECT_TYPE          = "objectType";
 
@@ -88,6 +94,8 @@ public class AttachmentServiceTest extends AbstractCoreTest {
   private AtomicBoolean         hasEditPermission    = new AtomicBoolean();
 
   private AtomicBoolean         hasViewPermission    = new AtomicBoolean();
+
+  private AtomicBoolean         failAudience         = new AtomicBoolean();
 
   private long                  attachmentSpaceId    = 0;
 
@@ -243,6 +251,190 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertNull(attachment);
   }
 
+  public void testSaveAttachmentsReplacesOnlyTheObjectsOwnFiles() throws Exception { // NOSONAR
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(USERNAME).getId());
+    String otherObjectId = objectId;
+    String fileId = createAttachment(USERNAME);
+    String editedObjectId = "objectId" + RANDOM.nextInt();
+    hasEditPermission.set(true);
+
+    FileAttachmentObject replacement = new FileAttachmentObject();
+    replacement.setId(fileId);
+    replacement.setUploadId(REPLACEMENT_UPLOAD_ID);
+    FileAttachmentResourceList attachmentList = new FileAttachmentResourceList();
+    attachmentList.setUserIdentityId(userIdentityId);
+    attachmentList.setObjectType(OBJECT_TYPE);
+    attachmentList.setObjectId(editedObjectId);
+    attachmentList.setAttachedFiles(new ArrayList<>(List.of(replacement)));
+    attachmentList.setUploadedFiles(new ArrayList<>());
+    uploadReplacement();
+    assertThrows(IllegalAccessException.class, () -> attachmentService.saveAttachments(attachmentList, userAcl));
+    attachmentList.setAttachedFiles(new ArrayList<>());
+    attachmentList.setUploadedFiles(new ArrayList<>(List.of(replacement)));
+    assertThrows(IllegalAccessException.class, () -> attachmentService.saveAttachments(attachmentList, userAcl));
+
+    UploadedAttachmentDetail replacementDetail = new UploadedAttachmentDetail(uploadService.getUploadResource(REPLACEMENT_UPLOAD_ID));
+    replacementDetail.setId(fileId);
+    long fileIdBefore = writeProbeFile(userIdentityId);
+    assertThrows(ObjectNotFoundException.class,
+                 () -> attachmentService.saveAttachment(replacementDetail, OBJECT_TYPE, editedObjectId, null, userIdentityId));
+    long fileIdAfter = writeProbeFile(userIdentityId);
+    for (long writtenFileId = fileIdBefore + 1; writtenFileId < fileIdAfter; writtenFileId++) {
+      assertNull(attachmentStorage.getAttachment(new ObjectAttachmentId(String.valueOf(writtenFileId),
+                                                                        OBJECT_TYPE,
+                                                                        editedObjectId)));
+    }
+
+    assertEquals(FILE_NAME, attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, otherObjectId)).getName());
+    assertEquals(List.of(fileId), attachmentService.getAttachmentFileIds(OBJECT_TYPE, otherObjectId));
+    assertTrue(attachmentService.getAttachmentFileIds(OBJECT_TYPE, editedObjectId).isEmpty());
+
+    attachmentList.setObjectId(otherObjectId);
+    attachmentList.setAttachedFiles(new ArrayList<>(List.of(replacement)));
+    attachmentList.setUploadedFiles(new ArrayList<>());
+    uploadReplacement();
+    attachmentService.saveAttachments(attachmentList, userAcl);
+    assertEquals(REPLACEMENT_FILE_NAME,
+                 attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, otherObjectId)).getName());
+    assertEquals(List.of(fileId), attachmentService.getAttachmentFileIds(OBJECT_TYPE, otherObjectId));
+  }
+
+  public void testSaveAttachmentsRefusesAForeignFileBeforeChangingTheObject() throws Exception { // NOSONAR
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(USERNAME).getId());
+    String foreignFileId = createAttachment(USERNAME);
+    String editedObjectId = "objectId" + RANDOM.nextInt();
+    hasEditPermission.set(true);
+    FileAttachmentObject ownUpload = new FileAttachmentObject();
+    ownUpload.setUploadId(UPLOAD_ID);
+    FileAttachmentResourceList ownList = new FileAttachmentResourceList();
+    ownList.setUserIdentityId(userIdentityId);
+    ownList.setObjectType(OBJECT_TYPE);
+    ownList.setObjectId(editedObjectId);
+    ownList.setUploadedFiles(new ArrayList<>(List.of(ownUpload)));
+    uploadResource();
+    attachmentService.saveAttachments(ownList);
+    String ownFileId = attachmentService.getAttachmentFileIds(OBJECT_TYPE, editedObjectId).get(0);
+
+    // The own file is left out, so the save would delete it, and a new
+    // upload comes with the foreign file, so the save would write it
+    FileAttachmentResourceList attachmentList = replacementList(foreignFileId, editedObjectId, userIdentityId);
+    FileAttachmentObject newUpload = new FileAttachmentObject();
+    newUpload.setUploadId(UPLOAD_ID);
+    attachmentList.setUploadedFiles(new ArrayList<>(List.of(newUpload)));
+    uploadResource();
+    long createdCount = eventCounts.getOrDefault(ATTACHMENT_CREATED_EVENT, 0l);
+    long deletedCount = eventCounts.getOrDefault(ATTACHMENT_DELETED_EVENT, 0l);
+
+    long fileIdBefore = writeProbeFile(userIdentityId);
+    assertThrows(IllegalAccessException.class, () -> attachmentService.saveAttachments(attachmentList, userAcl));
+    long fileIdAfter = writeProbeFile(userIdentityId);
+
+    for (long writtenFileId = fileIdBefore + 1; writtenFileId < fileIdAfter; writtenFileId++) {
+      assertNull(attachmentStorage.getAttachment(new ObjectAttachmentId(String.valueOf(writtenFileId),
+                                                                        OBJECT_TYPE,
+                                                                        editedObjectId)));
+    }
+    assertEquals(List.of(ownFileId), attachmentService.getAttachmentFileIds(OBJECT_TYPE, editedObjectId));
+    assertEquals(FILE_NAME, attachmentStorage.getAttachment(new ObjectAttachmentId(ownFileId, OBJECT_TYPE, editedObjectId)).getName());
+    assertEquals(FILE_NAME, attachmentStorage.getAttachment(new ObjectAttachmentId(foreignFileId, OBJECT_TYPE, objectId)).getName());
+    assertEquals(createdCount, eventCounts.getOrDefault(ATTACHMENT_CREATED_EVENT, 0l).longValue());
+    assertEquals(deletedCount, eventCounts.getOrDefault(ATTACHMENT_DELETED_EVENT, 0l).longValue());
+  }
+
+  public void testSaveAttachmentsKeepsAFileAnotherObjectLinks() throws Exception { // NOSONAR
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(USERNAME).getId());
+    String sourceObjectId = objectId;
+    // The two objects link the file under two audiences
+    attachmentAudienceId = 5;
+    String fileId = createAttachment(USERNAME);
+    attachmentAudienceId = 0;
+    String linkingObjectId = "objectId" + RANDOM.nextInt();
+    attachmentService.createAttachment(fileId, OBJECT_TYPE, linkingObjectId, null, userIdentityId, Collections.emptyMap());
+    hasEditPermission.set(true);
+    long deletedCount = eventCounts.getOrDefault(ATTACHMENT_DELETED_EVENT, 0l);
+
+    FileAttachmentResourceList attachmentList = replacementList(fileId, linkingObjectId, userIdentityId);
+    attachmentService.saveAttachments(attachmentList, userAcl);
+
+    assertEquals(FILE_NAME, attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, sourceObjectId)).getName());
+    assertEquals(List.of(fileId), attachmentService.getAttachmentFileIds(OBJECT_TYPE, sourceObjectId));
+    List<String> linkingFileIds = attachmentService.getAttachmentFileIds(OBJECT_TYPE, linkingObjectId);
+    assertEquals(1, linkingFileIds.size());
+    assertFalse(linkingFileIds.contains(fileId));
+    String replacementFileId = linkingFileIds.get(0);
+    assertEquals(REPLACEMENT_FILE_NAME,
+                 attachmentStorage.getAttachment(new ObjectAttachmentId(replacementFileId, OBJECT_TYPE, linkingObjectId))
+                                  .getName());
+    assertEquals(deletedCount + 1, eventCounts.getOrDefault(ATTACHMENT_DELETED_EVENT, 0l).longValue());
+
+    attachmentService.createAttachment(fileId, OBJECT_TYPE, linkingObjectId, null, userIdentityId, Collections.emptyMap());
+    attachmentList.setAttachedFiles(new ArrayList<>());
+    attachmentService.saveAttachments(attachmentList, userAcl);
+    assertTrue(attachmentService.getAttachmentFileIds(OBJECT_TYPE, linkingObjectId).isEmpty());
+    assertEquals(FILE_NAME, attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, sourceObjectId)).getName());
+    assertNull(attachmentStorage.getAttachment(new ObjectAttachmentId(replacementFileId, OBJECT_TYPE, linkingObjectId)));
+  }
+
+  public void testSaveAttachmentsKeepsAFileAnObjectOfAnotherTypeLinks() throws Exception { // NOSONAR
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(USERNAME).getId());
+    String fileId = createAttachment(USERNAME);
+    attachmentService.createAttachment(fileId, PUBLIC_OBJECT_TYPE, objectId, null, userIdentityId, Collections.emptyMap());
+    hasEditPermission.set(true);
+
+    attachmentService.saveAttachments(replacementList(fileId, objectId, userIdentityId), userAcl);
+
+    assertEquals(List.of(fileId), attachmentService.getAttachmentFileIds(PUBLIC_OBJECT_TYPE, objectId));
+    assertEquals(FILE_NAME, attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, PUBLIC_OBJECT_TYPE, objectId)).getName());
+    assertFalse(attachmentService.getAttachmentFileIds(OBJECT_TYPE, objectId).contains(fileId));
+  }
+
+  public void testSaveAttachmentsKeepsTheSharedFileWhenTheNewLinkFails() throws Exception { // NOSONAR
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(USERNAME).getId());
+    String fileId = createAttachment(USERNAME);
+    String linkingObjectId = "objectId" + RANDOM.nextInt();
+    attachmentService.createAttachment(fileId, OBJECT_TYPE, linkingObjectId, null, userIdentityId, Collections.emptyMap());
+    hasEditPermission.set(true);
+    failAudience.set(true);
+    FileAttachmentResourceList attachmentList = replacementList(fileId, linkingObjectId, userIdentityId);
+
+    long fileIdBefore = writeProbeFile(userIdentityId);
+    attachmentService.saveAttachments(attachmentList, userAcl);
+    long fileIdAfter = writeProbeFile(userIdentityId);
+
+    assertEquals(List.of(fileId), attachmentService.getAttachmentFileIds(OBJECT_TYPE, linkingObjectId));
+    assertEquals(FILE_NAME, attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, objectId)).getName());
+    assertTrue(fileIdAfter > fileIdBefore + 1);
+    for (long writtenFileId = fileIdBefore + 1; writtenFileId < fileIdAfter; writtenFileId++) {
+      assertNull(attachmentStorage.getAttachment(new ObjectAttachmentId(String.valueOf(writtenFileId),
+                                                                        OBJECT_TYPE,
+                                                                        linkingObjectId)));
+    }
+  }
+
+  public void testDeleteAttachmentsKeepsAFileAnotherObjectLinks() throws Exception { // NOSONAR
+    startSessionAndRegisterAs(USERNAME);
+    long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(USERNAME).getId());
+    String fileId = createAttachment(USERNAME);
+    String linkingObjectId = "objectId" + RANDOM.nextInt();
+    attachmentService.createAttachment(fileId, OBJECT_TYPE, linkingObjectId, null, userIdentityId, Collections.emptyMap());
+
+    attachmentService.deleteAttachments(OBJECT_TYPE, linkingObjectId);
+
+    assertTrue(attachmentService.getAttachmentFileIds(OBJECT_TYPE, linkingObjectId).isEmpty());
+    assertEquals(List.of(fileId), attachmentService.getAttachmentFileIds(OBJECT_TYPE, objectId));
+    assertEquals(FILE_NAME, attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, objectId)).getName());
+
+    attachmentService.deleteAttachment(OBJECT_TYPE, objectId, fileId);
+
+    assertTrue(attachmentService.getAttachmentFileIds(OBJECT_TYPE, objectId).isEmpty());
+    assertNull(attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, objectId)));
+  }
+
   public void testGetAttachments() throws Exception { // NOSONAR
 
     Identity userAcl = startSessionAndRegisterAs(USERNAME);
@@ -334,6 +526,37 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
     ObjectAttachmentDetail attachment = attachmentService.getAttachment(OBJECT_TYPE, objectId, fileId);
     assertNull(attachment);
+  }
+
+  private FileAttachmentResourceList replacementList(String fileId,
+                                                     String editedObjectId,
+                                                     long userIdentityId) throws Exception {
+    FileAttachmentObject replacement = new FileAttachmentObject();
+    replacement.setId(fileId);
+    replacement.setUploadId(REPLACEMENT_UPLOAD_ID);
+    FileAttachmentResourceList attachmentList = new FileAttachmentResourceList();
+    attachmentList.setUserIdentityId(userIdentityId);
+    attachmentList.setObjectType(OBJECT_TYPE);
+    attachmentList.setObjectId(editedObjectId);
+    attachmentList.setAttachedFiles(new ArrayList<>(List.of(replacement)));
+    attachmentList.setUploadedFiles(new ArrayList<>());
+    uploadReplacement();
+    return attachmentList;
+  }
+
+  private long writeProbeFile(long userIdentityId) throws IOException {
+    return Long.parseLong(attachmentStorage.uploadAttachment(null,
+                                                             OBJECT_TYPE,
+                                                             objectId,
+                                                             "probe.png",
+                                                             MIME_TYPE,
+                                                             new ByteArrayInputStream(new byte[0]),
+                                                             userIdentityId));
+  }
+
+  private void uploadReplacement() throws Exception {
+    File tempFile = File.createTempFile("replacement", "temp");
+    uploadService.createUploadResource(REPLACEMENT_UPLOAD_ID, tempFile.getPath(), REPLACEMENT_FILE_NAME, MIME_TYPE);
   }
 
   private void uploadResource() throws IOException, Exception {
@@ -491,6 +714,9 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
       @Override
       public long getAudienceId(String objectId) throws ObjectNotFoundException {
+        if (failAudience.get()) {
+          throw new ObjectNotFoundException("Object " + objectId + " isn't found");
+        }
         return attachmentAudienceId;
       }
 
