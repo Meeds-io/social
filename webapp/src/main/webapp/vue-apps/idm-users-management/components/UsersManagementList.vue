@@ -14,6 +14,7 @@
       :title="$t('UsersManagement.title.deleteCurrentUserWarning')"
       :ok-label="$t('UsersManagement.button.ok')" />
     <v-data-table
+      id="usersManagementTable"
       v-model="selectedUsers"
       :headers="headers"
       :items="filteredUsers"

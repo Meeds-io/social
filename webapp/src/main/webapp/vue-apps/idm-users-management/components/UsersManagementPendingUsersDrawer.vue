@@ -47,20 +47,20 @@
         <v-list-item
           v-for="user in users"
           :key="user.username"
-          class="px-2">
+          class="pendingUserItem px-2">
           <v-list-item-avatar size="32" class="me-3">
             <v-img :src="user.avatar" eager />
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title class="text-truncate">{{ user.fullname || user.username }}</v-list-item-title>
             <v-list-item-subtitle class="text-truncate">
-              {{ user.email }}
+              <span class="pendingUserEmail">{{ user.email }}</span>
               <!-- A viewer who is not an administrator of the configured
                    membership type reads rows without the enrollment date -->
               <template v-if="tab === 'invitations' && user.enrollmentDate">
                 •
-                <span v-if="user.enrollmentExpired" class="error--text">{{ $t('UsersManagement.pending.tokenExpired') }}</span>
-                <span v-else>{{ $t('UsersManagement.pending.sentOn', {0: sentOn(user)}) }}</span>
+                <span v-if="user.enrollmentExpired" class="pendingUserTokenExpired error--text">{{ $t('UsersManagement.pending.tokenExpired') }}</span>
+                <span v-else class="pendingUserSentOn">{{ $t('UsersManagement.pending.sentOn', {0: sentOn(user)}) }}</span>
               </template>
             </v-list-item-subtitle>
           </v-list-item-content>
@@ -84,6 +84,7 @@
     <template v-if="hasMore" #footer>
       <div class="d-flex justify-center">
         <v-btn
+          id="pendingUsersLoadMoreButton"
           :loading="loading"
           :disabled="loading"
           class="btn"

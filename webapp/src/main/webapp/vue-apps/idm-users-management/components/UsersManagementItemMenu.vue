@@ -21,6 +21,7 @@
 <template>
   <v-menu
     v-model="menu"
+    content-class="usersManagementItemMenuContent"
     offset-y>
     <template #activator="{on, attrs}">
       <v-btn
