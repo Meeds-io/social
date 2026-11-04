@@ -141,40 +141,53 @@ export default {
     components: [],
   }),
   computed: {
+    /**
+     * Whether at least one component is rendered.
+     */
     isEnabled() {
       return this.components.length;
     },
   },
+  /**
+   * Listens to the extension point's registrations, then registers the
+   * components already registered there.
+   */
   created() {
     document.addEventListener(`component-${this.name}-${this.type}-updated`, this.updateComponents);
     const registeredComponents = extensionRegistry.loadComponents(this.name);
-    const components = [];
     if (this.strictType) {
       registeredComponents.filter(comp => comp.componentName === this.type).forEach(component => {
-        this.registerComponent(component, components);
+        this.registerComponent(component);
       });
     } else {
       registeredComponents.forEach(component => {
-        this.registerComponent(component, components);
+        this.registerComponent(component);
       });
     }
-    this.components = components;
   },
+  /**
+   * Stops listening to the extension point's registrations.
+   */
   beforeDestroy() {
     document.removeEventListener(`component-${this.name}-${this.type}-updated`, this.updateComponents);
   },
   methods: {
+    /**
+     * Registers the component an extension point event carries.
+     */
     updateComponents(event) {
       const component = event && event.detail;
       if (component) {
         if (!this.strictType || component.componentName === this.type) {
-          const components = this.components.slice();
-          this.registerComponent(component, components);
-          this.components = components;
+          this.registerComponent(component);
         }
       }
     },
-    registerComponent(component, components) {
+    /**
+     * Initializes a component, then adds it to the rendered rows when its
+     * filter and isEnabled accept it.
+     */
+    registerComponent(component) {
       if (this.filter && !this.filter(component)) {
         return;
       }
@@ -182,13 +195,20 @@ export default {
         const initResult = component.componentOptions.init(this.params);
         if (initResult.then) {
           return initResult
-            .then(() => this.addComponent(component, components));
+            .then(() => this.addComponent(component));
         }
       }
-      this.addComponent(component, components);
+      this.addComponent(component);
     },
-    async addComponent(component, components) {
+    /**
+     * Adds a component to the rendered rows once its isEnabled resolves to true.
+     * The rows are read after that resolution, never before it: another
+     * registration may have replaced them meanwhile, and a row added to an
+     * earlier copy would never render.
+     */
+    async addComponent(component) {
       if (!component.componentOptions.isEnabled || await Promise.resolve(component.componentOptions.isEnabled(this.params))) {
+        const components = this.components.slice();
         const existingComponentIndex = components.findIndex(cmp => cmp.componentOptions.id === component.componentOptions.id);
         if (existingComponentIndex >= 0) {
           components.splice(existingComponentIndex, 1, component);
@@ -196,8 +216,12 @@ export default {
           components.push(component);
         }
         components.sort(this.sort);
+        this.components = components;
       }
     },
+    /**
+     * Orders two components by their rank, a missing rank counting as 0.
+     */
     sort(comp1, comp2) {
       return (comp1.componentOptions.rank || 0) - (comp2.componentOptions.rank || 0);
     },
