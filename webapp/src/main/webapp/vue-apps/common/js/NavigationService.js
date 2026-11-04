@@ -53,3 +53,17 @@ export function getNavigations(siteName, siteType, scope, visibility, exclude, n
     }
   });
 }
+export function saveUserHomePage(uri) {
+  return fetch('/social/rest/navigation/settings/home', {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'text/plain',
+    },
+    body: uri,
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error');
+    }
+  });
+}

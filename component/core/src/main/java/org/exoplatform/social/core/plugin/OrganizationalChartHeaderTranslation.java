@@ -18,11 +18,16 @@
  */
 package org.exoplatform.social.core.plugin;
 
+import org.exoplatform.container.ExoContainerContext;
+
+import io.meeds.social.organizationalchart.service.OrganizationalChartSettingService;
 import io.meeds.social.translation.plugin.TranslationPlugin;
 
 public class OrganizationalChartHeaderTranslation extends TranslationPlugin {
 
-  public static final String ORGANIZATIONAL_CHART_OBJECT_TYPE = "organizationalChart";
+  public static final String               ORGANIZATIONAL_CHART_OBJECT_TYPE = "organizationalChart";
+
+  private OrganizationalChartSettingService organizationalChartSettingService;
 
   @Override
   public String getObjectType() {
@@ -36,7 +41,7 @@ public class OrganizationalChartHeaderTranslation extends TranslationPlugin {
 
   @Override
   public boolean hasEditPermission(String objectId, String username) {
-    return true;
+    return getOrganizationalChartSettingService().canEdit(username);
   }
 
   @Override
@@ -47,5 +52,16 @@ public class OrganizationalChartHeaderTranslation extends TranslationPlugin {
   @Override
   public long getSpaceId(String objectId) {
     return 0;
+  }
+
+  void setOrganizationalChartSettingService(OrganizationalChartSettingService organizationalChartSettingService) {
+    this.organizationalChartSettingService = organizationalChartSettingService;
+  }
+
+  private OrganizationalChartSettingService getOrganizationalChartSettingService() {
+    if (organizationalChartSettingService == null) {
+      organizationalChartSettingService = ExoContainerContext.getService(OrganizationalChartSettingService.class);
+    }
+    return organizationalChartSettingService;
   }
 }

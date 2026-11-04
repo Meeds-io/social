@@ -18,7 +18,11 @@
  */
 package io.meeds.social.navigation.rest;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +31,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import io.meeds.portal.navigation.constant.SidebarMode;
 import io.meeds.portal.navigation.model.NavigationConfiguration;
 import io.meeds.portal.navigation.model.SidebarConfiguration;
 import io.meeds.portal.navigation.model.TopbarConfiguration;
 import io.meeds.portal.navigation.service.NavigationConfigurationService;
+import io.meeds.social.navigation.service.UserHomePageService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -46,8 +52,13 @@ import jakarta.servlet.http.HttpServletRequest;
 @Tag(name = "/social/rest/navigation/settings", description = "Managing Topbar and Sidebar Navigation Configuration")
 public class NavigationConfigurationRest {
 
+  private static final String MESSAGE_KEY = "message";
+
   @Autowired
   private NavigationConfigurationService navigationConfigurationService;
+
+  @Autowired
+  private UserHomePageService            userHomePageService;
 
   @GetMapping
   @Secured("users")
@@ -89,6 +100,28 @@ public class NavigationConfigurationRest {
                                     @RequestParam("mode")
                                     SidebarMode mode) {
     navigationConfigurationService.updateSidebarUserMode(request.getRemoteUser(), mode);
+  }
+
+  @PutMapping(path = "/home", consumes = MediaType.TEXT_PLAIN_VALUE)
+  @Secured("users")
+  @Operation(summary = "Saves the home page of the current user", method = "PUT",
+             description = "Saves the page the company logo of the topbar leads the current user to, when users are allowed to choose it")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Invalid home page URI"),
+    @ApiResponse(responseCode = "403", description = "Users aren't allowed to choose their home page"),
+  })
+  public ResponseEntity<Object> saveUserHomePage(HttpServletRequest request,
+                                                 @RequestBody
+                                                 String uri) {
+    try {
+      userHomePageService.saveUserHomePage(request.getRemoteUser(), uri);
+      return ResponseEntity.ok().build();
+    } catch (IllegalAccessException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(Map.of(MESSAGE_KEY, e.getMessage()));
+    }
   }
 
   @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
