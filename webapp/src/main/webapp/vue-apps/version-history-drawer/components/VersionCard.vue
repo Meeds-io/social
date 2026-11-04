@@ -37,7 +37,8 @@
     <div
       v-else-if="!descriptionInputHidden"
       class="versionDescriptionEdit my-1"
-      @click.stop>
+      @click.stop
+      @keydown.enter.stop>
       <v-text-field
         ref="newDescriptionInput"
         v-model="newDescription"
@@ -111,7 +112,8 @@
       <span
         v-if="versionObject.author"
         class="versionAuthor"
-        @click.stop>
+        @click.stop
+        @keydown.enter.stop>
         <user-avatar
           :profile-id="versionObject.author"
           :size="20"
