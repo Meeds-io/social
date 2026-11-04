@@ -210,7 +210,7 @@ class UISocialPortalApplicationHeadTest {
   }
 
   @Test
-  void anonymousPageOutsideSpacesKeepsItsValues() throws Exception {
+  void anonymousPageOutsideSpacesPrintsDefaultValues() throws Exception {
     Map<String, String> assignments = assignments(render());
 
     assertStringValue(assignments, "spaceId", "");
@@ -218,7 +218,7 @@ class UISocialPortalApplicationHeadTest {
     assertStringValue(assignments, "profileOwner", "");
     assertStringValue(assignments, "userIdentityId", "");
     assertStringValue(assignments, "cometdToken", "");
-    // A platform without a logo keeps printing the string it printed before
+    // getLogoPath() is null without a logo: the script receives the string "null"
     assertStringValue(assignments, "companyLogo", "null");
     assertEquals("null", assignments.get("previewSpaceId"));
     assertEquals("null", assignments.get("userTimezone"));
@@ -261,6 +261,18 @@ class UISocialPortalApplicationHeadTest {
     assertFalse(output.contains("<!--"), output);
   }
 
+  @Test
+  void noPrintOfTheScriptBlockIsHandQuoted() throws Exception {
+    // Some values cannot hold a quote today (URI-encoded, checked by ZoneId,
+    // numeric): they still go through the escaper, so that the block keeps a
+    // single rule whatever a value's source becomes
+    String template = Files.readString(TEMPLATE, StandardCharsets.UTF_8);
+    String block = template.substring(template.indexOf("<script"), template.indexOf("</script>"));
+    for (String handQuoting : List.of("\"<%=", "'<%=", "%>\"", "%>'", "\"\\\"\"", "\"'\"")) {
+      assertFalse(block.contains(handQuoting), handQuoting);
+    }
+  }
+
   private Space givenSignedInUserOnSpacePage(String spaceId, // NOSONAR
                                             String prettyName,
                                             String url,
@@ -287,18 +299,6 @@ class UISocialPortalApplicationHeadTest {
     utils.when(Utils::getOwnerRemoteId).thenReturn(owner);
     utils.when(Utils::getViewerIdentityId).thenReturn(viewerIdentityId);
     return spy;
-  }
-
-  @Test
-  void noPrintOfTheScriptBlockIsHandQuoted() throws Exception {
-    // Some values cannot hold a quote today (URI-encoded, checked by ZoneId,
-    // numeric): they still go through the escaper, so that the block keeps a
-    // single rule whatever a value's source becomes
-    String template = Files.readString(TEMPLATE, StandardCharsets.UTF_8);
-    String block = template.substring(template.indexOf("<script"), template.indexOf("</script>"));
-    for (String handQuoting : List.of("\"<%=", "'<%=", "%>\"", "%>'", "\"\\\"\"", "\"'\"")) {
-      assertFalse(block.contains(handQuoting), handQuoting);
-    }
   }
 
   private void givenUserTimezone(String timezone) throws Exception {
