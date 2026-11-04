@@ -90,6 +90,7 @@ public class UserCardSettingServiceTest {
     mockProperty("skills", "text", true, false);
     mockProperty("address", "text", false, true);
     mockProperty("manager", "user", false, false);
+    mockProperty("untyped", null, false, false);
   }
 
   @Test
@@ -133,6 +134,9 @@ public class UserCardSettingServiceTest {
     assertInvalid(new UserCardSettings("position", "team", "city", "workEmail", null));
     assertInvalid(new UserCardSettings("position", "team", "city", "", null));
     assertInvalid(new UserCardSettings("position", "team", "city", null, "workPhone"));
+    // A property stored without a type fits no place of the card
+    assertInvalid(new UserCardSettings("untyped", "team", "city", null, null));
+    assertInvalid(new UserCardSettings("position", "team", "city", "untyped", null));
     verify(settingService, never()).set(any(), any(), anyString(), any());
     verify(settingService, never()).remove(any(), any(), anyString());
   }

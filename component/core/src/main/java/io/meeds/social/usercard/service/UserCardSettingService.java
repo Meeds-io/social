@@ -111,7 +111,8 @@ public class UserCardSettingService {
    * A property stored before, or the one displayed by default while none is
    * stored, keeps being accepted for its place even when it was deleted or
    * changed since, since the settings drawer sends it back with every save,
-   * whatever the field the administrator changed
+   * whatever the field the administrator changed. Any other property must have
+   * its place's type: a property stored without a type fits no place.
    */
   private boolean isValidProperty(String key, String propertyName, String propertyType) {
     if (StringUtils.isBlank(propertyName)) {
