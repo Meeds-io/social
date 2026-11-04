@@ -38,7 +38,7 @@
         :rel="navigationNodeRel"
         :link="hasPage"
         :aria-label="navigation.label"
-        :class="`mx-auto text-break ${notClickable}`"
+        :class="`mx-auto text-break ${notClickable} ${navigation.tabClass || ''}`"
         :value="navigationNodeUri"
         v-on="on"
         v-bind="attrs"
@@ -145,6 +145,10 @@ export default {
   created() {
     document.addEventListener('click', this.handleCloseMenu);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
+  },
+  beforeDestroy() {
+    document.removeEventListener('click', this.handleCloseMenu);
+    this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   methods: {
     updateNavigationState() {
