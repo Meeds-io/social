@@ -46,7 +46,8 @@ export function init(applicationId, settings) {
       data() {
         return {
           applicationId: applicationId,
-          settings: settings
+          settings: settings,
+          initialUserId: settings?.userId || null,
         };
       },
       mounted() {
@@ -54,8 +55,7 @@ export function init(applicationId, settings) {
       },
       template: `<organizational-chart-app 
                    id="${appId}"
-                   :is-space-manager="${settings?.isSpaceManager}"
-                   :initial-user-id="${settings?.userId}"/>`,
+                   :initial-user-id="initialUserId"/>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, `#${appId}`, 'Organizational Chart');
