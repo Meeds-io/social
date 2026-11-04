@@ -207,7 +207,7 @@ const CREATION_ERROR_PREFIX = 'UsersManagement.creation.error.';
  * @returns {string} the first label found, null when no prefix holds one
  */
 export function translateCode(translate, code, prefixes = [CREATION_ERROR_PREFIX]) {
-  const suffix = (code || '').replace(/:/g, '.');
+  const suffix = (code || '').replaceAll(':', '.');
   for (const prefix of prefixes) {
     const key = `${prefix}${suffix}`;
     const label = translate(key);
