@@ -43,8 +43,6 @@
 </template>
 
 <script>
-import * as pendingUsersService from '../js/PendingUsersService.js';
-
 /**
  * The two reminders above the users table: the accounts created and not
  * invited yet, and the invitations not accepted yet. Counted once when the
@@ -105,7 +103,7 @@ export default {
       // that could not be read leaves the shown one as it is
       const requestedAt = window.performance.now();
       return Promise.all(Object.keys(this.counts).map(tab =>
-        pendingUsersService.countPendingUsers(tab)
+        this.$pendingUsersService.countPendingUsers(tab)
           .then(count => this.applyTabSize(tab, count, requestedAt))
           .catch(() => null)));
     },
