@@ -20,8 +20,7 @@
       <span>{{ $t('versionHistory.label.version', {0: versionObject.versionNumber}) }}</span>
       <v-chip
         v-if="versionObject.current"
-        class="versionCurrentChip ms-2"
-        color="primary"
+        class="versionCurrentChip primary--text primary-border-color ms-2"
         x-small
         label
         outlined>
@@ -45,9 +44,7 @@
         :placeholder="$t('versionHistory.description.writeSummary')"
         :maxlength="maxDescriptionLength"
         class="versionDescriptionInput pa-0"
-        :hint="$t('versionHistory.description.hint')"
-        persistent-hint
-        counter
+        hide-details
         outlined
         dense
         autofocus
@@ -85,6 +82,11 @@
           </v-btn>
         </div>
       </v-text-field>
+      <div class="versionDescriptionDetails d-flex text-caption text-light-color mt-1">
+        <span>{{ $t('versionHistory.description.hint') }}</span>
+        <v-spacer />
+        <span class="ms-2">{{ descriptionLength }} / {{ maxDescriptionLength }}</span>
+      </div>
     </div>
     <div
       v-else-if="versionObject.summary"
@@ -118,7 +120,6 @@
           :profile-id="versionObject.author"
           :size="20"
           extra-class="me-2"
-          fullname
           small-font-size
           popover />
       </span>
@@ -127,16 +128,8 @@
         :value="versionDate"
         :format="dateFormat"
         class="me-2" />
-      <span class="me-1">·</span>
-      <a
-        :aria-label="$t('versionHistory.label.openVersion', {0: versionObject.versionNumber})"
-        href="#"
-        class="versionOpenLink primary--text"
-        @click.stop.prevent="openVersion">
-        {{ $t('versionHistory.label.open') }}
-      </a>
       <template v-if="canRestore">
-        <span class="mx-1">·</span>
+        <span class="me-1">·</span>
         <v-progress-circular
           v-if="restoring"
           :size="14"
@@ -247,6 +240,14 @@ export default {
       return !this.versionObject.current && this.canManage && !this.disableRestoreVersion && this.descriptionInputHidden;
     },
     /**
+     * Gives the number of characters of the summary being written, which the
+     * field's details line shows against the limit.
+     * @returns {number} the summary's length
+     */
+    descriptionLength() {
+      return this.newDescription && this.newDescription.length || 0;
+    },
+    /**
      * Tells whether the summary being written is over the length limit. The
      * field stops typing and pasting at the limit, but the server sets none,
      * so a summary stored longer through another path opens over it until
@@ -315,13 +316,6 @@ export default {
     showInput() {
       this.newDescription = this.versionObject.summary || '';
       this.descriptionInputHidden = false;
-    },
-    /**
-     * Asks to open the version, as a click on its row does.
-     * @returns {void}
-     */
-    openVersion() {
-      this.$emit('open-version', this.versionObject);
     },
     /**
      * Asks to restore the version; the drawer confirms it first.
