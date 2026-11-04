@@ -211,7 +211,10 @@ export function init(isExternalFeatureEnabled) {
           // {rank, name, titleKey, header, componentName, headerComponentName, sortBy, customSort, export}:
           // header is the Vuetify header (value, align, sortable, class, width); componentName renders the
           // cell with the space as a prop; headerComponentName, optional, renders after the header label with
-          // the header as a prop; sortBy and customSort contribute a sort; export is read by SpaceExportService
+          // the header as a prop; sortBy and customSort contribute a sort; export is read by SpaceExportService.
+          // customSort({offset, limit, expand, sortDesc, currentSpaces}) returns the rows shown followed by the
+          // next page. It lists a set it reads once per scroll, stable while the rows stay shown, so the
+          // select-all walk ends on its first empty page; a refresh (offset 0) starts a new set, a failed one too
           this.tableColumnExtensions = extensionRegistry.loadExtensions('spaces-administration', 'table-column') || [];
           // {id, pending}: a contributor registers its gate pending, then again with pending false once settled
           this.exportGates = extensionRegistry.loadExtensions('spaces-administration', 'export-gate') || [];
@@ -516,12 +519,13 @@ export function init(isExternalFeatureEnabled) {
         },
         /**
          * Loads the next page of a select-all walk. A page that fails to
-         * load, or that adds no new space while the list is known to hold
-         * more, ends the walk as a failure. Without a contributed sort, the
-         * walk ends with no request once every matching space is listed. A
-         * contributed sort lists a set it read once, so its end is an empty
-         * page: the total, refreshed at each page, shrinks under an action
-         * that removes spaces while their rows stay listed.
+         * load ends the walk as a failure. Without a contributed sort, the
+         * walk ends with no request once every matching space is listed, and
+         * a page that adds no new space while the list is known to hold more
+         * ends it as a failure too. A contributed sort lists a set it read
+         * once, so its end is an empty page: the total, refreshed at each
+         * page, shrinks under an action that removes spaces while their rows
+         * stay listed.
          *
          * @param {Function} isCurrent tells whether the walking run is still the current one
          * @returns {Promise<string>} 'loaded'; 'complete' when every matching space
