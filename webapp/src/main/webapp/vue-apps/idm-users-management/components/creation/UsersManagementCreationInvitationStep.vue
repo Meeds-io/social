@@ -33,9 +33,7 @@
       <users-management-onboarding-email-form
         v-if="sendOnboardingEmail"
         :message="message"
-        :message-max-length="messageMaxLength"
         :error-messages="errorMessages"
-        :validity-label="validityLabel"
         :saving="saving"
         class="mt-3"
         @update:message="$emit('update:message', $event)"
@@ -55,17 +53,9 @@ export default {
       type: String,
       default: '',
     },
-    messageMaxLength: {
-      type: Number,
-      default: 500,
-    },
     errorMessages: {
       type: String,
       default: null,
-    },
-    validityLabel: {
-      type: String,
-      default: '',
     },
     saving: {
       type: Boolean,

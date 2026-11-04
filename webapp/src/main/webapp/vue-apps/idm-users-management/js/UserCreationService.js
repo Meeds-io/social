@@ -193,3 +193,41 @@ export function parseIncomplete(code) {
     deactivated: parts[1] === 'CREATED_INCOMPLETE',
   };
 }
+
+const CREATION_ERROR_PREFIX = 'UsersManagement.creation.error.';
+
+/**
+ * The label of a server code, looked up under each prefix as the code with
+ * its `:` turned into `.`
+ *
+ * @param {Function} translate the component's translation, a key to its label
+ * @param {string} code the response body
+ * @param {Array} prefixes the label prefixes to try, the creation errors' by
+ *        default
+ * @returns {string} the first label found, null when no prefix holds one
+ */
+export function translateCode(translate, code, prefixes = [CREATION_ERROR_PREFIX]) {
+  const suffix = (code || '').replaceAll(':', '.');
+  for (const prefix of prefixes) {
+    const key = `${prefix}${suffix}`;
+    const label = translate(key);
+    if (label !== key) {
+      return label;
+    }
+  }
+  return null;
+}
+
+/**
+ * An error whose message is already in the administrator's language: the
+ * code's label, or the generic one
+ *
+ * @param {Function} translate the component's translation, a key to its label
+ * @param {string} code the response body
+ * @returns {Error} the error, flagged `translated`
+ */
+export function translatedError(translate, code) {
+  const error = new Error(translateCode(translate, code) || translate('IDMManagement.error.UnknownServerError'));
+  error.translated = true;
+  return error;
+}

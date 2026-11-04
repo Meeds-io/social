@@ -17,10 +17,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-import * as usersManagementFieldRules from './js/UsersManagementFieldRules.js';
+// Registered once, so the shipped components and a component an extension
+// registers in their place reach the same services and rules
+import * as userCreationService from './js/UserCreationService.js';
+if (!Vue.prototype.$userCreationService) {
+  window.Object.defineProperty(Vue.prototype, '$userCreationService', {
+    value: userCreationService,
+  });
+}
 
-// Registered once, so the shipped drawers and a drawer an extension
-// registers in their place reach the same rules
+import * as pendingUsersService from './js/PendingUsersService.js';
+if (!Vue.prototype.$pendingUsersService) {
+  window.Object.defineProperty(Vue.prototype, '$pendingUsersService', {
+    value: pendingUsersService,
+  });
+}
+
+import * as usersManagementFieldRules from './js/UsersManagementFieldRules.js';
 if (!Vue.prototype.$usersManagementFieldRules) {
   window.Object.defineProperty(Vue.prototype, '$usersManagementFieldRules', {
     value: usersManagementFieldRules,
