@@ -157,7 +157,7 @@ export default {
       }
       const remainingWidth = this.preferredWidth - this.minimalWidth;
       const piecesCount = Math.ceil(remainingWidth / this.minimalWidth);
-      return [this.minimalWidth, ...Array(piecesCount).fill(remainingWidth / piecesCount)];
+      return [this.minimalWidth, ...new Array(piecesCount).fill(remainingWidth / piecesCount)];
     },
   },
   watch: {
@@ -306,7 +306,7 @@ export default {
     },
     handleResize() {
       // A measure taken before the menu was laid out reads no width at all: measure again once it has one
-      if (this.$el.clientWidth && this.navigations.length && !this.tabWidths.some(width => width)) {
+      if (this.$el.clientWidth && this.navigations.length && !this.tabWidths.some(Boolean)) {
         this.measureNavigations();
       } else {
         this.refreshVisibleCount();
