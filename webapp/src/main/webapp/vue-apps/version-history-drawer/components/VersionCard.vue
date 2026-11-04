@@ -131,7 +131,7 @@
       <template v-if="canRestore">
         <span class="me-1">·</span>
         <v-progress-circular
-          v-if="restoring"
+          v-if="isRestoringVersion"
           :size="14"
           :width="2"
           color="primary"
@@ -146,6 +146,13 @@
         </a>
       </template>
     </div>
+    <exo-confirm-dialog
+      ref="restoreConfirmDialog"
+      :title="$t('versionHistory.confirm.restoreTitle', {0: versionObject.versionNumber})"
+      :message="$t('versionHistory.confirm.restoreMessage', {0: versionObject.versionNumber})"
+      :ok-label="$t('versionHistory.button.restore')"
+      :cancel-label="$t('versionHistory.button.cancel')"
+      @ok="confirmRestore" />
   </div>
 </template>
 
@@ -176,10 +183,6 @@ export default {
         return false;
       }
     },
-    restoring: {
-      type: Boolean,
-      default: false,
-    },
   },
   data: () => ({
     dateFormat: {
@@ -194,6 +197,7 @@ export default {
     newDescription: '',
     versionObject: {},
     isUpdatingDescription: false,
+    isRestoringVersion: false,
   }),
   /**
    * Copies the version and listens to the host's answers about it.
@@ -201,6 +205,7 @@ export default {
    */
   created() {
     this.$root.$on('version-restored', this.handleVersionRestore);
+    this.$root.$on('version-restore-error', this.handleVersionRestoreError);
     this.$root.$on('version-description-updated', this.handleDescriptionUpdated);
     this.$root.$on('version-description-update-error', this.handleDescriptionUpdateError);
     this.versionObject = Object.assign({}, this.version);
@@ -211,6 +216,7 @@ export default {
    */
   beforeDestroy() {
     this.$root.$off('version-restored', this.handleVersionRestore);
+    this.$root.$off('version-restore-error', this.handleVersionRestoreError);
     this.$root.$off('version-description-updated', this.handleDescriptionUpdated);
     this.$root.$off('version-description-update-error', this.handleDescriptionUpdateError);
   },
@@ -267,6 +273,14 @@ export default {
      */
     handleVersionRestore(restoredVersion) {
       this.versionObject.current = this.versionObject.id === restoredVersion.id;
+      this.isRestoringVersion = false;
+    },
+    /**
+     * Gives « Restore » back once the host has failed to restore a version.
+     * @returns {void}
+     */
+    handleVersionRestoreError() {
+      this.isRestoringVersion = false;
     },
     /**
      * Shows the saved summary once the host has stored it for this version.
@@ -318,11 +332,25 @@ export default {
       this.descriptionInputHidden = false;
     },
     /**
-     * Asks to restore the version; the drawer confirms it first.
+     * Asks the viewer to confirm the restore of the version.
      * @returns {void}
      */
     restoreVersion() {
-      this.$emit('restore-version', this.versionObject);
+      this.$refs.restoreConfirmDialog.open();
+    },
+    /**
+     * Asks the host to restore the version once the viewer confirmed it, and
+     * shows it restoring until the host says it is done or failed. The host
+     * gets the version it listed, never the card's own copy. A second OK
+     * while the dialog closes sends nothing.
+     * @returns {void}
+     */
+    confirmRestore() {
+      if (this.isRestoringVersion) {
+        return;
+      }
+      this.isRestoringVersion = true;
+      this.$emit('restore-version', this.version);
     }
   }
 };
