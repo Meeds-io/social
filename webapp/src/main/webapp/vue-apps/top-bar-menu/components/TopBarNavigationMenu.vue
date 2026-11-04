@@ -23,12 +23,13 @@
   <v-app :class="componentId" class="topBarMenu">
     <v-footer
       v-if="isMobile && mobileNavigations.length"
-      class="pt-0 pr-0 pl-0 elevation-2"
+      ref="mobileFooter"
+      :class="isTopBarElement && 'layout-top-bar' || ''"
+      class="pa-0 elevation-2"
       inset
       fixed>
       <v-tabs
         class="navigation-mobile-menu"
-        :class="isTopBarElement && 'layout-top-bar' || ''"
         v-model="tab"
         color="none"
         optional
@@ -99,7 +100,14 @@ export default {
       return this.initialized && this.mounted;
     },
     parentScrollableSelector() {
-      return document.querySelector('.site-scroll-parent .UIPageBody') ? '.site-scroll-parent' : '.site-scroll-parent .UIPage';
+      // The space under the fixed mobile menu goes on the page only when the
+      // page scrolls inside its own page body (a .UIPage under the scroller,
+      // with no .UIPageBody). A site rendered by its own layout has neither,
+      // and its last section (the footer) sits inside the scroller itself.
+      return !document.querySelector('.site-scroll-parent .UIPageBody')
+        && document.querySelector('.site-scroll-parent .UIPage')
+        ? '.site-scroll-parent .UIPage'
+        : '.site-scroll-parent';
     },
     siteUri() {
       return this.siteType === 'GROUP' ? `g/${this.siteName?.replaceAll('/', ':')}` : this.siteName;
@@ -227,7 +235,9 @@ export default {
     computeSiteBodyMargin() {
       if (this.isMobile && this.navigationsLength > 0) {
         window.setTimeout(() => {
-          $(this.parentScrollableSelector).css('margin-bottom', '70px');
+          // Exactly the height of the fixed menu, so no strip of page shows between the content and the menu
+          const menuHeight = this.$refs.mobileFooter?.$el?.offsetHeight || 57;
+          $(this.parentScrollableSelector).css('margin-bottom', `${menuHeight}px`);
         }, 200);
       } else {
         $(this.parentScrollableSelector).css('margin-bottom', '');
