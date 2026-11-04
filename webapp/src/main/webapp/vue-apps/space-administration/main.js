@@ -310,18 +310,11 @@ export function init(isExternalFeatureEnabled) {
           this.loadingSpaces = true;
           try {
             if (customSort) {
-              const spaces = await customSort({
-                offset: offset,
-                limit: limit,
-                expand: this.expand,
-                templateId: (this.selectedTemplateId && Number(this.selectedTemplateId)) ? this.selectedTemplateId : null,
-                sortDesc: this.sortDesc,
-                currentSpaces: this.spaces,
-                currentSpacesSize: this.spacesSize,
-              });
               // A contributed sort lists the spaces of Social's listing: the
               // count, which "load more" and the select-all follow, is
-              // Social's, read with the default path's call
+              // Social's, read with the default path's call. It is read
+              // before the sort, which keeps its own state once it returns:
+              // a failed count then leaves that state at the rows displayed
               const data = await this.$spaceService.getSpacesByFilter({
                 query: this.keyword,
                 visibility: this.selectedVisibility?.length ? this.selectedVisibility : null,
@@ -333,6 +326,15 @@ export function init(isExternalFeatureEnabled) {
                 limit: 1,
                 sortBy: 'title',
                 sortDirection: 'asc',
+              });
+              const spaces = await customSort({
+                offset: offset,
+                limit: limit,
+                expand: this.expand,
+                templateId: (this.selectedTemplateId && Number(this.selectedTemplateId)) ? this.selectedTemplateId : null,
+                sortDesc: this.sortDesc,
+                currentSpaces: this.spaces,
+                currentSpacesSize: this.spacesSize,
               });
               this.spaces = offset ? this.uniqueSpaces(spaces) : spaces;
               this.spacesSize = data?.size || 0;
@@ -383,7 +385,6 @@ export function init(isExternalFeatureEnabled) {
           this.offset += this.pageSize;
           const loaded = await this.searchSpaces();
           if (loaded
-              && !this.customSort
               && this.spaces.length === loadedSpacesCount
               && loadedSpacesCount < this.spacesSize) {
             // The page held only spaces already listed, sorted in before the
@@ -516,9 +517,9 @@ export function init(isExternalFeatureEnabled) {
         /**
          * Loads the next page of a select-all walk. A page that fails to
          * load, or that adds no new space while the list is known to hold
-         * more, ends the walk as a failure. Without a contributed sort, the
-         * walk ends with no request once every matching space is listed; a
-         * contributed sort reports no total, and its end is an empty page.
+         * more, ends the walk as a failure. The walk ends with no request
+         * once every matching space is listed, under a contributed sort too:
+         * fetchSpaces refreshes the total on that path as well.
          *
          * @param {Function} isCurrent tells whether the walking run is still the current one
          * @returns {Promise<string>} 'loaded'; 'complete' when every matching space
@@ -527,8 +528,7 @@ export function init(isExternalFeatureEnabled) {
          */
         async loadNextBulkPage(isCurrent) {
           const loadedSpacesCount = this.spaces.length;
-          const customSort = this.customSort;
-          if (!customSort && loadedSpacesCount >= this.spacesSize) {
+          if (loadedSpacesCount >= this.spacesSize) {
             return 'complete';
           }
           try {
@@ -540,7 +540,6 @@ export function init(isExternalFeatureEnabled) {
             return this.failBulkPageLoad(isCurrent);
           }
           if (isCurrent()
-              && !customSort
               && this.spaces.length === loadedSpacesCount
               && loadedSpacesCount < this.spacesSize) {
             // eslint-disable-next-line no-console
