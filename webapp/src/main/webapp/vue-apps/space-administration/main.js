@@ -517,9 +517,11 @@ export function init(isExternalFeatureEnabled) {
         /**
          * Loads the next page of a select-all walk. A page that fails to
          * load, or that adds no new space while the list is known to hold
-         * more, ends the walk as a failure. The walk ends with no request
-         * once every matching space is listed, under a contributed sort too:
-         * fetchSpaces refreshes the total on that path as well.
+         * more, ends the walk as a failure. Without a contributed sort, the
+         * walk ends with no request once every matching space is listed. A
+         * contributed sort lists a set it read once, so its end is an empty
+         * page: the total, refreshed at each page, shrinks under an action
+         * that removes spaces while their rows stay listed.
          *
          * @param {Function} isCurrent tells whether the walking run is still the current one
          * @returns {Promise<string>} 'loaded'; 'complete' when every matching space
@@ -528,7 +530,8 @@ export function init(isExternalFeatureEnabled) {
          */
         async loadNextBulkPage(isCurrent) {
           const loadedSpacesCount = this.spaces.length;
-          if (loadedSpacesCount >= this.spacesSize) {
+          const customSort = this.customSort;
+          if (!customSort && loadedSpacesCount >= this.spacesSize) {
             return 'complete';
           }
           try {
@@ -540,6 +543,7 @@ export function init(isExternalFeatureEnabled) {
             return this.failBulkPageLoad(isCurrent);
           }
           if (isCurrent()
+              && !customSort
               && this.spaces.length === loadedSpacesCount
               && loadedSpacesCount < this.spacesSize) {
             // eslint-disable-next-line no-console
