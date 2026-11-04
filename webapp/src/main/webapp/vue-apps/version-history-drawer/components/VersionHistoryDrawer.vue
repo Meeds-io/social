@@ -45,7 +45,6 @@
               :disable-restore-version="disableRestoreVersion"
               :enable-edit-description="enableEditDescription"
               :restoring="restoringVersionId === version.id"
-              @open-version="openVersion"
               @version-update-description="updateVersionDescription"
               @restore-version="requestRestoreVersion" />
           </v-list-item>
@@ -134,6 +133,22 @@ export default {
     },
   },
   watch: {
+    /**
+     * Ends the restoring state when the host lists a new newest version, as
+     * a host that reloads its versions after a restore does; a page loaded
+     * by « Show more » keeps the newest one, and a host that adds the
+     * restored version in place ends it through `version-restored`.
+     * @param {Array} newVersions the versions now listed, newest first
+     * @param {Array} oldVersions the versions listed before
+     * @returns {void}
+     */
+    versions(newVersions, oldVersions) {
+      const newestId = newVersions && newVersions.length && newVersions[0].id;
+      const previousNewestId = oldVersions && oldVersions.length && oldVersions[0].id;
+      if (newestId !== previousNewestId) {
+        this.endRestore();
+      }
+    },
     /**
      * Shows the drawer loading while the host loads versions.
      * @returns {void}
