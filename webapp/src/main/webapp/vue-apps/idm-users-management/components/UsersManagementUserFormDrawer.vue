@@ -294,7 +294,7 @@ export default {
         }
       }).catch(error => {
         if (!this.$userAccountConfirmationService.isCancelled(error)) {
-          this.tell(this.$t('IDMManagement.error.UnknownServerError'), request);
+          this.tell(this.$t('IDMManagement.error.UnknownServerError'), request, true);
         }
       }).finally(() => {
         // The lock is the request's own: an account opened since keeps its
@@ -310,17 +310,24 @@ export default {
     },
     // An error of an update, told as it is while the drawer still shows the
     // account it was sent for, and with that account's name once the drawer
-    // has left it, so the message is never read as the open account's
-    tell(message, request) {
-      this.$root.$emit('alert-message', this.current(request) ? message : this.$t('UsersManagement.edit.notUpdated', {0: request.fullName, 1: message}), 'error');
+    // has left it, so the message is never read as the open account's. A
+    // refused field means nothing was written; any other answer may follow a
+    // partial write, so its wrapper leaves the outcome to the message
+    tell(message, request, mayBeWritten = false) {
+      if (this.current(request)) {
+        this.$root.$emit('alert-message', message, 'error');
+      } else {
+        this.$root.$emit('alert-message', this.$t(mayBeWritten ? 'UsersManagement.edit.errorFor' : 'UsersManagement.edit.notUpdated', {0: request.fullName, 1: message}), 'error');
+      }
     },
     // A refused field: its code on the field, translated when a label exists.
     // Once the drawer has left that account, the refusal is told as a
-    // message, since no field shows it any more
+    // message, since no field shows it any more. An answer naming no field
+    // (a gateway's status among them) may follow a write
     showRefusal(code, request) {
       const refusal = this.$userCreationService.parseRefusal(code);
       if (!refusal) {
-        this.tell(this.translateCode(code, request.fullName) || this.$t('IDMManagement.error.UnknownServerError'), request);
+        this.tell(this.translateCode(code, request.fullName) || this.$t('IDMManagement.error.UnknownServerError'), request, true);
       } else if (this.current(request)) {
         this.setError(refusal.field, this.translateCode(code, request.fullName) || refusal.detail || code);
       } else {
@@ -331,7 +338,7 @@ export default {
     // error while it still shows the account, and the table shows what the
     // account now holds
     showFailure(code, request) {
-      this.tell(this.translateCode(code, request.fullName) || this.$t('IDMManagement.error.UnknownServerError'), request);
+      this.tell(this.translateCode(code, request.fullName) || this.$t('IDMManagement.error.UnknownServerError'), request, true);
       this.$root.$emit('refreshUsers');
     },
     // The code's label under the edit, creation or generic errors, with the
