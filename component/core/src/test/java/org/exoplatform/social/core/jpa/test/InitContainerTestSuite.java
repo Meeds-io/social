@@ -84,6 +84,7 @@ import io.meeds.social.report.service.ActivityReportServiceTest;
 import io.meeds.social.richeditor.RichEditorConfigurationServiceTest;
 import io.meeds.social.usercard.service.UserCardSettingServiceTransactionTest;
 import io.meeds.social.translation.service.TranslationServiceTest;
+import io.meeds.social.translation.storage.cache.CachedTranslationStorageCacheTest;
 
 @SuiteClasses({
   ActivityDAOTest.class,
@@ -131,6 +132,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   RichEditorConfigurationServiceTest.class,
   UserCardSettingServiceTransactionTest.class,
   TranslationServiceTest.class,
+  CachedTranslationStorageCacheTest.class,
   ActivityOberverPluginTest.class,
   AttachmentActivityProcessorTest.class,
   AttachmentServiceTest.class,
