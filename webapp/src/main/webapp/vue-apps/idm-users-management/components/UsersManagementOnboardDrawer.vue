@@ -30,8 +30,6 @@
     <template v-if="drawer" #content>
       <users-management-onboarding-email-form
         :message.sync="message"
-        :message-max-length="messageMaxLength"
-        :validity-label="linkValidityLabel"
         :saving="sending"
         editor-id="userOnboardMessageEditor"
         class="ma-4"
@@ -60,18 +58,19 @@
 </template>
 
 <script>
-import * as userCreationService from '../js/UserCreationService.js';
-import UsersManagementOnboardingSettings from './onboarding/UsersManagementOnboardingSettings.js';
-
 /**
  * Sends, or sends again, the onboarding email of an account that never
  * signed in, opened from its row or from the Pending Users drawer
  */
 export default {
-  mixins: [UsersManagementOnboardingSettings],
   data: () => ({
     drawer: false,
+    message: '',
+    messageValid: true,
     sending: false,
+    // Counts the opens and the invitations sent: an answer whose request
+    // bears an earlier sequence belongs to an account the drawer has left
+    sessionSequence: 0,
     user: null,
   }),
   created() {
@@ -81,37 +80,56 @@ export default {
     this.$root.$off('openOnboardUser', this.open);
   },
   methods: {
+    // The message and its validity go back to blank before the content is
+    // rendered: the form, created with the drawer's content, proposes its
+    // message again and hands it over
     open(user) {
+      this.sessionSequence++;
       this.user = user;
+      this.message = '';
+      this.messageValid = true;
       this.drawer = true;
     },
     close() {
       this.drawer = false;
     },
-    // The component stays mounted after the drawer closes: the message goes
-    // back to the proposed one at each open
+    // The component stays mounted after the drawer closes
     reset() {
       this.sending = false;
-      this.resetOnboardingEmail();
     },
     invite() {
       if (this.sending || !this.messageValid || !this.user?.userName) {
         return;
       }
       this.sending = true;
-      const fullName = this.user.fullname || this.user.userName;
-      return userCreationService.sendInvitation(this.user.userName, this.message)
+      const request = {
+        sequence: ++this.sessionSequence,
+        fullName: this.user.fullname || this.user.userName,
+      };
+      return this.$userCreationService.sendInvitation(this.user.userName, this.message)
         .then(sent => {
           if (sent) {
-            this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.sent', {0: fullName}), 'success');
+            this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.sent', {0: request.fullName}), 'success');
             this.$root.$emit('refreshUsers');
             this.$root.$emit('pending-users-changed');
-            this.close();
+            if (this.current(request)) {
+              this.close();
+            }
           } else {
-            this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.notSent', {0: fullName}), 'error');
+            this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.notSent', {0: request.fullName}), 'error');
           }
         })
-        .finally(() => this.sending = false);
+        .finally(() => {
+          // The lock is the request's own: an account opened since keeps its
+          if (request.sequence === this.sessionSequence) {
+            this.sending = false;
+          }
+        });
+    },
+    // Whether the drawer still shows the account that sent a request: not
+    // once it has been closed, or opened again on another account
+    current(request) {
+      return this.drawer && request.sequence === this.sessionSequence;
     },
   },
 };

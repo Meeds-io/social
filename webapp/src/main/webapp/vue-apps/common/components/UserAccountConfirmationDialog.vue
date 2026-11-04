@@ -75,8 +75,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
   </exo-modal>
 </template>
 <script>
-import * as confirmationService from '../js/UserAccountConfirmationService.js';
-
 export default {
   data: () => ({
     otpCode: null,
@@ -158,7 +156,7 @@ export default {
       this.$refs.modal.open();
       if (!this.settings) {
         try {
-          this.settings = await confirmationService.getSettings();
+          this.settings = await this.$userAccountConfirmationService.getSettings();
         } catch (e) {
           this.settings = {sendIntervalSeconds: 60, ttlMinutes: 5};
         }
@@ -171,7 +169,7 @@ export default {
       this.sending = true;
       this.sendFailed = false;
       try {
-        await confirmationService.sendCode();
+        await this.$userAccountConfirmationService.sendCode();
         this.lastSentAt = Date.now();
         this.sentByAnother = false;
       } catch (e) {
@@ -195,7 +193,7 @@ export default {
       this.confirming = true;
       this.errorMessage = null;
       try {
-        await confirmationService.confirmSession(this.otpCode.trim());
+        await this.$userAccountConfirmationService.confirmSession(this.otpCode.trim());
         this.confirmed = true;
         this.$refs.modal.close();
       } catch (e) {
@@ -219,7 +217,7 @@ export default {
       if (this.confirmed) {
         resolve?.();
       } else {
-        reject?.(new Error(confirmationService.CONFIRMATION_CANCELLED));
+        reject?.(new Error(this.$userAccountConfirmationService.CONFIRMATION_CANCELLED));
       }
     },
     startTimer() {
