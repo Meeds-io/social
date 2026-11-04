@@ -318,9 +318,10 @@ export function init(isExternalFeatureEnabled) {
             if (customSort) {
               // A contributed sort lists the spaces of Social's listing: the
               // count, which "load more" and the select-all follow, is
-              // Social's, read with the default path's call. It is read
-              // before the sort, which keeps its own state once it returns:
-              // a failed count then leaves that state at the rows displayed
+              // Social's, read with the default path's call, before the sort
+              // so that a failed count costs no page of the sort; the sort
+              // continues its set only from the rows it returned (the
+              // contract above), so a failed count leaves no stale set behind
               const data = await this.$spaceService.getSpacesByFilter({
                 query: this.keyword,
                 visibility: this.selectedVisibility?.length ? this.selectedVisibility : null,
