@@ -212,9 +212,12 @@ export function init(isExternalFeatureEnabled) {
           // header is the Vuetify header (value, align, sortable, class, width); componentName renders the
           // cell with the space as a prop; headerComponentName, optional, renders after the header label with
           // the header as a prop; sortBy and customSort contribute a sort; export is read by SpaceExportService.
-          // customSort({offset, limit, expand, sortDesc, currentSpaces}) returns the rows shown followed by the
-          // next page. It lists a set it reads once per scroll, stable while the rows stay shown, so the
-          // select-all walk ends on its first empty page; a refresh (offset 0) starts a new set, a failed one too
+          // customSort({offset, limit, expand, sortDesc, currentSpaces, templateId, currentSpacesSize}) returns the
+          // rows shown followed by the next page (the last two are passed for a sort that filters by template or
+          // reads the count). It lists a set it reads once per scroll, stable while the rows stay shown, so the
+          // select-all walk ends on its first empty page; a refresh (offset 0) starts a new set, and a page
+          // continues a set only from the rows that set returned, so a refresh that failed before or in the sort
+          // leaves no earlier set behind
           this.tableColumnExtensions = extensionRegistry.loadExtensions('spaces-administration', 'table-column') || [];
           // {id, pending}: a contributor registers its gate pending, then again with pending false once settled
           this.exportGates = extensionRegistry.loadExtensions('spaces-administration', 'export-gate') || [];
