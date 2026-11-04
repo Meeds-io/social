@@ -153,6 +153,8 @@ export default {
    * components already registered there.
    */
   created() {
+    // Not reactive: the latest registered component of each id; an earlier one whose check resolves later is not added
+    this.latestRegistrations = new Map();
     document.addEventListener(`component-${this.name}-${this.type}-updated`, this.updateComponents);
     const registeredComponents = extensionRegistry.loadComponents(this.name);
     if (this.strictType) {
@@ -185,11 +187,15 @@ export default {
     },
     /**
      * Initializes a component, then adds it to the rendered rows when its
-     * filter and isEnabled accept it.
+     * filter and isEnabled accept it. A component with an id becomes the
+     * latest registration of that id.
      */
     registerComponent(component) {
       if (this.filter && !this.filter(component)) {
         return;
+      }
+      if (component.componentOptions.id) {
+        this.latestRegistrations.set(component.componentOptions.id, component);
       }
       if (component.componentOptions.init) {
         const initResult = component.componentOptions.init(this.params);
@@ -204,10 +210,14 @@ export default {
      * Adds a component to the rendered rows once its isEnabled resolves to true.
      * The rows are read after that resolution, never before it: another
      * registration may have replaced them meanwhile, and a row added to an
-     * earlier copy would never render.
+     * earlier copy would never render. A component that a later registration
+     * of its id has superseded is not added, whichever check resolves first.
      */
     async addComponent(component) {
       if (!component.componentOptions.isEnabled || await Promise.resolve(component.componentOptions.isEnabled(this.params))) {
+        if (component.componentOptions.id && this.latestRegistrations.get(component.componentOptions.id) !== component) {
+          return;
+        }
         const components = this.components.slice();
         const existingComponentIndex = components.findIndex(cmp => cmp.componentOptions.id === component.componentOptions.id);
         if (existingComponentIndex >= 0) {
