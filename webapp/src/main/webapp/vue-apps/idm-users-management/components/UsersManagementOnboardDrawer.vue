@@ -68,6 +68,9 @@ export default {
     message: '',
     messageValid: true,
     sending: false,
+    // Counts the opens and the invitations sent: an answer whose request
+    // bears an earlier sequence belongs to an account the drawer has left
+    sessionSequence: 0,
     user: null,
   }),
   created() {
@@ -81,6 +84,7 @@ export default {
     // rendered: the form, created with the drawer's content, proposes its
     // message again and hands it over
     open(user) {
+      this.sessionSequence++;
       this.user = user;
       this.message = '';
       this.messageValid = true;
@@ -98,19 +102,34 @@ export default {
         return;
       }
       this.sending = true;
-      const fullName = this.user.fullname || this.user.userName;
+      const request = {
+        sequence: ++this.sessionSequence,
+        fullName: this.user.fullname || this.user.userName,
+      };
       return this.$userCreationService.sendInvitation(this.user.userName, this.message)
         .then(sent => {
           if (sent) {
-            this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.sent', {0: fullName}), 'success');
+            this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.sent', {0: request.fullName}), 'success');
             this.$root.$emit('refreshUsers');
             this.$root.$emit('pending-users-changed');
-            this.close();
+            if (this.current(request)) {
+              this.close();
+            }
           } else {
-            this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.notSent', {0: fullName}), 'error');
+            this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.notSent', {0: request.fullName}), 'error');
           }
         })
-        .finally(() => this.sending = false);
+        .finally(() => {
+          // The lock is the request's own: an account opened since keeps its
+          if (request.sequence === this.sessionSequence) {
+            this.sending = false;
+          }
+        });
+    },
+    // Whether the drawer still shows the account that sent a request: not
+    // once it has been closed, or opened again on another account
+    current(request) {
+      return this.drawer && request.sequence === this.sessionSequence;
     },
   },
 };

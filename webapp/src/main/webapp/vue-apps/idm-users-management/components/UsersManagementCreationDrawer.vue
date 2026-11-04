@@ -200,7 +200,13 @@ export default {
     this.$root.$off('addNewUser', this.open);
   },
   methods: {
+    // The onboarding email goes back to blank before the content is rendered,
+    // so the stepper never shows the previous session's message; the rest of
+    // the state is reset once the drawer has opened
     open() {
+      this.sendOnboardingEmail = false;
+      this.message = '';
+      this.messageValid = true;
       this.drawer = true;
     },
     close() {
