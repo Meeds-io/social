@@ -163,6 +163,10 @@ export default {
     window.addEventListener('resize', this.updateSize);
     this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
   },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.updateSize);
+    this.$root.$off('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
+  },
   methods: {
     checkLink(e) {
       if (!this.navigationNodeUri) {

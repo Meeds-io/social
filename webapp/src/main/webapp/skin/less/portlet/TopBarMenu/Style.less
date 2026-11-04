@@ -38,6 +38,38 @@
     }
   }
 
+  // The tabs take the width they are given: the sizer below decides the menu's preferred and minimal widths
+  // The desktop menu keeps 20px on each side: entries move into More rather than eat into it
+  > .v-application--wrap:has(> .topbar-navigation-tabs) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .topbar-navigation-tabs {
+    contain: inline-size;
+  }
+
+  .topbar-navigation-sizer {
+    display: flex;
+    flex-wrap: wrap;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+
+    > div {
+      flex: none;
+    }
+  }
+
+}
+
+// In a site's own Topbar, the cell holding the navigation menu gives up its space first,
+// down to Home and More, so that the other applications of the Topbar keep their size
+// (more specific than Vuetify's `.v-application .flex-shrink-1`, which the cell carries)
+// (keyed on the id, which the cached menu displayed before the application loads carries too)
+.v-application .layout-banner-cell:has(#topBarMenu) {
+  min-width: min-content !important;
+  flex-shrink: 1000 !important;
 }
 
 .topBar-navigation-drop-sub-menu {
