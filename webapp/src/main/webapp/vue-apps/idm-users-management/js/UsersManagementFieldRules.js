@@ -18,12 +18,13 @@
  */
 
 // The rules the server applies to an account's fields at Create and Update
-// (portal's UserFieldValidator with its defaults, the product's default
-// password policy), so the field tells them when it is left. A deployment
-// that loosens a rule through gatein.validators.* meets these defaults here,
-// as on the change-password drawer; a stricter one is still the server's
-const MIN_LENGTH = 3;
-
+// (portal's UserFieldValidator with the product's gatein.validators.*
+// values: no minimum length for a username or a name beyond a non-blank
+// value, 255 at most for each, 3 for an email, which its pattern already
+// implies, and the default password policy), so the field tells them when
+// it is left. A deployment that loosens a rule further meets these values
+// here, as on the change-password drawer; a stricter one is still the
+// server's
 const MAX_LENGTH = 255;
 
 // starts and ends with a lowercase letter or a digit of any script, as the
@@ -44,8 +45,8 @@ const EMAIL_PATTERN = /^[-+_A-Za-z0-9]+(\.[-_A-Za-z0-9]+)*@[-A-Za-z0-9]+(\.[A-Za
 // 9 to 256 characters with a digit, a lowercase and an uppercase letter
 const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{9,256}$/;
 
-function withinLength(text) {
-  return text.length >= MIN_LENGTH && text.length <= MAX_LENGTH;
+function withinMaxLength(text) {
+  return text.length <= MAX_LENGTH;
 }
 
 /**
@@ -67,12 +68,12 @@ export function fieldRuleError(field, value) {
   }
   switch (field) {
   case 'userName':
-    return withinLength(text) && USERNAME_PATTERN.test(text) ? null : 'UsersManagement.creation.invalidUsername';
+    return withinMaxLength(text) && USERNAME_PATTERN.test(text) ? null : 'UsersManagement.creation.invalidUsername';
   case 'firstName':
   case 'lastName':
-    return withinLength(text) && NAME_PATTERN.test(text) ? null : 'UsersManagement.creation.invalidName';
+    return withinMaxLength(text) && NAME_PATTERN.test(text) ? null : 'UsersManagement.creation.invalidName';
   case 'email':
-    return withinLength(text) && EMAIL_PATTERN.test(text) ? null : 'UsersManagement.creation.invalidEmail';
+    return withinMaxLength(text) && EMAIL_PATTERN.test(text) ? null : 'UsersManagement.creation.invalidEmail';
   case 'password':
     return PASSWORD_PATTERN.test(text) ? null : 'UsersManagement.creation.passwordCondition';
   default:
