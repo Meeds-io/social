@@ -69,6 +69,9 @@
     if (Objects.equals(centerUser, "@connected@")) {
         centerUser = Utils.getOwnerIdentityId();
     }
+    if (centerUser != null && !centerUser.matches("\\d{1,18}")) {
+        centerUser = null;
+    }
 %>
 
 <div class="VuetifyApp" id="organizationalChartParent">
