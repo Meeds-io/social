@@ -25,46 +25,49 @@
     </template>
     <template slot="content">
       <div
-        v-if="!isLoading && versions.length === 0"
-        class="text-center mt-5">
-        <p class="grey--text darken-1">
-          {{ $t('versionHistory.label.empty') }}
-        </p>
+        v-if="!isLoading && !hasVersions"
+        class="versionHistoryEmpty text-center text-light-color mt-5">
+        {{ $t('versionHistory.label.noVersion') }}
       </div>
       <v-list
-        class="ma-3">
-        <v-list-item-group
-          active-class="bg-active">
-          <v-slide-y-transition group>
-            <v-list-item
-              v-for="version in versions"
-              :key="version.id"
-              :class="[version.current? 'comment-background-color' : '']"
-              @click="openVersion(version)"
-              class="history-line pa-2 mb-2 border-color border-radius d-block">
-              <version-card
-                :version="version"
-                :can-manage="canManage"
-                :disable-restore-version="disableRestoreVersion"
-                :enable-edit-description="enableEditDescription"
-                @version-update-description="updateVersionDescription"
-                @restore-version="restoreVersion" />
-            </v-list-item>
-          </v-slide-y-transition>
-        </v-list-item-group>
+        v-else
+        class="versionHistoryList py-0">
+        <v-slide-y-transition group>
+          <v-list-item
+            v-for="version in versions"
+            :key="version.id"
+            :class="[version.current? 'comment-background-color' : '']"
+            class="history-line versionHistoryLine py-3 px-4 border-bottom-color d-block text-start"
+            @click="openVersion(version)">
+            <version-card
+              :version="version"
+              :can-manage="canManage"
+              :disable-restore-version="disableRestoreVersion"
+              :enable-edit-description="enableEditDescription"
+              :restoring="restoringVersionId === version.id"
+              @open-version="openVersion"
+              @version-update-description="updateVersionDescription"
+              @restore-version="requestRestoreVersion" />
+          </v-list-item>
+        </v-slide-y-transition>
       </v-list>
+      <exo-confirm-dialog
+        ref="restoreConfirmDialog"
+        :title="$t('versionHistory.confirm.restoreTitle', {0: versionToRestoreNumber})"
+        :message="$t('versionHistory.confirm.restoreMessage', {0: versionToRestoreNumber})"
+        :ok-label="$t('versionHistory.button.restore')"
+        :cancel-label="$t('versionHistory.button.cancel')"
+        @ok="restoreConfirmedVersion" />
     </template>
     <template v-if="showLoadMore" slot="footer">
-      <div
-        class="d-flex mx-4">
-        <v-btn
-          :loading="isLoading"
-          @click="loadMore"
-          class="primary--text mx-auto"
-          text>
-          {{ $t('versionHistory.button.loadMore') }}
-        </v-btn>
-      </div>
+      <v-btn
+        :loading="isLoading"
+        :disabled="isLoading"
+        class="versionHistoryLoadMore btn"
+        block
+        @click="loadMore">
+        {{ $t('versionHistory.button.loadMore') }}
+      </v-btn>
     </template>
   </exo-drawer>
 </template>
@@ -108,9 +111,33 @@ export default {
       default: () => {
         return false;
       }
-    }
+    },
+  },
+  data: () => ({
+    versionToRestore: null,
+    restoringVersionId: null,
+  }),
+  computed: {
+    /**
+     * Tells whether there is at least one version to list.
+     * @returns {boolean} true when the list has versions
+     */
+    hasVersions() {
+      return !!this.versions && this.versions.length > 0;
+    },
+    /**
+     * Gives the number of the version the confirmation is about.
+     * @returns {number} the version number, or an empty string
+     */
+    versionToRestoreNumber() {
+      return this.versionToRestore && this.versionToRestore.versionNumber || '';
+    },
   },
   watch: {
+    /**
+     * Shows the drawer loading while the host loads versions.
+     * @returns {void}
+     */
     isLoading() {
       if (this.isLoading) {
         this.$refs.versionHistoryDrawer.startLoading();
@@ -119,25 +146,89 @@ export default {
       }
     },
   },
+  /**
+   * Listens to the host's end of a restore, success or failure.
+   * @returns {void}
+   */
+  created() {
+    this.$root.$on('version-restored', this.endRestore);
+    this.$root.$on('version-restore-error', this.endRestore);
+  },
+  /**
+   * Stops listening to the host's end of a restore.
+   * @returns {void}
+   */
+  beforeDestroy() {
+    this.$root.$off('version-restored', this.endRestore);
+    this.$root.$off('version-restore-error', this.endRestore);
+  },
   methods: {
+    /**
+     * Opens the drawer.
+     * @returns {void}
+     */
     open() {
       this.$refs.versionHistoryDrawer.open();
     },
+    /**
+     * Tells the host the drawer closed.
+     * @returns {void}
+     */
     closed() {
       this.$emit('drawer-closed');
     },
+    /**
+     * Asks the host for the next page of versions.
+     * @returns {void}
+     */
     loadMore() {
       this.$emit('load-more');
     },
+    /**
+     * Asks the host to open a version.
+     * @param {Object} version the version to open
+     * @returns {void}
+     */
     openVersion(version) {
       this.$emit('open-version', version);
     },
+    /**
+     * Asks the host to save a version's summary.
+     * @param {Object} version the version
+     * @param {string} newDescription its new summary
+     * @returns {void}
+     */
     updateVersionDescription(version, newDescription) {
       this.$emit('version-update-description', version, newDescription);
     },
-    restoreVersion(version) {
-      this.$emit('restore-version', version);
-    }
+    /**
+     * Asks to confirm the restore of a version before the host restores it.
+     * @param {Object} version the version to restore
+     * @returns {void}
+     */
+    requestRestoreVersion(version) {
+      this.versionToRestore = version;
+      this.$refs.restoreConfirmDialog.open();
+    },
+    /**
+     * Asks the host to restore the version the confirmation was about, and
+     * shows it restoring until the host says it is done or failed.
+     * @returns {void}
+     */
+    restoreConfirmedVersion() {
+      if (this.versionToRestore) {
+        this.restoringVersionId = this.versionToRestore.id;
+        this.$emit('restore-version', this.versionToRestore);
+      }
+    },
+    /**
+     * Ends the restoring state once the host has restored a version or
+     * failed to.
+     * @returns {void}
+     */
+    endRestore() {
+      this.restoringVersionId = null;
+    },
   }
 };
 </script>
