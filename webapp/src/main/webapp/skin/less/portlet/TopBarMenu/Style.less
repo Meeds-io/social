@@ -47,6 +47,11 @@
 
   .topbar-navigation-tabs {
     contain: inline-size;
+
+    // The entries displayed always fit: no scroll arrow, whose own width would make the tabs overflow
+    .v-slide-group__prev, .v-slide-group__next {
+      display: none !important;
+    }
   }
 
   .topbar-navigation-sizer {

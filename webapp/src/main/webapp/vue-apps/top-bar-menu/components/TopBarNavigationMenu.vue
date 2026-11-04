@@ -317,6 +317,9 @@ export default {
         // The tabs' own width: the menu's side margins are already left out of it
         this.visibleCount = this.computeVisibleCount(this.$refs.tabs?.$el?.clientWidth || 0);
         await this.$nextTick();
+        // The tabs bar computes its overflow only when its own items change: measured while the menu was narrower
+        // (before the first measure, during a measuring pass), it would keep scrolling tabs that now fit
+        this.$refs.tabs?.$refs?.items?.setWidths?.();
         this.refreshSelectedTab();
       }
     },
