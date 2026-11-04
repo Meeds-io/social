@@ -44,7 +44,7 @@
       </v-tabs>
     </v-footer>
     <v-tabs
-      v-else
+      v-else-if="navigations.length"
       v-model="tab"
       ref="tabs"
       class="topbar-navigation-tabs"
@@ -65,7 +65,7 @@
     <!-- Gives the menu its preferred width (max-content) and its smallest one, Home and More (min-content):
          the tabs themselves contribute no width, so the Topbar shrinks the menu before its other applications -->
     <div
-      v-if="!isMobile"
+      v-if="!isMobile && navigations.length"
       class="topbar-navigation-sizer"
       aria-hidden="true">
       <div
