@@ -27,16 +27,20 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.io.StringWriter;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONArray;
 import org.json.JSONTokener;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,13 +49,16 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import org.exoplatform.commons.api.settings.ExoFeatureService;
+import org.exoplatform.commons.utils.HTMLSanitizer;
 import org.exoplatform.groovyscript.GroovyTemplate;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.branding.BrandingService;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.social.attachment.AttachmentService;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -65,8 +72,8 @@ import jakarta.servlet.http.HttpServletRequest;
 /**
  * Renders the portal head template, as shipped, and reads back what its script
  * block assigns: the preview space id is a number or null, and every string
- * value is a single script string literal evaluating to the value it prints,
- * whatever characters that value holds.
+ * value, alone, in an array or URI-encoded, is a single script string literal
+ * evaluating to the value it prints, whatever characters that value holds.
  */
 class UISocialPortalApplicationHeadTest {
 
@@ -90,11 +97,15 @@ class UISocialPortalApplicationHeadTest {
                                                             "cometdToken",
                                                             "cometdContext");
 
-  private static final String       ODD_VALUE     = "x\"y'z\\</script><!--<script> end";
+  private static final List<String> URI_PRINTS    = List.of("spaceDisplayName", "companyName");
+
+  private static final String       ODD_VALUE     = "x\"y'z\\</script><!--<script>\u2028end";
 
   private MockedStatic<Utils>       utils;
 
   private MockedStatic<SpaceUtils>  spaceUtils;
+
+  private MockedStatic<HTMLSanitizer> htmlSanitizer;
 
   private HttpServletRequest        request;
 
@@ -106,10 +117,14 @@ class UISocialPortalApplicationHeadTest {
 
   private BrandingService           brandingService;
 
+  private AttachmentService         attachmentService;
+
+  private UserProfileHandler        userProfileHandler;
+
   private UIComponent               uicomponent;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     request = mock(HttpServletRequest.class);
     requestContext = mock(PortalRequestContext.class);
     when(requestContext.getRequest()).thenReturn(request);
@@ -118,10 +133,11 @@ class UISocialPortalApplicationHeadTest {
     continuationBayeux = mock(EXoContinuationBayeux.class);
     brandingService = mock(BrandingService.class);
     when(brandingService.getCompanyName()).thenReturn("Company");
-    AttachmentService attachmentService = mock(AttachmentService.class);
+    attachmentService = mock(AttachmentService.class);
     when(attachmentService.getSupportedObjectTypes()).thenReturn(Set.of("activity"));
+    userProfileHandler = mock(UserProfileHandler.class);
     OrganizationService organizationService = mock(OrganizationService.class);
-    when(organizationService.getUserProfileHandler()).thenReturn(mock(UserProfileHandler.class));
+    when(organizationService.getUserProfileHandler()).thenReturn(userProfileHandler);
 
     uicomponent = mock(UIComponent.class);
     when(uicomponent.getApplicationComponent(ContinuationService.class)).thenReturn(continuationService);
@@ -137,12 +153,15 @@ class UISocialPortalApplicationHeadTest {
     utils.when(Utils::getViewerIdentityId).thenReturn(null);
     utils.when(Utils::getOwnerIdentityId).thenReturn(null);
     spaceUtils = mockStatic(SpaceUtils.class);
+    htmlSanitizer = mockStatic(HTMLSanitizer.class);
+    htmlSanitizer.when(HTMLSanitizer::getAllowedIframeHosts).thenReturn(List.of());
   }
 
   @AfterEach
   void tearDown() {
     utils.close();
     spaceUtils.close();
+    htmlSanitizer.close();
   }
 
   @Test
@@ -168,6 +187,9 @@ class UISocialPortalApplicationHeadTest {
     when(brandingService.getLogoPath()).thenReturn("/portal/rest/v1/platform/branding/logo?v=12");
     when(continuationService.getUserToken("john")).thenReturn("token");
     when(continuationBayeux.getCometdContextName()).thenReturn("cometd");
+    when(brandingService.getCompanyName()).thenReturn("Acme Inc");
+    givenUserTimezone("Europe/Paris");
+    htmlSanitizer.when(HTMLSanitizer::getAllowedIframeHosts).thenReturn(List.of("*.example.org", "video.example.com"));
 
     Map<String, String> assignments = assignments(render());
 
@@ -182,6 +204,11 @@ class UISocialPortalApplicationHeadTest {
     assertStringValue(assignments, "companyLogo", "/portal/rest/v1/platform/branding/logo?v=12");
     assertStringValue(assignments, "cometdToken", "token");
     assertStringValue(assignments, "cometdContext", "cometd");
+    assertStringValue(assignments, "userTimezone", "Europe/Paris");
+    assertUriComponentValue(assignments, "spaceDisplayName", "Sales Team");
+    assertUriComponentValue(assignments, "companyName", "Acme Inc");
+    assertArrayValue(assignments, "attachmentObjectTypes", List.of("activity"));
+    assertArrayValue(assignments, "iframeAllowedHosts", List.of("*.example.org", "video.example.com"));
   }
 
   @Test
@@ -196,21 +223,30 @@ class UISocialPortalApplicationHeadTest {
     // A platform without a logo keeps printing the string it printed before
     assertStringValue(assignments, "companyLogo", "null");
     assertEquals("null", assignments.get("previewSpaceId"));
+    assertEquals("null", assignments.get("userTimezone"));
+    assertUriComponentValue(assignments, "spaceDisplayName", "");
+    assertUriComponentValue(assignments, "companyName", "Company");
+    assertArrayValue(assignments, "attachmentObjectTypes", List.of("activity"));
+    assertArrayValue(assignments, "iframeAllowedHosts", List.of());
   }
 
   @Test
   void stringValuesCannotLeaveTheirLiteralNorTheScriptBlock() throws Exception {
-    givenSignedInUserOnSpacePage(ODD_VALUE,
-                                 ODD_VALUE,
-                                 ODD_VALUE,
-                                 "/spaces/" + ODD_VALUE,
-                                 ODD_VALUE,
-                                 ODD_VALUE,
-                                 ODD_VALUE,
-                                 ODD_VALUE);
+    Space space = givenSignedInUserOnSpacePage(ODD_VALUE,
+                                               ODD_VALUE,
+                                               ODD_VALUE,
+                                               "/spaces/" + ODD_VALUE,
+                                               ODD_VALUE,
+                                               ODD_VALUE,
+                                               ODD_VALUE,
+                                               ODD_VALUE);
+    when(space.getDisplayName()).thenReturn(ODD_VALUE);
     when(brandingService.getLogoPath()).thenReturn(ODD_VALUE);
     when(continuationService.getUserToken(anyString())).thenReturn(ODD_VALUE);
     when(continuationBayeux.getCometdContextName()).thenReturn(ODD_VALUE);
+    when(brandingService.getCompanyName()).thenReturn(ODD_VALUE);
+    when(attachmentService.getSupportedObjectTypes()).thenReturn(new LinkedHashSet<>(List.of(ODD_VALUE, "activity")));
+    htmlSanitizer.when(HTMLSanitizer::getAllowedIframeHosts).thenReturn(List.of(ODD_VALUE));
 
     String output = render();
 
@@ -218,11 +254,16 @@ class UISocialPortalApplicationHeadTest {
     for (String name : STRING_PRINTS) {
       assertStringValue(assignments, name, ODD_VALUE);
     }
+    for (String name : URI_PRINTS) {
+      assertUriComponentValue(assignments, name, ODD_VALUE);
+    }
+    assertArrayValue(assignments, "attachmentObjectTypes", List.of(ODD_VALUE, "activity"));
+    assertArrayValue(assignments, "iframeAllowedHosts", List.of(ODD_VALUE));
     assertEquals(1, output.split("</script>", -1).length - 1, output);
     assertFalse(output.contains("<!--"), output);
   }
 
-  private void givenSignedInUserOnSpacePage(String spaceId, // NOSONAR
+  private Space givenSignedInUserOnSpacePage(String spaceId, // NOSONAR
                                             String prettyName,
                                             String url,
                                             String groupId,
@@ -234,7 +275,7 @@ class UISocialPortalApplicationHeadTest {
     Space space = new Space();
     space.setUrl(url);
     space.setGroupId(groupId);
-    space.setDisplayName("Sales");
+    space.setDisplayName("Sales Team");
     // Space keeps a numeric id and a [a-z0-9_] pretty name: the prints are
     // checked on any value, as for the other fields
     Space spy = Mockito.spy(space);
@@ -247,11 +288,54 @@ class UISocialPortalApplicationHeadTest {
     utils.when(Utils::getOwnerIdentityId).thenReturn(ownerIdentityId);
     utils.when(Utils::getOwnerRemoteId).thenReturn(owner);
     utils.when(Utils::getViewerIdentityId).thenReturn(viewerIdentityId);
+    return spy;
+  }
+
+  @Test
+  void noPrintOfTheScriptBlockIsHandQuoted() throws Exception {
+    // Some values cannot hold a quote today (URI-encoded, checked by ZoneId,
+    // numeric): they still go through the escaper, so that the block keeps a
+    // single rule whatever a value's source becomes
+    String template = Files.readString(TEMPLATE, StandardCharsets.UTF_8);
+    String block = template.substring(template.indexOf("<script"), template.indexOf("</script>"));
+    for (String handQuoting : List.of("\"<%=", "'<%=", "%>\"", "%>'", "\"\\\"\"", "\"'\"")) {
+      assertFalse(block.contains(handQuoting), handQuoting);
+    }
+  }
+
+  private void givenUserTimezone(String timezone) throws Exception {
+    UserProfile userProfile = mock(UserProfile.class);
+    when(userProfile.getAttribute(Profile.USER_TIME_ZONE)).thenReturn(timezone);
+    when(userProfileHandler.findUserProfileByName("john")).thenReturn(userProfile);
+  }
+
+  private void assertUriComponentValue(Map<String, String> assignments, String name, String value) {
+    String call = assignments.get(name);
+    assertNotNull(call, name + " not assigned");
+    String prefix = "decodeURIComponent(";
+    assertEquals(prefix, call.substring(0, Math.min(prefix.length(), call.length())), name + " = " + call);
+    assertEquals(')', call.charAt(call.length() - 1), name + " = " + call);
+    String encoded = URLEncoder.encode(value.replace(" ", "._."), Charset.defaultCharset()).replace("._.", " ");
+    assertJsonValue(name, call.substring(prefix.length(), call.length() - 1), encoded);
+  }
+
+  private void assertArrayValue(Map<String, String> assignments, String name, List<String> values) {
+    String literal = assignments.get(name);
+    assertNotNull(literal, name + " not assigned");
+    JSONTokener tokener = new JSONTokener(literal);
+    Object value = tokener.nextValue();
+    assertEquals(JSONArray.class, value.getClass(), name + " = " + literal);
+    assertEquals(values, ((JSONArray) value).toList(), name + " = " + literal);
+    assertFalse(tokener.more(), name + " = " + literal);
   }
 
   private void assertStringValue(Map<String, String> assignments, String name, String value) {
     String literal = assignments.get(name);
     assertNotNull(literal, name + " not assigned");
+    assertJsonValue(name, literal, value);
+  }
+
+  private void assertJsonValue(String name, String literal, String value) {
     JSONTokener tokener = new JSONTokener(literal);
     assertEquals(value, tokener.nextValue(), name + " = " + literal);
     assertFalse(tokener.more(), name + " = " + literal);

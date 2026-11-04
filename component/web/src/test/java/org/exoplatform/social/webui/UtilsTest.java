@@ -24,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
+import org.json.JSONArray;
 import org.json.JSONTokener;
 import org.junit.jupiter.api.Test;
 
@@ -63,7 +66,7 @@ class UtilsTest {
   @Test
   void previewSpaceIdIsNullForNonAsciiDigits() {
     // Arabic-Indic digits: Character.isDigit and Long.parseLong accept them
-    assertNull(Utils.getPreviewSpaceId(requestWith("٤٢")));
+    assertNull(Utils.getPreviewSpaceId(requestWith("\u0664\u0662")));
   }
 
   @Test
@@ -77,7 +80,7 @@ class UtilsTest {
     assertScriptString("");
     assertScriptString("a\"b\\c'd");
     assertScriptString("x</script><!--y");
-    assertScriptString("line separator\nnew line");
+    assertScriptString("line\u2028separator\nnew line");
     assertEquals("\"null\"", Utils.toScriptString(null));
     assertEquals("\"42\"", Utils.toScriptString(42L));
   }
@@ -85,6 +88,17 @@ class UtilsTest {
   @Test
   void scriptStringHoldsNoLessThanSign() {
     String literal = Utils.toScriptString("x</script><!--<script>y");
+    assertFalse(literal.contains("<"), literal);
+  }
+
+  @Test
+  void scriptArrayHoldsEachValueAsAScriptString() {
+    assertEquals("[]", Utils.toScriptArray(List.of()));
+    List<String> values = List.of("activity", "x\"y</script><!--z", "");
+    String literal = Utils.toScriptArray(values);
+    JSONTokener tokener = new JSONTokener(literal);
+    assertEquals(values, ((JSONArray) tokener.nextValue()).toList(), literal);
+    assertFalse(tokener.more(), literal);
     assertFalse(literal.contains("<"), literal);
   }
 
@@ -96,7 +110,7 @@ class UtilsTest {
     assertEquals(value, tokener.nextValue(), literal);
     assertFalse(tokener.more(), literal);
     assertFalse(literal.contains("<"), literal);
-    assertFalse(literal.contains(" "), literal);
+    assertFalse(literal.contains("\u2028"), literal);
   }
 
   private HttpServletRequest requestWith(String previewSpaceId) {

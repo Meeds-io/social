@@ -20,9 +20,11 @@ package org.exoplatform.social.webui;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -792,5 +794,16 @@ public class Utils {
    */
   public static String toScriptString(Object value) {
     return JSONObject.quote(String.valueOf(value)).replace("<", "\\u003c");
+  }
+
+  /**
+   * Builds the JavaScript array literal of values printed in an inline script
+   * block, each element written by {@link #toScriptString(Object)}
+   *
+   * @param values the values to print, in their iteration order
+   * @return a JavaScript array literal of string literals
+   */
+  public static String toScriptArray(Collection<?> values) {
+    return values.stream().map(Utils::toScriptString).collect(Collectors.joining(", ", "[", "]"));
   }
 }
