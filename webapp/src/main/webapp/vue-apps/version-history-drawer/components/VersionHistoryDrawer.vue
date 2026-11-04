@@ -44,19 +44,11 @@
               :can-manage="canManage"
               :disable-restore-version="disableRestoreVersion"
               :enable-edit-description="enableEditDescription"
-              :restoring="restoringVersionId === version.id"
               @version-update-description="updateVersionDescription"
-              @restore-version="requestRestoreVersion" />
+              @restore-version="restoreVersion" />
           </v-list-item>
         </v-slide-y-transition>
       </v-list>
-      <exo-confirm-dialog
-        ref="restoreConfirmDialog"
-        :title="$t('versionHistory.confirm.restoreTitle', {0: versionToRestoreNumber})"
-        :message="$t('versionHistory.confirm.restoreMessage', {0: versionToRestoreNumber})"
-        :ok-label="$t('versionHistory.button.restore')"
-        :cancel-label="$t('versionHistory.button.cancel')"
-        @ok="restoreConfirmedVersion" />
     </template>
     <template v-if="showLoadMore" slot="footer">
       <v-btn
@@ -112,10 +104,6 @@ export default {
       }
     },
   },
-  data: () => ({
-    versionToRestore: null,
-    restoringVersionId: null,
-  }),
   computed: {
     /**
      * Tells whether there is at least one version to list.
@@ -124,31 +112,8 @@ export default {
     hasVersions() {
       return !!this.versions && this.versions.length > 0;
     },
-    /**
-     * Gives the number of the version the confirmation is about.
-     * @returns {number} the version number, or an empty string
-     */
-    versionToRestoreNumber() {
-      return this.versionToRestore && this.versionToRestore.versionNumber || '';
-    },
   },
   watch: {
-    /**
-     * Ends the restoring state when the host lists a new newest version, as
-     * a host that reloads its versions after a restore does; a page loaded
-     * by « Show more » keeps the newest one, and a host that adds the
-     * restored version in place ends it through `version-restored`.
-     * @param {Array} newVersions the versions now listed, newest first
-     * @param {Array} oldVersions the versions listed before
-     * @returns {void}
-     */
-    versions(newVersions, oldVersions) {
-      const newestId = newVersions && newVersions.length && newVersions[0].id;
-      const previousNewestId = oldVersions && oldVersions.length && oldVersions[0].id;
-      if (newestId !== previousNewestId) {
-        this.endRestore();
-      }
-    },
     /**
      * Shows the drawer loading while the host loads versions.
      * @returns {void}
@@ -160,22 +125,6 @@ export default {
         this.$refs.versionHistoryDrawer.endLoading();
       }
     },
-  },
-  /**
-   * Listens to the host's end of a restore, success or failure.
-   * @returns {void}
-   */
-  created() {
-    this.$root.$on('version-restored', this.endRestore);
-    this.$root.$on('version-restore-error', this.endRestore);
-  },
-  /**
-   * Stops listening to the host's end of a restore.
-   * @returns {void}
-   */
-  beforeDestroy() {
-    this.$root.$off('version-restored', this.endRestore);
-    this.$root.$off('version-restore-error', this.endRestore);
   },
   methods: {
     /**
@@ -217,32 +166,12 @@ export default {
       this.$emit('version-update-description', version, newDescription);
     },
     /**
-     * Asks to confirm the restore of a version before the host restores it.
+     * Asks the host to restore a version the card has confirmed.
      * @param {Object} version the version to restore
      * @returns {void}
      */
-    requestRestoreVersion(version) {
-      this.versionToRestore = version;
-      this.$refs.restoreConfirmDialog.open();
-    },
-    /**
-     * Asks the host to restore the version the confirmation was about, and
-     * shows it restoring until the host says it is done or failed.
-     * @returns {void}
-     */
-    restoreConfirmedVersion() {
-      if (this.versionToRestore) {
-        this.restoringVersionId = this.versionToRestore.id;
-        this.$emit('restore-version', this.versionToRestore);
-      }
-    },
-    /**
-     * Ends the restoring state once the host has restored a version or
-     * failed to.
-     * @returns {void}
-     */
-    endRestore() {
-      this.restoringVersionId = null;
+    restoreVersion(version) {
+      this.$emit('restore-version', version);
     },
   }
 };
