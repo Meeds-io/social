@@ -28,6 +28,7 @@ import * as identityService from './js/IdentityService.js';
 import * as dateUtil from './js/DateUtil.js';
 import * as settingService from './js/SettingService.js';
 import * as featureService from './js/FeatureService.js';
+import * as changesReminderService from './js/ChangesReminderService.js';
 import * as activityService from './js/ActivityService.js';
 import * as reactionService from './js/ReactionService.js';
 import * as favoriteService from './js/FavoriteService.js';
@@ -92,6 +93,9 @@ window.Object.defineProperty(Vue.prototype, '$settingService', {
 });
 window.Object.defineProperty(Vue.prototype, '$featureService', {
   value: featureService,
+});
+window.Object.defineProperty(Vue.prototype, '$changesReminderService', {
+  value: changesReminderService,
 });
 window.Object.defineProperty(Vue.prototype, '$activityService', {
   value: activityService,

@@ -9,6 +9,7 @@
 <%@ page import="io.meeds.portal.navigation.service.NavigationConfigurationService"%>
 <%@ page import="org.exoplatform.services.security.IdentityConstants"%>
 <%@ page import="java.net.URLEncoder"%>
+<%@ page import="org.apache.commons.text.StringEscapeUtils"%>
 <%@ page import="org.apache.commons.lang3.StringUtils"%>
 <%@ page import="org.exoplatform.commons.api.notification.model.UserSetting"%>
 <%@ page import="org.exoplatform.commons.api.notification.service.setting.UserSettingService"%>
@@ -147,7 +148,7 @@ String spaceId = null;
           isFavorite: `<%=isFavorite%>`,
           muted: `<%=muted%>`,
           isMember: `<%=isMember%>`,
-          portalPath: `<%=portalPath%>`,
+          portalPath: '<%=StringEscapeUtils.escapeEcmaScript(portalPath)%>',
           logoPath: `<%=logoPath%>`,
           logoTitle: `<%=URLEncoder.encode(logoTitle.replace(" ", "._.")).replace("._.", " ")%>`,
           spacePortalPath: `<%=spacePortalPath == null ? "": spacePortalPath%>`,

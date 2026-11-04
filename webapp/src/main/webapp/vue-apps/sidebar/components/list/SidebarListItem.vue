@@ -164,12 +164,12 @@
         @mousedown.stop.prevent
         @mouseup.stop.prevent>
         <v-btn
-          v-if="$root.expand && $root.allowUserHome"
+          v-if="$root.expand && $root.allowUserHome && homeUri"
           v-show="hover || isHome"
           :title="$t('menu.spaces.makeAsHomePage')"
           class="ms-2"
           icon
-          @click.stop.prevent="$root.$emit('update-home-link-page', item)">
+          @click.stop.prevent="$root.$emit('update-home-link-page', item, homeUri)">
           <v-icon
             :class="isHome && 'primary--text' || 'icon-default-color'"
             class="me-0 pa-2"
@@ -214,8 +214,11 @@ export default {
     defaultUserPath() {
       return this.$root.defaultUserPath;
     },
+    homeUri() {
+      return this.isPage && this.$navigationUtils.getNavigationNodeHomeUri(this.item?.url);
+    },
     isHome() {
-      return this.isPage && this.defaultUserPath === this.item?.url;
+      return !!this.homeUri && this.defaultUserPath === this.homeUri;
     },
     isSitePages() {
       return this.item.type === 'SITE' && this.item.properties.expandPages === 'true';
