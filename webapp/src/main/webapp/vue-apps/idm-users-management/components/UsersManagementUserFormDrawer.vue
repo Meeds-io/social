@@ -66,7 +66,7 @@
           :error-messages="fieldErrors.language"
           :placeholder="$t('UsersManagement.creation.preferredLanguage')"
           :menu-props="{ offsetY: true }"
-          class="pt-2"
+          class="userFormLanguageSelect pt-2"
           item-text="text"
           item-value="value"
           prepend-inner-icon="fas fa-language"

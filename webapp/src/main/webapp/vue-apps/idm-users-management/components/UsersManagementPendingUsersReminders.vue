@@ -32,7 +32,7 @@
       <v-badge
         :content="reminder.badge"
         :style="{'--badge-background-color': reminder.color}"
-        class="badge-display"
+        class="pendingUsersReminderCount badge-display"
         flat
         dense
         overlap>
