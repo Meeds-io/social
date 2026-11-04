@@ -395,8 +395,10 @@ export function init(isExternalFeatureEnabled) {
               && this.spaces.length === loadedSpacesCount
               && loadedSpacesCount < this.spacesSize) {
             // The page held only spaces already listed, sorted in before the
-            // offset since the last load: the whole displayed range is
-            // reloaded, and the selection is kept on the spaces still listed
+            // offset since the last load, or, under a contributed sort, the
+            // count holds a space the sort's set does not (created since that
+            // set was read): the whole displayed range is reloaded, and the
+            // selection is kept on the spaces still listed
             const allSpacesSelected = this.allSpacesSelected;
             const selectedIds = new Set(this.selectedSpaces.map(space => space.id));
             // A failed reload keeps the rows displayed, and so the selection
