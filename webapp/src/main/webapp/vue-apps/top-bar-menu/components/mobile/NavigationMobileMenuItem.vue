@@ -89,6 +89,10 @@ export default {
     document.addEventListener('click', this.handleCloseMenu);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
+  beforeDestroy() {
+    document.removeEventListener('click', this.handleCloseMenu);
+    this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
+  },
   computed: {
     hasChildren() {
       return this.navigation?.children?.length;
