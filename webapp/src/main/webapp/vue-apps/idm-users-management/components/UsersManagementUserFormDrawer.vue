@@ -131,8 +131,6 @@
 </template>
 
 <script>
-import * as userCreationService from '../js/UserCreationService.js';
-
 /**
  * Edits an existing account: names, email, preferred language and, for an
  * account of the internal store, its password, typed twice
@@ -146,6 +144,9 @@ export default {
     confirmPasswordLeft: false,
     fieldErrors: {},
     languages: [],
+    // Counts the opens and the updates sent: an answer whose request bears
+    // an earlier sequence belongs to an account the drawer has left
+    sessionSequence: 0,
   }),
   computed: {
     passwordMismatch() {
@@ -183,6 +184,7 @@ export default {
     // The component stays mounted after the drawer closes: every field is
     // set again from the account at each open, both passwords cleared
     editUser(row) {
+      this.sessionSequence++;
       this.saving = false;
       this.fieldErrors = {};
       this.confirmPassword = '';
@@ -200,14 +202,14 @@ export default {
       };
       this.checkStoredFields();
       this.drawer = true;
-      userCreationService.getSupportedLanguages()
+      this.$userCreationService.getSupportedLanguages()
         .then(configuration => this.languages = configuration.languages)
         .catch(() => this.languages = []);
       // The stored preferred language: none stored leaves the select empty,
       // and the update then leaves it unchanged. Opened by a username alone
       // (an account created without its language), the account read fills
       // the rest
-      userCreationService.getAccount(row.userName)
+      this.$userCreationService.getAccount(row.userName)
         .then(account => {
           if (account?.userName === this.user.userName) {
             this.user = Object.assign({}, this.user, {
@@ -266,7 +268,11 @@ export default {
         return;
       }
       this.saving = true;
-      return userCreationService.updateAccount({
+      const request = {
+        sequence: ++this.sessionSequence,
+        fullName: this.user.fullname || this.user.userName,
+      };
+      return this.$userCreationService.updateAccount({
         userName: this.user.userName,
         firstName: this.user.firstName.trim(),
         lastName: this.user.lastName.trim(),
@@ -276,44 +282,72 @@ export default {
         enabled: this.user.enabled,
       }).then(outcome => {
         if (outcome.ok) {
-          this.$root.$emit('alert-message', this.$t('UsersManagement.edit.success', {0: this.user.fullname || this.user.userName}), 'success');
+          this.$root.$emit('alert-message', this.$t('UsersManagement.edit.success', {0: request.fullName}), 'success');
           this.$root.$emit('refreshUsers');
-          this.close();
+          if (this.current(request)) {
+            this.close();
+          }
         } else if (outcome.status === 500) {
-          this.showFailure(outcome.code);
+          this.showFailure(outcome.code, request);
         } else {
-          this.showRefusal(outcome.code);
+          this.showRefusal(outcome.code, request);
         }
       }).catch(error => {
         if (!this.$userAccountConfirmationService.isCancelled(error)) {
-          this.$root.$emit('alert-message', this.$t('IDMManagement.error.UnknownServerError'), 'error');
+          this.tell(this.$t('IDMManagement.error.UnknownServerError'), request, true);
         }
-      }).finally(() => this.saving = false);
+      }).finally(() => {
+        // The lock is the request's own: an account opened since keeps its
+        if (request.sequence === this.sessionSequence) {
+          this.saving = false;
+        }
+      });
     },
-    // A refused field: its code on the field, translated when a label exists
-    showRefusal(code) {
-      const refusal = userCreationService.parseRefusal(code);
-      if (refusal) {
-        this.setError(refusal.field, this.translateCode(code) || refusal.detail || code);
+    // Whether the drawer still shows the account that sent a request: not
+    // once it has been closed, or opened again on another account
+    current(request) {
+      return this.drawer && request.sequence === this.sessionSequence;
+    },
+    // An error of an update, told as it is while the drawer still shows the
+    // account it was sent for, and with that account's name once the drawer
+    // has left it, so the message is never read as the open account's. A
+    // refused field means nothing was written; any other answer may follow a
+    // partial write, so its wrapper leaves the outcome to the message
+    tell(message, request, mayBeWritten = false) {
+      if (this.current(request)) {
+        this.$root.$emit('alert-message', message, 'error');
       } else {
-        this.$root.$emit('alert-message', this.translateCode(code) || this.$t('IDMManagement.error.UnknownServerError'), 'error');
+        this.$root.$emit('alert-message', this.$t(mayBeWritten ? 'UsersManagement.edit.errorFor' : 'UsersManagement.edit.notUpdated', {0: request.fullName, 1: message}), 'error');
+      }
+    },
+    // A refused field: its code on the field, translated when a label exists.
+    // Once the drawer has left that account, the refusal is told as a
+    // message, since no field shows it any more. An answer naming no field
+    // (a gateway's status among them) may follow a write
+    showRefusal(code, request) {
+      const refusal = this.$userCreationService.parseRefusal(code);
+      if (!refusal) {
+        this.tell(this.translateCode(code, request.fullName) || this.$t('IDMManagement.error.UnknownServerError'), request, true);
+      } else if (this.current(request)) {
+        this.setError(refusal.field, this.translateCode(code, request.fullName) || refusal.detail || code);
+      } else {
+        this.tell(this.translateCode(code, request.fullName) || refusal.detail || code, request);
       }
     },
     // An update the server could not prove: the drawer stays open on the
-    // error, and the table shows what the account now holds
-    showFailure(code) {
-      this.$root.$emit('alert-message', this.translateCode(code) || this.$t('IDMManagement.error.UnknownServerError'), 'error');
+    // error while it still shows the account, and the table shows what the
+    // account now holds
+    showFailure(code, request) {
+      this.tell(this.translateCode(code, request.fullName) || this.$t('IDMManagement.error.UnknownServerError'), request, true);
       this.$root.$emit('refreshUsers');
     },
-    translateCode(code) {
-      const suffix = (code || '').replace(/:/g, '.');
-      for (const prefix of ['UsersManagement.edit.error.', 'UsersManagement.creation.error.', 'UsersManagement.error.']) {
-        const label = this.$t(`${prefix}${suffix}`, {0: this.user.fullname || this.user.userName});
-        if (label !== `${prefix}${suffix}`) {
-          return label;
-        }
-      }
-      return null;
+    // The code's label under the edit, creation or generic errors, with the
+    // account's name as its parameter, the one the request was sent for
+    translateCode(code, fullName = this.user.fullname || this.user.userName) {
+      return this.$userCreationService.translateCode(
+        key => this.$t(key, {0: fullName}),
+        code,
+        ['UsersManagement.edit.error.', 'UsersManagement.creation.error.', 'UsersManagement.error.']);
     },
   },
 };

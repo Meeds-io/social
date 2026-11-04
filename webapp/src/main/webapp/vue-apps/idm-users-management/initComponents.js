@@ -6,6 +6,7 @@ import UsersManagementCreationDrawer from './components/UsersManagementCreationD
 import UsersManagementCreationProfileStep from './components/creation/UsersManagementCreationProfileStep.vue';
 import UsersManagementCreationRoleStep from './components/creation/UsersManagementCreationRoleStep.vue';
 import UsersManagementCreationInvitationStep from './components/creation/UsersManagementCreationInvitationStep.vue';
+import UsersManagementCreationOutcomes from './components/creation/UsersManagementCreationOutcomes.vue';
 import UsersManagementUserMembershipDrawer from './components/UsersManagementUserMembershipDrawer.vue';
 import UsersManagementImportCSVButton from './components/UsersManagementImportCSVButton.vue';
 import UsersManagementImportCSVErrorMessage from './components/UsersManagementImportCSVErrorMessage.vue';
@@ -27,6 +28,7 @@ const components = {
   'users-management-creation-profile-step': UsersManagementCreationProfileStep,
   'users-management-creation-role-step': UsersManagementCreationRoleStep,
   'users-management-creation-invitation-step': UsersManagementCreationInvitationStep,
+  'users-management-creation-outcomes': UsersManagementCreationOutcomes,
   'users-management-user-membership-drawer': UsersManagementUserMembershipDrawer,
   'users-management-import-csv-button': UsersManagementImportCSVButton,
   'users-management-import-csv-result': UsersManagementImportCSVResult,

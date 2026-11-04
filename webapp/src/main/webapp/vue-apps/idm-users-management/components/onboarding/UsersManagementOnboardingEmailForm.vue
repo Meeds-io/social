@@ -23,7 +23,7 @@
     <div class="mb-2">{{ $t('UsersManagement.creation.email.hello') }}</div>
     <rich-editor
       :id="editorId"
-      :value="message"
+      :value="initialMessage"
       :max-length="messageMaxLength"
       :disabled="saving"
       :tag-enabled="false"
@@ -54,22 +54,48 @@ export default {
       type: String,
       default: '',
     },
-    messageMaxLength: {
-      type: Number,
-      default: 500,
-    },
     errorMessages: {
       type: String,
       default: null,
-    },
-    validityLabel: {
-      type: String,
-      default: '',
     },
     saving: {
       type: Boolean,
       default: false,
     },
+  },
+  data: () => ({
+    initialMessage: '',
+    onboardingSettings: null,
+  }),
+  computed: {
+    messageMaxLength() {
+      return this.$userCreationService.MESSAGE_MAX_LENGTH;
+    },
+    // The validity as the email states it: the server says whether it is a
+    // whole number of days, by the rule the email applies
+    validityLabel() {
+      if (!this.onboardingSettings) {
+        return '…';
+      } else if (this.onboardingSettings.linkValidityWholeDays) {
+        return this.$t('UsersManagement.creation.email.expiry.days', {0: this.onboardingSettings.linkValidityDays});
+      } else {
+        return this.$t('UsersManagement.creation.email.expiry.hours', {0: this.onboardingSettings.linkValidityHours});
+      }
+    },
+  },
+  // The form is created at each open of its drawer, or when the onboarding
+  // email is turned on: the message the design proposes stands in for a
+  // blank one, held here before the editor is created since the editor
+  // reads its value once, and handed to the drawer; the validity is read
+  // again
+  created() {
+    this.initialMessage = this.message || this.$t('UsersManagement.creation.email.defaultMessage', {0: eXo?.env?.portal?.companyName || ''});
+    if (this.initialMessage !== this.message) {
+      this.$emit('update:message', this.initialMessage);
+    }
+    this.$userCreationService.getOnboardingSettings()
+      .then(settings => this.onboardingSettings = settings)
+      .catch(() => this.onboardingSettings = null);
   },
 };
 </script>
