@@ -30,8 +30,6 @@
     <template v-if="drawer" #content>
       <users-management-onboarding-email-form
         :message.sync="message"
-        :message-max-length="messageMaxLength"
-        :validity-label="linkValidityLabel"
         :saving="sending"
         editor-id="userOnboardMessageEditor"
         class="ma-4"
@@ -60,17 +58,15 @@
 </template>
 
 <script>
-import * as userCreationService from '../js/UserCreationService.js';
-import UsersManagementOnboardingSettings from './onboarding/UsersManagementOnboardingSettings.js';
-
 /**
  * Sends, or sends again, the onboarding email of an account that never
  * signed in, opened from its row or from the Pending Users drawer
  */
 export default {
-  mixins: [UsersManagementOnboardingSettings],
   data: () => ({
     drawer: false,
+    message: '',
+    messageValid: true,
     sending: false,
     user: null,
   }),
@@ -81,18 +77,21 @@ export default {
     this.$root.$off('openOnboardUser', this.open);
   },
   methods: {
+    // The message and its validity go back to blank before the content is
+    // rendered: the form, created with the drawer's content, proposes its
+    // message again and hands it over
     open(user) {
       this.user = user;
+      this.message = '';
+      this.messageValid = true;
       this.drawer = true;
     },
     close() {
       this.drawer = false;
     },
-    // The component stays mounted after the drawer closes: the message goes
-    // back to the proposed one at each open
+    // The component stays mounted after the drawer closes
     reset() {
       this.sending = false;
-      this.resetOnboardingEmail();
     },
     invite() {
       if (this.sending || !this.messageValid || !this.user?.userName) {
@@ -100,7 +99,7 @@ export default {
       }
       this.sending = true;
       const fullName = this.user.fullname || this.user.userName;
-      return userCreationService.sendInvitation(this.user.userName, this.message)
+      return this.$userCreationService.sendInvitation(this.user.userName, this.message)
         .then(sent => {
           if (sent) {
             this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.sent', {0: fullName}), 'success');

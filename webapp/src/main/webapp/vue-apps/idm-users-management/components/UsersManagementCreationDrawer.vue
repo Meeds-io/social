@@ -28,8 +28,9 @@
     @opened="reset"
     @closed="stepper = 0">
     <template #title>{{ $t('UsersManagement.addUser') }}</template>
-    <template v-if="drawer" #content>
+    <template #content>
       <v-stepper
+        v-if="drawer"
         v-model="stepper"
         class="ma-0 py-0 elevation-0"
         vertical
@@ -80,13 +81,17 @@
           <users-management-creation-invitation-step
             :send-onboarding-email.sync="sendOnboardingEmail"
             :message.sync="message"
-            :message-max-length="messageMaxLength"
             :error-messages="fieldErrors.message"
-            :validity-label="linkValidityLabel"
             :saving="saving"
             @validity-updated="messageValid = $event" />
         </v-stepper-content>
       </v-stepper>
+      <!-- Outside the content the drawer rebuilds at each open: the answer of a
+           creation still running when the drawer is closed reaches it -->
+      <users-management-creation-outcomes
+        ref="outcomes"
+        @refused="applyRefusal"
+        @close="closeAfter" />
     </template>
     <template #footer>
       <div class="d-flex">
@@ -120,12 +125,7 @@
 </template>
 
 <script>
-import * as userCreationService from '../js/UserCreationService.js';
-import UsersManagementCreationOutcomes from './creation/UsersManagementCreationOutcomes.js';
-import UsersManagementOnboardingSettings from './onboarding/UsersManagementOnboardingSettings.js';
-
 export default {
-  mixins: [UsersManagementCreationOutcomes, UsersManagementOnboardingSettings],
   data: () => ({
     drawer: false,
     stepper: 0,
@@ -133,6 +133,11 @@ export default {
     customizeUsername: false,
     customizePassword: false,
     sendOnboardingEmail: false,
+    message: '',
+    messageValid: true,
+    // Counts the creations sent and the opens: an answer whose request bears
+    // an earlier sequence belongs to a session the drawer has left
+    creationSequence: 0,
     confirmPassword: '',
     user: {},
     fieldErrors: {},
@@ -204,11 +209,13 @@ export default {
     // The drawer's content stays mounted after it closes: every field goes
     // back to its default when the drawer opens, on step 1
     reset() {
+      this.creationSequence++;
       this.saving = false;
       this.customizeUsername = false;
       this.customizePassword = false;
       this.sendOnboardingEmail = false;
-      this.resetOnboardingEmail();
+      this.message = '';
+      this.messageValid = true;
       this.confirmPassword = '';
       this.fieldErrors = {};
       this.user = {
@@ -221,7 +228,7 @@ export default {
         role: 'INTERNAL',
       };
       this.stepper = 1;
-      userCreationService.getSupportedLanguages()
+      this.$userCreationService.getSupportedLanguages()
         .then(configuration => {
           this.languages = configuration.languages;
           this.defaultLanguage = configuration.defaultLanguage;
@@ -270,7 +277,13 @@ export default {
         return;
       }
       this.saving = true;
-      return userCreationService.createAccount({
+      const request = {
+        sequence: ++this.creationSequence,
+        sendOnboardingEmail: this.sendOnboardingEmail,
+        message: this.message,
+        fullName: this.fullName,
+      };
+      return this.$userCreationService.createAccount({
         userName: this.customizeUsername ? this.user.userName?.trim() : null,
         firstName: this.user.firstName.trim(),
         lastName: this.user.lastName.trim(),
@@ -279,21 +292,45 @@ export default {
         language: this.user.language,
         role: this.user.role,
         enabled: true,
-      }).then(outcome => {
-        if (outcome.userName) {
-          return this.invite(outcome.userName);
-        } else if (outcome.status === 400) {
-          this.showRefusal(outcome.code);
-        } else {
-          this.showFailure(outcome.code);
-        }
-      }).catch(error => {
+      }).then(outcome => this.$refs.outcomes.handle(outcome, request)).catch(error => {
         // A rejection is either the administrator's cancel, an outcome the
-        // mixin named, or a transport failure shown as the generic error
+        // outcomes component named, or a transport failure shown as the
+        // generic error
         if (!this.$userAccountConfirmationService.isCancelled(error)) {
           this.$root.$emit('alert-message', error?.translated && error.message || this.$t('IDMManagement.error.UnknownServerError'), 'error');
         }
-      }).finally(() => this.saving = false);
+      }).finally(() => {
+        if (this.current(request)) {
+          this.saving = false;
+        }
+      });
+    },
+    // Whether the drawer still shows the session that sent a request: not
+    // once it has been closed, or opened again on a new account
+    current(request) {
+      return this.drawer && request.sequence === this.creationSequence;
+    },
+    // A refused field, as the outcomes component read it: the message on
+    // the field, the step holding it shown, the username opened when the
+    // server would not generate one. Once the drawer has left that session,
+    // the refusal is told as a message, since no field shows it any more
+    applyRefusal({field, message, customizeUsername, step}, request) {
+      if (!this.current(request)) {
+        this.$root.$emit('alert-message', this.$t('UsersManagement.creation.notCreated', {0: message}), 'error');
+        return;
+      }
+      this.setError(field, message);
+      if (customizeUsername) {
+        this.customizeUsername = true;
+      }
+      this.stepper = step;
+    },
+    // The drawer closes on the outcome of its own session only: a session
+    // opened since stays as the administrator left it
+    closeAfter(request) {
+      if (this.current(request)) {
+        this.close();
+      }
     },
   },
 };

@@ -97,8 +97,6 @@
 </template>
 
 <script>
-import * as pendingUsersService from '../js/PendingUsersService.js';
-
 /**
  * The accounts that never signed in, in two tabs: created and not invited
  * yet, invited and not connected yet. Loaded when opened, a page at a time
@@ -177,7 +175,7 @@ export default {
       const sequence = this.loadSequence;
       const requestedAt = window.performance.now();
       this.loading = true;
-      return pendingUsersService.getPendingUsers(this.tab, this.users.length, this.pageSize)
+      return this.$pendingUsersService.getPendingUsers(this.tab, this.users.length, this.pageSize)
         .then(page => {
           // Only the answer to the current list is applied: a reload or a
           // tab switch since the request makes it stale

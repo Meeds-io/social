@@ -131,8 +131,6 @@
 </template>
 
 <script>
-import * as userCreationService from '../js/UserCreationService.js';
-
 /**
  * Edits an existing account: names, email, preferred language and, for an
  * account of the internal store, its password, typed twice
@@ -200,14 +198,14 @@ export default {
       };
       this.checkStoredFields();
       this.drawer = true;
-      userCreationService.getSupportedLanguages()
+      this.$userCreationService.getSupportedLanguages()
         .then(configuration => this.languages = configuration.languages)
         .catch(() => this.languages = []);
       // The stored preferred language: none stored leaves the select empty,
       // and the update then leaves it unchanged. Opened by a username alone
       // (an account created without its language), the account read fills
       // the rest
-      userCreationService.getAccount(row.userName)
+      this.$userCreationService.getAccount(row.userName)
         .then(account => {
           if (account?.userName === this.user.userName) {
             this.user = Object.assign({}, this.user, {
@@ -266,7 +264,7 @@ export default {
         return;
       }
       this.saving = true;
-      return userCreationService.updateAccount({
+      return this.$userCreationService.updateAccount({
         userName: this.user.userName,
         firstName: this.user.firstName.trim(),
         lastName: this.user.lastName.trim(),
@@ -292,7 +290,7 @@ export default {
     },
     // A refused field: its code on the field, translated when a label exists
     showRefusal(code) {
-      const refusal = userCreationService.parseRefusal(code);
+      const refusal = this.$userCreationService.parseRefusal(code);
       if (refusal) {
         this.setError(refusal.field, this.translateCode(code) || refusal.detail || code);
       } else {
@@ -305,15 +303,13 @@ export default {
       this.$root.$emit('alert-message', this.translateCode(code) || this.$t('IDMManagement.error.UnknownServerError'), 'error');
       this.$root.$emit('refreshUsers');
     },
+    // The code's label under the edit, creation or generic errors, with the
+    // account's name as its parameter
     translateCode(code) {
-      const suffix = (code || '').replace(/:/g, '.');
-      for (const prefix of ['UsersManagement.edit.error.', 'UsersManagement.creation.error.', 'UsersManagement.error.']) {
-        const label = this.$t(`${prefix}${suffix}`, {0: this.user.fullname || this.user.userName});
-        if (label !== `${prefix}${suffix}`) {
-          return label;
-        }
-      }
-      return null;
+      return this.$userCreationService.translateCode(
+        key => this.$t(key, {0: this.user.fullname || this.user.userName}),
+        code,
+        ['UsersManagement.edit.error.', 'UsersManagement.creation.error.', 'UsersManagement.error.']);
     },
   },
 };
