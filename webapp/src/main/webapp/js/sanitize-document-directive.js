@@ -28,6 +28,18 @@
   const config = {
     ADD_TAGS: ['iframe', 'content-link'],
     ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder', 'v-identity-popover'],
+    // What DOMPurify's defaults let through after 2.3.8 and rich content was
+    // never written with: the slot tag, the attributes below (some act on
+    // another element of the page by its id: popovertarget, commandfor), the
+    // attribute values holding '/>', and the sms: and matrix: URI schemes
+    ALLOW_SELF_CLOSE_IN_ATTR: false,
+    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.:-]|$))/i,
+    FORBID_TAGS: ['slot'],
+    FORBID_ATTR: [
+      'command', 'commandfor', 'exportparts', 'inert', 'part', 'popover', 'popovertarget', 'popovertargetaction',
+      'amplitude', 'dominant-baseline', 'exponent', 'intercept', 'mask-type', 'pointer-events', 'slope', 'tablevalues',
+      'text-orientation', 'vector-effect', 'columnalign', 'columnspacing',
+    ],
   };
 
   // Same rule as ExtendedDomPurify: the hosts come from the
