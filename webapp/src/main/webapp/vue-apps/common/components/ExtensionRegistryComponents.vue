@@ -143,6 +143,8 @@ export default {
   computed: {
     /**
      * Whether at least one component is rendered.
+     *
+     * @returns {Number} the number of rendered components, falsy when none
      */
     isEnabled() {
       return this.components.length;
@@ -151,6 +153,8 @@ export default {
   /**
    * Listens to the extension point's registrations, then registers the
    * components already registered there.
+   *
+   * @returns {void}
    */
   created() {
     // Not reactive: the latest registered component of each id; an earlier one whose check resolves later is not added
@@ -169,6 +173,8 @@ export default {
   },
   /**
    * Stops listening to the extension point's registrations.
+   *
+   * @returns {void}
    */
   beforeDestroy() {
     document.removeEventListener(`component-${this.name}-${this.type}-updated`, this.updateComponents);
@@ -176,6 +182,10 @@ export default {
   methods: {
     /**
      * Registers the component an extension point event carries.
+     *
+     * @param {CustomEvent} event the registration event, whose detail is the
+     *          registered component
+     * @returns {void}
      */
     updateComponents(event) {
       const component = event && event.detail;
@@ -189,6 +199,9 @@ export default {
      * Initializes a component, then adds it to the rendered rows when its
      * filter and isEnabled accept it. A component with an id becomes the
      * latest registration of that id.
+     *
+     * @param {Object} component the registered component
+     * @returns {Promise|void} the pending addition when init is asynchronous
      */
     registerComponent(component) {
       if (this.filter && !this.filter(component)) {
@@ -212,6 +225,9 @@ export default {
      * registration may have replaced them meanwhile, and a row added to an
      * earlier copy would never render. A component that a later registration
      * of its id has superseded is not added, whichever check resolves first.
+     *
+     * @param {Object} component the registered component
+     * @returns {Promise<void>} resolved once the component is added or skipped
      */
     async addComponent(component) {
       if (!component.componentOptions.isEnabled || await Promise.resolve(component.componentOptions.isEnabled(this.params))) {
@@ -231,6 +247,10 @@ export default {
     },
     /**
      * Orders two components by their rank, a missing rank counting as 0.
+     *
+     * @param {Object} comp1 the first component
+     * @param {Object} comp2 the second component
+     * @returns {Number} negative, zero or positive, as Array.sort expects
      */
     sort(comp1, comp2) {
       return (comp1.componentOptions.rank || 0) - (comp2.componentOptions.rank || 0);
