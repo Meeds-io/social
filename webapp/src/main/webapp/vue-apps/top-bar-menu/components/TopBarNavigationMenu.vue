@@ -258,6 +258,7 @@ export default {
     buildMoreNavigation(children) {
       return {
         id: 'topbar-navigation-more',
+        tabClass: 'topbar-navigation-more',
         name: 'more',
         label: this.$t('topBar.navigation.label.more'),
         children,

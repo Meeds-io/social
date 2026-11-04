@@ -38,7 +38,7 @@
         :rel="navigationNodeRel"
         :link="hasPage"
         :aria-label="navigation.label"
-        :class="`mx-auto text-break ${notClickable}`"
+        :class="`mx-auto text-break ${notClickable} ${navigation.tabClass || ''}`"
         :value="navigationNodeUri"
         v-on="on"
         v-bind="attrs"
