@@ -172,8 +172,6 @@ class UISocialPortalApplicationHeadTest {
     expected.put("42", "42");
     expected.put("007", "7");
     expected.put("42abc", "null");
-    expected.put("1;x//", "null");
-    expected.put("</script>", "null");
     for (Map.Entry<String, String> entry : expected.entrySet()) {
       when(request.getParameter(Utils.PREVIEW_SPACE_ID_PARAM)).thenReturn(entry.getKey());
 

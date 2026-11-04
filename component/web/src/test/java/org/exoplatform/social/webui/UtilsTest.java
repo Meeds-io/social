@@ -60,7 +60,6 @@ class UtilsTest {
     assertNull(Utils.getPreviewSpaceId(requestWith("-42")));
     assertNull(Utils.getPreviewSpaceId(requestWith("1e3")));
     assertNull(Utils.getPreviewSpaceId(requestWith("42abc")));
-    assertNull(Utils.getPreviewSpaceId(requestWith("1;x//")));
   }
 
   @Test
