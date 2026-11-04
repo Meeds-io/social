@@ -93,8 +93,8 @@ export default {
   },
   methods: {
     open() {
-      this.$settingService.getSettingValue('USER', eXo.env.portal.userName, 'APPLICATION', 'changesReminder', this.reminder.name)
-        .then(data => this.dialog = !data?.value)
+      this.$changesReminderService.isAcknowledged(this.reminder.name)
+        .then(acknowledged => this.dialog = !acknowledged)
         .catch(() => this.dialog = true);
     },
     close() {
@@ -102,7 +102,7 @@ export default {
     },
     doNotRemindMe() {
       this.loading = true;
-      this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'APPLICATION', 'changesReminder', this.reminder.name, true)
+      this.$changesReminderService.acknowledge(this.reminder.name)
         .then(() => this.dialog = false)
         .finally(() => this.loading = false);
     }
