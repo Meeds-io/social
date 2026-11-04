@@ -56,7 +56,9 @@ public interface AttachmentService {
    *                                   {@link FileAttachmentResourceList}
    *                                   doesn't exists
    * @throws IllegalAccessException  when user doesn't have "write" permission
-   *                                   on selected object
+   *                                   on selected object, or when an uploaded
+   *                                   content is sent for a file that isn't
+   *                                   an attachment of the object
    */
   ObjectAttachmentOperationReport saveAttachments(FileAttachmentResourceList attachment,
                                                   Identity userAclIdentity) throws ObjectNotFoundException,
@@ -80,7 +82,9 @@ public interface AttachmentService {
    * @param userIdentityId User {@link org.exoplatform.social.core.identity.model.Identity} id
    * @throws IOException when an error occurred while accessing uploaded resource
    * @throws ObjectAlreadyExistsException when attachment already exists for given object
-   * @throws ObjectNotFoundException when attachment not found
+   * @throws ObjectNotFoundException when attachment not found, or when an
+   *           uploaded content is sent for a file that isn't an attachment
+   *           of the object
    */
   void saveAttachment(UploadedAttachmentDetail uploadedAttachmentDetail,
                       String objectType,
