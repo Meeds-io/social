@@ -28,6 +28,13 @@
   const config = {
     ADD_TAGS: ['iframe', 'content-link'],
     ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder', 'v-identity-popover'],
+    // A content-link chip the server writes as <a is="content-link-drawer">
+    // opens its drawer: that customized built-in element is the only one a
+    // document may name in its 'is' attribute
+    CUSTOM_ELEMENT_HANDLING: {
+      tagNameCheck: name => name === 'content-link-drawer',
+      allowCustomizedBuiltInElements: true,
+    },
     // What DOMPurify's defaults let through after 2.3.8 and rich content was
     // never written with: the slot tag, the attributes below (some act on
     // another element of the page by its id: popovertarget, commandfor), the
