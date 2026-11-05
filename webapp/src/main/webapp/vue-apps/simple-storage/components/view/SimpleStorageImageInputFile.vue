@@ -29,6 +29,8 @@
 </template>
 
 <script>
+// The message UploadService.getUploadProgress throws when the server reports the upload as failed
+const UPLOAD_FAILED_MESSAGE = 'Upload error';
 
 export default {
   data() {
@@ -37,6 +39,7 @@ export default {
       maxImageSize: 20971520, // 20MB
       uploadQueue: [],
       isUploading: false,
+      pendingUploads: [],
       objectType: 'public',
       objectId: 'images'
     };
@@ -50,7 +53,15 @@ export default {
   },
   methods: {
     openFileExplorer() {
-      this.$refs.fileInput.$el.querySelector('input').click();
+      // Cleared when the picker opens rather than after a pick, and never by
+      // this code while the request of an image still in the list is pending:
+      // on iOS Safari a picked photo may not stay readable once its input is
+      // cleared (inferred, not reproduced on a device).
+      const input = this.$refs.fileInput.$el.querySelector('input');
+      if (!this.pendingUploads.some(image => !image.error)) {
+        input.value = '';
+      }
+      input.click();
     },
     handleFileChange(files) {
       if (files.length) {
@@ -83,7 +94,6 @@ export default {
         this.$emit('update-images', newImages);
         this.uploadQueue.push(...newImages);
         this.processUploadQueue();
-        this.$refs.fileInput.$el.querySelector('input').value = '';
       }
     },
     generateUploadId() {
@@ -102,26 +112,64 @@ export default {
       await processNext();
     },
     uploadFileToServer(image) {
-      this.$uploadService.upload(image.file, image.uploadId).catch((error) => {
-        image.error = error;
-        this.$root.$emit('alert-message', this.$t('simpleStorage.upload.image.error.message'), 'error');
-        console.error('Upload failed:', error);
-      });
+      image.uploadPending = true;
+      this.pendingUploads.push(image);
+      Promise.resolve().then(() => this.$uploadService.upload(image.file, image.uploadId))
+        .then(uploadId => {
+          if (!uploadId) {
+            throw new Error('Upload request failed');
+          }
+          image.uploadAnswered = true;
+        })
+        .catch(error => this.handleUploadError(image, error))
+        .finally(() => {
+          image.uploadPending = false;
+          this.pendingUploads.splice(this.pendingUploads.indexOf(image), 1);
+        });
       this.trackUploadProgress(image);
     },
     trackUploadProgress(image) {
-      const interval = setInterval(() => {
+      window.setTimeout(() => {
+        if (image.error) {
+          return;
+        }
+        const sentWhileUploadPending = image.uploadPending;
+        const sentAfterUploadAnswered = image.uploadAnswered;
         this.$uploadService.getUploadProgress(image.uploadId).then((percent) => {
-          image.progress = Number(percent);
+          if (image.error) {
+            return;
+          }
+          // A poll reads 100 once the body has arrived, before the server has
+          // written and validated the file: only a poll sent after the upload
+          // request answered completes the image, and it saves it once.
+          image.progress = sentAfterUploadAnswered ? Number(percent) : Math.min(Number(percent), 99);
           if (image.progress >= 100) {
-            clearInterval(interval);
             this.isUploading = this.uploadQueue.length;
             this.saveImageAttachment(image.uploadId);
+          } else {
+            this.trackUploadProgress(image);
           }
-        }).catch(() => {
-          clearInterval(interval);
+        }).catch((error) => {
+          // The server knows an upload only once its request reaches it, which
+          // can be well after the first poll: until the request settles, a
+          // poll that finds no upload is not a failure.
+          if (sentWhileUploadPending && error?.message !== UPLOAD_FAILED_MESSAGE) {
+            this.trackUploadProgress(image);
+          } else {
+            this.handleUploadError(image, error);
+          }
         });
       }, 200);
+    },
+    handleUploadError(image, error) {
+      if (image.error) {
+        return;
+      }
+      image.error = error;
+      this.isUploading = this.uploadQueue.length;
+      this.$root.$emit('image-attachment-upload-failed', image.uploadId);
+      this.$root.$emit('alert-message', this.$t('simpleStorage.upload.image.error.message'), 'error');
+      console.error('Upload failed:', error);
     },
     async saveImageAttachment(uploadId) {
       await this.$fileAttachmentService.createAttachment({
@@ -133,6 +181,7 @@ export default {
         this.$root.$emit('alert-message', this.$t('simpleStorage.save.image.success.message'), 'success');
       }).catch(() => {
         this.$uploadService.deleteUpload(uploadId);
+        this.$root.$emit('image-attachment-upload-failed', uploadId);
         this.$root.$emit('alert-message',  this.$t('simpleStorage.save.image.error.message'), 'error');
       });
     },
