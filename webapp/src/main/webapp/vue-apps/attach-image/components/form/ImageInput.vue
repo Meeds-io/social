@@ -155,13 +155,18 @@ export default {
         uploadedFiles,
         attachedFiles,
       }).then((report) => {
-        if (report?.errorByUploadId?.length) {
-          const attachmentHtmlError = Object.keys(report.errorByUploadId)
+        // errorByUploadId is an object, keyed by upload id; a kept image is
+        // sent with an empty upload id, reported under the '' key.
+        const failedUploadIds = uploadedFiles
+          .map(file => file.uploadId)
+          .filter(uploadId => report?.errorByUploadId?.[uploadId]);
+        if (failedUploadIds.length) {
+          const attachmentHtmlError = failedUploadIds
             .map((uploadId) => {
               const attachment = this.images.find(
                 (file) => file.uploadId === uploadId
               );
-              return `- <strong>${attachment.name}</strong>: this.$t(report.errorByUploadId[uploadId])`;
+              return `- <strong>${this.escapeHtml(attachment?.name || '')}</strong>: ${this.$t(report.errorByUploadId[uploadId])}`;
             }).join('<br>');
           this.$root.$emit('alert-message-html', attachmentHtmlError, 'error');
         }
@@ -176,8 +181,15 @@ export default {
         this.$refs?.uploadInput?.reset?.();
       });
     },
+    escapeHtml(text) {
+      const element = document.createElement('span');
+      element.textContent = text;
+      return element.innerHTML;
+    },
     deleteImage(image) {
       if (image.uploadId) {
+        // stops the upload's progress polling and its error alert
+        image.removed = true;
         const index = this.images.findIndex(file => file.uploadId === image.uploadId);
         if (index >= 0) {
           this.images.splice(index, 1);
