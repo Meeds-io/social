@@ -247,7 +247,10 @@ public class LinkProvider {
    * {@link #getProfileLink(String, String)}: a single-quoted JavaScript string
    * inside a double-quoted HTML attribute. The value is escaped for the
    * JavaScript string first, then for the HTML attribute, which the browser
-   * decodes before Vue evaluates the literal. A null value is an empty string.
+   * decodes before Vue evaluates the literal. In the JavaScript string, {@code <}
+   * and {@code >} are written as unicode escapes, so that the attribute holds
+   * none of the markup sequences ({@code -->}, {@code ]>}, {@code </script})
+   * for which an HTML sanitizer drops it. A null value is an empty string.
    * Content rendered as raw HTML is not compiled by Vue: there, the popover
    * module reads the literal itself (parseIdentityPopoverValue in
    * vue-apps/popover/main.js), so an escape added here must be undone there.
@@ -263,10 +266,10 @@ public class LinkProvider {
                  .replace("\n", "\\n")
                  .replace("\u2028", "\\u2028")
                  .replace("\u2029", "\\u2029")
+                 .replace("<", "\\u003C")
+                 .replace(">", "\\u003E")
                  .replace("&", "&amp;")
-                 .replace("\"", "&quot;")
-                 .replace("<", "&lt;")
-                 .replace(">", "&gt;");
+                 .replace("\"", "&quot;");
   }
 
   public static String getGroupRoleLink(String role, String identityId, Locale locale) {
