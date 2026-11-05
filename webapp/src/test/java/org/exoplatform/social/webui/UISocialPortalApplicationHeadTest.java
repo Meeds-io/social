@@ -100,16 +100,17 @@ class UISocialPortalApplicationHeadTest {
 
   private static final List<String> URI_PRINTS    = List.of("spaceDisplayName", "companyName");
 
-  private static final List<String> ESCAPERS      = List.of("Utils.toScriptString(",
-                                                            "Utils.toScriptArray(",
-                                                            "Utils.getPreviewSpaceId(");
+  private static final List<String> ESCAPERS      = List.of("Utils.toScriptString(", "Utils.toScriptArray(");
 
-  // A boolean, or the JS null of a user without a timezone, is not a string:
+  // A boolean, a number, or the JS null of a user without a timezone or of a
+  // request without a preview space, is not a string:
   // the string escaper would print it as a string literal, so these prints
   // stay typed. Each is pinned by its target and its exact expression, so that
   // a new print, or a changed one, fails until it is added here on purpose
   private static final Map<String, String> TYPED_PRINTS =
-                                                        Map.of("isExternal",
+                                                        Map.of("previewSpaceId",
+                                                               "Utils.getPreviewSpaceId(rcontext.getRequest())",
+                                                               "isExternal",
                                                                "Utils.isExternal(Utils.getViewerIdentity())",
                                                                "isOrganizationalChartEnabled",
                                                                "profilePropertySetting != null && profilePropertySetting.isActive()",
