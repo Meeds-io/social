@@ -85,15 +85,27 @@ public class CacheSelectorTest {
   public void testLastAccessedSelectionSelectsTheMemberListsSortedByLastVisit() {
     LastAccessedSpacesCacheSelector selector = new LastAccessedSpacesCacheSelector("john");
 
-    assertTrue(selector.select(memberSpaces("john", Sorting.SortBy.LASTVISITED), null));
-    assertFalse(selector.select(memberSpaces("john", Sorting.SortBy.TITLE), null));
-    assertFalse(selector.select(memberSpaces("mary", Sorting.SortBy.LASTVISITED), null));
+    assertTrue(selector.select(spaces("john", SpaceType.MEMBER, Sorting.SortBy.LASTVISITED), null));
+    assertFalse(selector.select(spaces("john", SpaceType.MEMBER, Sorting.SortBy.TITLE), null));
+    assertFalse(selector.select(spaces("mary", SpaceType.MEMBER, Sorting.SortBy.LASTVISITED), null));
   }
 
-  private static ListSpacesKey memberSpaces(String userId, Sorting.SortBy sortBy) {
+  @Test
+  public void testLastAccessedSelectionSelectsEveryListSortedByLastVisit() {
+    LastAccessedSpacesCacheSelector selector = new LastAccessedSpacesCacheSelector("john");
+
+    // The managed, accessible and visible spaces, the last ones cached without a type
+    assertTrue(selector.select(spaces("john", SpaceType.MANAGER, Sorting.SortBy.LASTVISITED), null));
+    assertTrue(selector.select(spaces("john", SpaceType.ACCESSIBLE, Sorting.SortBy.LASTVISITED), null));
+    assertTrue(selector.select(spaces("john", null, Sorting.SortBy.LASTVISITED), null));
+    assertFalse(selector.select(spaces("john", SpaceType.ACCESSIBLE, Sorting.SortBy.TITLE), null));
+    assertFalse(selector.select(spaces("mary", null, Sorting.SortBy.LASTVISITED), null));
+  }
+
+  private static ListSpacesKey spaces(String userId, SpaceType type, Sorting.SortBy sortBy) {
     SpaceFilter filter = new SpaceFilter();
     filter.setSorting(new Sorting(sortBy, Sorting.OrderBy.DESC));
-    return new ListSpacesKey(new SpaceFilterKey(userId, filter, SpaceType.MEMBER), 0, 10);
+    return new ListSpacesKey(new SpaceFilterKey(userId, filter, type), 0, 10);
   }
 
   private static Object overTheWire(Object value) throws IOException, ClassNotFoundException {
