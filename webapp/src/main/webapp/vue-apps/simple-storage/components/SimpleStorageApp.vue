@@ -77,6 +77,7 @@ export default {
   created() {
     this.getSavedImages();
     this.$root.$on('image-attachment-saved', this.handleImageSaved);
+    this.$root.$on('image-attachment-upload-failed', this.handleImageUploadFailed);
   },
   methods: {
     openImagePreview(image) {
@@ -135,6 +136,12 @@ export default {
       const existingImage = this.images.find(img => img.uploadId === uploadId);
       if (existingImage) {
         Object.assign(existingImage, this.mapImageAttachment(image));
+      }
+    },
+    handleImageUploadFailed(uploadId) {
+      const index = this.images.findIndex(img => !img.id && img.uploadId === uploadId);
+      if (index >= 0) {
+        this.images.splice(index, 1);
       }
     },
     confirmDialogClosed() {
