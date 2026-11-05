@@ -21,6 +21,7 @@ package org.exoplatform.social.webui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -98,6 +99,32 @@ class UISocialPortalApplicationHeadTest {
                                                             "cometdContext");
 
   private static final List<String> URI_PRINTS    = List.of("spaceDisplayName", "companyName");
+
+  private static final List<String> ESCAPERS      = List.of("Utils.toScriptString(",
+                                                            "Utils.toScriptArray(",
+                                                            "Utils.getPreviewSpaceId(");
+
+  // A boolean, or the JS null of a user without a timezone, is not a string:
+  // the string escaper would print it as a string literal, so these prints
+  // stay typed. Each is pinned by its target and its exact expression, so that
+  // a new print, or a changed one, fails until it is added here on purpose
+  private static final Map<String, String> TYPED_PRINTS =
+                                                        Map.of("isExternal",
+                                                               "Utils.isExternal(Utils.getViewerIdentity())",
+                                                               "isOrganizationalChartEnabled",
+                                                               "profilePropertySetting != null && profilePropertySetting.isActive()",
+                                                               "userTimezone",
+                                                               "userTimezone == null ? \"null\" : Utils.toScriptString(userTimezone)",
+                                                               "postToNetworkEnabled",
+                                                               "featureService.isFeatureActiveForUser(\"PostToNetwork\", userName)",
+                                                               "editorAttachImageEnabled",
+                                                               "featureService.isFeatureActiveForUser(\"EditorAttachImage\", userName)",
+                                                               "customStylesheetEnabled",
+                                                               "featureService.isFeatureActiveForUser(\"customStylesheet\", userName)");
+
+  private static final Pattern      PRINT         = Pattern.compile("eXo\\.env\\.portal\\.(\\w+) = [^\\n]*?<%=(.*?)%>");
+
+  private static final Pattern      STRING_LITERAL = Pattern.compile("\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'");
 
   private static final String       ODD_VALUE     = "x\"y'z\\</script><!--<script>\u2028end";
 
@@ -262,15 +289,37 @@ class UISocialPortalApplicationHeadTest {
   }
 
   @Test
-  void noPrintOfTheScriptBlockIsHandQuoted() throws Exception {
+  void everyPrintOfTheScriptBlockIsEscapedOrANamedTypedValue() throws Exception {
     // Some values cannot hold a quote today (URI-encoded, checked by ZoneId,
     // numeric): they still go through the escaper, so that the block keeps a
     // single rule whatever a value's source becomes
     String template = Files.readString(TEMPLATE, StandardCharsets.UTF_8);
-    String block = template.substring(template.indexOf("<script"), template.indexOf("</script>"));
+    int start = template.indexOf("id=\"socialHeadScripts\"");
+    assertTrue(start >= 0, "socialHeadScripts");
+    String block = template.substring(start, template.indexOf("</script>", start));
     for (String handQuoting : List.of("\"<%=", "'<%=", "%>\"", "%>'", "\"\\\"\"", "\"'\"")) {
       assertFalse(block.contains(handQuoting), handQuoting);
     }
+    // The engine also prints $name and ${...} and runs <% %>: the block holds
+    // none of them, so that <%= is its only print
+    assertFalse(block.contains("$"), block);
+    assertEquals(block.split("<%", -1).length, block.split("<%=", -1).length, block);
+    Matcher print = PRINT.matcher(block);
+    Set<String> typedPrints = new LinkedHashSet<>();
+    int prints = 0;
+    while (print.find()) {
+      prints++;
+      String target = print.group(1);
+      String expression = print.group(2);
+      if (TYPED_PRINTS.containsKey(target)) {
+        assertEquals(TYPED_PRINTS.get(target), expression, target);
+        typedPrints.add(target);
+      } else {
+        assertTrue(isEscaped(expression), target + " = " + expression);
+      }
+    }
+    assertEquals(block.split("<%=", -1).length - 1, prints, "a print outside an eXo.env.portal assignment");
+    assertEquals(TYPED_PRINTS.keySet(), typedPrints);
   }
 
   private Space givenSignedInUserOnSpacePage(String spaceId, // NOSONAR
@@ -337,6 +386,25 @@ class UISocialPortalApplicationHeadTest {
     JSONTokener tokener = new JSONTokener(literal);
     assertEquals(value, tokener.nextValue(), name + " = " + literal);
     assertFalse(tokener.more(), name + " = " + literal);
+  }
+
+  // The escaper's call is the whole print, not the first operand of one: its
+  // parenthesis closes at the end, string literals emptied first
+  private boolean isEscaped(String expression) {
+    String code = STRING_LITERAL.matcher(expression).replaceAll("\"\"");
+    String escaper = ESCAPERS.stream().filter(code::startsWith).findFirst().orElse(null);
+    if (escaper == null) {
+      return false;
+    }
+    int depth = 0;
+    for (int i = escaper.length() - 1; i < code.length(); i++) {
+      if (code.charAt(i) == '(') {
+        depth++;
+      } else if (code.charAt(i) == ')' && --depth == 0) {
+        return i == code.length() - 1;
+      }
+    }
+    return false;
   }
 
   private Map<String, String> assignments(String output) {
