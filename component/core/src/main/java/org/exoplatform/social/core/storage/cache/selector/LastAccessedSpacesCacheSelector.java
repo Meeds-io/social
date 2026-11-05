@@ -19,6 +19,7 @@
 package org.exoplatform.social.core.storage.cache.selector;
 
 import org.exoplatform.services.cache.ObjectCacheInfo;
+import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.storage.cache.model.data.ListSpacesData;
 import org.exoplatform.social.core.storage.cache.model.key.ListSpacesKey;
 import org.exoplatform.social.core.storage.cache.model.key.SpaceFilterKey;
@@ -26,7 +27,9 @@ import org.exoplatform.social.core.storage.cache.model.key.SpaceType;
 
 /**
  * Selects the lists of the spaces a user accessed last, whose order a visit
- * changes. The entries of the other users stay.
+ * changes: the ones of the last accessed spaces, and the spaces of the member
+ * sorted by their last visit, which is the same list cached under another
+ * type. The entries of the other users stay.
  */
 public class LastAccessedSpacesCacheSelector extends CacheSelector<ListSpacesKey, ListSpacesData> {
 
@@ -43,7 +46,13 @@ public class LastAccessedSpacesCacheSelector extends CacheSelector<ListSpacesKey
     SpaceFilterKey spaceFilterKey = key == null ? null : key.getKey();
     return spaceFilterKey != null
         && remoteId.equals(spaceFilterKey.getUserId())
-        && SpaceType.LATEST_ACCESSED.equals(spaceFilterKey.getType());
+        && (SpaceType.LATEST_ACCESSED.equals(spaceFilterKey.getType()) || isSortedByLastVisit(spaceFilterKey));
+  }
+
+  private boolean isSortedByLastVisit(SpaceFilterKey spaceFilterKey) {
+    return SpaceType.MEMBER.equals(spaceFilterKey.getType())
+        && spaceFilterKey.getSorting() != null
+        && spaceFilterKey.getSorting().sortBy == Sorting.SortBy.LASTVISITED;
   }
 
   @Override
