@@ -10,7 +10,7 @@
       transition="slide-x-transition"
       max-width="350"
       min-width="300"
-      content-class="no-box-shadow full-height pa-1 mt-6"
+      :content-class="isTopBarElement && 'no-box-shadow full-height pa-1 mt-6 transparent' || 'no-box-shadow full-height pa-1 mt-6'"
       offset-y>
       <template #activator="{ on, attrs }">
         <v-card
