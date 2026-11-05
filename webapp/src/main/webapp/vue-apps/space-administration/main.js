@@ -211,7 +211,13 @@ export function init(isExternalFeatureEnabled) {
           // {rank, name, titleKey, header, componentName, headerComponentName, sortBy, customSort, export}:
           // header is the Vuetify header (value, align, sortable, class, width); componentName renders the
           // cell with the space as a prop; headerComponentName, optional, renders after the header label with
-          // the header as a prop; sortBy and customSort contribute a sort; export is read by SpaceExportService
+          // the header as a prop; sortBy and customSort contribute a sort; export is read by SpaceExportService.
+          // customSort({offset, limit, expand, sortDesc, currentSpaces, templateId, currentSpacesSize}) returns the
+          // rows shown followed by the next page (the last two are passed for a sort that filters by template or
+          // reads the count). It lists a set it reads once per scroll, stable while the rows stay shown, so the
+          // select-all walk ends on its first empty page; a refresh (offset 0) starts a new set, and a page
+          // continues a set only from the rows that set returned, so a refresh that failed before or in the sort
+          // leaves no earlier set behind
           this.tableColumnExtensions = extensionRegistry.loadExtensions('spaces-administration', 'table-column') || [];
           // {id, pending}: a contributor registers its gate pending, then again with pending false once settled
           this.exportGates = extensionRegistry.loadExtensions('spaces-administration', 'export-gate') || [];
@@ -238,8 +244,9 @@ export function init(isExternalFeatureEnabled) {
         },
         /**
          * Loads a page of spaces, or the whole displayed range when refresh
-         * is set. A load failure keeps the displayed rows and raises the
-         * generic error alert, unless silent is set.
+         * is set. A load failure keeps the displayed rows and raises an error
+         * alert, unless silent is set: the loading error under a contributed
+         * sort, the generic error otherwise.
          *
          * @param {boolean} refresh reload the whole displayed range from the first space
          * @param {boolean} clean empty the list before a refresh
@@ -254,7 +261,12 @@ export function init(isExternalFeatureEnabled) {
               // eslint-disable-next-line no-console
               console.error('Error loading spaces', e);
               if (!silent) {
-                this.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.errorSpacesBulkOperation'), 'error');
+                // The sort the failed load ran, tagged by fetchSpaces: a
+                // keyword typed meanwhile resets the current one
+                const messageKey = e?.contributedSort
+                  ? 'social.spaces.administration.manageSpaces.spacesLoadingError'
+                  : 'social.spaces.administration.manageSpaces.errorSpacesBulkOperation';
+                this.$emit('alert-message', this.$t(messageKey), 'error');
               }
               return false;
             });
@@ -300,10 +312,28 @@ export function init(isExternalFeatureEnabled) {
           const limit = refresh ? this.offset + this.pageSize : this.pageSize;
 
           const displayedSpaces = this.spaces;
+          const customSort = this.customSort;
           this.loadingSpaces = true;
           try {
-            const customSort = this.customSort;
             if (customSort) {
+              // A contributed sort lists the spaces of Social's listing: the
+              // count, which "load more" and the select-all follow, is
+              // Social's, read with the default path's call, before the sort
+              // so that a failed count costs no page of the sort; the sort
+              // continues its set only from the rows it returned (the
+              // contract above), so a failed count leaves no stale set behind
+              const data = await this.$spaceService.getSpacesByFilter({
+                query: this.keyword,
+                visibility: this.selectedVisibility?.length ? this.selectedVisibility : null,
+                registration: this.selectedRegistration?.length ? this.selectedRegistration : null,
+                templateId: this.selectedTemplateId && Number(this.selectedTemplateId),
+                filter: 'all',
+                expand: this.expand,
+                offset: 0,
+                limit: 1,
+                sortBy: 'title',
+                sortDirection: 'asc',
+              });
               const spaces = await customSort({
                 offset: offset,
                 limit: limit,
@@ -314,6 +344,8 @@ export function init(isExternalFeatureEnabled) {
                 currentSpacesSize: this.spacesSize,
               });
               this.spaces = offset ? this.uniqueSpaces(spaces) : spaces;
+              this.spacesSize = data?.size || 0;
+              this.$emit('loaded', this.spacesSize);
             } else {
               if (!offset && clean) {
                 this.spaces = [];
@@ -341,6 +373,9 @@ export function init(isExternalFeatureEnabled) {
           } catch (e) {
             // A failed load keeps the rows displayed before it
             this.spaces = displayedSpaces;
+            if (e && typeof e === 'object') {
+              e.contributedSort = !!customSort;
+            }
             throw e;
           } finally {
             this.loadingSpaces = false;
@@ -357,12 +392,13 @@ export function init(isExternalFeatureEnabled) {
           this.offset += this.pageSize;
           const loaded = await this.searchSpaces();
           if (loaded
-              && !this.customSort
               && this.spaces.length === loadedSpacesCount
               && loadedSpacesCount < this.spacesSize) {
             // The page held only spaces already listed, sorted in before the
-            // offset since the last load: the whole displayed range is
-            // reloaded, and the selection is kept on the spaces still listed
+            // offset since the last load, or, under a contributed sort, the
+            // count holds a space the sort's set does not (created since that
+            // set was read): the whole displayed range is reloaded, and the
+            // selection is kept on the spaces still listed
             const allSpacesSelected = this.allSpacesSelected;
             const selectedIds = new Set(this.selectedSpaces.map(space => space.id));
             // A failed reload keeps the rows displayed, and so the selection
@@ -489,10 +525,13 @@ export function init(isExternalFeatureEnabled) {
         },
         /**
          * Loads the next page of a select-all walk. A page that fails to
-         * load, or that adds no new space while the list is known to hold
-         * more, ends the walk as a failure. Without a contributed sort, the
-         * walk ends with no request once every matching space is listed; a
-         * contributed sort reports no total, and its end is an empty page.
+         * load ends the walk as a failure. Without a contributed sort, the
+         * walk ends with no request once every matching space is listed, and
+         * a page that adds no new space while the list is known to hold more
+         * ends it as a failure too. A contributed sort lists a set it read
+         * once, so its end is an empty page: the total, refreshed at each
+         * page, shrinks under an action that removes spaces while their rows
+         * stay listed.
          *
          * @param {Function} isCurrent tells whether the walking run is still the current one
          * @returns {Promise<string>} 'loaded'; 'complete' when every matching space
