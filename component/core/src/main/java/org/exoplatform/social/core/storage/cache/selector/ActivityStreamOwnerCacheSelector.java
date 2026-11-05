@@ -24,7 +24,9 @@ import org.exoplatform.social.core.storage.cache.model.key.ActivityKey;
 
 public class ActivityStreamOwnerCacheSelector extends CacheSelector<ActivityKey, ActivityData> {
 
-  private String streamOwner;
+  private static final long serialVersionUID = 1L;
+
+  private final String      streamOwner;
 
   public ActivityStreamOwnerCacheSelector(final String streamOwner) {
     if (streamOwner == null) {
@@ -36,16 +38,17 @@ public class ActivityStreamOwnerCacheSelector extends CacheSelector<ActivityKey,
 
   @Override
   public boolean select(final ActivityKey key, final ObjectCacheInfo<? extends ActivityData> ocinfo) {
-    if (!super.select(key, ocinfo)) {
-      return false;
-    }
-
     ActivityData data = ocinfo.get();
     if (streamOwner.equals(data.getStreamOwner())) {
       return true;
     }
 
     return false;
+  }
+
+  @Override
+  protected Object[] criteria() {
+    return new Object[] { streamOwner };
   }
 
 }
