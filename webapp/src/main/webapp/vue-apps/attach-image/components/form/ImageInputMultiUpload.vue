@@ -28,6 +28,10 @@
     @change="uploadFiles" />
 </template>
 <script>
+const UPLOAD_ERROR_KEY = 'attachment.errorUpload.label';
+// The message UploadService.getUploadProgress throws when the server reports the upload as failed
+const UPLOAD_FAILED_MESSAGE = 'Upload error';
+
 export default {
   props: {
     maxFileSize: {
@@ -42,6 +46,7 @@ export default {
   data: () => ({
     filesArray: [],
     display: true,
+    pendingUploads: [],
   }),
   watch: {
     filesArray() {
@@ -62,6 +67,8 @@ export default {
   },
   methods: {
     async reset() {
+      // an image dropped here stops its polling and frees the picker
+      this.filesArray.forEach(fileDetails => fileDetails.removed = true);
       this.filesArray = [];
       await this.refresh();
     },
@@ -76,7 +83,21 @@ export default {
       this.$uploadService.deleteUpload(uploadId);
     },
     triggerFileClickEvent() {
-      document.getElementById('attachedImagesField').click();
+      const input = document.getElementById('attachedImagesField');
+      // Every mounted instance hears the event and the id is the same in
+      // each: only the instance owning the input found acts on it.
+      if (!input || !this.$el?.contains?.(input)) {
+        return;
+      }
+      // Cleared here, when the picker opens, rather than re-created after a
+      // pick, so that picking the same image again is a change. This code
+      // never clears it while the request of an image still in the list is
+      // pending: on iOS Safari a picked photo may not stay readable once its
+      // input is cleared (inferred, not reproduced on a device).
+      if (!this.pendingUploads.some(fileDetails => !fileDetails.removed)) {
+        input.value = '';
+      }
+      input.click();
     },
     uploadFiles(files) {
       this.$root.$emit('close-alert-message');
@@ -121,33 +142,67 @@ export default {
           }
         });
         this.$emit('update-images', this.filesArray);
-        this.refresh();
       }
     },
     uploadFileToServer(file, fileDetails) {
-      try {
-        this.$uploadService.upload(file, fileDetails.uploadId)
-          .catch(error => this.handleUploadFileError(fileDetails, String(error)));
-        this.controlUpload(fileDetails);
-      } catch (e) {
-        this.handleUploadFileError(fileDetails, String(e));
-      }
+      fileDetails.uploadPending = true;
+      this.pendingUploads.push(fileDetails);
+      Promise.resolve().then(() => this.$uploadService.upload(file, fileDetails.uploadId))
+        .then(uploadId => {
+          if (!uploadId) {
+            throw new Error(UPLOAD_ERROR_KEY);
+          }
+          fileDetails.uploadAnswered = true;
+        })
+        .catch(() => this.handleUploadFileError(fileDetails))
+        .finally(() => {
+          fileDetails.uploadPending = false;
+          this.pendingUploads.splice(this.pendingUploads.indexOf(fileDetails), 1);
+        });
+      this.controlUpload(fileDetails);
     },
     controlUpload(fileDetails) {
       window.setTimeout(() => {
+        if (fileDetails.error || fileDetails.removed) {
+          return;
+        }
+        const sentWhileUploadPending = fileDetails.uploadPending;
+        const sentAfterUploadAnswered = fileDetails.uploadAnswered;
         this.$uploadService.getUploadProgress(fileDetails.uploadId)
           .then(percent => {
-            fileDetails.progress = Number(percent);
-            if (!fileDetails.error && (!fileDetails.progress || fileDetails.progress < 100)) {
+            if (fileDetails.error || fileDetails.removed) {
+              return;
+            }
+            // A poll reads 100 once the body has arrived, before the server
+            // has written and validated the file: only a poll sent after the
+            // upload request answered completes the image.
+            fileDetails.progress = sentAfterUploadAnswered ? Number(percent) : Math.min(Number(percent), 99);
+            if (!fileDetails.progress || fileDetails.progress < 100) {
               this.controlUpload(fileDetails);
+            }
+          })
+          .catch(error => {
+            if (fileDetails.error || fileDetails.removed) {
+              return;
+            } else if (sentWhileUploadPending && error?.message !== UPLOAD_FAILED_MESSAGE) {
+              // The server knows an upload only once its request reaches it,
+              // and a poll sent before then finds none; a late start (a slow
+              // network, a browser preparing the body) is the inferred cause of
+              // the iPhone uploads that stayed at 0%.
+              this.controlUpload(fileDetails);
+            } else {
+              this.handleUploadFileError(fileDetails);
             }
           });
       }, 200);
     },
-    handleUploadFileError(fileDetails, errorKey) {
+    handleUploadFileError(fileDetails) {
+      if (fileDetails.error || fileDetails.removed) {
+        return;
+      }
       fileDetails.error = true;
       this.$emit('delete', fileDetails);
-      this.$root.$emit('alert-message', this.$t(errorKey), 'error');
+      this.$root.$emit('alert-message', this.$t(UPLOAD_ERROR_KEY), 'error');
     },
     generateRandomUploadId() {
       const random = Math.round(Math.random() * 100000);
