@@ -57,6 +57,15 @@
         setData(evt);
       });
   
+      // Escapes a value written into a chip, as the content-link element does
+      function escapeHtml(text) {
+        return String(text || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
       function setData(evt) {
         const editor = evt.editor;
         if (editor.setDataInProgress) {
@@ -80,7 +89,7 @@
                 credentials: 'include',
               }).then(resp => resp?.ok && resp.json()).then(link => {
                 if (link) {
-                  textData = textData.replace(linkElement.outerHTML, `<a href="${link.uri}" target="_blank" data-object="${link.objectType}:${link.objectId}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${link.title}</a>`);
+                  textData = textData.replace(linkElement.outerHTML, `<a href="${escapeHtml(link.uri)}" target="_blank" data-object="${link.objectType}:${link.objectId}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${escapeHtml(link.title)}</a>`);
                 }
               });
             }
