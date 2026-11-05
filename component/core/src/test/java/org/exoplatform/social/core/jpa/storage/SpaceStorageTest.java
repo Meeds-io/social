@@ -32,6 +32,7 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.model.AvatarAttachment;
+import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -1570,6 +1571,27 @@ public class SpaceStorageTest extends AbstractCoreTest {
     spaceStorage.updateSpaceAccessed("ghost", space3);
 
     result = spaceStorage.getLastAccessedSpace(filter, 0, -1);
+    assertEquals(2, result.size());
+    assertEquals(space3.getId(), result.get(0).getId());
+  }
+
+  public void testMemberSpacesSortedByLastVisitFollowAVisit() throws Exception {
+    Space space2 = getSpaceInstance(7);
+    spaceStorage.saveSpace(space2, true);
+    Space space3 = getSpaceInstance(8);
+    spaceStorage.saveSpace(space3, true);
+
+    SpaceFilter filter = new SpaceFilter();
+    filter.setSorting(new Sorting(Sorting.SortBy.LASTVISITED, Sorting.OrderBy.DESC));
+
+    List<Space> result = spaceStorage.getMemberSpacesByFilter("ghost", filter, 0, -1);
+    assertEquals(2, result.size());
+    assertEquals(space2.getId(), result.get(0).getId());
+
+    restartTransaction();
+    spaceStorage.updateSpaceAccessed("ghost", space3);
+
+    result = spaceStorage.getMemberSpacesByFilter("ghost", filter, 0, -1);
     assertEquals(2, result.size());
     assertEquals(space3.getId(), result.get(0).getId());
   }

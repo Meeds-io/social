@@ -32,6 +32,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import org.exoplatform.social.core.search.Sorting;
+import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.storage.cache.model.key.ListSpacesKey;
 import org.exoplatform.social.core.storage.cache.model.key.SpaceFilterKey;
 import org.exoplatform.social.core.storage.cache.model.key.SpaceType;
@@ -77,6 +79,21 @@ public class CacheSelectorTest {
     assertFalse(selector.select(new ListSpacesKey(new SpaceFilterKey("mary", null, SpaceType.LATEST_ACCESSED), 0, 10),
                                 null));
     assertFalse(selector.select(new ListSpacesKey(new SpaceFilterKey("john", null, SpaceType.MEMBER), 0, 10), null));
+  }
+
+  @Test
+  public void testLastAccessedSelectionSelectsTheMemberListsSortedByLastVisit() {
+    LastAccessedSpacesCacheSelector selector = new LastAccessedSpacesCacheSelector("john");
+
+    assertTrue(selector.select(memberSpaces("john", Sorting.SortBy.LASTVISITED), null));
+    assertFalse(selector.select(memberSpaces("john", Sorting.SortBy.TITLE), null));
+    assertFalse(selector.select(memberSpaces("mary", Sorting.SortBy.LASTVISITED), null));
+  }
+
+  private static ListSpacesKey memberSpaces(String userId, Sorting.SortBy sortBy) {
+    SpaceFilter filter = new SpaceFilter();
+    filter.setSorting(new Sorting(sortBy, Sorting.OrderBy.DESC));
+    return new ListSpacesKey(new SpaceFilterKey(userId, filter, SpaceType.MEMBER), 0, 10);
   }
 
   private static Object overTheWire(Object value) throws IOException, ClassNotFoundException {
