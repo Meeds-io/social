@@ -2,6 +2,11 @@ import UsersManagement from './components/UsersManagement.vue';
 import UsersManagementList from './components/UsersManagementList.vue';
 import UsersManagementToolbar from './components/UsersManagementToolbar.vue';
 import UsersManagementUserFormDrawer from './components/UsersManagementUserFormDrawer.vue';
+import UsersManagementCreationDrawer from './components/UsersManagementCreationDrawer.vue';
+import UsersManagementCreationProfileStep from './components/creation/UsersManagementCreationProfileStep.vue';
+import UsersManagementCreationRoleStep from './components/creation/UsersManagementCreationRoleStep.vue';
+import UsersManagementCreationInvitationStep from './components/creation/UsersManagementCreationInvitationStep.vue';
+import UsersManagementCreationOutcomes from './components/creation/UsersManagementCreationOutcomes.vue';
 import UsersManagementUserMembershipDrawer from './components/UsersManagementUserMembershipDrawer.vue';
 import UsersManagementImportCSVButton from './components/UsersManagementImportCSVButton.vue';
 import UsersManagementImportCSVErrorMessage from './components/UsersManagementImportCSVErrorMessage.vue';
@@ -9,12 +14,21 @@ import UsersManagementImportCSVResult from './components/UsersManagementImportCS
 import UsersManagementExportCSVResult from './components/UsersManagementExportCSVResult.vue';
 import UsersManagementFilterDrawer from './components/UsersManagementFilterDrawer.vue';
 import UsersManagementItemMenu from './components/UsersManagementItemMenu.vue';
+import UsersManagementOnboardDrawer from './components/UsersManagementOnboardDrawer.vue';
+import UsersManagementPendingUsersDrawer from './components/UsersManagementPendingUsersDrawer.vue';
+import UsersManagementPendingUsersReminders from './components/UsersManagementPendingUsersReminders.vue';
+import UsersManagementOnboardingEmailForm from './components/onboarding/UsersManagementOnboardingEmailForm.vue';
 
 const components = {
   'users-management': UsersManagement,
   'users-management-list': UsersManagementList,
   'users-management-toolbar': UsersManagementToolbar,
   'users-management-user-form-drawer': UsersManagementUserFormDrawer,
+  'users-management-creation-drawer': UsersManagementCreationDrawer,
+  'users-management-creation-profile-step': UsersManagementCreationProfileStep,
+  'users-management-creation-role-step': UsersManagementCreationRoleStep,
+  'users-management-creation-invitation-step': UsersManagementCreationInvitationStep,
+  'users-management-creation-outcomes': UsersManagementCreationOutcomes,
   'users-management-user-membership-drawer': UsersManagementUserMembershipDrawer,
   'users-management-import-csv-button': UsersManagementImportCSVButton,
   'users-management-import-csv-result': UsersManagementImportCSVResult,
@@ -22,6 +36,10 @@ const components = {
   'users-management-export-csv-result': UsersManagementExportCSVResult,
   'users-management-filter-drawer': UsersManagementFilterDrawer,
   'users-management-item-menu': UsersManagementItemMenu,
+  'users-management-onboard-drawer': UsersManagementOnboardDrawer,
+  'users-management-pending-users-drawer': UsersManagementPendingUsersDrawer,
+  'users-management-pending-users-reminders': UsersManagementPendingUsersReminders,
+  'users-management-onboarding-email-form': UsersManagementOnboardingEmailForm,
 };
 
 for (const key in components) {

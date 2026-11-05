@@ -62,6 +62,7 @@
           <v-icon class="me-2" size="18">fa-file-excel</v-icon>
           {{ $t('UsersManagement.selection.export') }}
         </v-btn>
+        <users-management-pending-users-reminders v-show="!disabledUsers" />
         <template v-if="usersSelected">
           <v-btn
             outlined

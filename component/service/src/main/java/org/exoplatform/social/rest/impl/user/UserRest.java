@@ -68,6 +68,8 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.organization.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,12 +86,17 @@ import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.commons.utils.HTMLSanitizer;
+import org.exoplatform.portal.Constants;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.application.localization.LocalizationFilter;
+import org.exoplatform.portal.rest.UserAccountConfirmation;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.idm.UserImpl;
+import org.exoplatform.services.organization.idm.cache.CacheableUserHandlerImpl;
+import org.exoplatform.services.resources.LocaleConfig;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.http.PATCH;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -123,13 +130,13 @@ import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ExperienceEntity;
 import org.exoplatform.social.rest.entity.IMEntity;
+import org.exoplatform.social.rest.entity.OnboardingEmailEntity;
 import org.exoplatform.social.rest.entity.PhoneEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.social.rest.entity.URLEntity;
 import org.exoplatform.social.rest.entity.UserEntity;
-import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
@@ -162,6 +169,12 @@ import lombok.SneakyThrows;
 @Tag(name = VersionResources.VERSION_ONE +
     "/social/users", description = "Operations on users with their activities, connections and spaces")
 public class UserRest implements ResourceContainer, Startable {
+
+  private static final String EMAIL_OTP_METHOD             = "email";
+
+  private static final String BULK_ENABLE                  = "enable";
+
+  private static final String BULK_DISABLE                 = "disable";
 
   private static final String UPLOAD_ID_PROGRESS_NOT_FOUND = "UPLOAD_ID_PROGRESS:NOT_FOUND";
 
@@ -228,6 +241,16 @@ public class UserRest implements ResourceContainer, Startable {
   private static final UserFieldValidator FIRSTNAME_VALIDATOR         = new UserFieldValidator("firstName", false, true);
 
   private static final UserFieldValidator PASSWORD_VALIDATOR          = new UserFieldValidator("password", false, false, 8, 255);
+
+  /**
+   * Code answered as 400 when the onboarding message exceeds its limit
+   */
+  public static final String              MESSAGE_TOO_LONG            = "MESSAGE:TOO_LONG";
+
+  /**
+   * Code answered as 500 when the onboarding email could not be sent
+   */
+  public static final String              ONBOARDING_SEND_FAILED      = "ONBOARDING:SEND_FAILED";
 
   private UserACL                         userACL;
 
@@ -689,6 +712,9 @@ public class UserRest implements ResourceContainer, Startable {
                               "<br />\"firstname\": \"John\"," +
                               "<br />\"lastname\": \"Smith\"<br />}", required = true)
                           UserEntity model) throws Exception {
+    if (!UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
     if (model.isNotValid()) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
@@ -1138,6 +1164,9 @@ public class UserRest implements ResourceContainer, Startable {
     if (!StringUtils.equals(currentUser, username) && !RestUtils.isMemberOfAdminGroup()) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
+    if (!StringUtils.equals(currentUser, username) && !UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
 
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
 
@@ -1158,7 +1187,7 @@ public class UserRest implements ResourceContainer, Startable {
         }
       }
       if (Profile.EMAIL.equals(fieldName)) {
-        Response response = checkEmail(username, value, otpMethod, otpCode, locale);
+        Response response = checkEmail(username, value, otpCode, locale);
         if (response != null) {
           return response;
         }
@@ -1170,6 +1199,9 @@ public class UserRest implements ResourceContainer, Startable {
         identityManager.updateProfile(profile, getCurrentUser(), true);
       } else {
         updateProfileField(profile, fieldName, value, true,currentUser);
+        if (Profile.EMAIL.equals(fieldName)) {
+          consumeEmailOtp(username, otpCode);
+        }
       }
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attribute {}", currentUser, name);
@@ -1215,6 +1247,9 @@ public class UserRest implements ResourceContainer, Startable {
     if (!StringUtils.equals(currentUser, username) && !RestUtils.isMemberOfAdminGroup()) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
+    if (!StringUtils.equals(currentUser, username) && !UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
 
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
 
@@ -1235,9 +1270,9 @@ public class UserRest implements ResourceContainer, Startable {
       }
     }
     Identity identity = identityManager.getOrCreateUserIdentity(username);
-    if (email != null
-        && !StringUtils.equals(email, identity.getProfile().getEmail())) {
-      Response response = checkEmail(username, email, otpMethod, otpCode, locale);
+    boolean emailChange = email != null && !StringUtils.equals(email, identity.getProfile().getEmail());
+    if (emailChange) {
+      Response response = checkEmail(username, email, otpCode, locale);
       if (response != null) {
         return response;
       }
@@ -1246,6 +1281,9 @@ public class UserRest implements ResourceContainer, Startable {
     try {
       Map<String, Object> userProfileProperties = extractPropertiesFromEntities(profileEntity);
       saveProfile(username, userProfileProperties, currentUser);
+      if (emailChange) {
+        consumeEmailOtp(username, otpCode);
+      }
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attributes", currentUser);
       return Response.status(Status.UNAUTHORIZED).build();
@@ -1319,6 +1357,9 @@ public class UserRest implements ResourceContainer, Startable {
     if (!StringUtils.equals(currentUser, username) && !RestUtils.isMemberOfAdminGroup()) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
+    if (!StringUtils.equals(currentUser, username) && !UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
     Identity userIdentity = getUserIdentity(username);
     Profile profile = userIdentity.getProfile();
@@ -1382,6 +1423,8 @@ public class UserRest implements ResourceContainer, Startable {
   public Response deleteUserById(
                                  @Context
                                  UriInfo uriInfo,
+                                 @Context
+                                 HttpServletRequest request,
                                  @Parameter(description = "User name", required = true)
                                  @PathParam("id")
                                  String id,
@@ -1391,6 +1434,9 @@ public class UserRest implements ResourceContainer, Startable {
     // Check permission of current user
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
+    if (!UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
     }
     // an admin never deletes the account being used to perform the deletion
     if (StringUtils.equals(id, getCurrentUser())) {
@@ -1470,14 +1516,35 @@ public class UserRest implements ResourceContainer, Startable {
   @Path("onboard/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(summary = "Send onBoarding email to a specific user", method = "PATCH", description = "This send onBoarding email to a specific user.")
+  @Operation(summary = "Send onBoarding email to a specific user",
+             method = "PATCH",
+             description = "Sends the onboarding email to a user, in the user's preferred language, with the message"
+                 + " the administrator wrote above the link when the body carries one: HTML, sanitized, its text"
+                 + " 500 characters at most")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Email sent"),
+      @ApiResponse(responseCode = "400", description = "Unknown user, or message too long: MESSAGE:TOO_LONG"),
+      @ApiResponse(responseCode = "500", description = "The email could not be sent: ONBOARDING:SEND_FAILED"),
+  })
   public Response sendOnBoardingEmail(@Context
   HttpServletRequest request,
                                       @Parameter(description = "User name", required = true)
                                       @PathParam("id")
-                                      String id) throws Exception {
+                                      String id,
+                                      @RequestBody(description = "The message shown above the link, optional")
+                                      OnboardingEmailEntity onboardingEmail) throws Exception {
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
+    // The message is the rich editor's HTML: sanitized here, its text
+    // counted, so that the email carries only what the editor offers
+    String message = onboardingEmail == null || StringUtils.isBlank(onboardingEmail.getMessage()) ? null
+                                                                                                   : HTMLSanitizer.sanitize(onboardingEmail.getMessage());
+    if (message != null && Jsoup.parse(message).text().length() > OnboardingEmailEntity.MESSAGE_MAX_LENGTH) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(MESSAGE_TOO_LONG).build();
+    }
+    if (message != null && StringUtils.isBlank(Jsoup.parse(message).text())) {
+      message = null;
     }
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.findUserByName(id);
@@ -1485,7 +1552,9 @@ public class UserRest implements ResourceContainer, Startable {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
     String url = getUrl(request);
-    sendOnBoardingEmail((UserImpl) user, new StringBuilder(url));
+    if (!sendOnBoardingEmail((UserImpl) user, new StringBuilder(url), message)) {
+      return Response.serverError().entity(ONBOARDING_SEND_FAILED).build();
+    }
     return Response.ok().build();
   }
 
@@ -1505,6 +1574,11 @@ public class UserRest implements ResourceContainer, Startable {
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
+    // Enabling is guarded like disabling: an unattended session could
+    // otherwise re-enable an account it holds the credentials of
+    if ((BULK_ENABLE.equals(action) || BULK_DISABLE.equals(action)) && !UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
     String currentUsername = request.getRemoteUser();
     List<String> updatedUsers = new ArrayList<>();
     switch (action) {
@@ -1514,12 +1588,12 @@ public class UserRest implements ResourceContainer, Startable {
         onboardUser(username, updatedUsers, url);
       }
       break;
-    case "enable":
+    case BULK_ENABLE:
       for (String username : users) {
         enableUser(username, updatedUsers);
       }
       break;
-    case "disable":
+    case BULK_DISABLE:
       for (String username : users) {
         disableUser(username, updatedUsers, currentUsername);
       }
@@ -1841,6 +1915,11 @@ public class UserRest implements ResourceContainer, Startable {
     if (StringUtils.isBlank(uploadId)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("UPLOAD_ID:MANDATORY").build();
     }
+    // Starting an import updates existing accounts: names, email, enabled
+    // flag, profile properties and group memberships
+    if (!clean && !progress && !UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
 
     Locale locale = request.getLocale();
     String url = getUrl(request);
@@ -2037,14 +2116,22 @@ public class UserRest implements ResourceContainer, Startable {
     return builder;
   }
 
-  private void sendOnBoardingEmail(UserImpl user, StringBuilder url) throws IllegalAccessException {
-    Locale locale = localeConfigService.getDefaultLocaleConfig().getLocale();
-    boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
+  /**
+   * Sends the onboarding email in the user's preferred language, the
+   * platform's default one when none is stored, and stamps the enrollment
+   * date only once the email was sent
+   *
+   * @return true when the email was sent
+   */
+  private boolean sendOnBoardingEmail(UserImpl user, StringBuilder url, String message) throws IllegalAccessException {
+    Locale locale = getUserLocale(user.getUserName());
+    boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url, message);
     if (onBoardingEmailSent) {
       Identity userIdentity = identityManager.getOrCreateUserIdentity(user.getUserName());
       Profile profile = userIdentity.getProfile();
       updateProfileField(profile, Profile.ENROLLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true,null);
     }
+    return onBoardingEmailSent;
   }
 
   @SneakyThrows
@@ -2053,7 +2140,7 @@ public class UserRest implements ResourceContainer, Startable {
                                   Object value,
                                   boolean save,
                                   String modifierUsername) throws IllegalAccessException {
-    ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name);
+    ProfilePropertySetting propertySetting = getPropertySetting(name);
     if (propertySetting != null && !propertySetting.isEditable() && (modifierUsername==null || !userACL.getUserIdentity(modifierUsername).isMemberOf(userACL.getAdminGroups()))) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
     } else if (Profile.EXTERNAL.equals(name)) {
@@ -2098,14 +2185,31 @@ public class UserRest implements ResourceContainer, Startable {
     }
   }
 
-  private Response checkEmail(String username, String email, String otpMethod, String otpCode, Locale locale) throws Exception {
+  /**
+   * Looks the setting up among the stored settings: a by-name lookup would
+   * cache a miss for every request-supplied name that is no setting
+   */
+  private ProfilePropertySetting getPropertySetting(String name) {
+    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
+    return settings == null ? null
+                            : settings.stream()
+                                      .filter(setting -> StringUtils.equals(setting.getPropertyName(), name))
+                                      .findFirst()
+                                      .orElse(null);
+  }
+
+  /**
+   * Validates the code of an email change, always with the email method:
+   * the method a client names is ignored, so a code sent for another flow
+   * never confirms an email change. The code is consumed by
+   * {@link #consumeEmailOtp(String, String)} once the change is written.
+   */
+  private Response checkEmail(String username, String email, String otpCode, Locale locale) throws Exception {
     if (StringUtils.isBlank(otpCode)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_MANDATORY").build();
-    } else if (StringUtils.isBlank(otpMethod)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_METHOD_MANDATORY").build();
     }
     try {
-      otpService.validateOtp(username, otpMethod, otpCode);
+      otpService.validateOtp(username, EMAIL_OTP_METHOD, otpCode);
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_WRONG").build();
     }
@@ -2120,49 +2224,120 @@ public class UserRest implements ResourceContainer, Startable {
     return null;
   }
 
-  @SneakyThrows
-  private void onboardUser(String username, List<String> updatedUsers, String url) throws IllegalAccessException {
-    UserHandler userHandler = organizationService.getUserHandler();
-    User user = userHandler.findUserByName(username);
-    if (user == null) {
-      LOG.warn("Cannot find user by username {} for onboarding, he is disabled or not existing", username);
-    } else {
+  /**
+   * Consumes the code of an email change once the change is written, so that
+   * it never confirms another one, while a refused request burns nothing.
+   * When another request consumed it in between, this change stands.
+   */
+  private void consumeEmailOtp(String username, String otpCode) {
+    if (!otpService.consumeOtp(username, EMAIL_OTP_METHOD, otpCode)) {
+      LOG.warn("The email change code of user {} was consumed by another request while this change was written", username);
+    }
+  }
+
+  /**
+   * Sends the onboarding email to one user of the bulk action, after reading
+   * the account again: enabled, and never signed in by the social profile's
+   * last login time, the source of the row's Onboard action and of the users
+   * list's connection filter. External users are onboarded like the others.
+   * The check and the send are two reads apart: a sign-in between them still
+   * receives the email. A failure on one user is logged and leaves that user
+   * out, so the users already emailed stay listed and the rest are tried
+   */
+  private void onboardUser(String username, List<String> updatedUsers, String url) {
+    try {
+      UserHandler userHandler = organizationService.getUserHandler();
+      User user = userHandler.findUserByName(username);
+      if (user == null) {
+        LOG.warn("Cannot find user by username {} for onboarding, he is disabled or not existing", username);
+        return;
+      }
       Identity identity = identityManager.getOrCreateUserIdentity(username);
-      if (Util.isExternal(identity.getId())) {
-        LOG.warn("User {} is external, he cannot be enrolled.", username);
-      } else if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
+      if (identity.getProfile().getProperty(Profile.LAST_LOGIN_TIME) != null) {
         LOG.warn("User {} is already logged in, he cannot be enrolled", username);
-      } else {
-        sendOnBoardingEmail((UserImpl) user, new StringBuilder(url));
+      } else if (sendOnBoardingEmail((UserImpl) user, new StringBuilder(url), null)) {
         updatedUsers.add(username);
       }
+    } catch (Exception e) {
+      LOG.warn("The onboarding email of {} could not be sent, the user is left out of the updated users", username, e);
     }
   }
 
-  private void enableUser(String username, List<String> updatedUsers) throws Exception {
-    UserHandler userHandler = organizationService.getUserHandler();
-    User user = userHandler.findUserByName(username, UserStatus.DISABLED);
-    if (user == null) {
-      LOG.warn("Username {} is not found in disabled user list. He does not exists, or he is already enabled", username);
-    } else {
-      organizationService.getUserHandler().setEnabled(username, true, true);
-      updatedUsers.add(username);
+  private void enableUser(String username, List<String> updatedUsers) {
+    try {
+      UserHandler userHandler = organizationService.getUserHandler();
+      User user = userHandler.findUserByName(username, UserStatus.DISABLED);
+      if (user == null) {
+        LOG.warn("Username {} is not found in disabled user list. He does not exists, or he is already enabled", username);
+      } else {
+        organizationService.getUserHandler().setEnabled(username, true, true);
+        addWhenStatusHolds(username, true, updatedUsers);
+      }
+    } catch (Exception e) {
+      LOG.warn("The account {} could not be enabled, the user is left out of the updated users", username, e);
     }
   }
 
-  private void disableUser(String username, List<String> updatedUsers, String currentUsername) throws Exception {
-    UserHandler userHandler = organizationService.getUserHandler();
-    User user = userHandler.findUserByName(username, UserStatus.ENABLED);
-    if (user == null) {
-      LOG.warn("Username {} is not found in enabled user list. He does not exists, or he is already disabled", username);
-    } else if (StringUtils.equals(currentUsername, user.getUserName())) {
-      LOG.warn("User {} tries to suspend his own account. Not allowed", currentUsername);
-    } else if (StringUtils.equals(userACL.getSuperUser(), user.getUserName())) {
-      LOG.warn("Try to suspend superuser account {}. Not allowed", username);
-    } else {
-      organizationService.getUserHandler().setEnabled(username, false, true);
-      updatedUsers.add(username);
+  private void disableUser(String username, List<String> updatedUsers, String currentUsername) {
+    try {
+      UserHandler userHandler = organizationService.getUserHandler();
+      User user = userHandler.findUserByName(username, UserStatus.ENABLED);
+      if (user == null) {
+        LOG.warn("Username {} is not found in enabled user list. He does not exists, or he is already disabled", username);
+      } else if (StringUtils.equals(currentUsername, user.getUserName())) {
+        LOG.warn("User {} tries to suspend his own account. Not allowed", currentUsername);
+      } else if (StringUtils.equals(userACL.getSuperUser(), user.getUserName())) {
+        LOG.warn("Try to suspend superuser account {}. Not allowed", username);
+      } else {
+        organizationService.getUserHandler().setEnabled(username, false, true);
+        addWhenStatusHolds(username, false, updatedUsers);
+      }
+    } catch (Exception e) {
+      LOG.warn("The account {} could not be deactivated, the user is left out of the updated users", username, e);
     }
+  }
+
+  /**
+   * Lists a user as updated only once the status reads back as requested, in
+   * a new transaction: the store swallows a failed write, and writes nothing
+   * when the deactivation option of the identity store is off
+   */
+  private void addWhenStatusHolds(String username, boolean enabled, List<String> updatedUsers) throws Exception {
+    RequestLifeCycle.restartTransaction();
+    UserHandler userHandler = organizationService.getUserHandler();
+    if (userHandler instanceof CacheableUserHandlerImpl cachedUsers) {
+      cachedUsers.clearCache(username);
+    }
+    User stored = userHandler.findUserByName(username, UserStatus.ANY);
+    if (stored != null && stored.isEnabled() == enabled) {
+      updatedUsers.add(username);
+    } else {
+      LOG.error("User {} reads back {} after being {}: left out of the updated users",
+                username,
+                stored == null ? "missing" : (stored.isEnabled() ? "enabled" : "deactivated"),
+                enabled ? "enabled" : "deactivated");
+    }
+  }
+
+  /**
+   * The locale an email to the user is written in: the preferred language
+   * stored on the user's profile when it names a supported locale, the
+   * platform's default one otherwise
+   */
+  private Locale getUserLocale(String username) {
+    try {
+      UserProfile profile = organizationService.getUserProfileHandler().findUserProfileByName(username);
+      String language = profile == null ? null : profile.getAttribute(Constants.USER_LANGUAGE);
+      if (StringUtils.isNotBlank(language)) {
+        LocaleConfig localeConfig = localeConfigService.getLocaleConfig(language);
+        if (localeConfig != null && localeConfig.getLocale() != null) {
+          return localeConfig.getLocale();
+        }
+      }
+    } catch (Exception e) {
+      LOG.debug("The preferred language of {} could not be read, the default one is used", username, e);
+    }
+    return localeConfigService.getDefaultLocaleConfig().getLocale();
   }
 
   private String getUrl(HttpServletRequest request) {

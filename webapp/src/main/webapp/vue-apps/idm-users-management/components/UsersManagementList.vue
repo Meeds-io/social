@@ -14,6 +14,7 @@
       :title="$t('UsersManagement.title.deleteCurrentUserWarning')"
       :ok-label="$t('UsersManagement.button.ok')" />
     <v-data-table
+      id="usersManagementTable"
       v-model="selectedUsers"
       :headers="headers"
       :items="filteredUsers"
@@ -77,7 +78,7 @@
       <template #item.actions="{ item }">
         <users-management-item-menu
           :item="item"
-          @onboard="sendOnBoardingEmail(item.username)"
+          @onboard="$root.$emit('openOnboardUser', item)"
           @enable="saveUserStatus(item, true)"
           @disable="saveUserStatus(item, false)"
           @delete="deleteUser(item)" />
@@ -163,21 +164,8 @@ export default {
     },
     headers() {
       return [{
-        text: this.$t && this.$t('UsersManagement.userName'),
-        value: 'userName',
-        align: 'center',
-        class: 'px-2',
-        sortable: false,
-        show: !this.$root.isMobile
-      }, {
-        text: this.$t && this.$t('UsersManagement.firstName'),
-        value: 'firstName',
-        align: 'center',
-        class: 'px-2',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.lastName'),
-        value: 'lastName',
+        text: this.$t && this.$t('UsersManagement.fullName'),
+        value: 'fullname',
         align: 'center',
         class: 'px-2',
         sortable: false,
@@ -268,15 +256,31 @@ export default {
         for (let i = 0; i < this.selectedUsers.length; i++) {
           selectedUsers.push(this.selectedUsers[i].userName);
         }
+        const selection = this.selectedUsers;
         this.selectedUsers = [];
         this.loading = true;
         this.$userService.multiSelectAction(action, selectedUsers)
           .then(data => {
-            if (data.length > 0) {
+            // The server lists the users it updated, each read back
+            if (data.length === selectedUsers.length) {
               this.$root.$emit('alert-message', `UsersManagement.selection.success.${action}`, 'success');
+            } else {
+              const partialKey = action === 'onboard' ? 'UsersManagement.selection.partial.onboard' : 'UsersManagement.selection.partial';
+              this.$root.$emit('alert-message', this.$t(partialKey, {0: data.length, 1: selectedUsers.length}), 'warning');
+            }
+            if (data.length > 0) {
+              this.$root.$emit('pending-users-changed');
             }
           })
           .then(this.searchUsers)
+          .catch(error => {
+            if (this.$userAccountConfirmationService.isCancelled(error)) {
+              // Nothing was applied: the administrator keeps the selection
+              this.selectedUsers = selection;
+            } else {
+              throw error;
+            }
+          })
           .finally(() => this.loading = false);
       }
     },
@@ -313,7 +317,7 @@ export default {
       this.loading = true;
       const self = this;
       const userNameDeleted = this.selectedUser.userName ;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${userNameDeleted}`, {
+      return this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${userNameDeleted}`, {
         method: 'DELETE',
         credentials: 'include',
       })
@@ -328,9 +332,13 @@ export default {
             }
           } else {
             self.users = self.users.filter(u => u.userName !== userNameDeleted);
+            this.$root.$emit('pending-users-changed');
           }
         })
         .catch(error => {
+          if (this.$userAccountConfirmationService.isCancelled(error)) {
+            return;
+          }
           error = error.message || String(error);
           const errorI18NKey = `UsersManagement.error.${error}`;
           const errorI18N = this.$t(errorI18NKey, {0: this.selectedUser.fullname});
@@ -376,6 +384,12 @@ export default {
             }
             if (user.lastLoginTime) {
               user.lastLoginTime = Number(user.lastLoginTime);
+            } else {
+              user.connectionStatus = this.$t('UsersManagement.lastConnection.neverConnected');
+            }
+            // Onboarding follows the same "never signed in" source as the
+            // Pending Users tabs, whatever the account's type
+            if (!user.neverConnected) {
               if (user.enrollmentDate != null) {
                 user.enrollmentStatus = 'invitationAccepted';
                 user.enrollmentDetails= this.$t('UsersManagement.enrollment.invitationAccepted', {0: this.formatDate(Number(user.enrollmentDate))});
@@ -383,18 +397,12 @@ export default {
                 user.enrollmentStatus = 'alreadyConnected';
                 user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
               }
+            } else if (user.enrollmentDate != null) {
+              user.enrollmentStatus = 'reInviteToJoin';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
             } else {
-              user.connectionStatus = this.$t('UsersManagement.lastConnection.neverConnected');
-              if (user.external === 'true') {
-                user.enrollmentStatus = 'cannotBeEnrolled';
-                user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
-              } else if (user.enrollmentDate != null) {
-                user.enrollmentStatus = 'reInviteToJoin';
-                user.enrollmentDetails = this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
-              } else {
-                user.enrollmentStatus = 'inviteToJoin';
-                user.enrollmentDetails = this.$t('UsersManagement.enrollment.inviteToJoin');
-              }
+              user.enrollmentStatus = 'inviteToJoin';
+              user.enrollmentDetails = this.$t('UsersManagement.enrollment.inviteToJoin');
             }
           });
           this.users = entities;
@@ -413,7 +421,7 @@ export default {
         enabled: enabled,
       };
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users`, {
+      return this.$userAccountConfirmationService.confirmedFetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users`, {
         method: 'PUT',
         credentials: 'include',
         headers: {
@@ -435,31 +443,31 @@ export default {
                 this.error = null;
               }, 5000);
             });
+          } else if (resp.status === 500) {
+            // A status the server could not prove: the table shows the
+            // stored one once refreshed
+            return resp.text().then(code => {
+              const key = `UsersManagement.edit.error.${(code || '').replace(/:/g, '.')}`;
+              const label = this.$t(key);
+              this.$root.$emit('alert-message', label === key ? this.$t('IDMManagement.error.UnknownServerError') : label, 'error');
+            });
           } else {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
+        } else {
+          this.$root.$emit('pending-users-changed');
         }
       })
         .then(this.searchUsers)
+        .catch(error => {
+          if (!this.$userAccountConfirmationService.isCancelled(error)) {
+            throw error;
+          }
+        })
         .finally(() => this.loading = false);
     },
     formatDate(time) {
       return this.$dateUtil.formatDateObjectToDisplay(new Date(time),this.fullDateFormat, this.lang);
-    },
-    sendOnBoardingEmail(username) {
-      this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/onboard/${username}`, {
-        method: 'PATCH',
-        credentials: 'include',
-      })
-        .then((resp) => {
-          if (!resp?.ok) {
-            throw new Error('Error sending onBoarding email');
-          }
-        })
-        .then(this.$nextTick)
-        .then(this.searchUsers)
-        .finally(() => this.loading = false);
     },
     applyAdvancedFilter(filter) {
       this.filter = filter;

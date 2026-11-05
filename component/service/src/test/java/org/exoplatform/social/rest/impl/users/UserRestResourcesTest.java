@@ -27,6 +27,7 @@ import io.meeds.web.security.service.OtpService;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,7 +58,11 @@ import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.rest.UserAccountConfirmation;
+import org.exoplatform.portal.rest.UserAccountConfirmationSettings;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
@@ -92,6 +97,17 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
+import org.exoplatform.services.organization.UserProfileHandler;
+import org.exoplatform.services.organization.UserProfile;
+import java.util.Locale;
+import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.idm.UserImpl;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.exoplatform.services.organization.idm.cache.CacheableUserHandlerImpl;
+import org.mockito.ArgumentCaptor;
+import org.exoplatform.social.rest.api.EntityBuilder;
+import org.exoplatform.social.rest.entity.OnboardingEmailEntity;
+import org.exoplatform.portal.Constants;
 import org.exoplatform.ws.frameworks.cometd.ContinuationService;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -159,6 +175,10 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private List<ProfilePropertySetting> tearDownProfilePropertyList = new ArrayList<>();
 
+  private UserAccountConfirmationSettings confirmationSettings;
+
+  private ProfilePropertyService       profilePropertyServiceSpy;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
@@ -191,6 +211,17 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
     settingService = getContainer().getComponentInstanceOfType(SettingService.class);
     otpService = mock(OtpService.class);
+    profilePropertyServiceSpy = spy(profilePropertyService);
+    // The confirmation guard is switched off for the tests of the endpoints'
+    // own behaviour; the guard tests switch it back on
+    InitParams confirmationParams = new InitParams();
+    ValueParam enabledParam = new ValueParam();
+    enabledParam.setName(UserAccountConfirmationSettings.ENABLED_PARAM);
+    enabledParam.setValue("false");
+    confirmationParams.addParameter(enabledParam);
+    confirmationSettings = new UserAccountConfirmationSettings(confirmationParams, organizationService, userACL);
+    getContainer().registerComponentInstance(UserAccountConfirmationSettings.class, confirmationSettings);
+    confirmedSessionUser = null;
     rootIdentity = createIdentity("root");
     johnIdentity = createIdentity("john");
     maryIdentity = createIdentity("mary");
@@ -210,7 +241,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 userExportService,
                                                 userImportService,
                                                 imageThumbnailService,
-                                                profilePropertyService,
+                                                profilePropertyServiceSpy,
                                                 passwordRecoveryService,
                                                 localeConfigService,
                                                 settingService,
@@ -219,6 +250,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   public void tearDown() throws Exception {
+    getContainer().unregisterComponent(UserAccountConfirmationSettings.class);
+    confirmedSessionUser = null;
     super.tearDown();
     for (ProfilePropertySetting propertySetting : tearDownProfilePropertyList) {
       profilePropertyService.deleteProfilePropertySetting(propertySetting.getId());
@@ -1534,6 +1567,598 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
     endSession();
+  }
+
+  public void testAccountWritesRequireConfirmedSession() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+
+    byte[] userData = ("{\"username\":\"guarded.user\",\"password\":\"Passw0rd!\",\"email\":\"guarded.user@exoplatform.com\","
+        + "\"firstname\":\"Guarded\",\"lastname\":\"User\"}").getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> jsonHeaders = new MultivaluedMapImpl();
+    jsonHeaders.putSingle("content-type", "application/json");
+    jsonHeaders.putSingle("content-length", "" + userData.length);
+    ContainerResponse response = service("POST", getURLResource("users"), "", jsonHeaders, userData, "root");
+    assertOtpRequired(response);
+    assertNull(organizationService.getUserHandler().findUserByName("guarded.user", UserStatus.ANY));
+
+    response = service("DELETE", getURLResource("users/john"), "", null, null, "root");
+    assertOtpRequired(response);
+    assertNotNull(organizationService.getUserHandler().findUserByName("john", UserStatus.ANY));
+
+    byte[] users = "[\"john\"]".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+    listHeaders.putSingle("content-type", "application/json");
+    response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
+    assertOtpRequired(response);
+    assertTrue(organizationService.getUserHandler().findUserByName("john", UserStatus.ANY).isEnabled());
+    response = service("PATCH", getURLResource("users/bulk/enable"), "", listHeaders, users, "root");
+    assertOtpRequired(response);
+    // Sending the onboarding email alters no account
+    response = service("PATCH", getURLResource("users/bulk/onboard"), "", listHeaders, users, "root");
+    assertNotOtpRequired(response);
+
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    Object firstName = identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.FIRST_NAME);
+    response = service("PATCH", getURLResource("users/john"), "", formHeaders, "name=firstName&value=Johnny".getBytes(), "root");
+    assertOtpRequired(response);
+    assertEquals(firstName, identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.FIRST_NAME));
+
+    response = getResponseAs("PATCH", "/v1/social/users/john/profile", "{\"firstname\":\"Johnny\"}", "root");
+    assertOtpRequired(response);
+    response = getResponseAs("PATCH",
+                             "/v1/social/users/john/profile/properties",
+                             "[{\"propertyName\":\"firstName\",\"value\":\"Johnny\",\"children\":[]}]",
+                             "root");
+    assertOtpRequired(response);
+  }
+
+  public void testAccountWritesPassFromConfirmedSession() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    confirmedSessionUser = "root";
+
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=firstName&value=Johnny".getBytes(),
+                                         "root");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+
+    byte[] users = "[\"john\"]".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+    listHeaders.putSingle("content-type", "application/json");
+    try {
+      response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of("john"), response.getEntity());
+      assertFalse(organizationService.getUserHandler().findUserByName("john", UserStatus.ANY).isEnabled());
+      response = service("PATCH", getURLResource("users/bulk/enable"), "", listHeaders, users, "root");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of("john"), response.getEntity());
+      assertTrue(organizationService.getUserHandler().findUserByName("john", UserStatus.ANY).isEnabled());
+    } finally {
+      organizationService.getUserHandler().setEnabled("john", true, true);
+    }
+
+    // A confirmation of another user does not count
+    confirmedSessionUser = "mary";
+    response = service("PATCH", getURLResource("users/john"), "", formHeaders, "name=firstName&value=John".getBytes(), "root");
+    assertOtpRequired(response);
+  }
+
+  public void testOwnProfileIsNeverGuarded() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("john");
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=firstName&value=Johnny".getBytes(),
+                                         "john");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    response = getResponseAs("PATCH", "/v1/social/users/john/profile", "{\"firstname\":\"John\"}", "john");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+  }
+
+  public void testProfileGuardRunsAfterCallerCheck() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("mary");
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=firstName&value=Johnny".getBytes(),
+                                         "mary");
+    assertEquals(401, response.getStatus());
+  }
+
+  public void testImportStartRequiresConfirmedSessionButNotProgressNorClean() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+
+    ContainerResponse response = service("POST", getURLResource("users/csv"), "", headers, "sync=true".getBytes(), "root");
+    assertEquals(400, response.getStatus());
+    assertEquals("UPLOAD_ID:MANDATORY", response.getEntity());
+
+    response = service("POST", getURLResource("users/csv"), "", headers, "uploadId=guarded&sync=true".getBytes(), "root");
+    assertOtpRequired(response);
+
+    response = service("POST", getURLResource("users/csv"), "", headers, "uploadId=guarded&progress=true".getBytes(), "root");
+    assertEquals(404, response.getStatus());
+
+    response = service("POST", getURLResource("users/csv"), "", headers, "uploadId=guarded&clean=true".getBytes(), "root");
+    assertEquals(204, response.getStatus());
+  }
+
+  public void testSwitchedOffConfirmationLetsAccountWritesThrough() throws Exception {
+    startSessionAs("root", true);
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=firstName&value=John".getBytes(),
+                                         "root");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+  }
+
+  /**
+   * The email change validates the code of the email method whatever the
+   * client names, and consumes it once the change is written: a code that
+   * confirmed one change cannot confirm another, and a refused request burns
+   * nothing
+   */
+  public void testEmailChangeIsBoundToEmailMethodAndConsumedAfterTheWrite() throws Exception {
+    startSessionAs("john");
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.EMAIL, "WRONG_FORMAT");
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile?otpMethod=sms&otpCode=123", data.toString());
+    assertEquals(400, response.getStatus());
+    verify(otpService, never()).consumeOtp(anyString(), anyString(), anyString());
+
+    data.put(ProfileEntity.EMAIL, "john.new@platform.com");
+    response = getResponse("PATCH", "/v1/social/users/john/profile?otpMethod=sms&otpCode=123", data.toString());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    verify(otpService, never()).validateOtp(eq("john"), eq("sms"), anyString());
+    verify(otpService, times(2)).validateOtp("john", "email", "123");
+    verify(otpService).consumeOtp("john", "email", "123");
+
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    response = service("PATCH",
+                       getURLResource("users/john"),
+                       "",
+                       formHeaders,
+                       "name=email&value=john.other@platform.com&otpMethod=sms&otpCode=456".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    verify(otpService).validateOtp("john", "email", "456");
+    verify(otpService).consumeOtp("john", "email", "456");
+  }
+
+  public void testEmailChangeRefusedByTheCodeConsumesNothing() throws Exception {
+    startSessionAs("john");
+    doThrow(new IllegalAccessException()).when(otpService).validateOtp("john", "email", "000");
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.EMAIL, "john.new@platform.com");
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile?otpCode=000", data.toString());
+    assertEquals(400, response.getStatus());
+    assertEquals("EMAIL:OTP_CODE_WRONG", response.getEntity());
+    verify(otpService, never()).consumeOtp(anyString(), anyString(), anyString());
+  }
+
+  /**
+   * A request-supplied property name is looked up among the stored settings,
+   * never through the by-name lookup that caches every miss; names that are
+   * no setting keep being stored
+   */
+  public void testUpdateProfileFieldNeverLooksSettingsUpByName() throws Exception {
+    startSessionAs("john");
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH", getURLResource("users/john"), "", formHeaders, "name=aboutMe&value=Hello".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    response = service("PATCH", getURLResource("users/john"), "", formHeaders, "name=enrollmentDate&value=123".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+
+    verify(profilePropertyServiceSpy, never()).getProfileSettingByName(anyString());
+    Profile profile = identityManager.getOrCreateUserIdentity("john").getProfile();
+    assertEquals("Hello", profile.getProperty(Profile.ABOUT_ME));
+    assertEquals("123", profile.getProperty(Profile.ENROLLMENT_DATE));
+  }
+
+  /**
+   * The onboarding email carries the administrator's message and is written
+   * in the user's preferred language; the enrollment date is stamped once
+   * it was sent
+   */
+  public void testSendOnboardingEmailWithMessageInTheUserLanguage() throws Exception {
+    PasswordRecoveryService recoveryService = mock(PasswordRecoveryService.class);
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(true);
+    registerUserRestWith(recoveryService);
+    UserProfileHandler profileHandler = organizationService.getUserProfileHandler();
+    UserProfile profile = profileHandler.findUserProfileByName("john");
+    if (profile == null) {
+      profile = profileHandler.createUserProfileInstance("john");
+    }
+    profile.setAttribute(Constants.USER_LANGUAGE, "fr");
+    profileHandler.saveUserProfile(profile, true);
+    startSessionAs("root", true);
+
+    ContainerResponse response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"Welcome aboard\"}", "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+
+    ArgumentCaptor<Locale> locale = ArgumentCaptor.forClass(Locale.class);
+    verify(recoveryService).sendOnboardingEmail(any(), locale.capture(), any(), eq("Welcome aboard"));
+    assertEquals(Locale.FRENCH, locale.getValue());
+    assertNotNull(identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE));
+
+    // No body, as the row action and the bulk action send: no message, and
+    // the platform's default language for an account with none stored
+    profile.setAttribute(Constants.USER_LANGUAGE, null);
+    profileHandler.saveUserProfile(profile, true);
+    response = getResponseAs("PATCH", "/v1/social/users/onboard/mary", "", "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    verify(recoveryService).sendOnboardingEmail(any(),
+                                                eq(localeConfigService.getDefaultLocaleConfig().getLocale()),
+                                                any(),
+                                                isNull());
+  }
+
+  public void testSendOnboardingEmailRefusesATooLongMessage() throws Exception {
+    PasswordRecoveryService recoveryService = mock(PasswordRecoveryService.class);
+    registerUserRestWith(recoveryService);
+    startSessionAs("root", true);
+    // The profile outlives the tests: the stamp is compared with its value
+    // before the call, not with null
+    Object enrollmentBefore = identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE);
+
+    String message = "x".repeat(OnboardingEmailEntity.MESSAGE_MAX_LENGTH + 1);
+    ContainerResponse response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"" + message + "\"}", "root");
+    assertEquals(400, response.getStatus());
+    assertEquals(UserRest.MESSAGE_TOO_LONG, response.getEntity());
+    verify(recoveryService, never()).sendOnboardingEmail(any(), any(), any(), any());
+    assertEquals(enrollmentBefore, identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE));
+
+    // The text is counted, not the markup
+    message = "<p>" + "x".repeat(OnboardingEmailEntity.MESSAGE_MAX_LENGTH) + "</p>";
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(true);
+    response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"" + message + "\"}", "root");
+    assertEquals(200, response.getStatus());
+  }
+
+  /**
+   * The message is the editor's HTML: scripts and event attributes are
+   * removed, the editor's formatting kept, and a message with no text is no
+   * message
+   */
+  public void testSendOnboardingEmailSanitizesTheMessage() throws Exception {
+    PasswordRecoveryService recoveryService = mock(PasswordRecoveryService.class);
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(true);
+    registerUserRestWith(recoveryService);
+    startSessionAs("root", true);
+
+    String message = "<p onclick=\\\"x()\\\">Hi <b>Jane</b><script>alert(1)</script></p>";
+    ContainerResponse response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"" + message + "\"}", "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    ArgumentCaptor<String> sent = ArgumentCaptor.forClass(String.class);
+    verify(recoveryService).sendOnboardingEmail(any(), any(), any(), sent.capture());
+    assertTrue(sent.getValue(), sent.getValue().contains("<b>Jane</b>"));
+    assertFalse(sent.getValue(), sent.getValue().contains("script"));
+    assertFalse(sent.getValue(), sent.getValue().contains("onclick"));
+
+    response = getResponseAs("PATCH", "/v1/social/users/onboard/mary", "{\"message\":\"<p>&nbsp;</p>\"}", "root");
+    assertEquals(200, response.getStatus());
+    verify(recoveryService).sendOnboardingEmail(any(), any(), any(), isNull());
+  }
+
+  /**
+   * A failed send is reported, and stamps nothing: the account stays listed
+   * among the ones to invite
+   */
+  public void testSendOnboardingEmailFailureIsReported() throws Exception {
+    PasswordRecoveryService recoveryService = mock(PasswordRecoveryService.class);
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(false);
+    registerUserRestWith(recoveryService);
+    startSessionAs("root", true);
+    Object enrollmentBefore = identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE);
+
+    ContainerResponse response = getResponseAs("PATCH", "/v1/social/users/onboard/john", "{\"message\":\"Hi\"}", "root");
+    assertEquals(500, response.getStatus());
+    assertEquals(UserRest.ONBOARDING_SEND_FAILED, response.getEntity());
+    assertEquals(enrollmentBefore, identityManager.getOrCreateUserIdentity("john").getProfile().getProperty(Profile.ENROLLMENT_DATE));
+
+    // The bulk action lists only the users whose email was sent
+    byte[] users = "[\"john\",\"mary\"]".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+    listHeaders.putSingle("content-type", "application/json");
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenAnswer(invocation -> "mary".equals(((User) invocation.getArgument(0)).getUserName()));
+    response = service("PATCH", getURLResource("users/bulk/onboard"), "", listHeaders, users, "root");
+    assertEquals(200, response.getStatus());
+    assertEquals(List.of("mary"), response.getEntity());
+
+    // A send that throws for one user leaves that user out and does not
+    // abort the batch: the next user is still emailed and listed
+    // doAnswer: a when() on the already stubbed mock would run the previous answer on null arguments
+    doAnswer(invocation -> {
+      if ("john".equals(((User) invocation.getArgument(0)).getUserName())) {
+        throw new IllegalStateException("transport down");
+      }
+      return true;
+    }).when(recoveryService).sendOnboardingEmail(any(), any(), any(), any());
+    response = service("PATCH", getURLResource("users/bulk/onboard"), "", listHeaders, users, "root");
+    assertEquals(200, response.getStatus());
+    assertEquals(List.of("mary"), response.getEntity());
+  }
+
+  /**
+   * A row says whether its user never signed in by the social profile's last
+   * login time, the source of the list's connection filter; the bulk onboard
+   * sends to every such account, an external one included, and skips an
+   * account that signed in once
+   */
+  public void testNeverConnectedAccountsAreFlaggedAndOnboardedWhateverTheirType() throws Exception {
+    PasswordRecoveryService recoveryService = mock(PasswordRecoveryService.class);
+    when(recoveryService.sendOnboardingEmail(any(), any(), any(), any())).thenReturn(true);
+    registerUserRestWith(recoveryService);
+    Profile johnProfile = identityManager.getOrCreateUserIdentity("john").getProfile();
+    johnProfile.setProperty(Profile.LAST_LOGIN_TIME, System.currentTimeMillis());
+    identityManager.updateProfile(johnProfile);
+    Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    maryProfile.setProperty(Profile.EXTERNAL, "true");
+    identityManager.updateProfile(maryProfile);
+    try {
+      assertNull(identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.LAST_LOGIN_TIME));
+      startSessionAs("root", true);
+
+      ContainerResponse response = service("GET", getURLResource("users?limit=10&offset=0&userType=ALL"), "", null, null);
+      assertEquals(200, response.getStatus());
+      Map<String, ProfileEntity> rows = new HashMap<>();
+      for (Object entity : ((CollectionEntity) response.getEntity()).getEntities()) {
+        ProfileEntity row = getBaseEntity(entity, ProfileEntity.class);
+        rows.put(row.getUsername(), row);
+      }
+      assertEquals(Boolean.FALSE, rows.get("john").getNeverConnected());
+      assertEquals(Boolean.TRUE, rows.get("mary").getNeverConnected());
+
+      byte[] users = "[\"john\",\"mary\"]".getBytes(StandardCharsets.UTF_8);
+      MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+      listHeaders.putSingle("content-type", "application/json");
+      response = service("PATCH", getURLResource("users/bulk/onboard"), "", listHeaders, users, "root");
+      assertEquals(200, response.getStatus());
+      assertEquals(List.of("mary"), response.getEntity());
+      ArgumentCaptor<User> sent = ArgumentCaptor.forClass(User.class);
+      verify(recoveryService).sendOnboardingEmail(sent.capture(), any(), any(), any());
+      assertEquals("mary", sent.getValue().getUserName());
+    } finally {
+      // The fixture's identities outlive the test: the other tests count
+      // internal, never connected accounts
+      maryProfile.removeProperty(Profile.EXTERNAL);
+      identityManager.updateProfile(maryProfile);
+      johnProfile.removeProperty(Profile.LAST_LOGIN_TIME);
+      identityManager.updateProfile(johnProfile);
+    }
+  }
+
+  /**
+   * The Pending Users' Invitations tab shows "Token expired" from the row
+   * alone: an invitation is expired once the onboarding link validity has
+   * passed since its enrollment date, on both sides of that bound, and only
+   * for an account that never signed in
+   */
+  public void testInvitationExpiryIsComputedFromTheEnrollmentDate() throws Exception {
+    long validity = EntityBuilder.getPasswordRecoveryService().getOnboardingTokenValidity();
+    long now = System.currentTimeMillis();
+    Profile johnProfile = identityManager.getOrCreateUserIdentity("john").getProfile();
+    johnProfile.setProperty(Profile.ENROLLMENT_DATE, String.valueOf(now - validity + 3600000L));
+    identityManager.updateProfile(johnProfile);
+    Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    maryProfile.setProperty(Profile.ENROLLMENT_DATE, String.valueOf(now - validity - 60000L));
+    identityManager.updateProfile(maryProfile);
+    Profile demoProfile = identityManager.getOrCreateUserIdentity("demo").getProfile();
+    demoProfile.setProperty(Profile.ENROLLMENT_DATE, String.valueOf(now - validity - 60000L));
+    demoProfile.setProperty(Profile.LAST_LOGIN_TIME, now);
+    identityManager.updateProfile(demoProfile);
+    try {
+      startSessionAs("root", true);
+      ContainerResponse response = service("GET",
+                                           getURLResource("users?limit=10&offset=0&enrollmentStatus=enrolled"),
+                                           "",
+                                           null,
+                                           null);
+      assertEquals(200, response.getStatus());
+      Map<String, ProfileEntity> rows = new HashMap<>();
+      for (Object entity : ((CollectionEntity) response.getEntity()).getEntities()) {
+        ProfileEntity row = getBaseEntity(entity, ProfileEntity.class);
+        rows.put(row.getUsername(), row);
+      }
+      assertEquals(Boolean.FALSE, rows.get("john").getEnrollmentExpired());
+      assertEquals(Boolean.TRUE, rows.get("mary").getEnrollmentExpired());
+      // Signed in once: the invitation was accepted, nothing is pending
+      assertNull(rows.get("demo").getEnrollmentExpired());
+      assertFalse(rows.containsKey("root"));
+    } finally {
+      johnProfile.removeProperty(Profile.ENROLLMENT_DATE);
+      identityManager.updateProfile(johnProfile);
+      maryProfile.removeProperty(Profile.ENROLLMENT_DATE);
+      identityManager.updateProfile(maryProfile);
+      demoProfile.removeProperty(Profile.ENROLLMENT_DATE);
+      demoProfile.removeProperty(Profile.LAST_LOGIN_TIME);
+      identityManager.updateProfile(demoProfile);
+    }
+  }
+
+  /**
+   * A bulk deactivation the store swallows, as with the deactivation option
+   * of the identity store off, leaves the user out of the updated ones
+   */
+  public void testBulkStatusChangeListsOnlyTheUsersWhoseStatusHolds() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    confirmedSessionUser = "root";
+    UserHandler realHandler = organizationService.getUserHandler();
+    // The test container's handler is an in-memory one: no cache to evict
+    UserHandler swallowingHandler = spy(realHandler);
+    doReturn(null).when(swallowingHandler).setEnabled(anyString(), anyBoolean(), anyBoolean());
+    OrganizationService swallowingService = mock(OrganizationService.class);
+    when(swallowingService.getUserHandler()).thenReturn(swallowingHandler);
+    registerUserRestWith(passwordRecoveryService, swallowingService);
+
+    byte[] users = "[\"john\"]".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+    listHeaders.putSingle("content-type", "application/json");
+    ContainerResponse response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    assertEquals(List.of(), response.getEntity());
+    assertTrue(realHandler.findUserByName("john", UserStatus.ANY).isEnabled());
+  }
+
+  /**
+   * A store failure thrown for one user leaves that user out of the updated
+   * list and the batch carries on with the next, as a failed onboard does:
+   * the first user's write throws, the second is applied and listed
+   */
+  public void testBulkDisableLeavesOutAUserWhoseWriteThrowsAndCarriesOn() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    confirmedSessionUser = "root";
+    UserHandler realHandler = organizationService.getUserHandler();
+    UserHandler throwingHandler = spy(realHandler);
+    doThrow(new IllegalStateException("store down")).when(throwingHandler).setEnabled(eq("john"), anyBoolean(), anyBoolean());
+    OrganizationService throwingService = mock(OrganizationService.class);
+    when(throwingService.getUserHandler()).thenReturn(throwingHandler);
+    registerUserRestWith(passwordRecoveryService, throwingService);
+    try {
+      byte[] users = "[\"john\",\"mary\"]".getBytes(StandardCharsets.UTF_8);
+      MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+      listHeaders.putSingle("content-type", "application/json");
+      ContainerResponse response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of("mary"), response.getEntity());
+      assertTrue(realHandler.findUserByName("john", UserStatus.ANY).isEnabled());
+      assertFalse(realHandler.findUserByName("mary", UserStatus.ANY).isEnabled());
+    } finally {
+      realHandler.setEnabled("mary", true, false);
+    }
+  }
+
+  /**
+   * The mirror path: a thrown failure on a bulk enable leaves that user out
+   * and the batch carries on with the next, answering 200: the first user's
+   * write throws and the account stays disabled, the second is applied and
+   * listed
+   */
+  public void testBulkEnableLeavesOutAUserWhoseWriteThrowsAndCarriesOn() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    confirmedSessionUser = "root";
+    UserHandler realHandler = organizationService.getUserHandler();
+    realHandler.setEnabled("john", false, false);
+    realHandler.setEnabled("mary", false, false);
+    UserHandler throwingHandler = spy(realHandler);
+    doThrow(new IllegalStateException("store down")).when(throwingHandler).setEnabled(eq("john"), anyBoolean(), anyBoolean());
+    OrganizationService throwingService = mock(OrganizationService.class);
+    when(throwingService.getUserHandler()).thenReturn(throwingHandler);
+    registerUserRestWith(passwordRecoveryService, throwingService);
+    try {
+      byte[] users = "[\"john\",\"mary\"]".getBytes(StandardCharsets.UTF_8);
+      MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+      listHeaders.putSingle("content-type", "application/json");
+      ContainerResponse response = service("PATCH", getURLResource("users/bulk/enable"), "", listHeaders, users, "root");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of("mary"), response.getEntity());
+      assertFalse(realHandler.findUserByName("john", UserStatus.ANY).isEnabled());
+      assertTrue(realHandler.findUserByName("mary", UserStatus.ANY).isEnabled());
+    } finally {
+      realHandler.setEnabled("john", true, false);
+      realHandler.setEnabled("mary", true, false);
+    }
+  }
+
+  /**
+   * The bulk read-back evicts the user's cache entry after the restart: a
+   * cache still holding the attempted status would list a user the store
+   * did not update
+   */
+  public void testBulkStatusReadBackEvictsTheCachedUser() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    confirmedSessionUser = "root";
+    User stored = organizationService.getUserHandler().findUserByName("john", UserStatus.ANY);
+    UserImpl attempted = new UserImpl("john");
+    attempted.setEnabled(false);
+    AtomicBoolean evicted = new AtomicBoolean(false);
+    CacheableUserHandlerImpl cachedHandler = mock(CacheableUserHandlerImpl.class);
+    when(cachedHandler.findUserByName("john", UserStatus.ENABLED)).thenReturn(stored);
+    when(cachedHandler.findUserByName("john", UserStatus.ANY)).thenAnswer(invocation -> evicted.get() ? stored : attempted);
+    doAnswer(invocation -> {
+      evicted.set(true);
+      return null;
+    }).when(cachedHandler).clearCache("john");
+    OrganizationService cachedService = mock(OrganizationService.class);
+    when(cachedService.getUserHandler()).thenReturn(cachedHandler);
+    registerUserRestWith(passwordRecoveryService, cachedService);
+
+    byte[] users = "[\"john\"]".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> listHeaders = new MultivaluedMapImpl();
+    listHeaders.putSingle("content-type", "application/json");
+    ContainerResponse response = service("PATCH", getURLResource("users/bulk/disable"), "", listHeaders, users, "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    assertEquals(List.of(), response.getEntity());
+    assertTrue(evicted.get());
+  }
+
+  private void registerUserRestWith(PasswordRecoveryService recoveryService) throws Exception {
+    registerUserRestWith(recoveryService, organizationService);
+  }
+
+  private void registerUserRestWith(PasswordRecoveryService recoveryService, OrganizationService orgService) throws Exception {
+    removeResource(UserRest.class);
+    registry(new UserRest(userACL,
+                          orgService,
+                          identityManager,
+                          relationshipManager,
+                          userStateService,
+                          spaceService,
+                          uploadService,
+                          userExportService,
+                          userImportService,
+                          imageThumbnailService,
+                          profilePropertyServiceSpy,
+                          recoveryService,
+                          localeConfigService,
+                          settingService,
+                          otpService));
+  }
+
+  private ContainerResponse getResponseAs(String method, String path, String input, String remoteUser) throws Exception {
+    byte[] jsonData = input.getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("content-type", "application/json");
+    headers.putSingle("content-length", "" + jsonData.length);
+    return service(method, path, "", headers, jsonData, remoteUser);
+  }
+
+  private void assertOtpRequired(ContainerResponse response) {
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 403, response.getStatus());
+    assertEquals(UserAccountConfirmation.OTP_REQUIRED, response.getEntity());
+  }
+
+  private void assertNotOtpRequired(ContainerResponse response) {
+    assertNotNull(response);
+    assertFalse(UserAccountConfirmation.OTP_REQUIRED.equals(response.getEntity()));
   }
 
   public void testIncludeCurrentUserInAdvancedSearchResult() throws Exception {

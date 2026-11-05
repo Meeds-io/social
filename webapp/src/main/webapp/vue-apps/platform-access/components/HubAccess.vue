@@ -510,8 +510,15 @@ export default {
       })
         .then(() => this.$emit('saved'))
         .then(() => this.$root.$emit('alert-message', accountDeactivationTurnedOn && this.$t('generalSettings.accountDeactivationEnabledSuccessfully') || this.$t('generalSettings.registrationSavedSuccessfully'), 'success'))
-        .catch(e => this.errorMessage = String(e))
         .then(() => this.init())
+        .catch(e => {
+          // Closing the confirmation dialog applies nothing and keeps the
+          // edited settings on the screen
+          if (!this.$userAccountConfirmationService.isCancelled(e)) {
+            this.errorMessage = String(e);
+            return this.init();
+          }
+        })
         .finally(() => this.$root.loading = false);
     },
   }

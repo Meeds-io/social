@@ -21,6 +21,7 @@
 <template>
   <v-menu
     v-model="menu"
+    content-class="usersManagementItemMenuContent"
     offset-y>
     <template #activator="{on, attrs}">
       <v-btn
@@ -43,7 +44,7 @@
             :class="{'clickable': !item.isInternal}">
             <v-list-item
               :disabled="!item.isInternal"
-              class="px-2"
+              class="usersManagementEditMenuItem px-2"
               dense
               @click="$root.$emit('editUser', item)">
               <v-list-item-icon class="mx-1 justify-center">
@@ -59,15 +60,15 @@
         <template #activator="{on, attrs}">
           <div v-on="on" v-bind="attrs">
             <v-list-item
-              :disabled="item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'"
-              class="px-2"
+              :disabled="!canOnboard"
+              class="usersManagementOnboardMenuItem px-2"
               dense
               @click="$emit('onboard')">
               <v-list-item-icon class="mx-1 justify-center">
                 <v-icon
                   size="14"
                   :class="{
-                    'icon-disabled-color': item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'
+                    'icon-disabled-color': !canOnboard
                   }">
                   fa-user-plus
                 </v-icon>
@@ -76,10 +77,10 @@
             </v-list-item>
           </div>
         </template>
-        <span>{{ item.enrollmentDetails }}</span>
+        <span>{{ onboardTooltip }}</span>
       </v-tooltip>
       <v-list-item
-        class="px-2"
+        class="usersManagementMembershipsMenuItem px-2"
         dense
         @click="$root.$emit('openUserMemberships', item)">
         <v-list-item-icon class="mx-1 justify-center">
@@ -89,7 +90,7 @@
       </v-list-item>
       <v-list-item
         v-if="item.enabled"
-        class="px-2"
+        class="usersManagementDisableMenuItem px-2"
         dense
         @click="$emit('disable')">
         <v-list-item-icon class="mx-1 justify-center">
@@ -99,7 +100,7 @@
       </v-list-item>
       <v-list-item
         v-else
-        class="px-2"
+        class="usersManagementEnableMenuItem px-2"
         dense
         @click="$emit('enable')">
         <v-list-item-icon class="mx-1 justify-center">
@@ -115,7 +116,7 @@
           <div v-on="on" v-bind="attrs">
             <v-list-item
               :disabled="!item.isInternal"
-              class="px-2"
+              class="usersManagementDeleteMenuItem px-2"
               dense
               @click="$emit('delete')">
               <v-list-item-icon class="mx-1 justify-center">
@@ -148,6 +149,20 @@ export default {
   data: () => ({
     menu: false,
   }),
+  computed: {
+    // The onboarding email goes to an enabled account that never signed in:
+    // the server finds no deactivated account to send it to
+    canOnboard() {
+      return !!this.item?.enabled && !!this.item?.neverConnected;
+    },
+    // Why the action is offered or not: the invitation state, or the account
+    // to enable first
+    onboardTooltip() {
+      return this.item?.neverConnected && !this.item?.enabled
+        ? this.$t('UsersManagement.onboard.deactivatedAccount')
+        : this.item?.enrollmentDetails;
+    },
+  },
   watch: {
     menu: {
       immediate: true,

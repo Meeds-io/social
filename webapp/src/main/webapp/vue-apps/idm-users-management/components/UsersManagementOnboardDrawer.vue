@@ -1,0 +1,136 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2026 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+-->
+<template>
+  <exo-drawer
+    id="userOnboardDrawer"
+    ref="drawer"
+    v-model="drawer"
+    allow-expand
+    right
+    @opened="reset">
+    <template #title>{{ $t('UsersManagement.onboard.title') }}</template>
+    <template v-if="drawer" #content>
+      <users-management-onboarding-email-form
+        :message.sync="message"
+        :saving="sending"
+        editor-id="userOnboardMessageEditor"
+        class="ma-4"
+        @validity-updated="messageValid = $event" />
+    </template>
+    <template #footer>
+      <div class="d-flex">
+        <v-spacer />
+        <v-btn
+          :disabled="sending"
+          class="btn me-2"
+          @click="close">
+          {{ $t('UsersManagement.button.cancel') }}
+        </v-btn>
+        <v-btn
+          :disabled="sending || !messageValid"
+          :loading="sending"
+          id="usersManagementOnboardInviteButton"
+          class="btn btn-primary"
+          @click="invite">
+          {{ $t('UsersManagement.onboard.invite') }}
+        </v-btn>
+      </div>
+    </template>
+  </exo-drawer>
+</template>
+
+<script>
+/**
+ * Sends, or sends again, the onboarding email of an account that never
+ * signed in, opened from its row or from the Pending Users drawer
+ */
+export default {
+  data: () => ({
+    drawer: false,
+    message: '',
+    messageValid: true,
+    sending: false,
+    // Counts the opens and the invitations sent: an answer whose request
+    // bears an earlier sequence belongs to an account the drawer has left
+    sessionSequence: 0,
+    user: null,
+  }),
+  created() {
+    this.$root.$on('openOnboardUser', this.open);
+  },
+  beforeDestroy() {
+    this.$root.$off('openOnboardUser', this.open);
+  },
+  methods: {
+    // The message and its validity go back to blank before the content is
+    // rendered: the form, created with the drawer's content, proposes its
+    // message again and hands it over
+    open(user) {
+      this.sessionSequence++;
+      this.user = user;
+      this.message = '';
+      this.messageValid = true;
+      this.drawer = true;
+    },
+    close() {
+      this.drawer = false;
+    },
+    // The component stays mounted after the drawer closes
+    reset() {
+      this.sending = false;
+    },
+    invite() {
+      if (this.sending || !this.messageValid || !this.user?.userName) {
+        return;
+      }
+      this.sending = true;
+      const request = {
+        sequence: ++this.sessionSequence,
+        fullName: this.user.fullname || this.user.userName,
+      };
+      return this.$userCreationService.sendInvitation(this.user.userName, this.message)
+        .then(sent => {
+          if (sent) {
+            this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.sent', {0: request.fullName}), 'success');
+            this.$root.$emit('refreshUsers');
+            this.$root.$emit('pending-users-changed');
+            if (this.current(request)) {
+              this.close();
+            }
+          } else {
+            this.$root.$emit('alert-message', this.$t('UsersManagement.onboard.notSent', {0: request.fullName}), 'error');
+          }
+        })
+        .finally(() => {
+          // The lock is the request's own: an account opened since keeps its
+          if (request.sequence === this.sessionSequence) {
+            this.sending = false;
+          }
+        });
+    },
+    // Whether the drawer still shows the account that sent a request: not
+    // once it has been closed, or opened again on another account
+    current(request) {
+      return this.drawer && request.sequence === this.sessionSequence;
+    },
+  },
+};
+</script>

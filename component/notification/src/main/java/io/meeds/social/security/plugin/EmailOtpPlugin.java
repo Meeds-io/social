@@ -109,9 +109,48 @@ public class EmailOtpPlugin implements OtpPlugin {
     return true;
   }
 
+  /**
+   * A wrong code keeps the send lock, unless the method releases it
+   * ({@link #releasesSendLockOnWrongCode()}): the user then may ask for a
+   * new code at once instead of waiting out the send interval, bounded by
+   * the attempts the validating service counts per code
+   */
   @Override
   public boolean validateOtp(String userName, String otpCode) {
-    return StringUtils.equals(otpCode, getOtpCache().get(getCacheKey(userName)));
+    String cacheKey = getCacheKey(userName);
+    boolean valid = StringUtils.equals(otpCode, getOtpCache().get(cacheKey));
+    if (!valid && releasesSendLockOnWrongCode()) {
+      getOtpSendLockCache().remove(cacheKey);
+    }
+    return valid;
+  }
+
+  /**
+   * Whether a wrong code lifts the send lock of this method. False here: the
+   * email change, API key and account deactivation flows keep waiting out
+   * the send interval after a wrong code
+   */
+  protected boolean releasesSendLockOnWrongCode() {
+    return false;
+  }
+
+  /**
+   * Removes the code from the cache, so that it never validates again. Only
+   * the request that removes it wins: a concurrent one finds it gone.
+   */
+  @Override
+  public boolean consumeOtp(String userName, String otpCode) {
+    return StringUtils.equals(otpCode, getOtpCache().remove(getCacheKey(userName)));
+  }
+
+  @Override
+  public long getCodeTtlMinutes() {
+    return otpTtl;
+  }
+
+  @Override
+  public long getSendIntervalSeconds() {
+    return sendInterval;
   }
 
   @Override

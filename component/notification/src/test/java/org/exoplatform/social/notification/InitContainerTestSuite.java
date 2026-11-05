@@ -56,6 +56,7 @@ import org.exoplatform.social.notification.plugin.SocialNotificationUtilsTest;
 import io.meeds.social.report.notification.listener.ReportNotificationListenerTest;
 import io.meeds.social.security.plugin.AccountDeactivationEmailOtpPluginTest;
 import io.meeds.social.security.plugin.EmailOtpPluginTest;
+import io.meeds.social.security.plugin.UserAccountEmailOtpPluginTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -85,6 +86,7 @@ import io.meeds.social.security.plugin.EmailOtpPluginTest;
   EmailOtpPluginTest.class,
   SocialSendAllRecipientProviderTest.class,
   AccountDeactivationEmailOtpPluginTest.class,
+  UserAccountEmailOtpPluginTest.class,
   SpaceMembershipNotificationListenerTest.class,
   JoinedSpaceByInvitationLinkPluginTest.class,
   AccountDeactivationRequestPluginTest.class,

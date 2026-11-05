@@ -147,6 +147,19 @@ public class EmailOtpPluginTest {
   }
 
   @Test
+  public void testConsumeOtpRemovesTheCodeOnce() {
+    when(otpCache.remove("email:john")).thenReturn(OTP_CODE, (String) null);
+    assertTrue(plugin.consumeOtp("john", OTP_CODE));
+    assertFalse(plugin.consumeOtp("john", OTP_CODE));
+  }
+
+  @Test
+  public void testTimingGetters() {
+    assertEquals(60, plugin.getSendIntervalSeconds());
+    assertEquals(5, plugin.getCodeTtlMinutes());
+  }
+
+  @Test
   public void testGetNameAndCanUse() {
     assertEquals("email", plugin.getName());
     assertTrue(plugin.canUse("anyUser"));
@@ -156,12 +169,18 @@ public class EmailOtpPluginTest {
   public void testValidateOtpValid() {
     when(otpCache.get("email:john")).thenReturn(OTP_CODE);
     assertTrue(plugin.validateOtp("john", OTP_CODE));
+    verify(otpSendLockCache, never()).remove(anyString());
   }
 
+  /**
+   * A wrong code keeps the send lock of the email method: the email change
+   * and API key flows wait out the send interval, as before
+   */
   @Test
   public void testValidateOtpInvalid() {
     when(otpCache.get("email:john")).thenReturn("999999");
     assertFalse(plugin.validateOtp("john", OTP_CODE));
+    verify(otpSendLockCache, never()).remove(anyString());
   }
 
   @Test
