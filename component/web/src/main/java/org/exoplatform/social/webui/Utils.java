@@ -20,12 +20,15 @@ package org.exoplatform.social.webui;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.ExoContainerContext;
@@ -55,6 +58,7 @@ import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Contains some common methods for using as utility.
@@ -72,6 +76,9 @@ public class Utils {
   /** . */
   public static final String NOT_SEEN_ACTIVITIES_COOKIES = "exo_social_not_seen_activities_%s";
   public static final String SEEN_ACTIVITIES_COOKIES = "exo_social_seen_activities_%s";
+
+  /** Request parameter carrying the space a site template page is previewed with */
+  public static final String PREVIEW_SPACE_ID_PARAM = "previewSpaceId";
 
   private static final Log    LOG                                    = ExoLogger.getLogger(Utils.class);
 
@@ -754,5 +761,49 @@ public class Utils {
         && userIdentity.getProfile() != null
         && userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null
         && (userIdentity.getProfile().getProperty(Profile.EXTERNAL)).equals("true");
+  }
+
+  /**
+   * Reads the id of the space a site template page is previewed with
+   *
+   * @param request the current request
+   * @return the value of the {@value #PREVIEW_SPACE_ID_PARAM} parameter when it
+   *         holds ASCII digits only and fits a long, else null
+   */
+  public static Long getPreviewSpaceId(HttpServletRequest request) {
+    String value = request.getParameter(PREVIEW_SPACE_ID_PARAM);
+    if (StringUtils.isEmpty(value) || !value.chars().allMatch(c -> c >= '0' && c <= '9')) {
+      return null;
+    }
+    try {
+      return Long.parseLong(value);
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  /**
+   * Builds the JavaScript string literal, quotes included, of a value printed
+   * in an inline script block: JSON string escaping, plus every '&lt;' written
+   * as its JavaScript unicode escape, so that the value can neither close the
+   * block nor open an HTML comment in it. The literal evaluates to the same
+   * string as the value.
+   *
+   * @param value the value to print, null being printed as "null"
+   * @return a double-quoted JavaScript string literal
+   */
+  public static String toScriptString(Object value) {
+    return JSONObject.quote(String.valueOf(value)).replace("<", "\\u003c");
+  }
+
+  /**
+   * Builds the JavaScript array literal of values printed in an inline script
+   * block, each element written by {@link #toScriptString(Object)}
+   *
+   * @param values the values to print, in their iteration order
+   * @return a JavaScript array literal of string literals
+   */
+  public static String toScriptArray(Collection<?> values) {
+    return values.stream().map(Utils::toScriptString).collect(Collectors.joining(", ", "[", "]"));
   }
 }

@@ -46,6 +46,10 @@
       <artifactId>social-component-service</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.meeds.social</groupId>
       <artifactId>social-component-service</artifactId>
       <type>test-jar</type>

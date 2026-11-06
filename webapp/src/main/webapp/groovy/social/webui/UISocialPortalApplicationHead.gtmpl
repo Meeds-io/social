@@ -7,7 +7,6 @@
   import org.exoplatform.social.attachment.AttachmentService;
   import org.exoplatform.social.core.space.SpaceUtils;
   import org.exoplatform.social.webui.Utils;
-  import org.apache.commons.lang3.StringUtils;
   import org.exoplatform.portal.application.PortalRequestContext;
   import org.exoplatform.social.core.identity.model.Identity;
   import org.exoplatform.social.core.space.model.Space;
@@ -34,7 +33,7 @@
   String cometdContext = continuationBayeux.getCometdContextName();
   BrandingService brandingService = uicomponent.getApplicationComponent(BrandingService.class);
   Set<String> supportedAttachmentObjectTypes = attachmentService.getSupportedObjectTypes();
-  // Host names or '*.' wildcards only (HTMLSanitizer drops any other entry), safe to quote as is
+  // Host names or '*.' wildcards only (HTMLSanitizer drops any other entry)
   List<String> iframeAllowedHosts = HTMLSanitizer.getAllowedIframeHosts();
   String viewerIdentityId = Utils.getViewerIdentityId();
   String ownerIdentityId = Utils.getOwnerIdentityId();
@@ -58,23 +57,23 @@
   }
 %>
 <script type="text/javascript" id="socialHeadScripts">
-     eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
-     eXo.env.portal.previewSpaceId = <%=rcontext.getRequest().getParameter("previewSpaceId")%>;
-     eXo.env.portal.spaceName = "<%=space == null ? "" : space.getPrettyName()%>" ;
-     eXo.env.portal.spaceUrl = "<%=space == null ? "" : space.getUrl()%>" ;
-     eXo.env.portal.spaceDisplayName = decodeURIComponent("<%=space == null ? "" : java.net.URLEncoder.encode(space.getDisplayName().replace(" ", "._.")).replace("._.", " ") %>") ;
-     eXo.env.portal.spaceGroup = "<%=space == null ? "" : space.getGroupId().replace("/spaces/", "")%>" ;
-     eXo.env.portal.spaceIdentityId = "<%=spaceIdentity == null ? "" : spaceIdentity.getId()%>" ;
-     eXo.env.portal.profileOwner = "<%=ownerIdentityId == null ? "" : Utils.getOwnerRemoteId()%>" ;
-     eXo.env.portal.profileOwnerIdentityId = "<%=ownerIdentityId == null ? "" : Utils.getOwnerIdentityId()%>" ;
-     eXo.env.portal.userIdentityId = "<%=viewerIdentityId == null ? "" : viewerIdentityId%>" ;
-     eXo.env.portal.companyLogo = "<%=brandingService.getLogoPath()%>" ;
-     eXo.env.portal.companyName = decodeURIComponent("<%=URLEncoder.encode(brandingService.getCompanyName().replace(" ", "._.")).replace("._.", " ")%>") ;
+     eXo.env.portal.spaceId = <%=Utils.toScriptString(space == null ? "" : space.getId())%> ;
+     eXo.env.portal.previewSpaceId = <%=Utils.getPreviewSpaceId(rcontext.getRequest())%>;
+     eXo.env.portal.spaceName = <%=Utils.toScriptString(space == null ? "" : space.getPrettyName())%> ;
+     eXo.env.portal.spaceUrl = <%=Utils.toScriptString(space == null ? "" : space.getUrl())%> ;
+     eXo.env.portal.spaceDisplayName = decodeURIComponent(<%=Utils.toScriptString(space == null ? "" : java.net.URLEncoder.encode(space.getDisplayName().replace(" ", "._.")).replace("._.", " "))%>) ;
+     eXo.env.portal.spaceGroup = <%=Utils.toScriptString(space == null ? "" : space.getGroupId().replace("/spaces/", ""))%> ;
+     eXo.env.portal.spaceIdentityId = <%=Utils.toScriptString(spaceIdentity == null ? "" : spaceIdentity.getId())%> ;
+     eXo.env.portal.profileOwner = <%=Utils.toScriptString(ownerIdentityId == null ? "" : Utils.getOwnerRemoteId())%> ;
+     eXo.env.portal.profileOwnerIdentityId = <%=Utils.toScriptString(ownerIdentityId == null ? "" : Utils.getOwnerIdentityId())%> ;
+     eXo.env.portal.userIdentityId = <%=Utils.toScriptString(viewerIdentityId == null ? "" : viewerIdentityId)%> ;
+     eXo.env.portal.companyLogo = <%=Utils.toScriptString(brandingService.getLogoPath())%> ;
+     eXo.env.portal.companyName = decodeURIComponent(<%=Utils.toScriptString(URLEncoder.encode(brandingService.getCompanyName().replace(" ", "._.")).replace("._.", " "))%>) ;
      eXo.env.portal.isExternal = <%=Utils.isExternal(Utils.getViewerIdentity())%>;
-     eXo.env.portal.cometdToken = "<%=cometdToken%>";
-     eXo.env.portal.cometdContext = "<%=cometdContext%>";
+     eXo.env.portal.cometdToken = <%=Utils.toScriptString(cometdToken)%>;
+     eXo.env.portal.cometdContext = <%=Utils.toScriptString(cometdContext)%>;
      eXo.env.portal.isOrganizationalChartEnabled = <%=profilePropertySetting != null && profilePropertySetting.isActive()%>;
-     eXo.env.portal.userTimezone = <%=userTimezone == null ? "null" : "\"" + userTimezone + "\""%>;
+     eXo.env.portal.userTimezone = <%=userTimezone == null ? "null" : Utils.toScriptString(userTimezone)%>;
      eXo.env.portal.vuetifyPreset = {
        dark: true,
        silent: !eXo.developing,
@@ -95,7 +94,7 @@
 
      eXo.env.portal.postToNetworkEnabled = <%=featureService.isFeatureActiveForUser("PostToNetwork", userName)%>;
      eXo.env.portal.editorAttachImageEnabled = <%=featureService.isFeatureActiveForUser("EditorAttachImage", userName)%>;
-     eXo.env.portal.attachmentObjectTypes = ['<%=StringUtils.join(supportedAttachmentObjectTypes, "', '")%>'];
-     eXo.env.portal.iframeAllowedHosts = [<%=iframeAllowedHosts.isEmpty() ? "" : "'" + StringUtils.join(iframeAllowedHosts, "', '") + "'"%>];
+     eXo.env.portal.attachmentObjectTypes = <%=Utils.toScriptArray(supportedAttachmentObjectTypes)%>;
+     eXo.env.portal.iframeAllowedHosts = <%=Utils.toScriptArray(iframeAllowedHosts)%>;
      eXo.env.portal.customStylesheetEnabled = <%=featureService.isFeatureActiveForUser("customStylesheet", userName)%>;
 </script>
