@@ -88,7 +88,7 @@ public class CoeditingServiceTest {
   }
 
   @Test
-  public void initWithAClusteredCacheKeepsItsDeclaredLifetime() {
+  public void initWithAClusteredCacheThatRefusesALifetimeStartsTheService() {
     when(cacheService.<CoeditionObjectKey, CoeditionObjectLock> getCacheInstance("portal.coediting")).thenReturn(lockCache);
     doThrow(UnsupportedOperationException.class).when(lockCache).setLiveTime(anyLong());
 
