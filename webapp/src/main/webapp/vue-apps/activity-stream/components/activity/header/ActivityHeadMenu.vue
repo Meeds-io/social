@@ -24,7 +24,11 @@
           <v-icon size="16" class="icon-default-color">fas fa-ellipsis-v</v-icon>
         </v-btn>
       </template>
-      <v-list class="pa-0" dense>
+      <v-list
+        ref="menuList"
+        class="pa-0"
+        dense
+        @keydown.native="onMenuKeydown">
         <v-menu
           v-for="action of enabledActions"
           :key="action.id"
@@ -185,6 +189,11 @@ export default {
           document.removeEventListener('click', this.closeMenu);
         }
       }
+      if (this.menu) {
+        // Vuetify only highlights an entry and keeps the focus on the button:
+        // the focus goes to the first entry so that it is announced
+        this.$nextTick(() => window.setTimeout(() => this.menuItems()[0]?.focus(), 100));
+      }
     },
   },
   methods: {
@@ -225,13 +234,38 @@ export default {
       }
       this.closeMenu();
     },
+    menuItems() {
+      return [...(this.$refs.menuList?.$el?.querySelectorAll('[role="menuitem"]') || [])];
+    },
+    onMenuKeydown(event) {
+      const items = this.menuItems();
+      const index = items.indexOf(document.activeElement);
+      let next = null;
+      if (event.key === 'ArrowDown') {
+        next = items[(index + 1) % items.length];
+      } else if (event.key === 'ArrowUp') {
+        next = items[(index - 1 + items.length) % items.length];
+      } else if (event.key === 'Home') {
+        next = items[0];
+      } else if (event.key === 'End') {
+        next = items[items.length - 1];
+      } else {
+        this.onActivatorKeydown(event);
+        return;
+      }
+      // stopped here, else the menu's own handler would also move its highlight
+      // and click the highlighted entry on Enter
+      event.preventDefault();
+      event.stopPropagation();
+      next?.focus();
+    },
     onActivatorKeydown(event) {
-      // Vuetify moves the highlight with Up/Down only; a group entry opens its
-      // sub-menu with the arrow pointing to the side where it unfolds
+      // a group entry opens its sub-menu with the arrow pointing to the side where it unfolds
       if (!this.menu || event.key !== (this.$vuetify.rtl ? 'ArrowLeft' : 'ArrowRight')) {
         return;
       }
-      const tile = this.$el.querySelector('.v-list-item--highlighted[aria-haspopup="menu"]');
+      const tile = event.target?.closest?.('[role="menuitem"][aria-haspopup="menu"]')
+        || this.$el.querySelector('.v-list-item--highlighted[aria-haspopup="menu"]');
       const action = tile && this.enabledActions.find(a => tile.classList.contains(`activityHeadMenuItem-${a.id}`));
       if (action) {
         event.preventDefault();
