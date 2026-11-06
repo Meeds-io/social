@@ -14,9 +14,11 @@
           :people="people"
           :people-suggestions-list="peopleSuggestionsList" />
       </v-list>
-      <v-divider 
-        v-if="spacesSuggestionsList.length && peopleSuggestionsList.length" 
-        class="my-2" />
+      <v-divider
+        v-if="spacesSuggestionsList.length && peopleSuggestionsList.length"
+        class="my-2"
+        role="presentation"
+        aria-hidden="true" />
       <v-list
         v-if="spacesSuggestionsList.length > 0 && suggestionsType !== 'people'"
         dense

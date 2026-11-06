@@ -22,23 +22,20 @@
     </v-list-item-content>
     <v-list-item-action class="suggestions-list-item-actions">
       <v-btn-toggle class="transparent">
-        <a
-          text
-          icon
-          small
-          min-width="auto"
+        <button
+          :aria-label="$t('suggestions.space.join', {0: space.displayName})"
+          type="button"
           class="px-0 suggestions-btn-action connexion-accept-btn"
           @click="joinSpace(space)">
-          <i class="uiIconPlusLight"></i>
-        </a>
-        <a
-          text
-          small
-          min-width="auto"
+          <i class="uiIconPlusLight" aria-hidden="true"></i>
+        </button>
+        <button
+          :aria-label="$t('suggestions.space.ignore', {0: space.displayName})"
+          type="button"
           class="px-0 suggestions-btn-action connexion-refuse-btn"
           @click="ignoredSuggestionSpace(space)">
-          <i class="uiIconCloseCircled"></i>
-        </a>
+          <i class="uiIconCloseCircled" aria-hidden="true"></i>
+        </button>
       </v-btn-toggle>
     </v-list-item-action>
   </v-list-item>

@@ -45,7 +45,11 @@
           menu-button-class="me-1" />
       </div>
       <div class="peopleAvatar">
-        <a :href="url" :aria-label="$t('profileSettings.label.profile')">
+        <a
+          :href="url"
+          :aria-label="user.fullname"
+          tabindex="-1"
+          aria-hidden="true">
           <v-img
             :lazy-src="`${userAvatarUrl}`"
             :src="`${userAvatarUrl}`"
@@ -86,6 +90,7 @@
             }">
             <a
               :href="url"
+              tabindex="-1"
               class="grey--text text--darken-1">
               {{ primaryProperty }}
             </a>
