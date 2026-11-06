@@ -20,7 +20,11 @@
 
 -->
 <template>
-  <v-app :class="componentId" class="topBarMenu">
+  <v-app
+    :class="componentId"
+    :role="navigations.length ? 'navigation' : null"
+    :aria-label="navigations.length ? $t('topBar.navigation.label.menu') : null"
+    class="topBarMenu">
     <v-footer
       v-if="isMobile && mobileNavigations.length"
       ref="mobileFooter"
@@ -41,6 +45,7 @@
           :key="navigation.id"
           :navigation="navigation"
           :base-site-uri="getNavigationBaseUri(index)"
+          :selected-path="selectedPath"
           @update-navigation-state="updateNavigationState" />
       </v-tabs>
     </v-footer>
@@ -206,8 +211,12 @@ export default {
     document.fonts?.removeEventListener?.('loadingdone', this.measureNavigations);
     this.resizeObserver?.disconnect?.();
   },
+  updated() {
+    this.removeTablistRole();
+  },
   mounted() {
     this.mounted = true;
+    this.removeTablistRole();
     if (window.ResizeObserver) {
       this.resizeObserver = new ResizeObserver(this.handleResize);
       this.resizeObserver.observe(this.$el);
@@ -216,6 +225,10 @@ export default {
     document.fonts?.addEventListener?.('loadingdone', this.measureNavigations);
   },
   methods: {
+    // The bars list links to pages: Vuetify gives them role="tablist" at each render
+    removeTablistRole() {
+      this.$el.querySelectorAll('[role="tablist"]').forEach(bar => bar.removeAttribute('role'));
+    },
     init() {
       return this.getNavigations()
         .finally(() => this.initialized = true);
