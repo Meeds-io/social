@@ -27,6 +27,7 @@
     <v-hover v-model="$root.hoverButton">
       <sidebar-button
         :unread-per-space="unreadPerSpace"
+        :expanded="firstLevelDrawer"
         @open-drawer="openFirstLevel" />
     </v-hover>
     <div class="layout-side-bar">
@@ -168,6 +169,9 @@ export default {
       }
     },
     firstLevelDrawer() {
+      if (!this.firstLevelDrawer) {
+        this.restoreFocusToButton();
+      }
       if (!this.firstLevelDrawer && !this.stickyDisplay) {
         this.thirdLevelDrawer = false;
         this.secondLevelDrawer = false;
@@ -236,9 +240,34 @@ export default {
       window.clearTimeout(this.closeTimeout);
       window.clearInterval(this.interval);
       this.firstLevelDrawer = true;
+      this.moveFocusToMenu();
       if (this.$root.allowClosing) {
         this.$root.allowClosing = false;
         this.closeTimeout = window.setTimeout(() => this.$root.allowClosing = true, 2000);
+      }
+    },
+    moveFocusToMenu() {
+      if (this.$root.sticky || this.$root.icon) {
+        return;
+      }
+      this.focusReturnPending = true;
+      window.setTimeout(() => {
+        const menu = document.querySelector('#HamburgerMenuNavigation');
+        const target = menu?.querySelector?.('a[href], button:not([disabled]), [tabindex="0"]');
+        if (target) {
+          target.focus();
+        }
+      }, 400);
+    },
+    restoreFocusToButton() {
+      if (!this.focusReturnPending) {
+        return;
+      }
+      this.focusReturnPending = false;
+      const active = document.activeElement;
+      const menu = document.querySelector('#HamburgerMenuNavigation');
+      if (!active || active === document.body || menu?.contains?.(active)) {
+        this.$el?.querySelector?.('.HamburgerNavigationMenuLink')?.focus?.();
       }
     },
     async changeSpacesMenu(spaceTemplateId, spaceCategoryId, spacesUrl, sortBy, name, type) {

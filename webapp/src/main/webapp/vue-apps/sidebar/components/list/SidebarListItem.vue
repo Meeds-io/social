@@ -20,7 +20,10 @@
 
 -->
 <template>
-  <v-divider v-if="item.type === 'SEPARATOR'" class="my-1" />
+  <v-divider
+    v-if="item.type === 'SEPARATOR'"
+    class="my-1"
+    role="separator" />
   <div v-else-if="isSitePages">
     <sidebar-list-sub-list
       :item="item" />
@@ -32,7 +35,9 @@
       v-if="displaySpacesList">
       <v-list-item
         :title="spacesTooltip"
+        :aria-expanded="spacesExpanded"
         :class="$root.iconCollapse && 'mx-0'"
+        role="button"
         class="d-flex ps-3"
         dense
         @click="handleSpacesClick">
@@ -186,6 +191,10 @@ export default {
       type: Object,
       default: null,
     },
+    activeUrl: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     hover: false,
@@ -282,8 +291,18 @@ export default {
     target() {
       return this.isUrl && this.item.target === 'NEW_TAB' && '_blank' || null;
     },
+    spacesExpanded() {
+      return String(this.$root.displaySequentially ? !this.collapsedSpaces : !!this.drawerOpened);
+    },
+    isCurrentPage() {
+      return !!this.activeUrl && this.activeUrl === this.item.url;
+    },
     itemAttributes() {
       const attributes = {};
+      attributes.role = this.isUrl && 'link' || 'button';
+      if (this.isCurrentPage) {
+        attributes['aria-current'] = 'page';
+      }
       if (this.isUrl) {
         attributes.href = this.url;
         attributes.target = this.target;
