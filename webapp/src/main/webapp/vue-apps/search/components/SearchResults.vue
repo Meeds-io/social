@@ -18,11 +18,16 @@
       parent-element="div"
       element="div"
       class=" d-flex flex-column" />
-    <div v-if="hasResults" class="searchResultsParent d-flex flex-column border-box-sizing">
+    <div
+      v-if="hasResults"
+      :aria-label="$t('search.results.list.label', {0: resultsArray.length})"
+      class="searchResultsParent d-flex flex-column border-box-sizing"
+      role="list">
       <div
         v-for="result in resultsArray"
         :key="result.domId"
-        class="pa-0 searchCard">
+        class="pa-0 searchCard"
+        role="listitem">
         <search-result-card
           v-if="!isGroupingResult(result)"
           :result="result"

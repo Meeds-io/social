@@ -17,9 +17,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
   <v-hover v-slot="{ hover }">
     <v-card
       flat
-      class="pa-0"
-      :aria-label="link && $t('search.access.to.result', {0: excerptText || title}) || title"
-      :href="link"
+      class="search-result-card pa-0"
       :disabled="!link">
       <v-list class="pa-0" :class="hover && link && 'light-grey-background-color no-border-radius' || ''">
         <v-list-item>
@@ -30,14 +28,21 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title class="text-truncate" :class="link && 'primary--text' || 'text-color'">
-              {{ title }}
+              <a
+                v-if="link"
+                :href="link"
+                class="search-result-link">{{ title }}</a>
+              <template v-else>{{ title }}</template>
             </v-list-item-title>
             <v-list-item-subtitle
               v-if="excerptHtml"
               class="pt-1 text-wrap text-body-2 text-color text-break text-truncate-3"
               v-sanitized-html="excerptHtml" />
           </v-list-item-content>
-          <v-list-item-action v-if="result && result.id" v-show="hover || isMobile">
+          <v-list-item-action
+            v-if="result && result.id"
+            :class="{'search-result-actions-visible': isMobile}"
+            class="search-result-interactive search-result-actions">
             <favorite-button
               :id="result.id"
               :favorite="result.favorite"

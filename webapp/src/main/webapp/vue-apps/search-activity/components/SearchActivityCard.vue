@@ -2,9 +2,7 @@
   <v-hover v-slot="{ hover }">
     <v-card
       flat
-      class="pa-0"
-      :aria-label="$t('search.access.to.result', {0 :excerptText})"
-      :href="link">
+      class="search-result-card pa-0">
       <v-list class="pa-0" :class="hover && 'light-grey-background-color no-border-radius' || ''">
         <v-list-item>
           <v-list-item-icon class="me-2 pt-1">
@@ -21,9 +19,11 @@
           <v-list-item-content>
             <v-list-item-title class="d-flex flex-row full-width align-center">
               <div class="d-flex flex-row align-center flex-grow-1 text-truncate">
+                <a :href="link" class="search-result-link">
+                  <span class="search-result-link-label">{{ activityTitleText }}</span>
+                </a>
                 <span
-                  class="d-inline-flex title pt-1 mb-0 ps-0 my-auto text-start text-truncate primary--text"
-                  :aria-label="activityTitleText">
+                  class="search-result-interactive d-inline-flex title pt-1 mb-0 ps-0 my-auto text-start text-truncate primary--text">
                   <exo-user-avatar
                     :identity="posterIdentity"
                     fullname
@@ -47,23 +47,33 @@
                   </span>
                 </span>
               </div>
-              <div v-show="hover || isMobile" class="ml-2 pt-1">
+              <div
+                :class="{'search-result-actions-visible': isMobile}"
+                class="search-result-interactive search-result-actions ml-2 pt-1">
                 <span class="d-inline-flex align-center justify-center">
                   <v-btn
+                    :aria-label="$t('search.activity.comment.action')"
                     icon
                     small
                     class="me-2"
                     @click.stop.prevent="openActivityCommentDrawer">
-                    <v-icon class="icon-default-color" size="16">
+                    <v-icon
+                      class="icon-default-color"
+                      size="16"
+                      aria-hidden="true">
                       fas fa-comment
                     </v-icon>
                   </v-btn>
                   <v-btn
+                    :aria-label="$t('search.activity.kudos.action')"
                     icon
                     small
                     class="me-2"
                     @click.stop.prevent="openKudosForm">
-                    <v-icon class="icon-default-color" size="16">
+                    <v-icon
+                      class="icon-default-color"
+                      size="16"
+                      aria-hidden="true">
                       fas fa-award
                     </v-icon>
                   </v-btn>

@@ -1,13 +1,12 @@
 <template>
   <v-hover v-slot="{ hover }">
     <v-card
-      class="border-box-sizing fill-height"
+      class="search-people-card search-result-card border-box-sizing fill-height"
       width="350"
       :height="80"
       :min-height="80"
       :max-height="80"
       :elevation="hover && 3 || 0"
-      :href="userProfileUrl"
       outlined
       flat
       rounded>
@@ -42,13 +41,6 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.mobile;
     },
-    userProfileUrl() {
-      if (this.result?.username) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.result.username}`;
-      } else {
-        return '#';
-      }
-    }
   },
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
