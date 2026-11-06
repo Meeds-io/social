@@ -2604,7 +2604,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                           recoveryService,
                           localeConfigService,
                           settingService,
-                          otpService));
+                          otpService,
+                          accountKindService));
   }
 
   /**
