@@ -704,10 +704,10 @@ public class CachedSpaceStorage extends SpaceStorage {
 
   @Override
   public void updateSpaceAccessed(String remoteId, Space space) throws SpaceStorageException {
-    super.updateSpaceAccessed(remoteId, space);
-    // The lists of the spaces the user accessed last go from every node: the
-    // lists of the other users stay
     try {
+      super.updateSpaceAccessed(remoteId, space);
+      // The lists of the spaces the user accessed last go from every node: the
+      // lists of the other users stay
       spacesCache.select(new LastAccessedSpacesCacheSelector(remoteId));
     } catch (Exception e) {
       LOG.error("Error while removing cache entries for remoteId=" + remoteId + ", space=" + space.getDisplayName() +
