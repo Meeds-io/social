@@ -15,10 +15,12 @@
           :loading="loading"
           icon
           small
-          :aria-label="$t('activity.head.menu.title.open')"
-          class="me-2"
+          :aria-label="$t('activity.head.menu.title.actions')"
+          class="activityHeadMenuButton me-2"
           v-bind="attrs"
-          v-on="on">
+          aria-haspopup="menu"
+          v-on="on"
+          @keydown="onActivatorKeydown">
           <v-icon size="16" class="icon-default-color">fas fa-ellipsis-v</v-icon>
         </v-btn>
       </template>
@@ -26,6 +28,7 @@
         <v-menu
           v-for="action of enabledActions"
           :key="action.id"
+          :ref="`group-${action.id}`"
           :disabled="!action.children.length"
           :left="!$vuetify.rtl"
           :right="$vuetify.rtl"
@@ -43,8 +46,13 @@
                       ...on,
                       click: () => !isActionDisabled(action) && clickOnAction(action),
                     } || on"
-                    v-bind="attrs"
-                    :class="isActionDisabled(action) && 'v-list-item--disabled' || ''"
+                    v-bind="{
+                      ...attrs,
+                      role: 'menuitem',
+                      'aria-haspopup': action.children.length ? 'menu' : null,
+                      'aria-expanded': action.children.length ? attrs['aria-expanded'] : null}"
+                    :aria-disabled="isActionDisabled(action) ? 'true' : null"
+                    :class="[isActionDisabled(action) && 'v-list-item--disabled', `activityHeadMenuItem-${action.id}`]"
                     :aria-label="isActionDisabled(action) && actionDisabledTitle(action) || $t(action.labelKey)"
                     class="px-3"
                     dense>
@@ -216,6 +224,20 @@ export default {
         });
       }
       this.closeMenu();
+    },
+    onActivatorKeydown(event) {
+      // Vuetify moves the highlight with Up/Down only; a group entry opens its
+      // sub-menu with the arrow pointing to the side where it unfolds
+      if (!this.menu || event.key !== (this.$vuetify.rtl ? 'ArrowLeft' : 'ArrowRight')) {
+        return;
+      }
+      const tile = this.$el.querySelector('.v-list-item--highlighted[aria-haspopup="menu"]');
+      const action = tile && this.enabledActions.find(a => tile.classList.contains(`activityHeadMenuItem-${a.id}`));
+      if (action) {
+        event.preventDefault();
+        tile.click();
+        this.$nextTick(() => this.$refs[`group-${action.id}`]?.[0]?.$refs?.content?.querySelector('.v-list-item')?.focus());
+      }
     },
     closeMenu() {
       window.setTimeout(() => {
