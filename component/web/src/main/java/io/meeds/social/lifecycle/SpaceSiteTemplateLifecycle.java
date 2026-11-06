@@ -18,8 +18,6 @@
  */
 package io.meeds.social.lifecycle;
 
-import org.apache.commons.lang3.StringUtils;
-
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.portal.application.PortalApplication;
@@ -29,14 +27,13 @@ import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.webui.Utils;
 import org.exoplatform.web.application.Application;
 import org.exoplatform.web.application.ApplicationLifecycle;
 
 public class SpaceSiteTemplateLifecycle extends BaseComponentPlugin implements ApplicationLifecycle<PortalRequestContext> {
 
-  private static final String PREVIEW_SPACE_ID_PARAM = "previewSpaceId";
-
-  private SpaceService        spaceService;
+  private SpaceService spaceService;
 
   @Override
   public void onInit(Application app) throws Exception {
@@ -47,11 +44,11 @@ public class SpaceSiteTemplateLifecycle extends BaseComponentPlugin implements A
     if (!(app instanceof PortalApplication)) {
       return;
     }
-    String spaceId = context.getRequest().getParameter(PREVIEW_SPACE_ID_PARAM);
+    Long spaceId = Utils.getPreviewSpaceId(context.getRequest());
     SiteKey siteKey = context.getSiteKey();
     if (siteKey == null
         || siteKey.getType() != SiteType.GROUP_TEMPLATE
-        || StringUtils.isBlank(spaceId)) {
+        || spaceId == null) {
       return;
     }
     Space space = spaceService.getSpaceById(spaceId);
