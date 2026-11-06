@@ -41,10 +41,9 @@
   
         const element = parseInert(textData);
   
-        const contentLinks = findOutsideNoscript(element, 'a.content-link');
-        contentLinks.forEach(linkElement => {
+        for (const linkElement of findOutsideNoscript(element, 'a.content-link')) {
           textData = textData.replace(linkElement.outerHTML, () => `<content-link contenteditable="false" style="display: none;">/${linkElement.getAttribute('data-object')}</content-link>`);
-        });
+        }
         evt.data.dataValue = textData;
       });
   
@@ -118,7 +117,7 @@
             } finally {
               delete editor.setDataInProgress;
             }
-          });
+          }).catch(e => console.warn('Error while rebuilding content links', e)); // eslint-disable-line no-console
         }
       }
   
