@@ -45,23 +45,35 @@
       </v-tabs>
     </v-footer>
     <v-tabs
-      v-else
+      v-else-if="navigations.length"
       v-model="tab"
+      ref="tabs"
+      class="topbar-navigation-tabs"
       background-color="transparent"
       color="none"
-      show-arrows
-      center-active
       optional
       height="57"
       slider-size="4">
       <navigation-menu-item
-        v-for="(navigation, index) in navigations"
+        v-for="(navigation, index) in desktopNavigations"
+        ref="navigationItems"
         :key="navigation.id"
         :navigation="navigation"
         :base-site-uri="getNavigationBaseUri(index)"
         :selected-path="selectedPath"
         @update-navigation-state="updateNavigationState" />
     </v-tabs>
+    <!-- Gives the menu its preferred width (max-content) and its smallest one, Home and More (min-content):
+         the tabs themselves contribute no width, so the Topbar shrinks the menu before its other applications -->
+    <div
+      v-if="!isMobile && navigations.length"
+      class="topbar-navigation-sizer"
+      aria-hidden="true">
+      <div
+        v-for="(width, index) in sizerWidths"
+        :key="index"
+        :style="`width: ${width}px`"></div>
+    </div>
   </v-app>
 </template>
 <script>
@@ -82,6 +94,11 @@ export default {
       : eXo.env.portal.siteKeyName,
     exclude: 'global',
     tab: null,
+    measuring: false,
+    tabWidths: [],
+    moreTabWidth: 0,
+    visibleCount: null,
+    resizeObserver: null,
   }),
   computed: {
     isMobile() {
@@ -126,7 +143,30 @@ export default {
     },
     isTopBarElement() {
       return this.$root.isTopBarElement;
-    }
+    },
+    desktopNavigations() {
+      if (this.measuring) {
+        return this.navigations.length > 1 ? [...this.navigations, this.buildMoreNavigation(this.navigations.slice(1))] : this.navigations;
+      } else if (this.visibleCount === null || this.visibleCount >= this.navigations.length) {
+        return this.navigations;
+      } else {
+        return [...this.navigations.slice(0, this.visibleCount), this.buildMoreNavigation(this.navigations.slice(this.visibleCount))];
+      }
+    },
+    preferredWidth() {
+      return this.getEntriesWidth(this.tabWidths.length);
+    },
+    minimalWidth() {
+      return this.tabWidths.length > 1 ? Math.min(this.preferredWidth, this.getEntriesWidth(1)) : this.preferredWidth;
+    },
+    sizerWidths() {
+      if (!this.minimalWidth) {
+        return [];
+      }
+      const remainingWidth = this.preferredWidth - this.minimalWidth;
+      const piecesCount = Math.ceil(remainingWidth / this.minimalWidth);
+      return [this.minimalWidth, ...new Array(piecesCount).fill(remainingWidth / piecesCount)];
+    },
   },
   watch: {
     isMobile() {
@@ -134,6 +174,7 @@ export default {
         this.refreshMobileNavigations();
       } else {
         this.computeSiteBodyMargin();
+        void this.measureNavigations();
       }
     },
     smallDevice() {
@@ -162,9 +203,17 @@ export default {
   },
   beforeDestroy() {
     document.removeEventListener('space-settings-updated', this.init);
+    document.fonts?.removeEventListener?.('loadingdone', this.measureNavigations);
+    this.resizeObserver?.disconnect?.();
   },
   mounted() {
     this.mounted = true;
+    if (window.ResizeObserver) {
+      this.resizeObserver = new ResizeObserver(this.handleResize);
+      this.resizeObserver.observe(this.$el);
+    }
+    // The tabs are measured again each time a web font is loaded: a fallback font gives other widths
+    document.fonts?.addEventListener?.('loadingdone', this.measureNavigations);
   },
   methods: {
     init() {
@@ -196,7 +245,10 @@ export default {
       }
     },
     updateNavigationState(value) {
-      this.tab = value;
+      // The measuring pass creates the More entry over every other entry: its selection is not the menu's
+      if (!this.measuring) {
+        this.tab = value;
+      }
     },
     buildNavigations() {
       if (this.navigations.length && this.navigations[0].children?.length) {
@@ -207,7 +259,108 @@ export default {
       }
       if (this.isMobile) {
         this.refreshMobileNavigations();
+      } else {
+        void this.measureNavigations();
       }
+    },
+    buildMoreNavigation(children) {
+      return {
+        id: 'topbar-navigation-more',
+        tabClass: 'topbar-navigation-more',
+        name: 'more',
+        label: this.$t('topBar.navigation.label.more'),
+        children,
+      };
+    },
+    getEntriesWidth(count) {
+      const entriesWidth = this.tabWidths.slice(0, count).reduce((sum, width) => sum + width, 0);
+      return count < this.tabWidths.length ? entriesWidth + this.moreTabWidth : entriesWidth;
+    },
+    // Renders every entry and the More entry once, to read the width each tab takes with its label
+    async measureNavigations() {
+      if (this.isMobile || !this.navigations.length || this.measuring || !this.$el.isConnected) {
+        return;
+      }
+      this.measuring = true;
+      try {
+        await this.$nextTick();
+        const tabWidthById = {};
+        (this.$refs.navigationItems || []).forEach(item => {
+          const tab = this.findTabElement(item);
+          tabWidthById[item.navigation.id] = tab ? Math.ceil(tab.getBoundingClientRect().width) : 0;
+        });
+        this.tabWidths = this.navigations.map(navigation => tabWidthById[navigation.id] || 0);
+        this.moreTabWidth = tabWidthById['topbar-navigation-more'] || 0;
+      } finally {
+        this.measuring = false;
+      }
+      void this.refreshVisibleCount();
+    },
+    // A menu item's root element is its v-menu, rendered apart from the tab that activates it
+    findTabElement(vm) {
+      return this.findTabComponent(vm)?.$el || null;
+    },
+    findTabComponent(vm) {
+      if (vm.$el?.classList?.contains?.('v-tab')) {
+        return vm;
+      }
+      for (const child of vm.$children) {
+        const tab = this.findTabComponent(child);
+        if (tab) {
+          return tab;
+        }
+      }
+      return null;
+    },
+    handleResize() {
+      // A measure taken before the menu was laid out reads no width at all: measure again once it has one
+      if (this.$el.clientWidth && this.navigations.length && !this.tabWidths.some(Boolean)) {
+        void this.measureNavigations();
+      } else {
+        void this.refreshVisibleCount();
+      }
+    },
+    async refreshVisibleCount() {
+      if (!this.isMobile && !this.measuring && this.tabWidths.length) {
+        // The tabs' own width: the menu's side margins are already left out of it
+        this.visibleCount = this.computeVisibleCount(this.$refs.tabs?.$el?.clientWidth || 0);
+        await this.$nextTick();
+        // The tabs bar recomputes its overflow on a window resize or a change of its items or value, not when only its
+        // own width changes, as when the sizer's widths arrive: measured narrower, it would keep scrolling tabs that fit
+        this.$refs.tabs?.$refs?.items?.setWidths?.();
+        this.refreshSelectedTab();
+      }
+    },
+    // Selects the entry whose page is, or holds, the current page, or More when that entry is one of those it lists
+    refreshSelectedTab() {
+      const selectedIndex = this.navigations.findIndex((navigation, index) => this.holdsSelectedPath(navigation, this.getNavigationBaseUri(index)));
+      if (selectedIndex < 0) {
+        return;
+      }
+      const selectedNavigation = this.desktopNavigations.includes(this.navigations[selectedIndex]) ? this.navigations[selectedIndex] : this.desktopNavigations[this.desktopNavigations.length - 1];
+      const selectedItem = (this.$refs.navigationItems || []).find(item => item.navigation === selectedNavigation);
+      const selectedTab = selectedItem && this.findTabComponent(selectedItem);
+      if (selectedTab) {
+        // A tab with no link takes as its value its index in the tabs group, in the order the tabs registered
+        this.tab = selectedTab.value || selectedTab.tabsBar?.items?.indexOf?.(selectedTab);
+      }
+    },
+    holdsSelectedPath(navigation, baseSiteUri) {
+      return this.$navigationUtils.getNavigationNodeUri(baseSiteUri, navigation) === this.selectedPath
+        || !!navigation.children?.some?.(child => this.holdsSelectedPath(child, baseSiteUri));
+    },
+    // Every entry is displayed when they all fit; otherwise as many entries as fit followed by More,
+    // and never less than the first entry and More
+    computeVisibleCount(availableWidth) {
+      const entriesCount = this.tabWidths.length;
+      if (entriesCount <= 1 || this.getEntriesWidth(entriesCount) <= availableWidth) {
+        return entriesCount;
+      }
+      let count = entriesCount - 1;
+      while (count > 1 && this.getEntriesWidth(count) > availableWidth) {
+        count--;
+      }
+      return count;
     },
     refreshMobileNavigations() {
       if ((this.$vuetify.breakpoint.name === 'md' && this.navigations.length > 3)
