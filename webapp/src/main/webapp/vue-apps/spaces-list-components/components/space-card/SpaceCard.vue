@@ -175,14 +175,15 @@ export default {
       &:focus-visible {
         outline: none;
       }
+      // The focus indicator surrounds the whole card
+      &:focus-visible::after {
+        outline: dashed 2px var(--allPagesPrimaryColor, #3f8487);
+        outline-offset: -2px;
+      }
     }
     .space-card-actions {
       position: relative;
       z-index: 3;
-    }
-    &:focus-within {
-      outline: 2px solid currentColor;
-      outline-offset: 2px;
     }
   }
 </style>
