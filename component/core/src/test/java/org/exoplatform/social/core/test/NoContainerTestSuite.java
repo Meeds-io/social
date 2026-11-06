@@ -100,6 +100,7 @@ import io.meeds.social.organizationalunit.listener.OrganizationalUnitGroupListen
 import io.meeds.social.group.plugin.GroupAclPluginTest;
 import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
 import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
+import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -109,6 +110,7 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
     OrganizationalChartSettingServiceTest.class,
     OrganizationalChartHeaderTranslationPermissionTest.class,
     UserCardSettingServiceTest.class,
+    CacheSelectorTest.class,
     CachedTranslationStorageTest.class,
     ReactionServiceImplTest.class,
     ActivityReportServiceImplTest.class,
