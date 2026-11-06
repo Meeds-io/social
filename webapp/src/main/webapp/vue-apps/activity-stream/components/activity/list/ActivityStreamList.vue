@@ -427,8 +427,21 @@ export default {
       if (this.streamFilter === 'unread_spaces_stream') {
         this.activities = [];
       }
+      const firstNewIndex = this.activitiesToDisplay.length;
       this.limit += this.pageSize;
-      this.loadActivityIds();
+      const loadPromise = this.loadActivityIds();
+      if (loadPromise) {
+        loadPromise
+          .then(() => this.$nextTick())
+          .then(() => this.focusActivityAt(firstNewIndex));
+      }
+    },
+    focusActivityAt(index) {
+      const activity = this.activitiesToDisplay[index];
+      const element = activity && document.getElementById(`activity-detail-${activity.id}`);
+      if (element) {
+        element.focus();
+      }
     },
     loadActivities(newActivitiesCount) {
       this.limit += newActivitiesCount;

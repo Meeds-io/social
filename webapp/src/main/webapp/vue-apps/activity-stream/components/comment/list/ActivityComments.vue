@@ -1,6 +1,7 @@
 <template>
   <v-list
     v-if="comments"
+    :aria-label="commentsCountLabel"
     class="flex d-flex flex-column transparent">
     <activity-comment
       v-for="comment in comments"
@@ -18,6 +19,7 @@
       v-if="allowEdit && newCommentEditor && !selectedCommentIdToReply && initialized"
       ref="commentRichEditor"
       class="mb-6"
+      role="listitem"
       :activity-id="activityId"
       :space-id="spaceId"
       :comment-type-extension="commentTypeExtension"
@@ -71,6 +73,11 @@ export default {
     initializedComment: 0,
   }),
   computed: {
+    commentsCountLabel() {
+      return this.comments?.length === 1
+        && this.$t('activity.singleComment')
+        || this.$t('activity.commentsCount', {0: this.comments?.length || 0});
+    },
     activityId() {
       return this.activity && this.activity.id;
     },

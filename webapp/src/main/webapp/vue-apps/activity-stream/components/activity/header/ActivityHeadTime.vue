@@ -5,6 +5,7 @@
     <v-icon
       v-if="!noIcon"
       class="icon-default-color me-1"
+      aria-hidden="true"
       x-small>
       far fa-clock
     </v-icon>

@@ -7,6 +7,7 @@
     object-type="activity"
     alternate-id-field="activityId"
     class="application-background-color application-border application-border-radius activity-detail flex flex-column"
+    tabindex="-1"
     @read="markAsRead"
     @unread="markAsUnread">
     <div v-if="displayLoading" class="d-flex">
@@ -17,14 +18,6 @@
         class="mx-auto my-10" />
     </div>
     <template v-else-if="!noExtension && extendedComponent">
-      <activity-head
-        v-if="!extendedComponent.overrideHeader"
-        :activity="activity"
-        :activity-actions="activityActions"
-        :is-activity-detail="isActivityDetail"
-        :activity-type-extension="activityTypeExtension"
-        :hide-menu="hideMenu"
-        :class="isActivityShared && 'py-4 px-0' || 'py-2 ps-4 pe-1'" />
       <template v-if="!loading">
         <extension-registry-component
           :component="extendedComponentOptions"
@@ -33,6 +26,15 @@
           :params="extendedComponentParams"
           class="d-flex flex-column" />
       </template>
+      <activity-head
+        v-if="!extendedComponent.overrideHeader"
+        :activity="activity"
+        :activity-actions="activityActions"
+        :is-activity-detail="isActivityDetail"
+        :activity-type-extension="activityTypeExtension"
+        :hide-menu="hideMenu"
+        :class="isActivityShared && 'py-4 px-0' || 'py-2 ps-4 pe-1'"
+        class="order-first" />
       <template v-if="!hideFooter">
         <activity-footer
           v-if="!extendedComponent.overrideFooter"
@@ -50,14 +52,6 @@
       </template>
     </template>
     <template v-else>
-      <activity-head
-        :activity="activity"
-        :activity-actions="activityActions"
-        :is-activity-detail="isActivityDetail"
-        :activity-type-extension="activityTypeExtension"
-        :is-activity-shared="isActivityShared"
-        :hide-menu="hideMenu"
-        :class="isActivityShared && 'py-4 px-0' || 'py-2 ps-4 pe-1'" />
       <v-card 
         v-if="!loading" 
         color="transparent" 
@@ -72,6 +66,15 @@
           element="div"
           class="d-flex flex-column" />
       </v-card>
+      <activity-head
+        :activity="activity"
+        :activity-actions="activityActions"
+        :is-activity-detail="isActivityDetail"
+        :activity-type-extension="activityTypeExtension"
+        :is-activity-shared="isActivityShared"
+        :hide-menu="hideMenu"
+        :class="isActivityShared && 'py-4 px-0' || 'py-2 ps-4 pe-1'"
+        class="order-first" />
       <template v-if="!hideFooter">
         <activity-footer
           :activity="activity"
