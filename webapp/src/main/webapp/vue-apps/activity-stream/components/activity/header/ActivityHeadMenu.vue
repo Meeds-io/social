@@ -209,9 +209,9 @@ export default {
       return this.isActionDisabled(action) && action.disabledTitleKey && this.$t(action.disabledTitleKey) || '';
     },
     clickOnAction(action) {
+      // the menu closes: a dialog or a side panel the action opens brings the focus back to its button
+      this.$el.querySelector('.activityHeadMenuButton')?.focus();
       if (action.confirmDialog) {
-        // the menu closes: the confirmation dialog brings the focus back to its button
-        this.$el.querySelector('.activityHeadMenuButton')?.focus();
         this.closeMenu();
         this.$root.$emit('activity-stream-display-confirm', {
           title: action.confirmTitleKey,
