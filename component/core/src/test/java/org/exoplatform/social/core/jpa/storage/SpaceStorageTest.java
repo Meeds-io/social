@@ -1656,6 +1656,14 @@ public class SpaceStorageTest extends AbstractCoreTest {
     return space;
   }
 
+  public void testAVisitWhoseStoreWriteFailsIsLoggedOnly() {
+    Space space = getSpaceInstance(1);
+    spaceStorage.saveSpace(space, true);
+    // The store has no membership to update for a user who is not a member:
+    // its write fails, and the visit goes on
+    spaceStorage.updateSpaceAccessed("not-a-member", space);
+  }
+
   public void testGetLastAccessedSpace() {
     // create a new space
     Space space = getSpaceInstance(1);
