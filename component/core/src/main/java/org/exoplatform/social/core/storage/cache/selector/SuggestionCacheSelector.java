@@ -25,8 +25,10 @@ import org.exoplatform.social.core.storage.cache.model.key.IdentityKey;
 import org.exoplatform.social.core.storage.cache.model.key.SuggestionKey;
 
 public class SuggestionCacheSelector extends CacheSelector<CacheKey, Object> {
+
+  private static final long serialVersionUID = 1L;
   
-  private String[] target;
+  private final String[]    target;
 
   public SuggestionCacheSelector(String... target) {
     this.target = target;
@@ -35,9 +37,6 @@ public class SuggestionCacheSelector extends CacheSelector<CacheKey, Object> {
   @Override
   public boolean select(CacheKey key, ObjectCacheInfo<? extends Object> ocinfo) {
     
-    if (!super.select(key, ocinfo)) {
-      return false;
-    }
 
     if (key instanceof SuggestionKey) {
       return select((SuggestionKey) key, ocinfo);
@@ -69,4 +68,10 @@ public class SuggestionCacheSelector extends CacheSelector<CacheKey, Object> {
     return false;
   }
   
+
+  @Override
+  protected Object[] criteria() {
+    return new Object[] { target };
+  }
+
 }

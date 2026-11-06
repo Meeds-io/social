@@ -29,7 +29,9 @@ import org.exoplatform.social.core.storage.cache.model.key.RelationshipIdentityK
 
 public class RelationshipCacheSelector extends CacheSelector<CacheKey, Object> {
 
-  private String[] target;
+  private static final long serialVersionUID = 1L;
+
+  private final String[]    target;
 
   public RelationshipCacheSelector(final String... target) {
     this.target = target;
@@ -37,10 +39,6 @@ public class RelationshipCacheSelector extends CacheSelector<CacheKey, Object> {
 
   @Override
   public boolean select(final CacheKey key, final ObjectCacheInfo<? extends Object> ocinfo) {
-
-    if (!super.select(key, ocinfo)) {
-      return false;
-    }
 
     if (key instanceof ListRelationshipsKey) {
       return select((ListRelationshipsKey) key);
@@ -78,6 +76,11 @@ public class RelationshipCacheSelector extends CacheSelector<CacheKey, Object> {
 
     return true;
 
+  }
+
+  @Override
+  protected Object[] criteria() {
+    return new Object[] { target };
   }
 
 }

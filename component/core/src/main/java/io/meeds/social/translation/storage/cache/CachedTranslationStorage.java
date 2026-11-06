@@ -20,17 +20,12 @@ package io.meeds.social.translation.storage.cache;
 
 import java.util.Locale;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
+import java.util.Set;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.commons.cache.future.Loader;
 import org.exoplatform.services.cache.CacheService;
-import org.exoplatform.services.cache.CachedObjectSelector;
 import org.exoplatform.services.cache.ExoCache;
-import org.exoplatform.services.cache.ObjectCacheInfo;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 import org.exoplatform.social.metadata.MetadataService;
 
 import io.meeds.social.translation.model.TranslationField;
@@ -38,9 +33,6 @@ import io.meeds.social.translation.storage.TranslationStorage;
 import io.meeds.social.translation.storage.cache.model.CacheKey;
 
 public class CachedTranslationStorage extends TranslationStorage {
-
-  private static final Log                                   LOG                    =
-                                                                 ExoLogger.getLogger(CachedTranslationStorage.class);
 
   private static final String                                TRANSLATION_CACHE_NAME = "social.translation";
 
@@ -73,16 +65,17 @@ public class CachedTranslationStorage extends TranslationStorage {
     try {
       super.deleteTranslationLabel(objectType, objectId, fieldName, locale);
     } finally {
-      clearCache(objectType, objectId);
+      clearCache(objectType, objectId, fieldName);
     }
   }
 
   @Override
   public void deleteTranslationLabels(String objectType, String objectId) {
+    Set<String> fieldNames = super.getAllTranslationFields(objectType, objectId).keySet();
     try {
       super.deleteTranslationLabels(objectType, objectId);
     } finally {
-      clearCache(objectType, objectId);
+      fieldNames.forEach(fieldName -> clearCache(objectType, objectId, fieldName));
     }
   }
 
@@ -96,7 +89,7 @@ public class CachedTranslationStorage extends TranslationStorage {
     try {
       super.saveTranslationLabel(objectType, objectId, fieldName, locale, label, audienceId, spaceId);
     } finally {
-      clearCache(objectType, objectId);
+      clearCache(objectType, objectId, fieldName);
     }
   }
 
@@ -109,31 +102,16 @@ public class CachedTranslationStorage extends TranslationStorage {
     try {
       super.saveTranslationLabels(objectType, objectId, fieldName, labels, audienceId, spaceId);
     } finally {
-      clearCache(objectType, objectId);
+      clearCache(objectType, objectId, fieldName);
     }
   }
 
-  private void clearCache(String objectType, String objectId) {
-    try {
-      translationCache.select(new CachedObjectSelector<CacheKey, TranslationField>() {
-        @Override
-        public boolean select(CacheKey key, ObjectCacheInfo<? extends TranslationField> ocinfo) {
-          return StringUtils.equals(key.getObjectType(), objectType) && StringUtils.equals(objectId, key.getObjectId());
-        }
-
-        @Override
-        public void onSelect(ExoCache<? extends CacheKey, ? extends TranslationField> cache, CacheKey key,
-                             ObjectCacheInfo<? extends TranslationField> ocinfo) throws Exception {
-          cache.remove(key);
-        }
-      });
-    } catch (Exception e) {
-      LOG.warn("Unable to clean cache entries for object {} with id {}. Clean all cache entries to preserve coherence.",
-               objectType,
-               objectId,
-               e);
-      translationCache.clearCache();
-    }
+  /**
+   * Removes the entry of the field by its key, which reaches every node of a
+   * cluster: a selection of entries only reaches those of this node
+   */
+  private void clearCache(String objectType, String objectId, String fieldName) {
+    translationCache.remove(new CacheKey(objectType, objectId, fieldName));
   }
 
 }

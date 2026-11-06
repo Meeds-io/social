@@ -18,11 +18,19 @@
  */
 package org.exoplatform.social.core.jpa.storage;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import io.meeds.social.space.constant.SpaceMembershipStatus;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
@@ -30,12 +38,21 @@ import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
+import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceExternalInvitationDAO;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAO;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAO;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.model.AvatarAttachment;
+import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.web.security.security.RemindPasswordTokenService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 import org.exoplatform.social.core.storage.cache.SocialStorageCacheService;
 import org.exoplatform.social.core.storage.cache.model.data.ListSpacesData;
 import org.exoplatform.social.core.storage.cache.model.key.ListSpacesKey;
@@ -1574,6 +1591,27 @@ public class SpaceStorageTest extends AbstractCoreTest {
     assertEquals(space3.getId(), result.get(0).getId());
   }
 
+  public void testMemberSpacesSortedByLastVisitFollowAVisit() throws Exception {
+    Space space2 = getSpaceInstance(7);
+    spaceStorage.saveSpace(space2, true);
+    Space space3 = getSpaceInstance(8);
+    spaceStorage.saveSpace(space3, true);
+
+    SpaceFilter filter = new SpaceFilter();
+    filter.setSorting(new Sorting(Sorting.SortBy.LASTVISITED, Sorting.OrderBy.DESC));
+
+    List<Space> result = spaceStorage.getMemberSpacesByFilter("ghost", filter, 0, -1);
+    assertEquals(2, result.size());
+    assertEquals(space2.getId(), result.get(0).getId());
+
+    restartTransaction();
+    spaceStorage.updateSpaceAccessed("ghost", space3);
+
+    result = spaceStorage.getMemberSpacesByFilter("ghost", filter, 0, -1);
+    assertEquals(2, result.size());
+    assertEquals(space3.getId(), result.get(0).getId());
+  }
+
   /**
    * The last-visit order alone does not order anything below the spaces the
    * user has actually opened: every other space carries the same default date,
@@ -1632,6 +1670,27 @@ public class SpaceStorageTest extends AbstractCoreTest {
     space.setUrl(space.getPrettyName());
     spaceStorage.saveSpace(space, true);
     return space;
+  }
+
+  public void testAVisitWhoseStoreWriteFailsIsLoggedOnly() {
+    SpaceMemberDAO failingMemberships = mock(SpaceMemberDAO.class);
+    when(failingMemberships.getSpaceMemberShip(anyString(), anyLong(), any())).thenThrow(new IllegalStateException("store unavailable"));
+    CachedSpaceStorage storage = new CachedSpaceStorage(getService(SpaceDAO.class),
+                                                        failingMemberships,
+                                                        identityStorage,
+                                                        getService(IdentityDAO.class),
+                                                        getService(ActivityDAO.class),
+                                                        getService(SpaceExternalInvitationDAO.class),
+                                                        cacheService,
+                                                        getService(FavoriteService.class),
+                                                        getService(RemindPasswordTokenService.class));
+    Space space = getSpaceInstance(1);
+    space.setId(1L);
+
+    // The store write fails, and the visit goes on
+    storage.updateSpaceAccessed("raul", space);
+
+    verify(failingMemberships).getSpaceMemberShip("raul", 1L, SpaceMembershipStatus.MEMBER);
   }
 
   public void testGetLastAccessedSpace() {
