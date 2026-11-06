@@ -174,7 +174,7 @@ export default {
         this.refreshMobileNavigations();
       } else {
         this.computeSiteBodyMargin();
-        this.measureNavigations();
+        void this.measureNavigations();
       }
     },
     smallDevice() {
@@ -260,7 +260,7 @@ export default {
       if (this.isMobile) {
         this.refreshMobileNavigations();
       } else {
-        this.measureNavigations();
+        void this.measureNavigations();
       }
     },
     buildMoreNavigation(children) {
@@ -294,7 +294,7 @@ export default {
       } finally {
         this.measuring = false;
       }
-      this.refreshVisibleCount();
+      void this.refreshVisibleCount();
     },
     // A menu item's root element is its v-menu, rendered apart from the tab that activates it
     findTabElement(vm) {
@@ -315,9 +315,9 @@ export default {
     handleResize() {
       // A measure taken before the menu was laid out reads no width at all: measure again once it has one
       if (this.$el.clientWidth && this.navigations.length && !this.tabWidths.some(Boolean)) {
-        this.measureNavigations();
+        void this.measureNavigations();
       } else {
-        this.refreshVisibleCount();
+        void this.refreshVisibleCount();
       }
     },
     async refreshVisibleCount() {
