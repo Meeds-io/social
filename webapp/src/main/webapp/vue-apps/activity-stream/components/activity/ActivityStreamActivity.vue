@@ -6,7 +6,7 @@
     :object-id="activityId"
     object-type="activity"
     alternate-id-field="activityId"
-    class="application-background-color application-border application-border-radius activity-detail flex flex-column"
+    class="application-background-color application-border application-border-radius activity-detail flex d-flex flex-column"
     tabindex="-1"
     @read="markAsRead"
     @unread="markAsUnread">
