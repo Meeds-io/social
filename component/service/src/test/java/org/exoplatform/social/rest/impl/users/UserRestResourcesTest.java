@@ -2317,7 +2317,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                           recoveryService,
                           localeConfigService,
                           settingService,
-                          otpService));
+                          otpService,
+                          accountKindService));
   }
 
   private ContainerResponse getResponseAs(String method, String path, String input, String remoteUser) throws Exception {
