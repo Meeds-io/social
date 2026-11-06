@@ -2871,7 +2871,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                           localeConfigService,
                           settingService,
                           otpService,
-                          profileFormFieldService));
+                          profileFormFieldService,
+                          accountKindService));
   }
 
   private void createFormSetting(String name, Consumer<ProfilePropertySetting> configurer) throws Exception {
