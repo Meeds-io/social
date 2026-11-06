@@ -108,7 +108,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         <span>{{ connector.label }}</span>
         <v-btn
           :aria-label="$t('search.connector.option.remove.ariaLabel', {0: connector.label})"
-          class="ms-1 me-n2"
+          class="searchConnectorRemoveButton ms-1 me-n2"
           icon
           x-small
           @click="$emit('select-connector', connector)">

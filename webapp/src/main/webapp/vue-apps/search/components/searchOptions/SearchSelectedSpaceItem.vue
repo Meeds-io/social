@@ -35,7 +35,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <span>{{ spaceDisplayName }}</span>
     <v-btn
       :aria-label="$t('search.space.filter.remove.ariaLabel', {0: spaceDisplayName})"
-      class="ms-1 me-n2"
+      class="searchSpaceRemoveButton ms-1 me-n2"
       icon
       x-small
       @click="$emit('delete-selected-space', space)">
