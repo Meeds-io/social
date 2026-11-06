@@ -42,7 +42,7 @@
         const element = parseInert(textData);
   
         for (const linkElement of findOutsideNoscript(element, 'a.content-link')) {
-          textData = textData.replace(linkElement.outerHTML, () => `<content-link contenteditable="false" style="display: none;">/${linkElement.getAttribute('data-object')}</content-link>`);
+          textData = textData.replace(linkElement.outerHTML, () => `<content-link contenteditable="false" style="display: none;">/${escapeHtml(linkElement.getAttribute('data-object'))}</content-link>`);
         }
         evt.data.dataValue = textData;
       });
