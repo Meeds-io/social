@@ -38,12 +38,15 @@
     <div id="spacesListBody" class="flex-grow-1 flex-shrink-1">
       <div
         v-if="spacesSize"
-        class="d-flex flex-wrap border-box-sizing">
+        :aria-label="$t('spacesList.list.ariaLabel', {0: spacesSize})"
+        class="d-flex flex-wrap border-box-sizing"
+        role="list">
         <space-card
           v-for="space in spaces"
           :key="space.id"
           :space="space"
           :space-action-extensions="spaceActionExtensions"
+          role="listitem"
           :style="cardFlexBasis && `flex-basis: ${cardFlexBasis}`"
           :height="cardHeight"
           :min-height="cardHeight"
@@ -256,13 +259,22 @@ export default {
         this.hasSpaces = this.hasSpaces || this.spacesSize > 0;
         this.$emit('loaded', data?.size || 0);
         await this.$nextTick();
+        this.focusFirstNewSpace();
       } finally {
         this.$emit('loading-spaces', false);
         this.initialized = true;
       }
     },
     loadNextPage() {
+      this.firstNewSpaceIndex = this.spaces.length;
       this.originalLimitToFetch = this.limitToFetch += this.pageSize;
+    },
+    focusFirstNewSpace() {
+      const index = this.firstNewSpaceIndex;
+      this.firstNewSpaceIndex = null;
+      if (index > 0) {
+        this.$el.querySelectorAll('.space-card-link')[index]?.focus();
+      }
     },
     getExpand() {
       if (this.$root.anonymous) {

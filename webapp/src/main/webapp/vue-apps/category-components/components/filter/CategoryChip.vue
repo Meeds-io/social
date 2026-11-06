@@ -45,13 +45,16 @@
         :color="selected && 'primary'"
         :small="small"
         :tabindex="tabindex"
+        :aria-pressed="selected ? 'true' : 'false'"
         class="text-truncate border-box-sizing"
+        role="button"
         @focus="menu = true">
         <v-card
           :title="category.name"
           :class="[
-            selected && 'white--text' || 'primary--text',
+            selected && 'white--text font-weight-bold' || 'primary--text',
           ]"
+          :style="selected && 'text-decoration: underline;'"
           :max-width="maxWidth"
           color="transparent"
           width="auto"
@@ -64,6 +67,8 @@
           :color="selected && 'white' || 'primary'"
           class="ms-2"
           size="16"
+          aria-hidden="true"
+          tabindex="-1"
           right
           @click.stop.prevent="menu = true">
           fa-chevron-down
@@ -99,14 +104,18 @@
     :color="selected && 'primary'"
     :small="small"
     :tabindex="tabindex"
+    :aria-pressed="selected ? 'true' : 'false'"
     class="text-truncate border-box-sizing"
+    role="button"
     @click.prevent.stop="openCategory(category)"
-    @keydown.enter.stop.prevent="openCategory(category)">
+    @keydown.enter.stop.prevent="openCategory(category)"
+    @keydown.space.stop.prevent="openCategory(category)">
     <v-card
       :title="category.name"
       :class="[
-        selected && 'white--text' || 'primary--text',
+        selected && 'white--text font-weight-bold' || 'primary--text',
       ]"
+      :style="selected && 'text-decoration: underline;'"
       :max-width="maxWidth"
       class="text-truncate"
       color="transparent"
