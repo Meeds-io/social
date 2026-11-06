@@ -106,7 +106,7 @@
               }).then(resp => resp?.ok && resp.json()).then(link => {
                 if (link) {
                   // A replacement function: the chip is inserted as is, with no $ pattern expanded
-                  textData = textData.replace(linkElement.outerHTML, () => `<a href="${escapeHtml(link.uri)}" target="_blank" data-object="${link.objectType}:${link.objectId}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${escapeHtml(link.title)}</a>`);
+                  textData = textData.replace(linkElement.outerHTML, () => `<a href="${escapeHtml(link.uri)}" target="_blank" data-object="${escapeHtml(link.objectType)}:${escapeHtml(link.objectId)}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${escapeHtml(link.title)}</a>`);
                 }
               });
             }
