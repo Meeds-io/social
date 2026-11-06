@@ -29,7 +29,7 @@
     :aria-modal="modal ? 'true' : null"
     :aria-labelledby="titleId"
     tabindex="0"
-    @keydown.tab="trapFocus">
+    @keydown.native.tab="trapFocus">
     <div
       v-if="initialized || eager"
       class="pa-0 fill-width fill-height">
