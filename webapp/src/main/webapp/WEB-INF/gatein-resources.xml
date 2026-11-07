@@ -3008,6 +3008,23 @@
       <module>ExtendedDomPurify</module>
     </depends>
     <depends>
+      <module>purifyDocumentVue</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>purifyDocumentVue</name>
+    <load-group>purifyGRP</load-group>
+    <script>
+      <path>/js/sanitize-document-directive.js</path>
+    </script>
+    <depends>
+      <module>purify</module>
+    </depends>
+    <depends>
       <module>vue</module>
     </depends>
   </module>

@@ -152,12 +152,12 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
           if (contentLink != null) {
             html = html.replace(contentLinkTag,
                                 String.format(CONTENT_LINK_HTML_TAG,
-                                              StringUtils.defaultIfBlank(contentLink.getUri(), ""),
+                                              escapeHtml(StringUtils.defaultIfBlank(contentLink.getUri(), "")),
                                               contentLink.isDrawer() ? DRAWER_ATTRIBUTE : "",
                                               contentLink.getObjectType(),
-                                              contentLink.getObjectId(),
-                                              StringUtils.defaultIfBlank(contentLink.getIcon(), ""),
-                                              contentLink.getTitle()));
+                                              escapeHtml(contentLink.getObjectId()),
+                                              escapeHtml(StringUtils.defaultIfBlank(contentLink.getIcon(), "")),
+                                              escapeHtml(contentLink.getTitle())));
           } else {
             Locale locale = ObjectUtils.firstNonNull(context.getLocale(), ResourceBundleService.DEFAULT_CROWDIN_LOCALE);
             html = getContentNotFoundHtml(html,
@@ -182,6 +182,18 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
       }
     }
     return html;
+  }
+
+  /**
+   * Escapes a value written into a chip, as a double-quoted attribute or as
+   * text: the characters that open markup or close the attribute, and only
+   * them, so that a value holding none is written unchanged.
+   *
+   * @param value a value of the linked object, its type's icon or a label
+   * @return the escaped value, null for a null value
+   */
+  private static String escapeHtml(String value) {
+    return value == null ? null : value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
   }
 
   private String replaceDataObjectTag(String html) {
@@ -251,17 +263,17 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
                           String.format(CONTENT_LINK_PRIVATE_HTML_TAG,
                                         extension.isDrawer() ? DRAWER_ATTRIBUTE : "",
                                         contentLinkIdentifier.getObjectType(),
-                                        contentLinkIdentifier.getObjectId(),
-                                        StringUtils.defaultIfBlank(extension.getIcon(), ""),
-                                        getPrivateLabel(extension.getPrivateTitleKey(), locale)));
+                                        escapeHtml(contentLinkIdentifier.getObjectId()),
+                                        escapeHtml(StringUtils.defaultIfBlank(extension.getIcon(), "")),
+                                        escapeHtml(getPrivateLabel(extension.getPrivateTitleKey(), locale))));
     }
     String icon = extension == null ? "fa-times" : extension.getIcon();
     return html.replace(contentLinkTag,
                         String.format(CONTENT_LINK_NOT_FOUND_HTML_TAG,
                                       contentLinkIdentifier.getObjectType(),
-                                      contentLinkIdentifier.getObjectId(),
-                                      icon,
-                                      restricted ? getRestrictedAccessLabel(locale) : getNotFoundLabel(locale)));
+                                      escapeHtml(contentLinkIdentifier.getObjectId()),
+                                      escapeHtml(icon),
+                                      escapeHtml(restricted ? getRestrictedAccessLabel(locale) : getNotFoundLabel(locale))));
   }
 
   /**
