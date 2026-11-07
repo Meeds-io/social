@@ -55,7 +55,8 @@
     <v-list-item
       :href="spaceLink"
       :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
-      :arial-label="$t('space.avatar.href.title',{0:space.prettyName})"
+      :aria-label="$t('space.avatar.href.title',{0:space.prettyName})"
+      :aria-current="isCurrentPage && 'page' || null"
       :title="spaceDisplayName"
       class="px-2 spaceItem"
       role="link">
@@ -156,6 +157,9 @@ export default {
     },
     toggleArrow() {
       return this.showItemActions || this.drawerOpened;
+    },
+    isCurrentPage() {
+      return !!this.spaceLink && eXo.env.server.portalBaseURL.includes(this.spaceLink);
     },
     drawerOpened() {
       return this.openedSpace?.id === this.space?.id;
