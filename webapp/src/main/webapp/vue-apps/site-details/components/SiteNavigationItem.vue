@@ -22,6 +22,7 @@
       mouseleave: () => showAction = false,
     }"
     :href="uri"
+    :aria-current="isCurrentPage && 'page' || null"
     :target="target"
     :rel="rel"
     :ripple="false"
@@ -100,6 +101,12 @@ export default {
     showAction: false,
   }),
   computed: {
+    // the same page the navigation tree highlights: the current site and its selected node
+    isCurrentPage() {
+      return !!this.navigation?.uri
+        && this.navigation?.siteKey?.name === eXo.env.portal.siteKeyName
+        && this.navigation.uri === eXo.env.portal.selectedNodeUri;
+    },
     isMobile() {
       return this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.md;
     },
