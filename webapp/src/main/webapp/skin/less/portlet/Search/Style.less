@@ -53,8 +53,12 @@
       left: 0;
     }
 
-    &:focus {
-      outline: none;
+    /* Above the platform's global :focus-visible outline, so only the whole-card ring below shows */
+    html:root body & {
+      &:focus,
+      &:focus-visible {
+        outline: none;
+      }
     }
 
     &:focus-visible::after {
@@ -98,8 +102,12 @@
       left: 0;
     }
 
-    &:focus {
-      outline: none;
+    /* Above the platform's global :focus-visible outline, so only the whole-card ring below shows */
+    html:root body & {
+      &:focus,
+      &:focus-visible {
+        outline: none;
+      }
     }
 
     &:focus-visible::after {
