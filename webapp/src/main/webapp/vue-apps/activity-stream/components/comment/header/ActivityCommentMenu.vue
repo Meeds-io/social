@@ -13,6 +13,7 @@
         <v-btn
           icon
           small
+          class="activityCommentMenuButton"
           :aria-label="$t('activity.head.menu.title.open')"
           v-bind="attrs"
           v-on="on">
@@ -210,6 +211,8 @@ export default {
       return this.isActionDisabled(action) && action.disabledTitleKey && this.$t(action.disabledTitleKey) || '';
     },
     clickOnAction(action) {
+      // the menu closes: a dialog or a side panel the action opens brings the focus back to its button
+      this.$el.querySelector('.activityCommentMenuButton')?.focus();
       this.closeMenu();
       if (action.confirmDialog) {
         this.$root.$emit('activity-stream-display-confirm', {
