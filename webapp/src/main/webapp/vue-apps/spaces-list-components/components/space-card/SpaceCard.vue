@@ -158,6 +158,10 @@ export default {
 };
 </script>
 <style lang="scss">
+  // Specificity above the global focus rule, so the link shows no ring of its own
+  html:root body .space-card-item .space-card-link:focus-visible {
+    outline: none;
+  }
   .space-card-item {
     .space-card-header {
       position: static;
@@ -171,9 +175,6 @@ export default {
         bottom: 0;
         left: 0;
         z-index: 2;
-      }
-      &:focus-visible {
-        outline: none;
       }
       // The focus indicator surrounds the whole card
       &:focus-visible::after {
