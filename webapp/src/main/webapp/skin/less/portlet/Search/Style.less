@@ -84,3 +84,32 @@
     opacity: 0;
   }
 }
+
+/* A people result is the compact user card: the person's name link is stretched over the card,
+   the card's buttons above it. */
+.search-people-card {
+  .userFullname {
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible::after {
+      outline: dashed 2px @primaryColor;
+      outline-offset: -2px;
+    }
+  }
+
+  .v-btn {
+    position: relative;
+    z-index: 1;
+  }
+}
