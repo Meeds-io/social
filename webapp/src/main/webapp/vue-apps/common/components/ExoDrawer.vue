@@ -25,9 +25,10 @@
     max-width="100vw"
     class="drawerParent overflow-initial"
     ref="drawerParent"
-    :role="drawer && !permanent ? 'dialog' : null"
-    :aria-modal="modal ? 'true' : null"
-    :aria-labelledby="titleId"
+    :role="isDialog() ? 'dialog' : null"
+    :aria-modal="isDialog() ? 'true' : null"
+    :aria-labelledby="isDialog() && $slots.title && !showFilter ? titleElementId : null"
+    :aria-label="isDialog() && !$slots.title ? ariaLabel : null"
     tabindex="0"
     @keydown.native.tab="trapFocus">
     <div
@@ -345,6 +346,10 @@ export default {
     autofocus: {
       type: Boolean,
       default: true
+    },
+    ariaLabel: {
+      type: String,
+      default: null
     }
   },
   data: () => ({
@@ -365,14 +370,6 @@ export default {
   computed: {
     titleElementId() {
       return `drawerTitle-${this._uid}`;
-    },
-    titleId() {
-      return this.$slots.title && !this.showFilter && this.titleElementId || null;
-    },
-    modal() {
-      // v-navigation-drawer is always rendered temporary: it is a modal
-      // dialog unless the consumer docks it (permanent)
-      return this.drawer && !this.permanent;
     },
     zIndex() {
       return this.drawer ? (this.drawerZIndex + (eXo.openedDrawers?.length || 0)) : this.drawerZIndex;
@@ -554,8 +551,14 @@ export default {
         }
       });
     },
+    isDialog() {
+      // v-navigation-drawer is always rendered temporary: it is a modal
+      // dialog unless the consumer docks it (permanent) or leaves it
+      // unnamed (a menu rather than a dialog). Not a computed: the slots are not reactive.
+      return this.drawer && !this.permanent && !!(this.$slots.title || this.ariaLabel);
+    },
     trapFocus(event) {
-      if (!this.modal) {
+      if (!this.isDialog()) {
         return;
       }
       const root = this.$refs.drawerParent?.$el;
