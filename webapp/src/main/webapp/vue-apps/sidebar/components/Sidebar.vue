@@ -387,8 +387,11 @@ export default {
         this.closeMenuEffectively();
       }
     },
+    // focus reached with the keyboard inside the menu: a clicked entry keeps the focus too, without :focus-visible
     hasKeyboardFocus() {
-      return !!document.activeElement?.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent');
+      const active = document.activeElement;
+      return !!active?.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')
+        && !!active.matches?.(':focus-visible');
     },
     closeOnEscape() {
       if (this.firstLevelDrawer || this.secondLevelDrawer || this.thirdLevelDrawer) {
