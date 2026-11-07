@@ -30,7 +30,10 @@
         :expanded="firstLevelDrawer"
         @open-drawer="openFirstLevel" />
     </v-hover>
-    <div class="layout-side-bar" @keydown.esc="closeOnEscape">
+    <div
+      class="layout-side-bar"
+      @keydown.esc="closeOnEscape"
+      @focusout="closeOnFocusLeave">
       <template v-if="$root.displaySequentially">
         <sidebar-third-level
           v-if="allowDisplayLevels"
@@ -389,6 +392,18 @@ export default {
     },
     closeOnEscape() {
       if (this.firstLevelDrawer || this.secondLevelDrawer || this.thirdLevelDrawer) {
+        this.closeMenuEffectively();
+      }
+    },
+    // a menu shown over the page closes once the keyboard focus leaves all its levels
+    closeOnFocusLeave(event) {
+      const target = event.relatedTarget;
+      if (this.$root.sticky || this.$root.icon || !target
+          || target.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')) {
+        return;
+      }
+      if (this.firstLevelDrawer || this.secondLevelDrawer || this.thirdLevelDrawer) {
+        this.focusReturnPending = false;
         this.closeMenuEffectively();
       }
     },
