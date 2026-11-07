@@ -30,7 +30,7 @@
         :expanded="firstLevelDrawer"
         @open-drawer="openFirstLevel" />
     </v-hover>
-    <div class="layout-side-bar">
+    <div class="layout-side-bar" @keydown.esc="closeOnEscape">
       <template v-if="$root.displaySequentially">
         <sidebar-third-level
           v-if="allowDisplayLevels"
@@ -166,6 +166,11 @@ export default {
         this.space = null;
         this.site = null;
         this.secondLevel = null;
+      } else if (this.hasKeyboardFocus()) {
+        // opened from the keyboard: the focus follows into the second level
+        window.setTimeout(() => document.querySelector('.HamburgerMenuSecondLevelParent')
+          ?.querySelector?.('a[href], button:not([disabled]), [tabindex="0"]')
+          ?.focus(), 400);
       }
     },
     firstLevelDrawer() {
@@ -374,7 +379,16 @@ export default {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
         return;
       }
-      if (!this.hover) {
+      // the menu stays open while it is used, with the mouse or with the keyboard
+      if (!this.hover && !this.hasKeyboardFocus()) {
+        this.closeMenuEffectively();
+      }
+    },
+    hasKeyboardFocus() {
+      return !!document.activeElement?.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent');
+    },
+    closeOnEscape() {
+      if (this.firstLevelDrawer || this.secondLevelDrawer || this.thirdLevelDrawer) {
         this.closeMenuEffectively();
       }
     },
