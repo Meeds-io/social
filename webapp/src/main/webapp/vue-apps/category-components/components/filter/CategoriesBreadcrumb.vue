@@ -48,6 +48,7 @@
           :selected-id="selectedId"
           class="flex-shrink-0"
           selected
+          toggle
           @select="$emit('select', $event)" />
       </div>
     </div>

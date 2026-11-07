@@ -45,7 +45,7 @@
         :color="selected && 'primary'"
         :small="small"
         :tabindex="tabindex"
-        :aria-pressed="selected ? 'true' : 'false'"
+        :aria-pressed="toggle ? String(selected) : null"
         class="text-truncate border-box-sizing"
         role="button"
         @focus="menu = true">
@@ -104,7 +104,7 @@
     :color="selected && 'primary'"
     :small="small"
     :tabindex="tabindex"
-    :aria-pressed="selected ? 'true' : 'false'"
+    :aria-pressed="toggle ? String(selected) : null"
     class="text-truncate border-box-sizing"
     role="button"
     @click.prevent.stop="openCategory(category)"
@@ -133,6 +133,10 @@ export default {
       default: null,
     },
     selectedId: {
+      type: Boolean,
+      default: false,
+    },
+    toggle: {
       type: Boolean,
       default: false,
     },
