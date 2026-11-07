@@ -148,9 +148,15 @@ export default {
     restoreFocus() {
       const opener = this.opener;
       this.opener = null;
-      if (opener && document.body.contains(opener)) {
-        window.setTimeout(() => opener.focus?.(), 50);
-      }
+      window.setTimeout(() => {
+        // only when the focus was not moved elsewhere meanwhile (e.g. by a side panel the dialog closed),
+        // and back to an opener still shown
+        const active = document.activeElement;
+        const focusLost = !active || active === document.body || active.closest?.('.v-dialog');
+        if (focusLost && opener && document.body.contains(opener) && opener.getClientRects().length) {
+          opener.focus?.();
+        }
+      }, 50);
     },
     ok(event) {
       if (event) {

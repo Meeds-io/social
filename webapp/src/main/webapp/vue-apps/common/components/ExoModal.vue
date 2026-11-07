@@ -137,7 +137,10 @@ export default {
       const opener = this.opener;
       this.opener = null;
       window.setTimeout(() => {
-        if (opener && document.body.contains(opener)) {
+        // only when the focus was not moved elsewhere meanwhile, and back to an opener still shown
+        const active = document.activeElement;
+        const focusLost = !active || active === document.body || active.closest?.('.v-dialog');
+        if (focusLost && opener && document.body.contains(opener) && opener.getClientRects().length) {
           opener.focus();
         }
       }, 50);
