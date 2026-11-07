@@ -1,31 +1,33 @@
 <template>
-  <v-list
+  <div
     v-if="comments"
-    :aria-label="commentsCountLabel"
-    class="flex d-flex flex-column transparent">
-    <activity-comment
-      v-for="comment in comments"
-      :key="comment.id"
-      :activity="activity"
-      :comment="comment"
-      :sub-comments="comment.subComments"
-      :new-reply-editor="newCommentEditor && selectedCommentIdToReply === comment.id"
-      :editor-options="replyLastEditorOptions"
-      :comment-types="commentTypes"
-      :comment-actions="commentActions"
-      :comment-editing="commentEditing"
-      @comment-initialized="handleCommentInitialized" />
+    class="flex d-flex flex-column">
+    <v-list
+      :aria-label="commentsCountLabel"
+      class="flex d-flex flex-column transparent pa-0">
+      <activity-comment
+        v-for="comment in comments"
+        :key="comment.id"
+        :activity="activity"
+        :comment="comment"
+        :sub-comments="comment.subComments"
+        :new-reply-editor="newCommentEditor && selectedCommentIdToReply === comment.id"
+        :editor-options="replyLastEditorOptions"
+        :comment-types="commentTypes"
+        :comment-actions="commentActions"
+        :comment-editing="commentEditing"
+        @comment-initialized="handleCommentInitialized" />
+    </v-list>
     <activity-comment-rich-text
       v-if="allowEdit && newCommentEditor && !selectedCommentIdToReply && initialized"
       ref="commentRichEditor"
       class="mb-6"
-      role="listitem"
       :activity-id="activityId"
       :space-id="spaceId"
       :comment-type-extension="commentTypeExtension"
       :options="commentLastEditorOptions"
       :label="$t('UIActivity.label.Comment')" />
-  </v-list>
+  </div>
 </template>
 
 <script>
