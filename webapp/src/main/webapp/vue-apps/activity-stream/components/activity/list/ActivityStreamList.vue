@@ -424,17 +424,25 @@ export default {
       }
     },
     loadMore() {
+      const shownIds = new Set((this.activitiesToDisplay || []).map(a => a.id));
+      const firstNewIndex = shownIds.size;
       if (this.streamFilter === 'unread_spaces_stream') {
         this.activities = [];
       }
-      const firstNewIndex = this.activitiesToDisplay.length;
       this.limit += this.pageSize;
       const loadPromise = this.loadActivityIds();
       if (loadPromise) {
         loadPromise
           .then(() => this.$nextTick())
-          .then(() => this.focusActivityAt(firstNewIndex));
+          .then(() => this.focusFirstNewActivity(shownIds, firstNewIndex));
       }
+    },
+    focusFirstNewActivity(shownIds, firstNewIndex) {
+      let index = this.activitiesToDisplay.findIndex(a => !shownIds.has(a.id));
+      if (index < 0) {
+        index = firstNewIndex;
+      }
+      this.focusActivityAt(index);
     },
     focusActivityAt(index) {
       const activity = this.activitiesToDisplay[index];
