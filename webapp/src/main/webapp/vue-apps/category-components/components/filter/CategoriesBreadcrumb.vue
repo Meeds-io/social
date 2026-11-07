@@ -48,7 +48,7 @@
           :selected-id="selectedId"
           class="flex-shrink-0"
           selected
-          toggle
+          :toggle="toggle"
           @select="$emit('select', $event)" />
       </div>
     </div>
@@ -57,6 +57,11 @@
 <script>
 export default {
   props: {
+    // the chips are filter toggles (the categories filter), not navigation (a drawer)
+    toggle: {
+      type: Boolean,
+      default: false,
+    },
     breadcrumb: {
       type: Array,
       default: null,
