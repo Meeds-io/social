@@ -23,6 +23,7 @@
     }"
     :href="uri"
     :aria-current="isCurrentPage && 'page' || null"
+    :aria-label="linkLabel"
     :target="target"
     :role="isTreeGroup ? 'button' : null"
     :tabindex="isTreeGroup ? '0' : null"
@@ -167,6 +168,10 @@ export default {
     },
     navigationLabel() {
       return this.navigation?.label;
+    },
+    // the entry's own name: the home button inside it must not add to it
+    linkLabel() {
+      return this.unreadBadge && this.enableUnread ? `${this.navigationLabel} ${this.unreadBadge}` : this.navigationLabel;
     },
     navigationLabelStyle() {
       return this.unreadBadge > 0 ? { 'max-width': '140px' } : { 'max-width': '200px'};

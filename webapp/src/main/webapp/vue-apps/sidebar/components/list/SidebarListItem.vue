@@ -36,6 +36,7 @@
       <v-list-item
         :title="spacesTooltip"
         :aria-expanded="spacesExpanded"
+        :aria-label="$t(item.name)"
         :class="$root.iconCollapse && 'mx-0'"
         role="button"
         class="d-flex ps-3"
@@ -314,6 +315,8 @@ export default {
     itemAttributes() {
       const attributes = {};
       attributes.role = this.isUrl && 'link' || 'button';
+      // its own name: the buttons inside the entry (arrow, home) must not add to it
+      attributes['aria-label'] = this.spaceUnreadCount ? `${this.item.name} ${this.spaceUnreadCount}` : this.item.name;
       if (this.isCurrentPage) {
         attributes['aria-current'] = 'page';
       }
