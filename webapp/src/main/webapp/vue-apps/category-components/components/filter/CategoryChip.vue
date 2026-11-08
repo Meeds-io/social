@@ -52,9 +52,8 @@
         <v-card
           :title="category.name"
           :class="[
-            selected && 'white--text font-weight-bold' || 'primary--text',
+            selected && 'white--text font-weight-bold text-decoration-underline' || 'primary--text',
           ]"
-          :style="selected && 'text-decoration: underline;'"
           :max-width="maxWidth"
           color="transparent"
           width="auto"
@@ -113,9 +112,8 @@
     <v-card
       :title="category.name"
       :class="[
-        selected && 'white--text font-weight-bold' || 'primary--text',
+        selected && 'white--text font-weight-bold text-decoration-underline' || 'primary--text',
       ]"
-      :style="selected && 'text-decoration: underline;'"
       :max-width="maxWidth"
       class="text-truncate"
       color="transparent"

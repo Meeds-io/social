@@ -31,7 +31,6 @@
         v-on="on"
         :aria-label="$t(labelKey, {0: count})"
         :aria-pressed="filter !== 'requests' ? String(isSelected) : null"
-        :style="isSelected && 'border-width: 2px;'"
         :class="{
           'primary-border-color' : isSelected,
           'border-color-transparent' : !isSelected,
