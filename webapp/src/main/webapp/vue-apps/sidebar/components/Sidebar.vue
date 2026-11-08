@@ -169,11 +169,18 @@ export default {
         this.space = null;
         this.site = null;
         this.secondLevel = null;
-      } else if (this.hasKeyboardFocus()) {
-        // opened from the keyboard: the focus follows into the second level
-        window.setTimeout(() => document.querySelector('.HamburgerMenuSecondLevelParent')
-          ?.querySelector?.('a[href], button:not([disabled]), [tabindex="0"]')
-          ?.focus(), 400);
+      }
+    },
+    // a panel opened, or showing another entry, from the keyboard: the focus follows into it. The kind of
+    // content, the site or the space it shows, and the third level each change on their own
+    secondLevel() {
+      if (this.secondLevel) {
+        this.focusOpenedLevelFromKeyboard();
+      }
+    },
+    thirdLevelDrawer() {
+      if (this.thirdLevelDrawer) {
+        this.focusOpenedLevelFromKeyboard();
       }
     },
     firstLevelDrawer() {
@@ -215,9 +222,15 @@ export default {
     },
     site() {
       this.$root.openedSiteName = this.site?.name;
+      if (this.site) {
+        this.focusOpenedLevelFromKeyboard();
+      }
     },
     space() {
       this.$root.openedSpaceId = this.space?.id;
+      if (this.space) {
+        this.focusOpenedLevelFromKeyboard();
+      }
     },
     mode(newVal, oldVal) {
       if (newVal !== oldVal) {
@@ -385,6 +398,20 @@ export default {
       // the menu stays open while it is used, with the mouse or with the keyboard
       if (!this.hover && !this.hasKeyboardFocus()) {
         this.closeMenuEffectively();
+      }
+    },
+    // the deepest level open once the panels have moved in
+    focusOpenedLevelFromKeyboard() {
+      if (this.hasKeyboardFocus()) {
+        window.setTimeout(() => {
+          const level = (this.thirdLevelDrawer && '.HamburgerMenuThirdLevelParent')
+            || (this.secondLevelDrawer && '.HamburgerMenuSecondLevelParent');
+          if (level) {
+            document.querySelector(level)
+              ?.querySelector?.('a[href], button:not([disabled]), [tabindex="0"]')
+              ?.focus();
+          }
+        }, 400);
       }
     },
     // focus reached with the keyboard inside the menu: a clicked entry keeps the focus too, without :focus-visible

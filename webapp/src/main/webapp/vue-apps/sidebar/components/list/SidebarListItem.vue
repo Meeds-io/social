@@ -62,11 +62,13 @@
             {{ $t(item.name) }}
           </v-list-item-title>
         </v-list-item-content>
+        <!-- Enter on its button stops here: the entry, a list item, would take it as its own click and toggle the panel back -->
         <v-list-item-action
           v-if="toggleArrow && $root.expand"
           class="my-auto align-center"
           @mousedown.stop.prevent
-          @mouseup.stop.prevent>
+          @mouseup.stop.prevent
+          @keydown.enter.stop>
           <ripple-hover-button
             :active="!drawerOpened"
             :title="$t('menu.accessToSpacesList')"
@@ -147,7 +149,8 @@
         v-if="toggleArrow && $root.expand"
         class="my-auto align-center z-index-one position-relative"
         @mousedown.stop.prevent
-        @mouseup.stop.prevent>
+        @mouseup.stop.prevent
+        @keydown.enter.stop>
         <ripple-hover-button
           :active="!drawerOpened"
           :title="$t('menu.accessToPagesList')"
@@ -167,7 +170,8 @@
         v-else-if="isPage"
         class="my-auto align-center"
         @mousedown.stop.prevent
-        @mouseup.stop.prevent>
+        @mouseup.stop.prevent
+        @keydown.enter.stop>
         <v-btn
           v-if="$root.expand && $root.allowUserHome"
           v-show="hover || focused || isHome"
