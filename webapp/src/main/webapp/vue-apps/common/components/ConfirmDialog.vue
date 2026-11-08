@@ -15,9 +15,8 @@
       <div class="ignore-vuetify-classes popupHeader ClearFix" :class="isBrandingLayout && 'layout-drawer' || ''">
         <button
           type="button"
-          class="uiIconClose pull-right"
+          class="uiIconClose pull-right no-border pa-0 transparent clickable"
           :aria-label="$t('label.close')"
-          style="border: 0; padding: 0; background-color: transparent; cursor: pointer;"
           @click="close"></button>
         <!-- eslint-disable-next-line vue/no-v-html -->
         <span

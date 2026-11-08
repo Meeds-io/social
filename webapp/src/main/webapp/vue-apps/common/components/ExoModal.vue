@@ -15,8 +15,7 @@
         <button
           :aria-label="$t('label.close')"
           type="button"
-          class="uiIconClose pull-right"
-          style="border:0;padding:0;background-color:transparent;cursor:pointer"
+          class="uiIconClose pull-right no-border pa-0 transparent clickable"
           @click="close"></button>
         <!-- eslint-disable-next-line vue/no-v-html -->
         <span :id="titleId" class="ignore-vuetify-classes PopupTitle popupTitle text-truncate" v-html="title"></span>
