@@ -33,6 +33,7 @@
     <div
       class="layout-side-bar"
       @keydown.esc="closeOnEscape"
+      @focusin="$root.focusMenu = hasKeyboardFocus()"
       @focusout="closeOnFocusLeave">
       <template v-if="$root.displaySequentially">
         <sidebar-third-level
@@ -428,6 +429,9 @@ export default {
     // a menu shown over the page closes once the keyboard focus leaves all its levels
     closeOnFocusLeave(event) {
       const target = event.relatedTarget;
+      if (!target?.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')) {
+        this.$root.focusMenu = false;
+      }
       if (this.$root.sticky || this.$root.icon || !target
           || target.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')) {
         return;
