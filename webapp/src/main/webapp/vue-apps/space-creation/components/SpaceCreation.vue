@@ -30,7 +30,9 @@
           @click="addNewSpace">
           <span class="full-width text-truncate"> {{ $root.label }} </span>
           <v-icon
-            v-if="$root.isAdministrator && hover"
+            v-if="$root.isAdministrator"
+            :aria-label="$t('space.creation.instantiation.settingsDrawer.title')"
+            :class="{ 'd-sr-only-focusable': !hover }"
             color="white"
             size="16"
             @click.stop="openDrawerSettings">
