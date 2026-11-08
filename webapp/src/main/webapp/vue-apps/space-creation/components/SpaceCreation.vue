@@ -21,23 +21,27 @@
 <template>
   <v-hover v-slot="{ hover }">
     <v-app>
-      <div class="d-flex justify-center">
+      <!-- the settings cog is a button of its own beside the create button, drawn over its end -->
+      <div class="d-flex justify-center align-center">
         <v-btn
+          :class="$root.isAdministrator && hover && 'pe-10'"
           color="primary"
           class="d-block"
           elevation="0"
           max-width="92%"
           @click="addNewSpace">
           <span class="full-width text-truncate"> {{ $root.label }} </span>
-          <v-icon
-            v-if="$root.isAdministrator"
-            :aria-label="$t('space.creation.instantiation.settingsDrawer.title')"
-            :class="{ 'd-sr-only-focusable': !hover }"
-            color="white"
-            size="16"
-            @click.stop="openDrawerSettings">
-            fa-cog
-          </v-icon>
+        </v-btn>
+        <v-btn
+          v-if="$root.isAdministrator"
+          :aria-label="$t('space.creation.instantiation.settingsDrawer.title')"
+          :class="{ 'd-sr-only-focusable': !hover }"
+          class="ms-n9"
+          icon
+          small
+          dark
+          @click="openDrawerSettings">
+          <v-icon size="16">fa-cog</v-icon>
         </v-btn>
       </div>
       <space-creation-settings-drawer
