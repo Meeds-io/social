@@ -24,9 +24,15 @@
     :href="uri"
     :aria-current="isCurrentPage && 'page' || null"
     :target="target"
+    :role="isTreeGroup ? 'button' : null"
+    :tabindex="isTreeGroup ? '0' : null"
+    :aria-expanded="isTreeGroup ? String(open) : null"
     :rel="rel"
     :ripple="false"
-    class="d-flex px-0">
+    class="d-flex px-0"
+    @keydown.enter.space="toggleGroup"
+    @focusin="onFocusIn"
+    @focusout="onFocusOut">
     <v-list-item-avatar
       v-if="iconUrl"
       class="d-flex align-center justify-center my-auto ms-0 me-3"
@@ -67,6 +73,7 @@
       class="ms-auto my-auto flex-shrink-0">
       <v-btn
         :title="$t('menu.spaces.makeAsHomePage')"
+        :aria-label="$t('menu.spaces.makeAsHomePage')"
         height="36"
         min-width="36"
         icon
@@ -92,6 +99,11 @@ export default {
       default: false,
     },
     enableUnread: {
+      type: Boolean,
+      default: false,
+    },
+    // the tree node holding this entry shows its children
+    open: {
       type: Boolean,
       default: false,
     },
@@ -143,6 +155,10 @@ export default {
     isNodeGroup() {
       return !this.navigation.pageKey;
     },
+    // a node grouping pages without a page of its own: the keyboard opens it as a button
+    isTreeGroup() {
+      return !this.uri && !!this.navigation?.children?.length;
+    },
     isHomeLink() {
       return this.uri === this.homeLink;
     },
@@ -156,8 +172,16 @@ export default {
       return this.unreadBadge > 0 ? { 'max-width': '140px' } : { 'max-width': '200px'};
     },
   },
+  watch: {
+    open() {
+      this.$nextTick(this.describeTreeToggle);
+    },
+  },
   created() {
     document.addEventListener('homeLinkUpdated', this.updateHome);
+  },
+  mounted() {
+    this.describeTreeToggle();
   },
   beforeDestroy() {
     document.removeEventListener('homeLinkUpdated', this.updateHome);
@@ -172,6 +196,39 @@ export default {
     },
     updateHome() {
       this.homeLink = eXo.env.portal.homeLink;
+    },
+    // Enter or Space on a group node: the tree node opens it on click
+    toggleGroup(event) {
+      if (this.isTreeGroup) {
+        event.preventDefault();
+        this.$el.click();
+      }
+    },
+    // the entry's actions show on keyboard focus as on hover
+    onFocusIn(event) {
+      if (!this.isMobile && event.target.matches?.(':focus-visible')) {
+        this.showAction = true;
+      }
+    },
+    onFocusOut(event) {
+      if (!event.relatedTarget || !this.$el.contains(event.relatedTarget)) {
+        this.showAction = false;
+      }
+    },
+    // the tree's own toggle has no name: a group node's is left out, the node itself being the button; a
+    // page's is named after its sub-pages
+    describeTreeToggle() {
+      const toggle = this.$el?.closest?.('.v-treeview-node__root')?.querySelector?.('.v-treeview-node__toggle');
+      if (!toggle) {
+        return;
+      }
+      if (this.isTreeGroup) {
+        toggle.setAttribute('tabindex', '-1');
+        toggle.setAttribute('aria-hidden', 'true');
+      } else {
+        toggle.setAttribute('aria-label', this.$t('menu.subPagesOf', {0: this.navigationLabel}));
+        toggle.setAttribute('aria-expanded', String(this.open));
+      }
     },
   },
 };
