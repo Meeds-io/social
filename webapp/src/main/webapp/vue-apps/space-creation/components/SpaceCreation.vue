@@ -24,7 +24,7 @@
       <!-- the settings cog is a button of its own beside the create button, drawn over its end -->
       <div class="d-flex justify-center align-center">
         <v-btn
-          :class="$root.isAdministrator && hover && 'pe-10'"
+          :class="$root.isAdministrator && (hover || cogFocused) && 'pe-10'"
           color="primary"
           class="d-block"
           elevation="0"
@@ -40,6 +40,8 @@
           icon
           small
           dark
+          @focus="cogFocused = true"
+          @blur="cogFocused = false"
           @click="openDrawerSettings">
           <v-icon size="16">fa-cog</v-icon>
         </v-btn>
@@ -53,6 +55,10 @@
 
 <script>
 export default {
+  data: () => ({
+    // the cog holds the focus: the create button keeps the room the cog is drawn over
+    cogFocused: false,
+  }),
   methods: {
     addNewSpace() {
       window.require(['SHARED/spaceForm'], drawer => drawer.open(null, this.$root.spaceTemplates));
