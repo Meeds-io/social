@@ -39,7 +39,8 @@
           :user-navigation-extensions="userNavigationExtensions"
           :space-members-extensions="spaceMembersExtensions"
           :profile-action-extensions="profileActionExtensions"
-          :display-menu-button="displayCompactMenuButton || $root.isMobile || hover"
+          :hide-menu-button-until-focus="!(displayCompactMenuButton || $root.isMobile || hover)"
+          display-menu-button
           :bottom-menu="$root.isMobile"
           :attach-menu="attachMenu"
           menu-button-class="me-1" />

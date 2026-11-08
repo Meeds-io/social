@@ -36,9 +36,10 @@
     <template #activator="{ on }">
       <v-btn
         v-show="displayMenuButton"
+        :aria-label="$t('peopleList.label.openUserMenu')"
         v-on="on"
         :title="$t('peopleList.label.openUserMenu')"
-        :class="menuButtonClass"
+        :class="[menuButtonClass, hideMenuButtonUntilFocus && !displayActionMenu && 'd-sr-only-focusable']"
         icon
         @touchstart.stop="0"
         @touchend.stop="0"
@@ -99,6 +100,10 @@ export default {
       default: false
     },
     displayMenuButton: {
+      type: Boolean,
+      default: false
+    },
+    hideMenuButtonUntilFocus: {
       type: Boolean,
       default: false
     },
