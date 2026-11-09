@@ -1481,6 +1481,11 @@ public class UserRest implements ResourceContainer, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   @Operation(summary = "Updates a specific user by user name", method = "PUT", description = "This updates the user if he is the authenticated user.")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "User updated"),
+    @ApiResponse(responseCode = "400", description = "Unknown user"),
+    @ApiResponse(responseCode = "401", description = "A first or last name the administrator made non-editable is changed"),
+    @ApiResponse(responseCode = "403", description = "The user is not the authenticated user") })
   public Response updateUserById(
                                  @Context
                                  UriInfo uriInfo,
@@ -2232,20 +2237,29 @@ public class UserRest implements ResourceContainer, Startable {
    * entries at once, so each non-editable sub-field must keep exactly its
    * stored entries, a blank entry counting as none, since a save drops it. An
    * entry's key names the sub-field by its setting's name, or by that name
-   * without the parent's name and a dot before it.
+   * without the parent's name and a dot before it. A text shaped as an array
+   * is read back by the storage as entries, so it counts as a change.
    */
   private boolean changesNonEditableChild(ProfilePropertySetting parentSetting, Object storedValue, Object newValue) {
     List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
     if (settings == null || parentSetting.getId() == null) {
       return false;
     }
+    List<String> nonEditableChildNames = settings.stream()
+                                                 .filter(setting -> parentSetting.getId().equals(setting.getParentId())
+                                                                    && !setting.isEditable())
+                                                 .map(ProfilePropertySetting::getPropertyName)
+                                                 .toList();
+    if (nonEditableChildNames.isEmpty()) {
+      return false;
+    } else if (newValue instanceof String text && text.startsWith("[") && text.endsWith("]")) {
+      return true;
+    }
     String keyPrefix = parentSetting.getPropertyName() + ".";
-    return settings.stream()
-                   .filter(setting -> parentSetting.getId().equals(setting.getParentId()) && !setting.isEditable())
-                   .map(ProfilePropertySetting::getPropertyName)
-                   .anyMatch(childName -> !getChildValues(storedValue, keyPrefix, childName).equals(getChildValues(newValue,
-                                                                                                                   keyPrefix,
-                                                                                                                   childName)));
+    return nonEditableChildNames.stream()
+                                .anyMatch(childName -> !getChildValues(storedValue, keyPrefix, childName).equals(getChildValues(newValue,
+                                                                                                                                keyPrefix,
+                                                                                                                                childName)));
   }
 
   private List<String> getChildValues(Object parentValue, String keyPrefix, String childName) {

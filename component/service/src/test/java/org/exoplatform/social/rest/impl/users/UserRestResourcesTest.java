@@ -37,6 +37,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +57,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.xml.InitParams;
@@ -65,7 +67,6 @@ import org.exoplatform.portal.rest.UserAccountConfirmation;
 import org.exoplatform.portal.rest.UserAccountConfirmationSettings;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.resources.LocaleConfigService;
@@ -129,6 +130,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
+
+  private static final String          CONTACT_LINES               = "contact-lines";
 
   private ProfilePropertyService       profilePropertyService;
 
@@ -253,6 +256,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   public void tearDown() throws Exception {
     getContainer().unregisterComponent(UserAccountConfirmationSettings.class);
     confirmedSessionUser = null;
+    Identity mary = identityManager.getOrCreateUserIdentity("mary");
+    if (mary != null && mary.getProfile().getProperty(CONTACT_LINES) != null) {
+      mary.getProfile().removeProperty(CONTACT_LINES);
+      identityManager.updateProfile(mary.getProfile());
+    }
     super.tearDown();
     for (ProfilePropertySetting propertySetting : tearDownProfilePropertyList) {
       profilePropertyService.deleteProfilePropertySetting(propertySetting.getId());
@@ -2150,7 +2158,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
    */
   public void testNonEditableSubFieldIsKeptWhenItsParentIsSaved() throws Exception {
     ProfilePropertySetting parent = new ProfilePropertySetting();
-    parent.setPropertyName("contact-lines");
+    parent.setPropertyName(CONTACT_LINES);
     parent.setPropertyType("text");
     parent.setMultiValued(true);
     parent.setEditable(true);
@@ -2164,7 +2172,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     tearDownProfilePropertyList.add(0, freeChild);
 
     Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
-    maryProfile.setProperty("contact-lines",
+    maryProfile.setProperty(CONTACT_LINES,
                             new ArrayList<>(List.of(Map.of("key", "locked-line", "value", "stored-locked"),
                                                     Map.of("key", "free-line", "value", "stored-free"))));
     identityManager.updateProfile(maryProfile);
@@ -2203,7 +2211,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
    */
   public void testNonEditableSubFieldIsKeptUnderItsShortKey() throws Exception {
     ProfilePropertySetting parent = new ProfilePropertySetting();
-    parent.setPropertyName("contact-lines");
+    parent.setPropertyName(CONTACT_LINES);
     parent.setPropertyType("text");
     parent.setMultiValued(true);
     parent.setEditable(true);
@@ -2213,7 +2221,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     tearDownProfilePropertyList.add(0, createChildSetting(parent, "contact-lines.locked-line", false));
 
     Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
-    maryProfile.setProperty("contact-lines",
+    maryProfile.setProperty(CONTACT_LINES,
                             new ArrayList<>(List.of(Map.of("key", "locked-line", "value", "stored-locked"))));
     identityManager.updateProfile(maryProfile);
 
@@ -2243,12 +2251,52 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
+   * A text written to a parent property that the storage reads back as
+   * entries is refused when the parent has a non-editable sub-field, and
+   * nothing is stored, while an ordinary text is stored
+   */
+  public void testNonEditableSubFieldIsNotFilledThroughItsParentText() throws Exception {
+    ProfilePropertySetting parent = new ProfilePropertySetting();
+    parent.setPropertyName(CONTACT_LINES);
+    parent.setPropertyType("text");
+    parent.setMultiValued(true);
+    parent.setEditable(true);
+    parent.setActive(true);
+    parent = profilePropertyService.createPropertySetting(parent);
+    tearDownProfilePropertyList.add(parent);
+    tearDownProfilePropertyList.add(0, createChildSetting(parent, "locked-line", false));
+
+    startSessionAs("mary");
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    String entries = URLEncoder.encode("[{\"key\":\"locked-line\",\"value\":\"filled\"}]", StandardCharsets.UTF_8);
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/mary"),
+                                         "",
+                                         headers,
+                                         ("name=" + CONTACT_LINES + "&value=" + entries).getBytes(),
+                                         "mary");
+    assertEquals(401, response.getStatus());
+    Identity mary = identityManager.getOrCreateUserIdentity("mary");
+    assertNull(identityManager.getIdentity(mary.getId()).getProfile().getProperty(CONTACT_LINES));
+
+    response = service("PATCH",
+                       getURLResource("users/mary"),
+                       "",
+                       headers,
+                       ("name=" + CONTACT_LINES + "&value=plain").getBytes(),
+                       "mary");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    assertEquals("plain", identityManager.getIdentity(mary.getId()).getProfile().getProperty(CONTACT_LINES));
+  }
+
+  /**
    * A blank stored entry of a non-editable sub-field, which a save drops, does
    * not refuse the save of its parent's editable sub-fields
    */
   public void testBlankNonEditableSubFieldEntryKeepsTheParentSavable() throws Exception {
     ProfilePropertySetting parent = new ProfilePropertySetting();
-    parent.setPropertyName("contact-lines");
+    parent.setPropertyName(CONTACT_LINES);
     parent.setPropertyType("text");
     parent.setMultiValued(true);
     parent.setEditable(true);
@@ -2259,7 +2307,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     tearDownProfilePropertyList.add(0, createChildSetting(parent, "free-line", true));
 
     Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
-    maryProfile.setProperty("contact-lines",
+    maryProfile.setProperty(CONTACT_LINES,
                             new ArrayList<>(List.of(Map.of("key", "locked-line", "value", " "),
                                                     Map.of("key", "free-line", "value", "stored-free"))));
     identityManager.updateProfile(maryProfile);
@@ -2346,7 +2394,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   /**
    * The account update refuses a change of a non-editable first or last name
-   * and keeps the stored one, and stores a request that keeps it unchanged
+   * and keeps the stored one, stores a request that keeps it unchanged, and
+   * stores an administrator's change
    */
   public void testAccountUpdateKeepsNonEditableNames() throws Exception {
     ProfilePropertySetting firstName = getStoredSetting(Profile.FIRST_NAME);
@@ -2356,6 +2405,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     User mary = organizationService.getUserHandler().findUserByName("mary");
     String storedFirstName = mary.getFirstName();
     String storedLastName = mary.getLastName();
+    String rootFirstName = organizationService.getUserHandler().findUserByName("root").getFirstName();
     try {
       setEditable(firstName, false);
       startSessionAs("mary");
@@ -2375,6 +2425,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       response = getResponseAs("PUT", "/v1/social/users/mary", "{\"lastname\":\"Changed again\"}", "mary");
       assertEquals(401, response.getStatus());
       assertEquals("Changed", organizationService.getUserHandler().findUserByName("mary").getLastName());
+
+      startSessionAs("root", true);
+      response = getResponseAs("PUT", "/v1/social/users/root", "{\"firstname\":\"Administrator\"}", "root");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals("Administrator", organizationService.getUserHandler().findUserByName("root").getFirstName());
     } finally {
       setEditable(getStoredSetting(Profile.FIRST_NAME), firstNameEditable);
       setEditable(getStoredSetting(Profile.LAST_NAME), lastNameEditable);
@@ -2382,6 +2437,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       user.setFirstName(storedFirstName);
       user.setLastName(storedLastName);
       organizationService.getUserHandler().saveUser(user, true);
+      User root = organizationService.getUserHandler().findUserByName("root");
+      root.setFirstName(rootFirstName);
+      organizationService.getUserHandler().saveUser(root, true);
     }
   }
 
@@ -2411,7 +2469,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   @SuppressWarnings("unchecked")
   private List<String> getContactLines(String username, String key) {
-    Object lines = identityManager.getOrCreateUserIdentity(username).getProfile().getProperty("contact-lines");
+    Object lines = identityManager.getOrCreateUserIdentity(username).getProfile().getProperty(CONTACT_LINES);
     return ((List<Map<String, String>>) lines).stream()
                                               .filter(line -> key.equals(line.get("key")))
                                               .map(line -> line.get("value"))
