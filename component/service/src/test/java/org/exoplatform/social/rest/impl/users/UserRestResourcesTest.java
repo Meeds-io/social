@@ -2253,7 +2253,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   /**
    * A text written to a parent property that the storage reads back as
    * entries is refused when the parent has a non-editable sub-field, and
-   * nothing is stored, while an ordinary text is stored
+   * nothing is stored, while an ordinary text is stored, and such a text on
+   * a parent whose sub-fields are all editable is accepted
    */
   public void testNonEditableSubFieldIsNotFilledThroughItsParentText() throws Exception {
     ProfilePropertySetting parent = new ProfilePropertySetting();
@@ -2288,6 +2289,30 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                        "mary");
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
     assertEquals("plain", identityManager.getIdentity(mary.getId()).getProfile().getProperty(CONTACT_LINES));
+
+    ProfilePropertySetting openParent = new ProfilePropertySetting();
+    openParent.setPropertyName("contact-notes");
+    openParent.setPropertyType("text");
+    openParent.setMultiValued(true);
+    openParent.setEditable(true);
+    openParent.setActive(true);
+    openParent = profilePropertyService.createPropertySetting(openParent);
+    tearDownProfilePropertyList.add(openParent);
+    tearDownProfilePropertyList.add(0, createChildSetting(openParent, "note-line", true));
+    try {
+      String openEntries = URLEncoder.encode("[{\"key\":\"note-line\",\"value\":\"noted\"}]", StandardCharsets.UTF_8);
+      response = service("PATCH",
+                         getURLResource("users/mary"),
+                         "",
+                         headers,
+                         ("name=contact-notes&value=" + openEntries).getBytes(),
+                         "mary");
+      assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    } finally {
+      Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      maryProfile.removeProperty("contact-notes");
+      identityManager.updateProfile(maryProfile);
+    }
   }
 
   /**
