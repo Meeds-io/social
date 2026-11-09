@@ -11,5 +11,6 @@ Shared by the platform as the `SHARED/mermaid` module (`js/mermaidLoader.js`), l
   - Apache-2.0: @chevrotain/types;
   - Unlicense: robust-predicates;
   - DOMPurify: MPL-2.0 or Apache-2.0, at the user's choice; the platform takes it under Apache-2.0.
+- Bundled versions: the tree above is what npm resolves from Mermaid's ranges today; Mermaid's dist was built with its own versions. Those the dist names are DOMPurify 3.4.12 (the tree has 3.4.17), cytoscape 3.34.0 (3.34.4), KaTeX 0.16.47 and lodash-es 4.18.1 (the same). The dist's own banner for DOMPurify 3.4.12 states the same two licences; cytoscape differs by a patch release.
 
 To upgrade: replace this folder by the same files of the new version, rename it, rebuild `THIRD-PARTY-LICENSES.txt` and this list from the tree the new version resolves, and change `MERMAID_VERSION` in `js/mermaidLoader.js`.
