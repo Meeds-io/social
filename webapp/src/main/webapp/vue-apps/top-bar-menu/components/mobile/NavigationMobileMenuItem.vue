@@ -24,17 +24,17 @@
     v-model="showMenu"
     rounded
     offset-y>
-    <template #activator="{ attrs, on }">
+    <template #activator="{ on }">
       <v-tab
+        ref="tab"
         class="mx-auto pa-1 text-break navigation-mobile-menu-tab"
-        v-bind="attrs"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
         :rel="navigationNodeRel"
         :disabled="!hasPage && !hasChildren"
         :link="hasPage"
         :aria-label="navigation.label"
-        role="tab"
+        :aria-current="isSelected ? 'page' : null"
         @click="checkLink"
         @change="updateNavigationState(navigation.uri)">
         <span
@@ -46,15 +46,19 @@
           v-on="hasChildren && on"
           class="mt-2"
           icon
+          :aria-label="$t('topBar.navigation.menu.openSubMenu', [navigation.label])"
+          :aria-expanded="String(!!showMenu)"
+          aria-haspopup="menu"
           @click.stop.prevent="openDropMenu">
-          <v-icon size="20">
+          <v-icon size="20" aria-hidden="true">
             fa-angle-up
           </v-icon>
         </v-btn>
         <v-icon
           class="pa-3 mt-2"
           v-else-if="hasChildren"
-          size="20">
+          size="20"
+          aria-hidden="true">
           fa-angle-up
         </v-icon>
       </v-tab>
@@ -71,7 +75,10 @@
 </template>
 
 <script>
+import tabLinkSemantics from '../tabLinkSemantics.js';
+
 export default {
+  mixins: [tabLinkSemantics],
   props: {
     navigation: {
       type: Object,
@@ -80,7 +87,11 @@ export default {
     baseSiteUri: {
       type: String,
       default: null
-    }
+    },
+    selectedPath: {
+      type: String,
+      default: null
+    },
   },
   data: () => ({
     showMenu: false,
@@ -94,6 +105,9 @@ export default {
     this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   computed: {
+    isSelected() {
+      return this.selectedPath === this.navigationNodeUri;
+    },
     hasChildren() {
       return this.navigation?.children?.length;
     },
