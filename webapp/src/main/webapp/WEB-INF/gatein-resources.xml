@@ -312,6 +312,8 @@
     <application-name>social</application-name>
     <portlet-name>SidebarLogin</portlet-name>
     <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SidebarLogin/Style.css</css-path>
+    <css-priority>2</css-priority>
     <additional-module>ImageCropper</additional-module>
   </portlet-skin>
 

@@ -56,7 +56,7 @@
     responseWrapper.addHeader("Link", "</portal/rest/v1/social/attachments/cmsPortlet/" + settingName + "/" + backgroundFileId + ">; rel=prefetch; as=image; crossorigin=use-credentials", false);
   }
 %>
-<div class="VuetifyApp">
+<div class="VuetifyApp sidebarLogin">
   <div data-app="true"
     class="v-application white v-application--is-ltr theme--light sidebarLogin"
     id="<%=id%>">
