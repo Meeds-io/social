@@ -251,6 +251,12 @@ export default {
       }
     },
   },
+  mounted() {
+    this.unwatchTree = this.$utils.watchTreeview(this.$el, name => this.$t('categoryInput.subCategoriesOf', {0: name}));
+  },
+  beforeDestroy() {
+    this.unwatchTree?.();
+  },
   methods: {
     openDrawer() {
       this.initialized = false;

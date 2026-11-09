@@ -206,8 +206,12 @@ export default {
   created() {
     this.$root.$on('category-move-open', this.openDrawer);
   },
+  mounted() {
+    this.unwatchTree = this.$utils.watchTreeview(this.$el, name => this.$t('categoryManagement.subCategoriesOf', {0: name}));
+  },
   beforeDestroy() {
     this.$root.$off('category-move-open', this.openDrawer);
+    this.unwatchTree?.();
   },
   methods: {
     openDrawer(category) {

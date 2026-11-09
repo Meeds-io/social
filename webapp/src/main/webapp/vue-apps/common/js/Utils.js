@@ -203,3 +203,39 @@ export function isValidUrl(value) {
     phone: false
   })?.[0]?.getAnchorHref?.();
 }
+
+// A Vuetify 2 v-treeview sets no ARIA role and renders each toggle as an unnamed button: the tree is
+// exposed as nested lists, and each toggle is named after its node (labelOf(name)) with its expanded state.
+export function describeTreeview(root, labelOf) {
+  if (!root?.querySelectorAll) {
+    return;
+  }
+  root.querySelectorAll('.v-treeview, .v-treeview-node__children').forEach(list => list.setAttribute('role', 'list'));
+  root.querySelectorAll('.v-treeview-node').forEach(node => node.setAttribute('role', 'listitem'));
+  root.querySelectorAll('.v-treeview-node__toggle').forEach(toggle => {
+    const name = toggle.closest('.v-treeview-node__root')?.querySelector('.v-treeview-node__label')?.textContent?.trim() || '';
+    toggle.setAttribute('aria-label', labelOf(name));
+    toggle.setAttribute('aria-expanded', String(toggle.classList.contains('v-treeview-node__toggle--open')));
+  });
+}
+
+// Keeps the v-treeview elements under root described across the renders that rebuild their nodes
+// (children loaded, a node opened, a search). Returns the function that stops it.
+export function watchTreeview(root, labelOf) {
+  if (!root || !window.MutationObserver) {
+    return () => null;
+  }
+  let frame = 0;
+  const observer = new window.MutationObserver(() => {
+    if (!frame) {
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        describeTreeview(root, labelOf);
+      });
+    }
+  });
+  // the toggle's open state is a class change: the attributes this function sets are not observed
+  observer.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  describeTreeview(root, labelOf);
+  return () => observer.disconnect();
+}
