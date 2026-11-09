@@ -31,12 +31,14 @@
           <template v-if="space">
             <v-icon
               v-if="$vuetify.rtl"
+              aria-hidden="true"
               size="8"
               class="flex-grow-0 flex-shrink-0 mx-1 ps-1">
               fa-chevron-left
             </v-icon>
             <v-icon
               v-else
+              aria-hidden="true"
               size="8"
               class="flex-grow-0 flex-shrink-0 mx-1 ps-1">
               fa-chevron-right
