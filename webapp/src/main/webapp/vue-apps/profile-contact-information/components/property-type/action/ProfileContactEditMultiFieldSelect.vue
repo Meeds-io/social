@@ -78,7 +78,8 @@ export default {
       return this.properties.filter((obj, index, self) =>
         obj.isNew && !obj.value || (index === self.findIndex((t) => (
           t.propertyName === obj.propertyName
-        )) && obj.visible && obj.active)
+        )) && obj.visible && obj.active
+          && (obj.editable !== false || obj.propertyName === this.property.propertyName))
       );
     },
   },

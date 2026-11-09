@@ -2241,6 +2241,30 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
+   * The banner reset is refused to its owner when the banner is not editable,
+   * and an administrator still resets it
+   */
+  public void testBannerResetFollowsTheBannerEditableSetting() throws Exception {
+    ProfilePropertySetting banner = new ProfilePropertySetting();
+    banner.setPropertyName(Profile.BANNER);
+    banner.setPropertyType("text");
+    banner.setEditable(false);
+    banner.setActive(true);
+    tearDownProfilePropertyList.add(profilePropertyService.createPropertySetting(banner));
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    byte[] reset = ("name=" + Profile.BANNER + "&value=DEFAULT_BANNER").getBytes();
+
+    startSessionAs("mary");
+    ContainerResponse response = service("PATCH", getURLResource("users/mary"), "", headers, reset, "mary");
+    assertEquals(401, response.getStatus());
+
+    startSessionAs("root", true);
+    response = service("PATCH", getURLResource("users/mary"), "", headers, reset, "root");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+  }
+
+  /**
    * The account update refuses a change of a non-editable first or last name
    * and keeps the stored one, and stores a request that keeps it unchanged
    */

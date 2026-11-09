@@ -1194,6 +1194,9 @@ public class UserRest implements ResourceContainer, Startable {
         }
       }
       if (Profile.BANNER.equals(fieldName) && value.equals("DEFAULT_BANNER")) {
+        if (!canEdit(getPropertySetting(Profile.BANNER), currentUser)) {
+          throw new IllegalAccessException("Not allowed to update non modifiable field 'banner'");
+        }
         profile.setListUpdateTypes(Arrays.asList(UpdateType.BANNER));
         profile.setBannerUrl("DEFAULT_BANNER");
         profile.removeProperty(Profile.BANNER);
