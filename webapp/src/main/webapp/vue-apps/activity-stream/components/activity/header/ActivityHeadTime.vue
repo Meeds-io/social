@@ -5,11 +5,12 @@
     <v-icon
       v-if="!noIcon"
       class="icon-default-color me-1"
+      aria-hidden="true"
       x-small>
       far fa-clock
     </v-icon>
     <v-tooltip :disabled="isMobile" bottom>
-      <template #activator="{ on, attrs }">
+      <template #activator="{ on }">
         <v-btn
           :href="activityLink"
           :height="btnHeight"
@@ -19,7 +20,6 @@
           link
           text
           plain
-          v-bind="attrs"
           v-on="on">
           <span
             v-if="isScheduled"

@@ -2,7 +2,8 @@
   <div
     v-if="commentTypeExtension"
     :id="id"
-    class="d-inline-flex flex-column activity-comment border-box-sizing">
+    class="d-inline-flex flex-column activity-comment border-box-sizing"
+    role="listitem">
     <div
       v-if="isEditingComment"
       class="col-auto mb-4 py-0 flex-shrink-1">
@@ -86,7 +87,8 @@
     <div
       v-if="displayedSubCommentsSize"
       :class="highlightRepliesClass"
-      class="flex d-flex flex-column">
+      class="flex d-flex flex-column"
+      role="list">
       <activity-comment
         v-for="subComment in subCommentsToDisplay"
         :key="subComment.id"
