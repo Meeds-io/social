@@ -85,8 +85,9 @@
       <div class="ms-auto">
         <spaces-public-access-warning />
         <v-btn
-          v-if="$root.hover"
           id="spacesListSettingsButton"
+          :aria-label="$t('spacesList.settings.drawer.title')"
+          :class="{ 'd-sr-only-focusable': !$root.hover }"
           small
           icon
           @click="$root.$emit('spaces-list-settings-open')">
