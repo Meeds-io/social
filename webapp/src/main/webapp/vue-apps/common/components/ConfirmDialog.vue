@@ -18,11 +18,9 @@
           class="uiIconClose pull-right no-border pa-0 transparent clickable"
           :aria-label="$t('label.close')"
           @click="close"></button>
-        <!-- eslint-disable-next-line vue/no-v-html -->
         <span
           :id="titleId"
-          class="ignore-vuetify-classes text-title"
-          v-html="title"></span>
+          class="ignore-vuetify-classes text-title">{{ title }}</span>
       </div>
       <v-card-text :id="messageId" v-sanitized-html="message" />
       <v-card-actions v-if="!hideActions">

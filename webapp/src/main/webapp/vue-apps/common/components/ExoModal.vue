@@ -17,8 +17,7 @@
           type="button"
           class="uiIconClose pull-right no-border pa-0 transparent clickable"
           @click="close"></button>
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <span :id="titleId" class="ignore-vuetify-classes PopupTitle popupTitle text-truncate" v-html="title"></span>
+        <span :id="titleId" class="ignore-vuetify-classes PopupTitle popupTitle text-truncate">{{ title }}</span>
       </div>
       <slot></slot>
       <v-card-actions v-if="!hideActions">
