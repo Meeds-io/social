@@ -137,12 +137,21 @@
                 dense
                 background-color="white">
                 <template #append>
-                  <v-icon
-                    class="v-input__icon text-font-size mt-0"
-                    @click="toggleShow"
-                    :aria-label="showPassword ? $t('loginForm.hidePassword') : $t('loginForm.showPassword')">
-                    {{ showPassword ? 'fas fa-eye-slash' : 'fas fa-eye' }}
-                  </v-icon>
+                  <v-btn
+                    id="showPasswordButton"
+                    type="button"
+                    class="show-password-button mt-0"
+                    :aria-label="$t('loginForm.showPasswordButton')"
+                    :aria-pressed="showPassword ? 'true' : 'false'"
+                    icon
+                    x-small
+                    @click="toggleShow">
+                    <v-icon
+                      class="text-font-size"
+                      aria-hidden="true">
+                      {{ showPassword ? 'fas fa-eye-slash' : 'fas fa-eye' }}
+                    </v-icon>
+                  </v-btn>
                 </template>
               </v-text-field>
             </v-row>
