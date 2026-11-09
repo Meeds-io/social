@@ -44,13 +44,16 @@
       <span class="text-truncate">{{ configuredTitle }}</span>
     </p>
     <div
-      class="ms-auto d-flex">
+      class="ms-auto d-flex"
+      @focusin="onFocusIn"
+      @focusout="onFocusOut">
       <div>
         <v-btn
-          v-if="hover || isMobile"
+          :class="{ 'd-sr-only-focusable': !revealed }"
           class="ms-auto my-0 icon-default-color me-5"
           :loading="isPrintingPdf"
           :title="$t('organizationalChart.download.label')"
+          :aria-label="$t('organizationalChart.download.label')"
           small
           icon
           @click="downloadChart">
@@ -62,7 +65,8 @@
       </div>
       <div v-if="isAdmin">
         <v-btn
-          v-if="hover || isMobile"
+          :class="{ 'd-sr-only-focusable': !revealed }"
+          :aria-label="$t('organizationalChart.settings.title')"
           class="ms-auto my-0 icon-default-color"
           small
           icon
@@ -109,7 +113,21 @@ export default {
       default: false
     }
   },
+  data: () => ({
+    focused: false,
+  }),
+  computed: {
+    revealed() {
+      return this.hover || this.focused || this.isMobile;
+    },
+  },
   methods: {
+    onFocusIn(event) {
+      this.focused = event.target.matches(':focus-visible');
+    },
+    onFocusOut(event) {
+      this.focused = !!(event.relatedTarget && event.currentTarget.contains(event.relatedTarget));
+    },
     openChartSettingsDrawer() {
       this.$emit('open-chart-settings');
     },

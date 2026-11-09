@@ -2,7 +2,7 @@
   <div class="d-flex">
     <v-avatar
       id="profileAvatar"
-      :class="{ 'profileHeaderAvatarHoverEdit': owner && hover }"
+      :class="{ 'profileHeaderAvatarHoverEdit': owner && (hover || focused) }"
       :size="size"
       :min-width="minSize"
       :min-height="minSize"
@@ -22,15 +22,18 @@
         eager />
       <v-btn
         v-if="owner"
-        v-show="hover"
         ref="avatarInput"
         :title="$t('UIChangeAvatarContainer.label.ChangeAvatar')"
+        :aria-label="$t('UIChangeAvatarContainer.label.ChangeAvatar')"
+        :class="{ 'd-sr-only-focusable': !(hover || focused) }"
         id="profileAvatarEditButton"
         class="changeAvatarButton"
         icon
         outlined
         dark
-        @click="$emit('edit')">
+        @click="$emit('edit')"
+        @focus="focused = $event.target.matches(':focus-visible')"
+        @blur="focused = false">
         <v-icon size="18">fas fa-camera</v-icon>
       </v-btn>
     </v-avatar>
@@ -70,6 +73,9 @@ export default {
       default: null
     }
   },
+  data: () => ({
+    focused: false,
+  }),
   computed: {
     userAvatarUrl() {
       const dimension = `${this.maxSize}x${this.maxSize}`;

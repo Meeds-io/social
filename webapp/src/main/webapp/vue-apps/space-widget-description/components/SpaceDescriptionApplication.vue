@@ -32,9 +32,10 @@
             flat>
             <v-btn
               v-if="$root.isManager && !emptyDescription"
-              v-show="hover"
               :title="$t('social.space.description.editTooltip')"
+              :aria-label="$t('social.space.description.editTooltip')"
               :href="administrationUrl"
+              :class="{ 'd-sr-only-focusable': !hover }"
               height="27"
               width="27"
               min-width="auto"
