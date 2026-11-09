@@ -29,3 +29,10 @@
 body:has(.sidebarLogin) {
   --allPagesBackgroundColor: @white;
 }
+
+// The Branding and Theme page stores its own default page background color whenever its page styling is applied
+// or reset without choosing a color: portal marks body with default-page-background-color then, and these pages
+// keep white over that default, which is written inline on body, hence !important.
+body.default-page-background-color:has(.sidebarLogin) {
+  --allPagesBackgroundColor: @white !important;
+}
