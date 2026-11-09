@@ -6,14 +6,14 @@
       <v-list class="pa-0" :class="hover && 'light-grey-background-color no-border-radius' || ''">
         <v-list-item>
           <v-list-item-icon class="me-2 pt-1">
-            <!-- the poster's name below is the link to the profile: the avatar is part of the card -->
+            <!-- the poster's name below is the link to the profile, with its popover: the avatar is part of the card -->
             <span class="d-flex align-center justify-center pt-2px" aria-hidden="true">
               <exo-user-avatar
                 :identity="posterIdentity"
                 :size="32"
                 :extra-class="'object-fit-cover ma-auto'"
                 :url="false"
-                popover
+                :popover="false"
                 avatar />
             </span>
           </v-list-item-icon>
