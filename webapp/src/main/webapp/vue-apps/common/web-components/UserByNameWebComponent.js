@@ -1,3 +1,14 @@
+/**
+ * Encodes a user name as one URL path segment. '@', which a user name may hold
+ * and a path segment allows, is kept as it is.
+ *
+ * @param {string} username the user name
+ * @returns {string} the encoded path segment
+ */
+function encodeUsernameSegment(username) {
+  return encodeURIComponent(username).replace(/%40/g, '@');
+}
+
 class UserByName extends HTMLElement {
 
   constructor(params) {
@@ -13,7 +24,7 @@ class UserByName extends HTMLElement {
       // '.' and '..' stay dot segments once encoded: they name no user
       const identityLookup = username === '.' || username === '..' ?
         Promise.resolve(null)
-        : fetch(`/portal/rest/v1/social/identities/organization/${encodeURIComponent(username)}`, {
+        : fetch(`/portal/rest/v1/social/identities/organization/${encodeUsernameSegment(username)}`, {
           method: 'GET',
           credentials: 'include',
         }).then(resp => resp?.ok && resp.json());
@@ -30,7 +41,7 @@ class UserByName extends HTMLElement {
           htmlContent += '</a>';
           template.innerHTML = htmlContent;
           const node = template.content.firstElementChild;
-          node.setAttribute('href', `/portal/profile/${encodeURIComponent(username)}`);
+          node.setAttribute('href', `/portal/profile/${encodeUsernameSegment(username)}`);
           node.querySelector('img').setAttribute('src', identity.profile.avatar);
           node.querySelector('.overflow-hidden').textContent = identity.profile.fullname;
           this.replaceWith(node);
