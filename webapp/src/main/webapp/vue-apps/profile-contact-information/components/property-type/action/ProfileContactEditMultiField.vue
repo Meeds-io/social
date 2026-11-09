@@ -28,7 +28,7 @@
         <profile-dropdown-property
           v-if="property.dropdownList"
           :multi-valued="true"
-          :disabled="disabled"
+          :disabled="disabled || childProperty.editable === false"
           :parent-property="property"
           :property="childProperty"
           :property-label="getResolvedName(childProperty)"
@@ -38,7 +38,7 @@
           v-else
           :property="childProperty"
           :parent-propery="property"
-          :disabled="disabled"
+          :disabled="disabled || childProperty.editable === false"
           :properties="property.children"
           :multi-valued="property.multiValued"
           @propertyUpdated="propertyUpdated"
