@@ -1,4 +1,4 @@
-Third-party licences of mermaid@11.17.2 and the npm packages it depends on (113 packages, the tree `npm install mermaid@11.17.2` resolves), each package's licence file as it ships. Mermaid's dist bundles the parts of them it uses.
+Third-party licences of the 112 npm packages mermaid@11.17.2 depends on (the tree `npm install mermaid@11.17.2` resolves, Mermaid aside: its own licence is `LICENSE`), each package's licence file as it ships. Mermaid's dist bundles the parts of them it uses.
 
 ========================================================================
 @antfu/install-pkg@2.1.0 — MIT
