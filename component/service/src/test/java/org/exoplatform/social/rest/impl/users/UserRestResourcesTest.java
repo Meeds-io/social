@@ -2445,8 +2445,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   /**
    * The account update refuses a change of a non-editable first or last name
-   * and keeps the stored one, stores a request that keeps it unchanged, and
-   * stores an administrator's change
+   * and keeps the stored one, stores a request that keeps it unchanged or
+   * omits it, and stores an administrator's change
    */
   public void testAccountUpdateKeepsNonEditableNames() throws Exception {
     ProfilePropertySetting firstName = getStoredSetting(Profile.FIRST_NAME);
@@ -2463,6 +2463,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       ContainerResponse response = getResponseAs("PUT", "/v1/social/users/mary", "{\"firstname\":\"Changed\"}", "mary");
       assertEquals(401, response.getStatus());
       assertEquals(storedFirstName, organizationService.getUserHandler().findUserByName("mary").getFirstName());
+
+      response = getResponseAs("PUT", "/v1/social/users/mary", "{\"lastname\":\"Without first name\"}", "mary");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(storedFirstName, organizationService.getUserHandler().findUserByName("mary").getFirstName());
+      assertEquals("Without first name", organizationService.getUserHandler().findUserByName("mary").getLastName());
 
       response = getResponseAs("PUT",
                                "/v1/social/users/mary",
