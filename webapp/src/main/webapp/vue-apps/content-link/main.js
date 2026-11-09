@@ -112,7 +112,9 @@ export async function init() {
           element.setAttribute('contenteditable', 'false');
           element.setAttribute('class', 'content-link');
           element.setAttribute('href', link.uri);
-          element.appendHtml(`<i aria-hidden="true" class="v-icon notranslate fa ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${link.title}`);
+          element.appendHtml(`<i aria-hidden="true" class="v-icon notranslate fa ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>`);
+          // The title is the object's text: it is written as text, never parsed as markup
+          element.append(new CKEDITOR.dom.text(`${link.title}`)); // eslint-disable-line new-cap
           range.insertNode(element);
           range.moveToElementEditablePosition(element);
           await this.$nextTick();

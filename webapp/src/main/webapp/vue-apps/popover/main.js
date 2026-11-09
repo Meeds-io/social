@@ -60,7 +60,7 @@ Vue.directive('identity-popover', (el, binding) => {
 // attribute read as data and never evaluated. Any author can write that
 // attribute in content, so only a user's username or a space's id is used: the
 // displayed identity is the one the server returns for it.
-const POPOVER_JS_ESCAPES = {n: '\n', r: '\r', u2028: '\u2028', u2029: '\u2029'};
+const POPOVER_JS_ESCAPES = {n: '\n', r: '\r'};
 const rawPopoverUsers = new Map();
 const rawPopoverSpaces = new Map();
 
@@ -164,7 +164,9 @@ function parseIdentityPopoverValue(value) {
   const identity = {};
   let entry;
   while ((entry = entryPattern.exec(value || ''))) {
-    identity[entry[1]] = entry[2].replace(/\\(u2028|u2029|[\s\S])/g, (escape, character) => POPOVER_JS_ESCAPES[character] || character);
+    identity[entry[1]] = entry[2].replace(/\\(u[0-9a-fA-F]{4}|[\s\S])/g, (escape, character) => (character.length === 5
+      ? String.fromCharCode(parseInt(character.substring(1), 16))
+      : POPOVER_JS_ESCAPES[character] || character));
   }
   return Object.keys(identity).length && identity || null;
 }
