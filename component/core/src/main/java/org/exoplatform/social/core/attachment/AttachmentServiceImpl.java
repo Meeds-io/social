@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -117,6 +118,7 @@ public class AttachmentServiceImpl implements AttachmentService {
       throw new IllegalStateException("Updating the attachment list is not allowed for object type: "
           + attachmentList.getObjectType());
     }
+    checkReplacedFiles(attachmentList);
     return saveAttachments(attachmentList);
   }
 
@@ -198,7 +200,14 @@ public class AttachmentServiceImpl implements AttachmentService {
       String fileDiskLocation = uploadResource.getStoreLocation();
       String uploadId = uploadResource.getUploadId();
       try (InputStream inputStream = new FileInputStream(fileDiskLocation)) {
-        String fileId = attachmentStorage.uploadAttachment(attachmentId,
+        if (attachmentId != null && !getAttachmentFileIds(objectType, objectId).contains(String.valueOf(attachmentId))) {
+          throw new ObjectNotFoundException(String.format("File %s isn't attached to object %s/%s", attachmentId, objectType, objectId));
+        }
+        // A file another object links too keeps its content there: the saved
+        // object gets the new content as a new file
+        boolean replacesSharedFile = attachmentId != null
+            && isAttachedElsewhere(String.valueOf(attachmentId), objectType, objectId);
+        String fileId = attachmentStorage.uploadAttachment(replacesSharedFile ? null : attachmentId,
                                                            objectType,
                                                            objectId,
                                                            uploadResource.getFileName(),
@@ -207,6 +216,21 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                            userIdentityId);
         if (attachmentId == null) {
           createAttachment(fileId, objectType, objectId, parentObjectId, userIdentityId, properties);
+          uploadedAttachmentDetail.setId(fileId);
+        } else if (replacesSharedFile) {
+          // Linked before the previous file is unlinked, and removed when it
+          // can't be linked: a failure leaves the object with its previous file
+          try {
+            createAttachment(fileId, objectType, objectId, parentObjectId, userIdentityId, properties);
+          } catch (ObjectNotFoundException | ObjectAlreadyExistsException | RuntimeException e) {
+            try {
+              attachmentStorage.deleteAttachment(new ObjectAttachmentId(fileId, objectType, objectId));
+            } catch (IOException cleanupException) {
+              e.addSuppressed(cleanupException);
+            }
+            throw e;
+          }
+          deleteAttachment(objectType, objectId, String.valueOf(attachmentId), getUserName(userIdentityId));
           uploadedAttachmentDetail.setId(fileId);
         } else {
           updateAttachment(fileId, objectType, objectId, userIdentityId, properties);
@@ -434,8 +458,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
         String attachmentIdToLink = attachment.getId();
         try {
-          //need to copy the existing attachment before linking it to the new object
-          //if not copied, when removed the attachment from the destObject, it will be also removed from the sourceObject
+          //need to copy the existing attachment before linking it to the new object, so that the destObject gets a file of its own
           if (!deleteAfterMove) {
             //if the link between the attachment and the source object is deleted after move, no need to copy the attachment
             attachmentIdToLink = attachmentStorage.copyAttachment(new ObjectAttachmentId(attachment.getId(),
@@ -532,6 +555,36 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
     return isAnonymous(userAclIdentity) ? null :
                                         identityManager.getOrCreateUserIdentity(userAclIdentity.getUserId());
+  }
+
+  // The lookup matches the metadata type and name only, so it finds the
+  // file's links of every audience
+  private boolean isAttachedElsewhere(String fileId, String objectType, String objectId) {
+    return metadataService.getMetadataItemsByMetadata(new MetadataKey(METADATA_TYPE.getName(), fileId, 0), 0, 0)
+                          .stream()
+                          .anyMatch(item -> !StringUtils.equals(item.getObjectType(), objectType)
+                              || !StringUtils.equals(item.getObjectId(), objectId));
+  }
+
+  /**
+   * An uploaded content replaces a file only when that file is already an
+   * attachment of the saved object.
+   */
+  private void checkReplacedFiles(FileAttachmentResourceList attachmentList) throws IllegalAccessException {
+    List<String> replacedFileIds = Stream.of(attachmentList.getAttachedFiles(), attachmentList.getUploadedFiles())
+                                         .filter(Objects::nonNull)
+                                         .flatMap(List::stream)
+                                         .filter(file -> StringUtils.isNotBlank(file.getId())
+                                             && StringUtils.isNotBlank(file.getUploadId()))
+                                         .map(FileAttachmentObject::getId)
+                                         .toList();
+    if (!replacedFileIds.isEmpty()
+        && !getAttachmentFileIds(attachmentList.getObjectType(), attachmentList.getObjectId()).containsAll(replacedFileIds)) {
+      throw new IllegalAccessException(String.format("Files %s aren't all attached to object %s/%s",
+                                                     replacedFileIds,
+                                                     attachmentList.getObjectType(),
+                                                     attachmentList.getObjectId()));
+    }
   }
 
   private void checkEditPermissions(FileAttachmentResourceList attachmentList,
@@ -672,7 +725,9 @@ public class AttachmentServiceImpl implements AttachmentService {
       metadataItemToDelete.forEach(metadataItem -> {
         try {
           metadataService.deleteMetadataItem(metadataItem.getId(), true);
-          attachmentStorage.deleteAttachment(new ObjectAttachmentId(fileId, objectType, objectId));
+          if (!isAttachedElsewhere(fileId, objectType, objectId)) {
+            attachmentStorage.deleteAttachment(new ObjectAttachmentId(fileId, objectType, objectId));
+          }
         } catch (Exception e) {
           LOG.warn("Error while deleting metadata ite {} for attachment deletion. Continue processing object attachments update.",
                    metadataItem,
