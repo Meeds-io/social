@@ -27,7 +27,7 @@
     ref="drawerParent"
     :role="isDialog() ? 'dialog' : null"
     :aria-modal="isDialog() ? 'true' : null"
-    :aria-labelledby="isDialog() && $slots.title && !showFilter ? titleElementId : null"
+    :aria-labelledby="isDialog() && $slots.title ? titleElementId : null"
     :aria-label="isDialog() && !$slots.title ? ariaLabel : null"
     tabindex="0"
     @keydown.native.tab="trapFocus">
@@ -60,8 +60,9 @@
                 </v-btn>
               </v-list-item-action>
               <v-list-item-content :class="goBackButton ? 'ps-2' : 'ps-4'" class="drawerTitle align-start text-title">
+                <!-- kept while the filter field replaces it: it still names the drawer -->
                 <div
-                  v-if="!showFilter"
+                  v-show="!showFilter"
                   :id="titleElementId"
                   class="text-truncate full-width">
                   <slot name="title"></slot>
