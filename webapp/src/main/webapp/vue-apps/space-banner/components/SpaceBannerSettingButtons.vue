@@ -20,12 +20,15 @@
 -->
 <template>
   <div
-    v-show="hover"
-    class="d-flex flex-grow-1 position-absolute full-height full-width">
+    :class="{ 'd-sr-only-focusable': !revealed }"
+    class="d-flex flex-grow-1 position-absolute full-height full-width"
+    @focusin="onFocusIn"
+    @focusout="onFocusOut">
     <div class="me-2 ms-auto my-auto mt-sm-2 mb-sm-0">
       <v-btn
-        v-show="!defaultBanner && hover"
+        v-show="!defaultBanner"
         :title="$t('UIPopupBannerUploader.title.deleteBanner')"
+        :aria-label="$t('UIPopupBannerUploader.title.deleteBanner')"
         id="spaceBannerDeleteButton"
         class="changeBannerButton mask-color border-color"
         outlined
@@ -35,9 +38,9 @@
         <v-icon size="18" color="error">mdi-delete</v-icon>
       </v-btn>
       <v-btn
-        v-show="hover"
         ref="bannerInput"
         id="spaceBannerEditButton"
+        :aria-label="$t('UIPopupBannerUploader.title.ChangeBanner')"
         class="changeBannerButton mask-color border-color"
         icon
         outlined
@@ -58,6 +61,22 @@ export default {
     defaultBanner: {
       type: Boolean,
       default: false,
+    },
+  },
+  data: () => ({
+    focused: false,
+  }),
+  computed: {
+    revealed() {
+      return this.hover || this.focused;
+    },
+  },
+  methods: {
+    onFocusIn(event) {
+      this.focused = event.target.matches(':focus-visible');
+    },
+    onFocusOut(event) {
+      this.focused = !!(event.relatedTarget && event.currentTarget.contains(event.relatedTarget));
     },
   },
 };
