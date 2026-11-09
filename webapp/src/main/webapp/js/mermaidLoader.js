@@ -41,7 +41,7 @@ var mermaidLoader = (function() {
     suppressErrorRendering: true,
     secure: ['secure', 'securityLevel', 'startOnLoad', 'maxTextSize', 'maxEdges', 'suppressErrorRendering', 'theme',
       'themeVariables', 'themeCSS', 'fontFamily', 'altFontFamily', 'darkMode', 'htmlLabels', 'flowchart', 'look',
-      'handDrawnSeed', 'deterministicIds'],
+      'handDrawnSeed', 'deterministicIds', 'dompurifyConfig'],
   };
   /**
    * The settings a caller may set: its theme, its fonts and each diagram
