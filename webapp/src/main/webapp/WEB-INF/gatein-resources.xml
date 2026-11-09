@@ -3001,6 +3001,19 @@
   </module>
 
   <module>
+    <name>mermaid</name>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/mermaidLoader.js</include>
+        return mermaidLoader;
+        })();
+      </adapter>
+    </script>
+  </module>
+
+  <module>
     <name>purifyVue</name>
     <load-group>purifyGRP</load-group>
     <script>
