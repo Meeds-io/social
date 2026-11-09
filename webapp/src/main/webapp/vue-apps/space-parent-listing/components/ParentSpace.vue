@@ -30,14 +30,15 @@
         <template v-if="$root.isManager" #action>
           <div class="d-flex align-center justify-center">
             <v-btn
-              v-show="hover"
+              :aria-label="$t('parentSpaceListing.settings.drawer.title')"
+              :class="{ 'd-sr-only-focusable': !hover }"
               height="27"
               width="27"
               class="pa-0"
               min-width="auto"
               text
-              @click="openSettingsDrawer"
-              icon>
+              icon
+              @click="openSettingsDrawer">
               <v-icon
                 size="18">
                 fa-cog
