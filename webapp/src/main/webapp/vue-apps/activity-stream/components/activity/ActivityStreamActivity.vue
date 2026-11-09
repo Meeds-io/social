@@ -7,6 +7,9 @@
     object-type="activity"
     alternate-id-field="activityId"
     class="application-background-color application-border application-border-radius activity-detail flex flex-column"
+    :role="!isActivityShared && 'article' || null"
+    :aria-label="!isActivityShared && articleLabel || null"
+    tabindex="-1"
     @read="markAsRead"
     @unread="markAsUnread">
     <div v-if="displayLoading" class="d-flex">
@@ -155,6 +158,21 @@ export default {
         return {};
       }
       return this.activityTypes[this.activityType] || this.activityTypes['default'] || {};
+    },
+    articleLabel() {
+      if (!this.activity || this.loading) {
+        return null;
+      }
+      const extension = this.activityTypeExtension;
+      let label = extension?.getTitle?.(this.activity) || '';
+      if (label?.key) {
+        label = this.$t(label.key, label.params || {});
+      }
+      if (typeof label !== 'string' || !label.trim()) {
+        label = extension?.getBody?.(this.activity) || this.activity.title || '';
+      }
+      label = this.$utils.htmlToText(label)?.trim() || '';
+      return label.length > 100 ? `${label.substring(0, 100)}...` : label;
     },
     sharedActivity() {
       return this.activity && this.activity.originalActivity;
