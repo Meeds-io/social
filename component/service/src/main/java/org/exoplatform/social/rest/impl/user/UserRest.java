@@ -2156,7 +2156,7 @@ public class UserRest implements ResourceContainer, Startable {
     if (!canEdit(propertySetting, modifierUsername)) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
     } else if (propertySetting != null && !isAdministrator(modifierUsername)
-        && changesNonEditableChild(propertySetting, profile.getProperty(name), value)) {
+        && changesNonEditableChild(propertySetting, profile, value)) {
       throw new IllegalAccessException(String.format("Not allowed to update a non modifiable sub-field of '%s'", name));
     } else if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
@@ -2232,15 +2232,17 @@ public class UserRest implements ResourceContainer, Startable {
   }
 
   /**
-   * Whether writing a parent property changes the entries of one of its
-   * non-editable sub-fields: the parent's value replaces all its sub-fields'
-   * entries at once, so each non-editable sub-field must keep exactly its
-   * stored entries, a blank entry counting as none, since a save drops it. An
+   * Whether writing a parent property changes what the profile shows for one
+   * of its non-editable sub-fields: the parent's value replaces all its
+   * sub-fields' entries at once, so each non-editable sub-field must keep the
+   * values it shows, a blank entry counting as none, since a save drops it. A
+   * sub-field shows its entries in the parent's value, or, with none, its own
+   * top-level property, as the profile properties are built for display. An
    * entry's key names the sub-field by its setting's name, or by that name
    * without the parent's name and a dot before it. A text shaped as an array
    * is read back by the storage as entries, so it counts as a change.
    */
-  private boolean changesNonEditableChild(ProfilePropertySetting parentSetting, Object storedValue, Object newValue) {
+  private boolean changesNonEditableChild(ProfilePropertySetting parentSetting, Profile profile, Object newValue) {
     List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
     if (settings == null || parentSetting.getId() == null) {
       return false;
@@ -2256,10 +2258,18 @@ public class UserRest implements ResourceContainer, Startable {
       return true;
     }
     String keyPrefix = parentSetting.getPropertyName() + ".";
+    Object storedValue = profile.getProperty(parentSetting.getPropertyName());
     return nonEditableChildNames.stream()
-                                .anyMatch(childName -> !getChildValues(storedValue, keyPrefix, childName).equals(getChildValues(newValue,
-                                                                                                                                keyPrefix,
-                                                                                                                                childName)));
+                                .anyMatch(childName -> !getShownValues(profile, storedValue, keyPrefix, childName)
+                                                                                     .equals(getShownValues(profile, newValue, keyPrefix, childName)));
+  }
+
+  private List<String> getShownValues(Profile profile, Object parentValue, String keyPrefix, String childName) {
+    List<String> values = getChildValues(parentValue, keyPrefix, childName);
+    if (values.isEmpty() && profile.getProperty(childName) instanceof String value && StringUtils.isNotBlank(value)) {
+      return List.of(value);
+    }
+    return values;
   }
 
   private List<String> getChildValues(Object parentValue, String keyPrefix, String childName) {

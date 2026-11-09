@@ -2291,6 +2291,57 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
+   * A non-editable sub-field shown from its own property, as a directory
+   * synchronization stores it, keeps its parent savable when the save echoes
+   * or omits it, and is refused when the save changes it
+   */
+  public void testNonEditableSubFieldShownFromItsOwnPropertyKeepsTheParentSavable() throws Exception {
+    ProfilePropertySetting parent = new ProfilePropertySetting();
+    parent.setPropertyName(CONTACT_LINES);
+    parent.setPropertyType("text");
+    parent.setMultiValued(true);
+    parent.setEditable(true);
+    parent.setActive(true);
+    parent = profilePropertyService.createPropertySetting(parent);
+    tearDownProfilePropertyList.add(parent);
+    tearDownProfilePropertyList.add(0, createChildSetting(parent, "contact-lines.locked-line", false));
+    tearDownProfilePropertyList.add(0, createChildSetting(parent, "free-line", true));
+
+    Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    maryProfile.setProperty("contact-lines.locked-line", "synced");
+    identityManager.updateProfile(maryProfile);
+    try {
+      startSessionAs("mary");
+      ContainerResponse response = getResponseAs("PATCH",
+                                                 "/v1/social/users/mary/profile/properties",
+                                                 contactLinesInput(parent, "contact-lines.locked-line", "synced", "first-free"),
+                                                 "mary");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of("first-free"), getContactLines("mary", "free-line"));
+
+      response = getResponseAs("PATCH",
+                               "/v1/social/users/mary/profile/properties",
+                               "[{\"id\":" + parent.getId()
+                                   + ",\"propertyName\":\"contact-lines\",\"multiValued\":true,\"children\":["
+                                   + "{\"propertyName\":\"free-line\",\"value\":\"second-free\"}]}]",
+                               "mary");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of("second-free"), getContactLines("mary", "free-line"));
+
+      response = getResponseAs("PATCH",
+                               "/v1/social/users/mary/profile/properties",
+                               contactLinesInput(parent, "contact-lines.locked-line", "changed-locked", "second-free"),
+                               "mary");
+      assertEquals(401, response.getStatus());
+      assertEquals(List.of(), getContactLines("mary", "contact-lines.locked-line"));
+    } finally {
+      maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      maryProfile.removeProperty("contact-lines.locked-line");
+      identityManager.updateProfile(maryProfile);
+    }
+  }
+
+  /**
    * A blank stored entry of a non-editable sub-field, which a save drops, does
    * not refuse the save of its parent's editable sub-fields
    */
@@ -2457,8 +2508,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   private String contactLinesInput(ProfilePropertySetting parent, String lockedValue, String freeValue) {
+    return contactLinesInput(parent, "locked-line", lockedValue, freeValue);
+  }
+
+  private String contactLinesInput(ProfilePropertySetting parent, String lockedKey, String lockedValue, String freeValue) {
     return "[{\"id\":" + parent.getId() + ",\"propertyName\":\"contact-lines\",\"multiValued\":true,\"children\":["
-        + "{\"propertyName\":\"locked-line\",\"value\":\"" + lockedValue + "\"},"
+        + "{\"propertyName\":\"" + lockedKey + "\",\"value\":\"" + lockedValue + "\"},"
         + "{\"propertyName\":\"free-line\",\"value\":\"" + freeValue + "\"}]}]";
   }
 
