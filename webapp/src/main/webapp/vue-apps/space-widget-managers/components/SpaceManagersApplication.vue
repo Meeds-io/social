@@ -28,9 +28,10 @@
         extra-class="application-body">
         <template v-if="$root.isManager" #action>
           <v-btn
-            v-show="hover"
             :title="$t('social.space.managers.editTooltip')"
+            :aria-label="$t('social.space.managers.editTooltip')"
             :href="administrationUrl"
+            :class="{ 'd-sr-only-focusable': !hover }"
             height="27"
             width="27"
             min-width="auto"
