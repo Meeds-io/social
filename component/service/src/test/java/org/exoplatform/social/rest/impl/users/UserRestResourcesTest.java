@@ -2197,7 +2197,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   /**
    * A non-editable sub-field whose setting name carries its parent's name is
-   * also kept when its entries name it without the parent's name
+   * also kept when its stored entries name it without the parent's name: a
+   * change under either name is refused, and a save under the full name, as
+   * the profile screen sends it, that keeps the value is stored
    */
   public void testNonEditableSubFieldIsKeptUnderItsShortKey() throws Exception {
     ProfilePropertySetting parent = new ProfilePropertySetting();
@@ -2224,6 +2226,20 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                "mary");
     assertEquals(401, response.getStatus());
     assertEquals(List.of("stored-locked"), getContactLines("mary", "locked-line"));
+
+    response = getResponseAs("PATCH",
+                             "/v1/social/users/mary/profile/properties",
+                             fullKeyInput(parent, "changed-locked"),
+                             "mary");
+    assertEquals(401, response.getStatus());
+    assertEquals(List.of("stored-locked"), getContactLines("mary", "locked-line"));
+
+    response = getResponseAs("PATCH",
+                             "/v1/social/users/mary/profile/properties",
+                             fullKeyInput(parent, "stored-locked"),
+                             "mary");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    assertEquals(List.of("stored-locked"), getContactLines("mary", "contact-lines.locked-line"));
   }
 
   /**
@@ -2386,6 +2402,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     return "[{\"id\":" + parent.getId() + ",\"propertyName\":\"contact-lines\",\"multiValued\":true,\"children\":["
         + "{\"propertyName\":\"locked-line\",\"value\":\"" + lockedValue + "\"},"
         + "{\"propertyName\":\"free-line\",\"value\":\"" + freeValue + "\"}]}]";
+  }
+
+  private String fullKeyInput(ProfilePropertySetting parent, String lockedValue) {
+    return "[{\"id\":" + parent.getId() + ",\"propertyName\":\"contact-lines\",\"multiValued\":true,\"children\":["
+        + "{\"propertyName\":\"contact-lines.locked-line\",\"value\":\"" + lockedValue + "\"}]}]";
   }
 
   @SuppressWarnings("unchecked")
