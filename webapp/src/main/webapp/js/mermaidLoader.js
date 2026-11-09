@@ -24,8 +24,8 @@
  * and hands out Mermaid behind settings no caller can loosen: strict
  * security (labels as text, no click handler, no script), SVG text labels
  * rather than HTML ones, no rendering on page load, and bounded sources. A
- * caller sets its own theme with initialize(), whose safe settings always
- * win over what it passes.
+ * caller sets its own theme, fonts and layouts with initialize(): any other
+ * setting it passes is dropped, and the safe settings always win.
  */
 var mermaidLoader = (function() {
   var MERMAID_VERSION = '11.17.2';
@@ -43,14 +43,28 @@ var mermaidLoader = (function() {
       'themeVariables', 'themeCSS', 'fontFamily', 'altFontFamily', 'darkMode', 'htmlLabels', 'flowchart', 'look',
       'handDrawnSeed', 'deterministicIds'],
   };
+  /**
+   * The settings a caller may set: its theme, its fonts and each diagram
+   * kind's layout. Any other key, such as a sanitizer configuration or a
+   * stylesheet, is never passed to Mermaid.
+   */
+  var CALLER_SETTINGS = ['theme', 'themeVariables', 'fontFamily', 'altFontFamily', 'darkMode', 'look', 'flowchart',
+    'sequence', 'gantt', 'timeline', 'mindmap', 'state', 'class', 'er', 'journey', 'pie'];
   var loading = null;
 
   /**
    * @param {Object} settings a caller's settings
-   * @returns {Object} them, the safe settings applied over them
+   * @returns {Object} those of them a caller may set, the safe settings
+   *   applied over them
    */
   function withSafeSettings(settings) {
-    var merged = Object.assign({}, settings || {}, SAFE_SETTINGS);
+    var allowed = {};
+    CALLER_SETTINGS.forEach(function(key) {
+      if (settings && Object.prototype.hasOwnProperty.call(settings, key)) {
+        allowed[key] = settings[key];
+      }
+    });
+    var merged = Object.assign(allowed, SAFE_SETTINGS);
     merged.flowchart = Object.assign({}, (settings && settings.flowchart) || {}, SAFE_SETTINGS.flowchart);
     return merged;
   }
