@@ -30,8 +30,9 @@
     bottom
     offset-y
     eager>
-    <template #activator="{ on, attrs }">
+    <template #activator="{ on }">
       <v-tab
+        ref="tab"
         v-if="hasPage || hasChildren && childrenHasPage"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
@@ -41,8 +42,7 @@
         :class="`mx-auto text-break ${notClickable} ${navigation.tabClass || ''}`"
         :value="navigationNodeUri"
         v-on="on"
-        v-bind="attrs"
-        role="tab"
+        :aria-current="isSelected ? 'page' : null"
         @click="checkLink"
         @change="updateNavigationState">
         <span
@@ -52,15 +52,21 @@
         <v-icon
           v-if="navigation.target === 'NEW_TAB'"
           size="12"
+          aria-hidden="true"
           class="mx-1">
           fa-external-link-alt
         </v-icon>
         <v-btn
           v-if="hasChildren && childrenHasPage"
           icon
+          :aria-label="$t('topBar.navigation.menu.openSubMenu', [navigation.label])"
+          :aria-hidden="hasPage ? null : 'true'"
+          :tabindex="hasPage ? null : -1"
+          :aria-expanded="String(!!showMenu)"
+          aria-haspopup="menu"
           @click.stop.prevent="openDropMenu"
           @mouseover="showMenu = true">
-          <v-icon size="20">
+          <v-icon size="20" aria-hidden="true">
             fa-angle-down
           </v-icon>
         </v-btn>
@@ -80,7 +86,10 @@
 </template>
 
 <script>
+import tabLinkSemantics from './tabLinkSemantics.js';
+
 export default {
+  mixins: [tabLinkSemantics],
   props: {
     navigation: {
       type: Object,
