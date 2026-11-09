@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -1192,10 +1193,10 @@ public class UserRest implements ResourceContainer, Startable {
           return response;
         }
       }
-      if (value.equals("DEFAULT_BANNER")) {
+      if (Profile.BANNER.equals(fieldName) && value.equals("DEFAULT_BANNER")) {
         profile.setListUpdateTypes(Arrays.asList(UpdateType.BANNER));
         profile.setBannerUrl("DEFAULT_BANNER");
-        profile.removeProperty(name);
+        profile.removeProperty(Profile.BANNER);
         identityManager.updateProfile(profile, getCurrentUser(), true);
       } else {
         updateProfileField(profile, fieldName, value, true,currentUser);
@@ -1501,6 +1502,10 @@ public class UserRest implements ResourceContainer, Startable {
     // Check if the current user is the authenticated user
     if (!ConversationState.getCurrent().getIdentity().getUserId().equals(id)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
+    if (isNonEditableChange(Profile.FIRST_NAME, user.getFirstName(), model.getFirstname(), id)
+        || isNonEditableChange(Profile.LAST_NAME, user.getLastName(), model.getLastname(), id)) {
+      return Response.status(Status.UNAUTHORIZED).build();
     }
 
     fillUserFromModel(user, model);
@@ -2141,8 +2146,11 @@ public class UserRest implements ResourceContainer, Startable {
                                   boolean save,
                                   String modifierUsername) throws IllegalAccessException {
     ProfilePropertySetting propertySetting = getPropertySetting(name);
-    if (propertySetting != null && !propertySetting.isEditable() && (modifierUsername==null || !userACL.getUserIdentity(modifierUsername).isMemberOf(userACL.getAdminGroups()))) {
+    if (!canEdit(propertySetting, modifierUsername)) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
+    } else if (propertySetting != null && !isAdministrator(modifierUsername)
+        && changesNonEditableChild(propertySetting, profile.getProperty(name), value)) {
+      throw new IllegalAccessException(String.format("Not allowed to update a non modifiable sub-field of '%s'", name));
     } else if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
     } else if (Profile.USERNAME.equals(name)) {
@@ -2196,6 +2204,54 @@ public class UserRest implements ResourceContainer, Startable {
                                       .filter(setting -> StringUtils.equals(setting.getPropertyName(), name))
                                       .findFirst()
                                       .orElse(null);
+  }
+
+  private boolean canEdit(ProfilePropertySetting propertySetting, String modifierUsername) {
+    return propertySetting == null || propertySetting.isEditable() || isAdministrator(modifierUsername);
+  }
+
+  private boolean isAdministrator(String username) {
+    return username != null && userACL.getUserIdentity(username).isMemberOf(userACL.getAdminGroups());
+  }
+
+  /**
+   * Whether a new first or last name differs from the stored one while its
+   * setting is not editable by the modifier. An empty value is not written,
+   * so it changes nothing.
+   */
+  private boolean isNonEditableChange(String name, String storedValue, String newValue, String modifierUsername) {
+    return StringUtils.isNotEmpty(newValue) && !StringUtils.equals(storedValue, newValue)
+           && !canEdit(getPropertySetting(name), modifierUsername);
+  }
+
+  /**
+   * Whether writing a parent property changes the entries of one of its
+   * non-editable sub-fields: the parent's value replaces all its sub-fields'
+   * entries at once, so each non-editable sub-field must keep exactly its
+   * stored entries.
+   */
+  private boolean changesNonEditableChild(ProfilePropertySetting parentSetting, Object storedValue, Object newValue) {
+    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
+    if (settings == null || parentSetting.getId() == null) {
+      return false;
+    }
+    return settings.stream()
+                   .filter(setting -> parentSetting.getId().equals(setting.getParentId()) && !setting.isEditable())
+                   .map(ProfilePropertySetting::getPropertyName)
+                   .anyMatch(childName -> !getChildValues(storedValue, childName).equals(getChildValues(newValue, childName)));
+  }
+
+  private List<String> getChildValues(Object parentValue, String childName) {
+    if (!(parentValue instanceof List<?> entries)) {
+      return Collections.emptyList();
+    }
+    return entries.stream()
+                  .filter(Map.class::isInstance)
+                  .map(entry -> (Map<?, ?>) entry)
+                  .filter(entry -> StringUtils.equals(childName, Objects.toString(entry.get("key"), null)))
+                  .map(entry -> Objects.toString(entry.get("value"), null))
+                  .sorted(Comparator.nullsFirst(Comparator.<String> naturalOrder()))
+                  .toList();
   }
 
   /**

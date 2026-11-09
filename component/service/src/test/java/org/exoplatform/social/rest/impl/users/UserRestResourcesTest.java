@@ -65,6 +65,7 @@ import org.exoplatform.portal.rest.UserAccountConfirmation;
 import org.exoplatform.portal.rest.UserAccountConfirmationSettings;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.resources.LocaleConfigService;
@@ -2140,6 +2141,185 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                           localeConfigService,
                           settingService,
                           otpService));
+  }
+
+  /**
+   * Saving a parent property refuses a change of its non-editable sub-field
+   * and keeps the stored entries, while a save that keeps them unchanged
+   * stores the editable sub-fields, and an administrator changes both
+   */
+  public void testNonEditableSubFieldIsKeptWhenItsParentIsSaved() throws Exception {
+    ProfilePropertySetting parent = new ProfilePropertySetting();
+    parent.setPropertyName("contact-lines");
+    parent.setPropertyType("text");
+    parent.setMultiValued(true);
+    parent.setEditable(true);
+    parent.setActive(true);
+    parent = profilePropertyService.createPropertySetting(parent);
+    tearDownProfilePropertyList.add(parent);
+    ProfilePropertySetting lockedChild = createChildSetting(parent, "locked-line", false);
+    ProfilePropertySetting freeChild = createChildSetting(parent, "free-line", true);
+    // Children first: their parent is deleted last
+    tearDownProfilePropertyList.add(0, lockedChild);
+    tearDownProfilePropertyList.add(0, freeChild);
+
+    Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    maryProfile.setProperty("contact-lines",
+                            new ArrayList<>(List.of(Map.of("key", "locked-line", "value", "stored-locked"),
+                                                    Map.of("key", "free-line", "value", "stored-free"))));
+    identityManager.updateProfile(maryProfile);
+
+    startSessionAs("mary");
+    ContainerResponse response = getResponseAs("PATCH",
+                                               "/v1/social/users/mary/profile/properties",
+                                               contactLinesInput(parent, "changed-locked", "stored-free"),
+                                               "mary");
+    assertEquals(401, response.getStatus());
+    assertEquals(List.of("stored-locked"), getContactLines("mary", "locked-line"));
+    assertEquals(List.of("stored-free"), getContactLines("mary", "free-line"));
+
+    response = getResponseAs("PATCH",
+                             "/v1/social/users/mary/profile/properties",
+                             contactLinesInput(parent, "stored-locked", "changed-free"),
+                             "mary");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    assertEquals(List.of("stored-locked"), getContactLines("mary", "locked-line"));
+    assertEquals(List.of("changed-free"), getContactLines("mary", "free-line"));
+
+    startSessionAs("root", true);
+    response = getResponseAs("PATCH",
+                             "/v1/social/users/mary/profile/properties",
+                             contactLinesInput(parent, "admin-locked", "changed-free"),
+                             "root");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    assertEquals(List.of("admin-locked"), getContactLines("mary", "locked-line"));
+  }
+
+  /**
+   * The banner reset removes the banner only: on another field it is an
+   * ordinary write, refused on a non-editable field and on the external
+   * marker, which both keep their value
+   */
+  public void testBannerResetRemovesNoOtherField() throws Exception {
+    ProfilePropertySetting department = getStoredSetting(Profile.DEPARTMENT);
+    boolean departmentEditable = department.isEditable();
+    Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    maryProfile.setProperty(Profile.EXTERNAL, "true");
+    maryProfile.setProperty(Profile.DEPARTMENT, "Sales");
+    identityManager.updateProfile(maryProfile);
+    try {
+      setEditable(department, false);
+      startSessionAs("mary");
+      MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+      headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+
+      ContainerResponse response = service("PATCH",
+                                           getURLResource("users/mary"),
+                                           "",
+                                           headers,
+                                           ("name=" + Profile.EXTERNAL + "&value=DEFAULT_BANNER").getBytes(),
+                                           "mary");
+      assertEquals(401, response.getStatus());
+      assertEquals("true", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.EXTERNAL));
+      assertTrue(identityManager.getOrCreateUserIdentity("mary").isExternal());
+
+      response = service("PATCH",
+                         getURLResource("users/mary"),
+                         "",
+                         headers,
+                         ("name=" + Profile.DEPARTMENT + "&value=DEFAULT_BANNER").getBytes(),
+                         "mary");
+      assertEquals(401, response.getStatus());
+      assertEquals("Sales", identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.DEPARTMENT));
+    } finally {
+      setEditable(getStoredSetting(Profile.DEPARTMENT), departmentEditable);
+      maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      maryProfile.removeProperty(Profile.EXTERNAL);
+      maryProfile.removeProperty(Profile.DEPARTMENT);
+      identityManager.updateProfile(maryProfile);
+    }
+  }
+
+  /**
+   * The account update refuses a change of a non-editable first or last name
+   * and keeps the stored one, and stores a request that keeps it unchanged
+   */
+  public void testAccountUpdateKeepsNonEditableNames() throws Exception {
+    ProfilePropertySetting firstName = getStoredSetting(Profile.FIRST_NAME);
+    ProfilePropertySetting lastName = getStoredSetting(Profile.LAST_NAME);
+    boolean firstNameEditable = firstName.isEditable();
+    boolean lastNameEditable = lastName.isEditable();
+    User mary = organizationService.getUserHandler().findUserByName("mary");
+    String storedFirstName = mary.getFirstName();
+    String storedLastName = mary.getLastName();
+    try {
+      setEditable(firstName, false);
+      startSessionAs("mary");
+      ContainerResponse response = getResponseAs("PUT", "/v1/social/users/mary", "{\"firstname\":\"Changed\"}", "mary");
+      assertEquals(401, response.getStatus());
+      assertEquals(storedFirstName, organizationService.getUserHandler().findUserByName("mary").getFirstName());
+
+      response = getResponseAs("PUT",
+                               "/v1/social/users/mary",
+                               "{\"firstname\":\"" + storedFirstName + "\",\"lastname\":\"Changed\"}",
+                               "mary");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(storedFirstName, organizationService.getUserHandler().findUserByName("mary").getFirstName());
+      assertEquals("Changed", organizationService.getUserHandler().findUserByName("mary").getLastName());
+
+      setEditable(getStoredSetting(Profile.LAST_NAME), false);
+      response = getResponseAs("PUT", "/v1/social/users/mary", "{\"lastname\":\"Changed again\"}", "mary");
+      assertEquals(401, response.getStatus());
+      assertEquals("Changed", organizationService.getUserHandler().findUserByName("mary").getLastName());
+    } finally {
+      setEditable(getStoredSetting(Profile.FIRST_NAME), firstNameEditable);
+      setEditable(getStoredSetting(Profile.LAST_NAME), lastNameEditable);
+      User user = organizationService.getUserHandler().findUserByName("mary");
+      user.setFirstName(storedFirstName);
+      user.setLastName(storedLastName);
+      organizationService.getUserHandler().saveUser(user, true);
+    }
+  }
+
+  private ProfilePropertySetting createChildSetting(ProfilePropertySetting parent,
+                                                    String name,
+                                                    boolean editable) throws ObjectAlreadyExistsException {
+    ProfilePropertySetting child = new ProfilePropertySetting();
+    child.setPropertyName(name);
+    child.setPropertyType("text");
+    child.setMultiValued(false);
+    child.setEditable(editable);
+    child.setActive(true);
+    child.setParentId(parent.getId());
+    return profilePropertyService.createPropertySetting(child);
+  }
+
+  private String contactLinesInput(ProfilePropertySetting parent, String lockedValue, String freeValue) {
+    return "[{\"id\":" + parent.getId() + ",\"propertyName\":\"contact-lines\",\"multiValued\":true,\"children\":["
+        + "{\"propertyName\":\"locked-line\",\"value\":\"" + lockedValue + "\"},"
+        + "{\"propertyName\":\"free-line\",\"value\":\"" + freeValue + "\"}]}]";
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<String> getContactLines(String username, String key) {
+    Object lines = identityManager.getOrCreateUserIdentity(username).getProfile().getProperty("contact-lines");
+    return ((List<Map<String, String>>) lines).stream()
+                                              .filter(line -> key.equals(line.get("key")))
+                                              .map(line -> line.get("value"))
+                                              .toList();
+  }
+
+  private ProfilePropertySetting getStoredSetting(String name) {
+    return profilePropertyService.getPropertySettings()
+                                 .stream()
+                                 .filter(setting -> name.equals(setting.getPropertyName()))
+                                 .findFirst()
+                                 .orElseThrow();
+  }
+
+  private void setEditable(ProfilePropertySetting setting, boolean editable) {
+    setting.setEditable(editable);
+    profilePropertyService.updatePropertySetting(setting);
   }
 
   private ContainerResponse getResponseAs(String method, String path, String input, String remoteUser) throws Exception {
