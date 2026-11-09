@@ -28,7 +28,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListResourceBundle;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,6 +132,36 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
                                                                ADDITIONAL_CONTENT +
                                                                    "<content-link contenteditable=\"false\" style=\"display: none;\">/privateTestContentLink:%s</content-link>";
 
+  private static final String                 MARKUP_LINK_TYPE               = "markupContentLink";
+
+  private static final String                 MARKUP_LINK_URI                = "/portal/s/1?a=1&b=2";
+
+  private static final String                 MARKUP_LINK_TITLE              = "Tom & Jerry: \"l'été\" <b>";
+
+  private static final String                 MARKUP_LINK_ICON               = "fa-r&d";
+
+  private static final String                 MARKUP_MISSING_ID              = "404";
+
+  private static final String                 MARKUP_PRIVATE_TYPE            = "markupPrivateContentLink";
+
+  private static final String                 MARKUP_PRIVATE_TITLE_KEY       = "contentLink.markupPrivateContentLink";
+
+  private static final String                 MARKUP_LINK_TAG                =
+                                                              ADDITIONAL_CONTENT +
+                                                                  "<content-link contenteditable=\"false\" style=\"display: none;\">/%s:%s</content-link>";
+
+  private static final String                 MARKUP_LINK_CHIP               =
+                                                               ADDITIONAL_CONTENT +
+                                                                   "<a href=\"%s\" data-object=\"markupContentLink:%s\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                   "<i aria-hidden=\"true\" class=\"%s v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>%s" +
+                                                                   "</a>";
+
+  private static final String                 NOT_FOUND_CHIP                 =
+                                                             ADDITIONAL_CONTENT +
+                                                                 "<a data-object=\"%s\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                 "<i aria-hidden=\"true\" class=\"v-icon notranslate fa pluginIcon theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>(Content has been deleted)" +
+                                                                 "</a>";
+
   @Autowired
   private ContentLinkPluginService            contentLinkPluginService;
 
@@ -154,6 +186,12 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
     addAclPlugin(PRIVATE_LINK_TYPE);
     addPermanentLinkPlugin(PRIVATE_LINK_TYPE);
     addPrivateContentLinkPlugin();
+    addAclPlugin(MARKUP_LINK_TYPE);
+    addMarkupPermanentLinkPlugin();
+    addMarkupContentLinkPlugin();
+    addAclPlugin(MARKUP_PRIVATE_TYPE);
+    addPermanentLinkPlugin(MARKUP_PRIVATE_TYPE);
+    addMarkupPrivateContentLinkPlugin();
     resourceBundleService = ReflectionTestUtils.getField(contentLinkHtmlTransformerPlugin, "resourceBundleService");
     ResourceBundleService typesBundleService = mock(ResourceBundleService.class);
     when(typesBundleService.getResourceBundle(eq("locale.portlet.ContentLink"), any(Locale.class))).thenReturn(new ListResourceBundle() {
@@ -285,6 +323,73 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
   }
 
   /**
+   * The chip writes the object's link, icon and title escaped: a value holding no
+   * markup character, an apostrophe or an accent is written unchanged, and
+   * the escaped chip reads back as the values themselves.
+   */
+  @Test
+  @SneakyThrows
+  public void testContentLinkPluginEscapesTheValuesItWrites() {
+    String chip = HtmlUtils.transform(String.format(MARKUP_LINK_TAG, MARKUP_LINK_TYPE, "1"), CONTENT_LINK_CONTEXT).trim();
+
+    assertEquals(String.format(MARKUP_LINK_CHIP, "/portal/s/1?a=1&amp;b=2", "1", "fa-r&amp;d", "Tom &amp; Jerry: &quot;l'été&quot; &lt;b&gt;"), chip);
+    assertEquals(String.format(MARKUP_LINK_CHIP, MARKUP_LINK_URI, "1", MARKUP_LINK_ICON, MARKUP_LINK_TITLE), StringEscapeUtils.unescapeHtml4(chip));
+  }
+
+  /**
+   * The reference a note holds is written escaped, whatever characters its id
+   * holds, on the chip of an object it resolves to and on the chip of one it
+   * does not.
+   */
+  @Test
+  @SneakyThrows
+  public void testContentLinkPluginEscapesTheReference() {
+    assertEquals(String.format(MARKUP_LINK_CHIP, "/portal/s/1?a=1&amp;b=2", "4&quot;2&gt;", "fa-r&amp;d", "Tom &amp; Jerry: &quot;l'été&quot; &lt;b&gt;"),
+                 HtmlUtils.transform(String.format(MARKUP_LINK_TAG, MARKUP_LINK_TYPE, "4\"2>"), CONTENT_LINK_CONTEXT).trim());
+    assertEquals(String.format(NOT_FOUND_CHIP, "testContentLink:4&quot;2&gt;"),
+                 HtmlUtils.transform(String.format(MARKUP_LINK_TAG, CONTENT_LINK_TYPE, "4\"2>"), CONTENT_LINK_CONTEXT).trim());
+  }
+
+  /**
+   * A private chip writes the reference escaped too.
+   */
+  @Test
+  @SneakyThrows
+  public void testPrivateContentLinkEscapesTheReference() {
+    assertEquals(String.format(PRIVATE_LINK_CHIP, "4&quot;2&gt;"),
+                 HtmlUtils.transform(String.format(PRIVATE_LINK_TAG, "4\"2>"), CONTENT_LINK_USER_CONTEXT).trim());
+  }
+
+  /**
+   * The icon and the label a chip of a missing or a private object shows are
+   * written escaped too.
+   */
+  @Test
+  @SneakyThrows
+  public void testContentLinkPluginEscapesTheIconAndLabels() {
+    ResourceBundle labels = new ListResourceBundle() {
+      @Override
+      protected Object[][] getContents() {
+        return new Object[][] { { MARKUP_PRIVATE_TITLE_KEY, "Q&A <draft>" }, { "contentLink.notFound", "Deleted & gone" } };
+      }
+    };
+    ResourceBundleService labelsBundleService = mock(ResourceBundleService.class);
+    when(labelsBundleService.getResourceBundle(eq("locale.portlet.ContentLink"), any(Locale.class))).thenReturn(labels);
+    when(labelsBundleService.getResourceBundle(eq("locale.portlet.Portlets"), any(Locale.class))).thenReturn(labels);
+    ReflectionTestUtils.setField(contentLinkHtmlTransformerPlugin, "resourceBundleService", labelsBundleService);
+
+    assertEquals(ADDITIONAL_CONTENT + "<a data-object=\"markupContentLink:404\" contenteditable=\"false\" class=\"content-link\">"
+        + "<i aria-hidden=\"true\" class=\"v-icon notranslate fa fa-r&amp;d theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>Deleted &amp; gone"
+        + "</a>",
+                 HtmlUtils.transform(String.format(MARKUP_LINK_TAG, MARKUP_LINK_TYPE, MARKUP_MISSING_ID), CONTENT_LINK_CONTEXT).trim());
+    assertEquals(ADDITIONAL_CONTENT + "<a data-object=\"markupPrivateContentLink:5875\" contenteditable=\"false\" class=\"content-link\">"
+        + "<i aria-hidden=\"true\" class=\"fa-r&amp;d v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>Q&amp;A &lt;draft&gt;"
+        + "</a>",
+                 HtmlUtils.transform(String.format(MARKUP_LINK_TAG, MARKUP_PRIVATE_TYPE, CONTENT_LINK_RESTRICTED_ID), CONTENT_LINK_USER_CONTEXT)
+                          .trim());
+  }
+
+  /**
    * Registers a drawer type declaring a private label, resolving the same
    * objects as the generic test type.
    */
@@ -348,6 +453,72 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
       @Override
       public boolean canAccess(PermanentLinkObject object, Identity identity) throws ObjectNotFoundException {
         return CONTENT_LINK_ID.equals(object.getObjectId());
+      }
+    });
+  }
+
+  private void addMarkupPermanentLinkPlugin() {
+    permanentLinkService.addPlugin(new PermanentLinkPlugin() {
+
+      @Override
+      public String getObjectType() {
+        return MARKUP_LINK_TYPE;
+      }
+
+      @Override
+      public String getDirectAccessUrl(PermanentLinkObject object) throws ObjectNotFoundException {
+        return MARKUP_LINK_URI;
+      }
+
+      @Override
+      public boolean canAccess(PermanentLinkObject object, Identity identity) throws ObjectNotFoundException {
+        return true;
+      }
+    });
+  }
+
+  private void addMarkupContentLinkPlugin() {
+    contentLinkPluginService.addPlugin(new ContentLinkPlugin() {
+
+      @Override
+      public List<ContentLinkSearchResult> search(String keyword, Identity identity, Locale locale, int offset, int limit) {
+        return Collections.emptyList();
+      }
+
+      @Override
+      public ContentLinkExtension getExtension() {
+        return new ContentLinkExtension(MARKUP_LINK_TYPE, PLUGIN_TITLE_KEY, MARKUP_LINK_ICON, PLUGIN_COMMAND);
+      }
+
+      @Override
+      public String getContentTitle(String objectId, Locale locale) {
+        return MARKUP_MISSING_ID.equals(objectId) ? null : MARKUP_LINK_TITLE;
+      }
+    });
+  }
+
+  private void addMarkupPrivateContentLinkPlugin() {
+    contentLinkPluginService.addPlugin(new ContentLinkPlugin() {
+
+      @Override
+      public List<ContentLinkSearchResult> search(String keyword, Identity identity, Locale locale, int offset, int limit) {
+        return Collections.emptyList();
+      }
+
+      @Override
+      public ContentLinkExtension getExtension() {
+        return new ContentLinkExtension(MARKUP_PRIVATE_TYPE,
+                                        PLUGIN_TITLE_KEY,
+                                        MARKUP_LINK_ICON,
+                                        PLUGIN_COMMAND,
+                                        false,
+                                        false,
+                                        MARKUP_PRIVATE_TITLE_KEY);
+      }
+
+      @Override
+      public String getContentTitle(String objectId, Locale locale) {
+        return MARKUP_LINK_TITLE;
       }
     });
   }

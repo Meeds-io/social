@@ -5,6 +5,13 @@ let contentLinkExtensions = null;
 let contentLinkLabels = null;
 
 /**
+ * A chip's `type:id` reference, as the editor writes it: a type name and an object
+ * id made of letters, digits, dashes and underscores. The element's text builds the
+ * lookup URL and the chip, so any other text is left as it is.
+ */
+const OBJECT_REFERENCE = /^[a-z][a-z0-9_-]*:[a-z0-9_-]+$/i;
+
+/**
  * The content-link types, read once per page.
  *
  * @returns {Promise<Array>} the registered extensions, empty when unavailable
@@ -97,7 +104,7 @@ class ContentLink extends HTMLElement {
    */
   connectedCallback() {
     const dataObjectAttr = this.textContent?.replace?.('/', '')?.trim?.();
-    if (dataObjectAttr?.length && dataObjectAttr.includes(':')) {
+    if (dataObjectAttr?.length && OBJECT_REFERENCE.test(dataObjectAttr)) {
       const objectParts = dataObjectAttr.split(':');
       fetch(`/social/rest/contentLinks/link/${objectParts[0]}/${objectParts[1]}`, {
         method: 'GET',
@@ -117,7 +124,7 @@ class ContentLink extends HTMLElement {
           this.replaceWith(template.content.firstElementChild);
         } else if (link) {
           const template = document.createElement('template');
-          template.innerHTML = `<a href="${link.uri}"${link.drawer ? ' is="content-link-drawer"' : ''} data-object="${dataObjectAttr}"  contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${link.title}</a>`;
+          template.innerHTML = `<a href="${escapeHtml(link.uri)}"${link.drawer ? ' is="content-link-drawer"' : ''} data-object="${escapeHtml(dataObjectAttr)}"  contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${escapeHtml(link.icon)} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${escapeHtml(link.title)}</a>`;
           const node = template.content.firstElementChild;
           this.replaceWith(node);
         } else {
@@ -125,7 +132,7 @@ class ContentLink extends HTMLElement {
         }
       }).catch(() => {
         const template = document.createElement('template');
-        template.innerHTML = `<a data-object="${dataObjectAttr}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate fa-times theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i></a>`;
+        template.innerHTML = `<a data-object="${escapeHtml(dataObjectAttr)}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate fa-times theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i></a>`;
         const node = template.content.firstElementChild;
         this.replaceWith(node);
       });
