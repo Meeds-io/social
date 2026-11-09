@@ -710,8 +710,7 @@ public class CachedSpaceStorage extends SpaceStorage {
       // lists of the other users stay
       spacesCache.select(new LastAccessedSpacesCacheSelector(remoteId));
     } catch (Exception e) {
-      LOG.error("Error while removing cache entries for remoteId=" + remoteId + ", space=" + space.getDisplayName() +
-          " and type=" + SpaceType.LATEST_ACCESSED.name(), e);
+      LOG.error("Cannot record the visit of {} to space {}", remoteId, space.getId(), e);
     }
   }
 
