@@ -10,10 +10,14 @@ class UserByName extends HTMLElement {
       if (username.includes(':')) {
         username = username.split(':').pop();
       }
-      fetch(`/portal/rest/v1/social/identities/organization/${encodeURIComponent(username)}`, {
-        method: 'GET',
-        credentials: 'include',
-      }).then(resp => resp?.ok && resp.json()).then(identity => {
+      // '.' and '..' stay dot segments once encoded: they name no user
+      const identityLookup = username === '.' || username === '..' ?
+        Promise.resolve(null)
+        : fetch(`/portal/rest/v1/social/identities/organization/${encodeURIComponent(username)}`, {
+          method: 'GET',
+          credentials: 'include',
+        }).then(resp => resp?.ok && resp.json());
+      identityLookup.then(identity => {
         if (identity) {
           // The markup holds no value: the name, the avatar and the full name
           // are set as attributes and text, never parsed as HTML
