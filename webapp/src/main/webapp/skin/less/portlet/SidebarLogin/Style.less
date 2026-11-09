@@ -25,6 +25,7 @@
 // when Branding and Theme sets none, where other pages fall back to light grey.
 // It is a default only: the Branding page background is written inline on body, which wins over this rule,
 // and a page background set in the page editor is painted by the page itself or written inline on body.
+// The class is matched on the portlet's outer wrapper in sidebarLogin.jsp: the Vue app replaces its mount element.
 body:has(.sidebarLogin) {
   --allPagesBackgroundColor: @white;
 }
