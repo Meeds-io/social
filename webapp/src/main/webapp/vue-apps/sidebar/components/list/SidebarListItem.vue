@@ -316,7 +316,7 @@ export default {
       const attributes = {};
       attributes.role = this.isUrl && 'link' || 'button';
       // its own name: the buttons inside the entry (arrow, home) must not add to it
-      attributes['aria-label'] = this.spaceUnreadCount ? `${this.item.name} ${this.spaceUnreadCount}` : this.item.name;
+      attributes['aria-label'] = this.spaceUnreadCount ? this.$t('menu.entryWithUnread', {0: this.item.name, 1: this.spaceUnreadCount}) : this.item.name;
       if (this.isCurrentPage) {
         attributes['aria-current'] = 'page';
       }

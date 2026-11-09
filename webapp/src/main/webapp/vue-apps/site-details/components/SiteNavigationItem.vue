@@ -171,7 +171,7 @@ export default {
     },
     // the entry's own name: the home button inside it must not add to it
     linkLabel() {
-      return this.unreadBadge && this.enableUnread ? `${this.navigationLabel} ${this.unreadBadge}` : this.navigationLabel;
+      return this.unreadBadge && this.enableUnread ? this.$t('menu.entryWithUnread', {0: this.navigationLabel, 1: this.unreadBadge}) : this.navigationLabel;
     },
     navigationLabelStyle() {
       return this.unreadBadge > 0 ? { 'max-width': '140px' } : { 'max-width': '200px'};
