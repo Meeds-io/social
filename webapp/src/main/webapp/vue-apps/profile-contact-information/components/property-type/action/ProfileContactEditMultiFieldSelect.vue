@@ -79,7 +79,7 @@ export default {
         obj.isNew && !obj.value || (index === self.findIndex((t) => (
           t.propertyName === obj.propertyName
         )) && obj.visible && obj.active
-          && (obj.editable !== false || obj.propertyName === this.property.propertyName))
+          && (!obj.parentId || obj.editable !== false || obj.propertyName === this.property.propertyName))
       );
     },
   },

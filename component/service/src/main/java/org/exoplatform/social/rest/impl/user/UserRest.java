@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -2231,30 +2230,40 @@ public class UserRest implements ResourceContainer, Startable {
    * Whether writing a parent property changes the entries of one of its
    * non-editable sub-fields: the parent's value replaces all its sub-fields'
    * entries at once, so each non-editable sub-field must keep exactly its
-   * stored entries.
+   * stored entries, a blank entry counting as none, since a save drops it. An
+   * entry's key names the sub-field by its setting's name, or by that name
+   * without the parent's name and a dot before it.
    */
   private boolean changesNonEditableChild(ProfilePropertySetting parentSetting, Object storedValue, Object newValue) {
     List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
     if (settings == null || parentSetting.getId() == null) {
       return false;
     }
+    String keyPrefix = parentSetting.getPropertyName() + ".";
     return settings.stream()
                    .filter(setting -> parentSetting.getId().equals(setting.getParentId()) && !setting.isEditable())
                    .map(ProfilePropertySetting::getPropertyName)
-                   .anyMatch(childName -> !getChildValues(storedValue, childName).equals(getChildValues(newValue, childName)));
+                   .anyMatch(childName -> !getChildValues(storedValue, keyPrefix, childName).equals(getChildValues(newValue,
+                                                                                                                   keyPrefix,
+                                                                                                                   childName)));
   }
 
-  private List<String> getChildValues(Object parentValue, String childName) {
+  private List<String> getChildValues(Object parentValue, String keyPrefix, String childName) {
     if (!(parentValue instanceof List<?> entries)) {
       return Collections.emptyList();
     }
     return entries.stream()
                   .filter(Map.class::isInstance)
                   .map(entry -> (Map<?, ?>) entry)
-                  .filter(entry -> StringUtils.equals(childName, Objects.toString(entry.get("key"), null)))
+                  .filter(entry -> isChildKey(Objects.toString(entry.get("key"), null), keyPrefix, childName))
                   .map(entry -> Objects.toString(entry.get("value"), null))
-                  .sorted(Comparator.nullsFirst(Comparator.<String> naturalOrder()))
+                  .filter(StringUtils::isNotBlank)
+                  .sorted()
                   .toList();
+  }
+
+  private boolean isChildKey(String key, String keyPrefix, String childName) {
+    return key != null && (childName.equals(key) || childName.equals(keyPrefix + key));
   }
 
   /**

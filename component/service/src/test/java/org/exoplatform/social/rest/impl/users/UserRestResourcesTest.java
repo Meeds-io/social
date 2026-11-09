@@ -2196,6 +2196,70 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
+   * A non-editable sub-field whose setting name carries its parent's name is
+   * also kept when its entries name it without the parent's name
+   */
+  public void testNonEditableSubFieldIsKeptUnderItsShortKey() throws Exception {
+    ProfilePropertySetting parent = new ProfilePropertySetting();
+    parent.setPropertyName("contact-lines");
+    parent.setPropertyType("text");
+    parent.setMultiValued(true);
+    parent.setEditable(true);
+    parent.setActive(true);
+    parent = profilePropertyService.createPropertySetting(parent);
+    tearDownProfilePropertyList.add(parent);
+    tearDownProfilePropertyList.add(0, createChildSetting(parent, "contact-lines.locked-line", false));
+
+    Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    maryProfile.setProperty("contact-lines",
+                            new ArrayList<>(List.of(Map.of("key", "locked-line", "value", "stored-locked"))));
+    identityManager.updateProfile(maryProfile);
+
+    startSessionAs("mary");
+    ContainerResponse response = getResponseAs("PATCH",
+                                               "/v1/social/users/mary/profile/properties",
+                                               "[{\"id\":" + parent.getId()
+                                                   + ",\"propertyName\":\"contact-lines\",\"multiValued\":true,\"children\":["
+                                                   + "{\"propertyName\":\"locked-line\",\"value\":\"changed-locked\"}]}]",
+                                               "mary");
+    assertEquals(401, response.getStatus());
+    assertEquals(List.of("stored-locked"), getContactLines("mary", "locked-line"));
+  }
+
+  /**
+   * A blank stored entry of a non-editable sub-field, which a save drops, does
+   * not refuse the save of its parent's editable sub-fields
+   */
+  public void testBlankNonEditableSubFieldEntryKeepsTheParentSavable() throws Exception {
+    ProfilePropertySetting parent = new ProfilePropertySetting();
+    parent.setPropertyName("contact-lines");
+    parent.setPropertyType("text");
+    parent.setMultiValued(true);
+    parent.setEditable(true);
+    parent.setActive(true);
+    parent = profilePropertyService.createPropertySetting(parent);
+    tearDownProfilePropertyList.add(parent);
+    tearDownProfilePropertyList.add(0, createChildSetting(parent, "locked-line", false));
+    tearDownProfilePropertyList.add(0, createChildSetting(parent, "free-line", true));
+
+    Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    maryProfile.setProperty("contact-lines",
+                            new ArrayList<>(List.of(Map.of("key", "locked-line", "value", " "),
+                                                    Map.of("key", "free-line", "value", "stored-free"))));
+    identityManager.updateProfile(maryProfile);
+
+    startSessionAs("mary");
+    ContainerResponse response = getResponseAs("PATCH",
+                                               "/v1/social/users/mary/profile/properties",
+                                               "[{\"id\":" + parent.getId()
+                                                   + ",\"propertyName\":\"contact-lines\",\"multiValued\":true,\"children\":["
+                                                   + "{\"propertyName\":\"free-line\",\"value\":\"changed-free\"}]}]",
+                                               "mary");
+    assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+    assertEquals(List.of("changed-free"), getContactLines("mary", "free-line"));
+  }
+
+  /**
    * The banner reset removes the banner only: on another field it is an
    * ordinary write, refused on a non-editable field and on the external
    * marker, which both keep their value
