@@ -24,7 +24,7 @@
     :href="notifLink"
     class="notifDrawerItem notif-item-html"
     @click="markAsRead">
-    <dynamic-html-element :child="bodyElement" />
+    <div v-sanitized-document="content"></div>
   </a>
 </template>
 <script>
@@ -45,17 +45,6 @@ export default {
   data: () => ({
     notifLink: null,
   }),
-  computed: {
-    bodyElement() {
-      const template = DOMPurify.sanitize(this.content || '', {
-        CUSTOM_ELEMENT_HANDLING: {
-          tagNameCheck: () => true,
-          attributeNameCheck: () => true,
-        },
-      });
-      return {template};
-    },
-  },
   mounted() {
     this.applyActions();    
   },
