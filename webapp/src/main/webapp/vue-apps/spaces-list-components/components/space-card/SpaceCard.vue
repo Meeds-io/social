@@ -23,23 +23,21 @@
 <template>
   <v-hover v-model="hoverCard">
     <v-card
-      :href="spaceUrl"
       :min-height="minHeight"
       :height="height"
       :max-height="height"
       :elevation="hoverCard && 3 || 0"
       :min-width="minWidth"
       :max-width="maxWidth"
-      :aria-label="$t('spaceList.spaceCard.ariaLabel', {0: spaceDisplayName})"
       width="auto"
-      class="d-flex flex-column application-border-radius border-color">
+      class="space-card-item d-flex flex-column application-border-radius border-color">
       <space-card-unread-badge :space="space" />
       <v-card
         :min-height="avatarSize"
         :max-height="avatarSize"
         min-width="100%"
         max-width="100%"
-        class="d-flex mt-4 px-4"
+        class="space-card-header d-flex mt-4 px-4"
         flat>
         <v-card
           :min-width="avatarSize"
@@ -57,9 +55,10 @@
             class="overflow-hidden">
         </v-card>
         <div class="d-flex flex-column flex-grow-1 justify-center flex-shrink-1 overflow-hidden ps-4 ps-sm-3">
-          <div
+          <a
+            :href="spaceUrl"
             v-text="spaceDisplayName"
-            class="flex-shrink-0 text-truncate-2 max-height-2lh font-weight-bold line-height-normal full-width"></div>
+            class="space-card-link text-color text-decoration-none flex-shrink-0 text-truncate-2 max-height-2lh font-weight-bold line-height-normal full-width"></a>
         </div>
       </v-card>
       <div v-if="!hideSpaceDescription && !$root.isMobile" class="flex-grow-1 flex-shrink-1 px-4 mt-4">
@@ -79,7 +78,7 @@
         <space-card-menu
           :space="space"
           :space-action-extensions="enabledSpaceActionExtensions"
-          class="ms-1" />
+          class="space-card-actions ms-1" />
       </v-card>
     </v-card>
   </v-hover>
