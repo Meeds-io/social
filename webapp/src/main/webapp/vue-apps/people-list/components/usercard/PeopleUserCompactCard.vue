@@ -25,7 +25,9 @@
       :class="hover && 'grey lighten-4'"
       class="peopleCardItem hover-reveal-parent d-flex mx-2"
       flat>
-      <div class="peopleToolbarIcons my-auto ms-auto">
+      <div
+        :class="stretchedLink && 'stretched-link-above'"
+        class="peopleToolbarIcons my-auto ms-auto">
         <v-avatar
           v-if="user.isGroupBound"
           :title="$t('peopleList.label.groupBound')"
@@ -73,7 +75,7 @@
           <a
             :href="url"
             :title="user.fullname"
-            :class="usernameClass"
+            :class="[usernameClass, stretchedLink && 'stretched-link']"
             class="userFullname font-weight-bold text-capitalize">
             {{ user.fullname }}
             <span v-if="externalUser" class="externalFlagClass">
@@ -147,7 +149,12 @@ export default {
     attachMenu: {
       type: Boolean,
       default: true
-    }
+    },
+    // the person's name link covers the card, its buttons above it: the whole card is one link (search results)
+    stretchedLink: {
+      type: Boolean,
+      default: false
+    },
   },
   data: () => ({
     hover: false,

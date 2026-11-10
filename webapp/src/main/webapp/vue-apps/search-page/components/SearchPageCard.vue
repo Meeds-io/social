@@ -17,7 +17,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
   <v-hover v-slot="{ hover }">
     <v-card
       flat
-      class="search-result-card pa-0"
+      class="hover-reveal-parent transparent pa-0"
       :disabled="!link">
       <v-list class="pa-0" :class="hover && link && 'light-grey-background-color no-border-radius' || ''">
         <v-list-item>
@@ -31,7 +31,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
               <a
                 v-if="link"
                 :href="link"
-                class="search-result-link">{{ title }}</a>
+                class="stretched-link">{{ title }}</a>
               <template v-else>{{ title }}</template>
             </v-list-item-title>
             <v-list-item-subtitle
@@ -41,8 +41,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
           </v-list-item-content>
           <v-list-item-action
             v-if="result && result.id"
-            :class="{'search-result-actions-visible': isMobile}"
-            class="search-result-interactive search-result-actions">
+            :class="!isMobile && 'hover-reveal'"
+            class="stretched-link-above">
             <favorite-button
               :id="result.id"
               :favorite="result.favorite"

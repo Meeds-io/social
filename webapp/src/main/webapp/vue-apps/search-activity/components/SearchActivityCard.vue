@@ -2,7 +2,7 @@
   <v-hover v-slot="{ hover }">
     <v-card
       flat
-      class="search-result-card pa-0">
+      class="hover-reveal-parent transparent pa-0">
       <v-list class="pa-0" :class="hover && 'light-grey-background-color no-border-radius' || ''">
         <v-list-item>
           <v-list-item-icon class="me-2 pt-1">
@@ -21,11 +21,11 @@
           <v-list-item-content>
             <v-list-item-title class="d-flex flex-row full-width align-center">
               <div class="d-flex flex-row align-center flex-grow-1 text-truncate">
-                <a :href="link" class="search-result-link">
-                  <span class="search-result-link-label">{{ activityTitleText }}</span>
+                <a :href="link" class="stretched-link">
+                  <span class="d-sr-only">{{ activityTitleText }}</span>
                 </a>
                 <span
-                  class="search-result-interactive d-inline-flex title pt-1 mb-0 ps-0 my-auto text-start text-truncate primary--text">
+                  class="stretched-link-above d-inline-flex title pt-1 mb-0 ps-0 my-auto text-start text-truncate primary--text">
                   <exo-user-avatar
                     :identity="posterIdentity"
                     fullname
@@ -50,8 +50,8 @@
                 </span>
               </div>
               <div
-                :class="{'search-result-actions-visible': isMobile}"
-                class="search-result-interactive search-result-actions ml-2 pt-1">
+                :class="!isMobile && 'hover-reveal'"
+                class="stretched-link-above ml-2 pt-1">
                 <span class="d-inline-flex align-center justify-center">
                   <v-btn
                     :aria-label="$t('search.activity.comment.action')"

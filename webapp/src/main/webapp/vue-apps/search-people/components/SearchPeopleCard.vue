@@ -1,7 +1,7 @@
 <template>
   <v-hover v-slot="{ hover }">
     <v-card
-      class="search-people-card search-result-card border-box-sizing fill-height"
+      class="border-box-sizing fill-height"
       width="350"
       :height="80"
       :min-height="80"
@@ -16,6 +16,7 @@
         :profile-action-extensions="profileActionExtensions"
         :mobile-display="isMobile"
         :attach-menu="false"
+        stretched-link
         display-compact-menu-button
         compact-display />
     </v-card>
