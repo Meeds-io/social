@@ -42,18 +42,45 @@ export function upload(file, uploadId, signal) {
   }
   const uploadUrl = `${eXo.env.portal.context}/upload?uploadId=${uploadId}&action=upload`;
 
-  const formData = new FormData();
-  formData.append('file', file);
+  return toUploadableFile(file).then(uploadableFile => {
+    const formData = new FormData();
+    formData.append('file', uploadableFile);
 
-  const headers = {
-    method: 'POST',
-    credentials: 'include',
-    body: formData,
-  };
-  if (signal) {
-    headers.signal = signal;
+    const headers = {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    };
+    if (signal) {
+      headers.signal = signal;
+    }
+    return fetch(uploadUrl, headers).then(resp => resp && resp.ok && uploadId);
+  });
+}
+
+// Apple WebKit (Safari, and every browser on iOS) can send a file picked on
+// the device as an empty request body, whether in a form or as the body
+// itself: the server then stores 0 bytes. A copy held in memory is sent
+// whole, so on that engine a picked file is copied before it is sent. The
+// promise rejects when the copy does not hold the file's size, rather than
+// letting an empty file be stored.
+export function toUploadableFile(file) {
+  if (!(file instanceof File) || !file.size || !isAppleWebKit()) {
+    return Promise.resolve(file);
   }
-  return fetch(uploadUrl, headers).then(resp => resp && resp.ok && uploadId);
+  return file.arrayBuffer().then(content => {
+    if (content?.byteLength !== file.size) {
+      throw new Error('Picked file unreadable');
+    }
+    return new File([content], file.name, {
+      type: file.type,
+      lastModified: file.lastModified,
+    });
+  });
+}
+
+function isAppleWebKit() {
+  return window.navigator?.vendor === 'Apple Computer, Inc.';
 }
 
 export function generateRandomId() {
