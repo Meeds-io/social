@@ -94,7 +94,10 @@
             transition
             dense>
             <template #label="{ item, open, active }">
-              <div v-if="!item.loadMore" class="d-flex align-center">
+              <div
+                v-if="!item.loadMore"
+                v-tree-node="$t('categoryManagement.subCategoriesOf', {0: item.id === $root.categoryRootId && $t('categoryManagement.rootName') || item.name})"
+                class="d-flex align-center">
                 <v-card
                   color="transparent"
                   min-width="24"
@@ -131,7 +134,7 @@
                   </div>
                 </v-card>
               </div>
-              <div v-else class="d-flex align-center">
+              <div v-else v-tree-node class="d-flex align-center">
                 <v-btn
                   :title="$t('categoryInput.loadMore')"
                   :loading="item.loading"

@@ -39,6 +39,7 @@
         :selected-id="selectedId"
         chip-class="flex-shrink-0 me-2"
         breadcrumb
+        toggle
         @initialized="setVisible(category, $event)"
         @select="openCategory" />
     </component>
