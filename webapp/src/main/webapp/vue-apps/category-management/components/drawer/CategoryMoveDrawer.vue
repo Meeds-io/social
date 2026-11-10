@@ -94,7 +94,10 @@
             transition
             dense>
             <template #label="{ item, open, active }">
-              <div v-if="!item.loadMore" class="d-flex align-center">
+              <div
+                v-if="!item.loadMore"
+                v-tree-node="$t('categoryManagement.subCategoriesOf', {0: item.id === $root.categoryRootId && $t('categoryManagement.rootName') || item.name})"
+                class="d-flex align-center">
                 <v-card
                   color="transparent"
                   min-width="24"
@@ -206,12 +209,8 @@ export default {
   created() {
     this.$root.$on('category-move-open', this.openDrawer);
   },
-  mounted() {
-    this.unwatchTree = this.$utils.watchTreeview(this.$el, name => this.$t('categoryManagement.subCategoriesOf', {0: name}));
-  },
   beforeDestroy() {
     this.$root.$off('category-move-open', this.openDrawer);
-    this.unwatchTree?.();
   },
   methods: {
     openDrawer(category) {

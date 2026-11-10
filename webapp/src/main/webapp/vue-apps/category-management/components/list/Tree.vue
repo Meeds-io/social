@@ -51,7 +51,10 @@
         transition
         dense>
         <template #label="{ item, open }">
-          <div v-if="!item.loadMore" class="d-flex align-center">
+          <div
+            v-if="!item.loadMore"
+            v-tree-node="$t('categoryManagement.subCategoriesOf', {0: item.name})"
+            class="d-flex align-center">
             <v-card
               color="transparent"
               min-width="36"
@@ -176,16 +179,12 @@ export default {
     this.$root.$on('category-moved', this.handleCategoryMoved);
     this.$root.$on('category-delete', this.deleteCategoryConfirm);
   },
-  mounted() {
-    this.unwatchTree = this.$utils.watchTreeview(this.$el, name => this.$t('categoryManagement.subCategoriesOf', {0: name}));
-  },
   beforeDestroy() {
     this.$root.$off('category-created', this.handleCategoryCreated);
     this.$root.$off('category-updated', this.handleCategoryUpdated);
     this.$root.$off('category-deleted', this.handleCategoryDeleted);
     this.$root.$off('category-moved', this.handleCategoryMoved);
     this.$root.$off('category-delete', this.deleteCategoryConfirm);
-    this.unwatchTree?.();
   },
   methods: {
     async init() {

@@ -91,6 +91,7 @@
             </v-btn>
             <v-card
               v-if="!item.loadMore"
+              v-tree-node="$t('categoryInput.subCategoriesOf', {0: item.name})"
               :aria-checked="String(categoryIds.includes(item.id))"
               :aria-disabled="String(!!item.disabled)"
               role="checkbox"
@@ -257,12 +258,6 @@ export default {
         }, 50);
       }
     },
-  },
-  mounted() {
-    this.unwatchTree = this.$utils.watchTreeview(this.$el, name => this.$t('categoryInput.subCategoriesOf', {0: name}));
-  },
-  beforeDestroy() {
-    this.unwatchTree?.();
   },
   methods: {
     openDrawer() {

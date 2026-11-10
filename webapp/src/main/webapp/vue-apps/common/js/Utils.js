@@ -204,45 +204,26 @@ export function isValidUrl(value) {
   })?.[0]?.getAnchorHref?.();
 }
 
-// A Vuetify 2 v-treeview sets no ARIA role and renders each toggle as an unnamed button: the tree is
-// exposed as nested lists, and each toggle is named after its node (labelOf(name)) with its expanded state.
-export function describeTreeview(root, labelOf) {
-  if (!root?.querySelectorAll) {
+// A Vuetify 2 v-treeview sets no ARIA role and renders each toggle as an unnamed button. Called from the
+// root element of a node's label slot, each time it renders (the v-tree-node directive), this describes that
+// node only: a list item of its parent list, its toggle named label with its expanded state.
+export function describeTreeNode(el, label) {
+  const node = el?.closest?.('.v-treeview-node');
+  if (!node) {
     return;
   }
-  root.querySelectorAll('.v-treeview, .v-treeview-node__children').forEach(list => list.setAttribute('role', 'list'));
-  root.querySelectorAll('.v-treeview-node').forEach(node => node.setAttribute('role', 'listitem'));
-  root.querySelectorAll('.v-treeview-node__toggle').forEach(toggle => {
-    const name = toggle.closest('.v-treeview-node__root')?.querySelector('.v-treeview-node__label')?.textContent?.trim() || '';
-    toggle.setAttribute('aria-label', labelOf(name));
+  node.setAttribute('role', 'listitem');
+  node.parentElement?.setAttribute('role', 'list');
+  const nodeRoot = el.closest('.v-treeview-node__root');
+  const toggle = nodeRoot?.querySelector('.v-treeview-node__toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-label', label || '');
     toggle.setAttribute('aria-expanded', String(toggle.classList.contains('v-treeview-node__toggle--open')));
-  });
-  // a label that renders its own checkbox makes the tree's selection icon a duplicate, unnamed control
-  root.querySelectorAll('.v-treeview-node__checkbox').forEach(checkbox => {
-    if (checkbox.closest('.v-treeview-node__root')?.querySelector('.v-treeview-node__label [role="checkbox"]')) {
-      checkbox.setAttribute('tabindex', '-1');
-      checkbox.setAttribute('aria-hidden', 'true');
-    }
-  });
-}
-
-// Keeps the v-treeview elements under root described across the renders that rebuild their nodes
-// (children loaded, a node opened, a search). Returns the function that stops it.
-export function watchTreeview(root, labelOf) {
-  if (!root || !window.MutationObserver) {
-    return () => null;
   }
-  let frame = 0;
-  const observer = new window.MutationObserver(() => {
-    if (!frame) {
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        describeTreeview(root, labelOf);
-      });
-    }
-  });
-  // the toggle's open state is a class change: the attributes this function sets are not observed
-  observer.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-  describeTreeview(root, labelOf);
-  return () => observer.disconnect();
+  // a label that renders its own checkbox makes the tree's selection icon a duplicate, unnamed control
+  const checkbox = nodeRoot?.querySelector('.v-treeview-node__checkbox');
+  if (checkbox && (el.matches('[role="checkbox"]') || el.querySelector('[role="checkbox"]'))) {
+    checkbox.setAttribute('tabindex', '-1');
+    checkbox.setAttribute('aria-hidden', 'true');
+  }
 }
