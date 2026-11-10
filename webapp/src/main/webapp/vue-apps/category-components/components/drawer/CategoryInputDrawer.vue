@@ -77,6 +77,8 @@
             <v-btn
               v-if="item.size"
               class="position-absolute z-index-two ms-n2"
+              tabindex="-1"
+              aria-hidden="true"
               icon>
               <v-icon
                 :class="{
@@ -89,11 +91,17 @@
             </v-btn>
             <v-card
               v-if="!item.loadMore"
+              v-tree-node="$t('categoryInput.subCategoriesOf', {0: item.name})"
+              :aria-checked="String(categoryIds.includes(item.id))"
+              :aria-disabled="String(!!item.disabled)"
+              role="checkbox"
               color="transparent"
               class="d-flex align-center ms-6"
               height="36"
               flat
-              @click.stop.prevent="toogleSelectCategory(item.id)">
+              @keydown.space.prevent="toogleSelectCategory(item)"
+              @keydown.enter.prevent="toogleSelectCategory(item)"
+              @click.stop.prevent="toogleSelectCategory(item)">
               <v-card
                 class="d-flex align-center justify-center ms-1 me-2"
                 color="transparent"
@@ -103,7 +111,7 @@
               </v-card>
               <div class="text-truncate">{{ item.name }}</div>
             </v-card>
-            <div v-else class="d-flex align-center">
+            <div v-else v-tree-node class="d-flex align-center">
               <v-btn
                 :title="$t('categoryInput.loadMore')"
                 :loading="item.loading"
@@ -427,7 +435,11 @@ export default {
         }
       }
     },
-    toogleSelectCategory(id) {
+    toogleSelectCategory(item) {
+      if (item.disabled) {
+        return;
+      }
+      const id = item.id;
       if (this.categoryIds.indexOf(id) < 0) {
         this.categoryIds.push(id);
       } else {
