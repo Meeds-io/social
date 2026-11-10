@@ -25,7 +25,12 @@
     max-width="100vw"
     class="drawerParent overflow-initial"
     ref="drawerParent"
-    tabindex="0">
+    :role="isDialog() ? 'dialog' : null"
+    :aria-modal="isDialog() ? 'true' : null"
+    :aria-labelledby="isDialog() && $slots.title ? titleElementId : null"
+    :aria-label="isDialog() && !$slots.title ? ariaLabel : null"
+    tabindex="0"
+    @keydown.native.tab="trapFocus">
     <div
       v-if="initialized || eager"
       class="pa-0 fill-width fill-height">
@@ -45,16 +50,20 @@
               </v-card>
               <v-list-item-action v-if="goBackButton && !useFilter" class="drawerIcons ps-1 me-2">
                 <v-btn
+                  :aria-label="$t('label.back')"
+                  :title="$t('label.back')"
                   icon
                   @click="goBack">
-                  <v-icon size="20">
+                  <v-icon aria-hidden="true" size="20">
                     {{ $vuetify.rtl && 'fa fa-arrow-right' || 'fa fa-arrow-left' }}
                   </v-icon>
                 </v-btn>
               </v-list-item-action>
               <v-list-item-content :class="goBackButton ? 'ps-2' : 'ps-4'" class="drawerTitle align-start text-title">
+                <!-- kept while the filter field replaces it: it still names the drawer -->
                 <div
-                  v-if="!showFilter"
+                  v-show="!showFilter"
+                  :id="titleElementId"
                   class="text-truncate full-width">
                   <slot name="title"></slot>
                 </div>
@@ -63,6 +72,7 @@
                   v-if="showFilter"
                   v-model="filterText"
                   :placeholder="resolvedFilterPlaceholder"
+                  :aria-label="resolvedFilterPlaceholder"
                   class="d-flex my-0 ms-0 me-4 pa-0"
                   hide-details
                   @focus="filterFocused = true"
@@ -77,10 +87,13 @@
                   </template>
                   <template #prepend>
                     <v-btn
+                      :aria-label="$t('label.back')"
+                      :title="$t('label.back')"
                       icon
                       class="pa-0 mb-n6px mx-0 mt-0"
                       @click="showFilter = !showFilter">
                       <v-icon
+                        aria-hidden="true"
                         class="icon-default-color"
                         size="20">
                         fa-arrow-left
@@ -91,12 +104,15 @@
                     v-if="!!filterText"
                     #append>
                     <v-btn
+                      :aria-label="$t('label.clear')"
+                      :title="$t('label.clear')"
                       class="pa-0 mt-1 mx-0 mb-0"
                       width="24"
                       height="24"
                       icon
                       @click="filterText = ''">
                       <v-icon
+                        aria-hidden="true"
                         class="primary--text"
                         size="16">
                         fa-times
@@ -111,9 +127,12 @@
                 <slot name="titleIcons"></slot>
                 <v-btn
                   v-if="useFilter"
+                  :aria-label="$t('label.filter')"
+                  :title="$t('label.filter')"
                   icon
                   @click="openFilter">
                   <v-icon
+                    aria-hidden="true"
                     :class="{
                       'primary--text': !!filterText,
                       'icon-default-color': !filterText
@@ -125,17 +144,23 @@
                 <slot v-if="hasExpandActionSlot" name="expandAction"></slot>
                 <v-btn
                   v-else-if="allowExpand && !isMobile"
+                  :aria-label="expandTooltip"
                   :title="expandTooltip"
                   icon
                   @click="toogleExpand">
-                  <v-icon v-text="expandIcon" size="20" />
+                  <v-icon
+                    aria-hidden="true"
+                    v-text="expandIcon"
+                    size="20" />
                 </v-btn>
                 <v-btn
                   v-if="!hideClose"
+                  :aria-label="$t('label.close')"
                   :title="$t('label.close')"
                   icon
                   @click="close()">
                   <v-icon
+                    aria-hidden="true"
                     class="icon-default-color"
                     size="20">
                     fa-times
@@ -202,6 +227,8 @@
   </v-navigation-drawer>
 </template>
 <script>
+const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [contenteditable="true"], [tabindex]:not([tabindex="-1"])';
+
 export default {
   props: {
     value: {
@@ -320,6 +347,10 @@ export default {
     autofocus: {
       type: Boolean,
       default: true
+    },
+    ariaLabel: {
+      type: String,
+      default: null
     }
   },
   data: () => ({
@@ -335,8 +366,12 @@ export default {
     filterFocused: false,
     overlayRegistered: false,
     overlayDetail: false,
+    opener: null,
   }),
   computed: {
+    titleElementId() {
+      return `drawerTitle-${this._uid}`;
+    },
     zIndex() {
       return this.drawer ? (this.drawerZIndex + (eXo.openedDrawers?.length || 0)) : this.drawerZIndex;
     },
@@ -422,6 +457,7 @@ export default {
           this.releaseOverlayRegistration();
         }
         this.$emit('closed');
+        this.restoreOpenerFocus();
         if (this.disablePullToRefresh) {
           document.body.style.overscrollBehaviorY = '';
         }
@@ -478,6 +514,10 @@ export default {
       }
     },
     open() {
+      if (!this.drawer) {
+        this.opener = !this.permanent && document.activeElement !== document.body
+          && !this.$el.contains(document.activeElement) ? document.activeElement : null;
+      }
       if (!this.attached) {
         // Re-append the drawer to open in order
         // to ensure to attribute an adequate z-index
@@ -495,6 +535,53 @@ export default {
           window.setTimeout(() =>
             this.$refs.drawerParent?.$el.focus(), 50);
         });
+      }
+    },
+    restoreOpenerFocus() {
+      const opener = this.opener;
+      this.opener = null;
+      if (!opener) {
+        return;
+      }
+      this.$nextTick(() => {
+        const active = document.activeElement;
+        // Do not steal focus when it moved elsewhere (e.g. another drawer opened over this one)
+        const focusLost = !active || active === document.body || this.$el.contains(active);
+        if (focusLost && opener.isConnected && !this.$el.contains(opener)) {
+          opener.focus();
+        }
+      });
+    },
+    isDialog() {
+      // v-navigation-drawer is always rendered temporary: it is a modal
+      // dialog unless the consumer docks it (permanent) or leaves it
+      // unnamed (a menu rather than a dialog). Not a computed: the slots are not reactive.
+      return this.drawer && !this.permanent && !!(this.$slots.title || this.ariaLabel);
+    },
+    trapFocus(event) {
+      if (!this.isDialog()) {
+        return;
+      }
+      const root = this.$refs.drawerParent?.$el;
+      if (!root) {
+        return;
+      }
+      const focusables = Array.from(root.querySelectorAll(FOCUSABLE_SELECTOR))
+        .filter(el => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden');
+      if (!focusables.length) {
+        event.preventDefault();
+        root.focus();
+        return;
+      }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || active === root)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
       }
     },
     mountOnParent() {
