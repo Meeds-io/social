@@ -37,14 +37,39 @@ public interface EmailChangeOtpPlugin extends OtpPlugin {
   String NAME = "emailChange";
 
   /**
-   * Sends a new code to the given address, under the send lock of the user
+   * Takes the send lock of the user first, then runs the check of the
+   * address, then sends a new code to the address when the check accepts it.
+   * The lock holds for the send interval whatever the check answers, so a
+   * refused address is rate-limited like a send, and a request made while the
+   * lock holds is refused before the address is checked.
    *
+   * @param <R> the type of the check's refusal
    * @param userName the user changing their email
-   * @param newEmail the address to set, already validated and free
-   * @throws IllegalStateException when a code was sent to the user less than
-   *           the send interval ago
+   * @param newEmail the address to set
+   * @param addressCheck answers the refusal of the address, or null to send
+   * @return the check's refusal, or null when the code was sent
+   * @throws IllegalStateException when the lock is already held: nothing is
+   *           checked or sent
+   * @throws Exception when the check fails
    */
-  void generateOtpCode(String userName, String newEmail);
+  <R> R generateOtpCode(String userName, String newEmail, AddressCheck<R> addressCheck) throws Exception;
+
+  /**
+   * The check of the new address, run under the send lock
+   *
+   * @param <R> the type of its refusal
+   */
+  @FunctionalInterface
+  interface AddressCheck<R> {
+
+    /**
+     * @param email the address to set
+     * @return the refusal of the address, or null when it is accepted
+     * @throws Exception when the check fails
+     */
+    R check(String email) throws Exception;
+
+  }
 
   /**
    * The value a code of this method is stored, validated and consumed as: the

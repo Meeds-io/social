@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -37,8 +38,10 @@ import static org.mockito.Mockito.when;
 
 import java.security.SecureRandom;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
@@ -79,6 +82,8 @@ public class EmailChangeEmailOtpPluginTest {
   private static final String       NEW_EMAIL = "john.new@example.org";
 
   private static final String       CACHE_KEY = "emailChange:john";
+
+  private static final EmailChangeOtpPlugin.AddressCheck<String> ACCEPT = email -> null;
 
   @Mock
   private CacheService              cacheService;
@@ -172,10 +177,10 @@ public class EmailChangeEmailOtpPluginTest {
    */
   @Test
   public void testGenerateOtpCodeSendsToTheNewAddressOnly() throws Exception {
-    plugin.generateOtpCode("john", " " + NEW_EMAIL + " ");
+    assertNull(plugin.generateOtpCode("john", " " + NEW_EMAIL + " ", ACCEPT));
 
     verify(otpCache).put(CACHE_KEY, OTP_CODE + ":" + NEW_EMAIL);
-    verify(otpSendLockCache).put(eq(CACHE_KEY), anyString());
+    verify(otpSendLockCache).put(CACHE_KEY, "");
     verify(resourceBundleService).getSharedString(eq("social.emailChange.otp.email.subject"), any());
     verify(resourceBundleService).getSharedString(eq("social.emailChange.otp.email.label.requestReminder"), any());
     verify(resourceBundleService).getSharedString(eq("social.emailChange.otp.email.label.confirmMessage"), any());
@@ -198,22 +203,60 @@ public class EmailChangeEmailOtpPluginTest {
   @Test
   public void testGenericSendIsRefused() throws Exception {
     assertThrows(UnsupportedOperationException.class, () -> plugin.generateOtpCode("john"));
-    assertThrows(IllegalArgumentException.class, () -> plugin.generateOtpCode("john", " "));
-    assertThrows(IllegalArgumentException.class, () -> plugin.generateOtpCode("john", null));
-    verify(otpCache, never()).put(anyString(), anyString());
     verify(otpSendLockCache, never()).put(anyString(), anyString());
+    assertThrows(IllegalArgumentException.class, () -> plugin.generateOtpCode("john", " ", ACCEPT));
+    assertThrows(IllegalArgumentException.class, () -> plugin.generateOtpCode("john", null, ACCEPT));
+    verify(otpCache, never()).put(anyString(), anyString());
     verify(mailService, never()).sendMessage(any(MimeMessage.class));
   }
 
   /**
    * The send lock is the user's, whatever the address: a user cannot mail
-   * another address before the send interval is over
+   * another address before the send interval is over, and the address is not
+   * even checked meanwhile
    */
   @Test
   public void testSendLockHoldsWhateverTheAddress() throws Exception {
     when(otpSendLockCache.get(CACHE_KEY)).thenReturn("");
-    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john", NEW_EMAIL));
-    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john", "another@example.org"));
+    AtomicInteger checks = new AtomicInteger();
+    EmailChangeOtpPlugin.AddressCheck<String> countingCheck = email -> {
+      checks.incrementAndGet();
+      return null;
+    };
+    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john", NEW_EMAIL, countingCheck));
+    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john", "another@example.org", countingCheck));
+    assertEquals(0, checks.get());
+    verify(otpCache, never()).put(anyString(), anyString());
+    verify(mailService, never()).sendMessage(any(MimeMessage.class));
+  }
+
+  /**
+   * The lock is taken before the address is checked, and kept when the check
+   * refuses it: a second request within the send interval is refused as
+   * throttled without checking its address, so the refusals of the check
+   * are rate-limited like a send
+   */
+  @Test
+  public void testRefusedAddressTakesTheSendLock() throws Exception {
+    Map<String, String> sendLocks = new HashMap<>();
+    when(otpSendLockCache.get(anyString())).thenAnswer(invocation -> sendLocks.get(invocation.getArgument(0)));
+    doAnswer(invocation -> sendLocks.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpSendLockCache)
+                                                                                                 .put(anyString(), anyString());
+    AtomicInteger checks = new AtomicInteger();
+    String refusal = plugin.generateOtpCode("john", "used@example.org", email -> {
+      assertTrue("The lock is taken before the address is checked", sendLocks.containsKey(CACHE_KEY));
+      checks.incrementAndGet();
+      return "ALREADY_EXISTS";
+    });
+    assertEquals("ALREADY_EXISTS", refusal);
+    assertEquals(1, checks.get());
+    assertTrue(sendLocks.containsKey(CACHE_KEY));
+
+    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john", NEW_EMAIL, email -> {
+      checks.incrementAndGet();
+      return null;
+    }));
+    assertEquals("The address of a throttled request is not checked", 1, checks.get());
     verify(otpCache, never()).put(anyString(), anyString());
     verify(mailService, never()).sendMessage(any(MimeMessage.class));
   }

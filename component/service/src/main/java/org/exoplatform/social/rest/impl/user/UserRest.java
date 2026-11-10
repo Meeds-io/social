@@ -1418,9 +1418,10 @@ public class UserRest implements ResourceContainer, Startable {
 
   /**
    * Sends the code that confirms an email change to the new address, once the
-   * address is valid and no other user has it: the change then takes effect
-   * with that code only, so it proves that the user receives mail there. The
-   * send lock of the user holds whatever the address.
+   * address is valid and no other user of this platform has it: the change
+   * then takes effect with that code only, so it proves that the user receives
+   * mail there. The send lock of the user is taken first, on every request,
+   * refused ones included, and holds whatever the address.
    */
   @POST
   @Path("{id}/email/otp")
@@ -1430,7 +1431,7 @@ public class UserRest implements ResourceContainer, Startable {
     @ApiResponse(responseCode = "204", description = "Code sent"),
     @ApiResponse(responseCode = "400", description = "Invalid email address"),
     @ApiResponse(responseCode = "401", description = "Not the logged in user, or the address is used by another user"),
-    @ApiResponse(responseCode = "429", description = "A code was already sent recently, retry later") })
+    @ApiResponse(responseCode = "429", description = "A request was made less than the send interval ago, retry later") })
   public Response sendEmailChangeOtpCode(@Context
   HttpServletRequest request,
                                          @Parameter(description = "User name", required = true)
@@ -1442,14 +1443,6 @@ public class UserRest implements ResourceContainer, Startable {
     if (!StringUtils.equals(getCurrentUser(), username)) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
-    Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
-    String errorMessage = EMAIL_VALIDATOR.validate(locale, email);
-    if (StringUtils.isNotBlank(errorMessage)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(EMAIL_MSG_PREFIX + errorMessage).build();
-    }
-    if (isEmailAlreadyExists(username, email)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
-    }
     EmailChangeOtpPlugin emailChangeOtpPlugin = getEmailChangeOtpPlugin();
     if (emailChangeOtpPlugin == null) {
       LOG.warn("No OTP method '{}' is registered: the email change code of user {} cannot be sent",
@@ -1457,12 +1450,28 @@ public class UserRest implements ResourceContainer, Startable {
                username);
       return Response.serverError().build();
     }
+    Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
     try {
-      emailChangeOtpPlugin.generateOtpCode(username, email);
+      // the address is checked under the send lock, so that its refusals are
+      // rate-limited like a send
+      Response refusal = emailChangeOtpPlugin.generateOtpCode(username,
+                                                              email,
+                                                              address -> checkNewEmail(username, address, locale));
+      return refusal == null ? Response.noContent().build() : refusal;
     } catch (IllegalStateException e) {
       return Response.status(429).build();
     }
-    return Response.noContent().build();
+  }
+
+  private Response checkNewEmail(String username, String email, Locale locale) throws Exception {
+    String errorMessage = EMAIL_VALIDATOR.validate(locale, email);
+    if (StringUtils.isNotBlank(errorMessage)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(EMAIL_MSG_PREFIX + errorMessage).build();
+    }
+    if (isEmailAlreadyExists(username, email)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
+    }
+    return null;
   }
 
   @DELETE

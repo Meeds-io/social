@@ -170,14 +170,50 @@ public class EmailOtpPlugin implements OtpPlugin {
    * @param recipientEmail the address to send the code to, null for the
    *          address of the user's account
    */
-  @SneakyThrows
   protected void sendOtpCode(String userName, String recipientEmail) {
     String cacheKey = getCacheKey(userName);
+    checkSendLock(userName, cacheKey);
+    sendCode(userName, recipientEmail, cacheKey);
+    getOtpSendLockCache().put(cacheKey, StringUtils.EMPTY);
+  }
+
+  /**
+   * Takes the send lock of the user at once, before anything is checked or
+   * sent: the lock then holds for the send interval whatever the request
+   * answers, a refusal included. The code is then sent by
+   * {@link #sendOtpCodeUnderLock(String, String)}.
+   *
+   * @param userName the user the code is for
+   * @throws IllegalStateException when the lock is already held
+   */
+  protected void takeSendLock(String userName) {
+    String cacheKey = getCacheKey(userName);
+    checkSendLock(userName, cacheKey);
+    getOtpSendLockCache().put(cacheKey, StringUtils.EMPTY);
+  }
+
+  /**
+   * Sends a new code as {@link #sendOtpCode(String, String)} does, under the
+   * send lock the caller took with {@link #takeSendLock(String)}
+   *
+   * @param userName the user the code is for
+   * @param recipientEmail the address to send the code to, null for the
+   *          address of the user's account
+   */
+  protected void sendOtpCodeUnderLock(String userName, String recipientEmail) {
+    sendCode(userName, recipientEmail, getCacheKey(userName));
+  }
+
+  private void checkSendLock(String userName, String cacheKey) {
     if (getOtpSendLockCache().get(cacheKey) != null) {
       throw new IllegalStateException(String.format("OTP email already sent to user %s less than %s seconds ago",
                                                     userName,
                                                     sendInterval));
     }
+  }
+
+  @SneakyThrows
+  private void sendCode(String userName, String recipientEmail, String cacheKey) {
     String lang = brandedEmailSender.getUserLang(userName);
     String emailSubject = resourceBundleService.getSharedString(getEmailSubjectKey(), LocaleUtils.toLocale(lang));
     String otpCode = generateOtpCode();
@@ -188,7 +224,6 @@ public class EmailOtpPlugin implements OtpPlugin {
     } else {
       brandedEmailSender.sendEmail(userName, recipientEmail, emailSubject, getEmailBodyPath(), tokens);
     }
-    getOtpSendLockCache().put(cacheKey, StringUtils.EMPTY);
   }
 
   /**
