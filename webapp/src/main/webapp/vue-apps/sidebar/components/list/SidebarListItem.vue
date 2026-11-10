@@ -20,7 +20,10 @@
 
 -->
 <template>
-  <v-divider v-if="item.type === 'SEPARATOR'" class="my-1" />
+  <v-divider
+    v-if="item.type === 'SEPARATOR'"
+    class="my-1"
+    role="separator" />
   <div v-else-if="isSitePages">
     <sidebar-list-sub-list
       :item="item" />
@@ -32,9 +35,14 @@
       v-if="displaySpacesList">
       <v-list-item
         :title="spacesTooltip"
+        :aria-expanded="spacesExpanded"
+        :aria-label="$t(item.name)"
         :class="$root.iconCollapse && 'mx-0'"
+        role="button"
         class="d-flex ps-3"
         dense
+        @focusin.native="focused = true"
+        @focusout.native="onFocusOut"
         @click="handleSpacesClick">
         <v-list-item-avatar class="me-2 my-auto" min-width="40">
           <v-btn
@@ -55,14 +63,18 @@
             {{ $t(item.name) }}
           </v-list-item-title>
         </v-list-item-content>
+        <!-- Enter on its button stops here: the entry, a list item, would take it as its own click and toggle the panel back -->
         <v-list-item-action
           v-if="toggleArrow && $root.expand"
           class="my-auto align-center"
           @mousedown.stop.prevent
-          @mouseup.stop.prevent>
+          @mouseup.stop.prevent
+          @keydown.enter.stop>
           <ripple-hover-button
             :active="!drawerOpened"
             :title="$t('menu.accessToSpacesList')"
+            :aria-label="$t('menu.accessToSpacesList')"
+            :aria-expanded="drawerOpened ? 'true' : 'false'"
             class="ms-2"
             icon
             @ripple-hover="openSpacesList">
@@ -93,7 +105,9 @@
       :disabled="!item.url"
       :class="(!$root.expand || !item.avatar) && avatar && 'ms-n2px'"
       class="d-flex ps-3"
-      dense>
+      dense
+      @focusin.native="focused = true"
+      @focusout.native="onFocusOut">
       <v-list-item-avatar
         v-if="icon || ($root.expand && item.avatar)"
         class="my-auto me-2"
@@ -136,10 +150,13 @@
         v-if="toggleArrow && $root.expand"
         class="my-auto align-center z-index-one position-relative"
         @mousedown.stop.prevent
-        @mouseup.stop.prevent>
+        @mouseup.stop.prevent
+        @keydown.enter.stop>
         <ripple-hover-button
           :active="!drawerOpened"
           :title="$t('menu.accessToPagesList')"
+          :aria-label="$t('menu.accessToPagesList')"
+          :aria-expanded="drawerOpened ? 'true' : 'false'"
           class="ms-2"
           icon
           @ripple-hover="openOrCloseDrawer()">
@@ -154,11 +171,13 @@
         v-else-if="isPage"
         class="my-auto align-center"
         @mousedown.stop.prevent
-        @mouseup.stop.prevent>
+        @mouseup.stop.prevent
+        @keydown.enter.stop>
         <v-btn
           v-if="$root.expand && $root.allowUserHome"
-          v-show="hover || isHome"
+          v-show="hover || focused || isHome"
           :title="$t('menu.spaces.makeAsHomePage')"
+          :aria-label="$t('menu.spaces.makeAsHomePage')"
           class="ms-2"
           icon
           @click.stop.prevent="$root.$emit('update-home-link-page', item)">
@@ -186,9 +205,14 @@ export default {
       type: Object,
       default: null,
     },
+    activeUrl: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     hover: false,
+    focused: false,
     collapsedSpaces: false,
     space: null,
   }),
@@ -282,8 +306,20 @@ export default {
     target() {
       return this.isUrl && this.item.target === 'NEW_TAB' && '_blank' || null;
     },
+    spacesExpanded() {
+      return String(this.$root.displaySequentially ? !this.collapsedSpaces : !!this.drawerOpened);
+    },
+    isCurrentPage() {
+      return !!this.activeUrl && this.activeUrl === this.item.url;
+    },
     itemAttributes() {
       const attributes = {};
+      attributes.role = this.isUrl && 'link' || 'button';
+      // its own name: the buttons inside the entry (arrow, home) must not add to it
+      attributes['aria-label'] = this.spaceUnreadCount ? this.$t('menu.entryWithUnread', {0: this.item.name, 1: this.spaceUnreadCount}) : this.item.name;
+      if (this.isCurrentPage) {
+        attributes['aria-current'] = 'page';
+      }
       if (this.isUrl) {
         attributes.href = this.url;
         attributes.target = this.target;
@@ -306,7 +342,7 @@ export default {
     },
     toggleArrow() {
       return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaceCategory || this.isSpaces)
-        && (this.hover || this.drawerOpened);
+        && (this.hover || this.focused || this.drawerOpened);
     },
     tooltip() {
       if (this.isSpace) {
@@ -387,6 +423,10 @@ export default {
     document.removeEventListener('space-settings-updated', this.handleSpaceUpdated);
   },
   methods: {
+    // the entry keeps its keyboard state while the focus moves to its own buttons
+    onFocusOut(event) {
+      this.focused = !!(event.relatedTarget && event.currentTarget?.contains?.(event.relatedTarget));
+    },
     handleSpaceUpdated(event) {
       const space = event?.detail;
       if (space && this.space?.id === space?.id) {

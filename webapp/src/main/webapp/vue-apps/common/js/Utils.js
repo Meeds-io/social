@@ -203,3 +203,27 @@ export function isValidUrl(value) {
     phone: false
   })?.[0]?.getAnchorHref?.();
 }
+
+// A Vuetify 2 v-treeview sets no ARIA role and renders each toggle as an unnamed button. Called from the
+// root element of a node's label slot, each time it renders (the v-tree-node directive), this describes that
+// node only: a list item of its parent list, its toggle named label with its expanded state.
+export function describeTreeNode(el, label) {
+  const node = el?.closest?.('.v-treeview-node');
+  if (!node) {
+    return;
+  }
+  node.setAttribute('role', 'listitem');
+  node.parentElement?.setAttribute('role', 'list');
+  const nodeRoot = el.closest('.v-treeview-node__root');
+  const toggle = nodeRoot?.querySelector('.v-treeview-node__toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-label', label || '');
+    toggle.setAttribute('aria-expanded', String(toggle.classList.contains('v-treeview-node__toggle--open')));
+  }
+  // a label that renders its own checkbox makes the tree's selection icon a duplicate, unnamed control
+  const checkbox = nodeRoot?.querySelector('.v-treeview-node__checkbox');
+  if (checkbox && (el.matches('[role="checkbox"]') || el.querySelector('[role="checkbox"]'))) {
+    checkbox.setAttribute('tabindex', '-1');
+    checkbox.setAttribute('aria-hidden', 'true');
+  }
+}
