@@ -62,7 +62,7 @@
       </div>
     </v-list-item-title>
     <v-list-item-action
-      v-if="!unreadBadge && enableChangeHome && !isNodeGroup && (isHomeLink || showAction)"
+      v-if="!unreadBadge && enableChangeHome && !isNodeGroup && homeUri && (isHomeLink || showAction)"
       class="ms-auto my-auto flex-shrink-0">
       <v-btn
         :title="$t('menu.spaces.makeAsHomePage')"
@@ -136,8 +136,11 @@ export default {
     isNodeGroup() {
       return !this.navigation.pageKey;
     },
+    homeUri() {
+      return this.$navigationUtils.getNavigationNodeHomeUri(this.navigation?.pageLink || this.uri);
+    },
     isHomeLink() {
-      return this.uri === this.homeLink;
+      return this.homeUri === this.homeLink;
     },
     unreadBadge() {
       return this.$root.openedSpaceId && this.$root?.unreadPerSpace?.[this.$root.openedSpaceId];
@@ -159,8 +162,8 @@ export default {
     selectHome(event) {
       event.preventDefault();
       event.stopPropagation();
-      if (this.homeLink !== this.uri) {
-        this.$root.$emit('update-home-link', this.navigation);
+      if (!this.isHomeLink) {
+        this.$root.$emit('update-home-link', this.navigation, this.homeUri);
       }
     },
     updateHome() {
