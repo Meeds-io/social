@@ -27,9 +27,14 @@
     <v-hover v-model="$root.hoverButton">
       <sidebar-button
         :unread-per-space="unreadPerSpace"
+        :expanded="firstLevelDrawer"
         @open-drawer="openFirstLevel" />
     </v-hover>
-    <div class="layout-side-bar">
+    <div
+      class="layout-side-bar"
+      @keydown.esc="closeOnEscape"
+      @focusin="$root.focusMenu = hasKeyboardFocus()"
+      @focusout="closeOnFocusLeave">
       <template v-if="$root.displaySequentially">
         <sidebar-third-level
           v-if="allowDisplayLevels"
@@ -167,7 +172,22 @@ export default {
         this.secondLevel = null;
       }
     },
+    // a panel opened, or showing another entry, from the keyboard: the focus follows into it. The kind of
+    // content, the site or the space it shows, and the third level each change on their own
+    secondLevel() {
+      if (this.secondLevel) {
+        this.focusOpenedLevelFromKeyboard();
+      }
+    },
+    thirdLevelDrawer() {
+      if (this.thirdLevelDrawer) {
+        this.focusOpenedLevelFromKeyboard();
+      }
+    },
     firstLevelDrawer() {
+      if (!this.firstLevelDrawer) {
+        this.restoreFocusToButton();
+      }
       if (!this.firstLevelDrawer && !this.stickyDisplay) {
         this.thirdLevelDrawer = false;
         this.secondLevelDrawer = false;
@@ -203,9 +223,15 @@ export default {
     },
     site() {
       this.$root.openedSiteName = this.site?.name;
+      if (this.site) {
+        this.focusOpenedLevelFromKeyboard();
+      }
     },
     space() {
       this.$root.openedSpaceId = this.space?.id;
+      if (this.space) {
+        this.focusOpenedLevelFromKeyboard();
+      }
     },
     mode(newVal, oldVal) {
       if (newVal !== oldVal) {
@@ -236,9 +262,34 @@ export default {
       window.clearTimeout(this.closeTimeout);
       window.clearInterval(this.interval);
       this.firstLevelDrawer = true;
+      this.moveFocusToMenu();
       if (this.$root.allowClosing) {
         this.$root.allowClosing = false;
         this.closeTimeout = window.setTimeout(() => this.$root.allowClosing = true, 2000);
+      }
+    },
+    moveFocusToMenu() {
+      if (this.$root.sticky || this.$root.icon) {
+        return;
+      }
+      this.focusReturnPending = true;
+      window.setTimeout(() => {
+        const menu = document.querySelector('#HamburgerMenuNavigation');
+        const target = menu?.querySelector?.('a[href], button:not([disabled]), [tabindex="0"]');
+        if (target) {
+          target.focus();
+        }
+      }, 400);
+    },
+    restoreFocusToButton() {
+      if (!this.focusReturnPending) {
+        return;
+      }
+      this.focusReturnPending = false;
+      const active = document.activeElement;
+      const menu = document.querySelector('#HamburgerMenuNavigation');
+      if (!active || active === document.body || menu?.contains?.(active)) {
+        this.$el?.querySelector?.('.HamburgerNavigationMenuLink')?.focus?.();
       }
     },
     async changeSpacesMenu(spaceTemplateId, spaceCategoryId, spacesUrl, sortBy, name, type) {
@@ -345,7 +396,48 @@ export default {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
         return;
       }
-      if (!this.hover) {
+      // the menu stays open while it is used, with the mouse or with the keyboard
+      if (!this.hover && !this.hasKeyboardFocus()) {
+        this.closeMenuEffectively();
+      }
+    },
+    // the deepest level open once the panels have moved in
+    focusOpenedLevelFromKeyboard() {
+      if (this.hasKeyboardFocus()) {
+        window.setTimeout(() => {
+          const level = (this.thirdLevelDrawer && '.HamburgerMenuThirdLevelParent')
+            || (this.secondLevelDrawer && '.HamburgerMenuSecondLevelParent');
+          if (level) {
+            document.querySelector(level)
+              ?.querySelector?.('a[href], button:not([disabled]), [tabindex="0"]')
+              ?.focus();
+          }
+        }, 400);
+      }
+    },
+    // focus reached with the keyboard inside the menu: a clicked entry keeps the focus too, without :focus-visible
+    hasKeyboardFocus() {
+      const active = document.activeElement;
+      return !!active?.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')
+        && !!active.matches?.(':focus-visible');
+    },
+    closeOnEscape() {
+      if (this.firstLevelDrawer || this.secondLevelDrawer || this.thirdLevelDrawer) {
+        this.closeMenuEffectively();
+      }
+    },
+    // a menu shown over the page closes once the keyboard focus leaves all its levels
+    closeOnFocusLeave(event) {
+      const target = event.relatedTarget;
+      if (!target?.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')) {
+        this.$root.focusMenu = false;
+      }
+      if (this.$root.sticky || this.$root.icon || !target
+          || target.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')) {
+        return;
+      }
+      if (this.firstLevelDrawer || this.secondLevelDrawer || this.thirdLevelDrawer) {
+        this.focusReturnPending = false;
         this.closeMenuEffectively();
       }
     },
