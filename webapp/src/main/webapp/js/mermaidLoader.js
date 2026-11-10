@@ -51,6 +51,60 @@ var mermaidLoader = (function() {
   var CALLER_SETTINGS = ['theme', 'themeVariables', 'fontFamily', 'altFontFamily', 'darkMode', 'look', 'flowchart',
     'sequence', 'gantt', 'timeline', 'mindmap', 'state', 'class', 'er', 'journey', 'pie'];
   var loading = null;
+  /** How many loads or drawings are running behind the define guard. */
+  var guarded = 0;
+  /** RequireJS's define, while the guard hides it from module code. */
+  var amdDefine = null;
+
+  /**
+   * Runs a Mermaid call with the page's AMD define hidden from ES-module
+   * code: Mermaid bundles UMD libraries (fastdom, dayjs plugins, layouts)
+   * that register with a global define when they see one instead of
+   * exporting themselves, which RequireJS provides on every page. While
+   * the call runs, define answers RequireJS's own to a classic script (one
+   * RequireJS injects runs with document.currentScript set) and nothing to
+   * a module, then is restored.
+   *
+   * @param {Function} call returns the call's promise
+   * @returns {Promise} the call's result
+   */
+  function withoutAmdDefine(call) {
+    var descriptor = Object.getOwnPropertyDescriptor(window, 'define');
+    if (guarded === 0 && descriptor && descriptor.configurable && typeof window.define === 'function') {
+      amdDefine = window.define;
+      Object.defineProperty(window, 'define', {
+        configurable: true,
+        get: function() {
+          return document.currentScript ? amdDefine : undefined;
+        },
+        set: function(value) {
+          amdDefine = value;
+        },
+      });
+    }
+    if (amdDefine) {
+      guarded++;
+    }
+    var release = function() {
+      if (amdDefine && --guarded === 0) {
+        Object.defineProperty(window, 'define', {configurable: true, writable: true, enumerable: true, value: amdDefine});
+        amdDefine = null;
+      }
+    };
+    var result;
+    try {
+      result = Promise.resolve(call());
+    } catch (error) {
+      result = Promise.reject(error);
+    }
+    return result.then(function(value) {
+      release();
+      return value;
+    }, function(error) {
+      release();
+      throw error;
+    });
+  }
 
   /**
    * @param {Object} settings a caller's settings
@@ -88,7 +142,9 @@ var mermaidLoader = (function() {
        * @returns {Promise} resolved when it parses, rejected otherwise
        */
       parse: function(text) {
-        return mermaid.parse(text);
+        return withoutAmdDefine(function() {
+          return mermaid.parse(text);
+        });
       },
       /**
        * @param {string} id the SVG's id, unique in the page
@@ -97,7 +153,9 @@ var mermaidLoader = (function() {
        * @returns {Promise<{svg: string}>} the drawn SVG
        */
       render: function(id, text, container) {
-        return mermaid.render(id, text, container);
+        return withoutAmdDefine(function() {
+          return mermaid.render(id, text, container);
+        });
       },
     };
   }
@@ -111,7 +169,9 @@ var mermaidLoader = (function() {
      */
     load: function() {
       if (!loading) {
-        loading = import(/* webpackIgnore: true */ MERMAID_URL)
+        loading = withoutAmdDefine(function() {
+          return import(/* webpackIgnore: true */ MERMAID_URL);
+        })
           .then(function(module) {
             return wrap(module.default);
           })
