@@ -6,7 +6,7 @@
  * @returns {string} the encoded path segment
  */
 function encodeUsernameSegment(username) {
-  return encodeURIComponent(username).replace(/%40/g, '@');
+  return encodeURIComponent(username).replaceAll('%40', '@');
 }
 
 class UserByName extends HTMLElement {
