@@ -32,8 +32,9 @@ body:has(.sidebarLogin) {
 
 // The Branding and Theme page stores its built-in default page background color, #F0F0F0, whenever its page styling is applied
 // or reset without choosing a color and no default is configured: portal marks body with default-page-background-color then, and these pages
-// keep white over that default. The default is written inline on body as the variable only, so the background color of body,
-// set by a selector more specific than the body rule of the skin, overrides it.
+// keep white over that default. The default is written inline on body as the variable, which this important declaration overrides.
+// It stays a variable, not the background color of body: a page background set in the page editor is written inline on body
+// with the important priority (layout ApplicationUtils), and wins over this rule.
 body.default-page-background-color:has(.sidebarLogin) {
-  background-color: @white;
+  --allPagesBackgroundColor: @white !important;
 }
