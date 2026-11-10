@@ -145,7 +145,10 @@
                     :aria-pressed="showPassword ? 'true' : 'false'"
                     icon
                     x-small
-                    @click="toggleShow">
+                    retain-focus-on-click
+                    @mousedown.stop
+                    @mouseup.stop
+                    @click.stop="toggleShow">
                     <v-icon
                       class="text-font-size"
                       aria-hidden="true">
@@ -254,6 +257,16 @@ export default {
     focus: false,
   }),
   watch: {
+    // The checkbox cancels the click on its input, so the browser restores the input's checked state
+    // after the click: the native state, which assistive technologies read, is set once the click is over
+    rememberme() {
+      window.setTimeout(() => {
+        const input = this.$el?.querySelector?.('#rememberme');
+        if (input) {
+          input.checked = !!this.rememberme;
+        }
+      });
+    },
     errorMessage: {
       immediate: true,
       handler: function() {
