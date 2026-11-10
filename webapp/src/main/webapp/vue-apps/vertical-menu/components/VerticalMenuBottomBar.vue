@@ -22,13 +22,12 @@
     <v-list-item class="my-auto" dense>
       <v-list-item-action class="me-auto font-weight-bold">
         <v-tooltip top>
-          <template #activator="{ on, attrs }">
+          <template #activator="{ on }">
             <a
               :href="productLink"
               :aria-label="$t('menu.productName.seeProduct')"
               target="_blank"
               class="text-body font-weight-bold my-auto"
-              v-bind="attrs"
               v-on="on">
               {{ productName }}
             </a>
@@ -41,9 +40,8 @@
       <v-spacer />
       <v-list-item-action class="my-auto">
         <v-tooltip top>
-          <template #activator="{ on, attrs }">
+          <template #activator="{ on }">
             <v-btn
-              v-bind="attrs"
               v-on="on"
               :href="mainPortalLink"
               :aria-label="$t('menu.goBackToMainPortal')"
