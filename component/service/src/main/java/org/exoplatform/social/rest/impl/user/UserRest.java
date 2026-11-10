@@ -148,7 +148,9 @@ import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
+import io.meeds.social.security.plugin.EmailChangeOtpPlugin;
 import io.meeds.social.space.constant.UserSpacesScope;
+import io.meeds.web.security.plugin.OtpPlugin;
 import io.meeds.web.security.service.OtpService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -169,8 +171,6 @@ import lombok.SneakyThrows;
 @Tag(name = VersionResources.VERSION_ONE +
     "/social/users", description = "Operations on users with their activities, connections and spaces")
 public class UserRest implements ResourceContainer, Startable {
-
-  private static final String EMAIL_OTP_METHOD             = "email";
 
   private static final String BULK_ENABLE                  = "enable";
 
@@ -1200,7 +1200,7 @@ public class UserRest implements ResourceContainer, Startable {
       } else {
         updateProfileField(profile, fieldName, value, true,currentUser);
         if (Profile.EMAIL.equals(fieldName)) {
-          consumeEmailOtp(username, otpCode);
+          consumeEmailOtp(username, value, otpCode);
         }
       }
     } catch (IllegalAccessException e) {
@@ -1282,7 +1282,7 @@ public class UserRest implements ResourceContainer, Startable {
       Map<String, Object> userProfileProperties = extractPropertiesFromEntities(profileEntity);
       saveProfile(username, userProfileProperties, currentUser);
       if (emailChange) {
-        consumeEmailOtp(username, otpCode);
+        consumeEmailOtp(username, email, otpCode);
       }
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attributes", currentUser);
@@ -1414,6 +1414,55 @@ public class UserRest implements ResourceContainer, Startable {
     }
     identityManager.updateProfile(profile, getCurrentUser(), true);
     return Response.ok().build();
+  }
+
+  /**
+   * Sends the code that confirms an email change to the new address, once the
+   * address is valid and no other user has it: the change then takes effect
+   * with that code only, so it proves that the user receives mail there. The
+   * send lock of the user holds whatever the address.
+   */
+  @POST
+  @Path("{id}/email/otp")
+  @RolesAllowed("users")
+  @Operation(summary = "Sends the code confirming an email change to the new address", method = "POST", description = "This can only be done by the logged in user.")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Code sent"),
+    @ApiResponse(responseCode = "400", description = "Invalid email address"),
+    @ApiResponse(responseCode = "401", description = "Not the logged in user, or the address is used by another user"),
+    @ApiResponse(responseCode = "429", description = "A code was already sent recently, retry later") })
+  public Response sendEmailChangeOtpCode(@Context
+  HttpServletRequest request,
+                                         @Parameter(description = "User name", required = true)
+                                         @PathParam("id")
+                                         String username,
+                                         @Parameter(description = "The new email address", required = true)
+                                         @FormParam("email")
+                                         String email) throws Exception {
+    if (!StringUtils.equals(getCurrentUser(), username)) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+    Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
+    String errorMessage = EMAIL_VALIDATOR.validate(locale, email);
+    if (StringUtils.isNotBlank(errorMessage)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(EMAIL_MSG_PREFIX + errorMessage).build();
+    }
+    if (isEmailAlreadyExists(username, email)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
+    }
+    EmailChangeOtpPlugin emailChangeOtpPlugin = getEmailChangeOtpPlugin();
+    if (emailChangeOtpPlugin == null) {
+      LOG.warn("No OTP method '{}' is registered: the email change code of user {} cannot be sent",
+               EmailChangeOtpPlugin.NAME,
+               username);
+      return Response.serverError().build();
+    }
+    try {
+      emailChangeOtpPlugin.generateOtpCode(username, email);
+    } catch (IllegalStateException e) {
+      return Response.status(429).build();
+    }
+    return Response.noContent().build();
   }
 
   @DELETE
@@ -2199,17 +2248,21 @@ public class UserRest implements ResourceContainer, Startable {
   }
 
   /**
-   * Validates the code of an email change, always with the email method:
-   * the method a client names is ignored, so a code sent for another flow
-   * never confirms an email change. The code is consumed by
-   * {@link #consumeEmailOtp(String, String)} once the change is written.
+   * Validates the code of an email change, always with the email change
+   * method: the method a client names is ignored, so a code sent for another
+   * flow never confirms an email change. The code was sent to the new address
+   * ({@link #sendEmailChangeOtpCode(HttpServletRequest, String, String)}) and
+   * is validated bound to the address being set, so a code sent to one
+   * address never confirms a change to another. The code is consumed by
+   * {@link #consumeEmailOtp(String, String, String)} once the change is
+   * written.
    */
   private Response checkEmail(String username, String email, String otpCode, Locale locale) throws Exception {
     if (StringUtils.isBlank(otpCode)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_MANDATORY").build();
     }
     try {
-      otpService.validateOtp(username, EMAIL_OTP_METHOD, otpCode);
+      otpService.validateOtp(username, EmailChangeOtpPlugin.NAME, EmailChangeOtpPlugin.bindCode(otpCode, email));
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_WRONG").build();
     }
@@ -2229,10 +2282,24 @@ public class UserRest implements ResourceContainer, Startable {
    * it never confirms another one, while a refused request burns nothing.
    * When another request consumed it in between, this change stands.
    */
-  private void consumeEmailOtp(String username, String otpCode) {
-    if (!otpService.consumeOtp(username, EMAIL_OTP_METHOD, otpCode)) {
+  private void consumeEmailOtp(String username, String email, String otpCode) {
+    if (!otpService.consumeOtp(username, EmailChangeOtpPlugin.NAME, EmailChangeOtpPlugin.bindCode(otpCode, email))) {
       LOG.warn("The email change code of user {} was consumed by another request while this change was written", username);
     }
+  }
+
+  /**
+   * The plugin the OTP service validates the email change method with: the
+   * first one of that name, as the service resolves it
+   */
+  private EmailChangeOtpPlugin getEmailChangeOtpPlugin() {
+    List<OtpPlugin> otpPlugins = otpService.getOtpPlugins();
+    OtpPlugin otpPlugin = otpPlugins == null ? null
+                                             : otpPlugins.stream()
+                                                         .filter(p -> EmailChangeOtpPlugin.NAME.equals(p.getName()))
+                                                         .findFirst()
+                                                         .orElse(null);
+    return otpPlugin instanceof EmailChangeOtpPlugin emailChangeOtpPlugin ? emailChangeOtpPlugin : null;
   }
 
   /**

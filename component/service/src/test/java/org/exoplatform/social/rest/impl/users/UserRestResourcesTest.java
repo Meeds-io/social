@@ -23,6 +23,8 @@ import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
+import io.meeds.social.security.plugin.EmailChangeOtpPlugin;
+import io.meeds.web.security.plugin.OtpPlugin;
 import io.meeds.web.security.service.OtpService;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -37,6 +39,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,6 +123,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -1715,12 +1719,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
-   * The email change validates the code of the email method whatever the
-   * client names, and consumes it once the change is written: a code that
-   * confirmed one change cannot confirm another, and a refused request burns
-   * nothing
+   * The email change validates the code of the email change method whatever
+   * the client names, bound to the address being set, and consumes it once
+   * the change is written: a code that confirmed one change cannot confirm
+   * another, and a refused request burns nothing
    */
-  public void testEmailChangeIsBoundToEmailMethodAndConsumedAfterTheWrite() throws Exception {
+  public void testEmailChangeIsBoundToEmailChangeMethodAndConsumedAfterTheWrite() throws Exception {
     startSessionAs("john");
     JSONObject data = new JSONObject();
     data.put(ProfileEntity.EMAIL, "WRONG_FORMAT");
@@ -1732,8 +1736,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     response = getResponse("PATCH", "/v1/social/users/john/profile?otpMethod=sms&otpCode=123", data.toString());
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
     verify(otpService, never()).validateOtp(eq("john"), eq("sms"), anyString());
-    verify(otpService, times(2)).validateOtp("john", "email", "123");
-    verify(otpService).consumeOtp("john", "email", "123");
+    verify(otpService, never()).validateOtp(eq("john"), eq("email"), anyString());
+    verify(otpService).validateOtp("john", EmailChangeOtpPlugin.NAME, "123:john.new@platform.com");
+    verify(otpService).consumeOtp("john", EmailChangeOtpPlugin.NAME, "123:john.new@platform.com");
 
     MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
     formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
@@ -1743,19 +1748,138 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                        formHeaders,
                        "name=email&value=john.other@platform.com&otpMethod=sms&otpCode=456".getBytes());
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
-    verify(otpService).validateOtp("john", "email", "456");
-    verify(otpService).consumeOtp("john", "email", "456");
+    verify(otpService).validateOtp("john", EmailChangeOtpPlugin.NAME, "456:john.other@platform.com");
+    verify(otpService).consumeOtp("john", EmailChangeOtpPlugin.NAME, "456:john.other@platform.com");
   }
 
   public void testEmailChangeRefusedByTheCodeConsumesNothing() throws Exception {
     startSessionAs("john");
-    doThrow(new IllegalAccessException()).when(otpService).validateOtp("john", "email", "000");
+    doThrow(new IllegalAccessException()).when(otpService)
+                                         .validateOtp("john", EmailChangeOtpPlugin.NAME, "000:john.new@platform.com");
     JSONObject data = new JSONObject();
     data.put(ProfileEntity.EMAIL, "john.new@platform.com");
     ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile?otpCode=000", data.toString());
     assertEquals(400, response.getStatus());
     assertEquals("EMAIL:OTP_CODE_WRONG", response.getEntity());
     verify(otpService, never()).consumeOtp(anyString(), anyString(), anyString());
+  }
+
+  /**
+   * A code sent to one address confirms a change to that address only, on
+   * both endpoints that change the email: the OTP service, which compares the
+   * stored value, answers here as it does for a code bound to
+   * john.new@platform.com
+   */
+  public void testEmailChangeCodeConfirmsTheAddressItWasSentToOnly() throws Exception {
+    startSessionAs("john");
+    String sentTo = EmailChangeOtpPlugin.bindCode("123", "john.new@platform.com");
+    doThrow(new IllegalAccessException()).when(otpService)
+                                         .validateOtp(eq("john"),
+                                                      eq(EmailChangeOtpPlugin.NAME),
+                                                      argThat(value -> !sentTo.equals(value)));
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.EMAIL, "shared.mailbox@platform.com");
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile?otpCode=123", data.toString());
+    assertEquals(400, response.getStatus());
+    assertEquals("EMAIL:OTP_CODE_WRONG", response.getEntity());
+
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    response = service("PATCH",
+                       getURLResource("users/john"),
+                       "",
+                       formHeaders,
+                       "name=email&value=shared.mailbox@platform.com&otpCode=123".getBytes());
+    assertEquals(400, response.getStatus());
+    assertEquals("EMAIL:OTP_CODE_WRONG", response.getEntity());
+    verify(otpService, never()).consumeOtp(anyString(), anyString(), anyString());
+    assertFalse("shared.mailbox@platform.com".equals(organizationService.getUserHandler().findUserByName("john").getEmail()));
+
+    response = service("PATCH",
+                       getURLResource("users/john"),
+                       "",
+                       formHeaders,
+                       "name=email&value=john.new@platform.com&otpCode=123".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    verify(otpService).consumeOtp("john", EmailChangeOtpPlugin.NAME, sentTo);
+  }
+
+  /**
+   * The code of an email change goes to the new address, through the email
+   * change method, never through the generic send that mails the address of
+   * the account
+   */
+  public void testSendEmailChangeCodeSendsToTheNewAddress() throws Exception {
+    EmailChangeOtpPlugin emailChangeOtpPlugin = mockEmailChangeOtpPlugin();
+    startSessionAs("john");
+    ContainerResponse response = sendEmailChangeCode("john", "john.new@platform.com");
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    verify(emailChangeOtpPlugin).generateOtpCode("john", "john.new@platform.com");
+    verify(emailChangeOtpPlugin, never()).generateOtpCode(anyString());
+    verify(otpService, never()).sendOtpCode(anyString(), anyString());
+  }
+
+  /**
+   * No code is sent for another user, to an invalid address or to an address
+   * another user has; the send lock of the user answers 429
+   */
+  public void testSendEmailChangeCodeRefusals() throws Exception {
+    EmailChangeOtpPlugin emailChangeOtpPlugin = mockEmailChangeOtpPlugin();
+    startSessionAs("root");
+    ContainerResponse response = sendEmailChangeCode("john", "john.new@platform.com");
+    assertEquals("Not even an administrator sends the code of another user", 401, response.getStatus());
+
+    startSessionAs("john");
+    response = sendEmailChangeCode("john", "WRONG_FORMAT");
+    assertEquals(400, response.getStatus());
+    assertTrue(String.valueOf(response.getEntity()).startsWith("EMAIL:"));
+    response = sendEmailChangeCode("john", "");
+    assertEquals(400, response.getStatus());
+
+    UserHandler userHandler = organizationService.getUserHandler();
+    User mary = userHandler.findUserByName("mary");
+    String maryEmail = mary.getEmail();
+    mary.setEmail("mary.taken@platform.com");
+    userHandler.saveUser(mary, false);
+    try {
+      response = sendEmailChangeCode("john", "mary.taken@platform.com");
+      assertEquals(401, response.getStatus());
+      assertEquals("EMAIL:ALREADY_EXISTS", response.getEntity());
+    } finally {
+      mary.setEmail(maryEmail);
+      userHandler.saveUser(mary, false);
+    }
+    verify(emailChangeOtpPlugin, never()).generateOtpCode(anyString(), anyString());
+
+    doThrow(new IllegalStateException()).when(emailChangeOtpPlugin).generateOtpCode("john", "john.new@platform.com");
+    response = sendEmailChangeCode("john", "john.new@platform.com");
+    assertEquals(429, response.getStatus());
+  }
+
+  public void testSendEmailChangeCodeWithoutTheMethodFails() throws Exception {
+    when(otpService.getOtpPlugins()).thenReturn(Collections.emptyList());
+    startSessionAs("john");
+    ContainerResponse response = sendEmailChangeCode("john", "john.new@platform.com");
+    assertEquals(500, response.getStatus());
+  }
+
+  private EmailChangeOtpPlugin mockEmailChangeOtpPlugin() {
+    OtpPlugin emailOtpPlugin = mock(OtpPlugin.class);
+    when(emailOtpPlugin.getName()).thenReturn("email");
+    EmailChangeOtpPlugin emailChangeOtpPlugin = mock(EmailChangeOtpPlugin.class);
+    when(emailChangeOtpPlugin.getName()).thenReturn(EmailChangeOtpPlugin.NAME);
+    when(otpService.getOtpPlugins()).thenReturn(List.of(emailOtpPlugin, emailChangeOtpPlugin));
+    return emailChangeOtpPlugin;
+  }
+
+  private ContainerResponse sendEmailChangeCode(String username, String email) throws Exception {
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    return service("POST",
+                   getURLResource("users/" + username + "/email/otp"),
+                   "",
+                   formHeaders,
+                   ("email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)).getBytes());
   }
 
   /**
