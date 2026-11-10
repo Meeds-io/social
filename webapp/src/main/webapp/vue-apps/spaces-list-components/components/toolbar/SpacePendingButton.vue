@@ -25,12 +25,12 @@
     :disabled="$root.isMobile"
     transition="scale-transition"
     bottom>
-    <template #activator="{on, attrs}">
+    <template #activator="{on}">
       <v-btn
         :id="`${filter}SpacesButton`"
         v-on="on"
-        v-bind="attrs"
         :aria-label="$t(labelKey, {0: count})"
+        :aria-pressed="filter !== 'requests' ? String(isSelected) : null"
         :class="{
           'primary-border-color' : isSelected,
           'border-color-transparent' : !isSelected,
