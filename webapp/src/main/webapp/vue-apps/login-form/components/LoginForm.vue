@@ -145,6 +145,9 @@
                     :aria-pressed="showPassword ? 'true' : 'false'"
                     icon
                     x-small
+                    retain-focus-on-click
+                    @mousedown.stop
+                    @mouseup.stop
                     @click.stop="toggleShow">
                     <v-icon
                       class="text-font-size"
