@@ -9,6 +9,7 @@
     <template slot="content">
       <v-layout column class="ma-3">
         <spaces-overview-spaces-list
+          ref="spacesList"
           v-if="spaces && spaces.length"
           :spaces="spaces"
           :filter="filter"
@@ -71,9 +72,12 @@ export default {
         return this.$nextTick();
       }).finally(() => this.loadingSpaces = false);
     },
-    loadNextPage() {
+    async loadNextPage() {
+      const firstNewSpaceIndex = this.spaces.length;
       this.limit += this.pageSize;
-      this.searchSpaces();
+      await this.searchSpaces();
+      await this.$nextTick();
+      this.$refs.spacesList?.$el?.querySelectorAll?.('.spaces-overview-space-link')[firstNewSpaceIndex]?.focus();
     },
     editSpace(space) {
       document.dispatchEvent(new CustomEvent('meeds.social.editSpace', {'detail': {'data': space}}));

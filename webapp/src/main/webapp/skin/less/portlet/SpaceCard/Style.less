@@ -1,0 +1,51 @@
+/**
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2026 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+@import "../../variables.less";
+
+/* The space card is one link stretched over the whole card, with its actions above it */
+.space-card-item {
+  .space-card-header {
+    position: static;
+  }
+
+  .space-card-link::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+  }
+
+  .space-card-actions {
+    position: relative;
+    z-index: 3;
+  }
+}
+
+/* The focus indicator surrounds the whole card, not the link's text: the link shows no
+   ring of its own, above the common rule (html:root body :focus-visible:focus-visible) */
+html:root body .space-card-item .space-card-link:focus-visible {
+  outline: none;
+
+  &::after {
+    outline: dashed 2px @primaryColor;
+    outline-offset: -2px;
+  }
+}
