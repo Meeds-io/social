@@ -15,7 +15,7 @@
             :loading="changingLike"
             :disabled="isScheduled"
             :class="[likeTextColorClass, isScheduled && 'opacity-5']"
-            :aria-label="isScheduled ? null : (hasLiked ? $t('UIActivity.aria.Like') : $t('UIActivity.msg.LikeActivity'))"
+            :aria-label="likeAriaLabel"
             class="pa-0 mt-0"
             text
             link
@@ -126,6 +126,15 @@ export default {
     },
     likeTextColorClass() {
       return this.hasLiked && 'primary--text' || '';
+    },
+    // the reaction the user chose names the button, as its visible label does
+    likeAriaLabel() {
+      if (this.isScheduled) {
+        return null;
+      } else if (!this.hasLiked) {
+        return this.$t('UIActivity.msg.LikeActivity');
+      }
+      return this.optionsPending ? this.$t('UIActivity.aria.Like') : this.likeLabel;
     },
     likeButtonTitle() {
       return this.hasLiked && this.$t('UIActivity.msg.UnlikeActivity') || this.$t('UIActivity.msg.LikeActivity');
