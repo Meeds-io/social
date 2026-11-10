@@ -79,7 +79,7 @@
             <div class="text-truncate">{{ item.name }}</div>
             <category-management-item-menu :category="item" />
           </div>
-          <div v-else class="d-flex align-center">
+          <div v-else v-tree-node class="d-flex align-center">
             <v-btn
               :title="$t('categoryInput.loadMore')"
               :loading="item.loading"

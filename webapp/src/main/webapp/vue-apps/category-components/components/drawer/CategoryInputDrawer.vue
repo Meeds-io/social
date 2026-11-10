@@ -111,7 +111,7 @@
               </v-card>
               <div class="text-truncate">{{ item.name }}</div>
             </v-card>
-            <div v-else class="d-flex align-center">
+            <div v-else v-tree-node class="d-flex align-center">
               <v-btn
                 :title="$t('categoryInput.loadMore')"
                 :loading="item.loading"
