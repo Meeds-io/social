@@ -36,5 +36,5 @@ body:has(.sidebarLogin) {
 // It stays a variable, not the background color of body: a page background set in the page editor is written inline on body
 // with the important priority (layout ApplicationUtils), and wins over this rule.
 body.default-page-background-color:has(.sidebarLogin) {
-  --allPagesBackgroundColor: @white !important;
+  --allPagesBackgroundColor: @white !important; // NOSONAR the Branding default is an inline style on body, which no selector outranks
 }
