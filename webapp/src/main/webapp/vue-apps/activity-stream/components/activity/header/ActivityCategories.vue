@@ -41,6 +41,7 @@
       class="flex-shrink-0 flex-grow-0 px-0 text-subtitle-font-size"
       height="24"
       width="24"
+      :aria-label="$t('categories.remainingCount.ariaLabel', {0: remainingCount})"
       icon
       @click="openMoreDrawer">
       <span class="primary--text text-subtitle-font-size">
