@@ -220,9 +220,12 @@ export default {
         this.showAction = false;
       }
     },
-    // the tree's own toggle has no name: a group node's is left out, the node itself being the button; a
-    // page's is named after its sub-pages
+    // the tree sets no roles: its node is a list item of its parent list; and its own toggle has no name: a
+    // group node's is left out, the node itself being the button; a page's is named after its sub-pages
     describeTreeToggle() {
+      const node = this.$el?.closest?.('.v-treeview-node');
+      node?.setAttribute('role', 'listitem');
+      node?.parentElement?.setAttribute('role', 'list');
       const toggle = this.$el?.closest?.('.v-treeview-node__root')?.querySelector?.('.v-treeview-node__toggle');
       if (!toggle) {
         return;
