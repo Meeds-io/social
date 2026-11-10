@@ -2,18 +2,30 @@
   <div class="actionBarMobile ps-0">
     <a
       v-if="likersNumber === 1"
-      class="likesNumber me-2 my-1"
-      @click="open">
+      class="likesNumber primary--text me-2 my-1"
+      role="button"
+      tabindex="0"
+      @click="open"
+      @keydown.enter.prevent="open"
+      @keydown.space.prevent="open">
       {{ likersNumber }} {{ $t('UIActivity.label.single_likeLabel') }}</a>
     <a
       v-else-if="likersNumber > 1"
-      class="likesNumber me-2 my-1"
-      @click="open">
+      class="likesNumber primary--text me-2 my-1"
+      role="button"
+      tabindex="0"
+      @click="open"
+      @keydown.enter.prevent="open"
+      @keydown.space.prevent="open">
       {{ likersNumber }} {{ $t('UIActivity.label.likesLabel') }}</a>
     <a
       v-if="commentNumber > 0"
-      class="my-1 me-2 CommentsNumber"
-      @click="openComments">
+      class="my-1 me-2 CommentsNumber primary--text"
+      role="button"
+      tabindex="0"
+      @click="openComments"
+      @keydown.enter.prevent="openComments"
+      @keydown.space.prevent="openComments">
       {{ totalCommentsNumber }} {{ $t('UIActivity.comment.commentsLabel') }}
     </a>
     <extension-registry-components

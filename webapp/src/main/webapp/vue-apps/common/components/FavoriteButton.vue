@@ -1,18 +1,18 @@
 <template>
   <div :class="!displayLabel && 'd-inline-flex'">
     <v-tooltip :disabled="disabled" bottom>
-      <template v-if="!displayLabel" #activator="{ on, attrs }">
+      <template v-if="!displayLabel" #activator="{ on }">
         <v-btn
           :id="`FavoriteLink_${type}_${id}`"
           :style="buttonStyle"
           :loading="loading"
           :disabled="loading || disabled"
           :class="disabled && 'opacity-5'"
-          :aria-label="disabled ? null : favoriteTooltip"
+          :aria-label="$t('Favorite.button.label')"
+          :aria-pressed="String(isFavorite)"
           class="pa-0 mt-0"
           icon
           :small="small"
-          v-bind="attrs"
           v-on="on"
           @touchstart.stop="0"
           @touchend.stop="0"
@@ -22,6 +22,7 @@
           <div class="d-flex flex-lg-row flex-column">
             <v-icon
               :class="favoriteIconColor"
+              aria-hidden="true"
               :size="iconSize"
               class="mx-auto">
               {{ favoriteIcon }}
@@ -29,14 +30,15 @@
           </div>
         </v-btn>
       </template>
-      <template v-else #activator="{ on, attrs }">
-        <v-list-item 
-          v-bind="attrs" 
-          v-on="on" 
-          :aria-label="favoriteTooltip"
+      <template v-else #activator="{ on }">
+        <v-list-item
+          v-on="on"
+          :aria-checked="String(isFavorite)"
+          role="menuitemcheckbox"
           @click.stop.prevent="changeFavorite">
-          <v-icon 
+          <v-icon
             class="mr-3"
+            aria-hidden="true"
             :class="favoriteIconColor"
             size="16">
             {{ favoriteIcon }}
