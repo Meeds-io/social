@@ -26,13 +26,10 @@
     :width="iconOnly && 36 || 'auto'"
     flat>
     <v-tooltip :disabled="extension.title && ($root.isMobile || !iconOnly)" bottom>
-      <template #activator="{on, attrs}">
+      <template #activator="{on}">
         <v-btn
           v-on="on"
-          v-bind="extension.href && {
-            ...(attrs || {}),
-            'href': extension.href,
-          } || attrs"
+          v-bind="extension.href && {'href': extension.href} || {}"
           :aria-label="extension.title"
           :icon="iconOnly"
           :color="!iconOnly && 'primary'"

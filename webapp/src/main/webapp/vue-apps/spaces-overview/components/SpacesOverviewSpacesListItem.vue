@@ -21,7 +21,7 @@
       :href="url"
       class="pa-0">
       <v-list-item-title>
-        <a :href="url" class="text-color">
+        <a :href="url" class="spaces-overview-space-link text-color">
           {{ space.displayName }}
         </a>
       </v-list-item-title>
