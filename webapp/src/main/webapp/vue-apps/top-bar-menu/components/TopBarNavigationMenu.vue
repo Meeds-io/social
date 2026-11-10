@@ -66,7 +66,8 @@
         :navigation="navigation"
         :base-site-uri="getNavigationBaseUri(index)"
         :selected-path="selectedPath"
-        @update-navigation-state="updateNavigationState" />
+        @update-navigation-state="updateNavigationState"
+        @restore-navigation-state="restoreSelectedTab" />
     </v-tabs>
     <!-- Gives the menu its preferred width (max-content) and its smallest one, Home and More (min-content):
          the tabs themselves contribute no width, so the Topbar shrinks the menu before its other applications -->
@@ -343,6 +344,13 @@ export default {
         this.$refs.tabs?.$refs?.items?.setWidths?.();
         this.refreshSelectedTab();
       }
+    },
+    // After the tabs group selected an entry that only opens a menu: the selection goes back to the current page's entry
+    restoreSelectedTab() {
+      this.$nextTick(() => {
+        this.tab = null;
+        this.refreshSelectedTab();
+      });
     },
     // Selects the entry whose page is, or holds, the current page, or More when that entry is one of those it lists
     refreshSelectedTab() {
