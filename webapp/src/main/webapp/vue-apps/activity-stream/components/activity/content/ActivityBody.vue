@@ -12,6 +12,7 @@
     <v-btn
       v-if="collapsed && !fullContent && readMore"
       :aria-label="$t('UIActivity.label.seeMore')"
+      :aria-expanded="String(fullContent)"
       :class="!isComment && 'linear-gradient-app-background' || 'linear-gradient-comment-background'"
       class="d-flex ms-auto mb-0 pb-2px pl-2 pr-0 height-auto text-light-color r-0 b-0 hover-underline hover-blue-color"
       text
@@ -117,6 +118,14 @@ export default {
     },
     displayFullContent() {
       this.fullContent = !this.fullContent;
+      // the button disappears once the content is expanded: keep the keyboard focus in the activity
+      this.$nextTick(() => {
+        const content = this.getEditorContentElement();
+        if (content) {
+          content.setAttribute('tabindex', '-1');
+          content.focus({preventScroll: true});
+        }
+      });
     },
     getEditorContentElement() {
       return this.$el.querySelector('.rich-editor-content');
