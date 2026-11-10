@@ -39,6 +39,8 @@ export default {
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     this.refreshExtensions();
     this.$root.$on('spaces-list-refresh', this.emitRefresh);
+    // the search drawer serves no additional skin module: the card's skin is loaded here
+    this.$utils.importSkin('portal', 'SpaceCard').catch(() => null);
   },
   beforeDestroy() {
     document.removeEventListener('extension-profile-extension-action-updated', this.refreshExtensions);

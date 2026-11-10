@@ -32,6 +32,7 @@
       flat>
       <categories-breadcrumb
         v-if="displayBreadcrumb"
+        toggle
         :breadcrumb="breadcrumb"
         :selected-id="value"
         class="text-start"
