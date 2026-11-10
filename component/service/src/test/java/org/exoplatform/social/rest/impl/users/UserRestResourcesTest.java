@@ -141,6 +141,10 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private OtpService                   otpService;
 
+  private final AtomicBoolean          emailChangeSendLocked  = new AtomicBoolean();
+
+  private final List<String>           emailChangeCodesSentTo = new ArrayList<>();
+
   private RelationshipManager          relationshipManager;
 
   private SpaceService                 spaceService;
@@ -1814,27 +1818,31 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("john");
     ContainerResponse response = sendEmailChangeCode("john", "john.new@platform.com");
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
-    verify(emailChangeOtpPlugin).generateOtpCode("john", "john.new@platform.com");
+    assertEquals(List.of("john.new@platform.com"), emailChangeCodesSentTo);
+    verify(emailChangeOtpPlugin).generateOtpCode(eq("john"), eq("john.new@platform.com"), any());
     verify(emailChangeOtpPlugin, never()).generateOtpCode(anyString());
     verify(otpService, never()).sendOtpCode(anyString(), anyString());
   }
 
   /**
    * No code is sent for another user, to an invalid address or to an address
-   * another user has; the send lock of the user answers 429
+   * another user of this platform has; the send lock of the user answers 429
    */
   public void testSendEmailChangeCodeRefusals() throws Exception {
-    EmailChangeOtpPlugin emailChangeOtpPlugin = mockEmailChangeOtpPlugin();
+    mockEmailChangeOtpPlugin();
     startSessionAs("root");
     ContainerResponse response = sendEmailChangeCode("john", "john.new@platform.com");
     assertEquals("Not even an administrator sends the code of another user", 401, response.getStatus());
+    assertFalse("No lock is taken for another user", emailChangeSendLocked.get());
 
     startSessionAs("john");
     response = sendEmailChangeCode("john", "WRONG_FORMAT");
     assertEquals(400, response.getStatus());
     assertTrue(String.valueOf(response.getEntity()).startsWith("EMAIL:"));
+    emailChangeSendLocked.set(false);
     response = sendEmailChangeCode("john", "");
     assertEquals(400, response.getStatus());
+    emailChangeSendLocked.set(false);
 
     UserHandler userHandler = organizationService.getUserHandler();
     User mary = userHandler.findUserByName("mary");
@@ -1849,11 +1857,30 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       mary.setEmail(maryEmail);
       userHandler.saveUser(mary, false);
     }
-    verify(emailChangeOtpPlugin, never()).generateOtpCode(anyString(), anyString());
+    assertTrue(emailChangeCodesSentTo.isEmpty());
 
-    doThrow(new IllegalStateException()).when(emailChangeOtpPlugin).generateOtpCode("john", "john.new@platform.com");
     response = sendEmailChangeCode("john", "john.new@platform.com");
     assertEquals(429, response.getStatus());
+    assertTrue(emailChangeCodesSentTo.isEmpty());
+  }
+
+  /**
+   * The address is checked under the send lock: a refused request takes the
+   * lock, and the next request within the send interval answers 429 whatever
+   * its address, so the "already used" answer is rate-limited like a send
+   */
+  public void testSendEmailChangeCodeChecksTheAddressUnderTheSendLock() throws Exception {
+    mockEmailChangeOtpPlugin();
+    startSessionAs("john");
+    ContainerResponse response = sendEmailChangeCode("john", "WRONG_FORMAT");
+    assertEquals(400, response.getStatus());
+    assertTrue("A refused request takes the send lock", emailChangeSendLocked.get());
+
+    response = sendEmailChangeCode("john", "ANOTHER_WRONG_FORMAT");
+    assertEquals("The address of a throttled request is not checked", 429, response.getStatus());
+    response = sendEmailChangeCode("john", "john.new@platform.com");
+    assertEquals(429, response.getStatus());
+    assertTrue(emailChangeCodesSentTo.isEmpty());
   }
 
   public void testSendEmailChangeCodeWithoutTheMethodFails() throws Exception {
@@ -1863,11 +1890,28 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(500, response.getStatus());
   }
 
-  private EmailChangeOtpPlugin mockEmailChangeOtpPlugin() {
+  /**
+   * A plugin that answers as the email change method does: the send lock is
+   * taken first, then the address is checked, then the code is sent when the
+   * check accepts it
+   */
+  @SuppressWarnings("unchecked")
+  private EmailChangeOtpPlugin mockEmailChangeOtpPlugin() throws Exception {
     OtpPlugin emailOtpPlugin = mock(OtpPlugin.class);
     when(emailOtpPlugin.getName()).thenReturn("email");
     EmailChangeOtpPlugin emailChangeOtpPlugin = mock(EmailChangeOtpPlugin.class);
     when(emailChangeOtpPlugin.getName()).thenReturn(EmailChangeOtpPlugin.NAME);
+    when(emailChangeOtpPlugin.generateOtpCode(anyString(), any(), any())).thenAnswer(invocation -> {
+      if (!emailChangeSendLocked.compareAndSet(false, true)) {
+        throw new IllegalStateException();
+      }
+      String email = invocation.getArgument(1);
+      Object refusal = ((EmailChangeOtpPlugin.AddressCheck<Object>) invocation.getArgument(2)).check(email);
+      if (refusal == null) {
+        emailChangeCodesSentTo.add(email);
+      }
+      return refusal;
+    });
     when(otpService.getOtpPlugins()).thenReturn(List.of(emailOtpPlugin, emailChangeOtpPlugin));
     return emailChangeOtpPlugin;
   }

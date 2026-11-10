@@ -31,8 +31,9 @@ import lombok.Setter;
  * the user receives mail there and confirms a change to that address only.
  * Generation, TTL, length and send interval are those of
  * {@link EmailOtpPlugin} (the {@code meeds.apiKey.otp.email.*} settings), as
- * are its caches, under the purpose-bound key of this method: the send lock
- * holds per user whatever the address, and a wrong code keeps it.
+ * are its caches, under the purpose-bound key of this method. The send lock
+ * is taken first, on every request, refused ones included, and holds per
+ * user whatever the address; a wrong code keeps it.
  */
 @Service
 public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailChangeOtpPlugin {
@@ -56,11 +57,17 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
   }
 
   @Override
-  public void generateOtpCode(String userName, String newEmail) {
+  public <R> R generateOtpCode(String userName, String newEmail, AddressCheck<R> addressCheck) throws Exception {
+    takeSendLock(userName);
+    R refusal = addressCheck.check(newEmail);
+    if (refusal != null) {
+      return refusal;
+    }
     if (StringUtils.isBlank(newEmail)) {
       throw new IllegalArgumentException("The new email address is mandatory");
     }
-    sendOtpCode(userName, newEmail.trim());
+    sendOtpCodeUnderLock(userName, newEmail.trim());
+    return null;
   }
 
   @Override
