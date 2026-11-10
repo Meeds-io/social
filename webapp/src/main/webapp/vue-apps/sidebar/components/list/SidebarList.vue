@@ -27,7 +27,9 @@
       height="fit-content"
       max-height="100%"
       flat>
-      <v-list class="list-border-active transparent d-flex flex-column overflow-hidden py-0 flex-grow-1 flex-shrink-1">
+      <v-list
+        role="presentation"
+        class="list-border-active transparent d-flex flex-column overflow-hidden py-0 flex-grow-1 flex-shrink-1">
         <sidebar-list-header class="flex-grow-0 flex-shrink-0 transparent" />
         <sidebar-list-content
           :class="overflowClass"

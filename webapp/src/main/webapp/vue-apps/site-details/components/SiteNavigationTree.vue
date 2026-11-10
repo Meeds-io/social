@@ -30,9 +30,10 @@
     open-on-click
     transition
     dense>
-    <template #label="{ item }">
+    <template #label="{ item, open }">
       <site-navigation-item
         :navigation="item"
+        :open="open"
         :enable-change-home="enableChangeHome"
         :enable-unread="firstNavigationId === item.id" />
     </template>
