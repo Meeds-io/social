@@ -2204,6 +2204,41 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
+   * The profile entity endpoint rebuilds the URLs it receives as entries that
+   * name no sub-field: saving them would empty a non-editable sub-field of the
+   * URLs, even with its stored link sent back as it is, so the save is
+   * refused and the stored entries are kept. The URLs and the experiences are
+   * the only parents this endpoint can write a list to: its reader maps a
+   * body key only when the entity has a setter of that name
+   */
+  @SuppressWarnings("unchecked")
+  public void testNonEditableSubFieldIsKeptWhenItsParentIsSavedAsAProfileEntity() throws Exception {
+    ProfilePropertySetting urls = getStoredSetting(Profile.CONTACT_URLS);
+    tearDownProfilePropertyList.add(0, createChildSetting(urls, "locked-url", false));
+
+    Profile maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    maryProfile.setProperty(Profile.CONTACT_URLS,
+                            new ArrayList<>(List.of(Map.of("key", "locked-url", "value", "https://stored.example"))));
+    identityManager.updateProfile(maryProfile);
+    try {
+      startSessionAs("mary");
+      ContainerResponse response = getResponseAs("PATCH",
+                                                 "/v1/social/users/mary/profile",
+                                                 "{\"" + ProfileEntity.URLS + "\":[{\"url\":\"https://stored.example\"}]}",
+                                                 "mary");
+      assertEquals(String.valueOf(response.getEntity()), 401, response.getStatus());
+      Object storedUrls = identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(Profile.CONTACT_URLS);
+      assertEquals(List.of(Map.of("key", "locked-url", "value", "https://stored.example")),
+                   ((List<Map<String, String>>) storedUrls).stream().map(HashMap::new).toList());
+    } finally {
+      // The storage writes the URLs as a list: an empty one clears them
+      maryProfile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+      maryProfile.setProperty(Profile.CONTACT_URLS, new ArrayList<>());
+      identityManager.updateProfile(maryProfile);
+    }
+  }
+
+  /**
    * A non-editable sub-field whose setting name carries its parent's name is
    * also kept when its stored entries name it without the parent's name: a
    * change under either name is refused, and a save under the full name, as
