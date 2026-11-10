@@ -217,6 +217,13 @@ export function describeTreeview(root, labelOf) {
     toggle.setAttribute('aria-label', labelOf(name));
     toggle.setAttribute('aria-expanded', String(toggle.classList.contains('v-treeview-node__toggle--open')));
   });
+  // a label that renders its own checkbox makes the tree's selection icon a duplicate, unnamed control
+  root.querySelectorAll('.v-treeview-node__checkbox').forEach(checkbox => {
+    if (checkbox.closest('.v-treeview-node__root')?.querySelector('.v-treeview-node__label [role="checkbox"]')) {
+      checkbox.setAttribute('tabindex', '-1');
+      checkbox.setAttribute('aria-hidden', 'true');
+    }
+  });
 }
 
 // Keeps the v-treeview elements under root described across the renders that rebuild their nodes

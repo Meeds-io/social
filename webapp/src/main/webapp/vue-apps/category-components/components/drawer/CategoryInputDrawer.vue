@@ -77,6 +77,8 @@
             <v-btn
               v-if="item.size"
               class="position-absolute z-index-two ms-n2"
+              tabindex="-1"
+              aria-hidden="true"
               icon>
               <v-icon
                 :class="{
@@ -89,10 +91,14 @@
             </v-btn>
             <v-card
               v-if="!item.loadMore"
+              :aria-checked="String(categoryIds.includes(item.id))"
+              role="checkbox"
               color="transparent"
               class="d-flex align-center ms-6"
               height="36"
               flat
+              @keydown.space.prevent="toogleSelectCategory(item.id)"
+              @keydown.enter.prevent="toogleSelectCategory(item.id)"
               @click.stop.prevent="toogleSelectCategory(item.id)">
               <v-card
                 class="d-flex align-center justify-center ms-1 me-2"
