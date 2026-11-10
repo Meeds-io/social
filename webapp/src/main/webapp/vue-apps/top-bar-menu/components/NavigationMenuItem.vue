@@ -21,6 +21,7 @@
 -->
 <template>
   <v-menu
+    ref="menu"
     v-model="showMenu"
     rounded
     content-class="topBar-navigation-drop-menu"
@@ -44,7 +45,8 @@
         v-on="on"
         :aria-current="isSelected ? 'page' : null"
         @click="checkLink"
-        @change="updateNavigationState">
+        @keydown="onTabKeydown"
+        @change="onTabChange">
         <span
           class="text-truncate-3">
           {{ navigation.label }}
@@ -72,16 +74,18 @@
         </v-btn>
       </v-tab>
     </template>
-    <navigation-menu-sub-item
-      v-for="children in navigation.children"
-      class="transparent"
-      :key="children.id"
-      :navigation="children"
-      :base-site-uri="baseSiteUri"
-      :parent-navigation-uri="navigation.uri"
-      :selected-path="selectedPath"
-      @update-navigation-state="updateNavigationState"
-      @select="updateNavigationState" />
+    <div @keydown="onMenuKeydown">
+      <navigation-menu-sub-item
+        v-for="children in navigation.children"
+        class="transparent"
+        :key="children.id"
+        :navigation="children"
+        :base-site-uri="baseSiteUri"
+        :parent-navigation-uri="navigation.uri"
+        :selected-path="selectedPath"
+        @update-navigation-state="updateNavigationState"
+        @select="updateNavigationState" />
+    </div>
   </v-menu>
 </template>
 
@@ -163,6 +167,68 @@ export default {
     updateNavigationState() {
       this.$emit('update-navigation-state', this.navigationNodeUri);
     },
+    // The tabs group selects the tab clicked; an entry that only opens a menu is not the current page
+    onTabChange() {
+      if (this.hasPage) {
+        this.updateNavigationState();
+      } else {
+        this.$emit('restore-navigation-state');
+      }
+    },
+    // The menu only highlights an entry on the arrow keys: the keyboard focus is moved into it
+    onTabKeydown(event) {
+      if (!this.hasChildren || !this.childrenHasPage || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) {
+        return;
+      }
+      event.preventDefault();
+      this.openDropMenu(true);
+      this.focusMenuEntry(event.key === 'ArrowUp' ? -1 : 0);
+    },
+    onMenuKeydown(event) {
+      const entries = this.menuEntries();
+      const index = entries.indexOf(document.activeElement);
+      if (index < 0) {
+        return;
+      }
+      const target = {
+        ArrowDown: (index + 1) % entries.length,
+        ArrowUp: (index - 1 + entries.length) % entries.length,
+        Home: 0,
+        End: entries.length - 1,
+      }[event.key];
+      if (typeof target === 'number') {
+        event.preventDefault();
+        event.stopPropagation();
+        this.focusEntry(entries[target]);
+      } else if (event.key === 'Escape' || event.key === 'Tab') {
+        // the menu content is rendered apart from the tabs: the focus goes back to its tab, Tab moving on from there
+        this.showMenu = false;
+        this.$refs.tab?.$el?.focus?.();
+      }
+    },
+    // The menu opens on Enter the entry it highlights: it highlights the entry that has the keyboard focus
+    focusEntry(entry) {
+      if (!entry) {
+        return;
+      }
+      entry.focus();
+      const menu = this.$refs.menu;
+      if (menu?.getTiles) {
+        menu.getTiles();
+        menu.listIndex = menu.tiles.indexOf(entry);
+      }
+    },
+    menuEntries() {
+      const content = this.$refs.menu?.$refs?.content;
+      return content ? [...content.querySelectorAll('a.v-list-item')] : [];
+    },
+    focusMenuEntry(index) {
+      // once the menu content is displayed
+      window.setTimeout(() => {
+        const entries = this.menuEntries();
+        this.focusEntry(entries[index < 0 ? entries.length - 1 : index]);
+      }, 50);
+    },
     checkLink(e) {
       if (!this.navigationNodeUri) {
         e.stopPropagation();
@@ -175,7 +241,12 @@ export default {
           window.location.href = this.navigationNodeUri;
         }
       } else if (this.hasChildren && this.childrenHasPage) {
+        const opening = !this.showMenu;
         this.openDropMenu();
+        // opened from the keyboard (Enter or Space): its first entry takes the focus
+        if (opening && e?.detail === 0) {
+          this.focusMenuEntry(0);
+        }
       }
     },
     openDropMenu(persist) {
