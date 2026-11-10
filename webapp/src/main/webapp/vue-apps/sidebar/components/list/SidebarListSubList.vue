@@ -23,11 +23,13 @@
   <v-list-item-group
     v-if="menuItems?.length"
     v-model="selectedValue"
+    role="presentation"
     @change="resetSelectedValue">
     <sidebar-list-item
       v-for="(subItem, index) in menuItems"
       :key="`${subItem.name}_${subItem.url}_${index}`"
-      :item="subItem" />
+      :item="subItem"
+      :active-url="activeMenu" />
   </v-list-item-group>
 </template>
 <script>
