@@ -21,6 +21,7 @@
 -->
 <template>
   <v-menu
+    ref="menu"
     v-model="showMenu"
     rounded
     content-class="topBar-navigation-drop-menu"
@@ -44,7 +45,8 @@
         v-on="on"
         :aria-current="isSelected ? 'page' : null"
         @click="checkLink"
-        @change="updateNavigationState">
+        @keydown="onTabKeydown"
+        @change="onTabChange">
         <span
           class="text-truncate-3">
           {{ navigation.label }}
@@ -72,16 +74,18 @@
         </v-btn>
       </v-tab>
     </template>
-    <navigation-menu-sub-item
-      v-for="children in navigation.children"
-      class="transparent"
-      :key="children.id"
-      :navigation="children"
-      :base-site-uri="baseSiteUri"
-      :parent-navigation-uri="navigation.uri"
-      :selected-path="selectedPath"
-      @update-navigation-state="updateNavigationState"
-      @select="updateNavigationState" />
+    <div @keydown="onMenuKeydown">
+      <navigation-menu-sub-item
+        v-for="children in navigation.children"
+        class="transparent"
+        :key="children.id"
+        :navigation="children"
+        :base-site-uri="baseSiteUri"
+        :parent-navigation-uri="navigation.uri"
+        :selected-path="selectedPath"
+        @update-navigation-state="updateNavigationState"
+        @select="updateNavigationState" />
+    </div>
   </v-menu>
 </template>
 
@@ -162,6 +166,55 @@ export default {
   methods: {
     updateNavigationState() {
       this.$emit('update-navigation-state', this.navigationNodeUri);
+    },
+    // The tabs group selects the tab clicked; an entry that only opens a menu is not the current page
+    onTabChange() {
+      if (this.hasPage) {
+        this.updateNavigationState();
+      } else {
+        this.$emit('restore-navigation-state');
+      }
+    },
+    // The menu only highlights an entry on the arrow keys: the keyboard focus is moved into it
+    onTabKeydown(event) {
+      if (!this.hasChildren || !this.childrenHasPage || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) {
+        return;
+      }
+      event.preventDefault();
+      this.openDropMenu(true);
+      this.focusMenuEntry(event.key === 'ArrowUp' ? -1 : 0);
+    },
+    onMenuKeydown(event) {
+      const entries = this.menuEntries();
+      const index = entries.indexOf(document.activeElement);
+      if (index < 0) {
+        return;
+      }
+      const target = {
+        ArrowDown: (index + 1) % entries.length,
+        ArrowUp: (index - 1 + entries.length) % entries.length,
+        Home: 0,
+        End: entries.length - 1,
+      }[event.key];
+      if (typeof target === 'number') {
+        event.preventDefault();
+        event.stopPropagation();
+        entries[target].focus();
+      } else if (event.key === 'Escape') {
+        this.showMenu = false;
+        this.$refs.tab?.$el?.focus?.();
+      }
+    },
+    menuEntries() {
+      const content = this.$refs.menu?.$refs?.content;
+      return content ? [...content.querySelectorAll('a.v-list-item')] : [];
+    },
+    focusMenuEntry(index) {
+      // once the menu content is displayed
+      window.setTimeout(() => {
+        const entries = this.menuEntries();
+        entries[index < 0 ? entries.length - 1 : index]?.focus?.();
+      }, 50);
     },
     checkLink(e) {
       if (!this.navigationNodeUri) {
