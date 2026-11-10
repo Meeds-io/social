@@ -72,8 +72,12 @@
 
   // DOMPurify passes the lower-cased tag name in data
   purifier.addHook('uponSanitizeElement', function(node, data) {
-    if (data.tagName === 'iframe' && !isAllowedIframeSrc(node.getAttribute('src'))) {
-      node.parentNode?.removeChild(node);
+    if (data.tagName === 'iframe') {
+      // A saved YouTube or Vimeo embed plays in the provider's player
+      window.eXo?.videoEmbed?.usePlayerInSavedEmbed(node);
+      if (!isAllowedIframeSrc(node.getAttribute('src'))) {
+        node.parentNode?.removeChild(node);
+      }
     }
   });
 
