@@ -50,6 +50,8 @@
         <v-icon
           class="ms-2"
           size="16"
+          aria-hidden="true"
+          tabindex="-1"
           right
           @click.stop.prevent="menu = true">
           fa-chevron-down
