@@ -63,31 +63,41 @@ var mermaidLoader = (function() {
    * exporting themselves, which RequireJS provides on every page. While
    * the call runs, define answers RequireJS's own to a classic script (one
    * RequireJS injects runs with document.currentScript set) and nothing to
-   * a module, then is restored.
+   * a module, then is restored. Where define is not a configurable
+   * property of the window (a top-level var), it is unset for the call
+   * instead, a classic script run meanwhile not seeing it either.
    *
    * @param {Function} call returns the call's promise
    * @returns {Promise} the call's result
    */
   function withoutAmdDefine(call) {
     var descriptor = Object.getOwnPropertyDescriptor(window, 'define');
-    if (guarded === 0 && descriptor && descriptor.configurable && typeof window.define === 'function') {
+    if (guarded === 0 && descriptor && typeof window.define === 'function') {
       amdDefine = window.define;
-      Object.defineProperty(window, 'define', {
-        configurable: true,
-        get: function() {
-          return document.currentScript ? amdDefine : undefined;
-        },
-        set: function(value) {
-          amdDefine = value;
-        },
-      });
+      if (descriptor.configurable) {
+        Object.defineProperty(window, 'define', {
+          configurable: true,
+          get: function() {
+            return document.currentScript ? amdDefine : undefined;
+          },
+          set: function(value) {
+            amdDefine = value;
+          },
+        });
+      } else {
+        window.define = undefined;
+      }
     }
     if (amdDefine) {
       guarded++;
     }
     var release = function() {
       if (amdDefine && --guarded === 0) {
-        Object.defineProperty(window, 'define', {configurable: true, writable: true, enumerable: true, value: amdDefine});
+        if (Object.getOwnPropertyDescriptor(window, 'define').configurable) {
+          Object.defineProperty(window, 'define', {configurable: true, writable: true, enumerable: true, value: amdDefine});
+        } else {
+          window.define = amdDefine;
+        }
         amdDefine = null;
       }
     };
