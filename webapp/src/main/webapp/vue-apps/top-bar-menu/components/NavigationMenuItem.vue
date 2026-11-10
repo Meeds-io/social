@@ -199,10 +199,23 @@ export default {
       if (typeof target === 'number') {
         event.preventDefault();
         event.stopPropagation();
-        entries[target].focus();
-      } else if (event.key === 'Escape') {
+        this.focusEntry(entries[target]);
+      } else if (event.key === 'Escape' || event.key === 'Tab') {
+        // the menu content is rendered apart from the tabs: the focus goes back to its tab, Tab moving on from there
         this.showMenu = false;
         this.$refs.tab?.$el?.focus?.();
+      }
+    },
+    // The menu opens on Enter the entry it highlights: it highlights the entry that has the keyboard focus
+    focusEntry(entry) {
+      if (!entry) {
+        return;
+      }
+      entry.focus();
+      const menu = this.$refs.menu;
+      if (menu?.getTiles) {
+        menu.getTiles();
+        menu.listIndex = menu.tiles.indexOf(entry);
       }
     },
     menuEntries() {
@@ -213,7 +226,7 @@ export default {
       // once the menu content is displayed
       window.setTimeout(() => {
         const entries = this.menuEntries();
-        entries[index < 0 ? entries.length - 1 : index]?.focus?.();
+        this.focusEntry(entries[index < 0 ? entries.length - 1 : index]);
       }, 50);
     },
     checkLink(e) {
@@ -228,7 +241,12 @@ export default {
           window.location.href = this.navigationNodeUri;
         }
       } else if (this.hasChildren && this.childrenHasPage) {
+        const opening = !this.showMenu;
         this.openDropMenu();
+        // opened from the keyboard (Enter or Space): its first entry takes the focus
+        if (opening && e?.detail === 0) {
+          this.focusMenuEntry(0);
+        }
       }
     },
     openDropMenu(persist) {
