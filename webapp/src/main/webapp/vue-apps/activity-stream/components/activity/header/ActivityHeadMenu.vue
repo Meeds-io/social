@@ -15,17 +15,24 @@
           :loading="loading"
           icon
           small
-          :aria-label="$t('activity.head.menu.title.open')"
-          class="me-2"
+          :aria-label="$t('activity.head.menu.title.actions')"
+          class="activityHeadMenuButton me-2"
           v-bind="attrs"
-          v-on="on">
+          aria-haspopup="menu"
+          v-on="on"
+          @keydown="openGroupOnArrow">
           <v-icon size="16" class="icon-default-color">fas fa-ellipsis-v</v-icon>
         </v-btn>
       </template>
-      <v-list class="pa-0" dense>
+      <v-list
+        ref="menuList"
+        class="pa-0"
+        dense
+        @keydown.native="onMenuKeydown">
         <v-menu
           v-for="action of enabledActions"
           :key="action.id"
+          :ref="`group-${action.id}`"
           :disabled="!action.children.length"
           :left="!$vuetify.rtl"
           :right="$vuetify.rtl"
@@ -43,8 +50,14 @@
                       ...on,
                       click: () => !isActionDisabled(action) && clickOnAction(action),
                     } || on"
-                    v-bind="attrs"
-                    :class="isActionDisabled(action) && 'v-list-item--disabled' || ''"
+                    v-bind="{
+                      ...attrs,
+                      role: 'menuitem',
+                      'data-menu-action': action.id,
+                      'aria-haspopup': action.children.length ? 'menu' : null,
+                      'aria-expanded': action.children.length ? attrs['aria-expanded'] : null}"
+                    :aria-disabled="isActionDisabled(action) ? 'true' : null"
+                    :class="[isActionDisabled(action) && 'v-list-item--disabled', `activityHeadMenuItem-${action.id}`]"
                     :aria-label="isActionDisabled(action) && actionDisabledTitle(action) || $t(action.labelKey)"
                     class="px-3"
                     dense>
@@ -129,7 +142,10 @@
   </v-list-item-icon>
 </template>
 <script>
+import actionsMenuKeyboard from '../../../js/ActionsMenuKeyboard.js';
+
 export default {
+  mixins: [actionsMenuKeyboard],
   props: {
     activity: {
       type: Object,
@@ -192,6 +208,8 @@ export default {
       return this.isActionDisabled(action) && action.disabledTitleKey && this.$t(action.disabledTitleKey) || '';
     },
     clickOnAction(action) {
+      // the menu closes: a dialog or a side panel the action opens brings the focus back to its button
+      this.$el.querySelector('.activityHeadMenuButton')?.focus();
       if (action.confirmDialog) {
         this.closeMenu();
         this.$root.$emit('activity-stream-display-confirm', {

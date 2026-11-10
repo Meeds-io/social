@@ -68,10 +68,9 @@
             </v-list-item-action>
             <v-list-item-action>
               <v-tooltip bottom>
-                <template #activator="{on, attrs}">
+                <template #activator="{ on }">
                   <v-btn
                     v-on="on"
-                    v-bind="attrs"
                     :aria-label="buttonLinkTooltip"
                     :href="link.uri"
                     target="_blank"

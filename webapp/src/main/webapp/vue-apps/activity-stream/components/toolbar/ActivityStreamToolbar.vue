@@ -46,15 +46,15 @@
           </span>
           <div class="my-auto ms-auto d-flex flex-row">
             <v-tooltip v-if="markAllReadEnabled" bottom>
-              <template #activator="{ on, attrs }">
+              <template #activator="{ on }">
                 <v-btn
                   id="toolbarMarkAllReadButton"
+                  :aria-label="$t('activity.filter.button.markAllAsRead')"
                   :loading="resetting"
                   class="me-sm-0 me-n2"
                   height="36px"
                   width="36px"
                   icon
-                  v-bind="attrs"
                   v-on="on"
                   @click="markAllAsRead">
                   <v-icon
@@ -71,9 +71,8 @@
               v-if="$root.canEdit"
               :disabled="isMobile"
               bottom>
-              <template #activator="{ on, attrs }">
+              <template #activator="{ on }">
                 <v-btn
-                  v-bind="attrs"
                   v-on="on"
                   id="toolbarFilterButton"
                   class="me-sm-0 me-n2"
@@ -101,7 +100,7 @@
               type="activity-toolbar-button"
               class="hidden-xs-only d-flex align-center" />
             <v-tooltip :disabled="isMobile" bottom>
-              <template #activator="{ on, attrs }">
+              <template #activator="{ on }">
                 <v-btn
                   v-if="streamFilterEnabled"
                   id="toolbarFilterButton"
@@ -109,7 +108,6 @@
                   height="36px"
                   width="36px"
                   icon
-                  v-bind="attrs"
                   v-on="on"
                   :aria-label="$t('activity.filter.tooltip')"
                   @click="openStreamFilterDrawer">
