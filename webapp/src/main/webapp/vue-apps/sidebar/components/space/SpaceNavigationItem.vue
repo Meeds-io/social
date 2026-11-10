@@ -55,10 +55,13 @@
     <v-list-item
       :href="spaceLink"
       :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
-      :arial-label="$t('space.avatar.href.title',{0:space.prettyName})"
+      :aria-label="$t('space.avatar.href.title',{0:space.prettyName})"
+      :aria-current="isCurrentPage && 'page' || null"
       :title="spaceDisplayName"
       class="px-2 spaceItem"
-      role="link">
+      role="link"
+      @focusin.native="focused = true"
+      @focusout.native="onFocusOut">
       <v-list-item-avatar 
         size="28"
         class="me-3 ms-2 tile my-0 spaceAvatar"
@@ -73,13 +76,18 @@
       <v-list-item-content>
         <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
       </v-list-item-content>
+      <!-- Enter on its button stops here: the entry, a list item, would take it as its own click -->
       <v-list-item-action
         v-if="toggleArrow"
         :disabled="loading"
         :loading="loading"
-        class="me-2 my-auto align-center">
+        class="me-2 my-auto align-center"
+        @keydown.enter.stop>
         <ripple-hover-button
           :active="!drawerOpened"
+          :title="$t('menu.accessToPagesList')"
+          :aria-label="$t('menu.accessToPagesList')"
+          :aria-expanded="drawerOpened ? 'true' : 'false'"
           icon
           @ripple-hover="openOrCloseDrawer()">
           <v-icon
@@ -136,6 +144,8 @@ export default {
   },
   data: () => ({
     showItemActions: false,
+    // the keyboard focus is on the entry or its button: the button shows as on hover
+    focused: false,
     spaceUnreadItems: null,
   }),
   computed: {
@@ -155,7 +165,10 @@ export default {
       return this.$root?.unreadPerSpace?.[this.space?.id];
     },
     toggleArrow() {
-      return this.showItemActions || this.drawerOpened;
+      return this.showItemActions || this.focused || this.drawerOpened;
+    },
+    isCurrentPage() {
+      return !!this.spaceLink && eXo.env.server.portalBaseURL.includes(this.spaceLink);
     },
     drawerOpened() {
       return this.openedSpace?.id === this.space?.id;
@@ -182,6 +195,10 @@ export default {
     },
   },
   methods: {
+    // the entry keeps its keyboard state while the focus moves to its own button
+    onFocusOut(event) {
+      this.focused = !!(event.relatedTarget && event.currentTarget?.contains?.(event.relatedTarget));
+    },
     openOrCloseDrawer(event) {
       if (event) {
         event.preventDefault();

@@ -62,6 +62,8 @@ export function init(
           hoverThirdLevel: false,
           hoverMenu: false,
           hoverButton: false,
+          // the keyboard focus is inside the menu: it shows what the pointer's hover shows
+          focusMenu: false,
           openedSiteName: null,
           openedSpaceId: null,
           openedSpaces: false,
@@ -129,7 +131,8 @@ export function init(
               || this.hoverButton
               || this.hoverFirstLevel
               || this.hoverSecondLevel
-              || this.hoverThirdLevel;
+              || this.hoverThirdLevel
+              || this.focusMenu;
           },
           hoverSidebar() {
             return this.hoverMenu
