@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.junit.Before;
@@ -215,6 +216,9 @@ public class UserAccountEmailOtpPluginTest {
     String body = String.valueOf(messageCaptor.getValue().getContent());
     assertTrue("OTP code should be injected in the email body", body.contains(OTP_CODE));
     assertFalse("All i18n placeholders should be resolved", body.contains("${"));
+    assertEquals("The code of this method goes to the address of the account only",
+                 "john@example.com",
+                 InternetAddress.toString(messageCaptor.getValue().getAllRecipients()));
   }
 
   /**

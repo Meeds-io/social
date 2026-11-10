@@ -88,12 +88,26 @@ public class BrandedEmailSender {
                         String emailSubject,
                         String contentTemplatePath,
                         Map<String, String> customTokens) throws Exception {
+    sendEmail(username, null, emailSubject, contentTemplatePath, customTokens);
+  }
+
+  /**
+   * Sends the email of a user to the given address instead of the address of
+   * the user's account, when one is given: the email change sends its code to
+   * the new address. The wording stays the user's: name and language.
+   */
+  public void sendEmail(String username,
+                        String recipientEmail,
+                        String emailSubject,
+                        String contentTemplatePath,
+                        Map<String, String> customTokens) throws Exception {
     User user = organizationService.getUserHandler().findUserByName(username);
     String lang = getUserLang(username);
     String emailBody = getEmailBody(user.getDisplayName(), lang, emailSubject, contentTemplatePath, customTokens);
     MimeMessage mimeMessage = new MimeMessage(mailService.getMailSession());
     mimeMessage.setFrom(getSenderAddress());
-    mimeMessage.setRecipient(RecipientType.TO, new InternetAddress(user.getEmail()));
+    mimeMessage.setRecipient(RecipientType.TO,
+                             new InternetAddress(recipientEmail == null ? user.getEmail() : recipientEmail));
     mimeMessage.setSubject(StringEscapeUtils.unescapeHtml4(emailSubject), "UTF-8");
     mimeMessage.setSentDate(new Date());
     mimeMessage.setContent(emailBody, "text/html; charset=utf-8");

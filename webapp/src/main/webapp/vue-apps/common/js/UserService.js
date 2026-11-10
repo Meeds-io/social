@@ -309,6 +309,25 @@ export function updateProfileField(username, name, value, otpMethod, otpCode) {
   });
 }
 
+export function sendEmailChangeCode(username, email) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}/email/otp`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({email}).toString(),
+  }).then(resp => {
+    if (resp?.status === 429) {
+      throw new Error('429');
+    } else if (!resp || !resp.ok) {
+      return resp.text().then(error => {
+        throw new Error(error || resp.status);
+      });
+    }
+  });
+}
+
 export function updateProfileFields(username, obj, fields) {
   const objectToSend = {};
   for (const i in fields) {

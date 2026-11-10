@@ -154,8 +154,24 @@ public class EmailOtpPlugin implements OtpPlugin {
   }
 
   @Override
-  @SneakyThrows
   public void generateOtpCode(String userName) {
+    sendOtpCode(userName, null);
+  }
+
+  /**
+   * Sends a new code to the user, under the code key and the send lock of
+   * this method: to the given address when there is one, else to the address
+   * of the user's account. The code is stored as
+   * {@link #getStoredCode(String, String)} answers, the value that
+   * {@link #validateOtp(String, String)} and {@link #consumeOtp(String, String)}
+   * compare.
+   *
+   * @param userName the user the code is for
+   * @param recipientEmail the address to send the code to, null for the
+   *          address of the user's account
+   */
+  @SneakyThrows
+  protected void sendOtpCode(String userName, String recipientEmail) {
     String cacheKey = getCacheKey(userName);
     if (getOtpSendLockCache().get(cacheKey) != null) {
       throw new IllegalStateException(String.format("OTP email already sent to user %s less than %s seconds ago",
@@ -165,13 +181,28 @@ public class EmailOtpPlugin implements OtpPlugin {
     String lang = brandedEmailSender.getUserLang(userName);
     String emailSubject = resourceBundleService.getSharedString(getEmailSubjectKey(), LocaleUtils.toLocale(lang));
     String otpCode = generateOtpCode();
-    getOtpCache().put(cacheKey, otpCode);
-    brandedEmailSender.sendEmail(userName,
-                                 emailSubject,
-                                 getEmailBodyPath(),
-                                 Map.of("####", otpCode,
-                                        "$CODE_EXPIRATION_LABEL", getCodeExpirationLabel(lang)));
+    getOtpCache().put(cacheKey, getStoredCode(otpCode, recipientEmail));
+    Map<String, String> tokens = Map.of("####", otpCode, "$CODE_EXPIRATION_LABEL", getCodeExpirationLabel(lang));
+    if (recipientEmail == null) {
+      brandedEmailSender.sendEmail(userName, emailSubject, getEmailBodyPath(), tokens);
+    } else {
+      brandedEmailSender.sendEmail(userName, recipientEmail, emailSubject, getEmailBodyPath(), tokens);
+    }
     getOtpSendLockCache().put(cacheKey, StringUtils.EMPTY);
+  }
+
+  /**
+   * The value a sent code is stored as. The code itself here: the email, API
+   * key, account deactivation and administrator session methods compare the
+   * typed code alone
+   *
+   * @param otpCode the generated code
+   * @param recipientEmail the address the code is sent to, null for the
+   *          address of the user's account
+   * @return the value to store
+   */
+  protected String getStoredCode(String otpCode, String recipientEmail) {
+    return otpCode;
   }
 
   /**

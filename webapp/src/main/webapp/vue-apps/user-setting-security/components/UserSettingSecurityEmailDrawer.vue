@@ -79,7 +79,7 @@
           <div class="d-flex flex-column justify-center align-center full-width mt-4">
             <template v-if="emailSent">
               <div class="full-width text-start">
-                {{ $t('UserSettings.security.emailChange.confirmAccess.checkEmail') }}
+                {{ $t('UserSettings.security.emailChange.confirmNewEmail.checkEmail', {0: sentEmail}) }}
               </div>
               <div class="d-flex align-center full-width mt-1">
                 <v-text-field
@@ -109,8 +109,20 @@
                 </v-btn>
               </div>
             </template>
-            <div v-else>
+            <div v-else-if="sendingCode">
               {{ $t('UserSettings.security.emailChange.confirmAccess.sendingEmail') }}
+            </div>
+            <div v-else class="d-flex align-center full-width">
+              <div class="flex-grow-1 text-start me-2">
+                {{ $t('UserSettings.security.emailChange.confirmNewEmail.hint') }}
+              </div>
+              <v-btn
+                :disabled="!newEmail || saving"
+                height="40"
+                class="btn"
+                @click="sendOtpCode">
+                {{ $t('UserSettings.security.emailChange.confirmNewEmail.sendCode') }}
+              </v-btn>
             </div>
           </div>
         </v-card>
@@ -141,9 +153,10 @@ export default {
   data: () => ({
     drawer: false,
     username: eXo.env.portal.userName,
-    otpMethod: 'email',
+    otpMethod: 'emailChange',
     otpCode: null,
     emailSent: false,
+    sentEmail: null,
     operation: null,
     email: null,
     newEmail: null,
@@ -154,6 +167,7 @@ export default {
     disabled() {
       return !this.email?.length
         || !this.newEmail?.length
+        || !this.emailSent
         || !this.otpCode
         || this.sendingCode
         || this.saving;
@@ -161,6 +175,12 @@ export default {
   },
   watch: {
     newEmail() {
+      // the code confirms the address it was sent to only
+      if (this.emailSent && this.newEmail !== this.sentEmail) {
+        this.emailSent = false;
+        this.sentEmail = null;
+        this.otpCode = null;
+      }
       this.resetCustomValidity();
     },
     otpCode() {
@@ -172,7 +192,7 @@ export default {
       this.newEmail = null;
       this.otpCode = null;
       this.emailSent = false;
-      this.sendOtpCode();
+      this.sentEmail = null;
       this.$refs.drawer.open();
       this.user = await this.$userService.getUser(this.username);
       this.email = this.user?.email;
@@ -181,25 +201,36 @@ export default {
       this.$refs.drawer.close();
     },
     async sendOtpCode() {
+      this.resetCustomValidity();
+      if (!this.$refs.newEmail.$el.querySelector('input').reportValidity()) {
+        return;
+      }
+      const email = this.newEmail;
       this.operation = 'sendingEmail';
       this.sendingCode = true;
       try {
-        await this.$otpService.sendOtpCode(this.otpMethod);
+        await this.$userService.sendEmailChangeCode(this.username, email);
+        this.sentEmail = email;
+        this.emailSent = true;
       } catch (e) {
-        if (e?.message === '429') {
+        const error = String(e?.message || e);
+        if (error === '429') {
           // throttled: the previously sent code remains valid until its expiration
-          this.$root.$emit('alert-message', this.$t('UserSettings.security.otpAlreadySent'), 'warning');
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.confirmNewEmail.codeAlreadySent'), 'warning');
+        } else if (error.indexOf('ALREADY_EXISTS') > -1) {
+          this.$root.$emit('alert-message', this.$t('UsersManagement.message.userWithSameEmailAlreadyExists'), 'error');
+        } else if (error.indexOf('EMAIL:') === 0) {
+          this.$root.$emit('alert-message', error.replace('EMAIL:', ''), 'error');
         } else {
-          this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.otpSendError'), 'error');
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.confirmNewEmail.sendError'), 'error');
         }
       } finally {
         this.sendingCode = false;
-        this.emailSent = true;
       }
     },
     resetCustomValidity() {
-      this.$refs.newEmail.$el.querySelector('input').setCustomValidity('');
-      this.$refs.otpCode.$el.querySelector('input').setCustomValidity('');
+      this.$refs.newEmail?.$el?.querySelector('input')?.setCustomValidity('');
+      this.$refs.otpCode?.$el?.querySelector('input')?.setCustomValidity('');
     },
     save() {
       this.resetCustomValidity();
