@@ -2,7 +2,7 @@
   <v-app
     :class="{ 'profileHeaderOwner': owner, 'profileHeaderOther': !owner }">
     <v-hover>
-      <div slot-scope="{ hover }" class="application-body">
+      <div slot-scope="{ hover }" class="application-body hover-reveal-parent">
         <v-card
           :max-height="bannerMaxHeight"
           :height="bannerHeight"
@@ -22,7 +22,6 @@
             :owner="owner"
             :user="user"
             :is-admin="isAdmin"
-            :hover="hover"
             class="justify-end full-width position-absolute t-0 r-3 pt-3"
             @edit="editBanner"
             @refresh="refresh"

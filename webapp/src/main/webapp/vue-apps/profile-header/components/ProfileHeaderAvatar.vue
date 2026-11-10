@@ -25,9 +25,8 @@
         ref="avatarInput"
         :title="$t('UIChangeAvatarContainer.label.ChangeAvatar')"
         :aria-label="$t('UIChangeAvatarContainer.label.ChangeAvatar')"
-        :class="{ 'd-sr-only-focusable': !(hover || focused) }"
         id="profileAvatarEditButton"
-        class="changeAvatarButton"
+        class="changeAvatarButton hover-reveal"
         icon
         outlined
         dark

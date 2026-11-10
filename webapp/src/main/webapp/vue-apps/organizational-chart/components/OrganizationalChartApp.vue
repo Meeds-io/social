@@ -20,44 +20,41 @@
 
 <template>
   <v-app v-if="showApplication">
-    <v-hover v-slot="{ hover }">
-      <div class="pa-5 application-body">
-        <div
-          v-if="isLoading"
-          class="width-full d-flex full-height">
-          <v-progress-circular
-            class="ma-auto"
-            color="primary"
-            indeterminate />
-        </div>
-        <div v-else>
-          <organizational-chart-header
-            v-if="!preview"
-            :has-settings="hasSettings"
-            :configured-title="configuredHeaderTitle"
-            :is-admin="isAdmin"
-            :has-header-title="hasHeaderTitle"
-            :hover="hover"
-            :is-mobile="isMobile"
-            :is-printing-pdf="isPrintingPdf"
-            @download-chart="downloadChart"
-            @open-chart-settings="openSettingsDrawer" />
-          <organizational-chart
-            v-if="hasSettings || preview"
-            id="chart"
-            :user="user"
-            :managed-users="managedUsersList"
-            :profile-action-extensions="profileActionExtensions"
-            :user-navigation-extensions="userExtensions"
-            :is-loading="isLoadingManagedUsers"
-            :has-more="hasMore"
-            :preview="preview"
-            :preview-count="previewCount"
-            @update-chart="updateChart"
-            @load-more-managed-users="getManagedUsers" />
-        </div>
+    <div class="pa-5 application-body hover-reveal-parent">
+      <div
+        v-if="isLoading"
+        class="width-full d-flex full-height">
+        <v-progress-circular
+          class="ma-auto"
+          color="primary"
+          indeterminate />
       </div>
-    </v-hover>
+      <div v-else>
+        <organizational-chart-header
+          v-if="!preview"
+          :has-settings="hasSettings"
+          :configured-title="configuredHeaderTitle"
+          :is-admin="isAdmin"
+          :has-header-title="hasHeaderTitle"
+          :is-mobile="isMobile"
+          :is-printing-pdf="isPrintingPdf"
+          @download-chart="downloadChart"
+          @open-chart-settings="openSettingsDrawer" />
+        <organizational-chart
+          v-if="hasSettings || preview"
+          id="chart"
+          :user="user"
+          :managed-users="managedUsersList"
+          :profile-action-extensions="profileActionExtensions"
+          :user-navigation-extensions="userExtensions"
+          :is-loading="isLoadingManagedUsers"
+          :has-more="hasMore"
+          :preview="preview"
+          :preview-count="previewCount"
+          @update-chart="updateChart"
+          @load-more-managed-users="getManagedUsers" />
+      </div>
+    </div>
     <organizational-chart-settings-drawer
       v-if="!preview"
       ref="chartSettingsDrawer"
