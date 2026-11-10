@@ -24,14 +24,14 @@
         <button
           :aria-label="$t('suggestions.people.connect', {0: people.suggestionName})"
           type="button"
-          class="px-0 suggestions-btn-action connexion-accept-btn"
+          class="btn-reset suggestions-btn-action connexion-accept-btn"
           @click="connectionRequest(people)">
           <i class="uiIconInviteUser" aria-hidden="true"></i>
         </button>
         <button
           :aria-label="$t('suggestions.people.ignore', {0: people.suggestionName})"
           type="button"
-          class="px-0 suggestions-btn-action connexion-refuse-btn"
+          class="btn-reset suggestions-btn-action connexion-refuse-btn"
           @click="ignoredConnectionUser(people)">
           <i class="uiIconCloseCircled" aria-hidden="true"></i>
         </button>

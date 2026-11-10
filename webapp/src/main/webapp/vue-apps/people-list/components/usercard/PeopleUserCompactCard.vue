@@ -23,7 +23,7 @@
     <v-card
       :id="userMenuParentId"
       :class="hover && 'grey lighten-4'"
-      class="peopleCardItem d-flex mx-2"
+      class="peopleCardItem hover-reveal-parent d-flex mx-2"
       flat>
       <div class="peopleToolbarIcons my-auto ms-auto">
         <v-avatar
@@ -39,7 +39,7 @@
           :user-navigation-extensions="userNavigationExtensions"
           :space-members-extensions="spaceMembersExtensions"
           :profile-action-extensions="profileActionExtensions"
-          :hide-menu-button-until-focus="!(displayCompactMenuButton || $root.isMobile || hover)"
+          :hover-reveal="!(displayCompactMenuButton || $root.isMobile)"
           display-menu-button
           :bottom-menu="$root.isMobile"
           :attach-menu="attachMenu"

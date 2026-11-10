@@ -39,7 +39,7 @@
         :aria-label="$t('peopleList.label.openUserMenu')"
         v-on="on"
         :title="$t('peopleList.label.openUserMenu')"
-        :class="[menuButtonClass, hideMenuButtonUntilFocus && !displayActionMenu && 'd-sr-only-focusable']"
+        :class="[menuButtonClass, hoverReveal && !displayActionMenu && 'hover-reveal']"
         icon
         @touchstart.stop="0"
         @touchend.stop="0"
@@ -103,7 +103,7 @@ export default {
       type: Boolean,
       default: false
     },
-    hideMenuButtonUntilFocus: {
+    hoverReveal: {
       type: Boolean,
       default: false
     },

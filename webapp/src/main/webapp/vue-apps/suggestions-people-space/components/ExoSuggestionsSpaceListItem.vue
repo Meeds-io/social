@@ -25,14 +25,14 @@
         <button
           :aria-label="$t('suggestions.space.join', {0: space.displayName})"
           type="button"
-          class="px-0 suggestions-btn-action connexion-accept-btn"
+          class="btn-reset suggestions-btn-action connexion-accept-btn"
           @click="joinSpace(space)">
           <i class="uiIconPlusLight" aria-hidden="true"></i>
         </button>
         <button
           :aria-label="$t('suggestions.space.ignore', {0: space.displayName})"
           type="button"
-          class="px-0 suggestions-btn-action connexion-refuse-btn"
+          class="btn-reset suggestions-btn-action connexion-refuse-btn"
           @click="ignoredSuggestionSpace(space)">
           <i class="uiIconCloseCircled" aria-hidden="true"></i>
         </button>

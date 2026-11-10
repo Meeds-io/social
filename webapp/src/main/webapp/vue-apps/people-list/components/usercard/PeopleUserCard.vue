@@ -31,7 +31,7 @@
         :max-height="bannerHeight"
         min-width="100%"
         max-width="100%"
-        class="overflow-hidden application-border-radius-top no-border-bottom-right-radius no-border-bottom-left-radius position-relative d-flex justify-center z-index-one"
+        class="overflow-hidden application-border-radius-top no-border-bottom-right-radius no-border-bottom-left-radius position-relative d-flex justify-center"
         flat>
         <img
           :src="bannerUrl"
@@ -53,7 +53,7 @@
           :max-width="avatarSize"
           :min-height="avatarSize"
           :max-height="avatarSize"
-          class="overflow-hidden d-flex border-radius-circle align-center justify-center z-index-two"
+          class="overflow-hidden d-flex border-radius-circle align-center justify-center"
           flat>
           <img
             :src="`${avatarUrl}&size=65x65`"
@@ -73,7 +73,7 @@
         <a
           :href="profileUrl"
           :title="fullName"
-          class="socialUserCardLink">
+          class="socialUserCardLink stretched-link text-color text-decoration-none application-border-radius">
           {{ fullName }}
           <span
             v-if="externalUser"
@@ -108,7 +108,7 @@
         </div>
       </div>
       <div class="socialUserCardActions d-flex full-width position-absolute b-0 mb-1 px-1">
-        <div class="me-auto">
+        <div class="me-auto stretched-link-above">
           <v-btn
             v-for="extension in filteredUserNavigationExtensions"
             :key="extension.id"
@@ -133,7 +133,7 @@
         </div>
         <div
           v-if="!isSameUser"
-          class="ms-auto d-flex">
+          class="ms-auto d-flex stretched-link-above">
           <span
             v-for="extension in filteredProfileActionExtensions"
             :key="extension.id">
