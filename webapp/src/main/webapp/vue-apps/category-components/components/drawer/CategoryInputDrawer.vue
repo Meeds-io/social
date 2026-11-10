@@ -92,14 +92,15 @@
             <v-card
               v-if="!item.loadMore"
               :aria-checked="String(categoryIds.includes(item.id))"
+              :aria-disabled="String(!!item.disabled)"
               role="checkbox"
               color="transparent"
               class="d-flex align-center ms-6"
               height="36"
               flat
-              @keydown.space.prevent="toogleSelectCategory(item.id)"
-              @keydown.enter.prevent="toogleSelectCategory(item.id)"
-              @click.stop.prevent="toogleSelectCategory(item.id)">
+              @keydown.space.prevent="toogleSelectCategory(item)"
+              @keydown.enter.prevent="toogleSelectCategory(item)"
+              @click.stop.prevent="toogleSelectCategory(item)">
               <v-card
                 class="d-flex align-center justify-center ms-1 me-2"
                 color="transparent"
@@ -439,7 +440,11 @@ export default {
         }
       }
     },
-    toogleSelectCategory(id) {
+    toogleSelectCategory(item) {
+      if (item.disabled) {
+        return;
+      }
+      const id = item.id;
       if (this.categoryIds.indexOf(id) < 0) {
         this.categoryIds.push(id);
       } else {
