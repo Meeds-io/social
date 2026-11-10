@@ -1,11 +1,10 @@
 <template>
   <div :class="actionsAlignmentClass">
     <v-tooltip :disabled="!isScheduled" bottom>
-      <template #activator="{ on, attrs }">
+      <template #activator="{ on }">
         <div
           :aria-disabled="isScheduled"
           :aria-label="isScheduled && $t('activityStream.scheduledActionsDisabled') || null"
-          v-bind="attrs"
           v-on="on">
           <extension-registry-components
             :params="params"
