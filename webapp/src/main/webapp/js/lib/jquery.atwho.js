@@ -1019,12 +1019,26 @@ View = (function() {
   };
 
   View.prototype.reposition = function(rect) {
-    var _window, offset, overflowOffset, ref;
+    var _window, offset, overflowOffset, ref, visibleTop, visibleBottom, visibleLeft, visibleRight, height;
     _window = this.context.app.iframeAsRoot ? this.context.app.window : window;
-    if (rect.bottom + this.$el.height() - $(_window).scrollTop() > $(_window).height()) {
-      rect.bottom = rect.top - this.$el.height();
+    visibleTop = $(_window).scrollTop();
+    visibleBottom = visibleTop + $(_window).height();
+    visibleLeft = 0;
+    visibleRight = $(_window).width();
+    if (!this.context.app.iframeAsRoot && window.visualViewport) {
+      // What the user sees: the iOS virtual keyboard shrinks the visual
+      // viewport, not the window (inferred, not checked on a device), so the
+      // window's size would let the list open under the keyboard.
+      visibleTop = window.visualViewport.pageTop;
+      visibleBottom = visibleTop + window.visualViewport.height;
+      visibleLeft = window.visualViewport.pageLeft;
+      visibleRight = visibleLeft + window.visualViewport.width;
     }
-    if (rect.left > (overflowOffset = $(_window).width() - this.$el.width() - 5)) {
+    height = this.$el.height();
+    if (rect.bottom + height > visibleBottom && rect.top - visibleTop > visibleBottom - rect.bottom) {
+      rect.bottom = rect.top - height;
+    }
+    if (rect.left > (overflowOffset = Math.max(visibleLeft, visibleRight - this.$el.width() - 5))) {
       rect.left = overflowOffset;
     }
     const scrollingElement = window.CKEDITOR
