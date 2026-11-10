@@ -138,7 +138,7 @@
               compact-display />
             <v-btn
               v-else-if="extension?.isLink"
-              :href="extension.href(user)"
+              :href="extension.href(user?.dataEntity || user)"
               :aria-label="$t(extension.titleKey)"
               :title="extension.title || $t(extension.titleKey)"
               icon>
