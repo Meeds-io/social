@@ -32,6 +32,22 @@
       width="auto"
       class="space-card-item d-flex flex-column position-relative application-border-radius border-color">
       <space-card-unread-badge :space="space" />
+      <!-- the bottom strip comes before the card link: positioned with no z-index, it paints under the link's stretched
+           area, so a click on it opens the space, while its menu stays above with stretched-link-above -->
+      <v-card
+        class="d-flex align-center full-width flex-grow-0 flex-shrink-0 my-2 px-2 position-absolute b-0"
+        flat>
+        <div v-if="displayMembersCount" class="d-flex align-center ps-2">
+          <div
+            v-sanitized-html="spaceMembersCount"
+            class="flex-shrink-0 text-subtitle"></div>
+        </div>
+        <v-spacer />
+        <space-card-menu
+          :space="space"
+          :space-action-extensions="enabledSpaceActionExtensions"
+          class="space-card-actions stretched-link-above ms-1" />
+      </v-card>
       <div class="space-card-header d-flex full-width mt-4 px-4">
         <v-card
           :min-width="avatarSize"
@@ -60,20 +76,6 @@
           v-sanitized-html="spaceDescriptionText"
           class="text-truncate-3 max-height-3lh full-width flex-shrink-1"></div>
       </div>
-      <v-card
-        class="not-clickable-link d-flex align-center full-width flex-grow-0 flex-shrink-0 my-2 px-2 position-absolute b-0"
-        flat>
-        <div v-if="displayMembersCount" class="d-flex align-center ps-2">
-          <div
-            v-sanitized-html="spaceMembersCount"
-            class="flex-shrink-0 text-subtitle"></div>
-        </div>
-        <v-spacer />
-        <space-card-menu
-          :space="space"
-          :space-action-extensions="enabledSpaceActionExtensions"
-          class="space-card-actions stretched-link-above pointer-events-revert ms-1" />
-      </v-card>
     </v-card>
   </v-hover>
 </template>
