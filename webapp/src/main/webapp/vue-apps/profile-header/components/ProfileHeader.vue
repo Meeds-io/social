@@ -7,7 +7,7 @@
           :max-height="bannerMaxHeight"
           :height="bannerHeight"
           min-height="60"
-          class="d-flex position-relative overflow-hidden"
+          class="d-flex position-relative overflow-hidden hover-reveal-parent"
           tile
           flat>
           <v-img
@@ -22,7 +22,6 @@
             :owner="owner"
             :user="user"
             :is-admin="isAdmin"
-            :hover="hover"
             class="justify-end full-width position-absolute t-0 r-3 pt-3"
             @edit="editBanner"
             @refresh="refresh"
@@ -49,7 +48,6 @@
               <profile-header-avatar
                 :user="user"
                 :owner="owner"
-                :hover="hover"
                 :size="avatarSize"
                 :max-size="avatarMaxSize"
                 :min-size="avatarMinSize"
