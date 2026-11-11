@@ -1,6 +1,8 @@
 export const avatarExcceedsLimitError = 'AVATAR_EXCEEDS_LIMIT';
 export const bannerExcceedsLimitError = 'BANNER_EXCEEDS_LIMIT';
 export const MAX_RANDOM_NUMBER = 100000;
+const SAFARI_EMPTY_BODY_VERSION = 26;
+const IOS_FROZEN_VERSION = [18, 6];
 
 export function getUploadProgress(uploadId) {
   return fetch(`${eXo.env.portal.context}/upload?uploadId=${uploadId}&action=progress`, {
@@ -58,14 +60,14 @@ export function upload(file, uploadId, signal) {
   });
 }
 
-// Apple WebKit (Safari, and every browser on iOS) can send a file picked on
-// the device as an empty request body, whether in a form or as the body
-// itself: the server then stores 0 bytes. A copy held in memory is sent
-// whole, so on that engine a picked file is copied before it is sent. The
-// promise rejects when the copy does not hold the file's size, rather than
-// letting an empty file be stored.
+// WebKit 26 and later (Safari 26, and every browser on iOS 26) can send a
+// file picked on the device as an empty request body, whether in a form or as
+// the body itself: the server then stores 0 bytes. A copy held in memory is
+// sent whole, so on that engine a picked file is copied before it is sent.
+// The promise rejects when the copy does not hold the file's size, rather
+// than letting an empty file be stored.
 export function toUploadableFile(file) {
-  if (!(file instanceof File) || !file.size || !isAppleWebKit()) {
+  if (!(file instanceof File) || !file.size || !isEmptyBodyWebKit()) {
     return Promise.resolve(file);
   }
   return file.arrayBuffer().then(content => {
@@ -79,8 +81,28 @@ export function toUploadableFile(file) {
   });
 }
 
-function isAppleWebKit() {
-  return window.navigator?.vendor === 'Apple Computer, Inc.';
+// The copy delays the request, which some upload pollers do not wait for, so
+// it is limited to the engine versions that send empty bodies. Safari tells
+// its version in `Version/`; from 26 on it freezes the iOS version it reports
+// at 18.6 or later. The other iOS browsers, and an app added to the home
+// screen, have no `Version/` and report the iOS version, frozen or real:
+// 18.6 and later is taken as affected.
+function isEmptyBodyWebKit() {
+  if (window.navigator?.vendor !== 'Apple Computer, Inc.') {
+    return false;
+  }
+  const userAgent = window.navigator.userAgent || '';
+  const safariVersion = userAgent.match(/Version\/(\d+)/);
+  if (safariVersion) {
+    return Number(safariVersion[1]) >= SAFARI_EMPTY_BODY_VERSION;
+  }
+  const iosVersion = userAgent.match(/ OS (\d+)_(\d+)/);
+  if (iosVersion) {
+    const major = Number(iosVersion[1]);
+    return major > IOS_FROZEN_VERSION[0]
+      || (major === IOS_FROZEN_VERSION[0] && Number(iosVersion[2]) >= IOS_FROZEN_VERSION[1]);
+  }
+  return false;
 }
 
 export function generateRandomId() {
