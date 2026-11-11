@@ -1,29 +1,26 @@
 <template>
   <v-app>
-    <v-hover v-model="hover" :disabled="!admin">
-      <v-responsive
-        :aspect-ratio="cropOptions.aspectRatio"
-        :class="$root.hasImages && 'transparent' || 'primary'"
-        class="application-body application-dimension overflow-hidden">
-        <space-banner-setting-buttons
-          v-if="admin"
-          :hover="hover"
-          :default-banner="defaultBanner"
-          class="z-index-one"
-          @edit="$refs.imageCropDrawer.open()"
-          @remove="removeBanner" />
-        <div class="d-flex fill-height fill-width">
-          <img
-            v-if="bannerUrl"
-            :src="bannerUrl"
-            :alt="spaceDisplayName"
-            style="min-width: 100%;min-height: 100%;"
-            width="100%"
-            height="100%"
-            class="border-box-sizing absolute-all-center">
-        </div>
-      </v-responsive>
-    </v-hover>
+    <v-responsive
+      :aspect-ratio="cropOptions.aspectRatio"
+      :class="[$root.hasImages && 'transparent' || 'primary', admin && 'hover-reveal-parent']"
+      class="application-body application-dimension overflow-hidden">
+      <space-banner-setting-buttons
+        v-if="admin"
+        :default-banner="defaultBanner"
+        class="z-index-one"
+        @edit="$refs.imageCropDrawer.open()"
+        @remove="removeBanner" />
+      <div class="d-flex fill-height fill-width">
+        <img
+          v-if="bannerUrl"
+          :src="bannerUrl"
+          :alt="spaceDisplayName"
+          style="min-width: 100%;min-height: 100%;"
+          width="100%"
+          height="100%"
+          class="border-box-sizing absolute-all-center">
+      </div>
+    </v-responsive>
     <template v-if="admin">
       <image-crop-drawer
         ref="imageCropDrawer"
@@ -57,7 +54,6 @@ export default {
   },
   data: () => ({
     errorMessage: null,
-    hover: false,
     spaceDisplayName: eXo.env.portal.spaceDisplayName,
     cropOptions: {
       aspectRatio: 1280 / 175,

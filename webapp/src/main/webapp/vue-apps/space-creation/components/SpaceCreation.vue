@@ -19,46 +19,38 @@
 
 -->
 <template>
-  <v-hover v-slot="{ hover }">
-    <v-app>
-      <!-- the settings cog is a button of its own beside the create button, drawn over its end -->
-      <div class="d-flex justify-center align-center">
-        <v-btn
-          :class="$root.isAdministrator && (hover || cogFocused) && 'pe-10'"
-          color="primary"
-          class="d-block"
-          elevation="0"
-          max-width="92%"
-          @click="addNewSpace">
-          <span class="full-width text-truncate"> {{ $root.label }} </span>
-        </v-btn>
-        <v-btn
-          v-if="$root.isAdministrator"
-          :aria-label="$t('space.creation.instantiation.settingsDrawer.title')"
-          :class="{ 'd-sr-only-focusable': !hover }"
-          class="ms-n9"
-          icon
-          small
-          dark
-          @focus="cogFocused = true"
-          @blur="cogFocused = false"
-          @click="openDrawerSettings">
-          <v-icon size="16">fa-cog</v-icon>
-        </v-btn>
-      </div>
-      <space-creation-settings-drawer
-        @updated="spaceCreationSettingsUpdated"
-        ref="spaceCreationSettingsDrawer" />
-    </v-app>
-  </v-hover>
+  <v-app>
+    <!-- the settings cog is a button of its own beside the create button, drawn over its end -->
+    <div class="d-flex justify-center align-center hover-reveal-parent">
+      <v-btn
+        :class="$root.isAdministrator && 'pe-10'"
+        color="primary"
+        class="d-block"
+        elevation="0"
+        max-width="92%"
+        @click="addNewSpace">
+        <span class="full-width text-truncate"> {{ $root.label }} </span>
+      </v-btn>
+      <v-btn
+        v-if="$root.isAdministrator"
+        :aria-label="$t('space.creation.instantiation.settingsDrawer.title')"
+        id="spaceCreationSettingsButton"
+        class="ms-n9 hover-reveal focus-ring-on-primary"
+        icon
+        small
+        dark
+        @click="openDrawerSettings">
+        <v-icon size="16">fa-cog</v-icon>
+      </v-btn>
+    </div>
+    <space-creation-settings-drawer
+      @updated="spaceCreationSettingsUpdated"
+      ref="spaceCreationSettingsDrawer" />
+  </v-app>
 </template>
 
 <script>
 export default {
-  data: () => ({
-    // the cog holds the focus: the create button keeps the room the cog is drawn over
-    cogFocused: false,
-  }),
   methods: {
     addNewSpace() {
       window.require(['SHARED/spaceForm'], drawer => drawer.open(null, this.$root.spaceTemplates));
