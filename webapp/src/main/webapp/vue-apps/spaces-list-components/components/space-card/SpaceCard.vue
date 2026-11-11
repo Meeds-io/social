@@ -30,21 +30,15 @@
       :min-width="minWidth"
       :max-width="maxWidth"
       width="auto"
-      class="space-card-item d-flex flex-column application-border-radius border-color">
+      class="space-card-item d-flex flex-column position-relative application-border-radius border-color">
       <space-card-unread-badge :space="space" />
-      <v-card
-        :min-height="avatarSize"
-        :max-height="avatarSize"
-        min-width="100%"
-        max-width="100%"
-        class="space-card-header d-flex mt-4 px-4"
-        flat>
+      <div class="space-card-header d-flex full-width mt-4 px-4">
         <v-card
           :min-width="avatarSize"
           :max-width="avatarSize"
           :min-height="avatarSize"
           :max-height="avatarSize"
-          class="spaceAvatar overflow-hidden d-flex align-center justify-center z-index-two"
+          class="spaceAvatar overflow-hidden d-flex align-center justify-center"
           flat>
           <img
             :src="space.avatarUrl"
@@ -58,16 +52,16 @@
           <a
             :href="spaceUrl"
             v-text="spaceDisplayName"
-            class="space-card-link text-color text-decoration-none flex-shrink-0 text-truncate-2 max-height-2lh font-weight-bold line-height-normal full-width"></a>
+            class="space-card-link stretched-link text-color text-decoration-none flex-shrink-0 text-truncate-2 max-height-2lh font-weight-bold line-height-normal full-width application-border-radius"></a>
         </div>
-      </v-card>
+      </div>
       <div v-if="!hideSpaceDescription && !$root.isMobile" class="flex-grow-1 flex-shrink-1 px-4 mt-4">
         <div
           v-sanitized-html="spaceDescriptionText"
           class="text-truncate-3 max-height-3lh full-width flex-shrink-1"></div>
       </div>
       <v-card
-        class="d-flex align-center full-width flex-grow-0 flex-shrink-0 my-2 px-2 position-absolute b-0"
+        class="not-clickable-link d-flex align-center full-width flex-grow-0 flex-shrink-0 my-2 px-2 position-absolute b-0"
         flat>
         <div v-if="displayMembersCount" class="d-flex align-center ps-2">
           <div
@@ -78,7 +72,7 @@
         <space-card-menu
           :space="space"
           :space-action-extensions="enabledSpaceActionExtensions"
-          class="space-card-actions ms-1" />
+          class="space-card-actions stretched-link-above pointer-events-revert ms-1" />
       </v-card>
     </v-card>
   </v-hover>
