@@ -24,15 +24,14 @@
       :height="cardHeight"
       :width="$attrs.width"
       :min-width="$attrs.minWidth"
-      :href="profileUrl"
-      class="d-flex flex-column application-border-radius border-color socialUserCard"
+      class="d-flex flex-column application-border-radius border-color socialUserCard position-relative"
       outlined>
       <v-card
         :min-height="bannerHeight"
         :max-height="bannerHeight"
         min-width="100%"
         max-width="100%"
-        class="overflow-hidden application-border-radius-top no-border-bottom-right-radius no-border-bottom-left-radius position-relative d-flex justify-center z-index-one"
+        class="overflow-hidden application-border-radius-top no-border-bottom-right-radius no-border-bottom-left-radius position-relative d-flex justify-center"
         flat>
         <img
           :src="bannerUrl"
@@ -54,7 +53,7 @@
           :max-width="avatarSize"
           :min-height="avatarSize"
           :max-height="avatarSize"
-          class="overflow-hidden d-flex border-radius-circle align-center justify-center z-index-two"
+          class="overflow-hidden d-flex border-radius-circle align-center justify-center"
           flat>
           <img
             :src="`${avatarUrl}&size=65x65`"
@@ -70,20 +69,23 @@
             class="mt-4" />
         </div>
       </v-card>
-      <div
-        :title="fullName"
-        class="font-weight-bold overflow-hidden text-truncate-2 justify-center px-2 mt-4 max-height-2lh">
-        {{ fullName }}
-        <span
-          v-if="externalUser"
-          class="grey--text">
-          {{ $t('peopleList.label.external') }}
-        </span>
-        <span
-          v-if="accountKind"
-          class="grey--text">
-          ({{ $t(`accountKind.label.${accountKind}`) }})
-        </span>
+      <div class="font-weight-bold overflow-hidden text-truncate-2 justify-center px-2 mt-4 max-height-2lh">
+        <a
+          :href="profileUrl"
+          :title="fullName"
+          class="socialUserCardLink stretched-link text-color text-decoration-none application-border-radius">
+          {{ fullName }}
+          <span
+            v-if="externalUser"
+            class="grey--text">
+            {{ $t('peopleList.label.external') }}
+          </span>
+          <span
+            v-if="accountKind"
+            class="grey--text">
+            ({{ $t(`accountKind.label.${accountKind}`) }})
+          </span>
+        </a>
       </div>
       <div class="userFieldsArea px-2">
         <div
@@ -105,12 +107,13 @@
           {{ thirdField }}
         </div>
       </div>
-      <div class="d-flex full-width position-absolute b-0 mb-1 px-1">
-        <div class="me-auto">
+      <div class="socialUserCardActions d-flex full-width position-absolute b-0 mb-1 px-1">
+        <div class="me-auto stretched-link-above">
           <v-btn
             v-for="extension in filteredUserNavigationExtensions"
             :key="extension.id"
             :title="extension.title || $t(extension.titleKey)"
+            :aria-label="extension.title || $t(extension.titleKey)"
             icon
             @touchstart.stop="0"
             @touchend.stop="0"
@@ -130,7 +133,7 @@
         </div>
         <div
           v-if="!isSameUser"
-          class="ms-auto d-flex">
+          class="ms-auto d-flex stretched-link-above">
           <span
             v-for="extension in filteredProfileActionExtensions"
             :key="extension.id">

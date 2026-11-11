@@ -42,6 +42,7 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
+          :aria-label="$t('peopleOverview.button.accept', {0: user.fullname})"
           class="me-2 success-color-background peopleOverviewCheck"
           fab
           dark
@@ -56,6 +57,7 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
+          :aria-label="$t('peopleOverview.button.refuse', {0: user.fullname})"
           class="error-color-background peopleOverviewClose"
           fab
           dark
@@ -72,6 +74,7 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
+          :aria-label="$t('peopleOverview.button.cancel', {0: user.fullname})"
           class="error-color-background peopleOverviewClose"
           fab
           dark
