@@ -50,10 +50,12 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
   /**
    * Refused: a code of this method goes to the new address only, which the
    * generic send does not name
+   *
+   * @throws IllegalArgumentException always
    */
   @Override
   public void generateOtpCode(String userName) {
-    throw new UnsupportedOperationException("The email change code is sent to the new address only");
+    throw new IllegalArgumentException("The email change code is sent to the new address only");
   }
 
   @Override

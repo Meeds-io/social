@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -43,6 +44,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -202,7 +204,7 @@ public class EmailChangeEmailOtpPluginTest {
    */
   @Test
   public void testGenericSendIsRefused() throws Exception {
-    assertThrows(UnsupportedOperationException.class, () -> plugin.generateOtpCode("john"));
+    assertThrows(IllegalArgumentException.class, () -> plugin.generateOtpCode("john"));
     verify(otpSendLockCache, never()).put(anyString(), anyString());
     assertThrows(IllegalArgumentException.class, () -> plugin.generateOtpCode("john", " ", ACCEPT));
     assertThrows(IllegalArgumentException.class, () -> plugin.generateOtpCode("john", null, ACCEPT));
@@ -259,6 +261,28 @@ public class EmailChangeEmailOtpPluginTest {
     assertEquals("The address of a throttled request is not checked", 1, checks.get());
     verify(otpCache, never()).put(anyString(), anyString());
     verify(mailService, never()).sendMessage(any(MimeMessage.class));
+  }
+
+  /**
+   * A mail that fails releases the lock and drops the code: no code was
+   * received, so the user may ask again at once
+   */
+  @Test
+  public void testAFailedSendReleasesTheSendLock() throws Exception {
+    Map<String, String> sendLocks = new HashMap<>();
+    when(otpSendLockCache.get(anyString())).thenAnswer(invocation -> sendLocks.get(invocation.getArgument(0)));
+    doAnswer(invocation -> sendLocks.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpSendLockCache)
+                                                                                                 .put(anyString(), anyString());
+    doAnswer(invocation -> sendLocks.remove(invocation.getArgument(0))).when(otpSendLockCache).remove(anyString());
+    doThrow(new MessagingException("mail server down")).when(mailService).sendMessage(any(MimeMessage.class));
+
+    assertThrows(Exception.class, () -> plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    assertFalse("the lock is released", sendLocks.containsKey(CACHE_KEY));
+    verify(otpCache).remove(CACHE_KEY);
+
+    doNothing().when(mailService).sendMessage(any(MimeMessage.class));
+    assertNull("a new request is accepted at once", plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    assertTrue(sendLocks.containsKey(CACHE_KEY));
   }
 
   /**
