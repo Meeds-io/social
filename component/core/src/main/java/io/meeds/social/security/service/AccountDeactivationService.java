@@ -45,6 +45,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 
 import io.meeds.portal.security.service.SecuritySettingService;
 import io.meeds.social.core.mail.BrandedEmailSender;
+import io.meeds.social.security.plugin.AccountOtpMethods;
 import io.meeds.web.security.service.OtpService;
 
 import lombok.Setter;
@@ -190,6 +191,11 @@ public class AccountDeactivationService {
     }
     if (deleteRequested && !securitySettingService.isAccountDeletionEnabled()) {
       throw new IllegalStateException(String.format("Account deletion isn't allowed for user %s", username));
+    }
+    if (!AccountOtpMethods.provesTheAccount(otpMethod)) {
+      throw new IllegalAccessException(String.format("OTP method %s does not prove access to the account of user %s",
+                                                     otpMethod,
+                                                     username));
     }
     otpService.validateOtp(username, otpMethod, otpCode);
     String identityId = identityManager.getOrCreateUserIdentity(username).getId();
