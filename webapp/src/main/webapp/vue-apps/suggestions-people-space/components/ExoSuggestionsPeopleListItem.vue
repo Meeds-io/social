@@ -5,6 +5,7 @@
       <v-img
         :lazy-src="avatarUrl || ''"
         :src="avatarUrl || ''"
+        alt=""
         transition="none"
         eager />
     </v-list-item-avatar>
@@ -20,23 +21,20 @@
     </v-list-item-content>
     <v-list-item-action class="suggestions-list-item-actions">
       <v-btn-toggle class="transparent">
-        <a
-          text
-          icon
-          small
-          min-width="auto"
-          class="px-0 suggestions-btn-action connexion-accept-btn"
+        <button
+          :aria-label="$t('suggestions.people.connect', {0: people.suggestionName})"
+          type="button"
+          class="btn-reset suggestions-btn-action connexion-accept-btn"
           @click="connectionRequest(people)">
-          <i class="uiIconInviteUser"></i>
-        </a>
-        <a
-          text
-          small
-          min-width="auto"
-          class="px-0 suggestions-btn-action connexion-refuse-btn"
+          <i class="uiIconInviteUser" aria-hidden="true"></i>
+        </button>
+        <button
+          :aria-label="$t('suggestions.people.ignore', {0: people.suggestionName})"
+          type="button"
+          class="btn-reset suggestions-btn-action connexion-refuse-btn"
           @click="ignoredConnectionUser(people)">
-          <i class="uiIconCloseCircled"></i>
-        </a>
+          <i class="uiIconCloseCircled" aria-hidden="true"></i>
+        </button>
       </v-btn-toggle>
     </v-list-item-action>
   </v-list-item>
