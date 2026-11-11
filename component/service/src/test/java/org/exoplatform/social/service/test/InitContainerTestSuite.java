@@ -21,6 +21,7 @@ package org.exoplatform.social.service.test;
 import io.meeds.social.security.rest.AccountDeactivationRestTest;
 import io.meeds.social.security.rest.LoginRestTest;
 import io.meeds.social.space.rest.UserSpacesRestTest;
+import io.meeds.social.security.rest.ApiKeyRestTest;
 import io.meeds.social.security.rest.OtpRestTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -82,6 +83,7 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
   ContentLinkRestTest.class,
   LoginRestTest.class,
   OtpRestTest.class,
+  ApiKeyRestTest.class,
   AccountDeactivationRestTest.class,
 })
 @ConfigTestCase(AbstractServiceTest.class)
