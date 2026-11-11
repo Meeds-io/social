@@ -87,7 +87,7 @@
         <v-btn
           id="spacesListSettingsButton"
           :aria-label="$t('spacesList.settings.drawer.title')"
-          :class="{ 'd-sr-only-focusable': !$root.hover }"
+          class="hover-reveal"
           small
           icon
           @click="$root.$emit('spaces-list-settings-open')">

@@ -20,41 +20,38 @@
 -->
 <template>
   <v-app>
-    <v-hover v-model="hover">
-      <widget-wrapper
-        :title="headerTitle"
-        :loading="this.$root.loading"
-        ref="parentSpaceListing"
-        key="parentSpaceListing"
-        extra-class="application-body">
-        <template v-if="$root.isManager" #action>
-          <div class="d-flex align-center justify-center">
-            <v-btn
-              :aria-label="$t('parentSpaceListing.settings.drawer.title')"
-              :class="{ 'd-sr-only-focusable': !hover }"
-              height="27"
-              width="27"
-              class="pa-0"
-              min-width="auto"
-              text
-              icon
-              @click="openSettingsDrawer">
-              <v-icon
-                size="18">
-                fa-cog
-              </v-icon>
-            </v-btn>
-          </div>
-        </template>
-        <template #default>
-          <space-avatar
-            v-if="space"
-            :space="space"
-            link-style
-            bold-title />
-        </template>
-      </widget-wrapper>
-    </v-hover>
+    <widget-wrapper
+      :title="headerTitle"
+      :loading="this.$root.loading"
+      ref="parentSpaceListing"
+      key="parentSpaceListing"
+      extra-class="application-body hover-reveal-parent">
+      <template v-if="$root.isManager" #action>
+        <div class="d-flex align-center justify-center">
+          <v-btn
+            :aria-label="$t('parentSpaceListing.settings.drawer.title')"
+            class="hover-reveal pa-0"
+            height="27"
+            width="27"
+            min-width="auto"
+            text
+            icon
+            @click="openSettingsDrawer">
+            <v-icon
+              size="18">
+              fa-cog
+            </v-icon>
+          </v-btn>
+        </div>
+      </template>
+      <template #default>
+        <space-avatar
+          v-if="space"
+          :space="space"
+          link-style
+          bold-title />
+      </template>
+    </widget-wrapper>
     <parent-space-settings-drawer
       v-if="drawer"
       ref="parentSpaceListingSettings"
@@ -64,7 +61,6 @@
 <script>
 export default {
   data: () => ({
-    hover: false,
     drawer: false
   }),
   computed: {

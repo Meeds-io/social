@@ -190,7 +190,11 @@ export default {
     },
   },
   async created() {
-    await this.init();
+    // A button bound to a parent space opens the form with no template list and no
+    // parent-space check: none of what init() loads is read, so it does not load it.
+    if (!this.parentSpaceId) {
+      await this.init();
+    }
   },
   methods: {
     async init() {
