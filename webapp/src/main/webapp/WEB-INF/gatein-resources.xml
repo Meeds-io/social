@@ -35,14 +35,6 @@
     <filtered>true</filtered>
   </portal-skin>
 
-  <portal-skin>
-    <skin-name>Enterprise</skin-name>
-    <skin-module>SpaceCard</skin-module>
-    <css-path>/skin/css/portlet/SpaceCard/Style.css</css-path>
-    <css-priority>500</css-priority>
-    <filtered>true</filtered>
-  </portal-skin>
-
   <portlet-skin>
     <application-name>social</application-name>
     <portlet-name>GeneralSettings</portlet-name>
@@ -124,14 +116,12 @@
     <portlet-name>SpacesList</portlet-name>
     <skin-name>Enterprise</skin-name>
     <additional-module>ImageCropper</additional-module>
-    <additional-module>SpaceCard</additional-module>
   </portlet-skin>
 
   <portlet-skin>
     <application-name>social</application-name>
     <portlet-name>SubspacesList</portlet-name>
     <skin-name>Enterprise</skin-name>
-    <additional-module>SpaceCard</additional-module>
   </portlet-skin>
 
   <portlet-skin>
