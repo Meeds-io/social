@@ -33,7 +33,7 @@
           outlined
           dark
           @click="$emit('edit')"
-          @focus="focused = $event.target.matches(':focus-visible')"
+          @focus="focused = true"
           @blur="focused = false">
           <v-icon size="18">fas fa-camera</v-icon>
         </v-btn>
