@@ -43,13 +43,10 @@
       class="my-auto text-header">
       <span class="text-truncate">{{ configuredTitle }}</span>
     </p>
-    <div
-      class="ms-auto d-flex"
-      @focusin="onFocusIn"
-      @focusout="onFocusOut">
+    <div class="ms-auto d-flex">
       <div>
         <v-btn
-          :class="{ 'd-sr-only-focusable': !revealed }"
+          :class="!isMobile && 'hover-reveal'"
           class="ms-auto my-0 icon-default-color me-5"
           :loading="isPrintingPdf"
           :title="$t('organizationalChart.download.label')"
@@ -65,7 +62,7 @@
       </div>
       <div v-if="isAdmin">
         <v-btn
-          :class="{ 'd-sr-only-focusable': !revealed }"
+          :class="!isMobile && 'hover-reveal'"
           :aria-label="$t('organizationalChart.settings.title')"
           class="ms-auto my-0 icon-default-color"
           small
@@ -96,10 +93,6 @@ export default {
       type: Boolean,
       default: false
     },
-    hover: {
-      type: Boolean,
-      default: false
-    },
     isMobile: {
       type: Boolean,
       default: false
@@ -113,21 +106,7 @@ export default {
       default: false
     }
   },
-  data: () => ({
-    focused: false,
-  }),
-  computed: {
-    revealed() {
-      return this.hover || this.focused || this.isMobile;
-    },
-  },
   methods: {
-    onFocusIn(event) {
-      this.focused = event.target.matches(':focus-visible');
-    },
-    onFocusOut(event) {
-      this.focused = !!(event.relatedTarget && event.currentTarget.contains(event.relatedTarget));
-    },
     openChartSettingsDrawer() {
       this.$emit('open-chart-settings');
     },
