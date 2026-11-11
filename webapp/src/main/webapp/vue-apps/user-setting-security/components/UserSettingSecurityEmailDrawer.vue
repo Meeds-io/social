@@ -79,7 +79,7 @@
           <div class="d-flex flex-column justify-center align-center full-width mt-4">
             <template v-if="emailSent">
               <div class="full-width text-start">
-                {{ $t('UserSettings.security.emailChange.confirmNewEmail.checkEmail', {0: sentEmail}) }}
+                {{ codeSent ? $t('UserSettings.security.emailChange.confirmNewEmail.checkEmail', {0: sentEmail}) : $t('UserSettings.security.emailChange.confirmNewEmail.codeAlreadySent') }}
               </div>
               <div class="d-flex align-center full-width mt-1">
                 <v-text-field
@@ -156,6 +156,7 @@ export default {
     otpMethod: 'emailChange',
     otpCode: null,
     emailSent: false,
+    codeSent: false,
     sentEmail: null,
     operation: null,
     email: null,
@@ -178,6 +179,7 @@ export default {
       // the code confirms the address it was sent to only
       if (this.emailSent && this.newEmail !== this.sentEmail) {
         this.emailSent = false;
+        this.codeSent = false;
         this.sentEmail = null;
         this.otpCode = null;
       }
@@ -192,6 +194,7 @@ export default {
       this.newEmail = null;
       this.otpCode = null;
       this.emailSent = false;
+      this.codeSent = false;
       this.sentEmail = null;
       this.$refs.drawer.open();
       this.user = await this.$userService.getUser(this.username);
@@ -212,10 +215,15 @@ export default {
         await this.$userService.sendEmailChangeCode(this.username, email);
         this.sentEmail = email;
         this.emailSent = true;
+        this.codeSent = true;
       } catch (e) {
         const error = String(e?.message || e);
         if (error === '429') {
-          // throttled: the previously sent code remains valid until its expiration
+          // throttled: a code sent earlier to this address, if any, stays
+          // valid until it expires, so its field shows for this address
+          this.sentEmail = email;
+          this.emailSent = true;
+          this.codeSent = false;
           this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.confirmNewEmail.codeAlreadySent'), 'warning');
         } else if (error.indexOf('ALREADY_EXISTS') > -1) {
           this.$root.$emit('alert-message', this.$t('UsersManagement.message.userWithSameEmailAlreadyExists'), 'error');
