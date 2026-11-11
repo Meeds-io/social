@@ -20,54 +20,50 @@
 -->
 <template>
   <v-app>
-    <v-hover v-model="hover">
-      <widget-wrapper
-        :title="$t('social.space.description.managers')"
-        ref="spaceManagers"
-        key="spaceManagers"
-        extra-class="application-body">
-        <template v-if="$root.isManager" #action>
-          <v-btn
-            :title="$t('social.space.managers.editTooltip')"
-            :aria-label="$t('social.space.managers.editTooltip')"
-            :href="administrationUrl"
-            :class="{ 'd-sr-only-focusable': !hover }"
-            height="27"
-            width="27"
-            min-width="auto"
-            class="pa-0"
-            icon
-            text
-            small>
-            <v-icon
-              size="18"
-              color="primary">
-              fa-external-link-alt
-            </v-icon>
-          </v-btn>
-        </template>
-        <template #default>
-          <div class="mt-n3">
-            <exo-user-avatar
-              v-for="(identity, i) in $root.managers"
-              :key="i"
-              :identity="identity"
-              :popover="!isAnonymous"
-              avatar-class="me-2"
-              extra-class="mt-3"
-              size="36"
-              display-primary-property
-              bold-title />
-          </div>
-        </template>
-      </widget-wrapper>
-    </v-hover>
+    <widget-wrapper
+      :title="$t('social.space.description.managers')"
+      ref="spaceManagers"
+      key="spaceManagers"
+      extra-class="application-body hover-reveal-parent">
+      <template v-if="$root.isManager" #action>
+        <v-btn
+          :title="$t('social.space.managers.editTooltip')"
+          :aria-label="$t('social.space.managers.editTooltip')"
+          :href="administrationUrl"
+          height="27"
+          width="27"
+          min-width="auto"
+          class="pa-0 hover-reveal"
+          icon
+          text
+          small>
+          <v-icon
+            size="18"
+            color="primary">
+            fa-external-link-alt
+          </v-icon>
+        </v-btn>
+      </template>
+      <template #default>
+        <div class="mt-n3">
+          <exo-user-avatar
+            v-for="(identity, i) in $root.managers"
+            :key="i"
+            :identity="identity"
+            :popover="!isAnonymous"
+            avatar-class="me-2"
+            extra-class="mt-3"
+            size="36"
+            display-primary-property
+            bold-title />
+        </div>
+      </template>
+    </widget-wrapper>
   </v-app>
 </template>
 <script>
 export default {
   data: () => ({
-    hover: false,
     isAnonymous: !eXo.env.portal.userName,
   }),
   computed: {
