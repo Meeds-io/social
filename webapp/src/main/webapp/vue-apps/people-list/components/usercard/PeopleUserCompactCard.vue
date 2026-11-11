@@ -23,7 +23,7 @@
     <v-card
       :id="userMenuParentId"
       :class="hover && 'grey lighten-4'"
-      class="peopleCardItem d-flex mx-2"
+      class="peopleCardItem hover-reveal-parent d-flex mx-2"
       flat>
       <div class="peopleToolbarIcons my-auto ms-auto">
         <v-avatar
@@ -39,13 +39,18 @@
           :user-navigation-extensions="userNavigationExtensions"
           :space-members-extensions="spaceMembersExtensions"
           :profile-action-extensions="profileActionExtensions"
-          :display-menu-button="displayCompactMenuButton || $root.isMobile || hover"
+          :hover-reveal="!(displayCompactMenuButton || $root.isMobile)"
+          display-menu-button
           :bottom-menu="$root.isMobile"
           :attach-menu="attachMenu"
           menu-button-class="me-1" />
       </div>
       <div class="peopleAvatar">
-        <a :href="url" :aria-label="$t('profileSettings.label.profile')">
+        <a
+          :href="url"
+          :aria-label="user.fullname"
+          tabindex="-1"
+          aria-hidden="true">
           <v-img
             :lazy-src="`${userAvatarUrl}`"
             :src="`${userAvatarUrl}`"
@@ -86,6 +91,7 @@
             }">
             <a
               :href="url"
+              tabindex="-1"
               class="grey--text text--darken-1">
               {{ primaryProperty }}
             </a>

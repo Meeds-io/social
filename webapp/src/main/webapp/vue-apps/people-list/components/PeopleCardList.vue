@@ -23,11 +23,14 @@
       <div
         v-if="filteredPeople && filteredPeople.length"
         ref="peopleCardsRow"
-        class="d-flex flex-wrap ma-n2 border-box-sizing">
+        :aria-label="$t('peopleList.label.peopleListCount', {0: filteredPeople.length})"
+        class="d-flex flex-wrap ma-n2 border-box-sizing"
+        role="list">
         <div
           v-for="user in filteredPeople"
           :key="user.id"
           :id="`peopleCardItem${user.id}`"
+          role="listitem"
           :class="[noMargins && compact && 'pa-0' || 'pa-2', 'border-box-sizing', `col-${columnSpan}`]">
           <people-card
             :user="user"
@@ -141,6 +144,7 @@ export default {
     users: [],
     limitToFetch: 0,
     originalLimitToFetch: 0,
+    focusFromIndex: null,
     abortController: null,
     loadingPeople: false,
     userCardSettings: null,
@@ -321,6 +325,7 @@ export default {
         return this.$nextTick();
       })
         .then(() => {
+          this.focusFirstNewPerson();
           if (this.keyword && this.filteredPeople.length < this.originalLimitToFetch && this.users.length >= this.limitToFetch) {
             this.limitToFetch += this.pageSize;
           }
@@ -340,7 +345,17 @@ export default {
       }
     },
     loadNextPage() {
+      this.focusFromIndex = this.filteredPeople.length;
       this.originalLimitToFetch = this.limitToFetch += this.pageSize;
+    },
+    focusFirstNewPerson() {
+      // After 'Show more', move the focus to the first newly displayed person
+      const index = this.focusFromIndex;
+      this.focusFromIndex = null;
+      const user = index !== null && this.filteredPeople[index];
+      if (user) {
+        this.$el.querySelector(`#peopleCardItem${user.id} :is(.socialUserCardLink, .userFullname)`)?.focus?.();
+      }
     },
   }
 };
