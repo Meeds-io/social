@@ -98,7 +98,6 @@ export function init(
         invitationsCount: 0,
         pendingCount: 0,
         requestsCount: 0,
-        hover: false,
         unreadPerSpace: null,
         selectedCategoryId: null,
         selectedCategoryIds: null,
