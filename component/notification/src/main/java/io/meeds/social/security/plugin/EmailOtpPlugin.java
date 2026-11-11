@@ -194,14 +194,23 @@ public class EmailOtpPlugin implements OtpPlugin {
 
   /**
    * Sends a new code as {@link #sendOtpCode(String, String)} does, under the
-   * send lock the caller took with {@link #takeSendLock(String)}
+   * send lock the caller took with {@link #takeSendLock(String)}. When the send
+   * fails, the lock is released and the code dropped: no code left, so the
+   * user may ask again at once.
    *
    * @param userName the user the code is for
    * @param recipientEmail the address to send the code to, null for the
    *          address of the user's account
    */
   protected void sendOtpCodeUnderLock(String userName, String recipientEmail) {
-    sendCode(userName, recipientEmail, getCacheKey(userName));
+    String cacheKey = getCacheKey(userName);
+    try {
+      sendCode(userName, recipientEmail, cacheKey);
+    } catch (Exception e) {
+      getOtpCache().remove(cacheKey);
+      getOtpSendLockCache().remove(cacheKey);
+      throw e;
+    }
   }
 
   private void checkSendLock(String userName, String cacheKey) {

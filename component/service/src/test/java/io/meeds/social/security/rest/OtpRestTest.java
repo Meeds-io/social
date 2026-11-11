@@ -105,6 +105,18 @@ public class OtpRestTest {
            .andExpect(status().isTooManyRequests());
   }
 
+  /**
+   * A method that sends no code through this endpoint, as the email change,
+   * answers 400, not a server error
+   */
+  @Test
+  @SneakyThrows
+  public void testSendOtpCodeOfAMethodThatRefusesTheGenericSend() {
+    doThrow(new IllegalArgumentException()).when(otpService).sendOtpCode(USERNAME, "emailChange");
+    mockMvc.perform(get("/otp?method=emailChange").with(testUser()))
+           .andExpect(status().isBadRequest());
+  }
+
   @Test
   @SneakyThrows
   public void testGetOtpSettingsAnonymously() {
