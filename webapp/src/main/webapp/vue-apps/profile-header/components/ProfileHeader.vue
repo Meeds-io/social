@@ -2,12 +2,12 @@
   <v-app
     :class="{ 'profileHeaderOwner': owner, 'profileHeaderOther': !owner }">
     <v-hover>
-      <div slot-scope="{ hover }" class="application-body hover-reveal-parent">
+      <div slot-scope="{ hover }" class="application-body">
         <v-card
           :max-height="bannerMaxHeight"
           :height="bannerHeight"
           min-height="60"
-          class="d-flex position-relative overflow-hidden"
+          class="d-flex position-relative overflow-hidden hover-reveal-parent"
           tile
           flat>
           <v-img
@@ -48,7 +48,6 @@
               <profile-header-avatar
                 :user="user"
                 :owner="owner"
-                :hover="hover"
                 :size="avatarSize"
                 :max-size="avatarMaxSize"
                 :min-size="avatarMinSize"
