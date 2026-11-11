@@ -20,88 +20,82 @@
 -->
 <template>
   <v-app>
-    <v-hover v-model="hover">
-      <widget-wrapper
-        :title="emptyDescription ? ' ' : $t('social.space.description.title')"
-        extra-class="application-body">
-        <template #action>
-          <v-card
-            min-height="32"
-            class="d-flex align-center"
-            color="transparent"
-            flat>
-            <v-btn
-              v-if="$root.isManager && !emptyDescription"
-              :title="$t('social.space.description.editTooltip')"
-              :aria-label="$t('social.space.description.editTooltip')"
-              :href="administrationUrl"
-              :class="{ 'd-sr-only-focusable': !hover }"
-              height="27"
-              width="27"
-              min-width="auto"
-              class="pa-0"
-              icon
-              text
-              small>
-              <v-icon
-                size="18"
-                color="primary">
-                fa-external-link-alt
-              </v-icon>
-            </v-btn>
-            <extension-registry-components
-              :params="{
-                spaceId: $root.spaceId,
-                displayName: $root.spaceDisplayName,
-              }"
-              name="SpaceDescription"
-              type="space-description-menu"
-              parent-element="div"
-              element="div" />
-          </v-card>
-        </template>
-        <template #default>
-          <div v-if="emptyDescription" class="d-flex flex-column align-center justify-center mb-12">
-            <v-icon size="54" color="tertiary">fa-align-left</v-icon>
-            <div class="my-2">{{ $t('social.space.description.noDescription') }}</div>
-            <v-btn
-              :title="$t('social.space.description.editTooltip')"
-              :href="administrationUrl"
-              color="primary"
-              elevation="0">
-              {{ $t('social.space.description.addDescription') }}
-            </v-btn>
+    <widget-wrapper
+      :title="emptyDescription ? ' ' : $t('social.space.description.title')"
+      extra-class="application-body hover-reveal-parent">
+      <template #action>
+        <v-card
+          min-height="32"
+          class="d-flex align-center"
+          color="transparent"
+          flat>
+          <v-btn
+            v-if="$root.isManager && !emptyDescription"
+            :title="$t('social.space.description.editTooltip')"
+            :aria-label="$t('social.space.description.editTooltip')"
+            :href="administrationUrl"
+            height="27"
+            width="27"
+            min-width="auto"
+            class="pa-0 hover-reveal"
+            icon
+            text
+            small>
+            <v-icon
+              size="18"
+              color="primary">
+              fa-external-link-alt
+            </v-icon>
+          </v-btn>
+          <extension-registry-components
+            :params="{
+              spaceId: $root.spaceId,
+              displayName: $root.spaceDisplayName,
+            }"
+            name="SpaceDescription"
+            type="space-description-menu"
+            parent-element="div"
+            element="div" />
+        </v-card>
+      </template>
+      <template #default>
+        <div v-if="emptyDescription" class="d-flex flex-column align-center justify-center mb-12">
+          <v-icon size="54" color="tertiary">fa-align-left</v-icon>
+          <div class="my-2">{{ $t('social.space.description.noDescription') }}</div>
+          <v-btn
+            :title="$t('social.space.description.editTooltip')"
+            :href="administrationUrl"
+            color="primary"
+            elevation="0">
+            {{ $t('social.space.description.addDescription') }}
+          </v-btn>
+        </div>
+        <span
+          v-else
+          id="spaceDescription"
+          ref="spaceDescription"
+          key="spaceDescription"
+          v-sanitized-html="$root.spaceDescription"
+          class="text-color"></span>
+      </template>
+      <template v-if="publicSiteUrl" #footer>
+        <v-card
+          :href="publicSiteUrl"
+          :title="$t('social.space.description.visitPublicSite.tooltip')"
+          width="100%"
+          flat>
+          <v-divider />
+          <div class="d-flex align-center">
+            <v-icon size="48" class="ma-4">fa-globe</v-icon>
+            {{ $t('social.space.description.visitPublicSite') }}
           </div>
-          <span
-            v-else
-            id="spaceDescription"
-            ref="spaceDescription"
-            key="spaceDescription"
-            v-sanitized-html="$root.spaceDescription"
-            class="text-color"></span>
-        </template>
-        <template v-if="publicSiteUrl" #footer>
-          <v-card
-            :href="publicSiteUrl"
-            :title="$t('social.space.description.visitPublicSite.tooltip')"
-            width="100%"
-            flat>
-            <v-divider />
-            <div class="d-flex align-center">
-              <v-icon size="48" class="ma-4">fa-globe</v-icon>
-              {{ $t('social.space.description.visitPublicSite') }}
-            </div>
-          </v-card>
-        </template>
-      </widget-wrapper>
-    </v-hover>
+        </v-card>
+      </template>
+    </widget-wrapper>
   </v-app>
 </template>
 <script>
 export default {
-  data: () => ({
-    hover: false,
-  }),
   computed: {
     administrationUrl() {
       return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#overview`;
