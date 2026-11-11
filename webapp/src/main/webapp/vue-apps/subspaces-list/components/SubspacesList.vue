@@ -20,43 +20,41 @@
 -->
 <template>
   <v-app>
-    <v-hover v-if="parentSpace || !loaded" v-model="hover">
-      <widget-wrapper
-        :title="headerTitle"
-        :loading="$root.loading"
-        extra-class="application-body">
-        <template v-if="hasHeaderActions" #action>
-          <subspaces-list-header-actions
-            :hover="hover"
-            :can-manage-space="canManageSpace"
-            :can-create-subspace="canCreateSubspace"
-            :has-subspaces="hasSubspaces"
-            :has-more="hasMore"
-            @see-all="openSeeAllDrawer"
-            @settings="openSettingsDrawer" />
-        </template>
-        <template #default>
-          <div v-if="hasSubspaces" class="d-flex flex-column">
-            <subspaces-list-item
-              v-for="subspace in displayedSubspaces"
-              :key="subspace.id"
-              :space="subspace" />
-          </div>
-          <div v-else-if="loaded" class="d-flex flex-column align-center justify-center text-center">
-            <span>{{ $t('subspacesList.label.noSubspaces') }}</span>
-            <space-creation-button
-              v-if="canCreateSubspace"
-              :parent-space-id="$root.spaceId"
-              :color="'primary'"
-              class="mt-4"
-              require-form-drawer
-              :display-icon="false"
-              display-label
-              outlined />
-          </div>
-        </template>
-      </widget-wrapper>
-    </v-hover>
+    <widget-wrapper
+      v-if="parentSpace || !loaded"
+      :title="headerTitle"
+      :loading="$root.loading"
+      extra-class="application-body hover-reveal-parent">
+      <template v-if="hasHeaderActions" #action>
+        <subspaces-list-header-actions
+          :can-manage-space="canManageSpace"
+          :can-create-subspace="canCreateSubspace"
+          :has-subspaces="hasSubspaces"
+          :has-more="hasMore"
+          @see-all="openSeeAllDrawer"
+          @settings="openSettingsDrawer" />
+      </template>
+      <template #default>
+        <div v-if="hasSubspaces" class="d-flex flex-column">
+          <subspaces-list-item
+            v-for="subspace in displayedSubspaces"
+            :key="subspace.id"
+            :space="subspace" />
+        </div>
+        <div v-else-if="loaded" class="d-flex flex-column align-center justify-center text-center">
+          <span>{{ $t('subspacesList.label.noSubspaces') }}</span>
+          <space-creation-button
+            v-if="canCreateSubspace"
+            :parent-space-id="$root.spaceId"
+            :color="'primary'"
+            class="mt-4"
+            require-form-drawer
+            :display-icon="false"
+            display-label
+            outlined />
+        </div>
+      </template>
+    </widget-wrapper>
     <subspaces-list-settings-drawer
       v-if="settingsDrawer"
       ref="settingsDrawer"
@@ -80,7 +78,6 @@ export default {
     canCreateSubspace: false,
     canManageSpace: false,
     subspaces: [],
-    hover: false,
     // mounted on first use and kept: most viewers never see the cog, most
     // parents fit the limit, and a teardown on close would cut the slide-out
     settingsDrawer: false,

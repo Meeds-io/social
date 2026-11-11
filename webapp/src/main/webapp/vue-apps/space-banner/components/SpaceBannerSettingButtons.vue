@@ -19,18 +19,14 @@
 
 -->
 <template>
-  <div
-    :class="{ 'd-sr-only-focusable': !revealed }"
-    class="d-flex flex-grow-1 position-absolute full-height full-width"
-    @focusin="onFocusIn"
-    @focusout="onFocusOut">
+  <div class="d-flex flex-grow-1 position-absolute full-height full-width">
     <div class="me-2 ms-auto my-auto mt-sm-2 mb-sm-0">
       <v-btn
         v-show="!defaultBanner"
         :title="$t('UIPopupBannerUploader.title.deleteBanner')"
         :aria-label="$t('UIPopupBannerUploader.title.deleteBanner')"
         id="spaceBannerDeleteButton"
-        class="changeBannerButton mask-color border-color"
+        class="changeBannerButton mask-color border-color hover-reveal"
         outlined
         icon
         dark
@@ -41,7 +37,7 @@
         ref="bannerInput"
         id="spaceBannerEditButton"
         :aria-label="$t('UIPopupBannerUploader.title.ChangeBanner')"
-        class="changeBannerButton mask-color border-color"
+        class="changeBannerButton mask-color border-color hover-reveal"
         icon
         outlined
         dark
@@ -54,29 +50,9 @@
 <script>
 export default {
   props: {
-    hover: {
-      type: Boolean,
-      default: false,
-    },
     defaultBanner: {
       type: Boolean,
       default: false,
-    },
-  },
-  data: () => ({
-    focused: false,
-  }),
-  computed: {
-    revealed() {
-      return this.hover || this.focused;
-    },
-  },
-  methods: {
-    onFocusIn(event) {
-      this.focused = event.target.matches(':focus-visible');
-    },
-    onFocusOut(event) {
-      this.focused = !!(event.relatedTarget && event.currentTarget.contains(event.relatedTarget));
     },
   },
 };
