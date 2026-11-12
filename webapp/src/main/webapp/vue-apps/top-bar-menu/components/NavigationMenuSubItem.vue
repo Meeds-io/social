@@ -53,9 +53,9 @@
             <v-list-item-title
               class="pt-5 pb-5 d-flex"
               :class="hasPage && ' ' || ' not-clickable '">
-              <!-- the current page is shown by more than a color: bold and underlined, as its entry in the bar -->
+              <!-- the current page is shown by more than a color: underlined, as its entry in the bar -->
               <span
-                :class="isSelected && 'font-weight-bold text-decoration-underline'"
+                :class="isSelected && 'text-decoration-underline primary--text'"
                 class="text-body">{{ navigation.label }}</span>
               <v-icon
                 v-if="navigation.target === 'NEW_TAB'"
