@@ -36,6 +36,7 @@ import * as tagService from './js/TagService.js';
 import * as socialWebSocket from './js/WebSocket.js';
 import {spacesConstants} from './js/spacesConstants.js';
 import * as utils from './js/Utils.js';
+import * as changesTimeline from './js/ChangesTimeline.js';
 import * as brandingService from './js/brandingService.js';
 import * as navigationService from '../common/js/NavigationService.js';
 import * as profileSettingsService from '../common/js/ProfileSettingsService.js';
@@ -114,6 +115,9 @@ window.Object.defineProperty(Vue.prototype, '$socialWebSocket', {
 });
 window.Object.defineProperty(Vue.prototype, '$utils', {
   value: utils,
+});
+window.Object.defineProperty(Vue.prototype, '$changesTimeline', {
+  value: changesTimeline,
 });
 // v-tree-node="<the toggle's label>", on the root element of a v-treeview label slot: describes that node
 // each time its label renders, a node opened included, with no scan of the whole tree
