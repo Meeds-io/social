@@ -43,7 +43,7 @@
         :class="`mx-auto text-break ${notClickable} ${navigation.tabClass || ''}`"
         :value="navigationNodeUri"
         v-on="on"
-        :aria-current="isSelected ? 'page' : null"
+        :aria-current="isSelected && 'page' || holdsSelectedEntry && 'true' || null"
         @click="checkLink"
         @keydown="onTabKeydown"
         @change="onTabChange">
@@ -60,13 +60,14 @@
         </v-icon>
         <v-btn
           v-if="hasChildren && childrenHasPage"
+          ref="chevron"
           icon
           :aria-label="$t('topBar.navigation.menu.openSubMenu', [navigation.label])"
           :aria-hidden="hasPage ? null : 'true'"
           :tabindex="hasPage ? null : -1"
           :aria-expanded="String(!!showMenu)"
           aria-haspopup="menu"
-          @click.stop.prevent="openDropMenu"
+          @click.stop.prevent="openFromChevron"
           @mouseover="showMenu = true">
           <v-icon size="20" aria-hidden="true">
             fa-angle-down
@@ -119,6 +120,13 @@ export default {
     isSelected() {
       return this.selectedPath === this.navigationNodeUri;
     },
+    // the entry underlined because one of the pages of its menu is the current one is announced as current as well
+    holdsSelectedEntry() {
+      return !this.isSelected && !!this.navigation?.children?.some?.(child => this.holdsSelectedPath(child));
+    },
+    menuId() {
+      return `topBarNavigationMenu${this._uid}`;
+    },
     notClickable() {
       return `${this.hasPage ? ' ' : ' not-clickable ' }`;
     },
@@ -155,6 +163,12 @@ export default {
       }
     },
   },
+  mounted() {
+    this.linkMenu();
+  },
+  updated() {
+    this.linkMenu();
+  },
   created() {
     document.addEventListener('click', this.handleCloseMenu);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
@@ -177,12 +191,40 @@ export default {
     },
     // The menu only highlights an entry on the arrow keys: the keyboard focus is moved into it
     onTabKeydown(event) {
-      if (!this.hasChildren || !this.childrenHasPage || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) {
+      if (!this.hasChildren || !this.childrenHasPage) {
         return;
       }
-      event.preventDefault();
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        this.openDropMenu(true);
+        this.focusMenuEntry(event.key === 'ArrowUp' ? -1 : 0);
+      } else if (event.key === ' ' && !this.hasPage) {
+        // an entry that only opens a menu is a button: Space opens it as Enter does
+        event.preventDefault();
+        this.openDropMenu(true);
+        this.focusMenuEntry(0);
+      }
+    },
+    holdsSelectedPath(navigation) {
+      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, navigation) === this.selectedPath
+        || !!navigation.children?.some?.(child => this.holdsSelectedPath(child));
+    },
+    linkMenu() {
+      // the menu content is rendered at the end of the page: its button names it
+      const content = this.$refs.menu?.$refs?.content;
+      // the element that opens the menu: the entry itself, or its chevron when the entry is a page link
+      const opener = this.hasPage ? this.$refs.chevron?.$el : this.$refs.tab?.$el;
+      if (content && opener && this.hasChildren && this.childrenHasPage) {
+        content.id = this.menuId;
+        opener.setAttribute('aria-controls', this.menuId);
+      }
+    },
+    openFromChevron() {
+      const opening = !this.showMenu;
       this.openDropMenu(true);
-      this.focusMenuEntry(event.key === 'ArrowUp' ? -1 : 0);
+      if (opening) {
+        this.focusMenuEntry(0);
+      }
     },
     onMenuKeydown(event) {
       const entries = this.menuEntries();
@@ -201,9 +243,14 @@ export default {
         event.stopPropagation();
         this.focusEntry(entries[target]);
       } else if (event.key === 'Escape' || event.key === 'Tab') {
-        // the menu content is rendered apart from the tabs: the focus goes back to its tab, Tab moving on from there
+        // the menu content is rendered apart from the tabs: the focus goes back to what opens it, Tab moving on from there
+        if (event.key === 'Escape') {
+          // Vuetify's menu would give the focus back to the entry's link on its own Escape handling
+          event.preventDefault();
+          event.stopPropagation();
+        }
         this.showMenu = false;
-        this.$refs.tab?.$el?.focus?.();
+        (this.hasPage && this.$refs.chevron?.$el || this.$refs.tab?.$el)?.focus?.();
       }
     },
     // The menu opens on Enter the entry it highlights: it highlights the entry that has the keyboard focus
@@ -243,8 +290,8 @@ export default {
       } else if (this.hasChildren && this.childrenHasPage) {
         const opening = !this.showMenu;
         this.openDropMenu();
-        // opened from the keyboard (Enter or Space): its first entry takes the focus
-        if (opening && e?.detail === 0) {
+        // however it is opened (Enter, a click, a screen reader's activation), its first entry takes the focus
+        if (opening) {
           this.focusMenuEntry(0);
         }
       }
