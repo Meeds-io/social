@@ -34,8 +34,9 @@
         :disabled="!hasPage && !hasChildren"
         :link="hasPage"
         :aria-label="navigation.label"
-        :aria-current="isSelected ? 'page' : null"
+        :aria-current="isSelected && 'page' || holdsSelectedEntry && 'true' || null"
         @click="checkLink"
+        @keydown="onTabKeydown"
         @change="updateNavigationState(navigation.uri)">
         <span
           class="text-truncate-2 pt-2">
@@ -43,6 +44,7 @@
         </span>
         <v-btn
           v-if="hasPage && hasChildren"
+          ref="chevron"
           v-on="hasChildren && on"
           class="mt-2"
           icon
@@ -70,6 +72,8 @@
       :base-site-uri="baseSiteUri"
       :show-menu="showMenu"
       :parent-navigation-uri="navigation.uri"
+      :selected-path="selectedPath"
+      @close="closeMenu"
       @update-navigation-state="updateNavigationState" />
   </v-menu>
 </template>
@@ -108,6 +112,10 @@ export default {
     isSelected() {
       return this.selectedPath === this.navigationNodeUri;
     },
+    // the entry one of whose menu pages is the current one is announced as current as well
+    holdsSelectedEntry() {
+      return !this.isSelected && !!this.navigation?.children?.some?.(child => this.holdsSelectedPath(child));
+    },
     hasChildren() {
       return this.navigation?.children?.length;
     },
@@ -125,8 +133,25 @@ export default {
     },
   },
   methods: {
+    holdsSelectedPath(navigation) {
+      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, navigation) === this.selectedPath
+        || !!navigation.children?.some?.(child => this.holdsSelectedPath(child));
+    },
     updateNavigationState(value) {
       this.$emit('update-navigation-state', `${this.baseSiteUri}${value}`);
+    },
+    // an entry that only opens a menu is a button: Space opens it as Enter does
+    onTabKeydown(event) {
+      if (event.key === ' ' && !this.hasPage && this.hasChildren && this.checkChildrenHasPage(this.navigation)) {
+        event.preventDefault();
+        this.openDropMenu(true, event);
+      }
+    },
+    // Escape in the sheet closes it: the focus goes back to what opened it
+    closeMenu() {
+      this.showMenu = false;
+      // once the sheet is closed: while open, it keeps the focus inside it
+      this.$nextTick(() => (this.hasPage && this.$refs.chevron?.$el || this.$refs.tab?.$el)?.focus?.());
     },
     checkLink(e) {
       if (!this.navigationNodeUri) {
