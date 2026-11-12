@@ -39,13 +39,11 @@
       editor.on('getData', function(evt) {
         let textData = evt.data.dataValue;
   
-        const element = document.createElement('div');
-        element.innerHTML = textData;
+        const element = parseInert(textData);
   
-        const contentLinks = element.querySelectorAll('a.content-link');
-        contentLinks.forEach(linkElement => {
-          textData = textData.replace(linkElement.outerHTML, `<content-link contenteditable="false" style="display: none;">/${linkElement.getAttribute('data-object')}</content-link>`);
-        });
+        for (const linkElement of findOutsideNoscript(element, 'a.content-link')) {
+          textData = textData.replace(linkElement.outerHTML, () => `<content-link contenteditable="false" style="display: none;">/${escapeHtml(linkElement.getAttribute('data-object'))}</content-link>`);
+        }
         evt.data.dataValue = textData;
       });
   
@@ -57,6 +55,34 @@
         setData(evt);
       });
   
+      // Parses the editor's data from the body of a standards-mode document of its own, as the page parses a fragment, where nothing it holds is loaded or run
+      function parseInert(html) {
+        return new DOMParser().parseFromString(`<!DOCTYPE html><body>${html}`, 'text/html').body;
+      }
+
+      // The page reads an HTML noscript's content as text, never elements: the links a conforming one holds are not picked
+      function findOutsideNoscript(element, selector) {
+        return [...element.querySelectorAll(selector)].filter(linkElement => !isInHtmlNoscript(linkElement));
+      }
+
+      function isInHtmlNoscript(element) {
+        for (let ancestor = element.parentElement; ancestor; ancestor = ancestor.parentElement) {
+          if (ancestor.localName === 'noscript' && ancestor.namespaceURI === 'http://www.w3.org/1999/xhtml') {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // Escapes a value written into a chip, as the content-link element does
+      function escapeHtml(text) {
+        return String(text || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
       function setData(evt) {
         const editor = evt.editor;
         if (editor.setDataInProgress) {
@@ -67,12 +93,11 @@
           return;
         }
   
-        const element = document.createElement('div');
-        element.innerHTML = textData;
+        const element = parseInert(textData);
   
-        const contentLinks = element.querySelectorAll('content-link');
-        if (contentLinks?.length) {
-          Promise.all([...contentLinks.values()].map(linkElement => {
+        const contentLinks = findOutsideNoscript(element, 'content-link');
+        if (contentLinks.length) {
+          Promise.all(contentLinks.map(linkElement => {
             const objectParts = linkElement?.innerText?.trim?.()?.replace?.('/', '')?.split?.(':');
             if (objectParts?.length === 2) {
               return fetch(`/social/rest/contentLinks/link/${objectParts[0]}/${objectParts[1]}`, {
@@ -80,7 +105,8 @@
                 credentials: 'include',
               }).then(resp => resp?.ok && resp.json()).then(link => {
                 if (link) {
-                  textData = textData.replace(linkElement.outerHTML, `<a href="${link.uri}" target="_blank" data-object="${link.objectType}:${link.objectId}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${link.title}</a>`);
+                  // A replacement function: the chip is inserted as is, with no $ pattern expanded
+                  textData = textData.replace(linkElement.outerHTML, () => `<a href="${escapeHtml(link.uri)}" target="_blank" data-object="${escapeHtml(link.objectType)}:${escapeHtml(link.objectId)}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${escapeHtml(link.title)}</a>`);
                 }
               });
             }
@@ -91,7 +117,7 @@
             } finally {
               delete editor.setDataInProgress;
             }
-          });
+          }).catch(e => console.warn('Error while rebuilding content links', e)); // eslint-disable-line no-console
         }
       }
   

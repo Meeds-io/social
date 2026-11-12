@@ -19,6 +19,8 @@
 package org.exoplatform.social.core.service;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -76,6 +78,34 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
     }
   }
 
+  public void testGetProfileLinkKeepsMarkupSequencesOutOfThePopoverAttribute() {
+    // the sequences for which an HTML sanitizer drops an attribute
+    Pattern markup = Pattern.compile("((--!?|])>)|</(style|script|title|xmp|textarea|noscript|iframe|noembed|noframes)",
+                                     Pattern.CASE_INSENSITIVE);
+    Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+    Profile profile = johnIdentity.getProfile();
+    profile.setProperty(Profile.POSITION, "Lead --> ops");
+    profile.setProperty(Profile.DISPLAYED_EMAIL, "a]>b@example.com");
+    profile.setProperty(Profile.DISPLAYED_PHONE, "</script 42");
+    identityManager.updateProfile(profile);
+    try {
+      String link = LinkProvider.getProfileLink("john", "classic");
+
+      Matcher attribute = Pattern.compile("v-identity-popover=\"([^\"]*)\"").matcher(link);
+      assertTrue(link, attribute.find());
+      String literal = StringEscapeUtils.unescapeHtml4(attribute.group(1));
+      assertFalse(literal, markup.matcher(literal).find());
+      assertEquals("Lead --> ops", popoverValue(literal, "position"));
+      assertEquals("a]>b@example.com", popoverValue(literal, "displayedEmail"));
+      assertEquals("</script 42", popoverValue(literal, "displayedPhone"));
+    } finally {
+      profile.setProperty(Profile.POSITION, null);
+      profile.setProperty(Profile.DISPLAYED_EMAIL, null);
+      profile.setProperty(Profile.DISPLAYED_PHONE, null);
+      identityManager.updateProfile(profile);
+    }
+  }
+
   public void testToPopoverValueRoundTripsThroughTheAttributeAndTheJsString() {
     String value = "O'Brien \"the\" \\ <b>&amp;</b>\nnext\u2028line";
 
@@ -84,7 +114,14 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
     assertFalse(escaped, escaped.matches(".*(?<!\\\\)'.*"));
     assertFalse(escaped, escaped.contains("\""));
     assertFalse(escaped, escaped.contains("<"));
+    assertFalse(escaped, escaped.contains(">"));
     assertEquals(value, StringEscapeUtils.unescapeEcmaScript(StringEscapeUtils.unescapeHtml4(escaped)));
     assertEquals("", LinkProvider.toPopoverValue(null));
+  }
+
+  private static String popoverValue(String literal, String key) {
+    Matcher entry = Pattern.compile(key + ": '((?:[^'\\\\]|\\\\.)*)'").matcher(literal);
+    assertTrue(literal, entry.find());
+    return StringEscapeUtils.unescapeEcmaScript(entry.group(1));
   }
 }
