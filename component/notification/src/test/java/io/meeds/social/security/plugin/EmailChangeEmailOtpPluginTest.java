@@ -140,6 +140,7 @@ public class EmailChangeEmailOtpPluginTest {
     plugin.setOtpLength(6);
     plugin.setSendInterval(60);
     plugin.setEmailChangeEmailBodyPath("assets/email-change-otp-email-content.html");
+    plugin.setEmailChangeNoticeBodyPath("assets/email-change-notice-email-content.html");
     plugin.setBrandedEmailSender(brandedEmailSender);
     when(cacheService.getCacheInstance("otp.email")).thenReturn((ExoCache) otpCache); // NOSONAR
     when(cacheService.getCacheInstance("otp.email.sendLock")).thenReturn((ExoCache) otpSendLockCache); // NOSONAR
@@ -171,6 +172,42 @@ public class EmailChangeEmailOtpPluginTest {
     assertEquals("emailChange", plugin.getName());
     assertEquals(EmailChangeOtpPlugin.NAME, plugin.getName());
     assertTrue(plugin.canUse("anyUser"));
+  }
+
+  /**
+   * The notice goes to the former address, holds no code, and touches neither
+   * the code nor the send lock of the method
+   */
+  @Test
+  public void testSendChangeNoticeGoesToTheFormerAddress() throws Exception {
+    plugin.sendChangeNotice("john", " john.former@example.org ");
+
+    verify(resourceBundleService).getSharedString(eq("social.emailChange.notice.email.subject"), any());
+    verify(resourceBundleService).getSharedString(eq("social.emailChange.notice.email.label.changed"), any());
+    verify(resourceBundleService).getSharedString(eq("social.emailChange.notice.email.label.notRequested"), any());
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    verify(mailService).sendMessage(messageCaptor.capture());
+    MimeMessage message = messageCaptor.getValue();
+    assertEquals("john.former@example.org", InternetAddress.toString(message.getAllRecipients()));
+    String body = String.valueOf(message.getContent());
+    assertFalse("All i18n placeholders should be resolved", body.contains("${"));
+    verify(otpCache, never()).put(anyString(), anyString());
+    verify(otpSendLockCache, never()).put(anyString(), anyString());
+  }
+
+  /**
+   * A mail server failure is logged and never thrown: the change the user
+   * confirmed with both codes stands; no former address, no notice
+   */
+  @Test
+  public void testSendChangeNoticeFailureIsNotThrown() throws Exception {
+    doThrow(new MessagingException("down")).when(mailService).sendMessage(any(MimeMessage.class));
+    plugin.sendChangeNotice("john", "john.former@example.org");
+    verify(mailService).sendMessage(any(MimeMessage.class));
+
+    plugin.sendChangeNotice("john", " ");
+    plugin.sendChangeNotice("john", null);
+    verify(mailService, times(1)).sendMessage(any(MimeMessage.class));
   }
 
   /**

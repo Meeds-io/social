@@ -236,6 +236,24 @@ public class EmailOtpPlugin implements OtpPlugin {
   }
 
   /**
+   * Sends an email with no code to the user, in their language, through the
+   * common branded layout: to the given address when there is one, else to
+   * the address of the user's account
+   *
+   * @param userName the user the email is about
+   * @param recipientEmail the address to send it to, null for the address of
+   *          the user's account
+   * @param subjectKey the shared bundle key of its subject
+   * @param templatePath the path of its content fragment
+   * @throws Exception when the email cannot be built or sent
+   */
+  protected void sendEmail(String userName, String recipientEmail, String subjectKey, String templatePath) throws Exception {
+    String lang = brandedEmailSender.getUserLang(userName);
+    String emailSubject = resourceBundleService.getSharedString(subjectKey, LocaleUtils.toLocale(lang));
+    brandedEmailSender.sendEmail(userName, recipientEmail, emailSubject, templatePath, Map.of());
+  }
+
+  /**
    * The value a sent code is stored as. The code itself here: the email, API
    * key, account deactivation and administrator session methods compare the
    * typed code alone

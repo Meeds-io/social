@@ -22,6 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+
 import lombok.Setter;
 
 /**
@@ -33,14 +36,22 @@ import lombok.Setter;
  * {@link EmailOtpPlugin} (the {@code meeds.apiKey.otp.email.*} settings), as
  * are its caches, under the purpose-bound key of this method. The send lock
  * is taken first, on every request, refused ones included, and holds per
- * user whatever the address; a wrong code keeps it.
+ * user whatever the address; a wrong code keeps it. Once the change is
+ * written, the former address is told of it
+ * ({@link #sendChangeNotice(String, String)}).
  */
 @Service
 public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailChangeOtpPlugin {
 
+  private static final Log LOG = ExoLogger.getLogger(EmailChangeEmailOtpPlugin.class);
+
   @Value("${meeds.emailChange.otp.email.templatePath:assets/email-change-otp-email-content.html}")
   @Setter
-  private String emailChangeEmailBodyPath;
+  private String           emailChangeEmailBodyPath;
+
+  @Value("${meeds.emailChange.notice.email.templatePath:assets/email-change-notice-email-content.html}")
+  @Setter
+  private String           emailChangeNoticeBodyPath;
 
   @Override
   public String getName() {
@@ -70,6 +81,22 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
     }
     sendOtpCodeUnderLock(userName, newEmail.trim());
     return null;
+  }
+
+  /**
+   * Best effort: a mail server failure is logged and never undoes the change
+   * the user confirmed with both codes
+   */
+  @Override
+  public void sendChangeNotice(String userName, String formerEmail) {
+    if (StringUtils.isBlank(formerEmail)) {
+      return;
+    }
+    try {
+      sendEmail(userName, formerEmail.trim(), "social.emailChange.notice.email.subject", emailChangeNoticeBodyPath);
+    } catch (Exception e) {
+      LOG.warn("Error sending the email change notice of user {} to the former address", userName, e);
+    }
   }
 
   @Override

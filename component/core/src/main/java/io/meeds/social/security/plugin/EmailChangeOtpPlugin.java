@@ -30,7 +30,9 @@ import io.meeds.web.security.plugin.OtpPlugin;
  * address it was sent to ({@link #bindCode(String, String)}), so the flow
  * validates and consumes it through {@link io.meeds.web.security.service.OtpService}
  * with the bound value of the code typed and of the address being set, never
- * with the code alone.
+ * with the code alone. A change also needs a code of the {@code email}
+ * method, sent to the address of the account, and the former address is told
+ * once the change is written.
  */
 public interface EmailChangeOtpPlugin extends OtpPlugin {
 
@@ -53,6 +55,17 @@ public interface EmailChangeOtpPlugin extends OtpPlugin {
    * @throws Exception when the check fails
    */
   <R> R generateOtpCode(String userName, String newEmail, AddressCheck<R> addressCheck) throws Exception;
+
+  /**
+   * Tells the former address of the user that the email of their account
+   * changed, without naming the new one, so that a change the owner of the
+   * account did not make is noticed where they still read their mail. Best
+   * effort: a failure to send is logged, never thrown.
+   *
+   * @param userName the user whose email changed
+   * @param formerEmail the address of the account before the change
+   */
+  void sendChangeNotice(String userName, String formerEmail);
 
   /**
    * The check of the new address, run under the send lock
