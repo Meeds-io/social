@@ -113,6 +113,7 @@ public class CachedProfileSettingStorage extends ProfileSettingStorage {
 
   @Override
   public ProfilePropertySetting saveProfilePropertySetting(ProfilePropertySetting profilePropertySetting, boolean isNew) {
+    Objects.requireNonNull(profilePropertySetting, "Profile property setting is mandatory");
     Set<Long> ids = new LinkedHashSet<>();
     Set<String> names = new LinkedHashSet<>();
     addKeys(profilePropertySetting, ids, names);

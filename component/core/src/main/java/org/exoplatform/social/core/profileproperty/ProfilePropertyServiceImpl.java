@@ -392,7 +392,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   protected ProfilePropertySetting saveUpdatedPropertySetting(ProfilePropertySetting profilePropertySetting) {
     ProfilePropertySetting updatedPropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting,
                                                                                                      false);
-    clearParentListingFlags(updatedPropertySetting);
+    clearParentListingFlags(profilePropertySetting);
     return updatedPropertySetting;
   }
 

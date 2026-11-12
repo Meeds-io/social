@@ -153,7 +153,7 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
     ProfilePropertySetting parent = createListed("address", s -> {
     });
     long parentUpdated = parent.getUpdated();
-    sleepAMillisecond();
+    waitForTheClockToMove();
 
     ProfilePropertySetting child = createListed("street", s -> s.setParentId(parent.getId()));
 
@@ -227,7 +227,7 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
    * the service's check, while the name exists in the store: the refusal of
    * the store's unique constraint answers as the check does.
    */
-  public void testADuplicateNameCachedAsMissingAnswersObjectAlreadyExists() throws Exception {
+  public void testADuplicateNameCachedAsMissingAnswersObjectAlreadyExists() {
     assertNull(profilePropertyService.getProfileSettingByName("duplicate"));
     ProfilePropertySettingEntity entity = new ProfilePropertySettingEntity();
     entity.setPropertyName("duplicate");
@@ -285,7 +285,7 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
     long parentUpdated = parent.getUpdated();
     restartTransaction();
     getService(CachedProfileSettingStorage.class).clearCaches();
-    sleepAMillisecond();
+    waitForTheClockToMove();
 
     // The request reads the parent, then another writer commits a change of it
     assertTrue(profilePropertyService.getProfileSettingById(parent.getId()).isEditable());
@@ -308,7 +308,7 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
     long parentUpdated = parent.getUpdated();
     restartTransaction();
     getService(CachedProfileSettingStorage.class).clearCaches();
-    sleepAMillisecond();
+    waitForTheClockToMove();
 
     assertTrue(profilePropertyService.getProfileSettingById(parent.getId()).isEditable());
     commitInAnotherEntityManager("UPDATE SocProfileSettingEntity s SET s.isEditable = false WHERE s.id = " + parent.getId());
@@ -446,8 +446,12 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
     return profileSettingStorage.getListedSettings(formKind).stream().map(ProfilePropertySetting::getId).toList();
   }
 
-  private void sleepAMillisecond() throws InterruptedException {
-    Thread.sleep(2);
+  /** The update dates compared by the tests move with the clock */
+  private void waitForTheClockToMove() {
+    long now = System.currentTimeMillis();
+    while (System.currentTimeMillis() <= now) {
+      Thread.onSpinWait();
+    }
   }
 
   private void cleanData() {

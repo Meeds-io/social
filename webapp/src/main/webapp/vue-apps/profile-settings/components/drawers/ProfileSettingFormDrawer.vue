@@ -530,9 +530,10 @@ export default {
     isUserType() {
       return this.setting.propertyType === 'user';
     },
-    selectedPropertyType() {
+    isSelectedUserType() {
       // The type is the selected option object until the select is used
-      return this.setting?.propertyType?.value ?? this.setting?.propertyType;
+      const propertyType = this.setting?.propertyType;
+      return propertyType === 'user' || propertyType?.value === 'user';
     },
     hasUnlistableName() {
       const propertyName = this.setting?.propertyName || '';
@@ -558,10 +559,11 @@ export default {
       return reasons;
     },
     registrationListingReasons() {
-      if (this.selectedPropertyType === 'user') {
-        return [...this.accountFormListingReasons, 'profileSettings.label.userTypeCannotBeListedOnRegistration'];
+      const reasons = [...this.accountFormListingReasons];
+      if (this.isSelectedUserType) {
+        reasons.push('profileSettings.label.userTypeCannotBeListedOnRegistration');
       }
-      return this.accountFormListingReasons;
+      return reasons;
     },
   },
   watch: {
