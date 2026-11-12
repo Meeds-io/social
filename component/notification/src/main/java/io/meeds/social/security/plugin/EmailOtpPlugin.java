@@ -331,7 +331,11 @@ public class EmailOtpPlugin implements OtpPlugin {
     }
   }
 
-  private ExoCache<String, String> getOtpCache() {
+  /**
+   * The cache that holds the sent codes, under {@link #getCacheKey(String)},
+   * for the code's TTL
+   */
+  protected ExoCache<String, String> getOtpCache() {
     if (otpCache == null) {
       otpCache = cacheService.getCacheInstance(OTP_CACHE_NAME);
     }

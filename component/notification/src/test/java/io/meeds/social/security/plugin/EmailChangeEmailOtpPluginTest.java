@@ -139,6 +139,7 @@ public class EmailChangeEmailOtpPluginTest {
     plugin.setOtpTtl(5);
     plugin.setOtpLength(6);
     plugin.setSendInterval(60);
+    plugin.setMaxAttempts(5);
     plugin.setEmailChangeEmailBodyPath("assets/email-change-otp-email-content.html");
     plugin.setEmailChangeNoticeBodyPath("assets/email-change-notice-email-content.html");
     plugin.setBrandedEmailSender(brandedEmailSender);
@@ -338,6 +339,39 @@ public class EmailChangeEmailOtpPluginTest {
     verify(otpSendLockCache, never()).remove(anyString());
   }
 
+  /**
+   * The code is dropped at the limit of wrong guesses, counted by the plugin
+   * whatever the OTP service's own count says, and a new code starts the count
+   * again
+   */
+  @Test
+  public void testWrongGuessesDropTheCodeAtTheLimit() throws Exception {
+    Map<String, String> codes = new HashMap<>();
+    when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0)));
+    doAnswer(invocation -> codes.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpCache)
+                                                                                         .put(anyString(), anyString());
+    when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
+    plugin.setMaxAttempts(3);
+    String sentCode = EmailChangeOtpPlugin.bindCode(OTP_CODE, NEW_EMAIL);
+    String wrongCode = EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL);
+
+    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertTrue("Below the limit, the code still validates", plugin.validateOtp("john", sentCode));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertFalse("At the limit, the code is dropped", plugin.validateOtp("john", sentCode));
+    assertFalse(codes.containsKey(CACHE_KEY));
+
+    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertTrue("A new code starts the count again", plugin.validateOtp("john", sentCode));
+  }
+
   @Test
   public void testValidateOtpIgnoresOtherPurposeCodes() {
     when(otpCache.get("email:john")).thenReturn(OTP_CODE + ":" + NEW_EMAIL);
@@ -381,13 +415,16 @@ public class EmailChangeEmailOtpPluginTest {
     EmailChangeEmailOtpPlugin defaults = loadPlugin(Collections.emptyMap());
     assertEquals(60, defaults.getSendIntervalSeconds());
     assertEquals(5, defaults.getCodeTtlMinutes());
+    assertEquals(5, defaults.getMaxAttempts());
     assertEquals("assets/email-change-otp-email-content.html", defaults.getEmailBodyPath());
 
     EmailChangeEmailOtpPlugin configured = loadPlugin(Map.of("meeds.apiKey.otp.email.sendInterval", "90",
                                                              "meeds.apiKey.otp.email.ttl", "7",
+                                                             "meeds.apiKey.otp.maxTentatives.count", "3",
                                                              "meeds.emailChange.otp.email.templatePath", "custom.html"));
     assertEquals(90, configured.getSendIntervalSeconds());
     assertEquals(7, configured.getCodeTtlMinutes());
+    assertEquals(3, configured.getMaxAttempts());
     assertEquals("custom.html", configured.getEmailBodyPath());
   }
 
