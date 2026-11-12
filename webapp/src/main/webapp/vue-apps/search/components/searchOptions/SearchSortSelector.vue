@@ -27,13 +27,21 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       <template #activator="{ on, attrs }">
         <v-chip
           outlined
-          tab-index="0"
+          :aria-label="$t('search.sort.by.ariaLabel', {0: selectedSortLabel})"
+          tabindex="0"
           class="text-body text-header-color mx-1"
           v-bind="attrs"
-          v-on="on">
-          <v-icon size="22" class="pe-2">fas fa-sort</v-icon>
+          v-on="on"
+          @keydown.enter.prevent="on.click"
+          @keydown.space.prevent="on.click">
+          <v-icon
+            size="22"
+            class="pe-2"
+            aria-hidden="true">
+            fas fa-sort
+          </v-icon>
           <span class="me-2">{{ selectedSortLabel }}</span>
-          <i class="fas fa-chevron-down"></i>
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </v-chip>
       </template>
 
