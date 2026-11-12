@@ -33,13 +33,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         loading="lazy">
     </v-avatar>
     <span>{{ spaceDisplayName }}</span>
-    <v-icon
-      size="10"
-      class="ms-2"
-      right
+    <v-btn
+      :aria-label="$t('search.space.filter.remove.ariaLabel', {0: spaceDisplayName})"
+      class="searchSpaceRemoveButton ms-1 me-n2"
+      icon
+      x-small
       @click="$emit('delete-selected-space', space)">
-      fas fa-times
-    </v-icon>
+      <v-icon size="10" aria-hidden="true">fas fa-times</v-icon>
+    </v-btn>
   </v-chip>
 </template>
 
