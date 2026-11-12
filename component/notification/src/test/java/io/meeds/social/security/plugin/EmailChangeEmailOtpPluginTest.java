@@ -380,6 +380,32 @@ public class EmailChangeEmailOtpPluginTest {
   }
 
   /**
+   * A new send keeps the old code's count until the new code replaces it: a
+   * guess made while the mail is prepared still counts against the old code
+   */
+  @Test
+  public void testANewSendResetsTheCountWhenTheNewCodeIsStored() throws Exception {
+    Map<String, String> codes = new HashMap<>();
+    when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0)));
+    doAnswer(invocation -> codes.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpCache)
+                                                                                         .put(anyString(), anyString());
+    when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
+    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    String wrongCode = EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL);
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+
+    List<String> countsWhilePreparing = new ArrayList<>();
+    doAnswer(invocation -> {
+      countsWhilePreparing.add(codes.get(CACHE_KEY + ":attempts"));
+      return invocation.callRealMethod();
+    }).when(brandedEmailSender).getUserLang("john");
+    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    assertEquals("Before the new code is stored, the old code keeps its count", "2", countsWhilePreparing.get(0));
+    assertFalse("The new code starts with no wrong guess", codes.containsKey(CACHE_KEY + ":attempts"));
+  }
+
+  /**
    * Concurrent wrong guesses are counted one by one: sent together, they still
    * drop the code at the limit
    */

@@ -229,7 +229,7 @@ public class EmailOtpPlugin implements OtpPlugin {
     String lang = brandedEmailSender.getUserLang(userName);
     String emailSubject = resourceBundleService.getSharedString(getEmailSubjectKey(), LocaleUtils.toLocale(lang));
     String otpCode = generateOtpCode();
-    getOtpCache().put(cacheKey, String.valueOf(expiringIn(otpTtl * 60)) + EXPIRY_SEPARATOR + getStoredCode(otpCode, recipientEmail));
+    storeCode(userName, cacheKey, getStoredCode(otpCode, recipientEmail));
     Map<String, String> tokens = Map.of("####", otpCode, "$CODE_EXPIRATION_LABEL", getCodeExpirationLabel(lang));
     if (recipientEmail == null) {
       brandedEmailSender.sendEmail(userName, emailSubject, getEmailBodyPath(), tokens);
@@ -254,6 +254,17 @@ public class EmailOtpPlugin implements OtpPlugin {
     String lang = brandedEmailSender.getUserLang(userName);
     String emailSubject = resourceBundleService.getSharedString(subjectKey, LocaleUtils.toLocale(lang));
     brandedEmailSender.sendEmail(userName, recipientEmail, emailSubject, templatePath, Map.of());
+  }
+
+  /**
+   * Stores a new code of the user, in place of the one sent before
+   *
+   * @param userName the user the code is for
+   * @param cacheKey the key of the user's code ({@link #getCacheKey(String)})
+   * @param storedCode the value to store ({@link #getStoredCode(String, String)})
+   */
+  protected void storeCode(String userName, String cacheKey, String storedCode) {
+    getOtpCache().put(cacheKey, String.valueOf(expiringIn(otpTtl * 60)) + EXPIRY_SEPARATOR + storedCode);
   }
 
   /**

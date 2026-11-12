@@ -52,8 +52,10 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
   private static final String ATTEMPTS_KEY_SUFFIX = ":attempts";
 
   /**
-   * Serializes the read, increment and write of the wrong-guess count and its
-   * reset on a new send: concurrent guesses would otherwise count as one
+   * Serializes the read, increment and write of the wrong-guess count, and the
+   * store of a new code with the reset of that count: concurrent guesses would
+   * otherwise count as one, and a guess between the reset and the store would
+   * count against the new code while the old one still validates
    */
   private final Object        attemptsLock        = new Object();
 
@@ -95,9 +97,6 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
     }
     if (StringUtils.isBlank(newEmail)) {
       throw new IllegalArgumentException("The new email address is mandatory");
-    }
-    synchronized (attemptsLock) {
-      getOtpCache().remove(getAttemptsKey(userName));
     }
     sendOtpCodeUnderLock(userName, newEmail.trim());
     return null;
@@ -159,6 +158,18 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
   @Override
   protected String getStoredCode(String otpCode, String recipientEmail) {
     return EmailChangeOtpPlugin.bindCode(otpCode, recipientEmail);
+  }
+
+  /**
+   * The new code replaces the old one and starts the wrong-guess count again
+   * in one step
+   */
+  @Override
+  protected void storeCode(String userName, String cacheKey, String storedCode) {
+    synchronized (attemptsLock) {
+      super.storeCode(userName, cacheKey, storedCode);
+      getOtpCache().remove(getAttemptsKey(userName));
+    }
   }
 
   private String getAttemptsKey(String userName) {
