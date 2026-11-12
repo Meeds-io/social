@@ -406,6 +406,44 @@ public class EmailChangeEmailOtpPluginTest {
   }
 
   /**
+   * A wrong guess made while a new code replaces the old one waits for the
+   * count to start again: it never drops the new code with the old code's
+   * count
+   */
+  @Test
+  public void testAGuessDuringANewSendCountsAgainstTheNewCode() throws Exception {
+    Map<String, String> codes = new ConcurrentHashMap<>();
+    when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0)));
+    when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
+    plugin.setMaxAttempts(3);
+    String wrongCode = EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL);
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    try {
+      List<Future<Boolean>> guesses = new ArrayList<>();
+      doAnswer(invocation -> {
+        codes.put(invocation.getArgument(0), invocation.getArgument(1));
+        if (CACHE_KEY.equals(invocation.getArgument(0)) && "2".equals(codes.get(CACHE_KEY + ":attempts"))) {
+          // the new code is stored and the old count not reset yet: a guess now
+          guesses.add(executor.submit(() -> plugin.validateOtp("john", wrongCode)));
+          Thread.sleep(200);
+        }
+        return null;
+      }).when(otpCache).put(anyString(), anyString());
+
+      assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+      assertFalse(plugin.validateOtp("john", wrongCode));
+      assertFalse(plugin.validateOtp("john", wrongCode));
+      assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+      assertEquals(1, guesses.size());
+      assertFalse(guesses.get(0).get());
+    } finally {
+      executor.shutdownNow();
+    }
+    assertTrue("The guess counts against the new code, which stays", codes.containsKey(CACHE_KEY));
+    assertEquals("1", codes.get(CACHE_KEY + ":attempts"));
+  }
+
+  /**
    * Concurrent wrong guesses are counted one by one: sent together, they still
    * drop the code at the limit
    */
