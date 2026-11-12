@@ -19,12 +19,14 @@
 package io.meeds.social.security.plugin;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
+import lombok.Getter;
 import lombok.Setter;
 
 /**
@@ -36,14 +38,23 @@ import lombok.Setter;
  * {@link EmailOtpPlugin} (the {@code meeds.apiKey.otp.email.*} settings), as
  * are its caches, under the purpose-bound key of this method. The send lock
  * is taken first, on every request, refused ones included, and holds per
- * user whatever the address; a wrong code keeps it. Once the change is
+ * user whatever the address; a wrong code keeps it. A code is dropped after
+ * {@code meeds.apiKey.otp.maxTentatives.count} wrong guesses
+ * ({@link #validateOtp(String, String)}). Once the change is
  * written, the former address is told of it
  * ({@link #sendChangeNotice(String, String)}).
  */
 @Service
 public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailChangeOtpPlugin {
 
-  private static final Log LOG = ExoLogger.getLogger(EmailChangeEmailOtpPlugin.class);
+  private static final Log    LOG                 = ExoLogger.getLogger(EmailChangeEmailOtpPlugin.class);
+
+  private static final String ATTEMPTS_KEY_SUFFIX = ":attempts";
+
+  @Value("${meeds.apiKey.otp.maxTentatives.count:5}")
+  @Getter
+  @Setter
+  private long                maxAttempts;
 
   @Value("${meeds.emailChange.otp.email.templatePath:assets/email-change-otp-email-content.html}")
   @Setter
@@ -79,8 +90,33 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
     if (StringUtils.isBlank(newEmail)) {
       throw new IllegalArgumentException("The new email address is mandatory");
     }
+    getOtpCache().remove(getAttemptsKey(userName));
     sendOtpCodeUnderLock(userName, newEmail.trim());
     return null;
+  }
+
+  /**
+   * Counts the wrong guesses at the user's code and drops the code at the
+   * {@code meeds.apiKey.otp.maxTentatives.count}th one: a new code then needs
+   * a new send, under the send interval. The OTP service's own count does not
+   * bound this code: it is kept per user and cleared by any valid code, and
+   * the email change checks the code of the current address in the same
+   * request.
+   */
+  @Override
+  public boolean validateOtp(String userName, String otpCode) {
+    boolean valid = super.validateOtp(userName, otpCode);
+    if (!valid) {
+      String attemptsKey = getAttemptsKey(userName);
+      long attempts = NumberUtils.toLong(getOtpCache().get(attemptsKey)) + 1;
+      if (attempts >= maxAttempts) {
+        getOtpCache().remove(getCacheKey(userName));
+        getOtpCache().remove(attemptsKey);
+      } else {
+        getOtpCache().put(attemptsKey, String.valueOf(attempts));
+      }
+    }
+    return valid;
   }
 
   /**
@@ -112,6 +148,10 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
   @Override
   protected String getStoredCode(String otpCode, String recipientEmail) {
     return EmailChangeOtpPlugin.bindCode(otpCode, recipientEmail);
+  }
+
+  private String getAttemptsKey(String userName) {
+    return getCacheKey(userName) + ATTEMPTS_KEY_SUFFIX;
   }
 
 }
