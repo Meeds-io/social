@@ -21,7 +21,7 @@
   </transition>
   <transition v-else>
     <activity-stream-activity
-      v-show="!activityDeleted"
+      v-if="!activityDeleted"
       :key="activity.id"
       :activity="activity"
       :activity-types="activityTypes"
