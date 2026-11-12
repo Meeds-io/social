@@ -201,12 +201,12 @@ public class EmailChangeEmailOtpPluginTest {
    */
   @Test
   public void testSendChangeNoticeFailureIsNotThrown() throws Exception {
-    doThrow(new MessagingException("down")).when(mailService).sendMessage(any(MimeMessage.class));
-    plugin.sendChangeNotice("john", "john.former@example.org");
-    verify(mailService).sendMessage(any(MimeMessage.class));
-
     plugin.sendChangeNotice("john", " ");
     plugin.sendChangeNotice("john", null);
+    verify(brandedEmailSender, never()).getUserLang(anyString());
+
+    doThrow(new MessagingException("down")).when(mailService).sendMessage(any(MimeMessage.class));
+    plugin.sendChangeNotice("john", "john.former@example.org");
     verify(mailService, times(1)).sendMessage(any(MimeMessage.class));
   }
 
