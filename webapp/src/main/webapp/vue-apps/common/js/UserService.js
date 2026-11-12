@@ -280,7 +280,7 @@ export function deleteRelationship(userId) {
   });
 }
 
-export function updateProfileField(username, name, value, otpMethod, otpCode) {
+export function updateProfileField(username, name, value, otpMethod, otpCode, currentOtpCode) {
   const formData = new FormData();
   formData.append('name', name);
   formData.append('value', value);
@@ -289,6 +289,9 @@ export function updateProfileField(username, name, value, otpMethod, otpCode) {
   }
   if (otpCode) {
     formData.append('otpCode', otpCode);
+  }
+  if (currentOtpCode) {
+    formData.append('currentOtpCode', currentOtpCode);
   }
 
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}`, {
@@ -309,14 +312,14 @@ export function updateProfileField(username, name, value, otpMethod, otpCode) {
   });
 }
 
-export function sendEmailChangeCode(username, email) {
+export function sendEmailChangeCode(username, email, currentOtpCode) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}/email/otp`, {
     method: 'POST',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: new URLSearchParams({email}).toString(),
+    body: new URLSearchParams({email, currentOtpCode: currentOtpCode || ''}).toString(),
   }).then(resp => {
     if (resp?.status === 429) {
       throw new Error('429');

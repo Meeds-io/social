@@ -56,6 +56,42 @@
             autofocus="autofocus"
             outlined
             dense />
+          <div class="d-flex flex-column justify-center align-center full-width mt-2">
+            <template v-if="currentCodeSent">
+              <div class="full-width text-start">
+                {{ $t('UserSettings.security.emailChange.confirmAccess.checkEmail') }}
+              </div>
+              <div class="d-flex align-center full-width mt-1">
+                <v-text-field
+                  id="currentOtpCode"
+                  ref="currentOtpCode"
+                  v-model="currentOtpCode"
+                  :title="$t('UserSettings.security.emailChange.confirmAccess.inputTitle')"
+                  :placeholder="$t('UserSettings.security.emailChange.confirmAccess.inputPlaceholder')"
+                  :readonly="saving"
+                  prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
+                  class="border-box-sizing flex-grow-1 px-0 pt-1 pb-0 me-2"
+                  name="currentOtpCode"
+                  aria-required="true"
+                  type="text"
+                  tabindex="0"
+                  required="required"
+                  outlined
+                  dense />
+                <v-btn
+                  :disabled="sendingCurrentCode"
+                  :loading="sendingCurrentCode"
+                  height="40"
+                  class="btn"
+                  @click="sendCurrentOtpCode">
+                  {{ $t('UserSettings.security.emailChange.resend') }}
+                </v-btn>
+              </div>
+            </template>
+            <div v-else>
+              {{ $t('UserSettings.security.emailChange.confirmAccess.sendingEmail') }}
+            </div>
+          </div>
           <div class="font-weight-bold mt-4">
             {{ $t('UserSettings.security.emailChange.new') }}
           </div>
@@ -117,7 +153,7 @@
                 {{ $t('UserSettings.security.emailChange.confirmNewEmail.hint') }}
               </div>
               <v-btn
-                :disabled="!newEmail || saving"
+                :disabled="!newEmail || !currentOtpCode || saving"
                 height="40"
                 class="btn"
                 @click="sendOtpCode">
@@ -155,6 +191,10 @@ export default {
     username: eXo.env.portal.userName,
     otpMethod: 'emailChange',
     otpCode: null,
+    currentOtpMethod: 'email',
+    currentOtpCode: null,
+    currentCodeSent: false,
+    sendingCurrentCode: false,
     emailSent: false,
     codeSent: false,
     sentEmail: null,
@@ -170,6 +210,7 @@ export default {
         || !this.newEmail?.length
         || !this.emailSent
         || !this.otpCode
+        || !this.currentOtpCode
         || this.sendingCode
         || this.saving;
     },
@@ -188,6 +229,9 @@ export default {
     otpCode() {
       this.resetCustomValidity();
     },
+    currentOtpCode() {
+      this.resetCustomValidity();
+    },
   },
   methods: {
     async open() {
@@ -196,12 +240,32 @@ export default {
       this.emailSent = false;
       this.codeSent = false;
       this.sentEmail = null;
+      this.currentOtpCode = null;
+      this.currentCodeSent = false;
+      this.sendCurrentOtpCode();
       this.$refs.drawer.open();
       this.user = await this.$userService.getUser(this.username);
       this.email = this.user?.email;
     },
     close() {
       this.$refs.drawer.close();
+    },
+    async sendCurrentOtpCode() {
+      // the change needs the proof that the user reads the mail of the account
+      this.sendingCurrentCode = true;
+      try {
+        await this.$otpService.sendOtpCode(this.currentOtpMethod);
+      } catch (e) {
+        if (e?.message === '429') {
+          // throttled: the previously sent code remains valid until its expiration
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.otpAlreadySent'), 'warning');
+        } else {
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.otpSendError'), 'error');
+        }
+      } finally {
+        this.sendingCurrentCode = false;
+        this.currentCodeSent = true;
+      }
     },
     async sendOtpCode() {
       this.resetCustomValidity();
@@ -212,7 +276,7 @@ export default {
       this.operation = 'sendingEmail';
       this.sendingCode = true;
       try {
-        await this.$userService.sendEmailChangeCode(this.username, email);
+        await this.$userService.sendEmailChangeCode(this.username, email, this.currentOtpCode);
         this.sentEmail = email;
         this.emailSent = true;
         this.codeSent = true;
@@ -225,6 +289,8 @@ export default {
           this.emailSent = true;
           this.codeSent = false;
           this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.confirmNewEmail.codeAlreadySent'), 'warning');
+        } else if (error.indexOf('CURRENT_OTP_CODE') > -1) {
+          this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.wrongCurrentOtpCode'), 'error');
         } else if (error.indexOf('ALREADY_EXISTS') > -1) {
           this.$root.$emit('alert-message', this.$t('UsersManagement.message.userWithSameEmailAlreadyExists'), 'error');
         } else if (error.indexOf('EMAIL:') === 0) {
@@ -239,6 +305,7 @@ export default {
     resetCustomValidity() {
       this.$refs.newEmail?.$el?.querySelector('input')?.setCustomValidity('');
       this.$refs.otpCode?.$el?.querySelector('input')?.setCustomValidity('');
+      this.$refs.currentOtpCode?.$el?.querySelector('input')?.setCustomValidity('');
     },
     save() {
       this.resetCustomValidity();
@@ -247,14 +314,17 @@ export default {
       } else if (this.$refs.form.validate()
           && this.$refs.form.$el.reportValidity()) {
         this.saving = true;
-        this.$userService.updateProfileField(this.username, 'email', this.newEmail, this.otpMethod, this.otpCode)
+        this.$userService.updateProfileField(this.username, 'email', this.newEmail, this.otpMethod, this.otpCode, this.currentOtpCode)
           .then(() => {
             this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.success'), 'success');
             this.close();
           })
           .catch(e => {
             const error = String(e);
-            if (error.indexOf('OTP_CODE_WRONG') > -1) {
+            // checked first: CURRENT_OTP_CODE_WRONG contains OTP_CODE_WRONG
+            if (error.indexOf('CURRENT_OTP_CODE') > -1) {
+              this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.wrongCurrentOtpCode'), 'error');
+            } else if (error.indexOf('OTP_CODE_WRONG') > -1) {
               this.$root.$emit('alert-message', this.$t('UserSettings.security.emailChange.wrongOtpCode'), 'error');
             } else if (error.indexOf('ALREADY_EXISTS') > -1) {
               this.$root.$emit('alert-message', this.$t('UsersManagement.message.userWithSameEmailAlreadyExists'), 'error');
