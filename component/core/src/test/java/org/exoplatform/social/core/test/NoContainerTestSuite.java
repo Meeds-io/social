@@ -25,6 +25,7 @@ import io.meeds.social.cms.service.PageUrlResolverServiceImplTest;
 import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnectorTest;
 import io.meeds.social.cms.storage.elasticsearch.PageContentSearchConnectorTest;
 import org.exoplatform.social.core.listeners.AccountKindUsersListenerImplUnitTest;
+import org.exoplatform.social.core.listeners.SynchronizedUserProfileListenerTest;
 import org.exoplatform.social.core.plugin.PageFavoriteACLPluginTest;
 import io.meeds.social.space.invitation.storage.SpaceInvitationLinkLinkStorageTest;
 import io.meeds.social.space.listener.SpaceGroupCacheListenerTest;
@@ -105,6 +106,7 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+    SynchronizedUserProfileListenerTest.class,
     UserTimeZoneServiceTest.class,
     ChangesReminderServiceTest.class,
     UserHomePageServiceTest.class,
