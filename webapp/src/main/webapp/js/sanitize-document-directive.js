@@ -83,7 +83,7 @@
   // Runs on the iframes the host check kept: a YouTube or Vimeo player shows
   // as a click-to-play facade, so it loads nothing until it is played
   purifier.addHook('afterSanitizeAttributes', function(node) {
-    window.eXo?.videoEmbed?.usePlayerFacade?.(node);
+    window.eXo?.videoEmbed?.usePlayerFacade?.(node, window.vueI18nMessages?.['richeditor.videoEmbed.play']);
   });
 
   function renderSanitizedDocument(el, binding) {
