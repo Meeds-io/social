@@ -68,6 +68,7 @@
       :languages="languagesData"
       :un-hiddenable-properties="unHiddenableProperties"
       :excluded-analytics-index-properties="excludedAnalyticsIndexProperties"
+      :unlistable-properties="unlistableProperties"
       @open-dropdown-list="openDropdownListDrawer" />
     <dropdown-list-values-drawer
       ref="dropdownListDrawer" />
@@ -83,6 +84,7 @@ export default {
       settings: [],
       unHiddenableProperties: [],
       excludedAnalyticsIndexProperties: [],
+      unlistableProperties: [],
       fieldsToRetrieve: 'settings',
       excludedSettingsProp: [],
       isSavingCardSettings: false,
@@ -194,6 +196,7 @@ export default {
           this.unHiddenableProperties = settings?.unHiddenableProperties;
           this.excludedSettingsProp = settings?.excludedQuickSearchProperties;
           this.excludedAnalyticsIndexProperties = settings?.excludedAnalyticsIndexProperties;
+          this.unlistableProperties = settings?.unlistableProperties || [];
         });
     },
     editSetting(setting, refresh) {
