@@ -21,7 +21,7 @@
       :value="selected"
       class="versionHistoryFilter px-4 pt-3 mb-2"
       mandatory
-      @change="select">
+      @change="selectChip">
       <v-chip
         :value="ALL"
         class="versionHistoryFilter-all"
@@ -164,6 +164,7 @@ export default {
     failed: false,
     timeline: null,
     generation: 0,
+    sourcesGeneration: 0,
     observer: null,
     refreshListeners: [],
   }),
@@ -238,6 +239,7 @@ export default {
     document.removeEventListener(this.registryEvent, this.refreshSources);
     this.listenToRefreshes([]);
     this.generation++;
+    this.sourcesGeneration++;
     if (this.observer) {
       this.observer.disconnect();
     }
@@ -246,11 +248,15 @@ export default {
     /**
      * Collects the host's versions and the sources add-ons registered for
      * the host, the last one registered per id, that apply to the object,
-     * ordered by rank, then shows the lines of the chosen one.
+     * ordered by rank, then shows the lines of the chosen one, at once or,
+     * while the host loads its versions, once they are in.
      * @returns {Promise} settled once the first lines are shown
      */
     loadSources() {
-      const generation = ++this.generation;
+      const generation = ++this.sourcesGeneration;
+      // the lines of the previous sources, still being read, are dropped, and none is read until the sources are checked
+      this.generation++;
+      this.timeline = null;
       const params = {...this.sourceParams};
       const byId = new Map();
       (extensionRegistry.loadComponents(this.sourcesExtension) || [])
@@ -261,12 +267,13 @@ export default {
       this.ready = false;
       return Promise.all(registered.map(source => this.isSourceEnabled(source, params)))
         .then(enabled => {
-          if (generation === this.generation) {
+          if (generation === this.sourcesGeneration) {
             this.sources = [this.versionsSource(), ...registered.filter((source, index) => enabled[index])]
               .sort((source1, source2) => Number(source1.rank || 0) - Number(source2.rank || 0));
             this.listenToRefreshes(this.sources);
             this.ready = true;
-            return this.rebuild();
+            // while the host loads its versions, versionsChanged shows the lines once they are in
+            return !this.isLoading && this.rebuild() || Promise.resolve();
           }
         });
     },
@@ -313,7 +320,8 @@ export default {
     },
     /**
      * Shows the lines again, from the newest, with the same chip, when an
-     * event a source listens to concerns the object shown.
+     * event a source listens to concerns the object shown; while the host
+     * loads its versions, versionsChanged shows them once they are in.
      * @param {Object} source the source the event is for
      * @param {CustomEvent} event the event
      * @returns {Promise} settled once the first lines are shown again
@@ -325,7 +333,7 @@ export default {
       } catch (error) {
         concerned = false;
       }
-      return concerned && this.ready && this.rebuild() || Promise.resolve();
+      return concerned && this.ready && !this.isLoading && this.rebuild() || Promise.resolve();
     },
     /**
      * @param {Object} source the options a source was registered with
@@ -370,6 +378,18 @@ export default {
     rebuild() {
       const kept = this.sources.some(source => source.id === this.selected);
       return this.select(kept && this.selected || this.ALL);
+    },
+    /**
+     * Keeps the chip the user selected and shows its lines, or, while the
+     * sources are checked or the host loads its versions, lets loadSources
+     * or versionsChanged show them once they are in.
+     * @param {string} sourceId the id of the chosen source, or all
+     * @returns {Promise} settled once the first lines are shown, or at once
+     *          while the sources are checked or the host loads its versions
+     */
+    selectChip(sourceId) {
+      this.selected = sourceId || this.ALL;
+      return this.ready && !this.isLoading && this.select(this.selected) || Promise.resolve();
     },
     /**
      * Shows, from the newest, the lines of the chosen source, of all of
