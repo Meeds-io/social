@@ -29,6 +29,7 @@
       :target="navigationNodeTarget"
       :rel="navigationNodeRel"
       :link="!!hasPage"
+      :aria-current="isSelected ? 'page' : null"
       class="py-0 px-0 transparent"
       @click="checkLink">
       <v-menu
@@ -52,7 +53,10 @@
             <v-list-item-title
               class="pt-5 pb-5 d-flex"
               :class="hasPage && ' ' || ' not-clickable '">
-              <span class="text-body">{{ navigation.label }}</span>
+              <!-- the current page is shown by more than a color: bold and underlined, as its entry in the bar -->
+              <span
+                :class="isSelected && 'font-weight-bold text-decoration-underline'"
+                class="text-body">{{ navigation.label }}</span>
               <v-icon
                 v-if="navigation.target === 'NEW_TAB'"
                 size="12"
