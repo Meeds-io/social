@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +62,7 @@ import org.exoplatform.services.cache.invalidation.AsyncInvalidationExoCache;
 import org.exoplatform.services.cache.invalidation.HashCode;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
+import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertyOptionEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
@@ -93,6 +95,8 @@ public class CachedProfileSettingStorageClusterTest {
   private final CountDownLatch                            releaseLoader      = new CountDownLatch(1);
 
   private final AtomicReference<Runnable>                 duringUpdate       = new AtomicReference<>();
+
+  private final Set<Long>                                 failingLoads       = ConcurrentHashMap.newKeySet();
 
   private ProfilePropertySettingDAO                       settingDAO;
 
@@ -279,6 +283,27 @@ public class CachedProfileSettingStorageClusterTest {
     assertEquals(List.of(kept.getId()), settings.stream().map(ProfilePropertySetting::getId).toList());
   }
 
+  /**
+   * The reads made before a write only collect and load the keys to evict:
+   * a read that fails, as one outside a request lifecycle does on a setting
+   * with options, never fails the write.
+   */
+  @Test
+  public void testAFailedReadBeforeAWriteDoesNotFailTheWrite() {
+    ProfilePropertySetting deleted = node1.saveProfilePropertySetting(newSetting("deleted"), true);
+    ProfilePropertySetting updated = node1.saveProfilePropertySetting(newSetting("updated"), true);
+    failingLoads.add(deleted.getId());
+    failingLoads.add(updated.getId());
+
+    node1.deleteProfilePropertySetting(deleted.getId());
+    updated.setListedOnAccountForm(true);
+    node1.saveProfilePropertySetting(updated, false);
+    assertTrue(node1.clearListingFlags(updated.getId()));
+
+    assertFalse(store.containsKey(deleted.getId()));
+    assertFalse(store.get(updated.getId()).isListedOnAccountForm());
+  }
+
   @Test
   public void testALoadBlockedWhileASaveInvalidatesIsNotWrittenBack() throws Exception {
     ProfilePropertySetting setting = node1.saveProfilePropertySetting(newSetting("department"), true);
@@ -320,6 +345,9 @@ public class CachedProfileSettingStorageClusterTest {
 
   private ProfilePropertySettingEntity load(Long id) {
     ProfilePropertySettingEntity entity = copy(store.get(id));
+    if (entity != null && failingLoads.contains(id)) {
+      entity = new DetachedEntity(entity);
+    }
     if (Thread.currentThread() == blockedLoader.get()) {
       loaderBlocked.countDown();
       awaitLatch(releaseLoader);
@@ -376,6 +404,28 @@ public class CachedProfileSettingStorageClusterTest {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(e);
+    }
+  }
+
+  /**
+   * An entity read outside a request lifecycle: its lazy options can no longer
+   * load, while its own columns can be read and it can be deleted.
+   */
+  private static class DetachedEntity extends ProfilePropertySettingEntity {
+
+    private static final long serialVersionUID = 1L;
+
+    DetachedEntity(ProfilePropertySettingEntity entity) {
+      setId(entity.getId());
+      setPropertyName(entity.getPropertyName());
+      setParentId(entity.getParentId());
+      setOrder(entity.getOrder());
+      setUpdatedDate(entity.getUpdatedDate());
+    }
+
+    @Override
+    public List<ProfilePropertyOptionEntity> getPropertyOptions() {
+      throw new IllegalStateException("Cannot lazily initialize the options: no session");
     }
   }
 

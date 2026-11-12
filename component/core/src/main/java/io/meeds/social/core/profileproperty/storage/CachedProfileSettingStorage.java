@@ -18,15 +18,19 @@
  */
 package io.meeds.social.core.profileproperty.storage;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
@@ -52,6 +56,9 @@ public class CachedProfileSettingStorage extends ProfileSettingStorage {
 
   /** The single key of the ordered id list's cache */
   private static final String                               PROFILE_SETTING_IDS_KEY                = "ids";
+
+  private static final Log                                  LOG                                    =
+                                                                ExoLogger.getLogger(CachedProfileSettingStorage.class);
 
   private final ExoCache<Long, ProfilePropertySetting>      cache;
 
@@ -110,7 +117,9 @@ public class CachedProfileSettingStorage extends ProfileSettingStorage {
     Set<String> names = new LinkedHashSet<>();
     addKeys(profilePropertySetting, ids, names);
     if (!isNew && profilePropertySetting.getId() != null) {
-      addKeys(getProfileSettingById(profilePropertySetting.getId()), ids, names);
+      addKeys(readBeforeWrite(() -> getProfileSettingById(profilePropertySetting.getId()), profilePropertySetting.getId()),
+              ids,
+              names);
     }
     loadKeys(ids, names);
     ProfilePropertySetting savedProfilePropertySetting = null;
@@ -128,7 +137,7 @@ public class CachedProfileSettingStorage extends ProfileSettingStorage {
     Set<Long> ids = new LinkedHashSet<>();
     Set<String> names = new LinkedHashSet<>();
     ids.add(id);
-    addKeys(getProfileSettingById(id), ids, names);
+    addKeys(readBeforeWrite(() -> getProfileSettingById(id), id), ids, names);
     loadKeys(ids, names);
     try {
       super.deleteProfilePropertySetting(id);
@@ -183,9 +192,26 @@ public class CachedProfileSettingStorage extends ProfileSettingStorage {
    * eviction is published.
    */
   private void loadKeys(Set<Long> ids, Set<String> names) {
-    ids.forEach(id -> futureCache.get(null, id));
-    names.forEach(name -> idByNameFutureCache.get(null, name));
-    idsFutureCache.get(null, PROFILE_SETTING_IDS_KEY);
+    ids.forEach(id -> readBeforeWrite(() -> futureCache.get(null, id), id));
+    names.forEach(name -> readBeforeWrite(() -> idByNameFutureCache.get(null, name), name));
+    readBeforeWrite(() -> idsFutureCache.get(null, PROFILE_SETTING_IDS_KEY), PROFILE_SETTING_IDS_KEY);
+  }
+
+  /**
+   * A read made only to collect or load the keys a write evicts never fails
+   * the write: this node's caches are cleared anyway, and only the eviction of
+   * that key may not reach the other nodes. Such a read fails when it converts
+   * a setting outside a request lifecycle, whose options can no longer load.
+   */
+  private <T> T readBeforeWrite(Supplier<T> read, Serializable key) {
+    try {
+      return read.get();
+    } catch (RuntimeException e) {
+      LOG.warn("Can't read the profile setting cache key '{}' before its write, its eviction may not reach the other nodes",
+               key,
+               e);
+      return null;
+    }
   }
 
   private void invalidate(Set<Long> ids, Set<String> names) {
