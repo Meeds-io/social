@@ -29,16 +29,21 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       <template #activator="{ on, attrs }">
         <v-chip
           outlined
-          tab-index="0"
+          :aria-label="$t('search.space.filter.label')"
+          tabindex="0"
           class="text-body text-header-color mx-1"
           v-bind="attrs"
           v-on="on"
-          @keydown.enter="on.click">
-          <v-icon size="16" class="pe-2">
+          @keydown.enter.prevent="on.click"
+          @keydown.space.prevent="on.click">
+          <v-icon
+            size="16"
+            class="pe-2"
+            aria-hidden="true">
             fas fa-layer-group
           </v-icon>
           <span class="me-2">{{ $t('search.space.filter.label') }}</span>
-          <i class="fas fa-chevron-down"></i>
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </v-chip>
       </template>
       <v-card class="d-flex flex-column border-box-sizing pa-4">
