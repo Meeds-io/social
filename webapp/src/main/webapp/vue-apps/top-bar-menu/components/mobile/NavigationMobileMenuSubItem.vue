@@ -57,9 +57,9 @@
               :aria-current="isCurrent(nav) ? 'page' : null"
               @click="checkLink(nav, $event)">
               <v-list-item-content>
-                <!-- the current page is shown by more than a color: bold and underlined -->
+                <!-- the current page is shown by more than a color: underlined -->
                 <v-list-item-title
-                  :class="isCurrent(nav) && 'font-weight-bold text-decoration-underline'"
+                  :class="isCurrent(nav) && 'text-decoration-underline primary--text'"
                   class="text-body"
                   v-text="nav.label" />
               </v-list-item-content>
