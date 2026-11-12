@@ -69,7 +69,7 @@ public class CoeditingService {
       try {
         lockCache.setLiveTime(lockPeriod);
       } catch (UnsupportedOperationException e) {
-        // An Infinispan cache (commons-exo's factory, whatever its mode) takes
+        // The cache commons-exo's factory builds, whatever its mode, takes
         // its lifetime from its declaration only, which reads the same
         // property; a lock is valid by its own time anyway
       }
