@@ -19,6 +19,7 @@
       :user-avatar-url="userAvatarUrl"
       :display-compact-menu-button="displayCompactMenuButton"
       :attach-menu="attachMenu"
+      :stretched-link="stretchedLink"
       :is-updating-status="sendingAction || sendingSecondAction" />
   </v-flex>
 </template>
@@ -60,7 +61,12 @@ export default {
     attachMenu: {
       type: Boolean,
       default: true
-    }
+    },
+    // the person's name link covers the card, its buttons above it: the whole card is one link (search results)
+    stretchedLink: {
+      type: Boolean,
+      default: false
+    },
   },
   data: () => ({
     sendingAction: false,
