@@ -80,6 +80,11 @@
       }
     }
   });
+  // Runs on the iframes the host check kept: a YouTube or Vimeo player shows
+  // as a click-to-play facade, so it loads nothing until it is played
+  purifier.addHook('afterSanitizeAttributes', function(node) {
+    window.eXo?.videoEmbed?.usePlayerFacade?.(node);
+  });
 
   function renderSanitizedDocument(el, binding) {
     el.innerHTML = binding.value && purifier.sanitize(binding.value, config) || '';
