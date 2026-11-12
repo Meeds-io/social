@@ -115,6 +115,7 @@ export default {
     dialog: false,
     closed: false,
     opener: null,
+    pendingOpener: null,
     openerContext: null,
   }),
   computed: {
@@ -131,7 +132,8 @@ export default {
   watch: {
     dialog() {
       if (this.dialog) {
-        this.opener = this.focusOrigin(document.activeElement);
+        this.opener = this.pendingOpener || this.focusOrigin(document.activeElement);
+        this.pendingOpener = null;
         this.openerContext = this.captureOpenerContext(this.opener);
         window.addEventListener('focusin', this.redirectContainerFocus, true);
         this.focusDefaultButton();
@@ -349,6 +351,10 @@ export default {
       });
     },
     open() {
+      if (!this.dialog) {
+        // read during the click: a menu that closes on this click resets its button's aria-expanded before the dialog watcher runs
+        this.pendingOpener = this.focusOrigin(document.activeElement);
+      }
       this.dialog = true;
       this.$emit('opened');
       this.$nextTick(() => this.dialog = true);
