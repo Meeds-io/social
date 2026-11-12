@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.exception.ConstraintViolationException;
 import org.picocontainer.Startable;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -49,6 +50,8 @@ import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
 
+import io.meeds.common.ContainerTransactional;
+import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
 import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.service.TranslationService;
 
@@ -97,6 +100,12 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   private static final String                        USER_CARD_SETTINGS                     = "UserCardSettings";
   
   private static final String                        USER_TYPE                              = "user";
+
+  /**
+   * The unique constraint on the setting's name; MySQL reports it prefixed
+   * with its table's name
+   */
+  private static final String                        UNIQUE_NAME_CONSTRAINT                 = "PROPERTY_SETTING_UNIQUE_NAME";
 
   public ProfilePropertyServiceImpl(InitParams params,
                                     ProfileSettingStorage profileSettingStorage,
@@ -182,15 +191,20 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     if (!isGroupSynchronizedEnabledProperty(profilePropertySetting)) {
       profilePropertySetting.setGroupSynchronized(false);
     }
+    applyListingRules(profilePropertySetting, null);
 
     profilePropertySetting.setUpdated(System.currentTimeMillis());
-    storedProfilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting,
-                                                                                    true);
-    savePropertyOptionsTranslations(storedProfilePropertySetting, profilePropertySetting.getPropertyOptions(), false);
-    if (storedProfilePropertySetting.getOrder() == null) {
-      storedProfilePropertySetting.setOrder(storedProfilePropertySetting.getId());
-      storedProfilePropertySetting = profileSettingStorage.saveProfilePropertySetting(storedProfilePropertySetting, false);
+    try {
+      storedProfilePropertySetting = saveNewPropertySetting(profilePropertySetting);
+    } catch (RuntimeException e) {
+      // A name cached as missing on this node passes the check above
+      if (isUniqueNameViolation(e)) {
+        throw new ObjectAlreadyExistsException(profilePropertySetting,
+                                               "A profile property with the provided name already exists.");
+      }
+      throw e;
     }
+    savePropertyOptionsTranslations(storedProfilePropertySetting, profilePropertySetting.getPropertyOptions(), false);
 
     try {
       listenerService.broadcast("profile-property-setting-created", this, storedProfilePropertySetting);
@@ -225,10 +239,10 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     }
 
     validatePropertySettingType(createdProfilePropertySetting, profilePropertySetting);
+    applyListingRules(profilePropertySetting, createdProfilePropertySetting);
 
     profilePropertySetting.setUpdated(System.currentTimeMillis());
-    ProfilePropertySetting updatedPropertySetting =
-                                                  profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
+    ProfilePropertySetting updatedPropertySetting = saveUpdatedPropertySetting(profilePropertySetting);
     savePropertyOptionsTranslations(updatedPropertySetting, profilePropertySetting.getPropertyOptions(), true);
     try {
       listenerService.broadcast("profile-property-setting-updated", this, updatedPropertySetting);
@@ -344,6 +358,89 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                    .anyMatch(profileProperty -> profileProperty.getPropertyName().equals(propertySetting.getPropertyName()))) {
         return true;
       }
+    }
+    return false;
+  }
+
+  /**
+   * Saves a new setting, its order and the switch-off of its parent's listing
+   * flags in one transaction.
+   *
+   * @param  profilePropertySetting the setting to create
+   * @return                        the stored setting
+   */
+  @ContainerTransactional(atomic = true)
+  protected ProfilePropertySetting saveNewPropertySetting(ProfilePropertySetting profilePropertySetting) {
+    ProfilePropertySetting storedProfilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting,
+                                                                                                           true);
+    if (storedProfilePropertySetting.getOrder() == null) {
+      storedProfilePropertySetting.setOrder(storedProfilePropertySetting.getId());
+      storedProfilePropertySetting = profileSettingStorage.saveProfilePropertySetting(storedProfilePropertySetting, false);
+    }
+    clearParentListingFlags(storedProfilePropertySetting);
+    return storedProfilePropertySetting;
+  }
+
+  /**
+   * Saves a changed setting and the switch-off of its parent's listing flags in
+   * one transaction.
+   *
+   * @param  profilePropertySetting the setting to update
+   * @return                        the stored setting
+   */
+  @ContainerTransactional(atomic = true)
+  protected ProfilePropertySetting saveUpdatedPropertySetting(ProfilePropertySetting profilePropertySetting) {
+    ProfilePropertySetting updatedPropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting,
+                                                                                                     false);
+    clearParentListingFlags(updatedPropertySetting);
+    return updatedPropertySetting;
+  }
+
+  /**
+   * Switches off both listing flags of a setting that cannot be listed in a
+   * form, whatever the client sent: a non-editable setting, a sub-field, a
+   * setting with sub-fields, as stored, or a name a form cannot list. A
+   * user-type setting cannot be listed in the registration form.
+   *
+   * @param profilePropertySetting the setting to save
+   * @param storedSetting          the stored setting, null on creation
+   */
+  private void applyListingRules(ProfilePropertySetting profilePropertySetting, ProfilePropertySetting storedSetting) {
+    boolean hasChildProperties = storedSetting != null && storedSetting.isHasChildProperties();
+    if (!profilePropertySetting.isEditable()
+        || isSubField(profilePropertySetting)
+        || hasChildProperties
+        || !ProfilePropertyValueUtil.isListableName(profilePropertySetting.getPropertyName(),
+                                                    profilePropertySetting.isGroupSynchronized())) {
+      profilePropertySetting.setListedOnAccountForm(false);
+      profilePropertySetting.setListedOnRegistration(false);
+    } else if (USER_TYPE.equals(profilePropertySetting.getPropertyType())) {
+      profilePropertySetting.setListedOnRegistration(false);
+    }
+  }
+
+  /**
+   * A setting saved under a parent makes it a setting with sub-fields, which
+   * no form lists.
+   */
+  private void clearParentListingFlags(ProfilePropertySetting profilePropertySetting) {
+    if (isSubField(profilePropertySetting)) {
+      profileSettingStorage.clearListingFlags(profilePropertySetting.getParentId());
+    }
+  }
+
+  private boolean isSubField(ProfilePropertySetting profilePropertySetting) {
+    return profilePropertySetting.getParentId() != null && profilePropertySetting.getParentId() > 0;
+  }
+
+  private boolean isUniqueNameViolation(Throwable exception) {
+    Throwable cause = exception;
+    while (cause != null) {
+      if (cause instanceof ConstraintViolationException constraintViolation) {
+        String constraintName = constraintViolation.getConstraintName();
+        return constraintName != null && StringUtils.endsWithIgnoreCase(constraintName, UNIQUE_NAME_CONSTRAINT);
+      }
+      cause = cause.getCause() == cause ? null : cause.getCause();
     }
     return false;
   }

@@ -85,6 +85,12 @@ public class ProfilePropertySettingEntity {
 
   private boolean                            isUserCardFieldSettings;
 
+  /** Null when a client does not send it: an update then keeps the stored value */
+  private Boolean                            listedOnAccountForm;
+
+  /** Null when a client does not send it: an update then keeps the stored value */
+  private Boolean                            listedOnRegistration;
+
   public List<ProfilePropertySettingEntity> getChildren() {
     if (children != null) {
       return children;
