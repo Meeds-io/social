@@ -55,7 +55,7 @@
               :class="hasPage && ' ' || ' not-clickable '">
               <!-- the current page is shown by more than a color: bold and underlined, as its entry in the bar -->
               <span
-                :class="isSelected && 'font-weight-bold text-decoration-underline'"
+                :class="isSelected && 'font-weight-bold text-decoration-underline primary--text'"
                 class="text-body">{{ navigation.label }}</span>
               <v-icon
                 v-if="navigation.target === 'NEW_TAB'"

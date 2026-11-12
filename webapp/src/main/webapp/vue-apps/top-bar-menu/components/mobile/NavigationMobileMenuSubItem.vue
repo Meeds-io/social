@@ -59,7 +59,7 @@
               <v-list-item-content>
                 <!-- the current page is shown by more than a color: bold and underlined -->
                 <v-list-item-title
-                  :class="isCurrent(nav) && 'font-weight-bold text-decoration-underline'"
+                  :class="isCurrent(nav) && 'font-weight-bold text-decoration-underline primary--text'"
                   class="text-body"
                   v-text="nav.label" />
               </v-list-item-content>
