@@ -122,6 +122,9 @@ public class EmailChangeEmailOtpPluginTest {
   private ExoCache<String, String>  otpSendLockCache;
 
   @Mock
+  private ExoCache<String, Long>    countCache;
+
+  @Mock
   private UserHandler               userHandler;
 
   @Mock
@@ -147,11 +150,13 @@ public class EmailChangeEmailOtpPluginTest {
     plugin.setOtpLength(6);
     plugin.setSendInterval(60);
     plugin.setMaxAttempts(5);
+    plugin.setAttemptsTtl(5);
     plugin.setEmailChangeEmailBodyPath("assets/email-change-otp-email-content.html");
     plugin.setEmailChangeNoticeBodyPath("assets/email-change-notice-email-content.html");
     plugin.setBrandedEmailSender(brandedEmailSender);
     when(cacheService.getCacheInstance("otp.email")).thenReturn((ExoCache) otpCache); // NOSONAR
     when(cacheService.getCacheInstance("otp.email.sendLock")).thenReturn((ExoCache) otpSendLockCache); // NOSONAR
+    when(cacheService.getCacheInstance("otp.emailChange.tentatives")).thenReturn((ExoCache) countCache); // NOSONAR
     when(secureRandomService.getSecureRandom()).thenReturn(secureRandom);
     when(secureRandom.nextLong(anyLong(), anyLong())).thenReturn(123456L);
 
@@ -347,17 +352,14 @@ public class EmailChangeEmailOtpPluginTest {
   }
 
   /**
-   * The code is dropped at the limit of wrong guesses, counted by the plugin
-   * whatever the OTP service's own count says, and a new code starts the count
-   * again
+   * The wrong guesses are bounded as the OTP service bounds the other methods:
+   * a valid code clears the count, the code is dropped at the limit, and every
+   * code is refused, a new one included, until the count expires
    */
   @Test
   public void testWrongGuessesDropTheCodeAtTheLimit() throws Exception {
-    Map<String, String> codes = new HashMap<>();
-    when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0)));
-    doAnswer(invocation -> codes.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpCache)
-                                                                                         .put(anyString(), anyString());
-    when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
+    Map<String, String> codes = stubOtpCache(new HashMap<>());
+    Map<String, Long> counts = stubTentativesCache(new HashMap<>());
     plugin.setMaxAttempts(3);
     String sentCode = EmailChangeOtpPlugin.bindCode(OTP_CODE, NEW_EMAIL);
     String wrongCode = EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL);
@@ -366,81 +368,54 @@ public class EmailChangeEmailOtpPluginTest {
     assertFalse(plugin.validateOtp("john", wrongCode));
     assertFalse(plugin.validateOtp("john", wrongCode));
     assertTrue("Below the limit, the code still validates", plugin.validateOtp("john", sentCode));
-    assertFalse(plugin.validateOtp("john", wrongCode));
-    assertFalse("At the limit, the code is dropped", plugin.validateOtp("john", sentCode));
-    assertFalse(codes.containsKey(CACHE_KEY));
+    assertFalse("A valid code clears the count", counts.containsKey("john"));
 
-    codes.clear();
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertTrue(codes.containsKey(CACHE_KEY));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertFalse("At the limit, the code is dropped", codes.containsKey(CACHE_KEY));
+    assertEquals(Long.valueOf(3), counts.get("john"));
+
     assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
-    assertFalse(plugin.validateOtp("john", wrongCode));
-    assertFalse(plugin.validateOtp("john", wrongCode));
-    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
-    assertFalse(plugin.validateOtp("john", wrongCode));
-    assertTrue("A new code starts the count again", plugin.validateOtp("john", sentCode));
+    assertTrue(codes.containsKey(CACHE_KEY));
+    assertFalse("A new code does not start the count again", plugin.validateOtp("john", sentCode));
+    assertEquals("A refused guess is not counted", Long.valueOf(3), counts.get("john"));
+
+    counts.clear(); // the count expired
+    assertTrue("Once the count expires, the code validates", plugin.validateOtp("john", sentCode));
   }
 
   /**
-   * A new send keeps the old code's count until the new code replaces it: a
-   * guess made while the mail is prepared still counts against the old code
+   * A new send keeps the count of the wrong guesses made at the code it
+   * replaces
    */
   @Test
-  public void testANewSendResetsTheCountWhenTheNewCodeIsStored() throws Exception {
-    Map<String, String> codes = new HashMap<>();
-    when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0)));
-    doAnswer(invocation -> codes.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpCache)
-                                                                                         .put(anyString(), anyString());
-    when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
-    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
-    String wrongCode = EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL);
-    assertFalse(plugin.validateOtp("john", wrongCode));
-    assertFalse(plugin.validateOtp("john", wrongCode));
-
-    List<String> countsWhilePreparing = new ArrayList<>();
-    doAnswer(invocation -> {
-      countsWhilePreparing.add(codes.get(CACHE_KEY + ":attempts"));
-      return invocation.callRealMethod();
-    }).when(brandedEmailSender).getUserLang("john");
-    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
-    assertEquals("Before the new code is stored, the old code keeps its count", "2", countsWhilePreparing.get(0));
-    assertFalse("The new code starts with no wrong guess", codes.containsKey(CACHE_KEY + ":attempts"));
-  }
-
-  /**
-   * A wrong guess made while a new code replaces the old one waits for the
-   * count to start again: it never drops the new code with the old code's
-   * count
-   */
-  @Test
-  public void testAGuessDuringANewSendCountsAgainstTheNewCode() throws Exception {
-    Map<String, String> codes = new ConcurrentHashMap<>();
-    when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0)));
-    when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
+  public void testANewSendKeepsTheCount() throws Exception {
+    Map<String, String> codes = stubOtpCache(new HashMap<>());
+    Map<String, Long> counts = stubTentativesCache(new HashMap<>());
     plugin.setMaxAttempts(3);
     String wrongCode = EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL);
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    try {
-      List<Future<Boolean>> guesses = new ArrayList<>();
-      doAnswer(invocation -> {
-        codes.put(invocation.getArgument(0), invocation.getArgument(1));
-        if (CACHE_KEY.equals(invocation.getArgument(0)) && "2".equals(codes.get(CACHE_KEY + ":attempts"))) {
-          // the new code is stored and the old count not reset yet: a guess now
-          guesses.add(executor.submit(() -> plugin.validateOtp("john", wrongCode)));
-          Thread.sleep(200);
-        }
-        return null;
-      }).when(otpCache).put(anyString(), anyString());
 
-      assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
-      assertFalse(plugin.validateOtp("john", wrongCode));
-      assertFalse(plugin.validateOtp("john", wrongCode));
-      assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
-      assertEquals(1, guesses.size());
-      assertFalse(guesses.get(0).get());
-    } finally {
-      executor.shutdownNow();
-    }
-    assertTrue("The guess counts against the new code, which stays", codes.containsKey(CACHE_KEY));
-    assertEquals("1", codes.get(CACHE_KEY + ":attempts"));
+    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    assertEquals(Long.valueOf(2), counts.get("john"));
+    assertFalse(plugin.validateOtp("john", wrongCode));
+    assertFalse("The third wrong guess, on the new code, reaches the limit", codes.containsKey(CACHE_KEY));
+  }
+
+  /**
+   * The count lives {@code meeds.apiKey.otp.maxTentatives.ttl} minutes after
+   * the last wrong guess, in a cache of this method's own
+   */
+  @Test
+  public void testTheCountLivesTheTentativesTtl() {
+    EmailChangeEmailOtpPlugin configured = loadPlugin(Map.of("meeds.apiKey.otp.maxTentatives.ttl", "7"));
+    assertFalse(configured.validateOtp("john", EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL)));
+    verify(countCache).setLiveTime(420);
+    verify(countCache).put("john", 1L);
   }
 
   /**
@@ -449,15 +424,15 @@ public class EmailChangeEmailOtpPluginTest {
    */
   @Test
   public void testConcurrentWrongGuessesDropTheCode() throws Exception {
-    Map<String, String> codes = new ConcurrentHashMap<>();
-    when(otpCache.get(anyString())).thenAnswer(invocation -> {
-      String value = codes.get(invocation.getArgument(0));
+    Map<String, String> codes = stubOtpCache(new ConcurrentHashMap<>());
+    Map<String, Long> counts = new ConcurrentHashMap<>();
+    when(countCache.get(anyString())).thenAnswer(invocation -> {
+      Long value = counts.get(invocation.getArgument(0));
       Thread.sleep(20); // widens the window between the read and the write
       return value;
     });
-    doAnswer(invocation -> codes.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpCache)
-                                                                                         .put(anyString(), anyString());
-    when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
+    doAnswer(invocation -> counts.put(invocation.getArgument(0), invocation.getArgument(1))).when(countCache)
+                                                                                           .put(anyString(), anyLong());
     plugin.setMaxAttempts(3);
     assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
 
@@ -526,16 +501,35 @@ public class EmailChangeEmailOtpPluginTest {
     assertEquals(60, defaults.getSendIntervalSeconds());
     assertEquals(5, defaults.getCodeTtlMinutes());
     assertEquals(5, defaults.getMaxAttempts());
+    assertEquals(5, defaults.getAttemptsTtl());
     assertEquals("assets/email-change-otp-email-content.html", defaults.getEmailBodyPath());
 
     EmailChangeEmailOtpPlugin configured = loadPlugin(Map.of("meeds.apiKey.otp.email.sendInterval", "90",
                                                              "meeds.apiKey.otp.email.ttl", "7",
                                                              "meeds.apiKey.otp.maxTentatives.count", "3",
+                                                             "meeds.apiKey.otp.maxTentatives.ttl", "9",
                                                              "meeds.emailChange.otp.email.templatePath", "custom.html"));
     assertEquals(90, configured.getSendIntervalSeconds());
     assertEquals(7, configured.getCodeTtlMinutes());
     assertEquals(3, configured.getMaxAttempts());
+    assertEquals(9, configured.getAttemptsTtl());
     assertEquals("custom.html", configured.getEmailBodyPath());
+  }
+
+  private Map<String, String> stubOtpCache(Map<String, String> codes) {
+    when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0)));
+    doAnswer(invocation -> codes.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpCache)
+                                                                                         .put(anyString(), anyString());
+    when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
+    return codes;
+  }
+
+  private Map<String, Long> stubTentativesCache(Map<String, Long> counts) {
+    when(countCache.get(anyString())).thenAnswer(invocation -> counts.get(invocation.getArgument(0)));
+    doAnswer(invocation -> counts.put(invocation.getArgument(0), invocation.getArgument(1))).when(countCache)
+                                                                                           .put(anyString(), anyLong());
+    when(countCache.remove(anyString())).thenAnswer(invocation -> counts.remove(invocation.getArgument(0)));
+    return counts;
   }
 
   private EmailChangeEmailOtpPlugin loadPlugin(Map<String, Object> properties) {

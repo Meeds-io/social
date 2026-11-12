@@ -19,10 +19,12 @@
 package io.meeds.social.security.plugin;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.services.cache.CacheService;
+import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
@@ -38,8 +40,9 @@ import lombok.Setter;
  * {@link EmailOtpPlugin} (the {@code meeds.apiKey.otp.email.*} settings), as
  * are its caches, under the purpose-bound key of this method. The send lock
  * is taken first, on every request, refused ones included, and holds per
- * user whatever the address; a wrong code keeps it. A code is dropped after
- * {@code meeds.apiKey.otp.maxTentatives.count} wrong guesses
+ * user whatever the address; a wrong code keeps it. Wrong guesses are
+ * bounded as the OTP service bounds them, per user over
+ * {@code meeds.apiKey.otp.maxTentatives.ttl}
  * ({@link #validateOtp(String, String)}). Once the change is
  * written, the former address is told of it
  * ({@link #sendChangeNotice(String, String)}).
@@ -49,21 +52,29 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
 
   private static final Log    LOG                 = ExoLogger.getLogger(EmailChangeEmailOtpPlugin.class);
 
-  private static final String ATTEMPTS_KEY_SUFFIX = ":attempts";
+  private static final String TENTATIVES_CACHE_NAME = "otp.emailChange.tentatives";
 
   /**
-   * Serializes the read, increment and write of the wrong-guess count, and the
-   * store of a new code with the reset of that count: concurrent guesses would
-   * otherwise count as one, and a guess between the store and the reset would
-   * be checked against the new code but counted, and possibly drop it, on the
-   * old code's count
+   * Serializes the read, increment and write of the wrong-guess count:
+   * concurrent guesses would otherwise count as one
    */
-  private final Object        attemptsLock        = new Object();
+  private final Object        attemptsLock          = new Object();
+
+  @Autowired
+  private CacheService        tentativesCacheService;
 
   @Value("${meeds.apiKey.otp.maxTentatives.count:5}")
   @Getter
   @Setter
   private long                maxAttempts;
+
+  /** Minutes a wrong-guess count lives after the last wrong guess */
+  @Value("${meeds.apiKey.otp.maxTentatives.ttl:5}")
+  @Getter
+  @Setter
+  private long                attemptsTtl;
+
+  private ExoCache<String, Long> tentativesCache;
 
   @Value("${meeds.emailChange.otp.email.templatePath:assets/email-change-otp-email-content.html}")
   @Setter
@@ -104,26 +115,31 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
   }
 
   /**
-   * Counts the wrong guesses at the user's code and drops the code at the
-   * {@code meeds.apiKey.otp.maxTentatives.count}th one: a new code then needs
-   * a new send, under the send interval. The OTP service's own count does not
-   * bound this code: it is kept per user and cleared by any valid code, and
-   * the email change checks the code of the current address in the same
-   * request. Guesses are counted one at a time on a server, so concurrent
-   * requests never count as one.
+   * Bounds the wrong guesses at the user's code as the OTP service bounds the
+   * other methods: per user, {@code meeds.apiKey.otp.maxTentatives.count} of
+   * them, in a count that lives {@code meeds.apiKey.otp.maxTentatives.ttl}
+   * minutes after the last one and that a valid code clears. At the limit the
+   * code is dropped, and every code is refused until the count expires: a new
+   * send does not start it again. The OTP service's own count does not bound
+   * this code: it is cleared by any valid code, and the email change checks the
+   * code of the current address in the same request. Guesses are counted one
+   * at a time on a server, so concurrent requests never count as one.
    */
   @Override
   public boolean validateOtp(String userName, String otpCode) {
     synchronized (attemptsLock) {
+      Long count = getTentativesCache().get(userName);
+      long attempts = count == null ? 0 : count;
+      if (attempts >= maxAttempts) {
+        return false;
+      }
       boolean valid = super.validateOtp(userName, otpCode);
-      if (!valid) {
-        String attemptsKey = getAttemptsKey(userName);
-        long attempts = NumberUtils.toLong(getOtpCache().get(attemptsKey)) + 1;
-        if (attempts >= maxAttempts) {
+      if (valid) {
+        getTentativesCache().remove(userName);
+      } else {
+        getTentativesCache().put(userName, attempts + 1);
+        if (attempts + 1 >= maxAttempts) {
           getOtpCache().remove(getCacheKey(userName));
-          getOtpCache().remove(attemptsKey);
-        } else {
-          getOtpCache().put(attemptsKey, String.valueOf(attempts));
         }
       }
       return valid;
@@ -161,20 +177,12 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
     return EmailChangeOtpPlugin.bindCode(otpCode, recipientEmail);
   }
 
-  /**
-   * The new code replaces the old one and starts the wrong-guess count again
-   * in one step
-   */
-  @Override
-  protected void storeCode(String userName, String cacheKey, String storedCode) {
-    synchronized (attemptsLock) {
-      super.storeCode(userName, cacheKey, storedCode);
-      getOtpCache().remove(getAttemptsKey(userName));
+  private ExoCache<String, Long> getTentativesCache() {
+    if (tentativesCache == null) {
+      tentativesCache = tentativesCacheService.getCacheInstance(TENTATIVES_CACHE_NAME);
+      tentativesCache.setLiveTime(attemptsTtl * 60);
     }
-  }
-
-  private String getAttemptsKey(String userName) {
-    return getCacheKey(userName) + ATTEMPTS_KEY_SUFFIX;
+    return tentativesCache;
   }
 
 }
