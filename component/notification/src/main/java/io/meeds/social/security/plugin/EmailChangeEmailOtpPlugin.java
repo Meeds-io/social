@@ -54,8 +54,9 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
   /**
    * Serializes the read, increment and write of the wrong-guess count, and the
    * store of a new code with the reset of that count: concurrent guesses would
-   * otherwise count as one, and a guess between the reset and the store would
-   * count against the new code while the old one still validates
+   * otherwise count as one, and a guess between the store and the reset would
+   * be checked against the new code but counted, and possibly drop it, on the
+   * old code's count
    */
   private final Object        attemptsLock        = new Object();
 
