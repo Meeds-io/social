@@ -51,6 +51,12 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
 
   private static final String ATTEMPTS_KEY_SUFFIX = ":attempts";
 
+  /**
+   * Serializes the read, increment and write of the wrong-guess count and its
+   * reset on a new send: concurrent guesses would otherwise count as one
+   */
+  private final Object        attemptsLock        = new Object();
+
   @Value("${meeds.apiKey.otp.maxTentatives.count:5}")
   @Getter
   @Setter
@@ -90,7 +96,9 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
     if (StringUtils.isBlank(newEmail)) {
       throw new IllegalArgumentException("The new email address is mandatory");
     }
-    getOtpCache().remove(getAttemptsKey(userName));
+    synchronized (attemptsLock) {
+      getOtpCache().remove(getAttemptsKey(userName));
+    }
     sendOtpCodeUnderLock(userName, newEmail.trim());
     return null;
   }
@@ -101,22 +109,25 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
    * a new send, under the send interval. The OTP service's own count does not
    * bound this code: it is kept per user and cleared by any valid code, and
    * the email change checks the code of the current address in the same
-   * request.
+   * request. Guesses are counted one at a time on a server, so concurrent
+   * requests never count as one.
    */
   @Override
   public boolean validateOtp(String userName, String otpCode) {
-    boolean valid = super.validateOtp(userName, otpCode);
-    if (!valid) {
-      String attemptsKey = getAttemptsKey(userName);
-      long attempts = NumberUtils.toLong(getOtpCache().get(attemptsKey)) + 1;
-      if (attempts >= maxAttempts) {
-        getOtpCache().remove(getCacheKey(userName));
-        getOtpCache().remove(attemptsKey);
-      } else {
-        getOtpCache().put(attemptsKey, String.valueOf(attempts));
+    synchronized (attemptsLock) {
+      boolean valid = super.validateOtp(userName, otpCode);
+      if (!valid) {
+        String attemptsKey = getAttemptsKey(userName);
+        long attempts = NumberUtils.toLong(getOtpCache().get(attemptsKey)) + 1;
+        if (attempts >= maxAttempts) {
+          getOtpCache().remove(getCacheKey(userName));
+          getOtpCache().remove(attemptsKey);
+        } else {
+          getOtpCache().put(attemptsKey, String.valueOf(attempts));
+        }
       }
+      return valid;
     }
-    return valid;
   }
 
   /**

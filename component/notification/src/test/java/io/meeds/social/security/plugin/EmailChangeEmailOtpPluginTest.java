@@ -38,10 +38,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.MessagingException;
@@ -370,6 +377,45 @@ public class EmailChangeEmailOtpPluginTest {
     assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
     assertFalse(plugin.validateOtp("john", wrongCode));
     assertTrue("A new code starts the count again", plugin.validateOtp("john", sentCode));
+  }
+
+  /**
+   * Concurrent wrong guesses are counted one by one: sent together, they still
+   * drop the code at the limit
+   */
+  @Test
+  public void testConcurrentWrongGuessesDropTheCode() throws Exception {
+    Map<String, String> codes = new ConcurrentHashMap<>();
+    when(otpCache.get(anyString())).thenAnswer(invocation -> {
+      String value = codes.get(invocation.getArgument(0));
+      Thread.sleep(20); // widens the window between the read and the write
+      return value;
+    });
+    doAnswer(invocation -> codes.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpCache)
+                                                                                         .put(anyString(), anyString());
+    when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
+    plugin.setMaxAttempts(3);
+    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+
+    String wrongCode = EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL);
+    ExecutorService executor = Executors.newFixedThreadPool(3);
+    try {
+      CountDownLatch start = new CountDownLatch(1);
+      List<Future<Boolean>> guesses = new ArrayList<>();
+      for (int i = 0; i < 3; i++) {
+        guesses.add(executor.submit(() -> {
+          start.await();
+          return plugin.validateOtp("john", wrongCode);
+        }));
+      }
+      start.countDown();
+      for (Future<Boolean> guess : guesses) {
+        assertFalse(guess.get());
+      }
+    } finally {
+      executor.shutdownNow();
+    }
+    assertFalse("Three concurrent wrong guesses reach the limit of three", codes.containsKey(CACHE_KEY));
   }
 
   @Test
