@@ -7,7 +7,6 @@
       :min-height="80"
       :max-height="80"
       :elevation="hover && 3 || 0"
-      :href="userProfileUrl"
       outlined
       flat
       rounded>
@@ -17,6 +16,7 @@
         :profile-action-extensions="profileActionExtensions"
         :mobile-display="isMobile"
         :attach-menu="false"
+        stretched-link
         display-compact-menu-button
         compact-display />
     </v-card>
@@ -42,13 +42,6 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.mobile;
     },
-    userProfileUrl() {
-      if (this.result?.username) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.result.username}`;
-      } else {
-        return '#';
-      }
-    }
   },
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];

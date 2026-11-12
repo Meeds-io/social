@@ -2,6 +2,7 @@
   <v-app role="search">
     <v-btn
       :title="tooltip"
+      :aria-label="tooltip"
       icon
       class="transparent"
       @click="$refs.drawer.toogle()">
