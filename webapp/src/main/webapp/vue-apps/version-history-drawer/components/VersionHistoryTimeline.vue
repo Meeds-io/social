@@ -199,7 +199,7 @@ export default {
      * @returns {void}
      */
     paramsKey() {
-      this.loadSources();
+      void this.loadSources();
     },
   },
   /**
@@ -216,7 +216,7 @@ export default {
       versions: this.versions,
       ids: (this.versions || []).map(version => version?.id).join(),
     }), this.versionsChanged);
-    this.loadSources();
+    void this.loadSources();
   },
   /**
    * Loads the following lines whenever the end of the list comes into view.
@@ -225,7 +225,7 @@ export default {
   mounted() {
     this.observer = new IntersectionObserver(observed => {
       if (observed.some(entry => entry.isIntersecting)) {
-        this.loadMore();
+        void this.loadMore();
       }
     });
     this.observer.observe(this.$refs.end);
@@ -301,7 +301,8 @@ export default {
         return;
       }
       if (previous.loading || previous.versions !== state.versions || previous.ids !== state.ids) {
-        this.rebuild();
+        // a failed read shows as the error text, so nothing awaits the rebuild
+        void this.rebuild();
       }
     },
     /**
@@ -465,7 +466,7 @@ export default {
      */
     sourceComponent(sourceId) {
       const source = this.sources.find(candidate => candidate.id === sourceId);
-      return source && source.vueComponent;
+      return source?.vueComponent;
     },
     /**
      * Asks the host to open a version.
