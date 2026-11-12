@@ -242,7 +242,7 @@ export default {
       this.sentEmail = null;
       this.currentOtpCode = null;
       this.currentCodeSent = false;
-      this.sendCurrentOtpCode();
+      void this.sendCurrentOtpCode();
       this.$refs.drawer.open();
       this.user = await this.$userService.getUser(this.username);
       this.email = this.user?.email;
