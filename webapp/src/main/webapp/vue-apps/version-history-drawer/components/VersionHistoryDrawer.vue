@@ -17,13 +17,28 @@
 <template>
   <exo-drawer
     ref="versionHistoryDrawer"
+    v-model="drawer"
     class="versionHistoryDrawer"
     right
     @closed="closed">
     <template slot="title">
       {{ $t('versionHistory.label.title') }}
     </template>
-    <template slot="content">
+    <template v-if="sourcesExtension" slot="content">
+      <version-history-timeline
+        v-if="drawer"
+        :versions="versions"
+        :is-loading="isLoading"
+        :can-manage="canManage"
+        :enable-edit-description="enableEditDescription"
+        :disable-restore-version="disableRestoreVersion"
+        :sources-extension="sourcesExtension"
+        :source-params="sourceParams"
+        @open-version="openVersion"
+        @version-update-description="updateVersionDescription"
+        @restore-version="restoreVersion" />
+    </template>
+    <template v-else slot="content">
       <div
         v-if="!isLoading && !hasVersions"
         class="versionHistoryEmpty text-center text-light-color mt-5">
@@ -50,7 +65,7 @@
         </v-slide-y-transition>
       </v-list>
     </template>
-    <template v-if="showLoadMore" slot="footer">
+    <template v-if="showLoadMore && !sourcesExtension" slot="footer">
       <v-btn
         :loading="isLoading"
         :disabled="isLoading"
@@ -103,7 +118,28 @@ export default {
         return false;
       }
     },
+    /**
+     * The extensionRegistry app under which add-ons register line sources
+     * for this host, of type version-history-source: set, the drawer lists
+     * the host's versions and those sources' lines in one timeline, with
+     * chips and scrolling; null keeps the plain list of versions.
+     */
+    sourcesExtension: {
+      type: String,
+      default: null,
+    },
+    /**
+     * What each source's isEnabled and load receive about the object, such
+     * as {noteId}.
+     */
+    sourceParams: {
+      type: Object,
+      default: () => ({}),
+    },
   },
+  data: () => ({
+    drawer: false,
+  }),
   computed: {
     /**
      * Tells whether there is at least one version to list.
@@ -115,10 +151,14 @@ export default {
   },
   watch: {
     /**
-     * Shows the drawer loading while the host loads versions.
+     * Shows the drawer loading while the host loads versions; the timeline
+     * shows its own when sources are listed.
      * @returns {void}
      */
     isLoading() {
+      if (this.sourcesExtension) {
+        return;
+      }
       if (this.isLoading) {
         this.$refs.versionHistoryDrawer.startLoading();
       } else {
