@@ -178,8 +178,11 @@ public class AccountDeactivationService {
    *           account whose creation source isn't managed by the platform), or
    *           when the deletion is requested while the admin deletion option
    *           is off
-   * @throws IllegalAccessException when the OTP code is blank, invalid or the
-   *           validation tentatives are exhausted
+   * @throws IllegalAccessException when the OTP method is not one whose code
+   *           proves access to the account
+   *           ({@link AccountOtpMethods#provesTheAccount(String)}), or when the
+   *           OTP code is blank, invalid or the validation tentatives are
+   *           exhausted
    */
   @SneakyThrows
   public void requestDeactivation(String username,
