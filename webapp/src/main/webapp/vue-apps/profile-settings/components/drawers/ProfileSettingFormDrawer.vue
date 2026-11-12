@@ -629,8 +629,17 @@ export default {
       this.changes= false;
       this.drawer = true;     
     },
-    handleSettingUpdated(setting) {
+    handleSettingUpdated(setting, sentSetting) {
+      if (this.setting?.id !== setting?.id) {
+        return;
+      }
       this.initialSetting = structuredClone(setting);
+      // A flag the server switched off is shown as stored, unless it was changed since this save
+      ['listedOnAccountForm', 'listedOnRegistration'].forEach(field => {
+        if (sentSetting && this.setting[field] === sentSetting[field]) {
+          this.setting[field] = setting[field];
+        }
+      });
       this.areLabelsChanged = false;
     },
     saveSetting(event) {

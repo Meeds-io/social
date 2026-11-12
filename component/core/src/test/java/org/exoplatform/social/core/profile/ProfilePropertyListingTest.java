@@ -130,13 +130,13 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
     assertListed(createListed("t".repeat(190), s -> s.setGroupSynchronized(true)).getId(), false, false);
     // Each é is cleaned into two characters
     assertListed(createListed("é".repeat(95), s -> s.setGroupSynchronized(true)).getId(), false, false);
-    assertListed(createListed("  ", s -> s.setGroupSynchronized(true)).getId(), false, false);
+    assertListed(createListed("\u00A0\u00A0", s -> s.setGroupSynchronized(true)).getId(), false, false);
     assertListed(createListed("\u0001", s -> s.setGroupSynchronized(true)).getId(), false, false);
 
     // The same names keep their flags when the attribute is not synchronized
     assertListed(createListed("u".repeat(190), s -> {
     }).getId(), true, true);
-    assertListed(createListed("   ", s -> {
+    assertListed(createListed("\u00A0\u00A0\u00A0", s -> {
     }).getId(), true, true);
 
     // Synchronization turned on after listing
@@ -338,7 +338,8 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
     assertNotNull(profilePropertySettingDAO.find(parent.getId()));
     commitInAnotherEntityManager("UPDATE SocProfileSettingEntity s SET s.isEditable = false, s.isVisible = false, "
         + "s.isActive = false, s.isRequired = true, s.isMultiValued = true, s.isHiddenable = false, "
-        + "s.indexInAnalytics = true, s.order = 77, s.propertyType = 'concurrent' WHERE s.id = " + parent.getId());
+        + "s.indexInAnalytics = true, s.order = 77, s.propertyType = 'concurrent', s.propertyName = 'concurrentName', "
+        + "s.isGroupSynchronized = true, s.isDropdownList = true, s.parentId = 999 WHERE s.id = " + parent.getId());
 
     ProfilePropertySetting child = newSetting("street");
     child.setParentId(parent.getId());
@@ -357,6 +358,10 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
     assertTrue(stored.isIndexInAnalytics());
     assertEquals(Long.valueOf(77), stored.getOrder());
     assertEquals("concurrent", stored.getPropertyType());
+    assertEquals("concurrentName", stored.getPropertyName());
+    assertTrue(stored.isGroupSynchronized());
+    assertTrue(stored.isDropdownList());
+    assertEquals(Long.valueOf(999), stored.getParentId());
   }
 
   private void assertParentReadBack(Long parentId, long parentUpdated) {

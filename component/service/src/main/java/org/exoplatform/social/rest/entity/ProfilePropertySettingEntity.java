@@ -85,10 +85,16 @@ public class ProfilePropertySettingEntity {
 
   private boolean                            isUserCardFieldSettings;
 
-  /** Null when a client does not send it: an update then keeps the stored value */
+  /**
+   * Null when the key is absent from the request's body: an update then keeps
+   * the stored value. The JSON binder reads an explicit null as false.
+   */
   private Boolean                            listedOnAccountForm;
 
-  /** Null when a client does not send it: an update then keeps the stored value */
+  /**
+   * Null when the key is absent from the request's body: an update then keeps
+   * the stored value. The JSON binder reads an explicit null as false.
+   */
   private Boolean                            listedOnRegistration;
 
   public List<ProfilePropertySettingEntity> getChildren() {

@@ -197,19 +197,40 @@ export default {
           this.excludedSettingsProp = settings?.excludedQuickSearchProperties;
           this.excludedAnalyticsIndexProperties = settings?.excludedAnalyticsIndexProperties;
           this.unlistableProperties = settings?.unlistableProperties || [];
+          return this.settings;
         });
     },
     editSetting(setting, refresh) {
+      // The setting as sent, so that the open form keeps a flag changed since this save
+      const sentSetting = JSON.parse(JSON.stringify(setting));
       this.$profileSettingsService.updateSetting(setting).then(() => {
-        if (refresh) {
-          this.getSettings();
-        }
-        this.$root.$emit('setting-updated', setting);
         this.$root.$emit('alert-message', this.$t('profileSettings.update.success.message'), 'success');
+        if (!refresh) {
+          this.$root.$emit('setting-updated', setting, sentSetting);
+          return;
+        }
+        this.getSettings()
+          // The stored setting, since the server switches off a listing flag that cannot be on
+          .then(settings => this.findSetting(settings, setting.id))
+          // The save is stored: a failed reload leaves the form as sent
+          .catch(e => console.error(e))
+          .then(storedSetting => this.$root.$emit('setting-updated', storedSetting || setting, sentSetting));
       }).catch(e => {
         console.error(e);
         this.$root.$emit('alert-message', this.$t(e.message), 'error');
       });
+    },
+    findSetting(settings, id) {
+      for (const setting of settings || []) {
+        if (setting.id === id) {
+          return setting;
+        }
+        const child = this.findSetting(setting.children, id);
+        if (child) {
+          return child;
+        }
+      }
+      return null;
     },
     createSetting(setting) {
       this.$profileSettingsService.addSetting(setting).then(storedSetting => {

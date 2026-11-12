@@ -98,6 +98,10 @@ public class CachedProfileSettingStorageClusterTest {
 
   private final Set<Long>                                 failingLoads       = ConcurrentHashMap.newKeySet();
 
+  private final List<Runnable>                            afterCompletionCallbacks = new ArrayList<>();
+
+  private volatile boolean                                queriesFail;
+
   private ProfilePropertySettingDAO                       settingDAO;
 
   private MockedStatic<TransactionCallbacks>              transactionCallbacks;
@@ -110,13 +114,13 @@ public class CachedProfileSettingStorageClusterTest {
   public void setUp() {
     settingDAO = mock(ProfilePropertySettingDAO.class);
     when(settingDAO.find(any())).thenAnswer(invocation -> load(invocation.getArgument(0)));
-    when(settingDAO.findOrderedSettings()).thenAnswer(invocation -> store.values()
+    when(settingDAO.findOrderedSettings()).thenAnswer(invocation -> failIfQueriesFail() ? null : store.values()
                                                                          .stream()
                                                                          .sorted(Comparator.comparing(ProfilePropertySettingEntity::getOrder,
                                                                                                       Comparator.nullsLast(Comparator.naturalOrder())))
                                                                          .map(this::copy)
                                                                          .toList());
-    when(settingDAO.findProfileSettingByName(anyString())).thenAnswer(invocation -> store.values()
+    when(settingDAO.findProfileSettingByName(anyString())).thenAnswer(invocation -> failIfQueriesFail() ? null : store.values()
                                                                                          .stream()
                                                                                          .filter(e -> e.getPropertyName()
                                                                                                        .equals(invocation.getArgument(0)))
@@ -159,7 +163,8 @@ public class CachedProfileSettingStorageClusterTest {
     }).when(settingDAO).delete(any());
 
     transactionCallbacks = mockStatic(TransactionCallbacks.class);
-    transactionCallbacks.when(() -> TransactionCallbacks.afterCompletion(any())).thenReturn(false);
+    transactionCallbacks.when(() -> TransactionCallbacks.afterCompletion(any()))
+                        .thenAnswer(invocation -> afterCompletionCallbacks.add(invocation.getArgument(0)));
 
     node1 = newNode("node1");
     node2 = newNode("node2");
@@ -284,9 +289,38 @@ public class CachedProfileSettingStorageClusterTest {
   }
 
   /**
+   * A node that reloads a key from the store after the saving node's eviction
+   * reached it, and before that node's commit, caches the setting as it was
+   * before the save: the eviction run again once the transaction completes
+   * removes it. Another node's write of the same key consumed the replicated
+   * entry in between, so the saving node reads the key again for its
+   * eviction to be published.
+   */
+  @Test
+  public void testAReadBeforeTheCommitIsEvictedOnceTheTransactionCompletes() {
+    ProfilePropertySetting setting = node1.saveProfilePropertySetting(newSetting("department"), true);
+    runAfterCompletionCallbacks();
+    ProfilePropertySettingEntity beforeSave = copy(store.get(setting.getId()));
+    loadEveryKey(node1, setting);
+    loadEveryKey(node2, setting);
+
+    setting.setListedOnAccountForm(true);
+    node1.saveProfilePropertySetting(setting, false);
+    replicatedCaches.get(CachedProfileSettingStorage.PROFILE_SETTINGS_CACHE_NAME).remove(setting.getId());
+    ProfilePropertySettingEntity saved = store.put(setting.getId(), beforeSave);
+    assertFalse("Read before the commit", node2.getProfileSettingById(setting.getId()).isListedOnAccountForm());
+    store.put(setting.getId(), saved);
+
+    runAfterCompletionCallbacks();
+
+    assertTrue(node2.getProfileSettingById(setting.getId()).isListedOnAccountForm());
+  }
+
+  /**
    * The reads made before a write only collect and load the keys to evict:
-   * a read that fails, as one outside a request lifecycle does on a setting
-   * with options, never fails the write.
+   * a read that fails, as each read through the caches does outside a request
+   * lifecycle (a conversion of a detached entity, a query on a closed entity
+   * manager), never fails the write.
    */
   @Test
   public void testAFailedReadBeforeAWriteDoesNotFailTheWrite() {
@@ -294,6 +328,7 @@ public class CachedProfileSettingStorageClusterTest {
     ProfilePropertySetting updated = node1.saveProfilePropertySetting(newSetting("updated"), true);
     failingLoads.add(deleted.getId());
     failingLoads.add(updated.getId());
+    queriesFail = true;
 
     node1.deleteProfilePropertySetting(deleted.getId());
     updated.setListedOnAccountForm(true);
@@ -329,6 +364,19 @@ public class CachedProfileSettingStorageClusterTest {
     assertFalse("The blocked load read the store before the write", staleLoad.get().isListedOnAccountForm());
     assertTrue("The blocked load's value must not be cached once the save invalidated it",
                node1.getProfileSettingById(id).isListedOnAccountForm());
+  }
+
+  private boolean failIfQueriesFail() {
+    if (queriesFail) {
+      throw new IllegalStateException("Session/EntityManager is closed");
+    }
+    return false;
+  }
+
+  private void runAfterCompletionCallbacks() {
+    List<Runnable> callbacks = new ArrayList<>(afterCompletionCallbacks);
+    afterCompletionCallbacks.clear();
+    callbacks.forEach(Runnable::run);
   }
 
   private CachedProfileSettingStorage newNode(String nodeName) {
