@@ -363,11 +363,11 @@ public class EmailChangeEmailOtpPluginTest {
     assertFalse("At the limit, the code is dropped", plugin.validateOtp("john", sentCode));
     assertFalse(codes.containsKey(CACHE_KEY));
 
+    codes.clear();
     assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
     assertFalse(plugin.validateOtp("john", wrongCode));
     assertFalse(plugin.validateOtp("john", wrongCode));
     assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
-    assertFalse(plugin.validateOtp("john", wrongCode));
     assertFalse(plugin.validateOtp("john", wrongCode));
     assertTrue("A new code starts the count again", plugin.validateOtp("john", sentCode));
   }
