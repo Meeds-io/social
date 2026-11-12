@@ -136,7 +136,7 @@
                   dense
                   @keyup.enter="verify" />
                 <v-btn
-                  :disabled="sendingCode"
+                  :disabled="!currentOtpCode || sendingCode"
                   :loading="sendingCode && operation === 'sendingEmail'"
                   height="40"
                   class="btn"
