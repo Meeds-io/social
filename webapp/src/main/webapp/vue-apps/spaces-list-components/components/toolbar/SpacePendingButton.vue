@@ -32,7 +32,7 @@
         :aria-label="$t(labelKey, {0: count})"
         :aria-pressed="filter !== 'requests' ? String(isSelected) : null"
         :class="{
-          'primary-border-color' : isSelected,
+          'primary' : isSelected,
           'border-color-transparent' : !isSelected,
         }"
         class="ms-2"
@@ -41,7 +41,7 @@
         icon
         @click="apply">
         <v-icon
-          :class="iconClass"
+          :class="[iconClass, isSelected && 'white--text']"
           size="20"
           dark>
           {{ icon }}
