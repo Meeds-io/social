@@ -137,6 +137,7 @@ export default {
     return {
       menu: false,
       openedFromKeyboard: false,
+      usedKeyboard: false,
       lang: eXo.env.portal.language && eXo.env.portal.language.replace('_', '-'),
       dates: [],
       fromTime: '00:00:00',
@@ -190,6 +191,10 @@ export default {
       return this.toDate && this.toDate.toLocaleString(this.lang, this.dateFormat);
     },
     rangeDateTimeTitle() {
+      // the field's name, read by a screen reader: the placeholder until a period is chosen
+      if (!this.fromDate || !this.toDate) {
+        return this.placeholder;
+      }
       return `${this.fromFullDateFormat} ~ ${this.toFullDateFormat}`;
     },
     rangeDate() {
@@ -207,6 +212,17 @@ export default {
   },
   watch: {
     menu(newVal, oldVal) {
+      if (!newVal && oldVal && this.usedKeyboard) {
+        // closed by a choice made in it with the keyboard: the focus goes back to the field instead of the page
+        this.usedKeyboard = false;
+        this.$nextTick(() => {
+          const content = document.querySelector(`.${this.menuId}`);
+          const active = document.activeElement;
+          if (!active || active === document.body || content?.contains(active)) {
+            this.$el.querySelector?.('.select-period-input input')?.focus();
+          }
+        });
+      }
       if (newVal && this.openedFromKeyboard) {
         this.openedFromKeyboard = false;
         // the read-only field keeps the focus, which the date picker needs to be used from the keyboard
@@ -232,6 +248,10 @@ export default {
   },
   mounted() {
     $(document).on('click', (e) => {
+      // a mouse user closing the menu keeps the focus where the click put it
+      if (e.detail) {
+        this.usedKeyboard = false;
+      }
       if (e.target && !$(e.target).parents(`.${this.menuId}`).length) {
         this.close();
       }
@@ -241,6 +261,7 @@ export default {
   methods: {
     openFromKeyboard() {
       this.openedFromKeyboard = true;
+      this.usedKeyboard = true;
       this.menu = true;
     },
     toLocalISOString(date) {
