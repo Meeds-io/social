@@ -31,12 +31,17 @@ import lombok.Getter;
  */
 public class ActivityMetadataCacheSelector extends CacheSelector<ActivityKey, ActivityData> {
 
-  private String objectType;
+  private static final long serialVersionUID = 1L;
 
-  private String objectId;
+  private final String      objectType;
 
+  private final String      objectId;
+
+  /**
+   * Whether this node held an entry the selection selected
+   */
   @Getter
-  private boolean found;
+  private transient boolean found;
 
   public ActivityMetadataCacheSelector(String objectType, String objectId) {
     this.objectType = objectType;
@@ -45,15 +50,16 @@ public class ActivityMetadataCacheSelector extends CacheSelector<ActivityKey, Ac
 
   @Override
   public boolean select(final ActivityKey key, final ObjectCacheInfo<? extends ActivityData> ocinfo) {
-    if (!super.select(key, ocinfo)) {
-      return false;
-    }
-
     ActivityData data = ocinfo.get();
     boolean match = StringUtils.equals(data.getMetadataObjectType(), objectType)
         && StringUtils.equals(data.getMetadataObjectId(), objectId);
     this.found = this.found || match;
     return match;
+  }
+
+  @Override
+  protected Object[] criteria() {
+    return new Object[] { objectType, objectId };
   }
 
 }

@@ -66,7 +66,13 @@ public class CoeditingService {
   public void init() {
     lockCache = cacheService.getCacheInstance("portal.coediting");
     if (lockCache != null) {
-      lockCache.setLiveTime(lockPeriod);
+      try {
+        lockCache.setLiveTime(lockPeriod);
+      } catch (UnsupportedOperationException e) {
+        // The cache commons-exo's factory builds, whatever its mode, takes
+        // its lifetime from its declaration only, which reads the same
+        // property; a lock is valid by its own time anyway
+      }
     }
   }
 

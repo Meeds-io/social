@@ -77,6 +77,11 @@ public class SpaceWebNotificationWebSocketServerListener implements ServerChanne
       LOG.debug("Not adequate channel name {}", channel.getId());
       return false;
     }
+    if (spaceWebNotificationWebSocketService.isRelayed(from)) {
+      // Handled, and delivered to its subscribers, on the node the client
+      // published it to only
+      return false;
+    }
 
     Object data = message.getData();
     ExoContainerContext.setCurrentContainer(container);
