@@ -23,6 +23,9 @@ import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
+import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
+import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
+import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
 import io.meeds.web.security.service.OtpService;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -44,6 +47,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -83,7 +87,12 @@ import org.exoplatform.social.core.mock.MockUploadService;
 import org.exoplatform.social.core.model.ProfileLabel;
 import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -91,6 +100,7 @@ import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.ProfileFormFieldErrorEntity;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.rest.impl.user.UserRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
@@ -128,6 +138,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
+
+  private static final String          FORM_FIELDS_VALIDATION = "/v1/social/users/form-fields/validate";
 
   private ProfilePropertyService       profilePropertyService;
 
@@ -179,6 +191,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private ProfilePropertyService       profilePropertyServiceSpy;
 
+  private ProfileFormFieldService      profileFormFieldService;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
@@ -212,6 +226,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     settingService = getContainer().getComponentInstanceOfType(SettingService.class);
     otpService = mock(OtpService.class);
     profilePropertyServiceSpy = spy(profilePropertyService);
+    profileFormFieldService = spy(new ProfileFormFieldService(getContainer().getComponentInstanceOfType(ProfileSettingStorage.class),
+                                                              getContainer().getComponentInstanceOfType(IdentityStorage.class),
+                                                              identityManager));
     // The confirmation guard is switched off for the tests of the endpoints'
     // own behaviour; the guard tests switch it back on
     InitParams confirmationParams = new InitParams();
@@ -245,7 +262,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 passwordRecoveryService,
                                                 localeConfigService,
                                                 settingService,
-                                                otpService);
+                                                otpService,
+                                                profileFormFieldService);
     registry(userRestResourcesV1);
   }
 
@@ -329,7 +347,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               passwordRecoveryService,
                                               localeConfigService,
                                               settingService,
-                                              otpService);
+                                              otpService,
+                                              profileFormFieldService);
     registry(userRestResources);
 
     // when
@@ -2119,6 +2138,175 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertTrue(evicted.get());
   }
 
+  public void testFormFieldsWritesRequireAnAdministrator() throws Exception {
+    startSessionAs("mary");
+    assertEquals(403, getResponseAs("POST", FORM_FIELDS_VALIDATION, "[]", "mary").getStatus());
+    assertEquals(403, getResponseAs("PUT", formFieldsOf("john"), "[]", "mary").getStatus());
+  }
+
+  public void testFormFieldsWritesRequireAConfirmedSession() throws Exception {
+    confirmationSettings.setEnabled(true);
+    startSessionAs("root", true);
+    assertOtpRequired(getResponseAs("POST", FORM_FIELDS_VALIDATION, "[]", "root"));
+    assertOtpRequired(getResponseAs("PUT", formFieldsOf("john"), "[]", "root"));
+
+    confirmedSessionUser = "root";
+    assertEquals(200, getResponseAs("POST", FORM_FIELDS_VALIDATION, "[]", "root").getStatus());
+    assertEquals(204, getResponseAs("PUT", formFieldsOf("john"), "[]", "root").getStatus());
+  }
+
+  public void testFormFieldsRefusalsNameTheirCodeAndAttribute() throws Exception {
+    createFormSetting("formTeam", setting -> {
+    });
+    createFormSetting("formMail", setting -> setting.setPropertyType("email"));
+    createFormSetting("formCity", setting -> {
+      setting.setDropdownList(true);
+      setting.setPropertyOptions(List.of(new ProfilePropertyOption(null, "Paris", null)));
+    });
+    createFormSetting("formBadge", setting -> setting.setRequired(true));
+    startSessionAs("root", true);
+    String[][] refusals = {
+        { "formUnknown", "x", ProfileFormFieldException.NOT_ALLOWED },
+        { "formCity", "Lyon", ProfileFormFieldException.INVALID_OPTION },
+        { "formBadge", " ", ProfileFormFieldException.REQUIRED },
+        { "formMail", "not-an-email", ProfileFormFieldException.INVALID_EMAIL },
+        { "formTeam", "a".repeat(2001), ProfileFormFieldException.TOO_LONG },
+        { "formTeam", "[]", ProfileFormFieldException.INVALID_VALUE }, };
+    for (String[] refusal : refusals) {
+      String body = formFieldsBody(refusal[0], refusal[1]);
+      assertFormFieldRefused(getResponseAs("POST", FORM_FIELDS_VALIDATION + "?complete=false", body, "root"), refusal[2], refusal[0]);
+      assertFormFieldRefused(getResponseAs("PUT", formFieldsOf("john") + "?complete=false", body, "root"), refusal[2], refusal[0]);
+    }
+    verify(profileFormFieldService, never()).save(nullable(String.class), nullable(Map.class), nullable(String.class));
+  }
+
+  public void testFormFieldsDryRunWritesNothing() throws Exception {
+    createFormSetting("formTeam", setting -> {
+    });
+    startSessionAs("root", true);
+    assertEquals(200, getResponseAs("POST", FORM_FIELDS_VALIDATION, formFieldsBody("formTeam", "Sales"), "root").getStatus());
+    verify(profileFormFieldService, never()).save(nullable(String.class), nullable(Map.class), nullable(String.class));
+  }
+
+  public void testFormFieldsAreSavedOnAnAccountADisabledOneIncluded() throws Exception {
+    createFormSetting("formTeam", setting -> {
+    });
+    startSessionAs("root", true);
+    assertEquals(204, getResponseAs("PUT", formFieldsOf("john"), formFieldsBody("formTeam", "Sales"), "root").getStatus());
+    assertEquals("Sales", profileFormFieldService.getProfile("john").getProperty("formTeam"));
+
+    Identity demo = identityManager.getOrCreateUserIdentity("demo");
+    demo.setEnable(false);
+    identityManager.updateIdentity(demo);
+    try {
+      assertEquals(204, getResponseAs("PUT", formFieldsOf("demo"), formFieldsBody("formTeam", "Support"), "root").getStatus());
+      assertEquals("Support", profileFormFieldService.getProfile("demo").getProperty("formTeam"));
+    } finally {
+      demo.setEnable(true);
+      identityManager.updateIdentity(demo);
+    }
+  }
+
+  /**
+   * A multi-valued attribute is sent as values and stored as a list of
+   * values; each attribute sent in the other one's shape is refused.
+   */
+  public void testAMultiValuedFieldIsSentAsValuesAndSavedAsAList() throws Exception {
+    createFormSetting("formSkills", setting -> setting.setMultiValued(true));
+    createFormSetting("formTeam", setting -> {
+    });
+    startSessionAs("root", true);
+    String skills = "[{\"propertyName\":\"formSkills\",\"values\":[\"Java\",\"Vue\"]}]";
+    assertEquals(200, getResponseAs("POST", FORM_FIELDS_VALIDATION, skills, "root").getStatus());
+    assertEquals(204, getResponseAs("PUT", formFieldsOf("john"), skills, "root").getStatus());
+    Object stored = profileFormFieldService.getProfile("john").getProperty("formSkills");
+    assertTrue(String.valueOf(stored), stored instanceof ArrayList);
+    assertEquals(List.of(Map.of("value", "Java"), Map.of("value", "Vue")), stored);
+
+    assertFormFieldRefused(getResponseAs("PUT",
+                                         formFieldsOf("john"),
+                                         "[{\"propertyName\":\"formTeam\",\"values\":[\"Sales\"]}]",
+                                         "root"),
+                           ProfileFormFieldException.INVALID_VALUE,
+                           "formTeam");
+    assertFormFieldRefused(getResponseAs("PUT", formFieldsOf("john"), formFieldsBody("formSkills", "Java"), "root"),
+                           ProfileFormFieldException.INVALID_VALUE,
+                           "formSkills");
+  }
+
+  public void testFormFieldsOfAUserWithNoIdentityAreNotFoundAndCreateNone() throws Exception {
+    createFormSetting("formTeam", setting -> {
+    });
+    startSessionAs("root", true);
+    assertEquals(404, getResponseAs("PUT", formFieldsOf("nobody"), formFieldsBody("formTeam", "Sales"), "root").getStatus());
+    assertNull(getContainer().getComponentInstanceOfType(IdentityStorage.class)
+                             .findIdentity(OrganizationIdentityProvider.NAME, "nobody"));
+
+    // A user whose creation broadcast nothing has no identity yet
+    String login = "formfields" + System.nanoTime();
+    User user = organizationService.getUserHandler().createUserInstance(login);
+    user.setFirstName("Jane");
+    user.setLastName("Doe");
+    user.setEmail(login + "@example.com");
+    organizationService.getUserHandler().createUser(user, false);
+    try {
+      assertEquals(404, getResponseAs("PUT", formFieldsOf(login), formFieldsBody("formTeam", "Sales"), "root").getStatus());
+      assertNull(getContainer().getComponentInstanceOfType(IdentityStorage.class)
+                               .findIdentity(OrganizationIdentityProvider.NAME, login));
+    } finally {
+      organizationService.getUserHandler().removeUser(login, false);
+    }
+  }
+
+  /**
+   * On an account just created, an optional attribute sent empty is ignored,
+   * so it leaves the attribute's value and the memberships a
+   * group-synchronized one grants; on edition it clears it.
+   */
+  public void testAnEmptyOptionalFieldClearsOnEditionOnly() throws Exception {
+    createFormSetting("formSync", setting -> setting.setGroupSynchronized(true));
+    startSessionAs("root", true);
+    assertEquals(204, getResponseAs("PUT", formFieldsOf("john") + "?complete=false", formFieldsBody("formSync", "before"), "root")
+                                   .getStatus());
+
+    assertEquals(204, getResponseAs("PUT", formFieldsOf("john"), formFieldsBody("formSync", ""), "root").getStatus());
+    assertEquals("before", profileFormFieldService.getProfile("john").getProperty("formSync"));
+
+    assertEquals(204, getResponseAs("PUT", formFieldsOf("john") + "?complete=false", formFieldsBody("formSync", ""), "root")
+                                   .getStatus());
+    assertEquals("", profileFormFieldService.getProfile("john").getProperty("formSync"));
+  }
+
+  public void testANonEditableAttributeIsRefusedToAnAdministrator() throws Exception {
+    createFormSetting("formLocked", setting -> setting.setEditable(false));
+    startSessionAs("root", true);
+    assertFormFieldRefused(getResponseAs("PUT", formFieldsOf("john"), formFieldsBody("formLocked", "x"), "root"),
+                           ProfileFormFieldException.NOT_ALLOWED,
+                           "formLocked");
+  }
+
+  /**
+   * A listed attribute another node created, which this node's cached settings
+   * list lacks, is in the account form's list, read from the store, and has no
+   * entry in the user's settings, read from the cached list.
+   */
+  public void testAnAttributeOnlyTheStoreHoldsIsListedButNotInTheUserSettings() throws Exception {
+    profilePropertyService.getPropertySettings();
+    ProfilePropertySetting setting = newFormSetting("formStoreOnly");
+    ProfileSettingStorage storeOnly = new ProfileSettingStorage(getContainer().getComponentInstanceOfType(ProfilePropertySettingDAO.class),
+                                                                getContainer().getComponentInstanceOfType(ProfilePropertyOptionDAO.class));
+    tearDownProfilePropertyList.add(storeOnly.saveProfilePropertySetting(setting, true));
+    restartTransaction();
+    startSessionAs("root");
+
+    ProfileEntity john = getBaseEntity(service("GET", getURLResource("users/john?expand=settings"), "", null, null).getEntity(),
+                                       ProfileEntity.class);
+    assertTrue(john.getProperties().stream().noneMatch(property -> "formStoreOnly".equals(property.getPropertyName())));
+    assertTrue(profileFormFieldService.getSettings(ProfileFormKind.ACCOUNT)
+                                      .stream()
+                                      .anyMatch(listed -> "formStoreOnly".equals(listed.getPropertyName())));
+  }
+
   private void registerUserRestWith(PasswordRecoveryService recoveryService) throws Exception {
     registerUserRestWith(recoveryService, organizationService);
   }
@@ -2139,7 +2327,41 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                           recoveryService,
                           localeConfigService,
                           settingService,
-                          otpService));
+                          otpService,
+                          profileFormFieldService));
+  }
+
+  private void createFormSetting(String name, Consumer<ProfilePropertySetting> configurer) throws Exception {
+    ProfilePropertySetting setting = newFormSetting(name);
+    configurer.accept(setting);
+    tearDownProfilePropertyList.add(profilePropertyService.createPropertySetting(setting));
+  }
+
+  private ProfilePropertySetting newFormSetting(String name) {
+    ProfilePropertySetting setting = new ProfilePropertySetting();
+    setting.setPropertyName(name);
+    setting.setPropertyType("text");
+    setting.setActive(true);
+    setting.setEditable(true);
+    setting.setVisible(true);
+    setting.setOrder(0L);
+    setting.setListedOnAccountForm(true);
+    return setting;
+  }
+
+  private String formFieldsOf(String username) {
+    return "/v1/social/users/" + username + "/form-fields";
+  }
+
+  private String formFieldsBody(String propertyName, String value) {
+    return "[{\"propertyName\":\"" + propertyName + "\",\"value\":\"" + value + "\"}]";
+  }
+
+  private void assertFormFieldRefused(ContainerResponse response, String code, String propertyName) {
+    assertEquals(String.valueOf(response.getEntity()), 400, response.getStatus());
+    ProfileFormFieldErrorEntity error = (ProfileFormFieldErrorEntity) response.getEntity();
+    assertEquals(code, error.getCode());
+    assertEquals(propertyName, error.getPropertyName());
   }
 
   private ContainerResponse getResponseAs(String method, String path, String input, String remoteUser) throws Exception {

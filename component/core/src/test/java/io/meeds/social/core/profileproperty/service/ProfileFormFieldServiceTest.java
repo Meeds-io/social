@@ -493,6 +493,18 @@ public class ProfileFormFieldServiceTest {
     verify(identityManager, never()).updateProfile(nullable(Profile.class), nullable(String.class), anyBoolean());
   }
 
+  @Test
+  public void testProfileIsReadWithoutCreatingAnIdentity() throws Exception {
+    assertThrows(ObjectNotFoundException.class, () -> service.getProfile(USERNAME));
+
+    givenIdentity(true, true, Map.of());
+    assertThrows(ObjectNotFoundException.class, () -> service.getProfile(USERNAME));
+
+    Profile profile = givenIdentity(false, false, Map.of("team", "Sales"));
+    assertEquals(profile, service.getProfile(USERNAME));
+    verify(identityManager, never()).getOrCreateIdentity(nullable(String.class), nullable(String.class));
+  }
+
   private void assertNotListed(ProfileFormKind kind, String name) {
     assertTrue(service.getSettings(kind).isEmpty());
     assertRefused(NOT_ALLOWED, name, () -> service.validate(List.of(single(name, "x")), kind, false, null));

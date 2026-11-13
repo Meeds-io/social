@@ -169,17 +169,31 @@ public class ProfileFormFieldService {
    *                                   deleted one
    */
   public void save(String username, Map<String, Object> values, String modifier) throws ObjectNotFoundException {
+    Profile profile = getProfile(username);
+    if (values == null || values.isEmpty()) {
+      return;
+    }
+    values.forEach(profile::setProperty);
+    profile.setListUpdateTypes(new ArrayList<>(List.of(Profile.UpdateType.CONTACT)));
+    identityManager.updateProfile(profile, modifier, false);
+  }
+
+  /**
+   * Reads a user's profile through a lookup that creates no identity, so that
+   * a read made before a write, a dry run included, writes nothing.
+   *
+   * @param  username                the user's login
+   * @return                         the user's profile, a disabled user's
+   *                                 included
+   * @throws ObjectNotFoundException when the user has no identity, or a
+   *                                   deleted one
+   */
+  public Profile getProfile(String username) throws ObjectNotFoundException {
     Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, username);
     if (identity == null || identity.isDeleted()) {
       throw new ObjectNotFoundException("User " + username + " has no identity");
     }
-    if (values == null || values.isEmpty()) {
-      return;
-    }
-    Profile profile = identity.getProfile();
-    values.forEach(profile::setProperty);
-    profile.setListUpdateTypes(new ArrayList<>(List.of(Profile.UpdateType.CONTACT)));
-    identityManager.updateProfile(profile, modifier, false);
+    return identity.getProfile();
   }
 
   private boolean isAllowed(ProfilePropertySetting setting, ProfileFormKind kind) {
