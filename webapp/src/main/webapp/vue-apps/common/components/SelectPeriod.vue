@@ -40,10 +40,13 @@
         hide-details
         readonly
         v-bind="attrs"
-        v-on="on" />
+        v-on="on"
+        @keydown.enter.prevent="openFromKeyboard"
+        @keydown.space.prevent="openFromKeyboard" />
     </template>
     <div class="d-flex flex-column">
       <v-date-picker
+        ref="datePicker"
         v-model="dates"
         :locale="lang"
         :max="maxDate"
@@ -133,6 +136,7 @@ export default {
   data() {
     return {
       menu: false,
+      openedFromKeyboard: false,
       lang: eXo.env.portal.language && eXo.env.portal.language.replace('_', '-'),
       dates: [],
       fromTime: '00:00:00',
@@ -203,6 +207,15 @@ export default {
   },
   watch: {
     menu(newVal, oldVal) {
+      if (newVal && this.openedFromKeyboard) {
+        this.openedFromKeyboard = false;
+        // the read-only field keeps the focus, which the date picker needs to be used from the keyboard
+        this.$nextTick(() => window.setTimeout(() => {
+          const picker = this.$refs.datePicker?.$el;
+          (picker?.querySelector('.v-date-picker-table .v-btn--active, .v-date-picker-table .v-date-picker-table__current')
+            || picker?.querySelector('.v-date-picker-table button'))?.focus();
+        }, 200));
+      }
       if (newVal && !oldVal && newVal !== oldVal) {
         if (this.value) {
           const fromLocalISOString = this.toLocalISOString(this.fromDate);
@@ -226,6 +239,10 @@ export default {
     this.selectPeriodItem(this.selectedPeriodName);
   },
   methods: {
+    openFromKeyboard() {
+      this.openedFromKeyboard = true;
+      this.menu = true;
+    },
     toLocalISOString(date) {
       const offset = date.getTimezoneOffset();
       const localDate = new Date(date.getTime() - (offset * 60 * 1000));
