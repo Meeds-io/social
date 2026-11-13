@@ -158,6 +158,8 @@ export default {
     },
     displayNoSpaceOptions() {
       return !this.hasSpaces
+        && !this.keyword
+        && !this.$root.selectedCategoryId
         && this.$root.settings?.filterType === 'any'
         && this.$root.settings?.sortBy === 'title';
     },
