@@ -2203,6 +2203,8 @@ public class EntityBuilder {
                                                                                                 String.valueOf(profilePropertySetting.getId())));
     profilePropertySettingEntity.setPropertyOptions(toProfilePropertyOptionEntities(profilePropertySetting.getPropertyOptions()));
     profilePropertySettingEntity.setDefault(profilePropertyService.isDefaultProperties(profilePropertySetting));
+    profilePropertySettingEntity.setListedOnAccountForm(profilePropertySetting.isListedOnAccountForm());
+    profilePropertySettingEntity.setListedOnRegistration(profilePropertySetting.isListedOnRegistration());
     return profilePropertySettingEntity;
   }
 
@@ -2283,6 +2285,21 @@ public class EntityBuilder {
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
     profilePropertySetting.setPropertyOptions(toProfilePropertyOptions(profilePropertySettingEntity.getPropertyOptions()));
     profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdated());
+    // A listing flag the client did not send keeps its stored value
+    ProfilePropertySetting storedSetting = null;
+    if (profilePropertySettingEntity.getId() != null
+        && (profilePropertySettingEntity.getListedOnAccountForm() == null
+            || profilePropertySettingEntity.getListedOnRegistration() == null)) {
+      storedSetting = profilePropertyService.getProfileSettingById(profilePropertySettingEntity.getId());
+    }
+    profilePropertySetting.setListedOnAccountForm(profilePropertySettingEntity.getListedOnAccountForm() != null ?
+                                                                                                             profilePropertySettingEntity.getListedOnAccountForm() :
+                                                                                                             storedSetting != null
+                                                                                                                 && storedSetting.isListedOnAccountForm());
+    profilePropertySetting.setListedOnRegistration(profilePropertySettingEntity.getListedOnRegistration() != null ?
+                                                                                                               profilePropertySettingEntity.getListedOnRegistration() :
+                                                                                                               storedSetting != null
+                                                                                                                   && storedSetting.isListedOnRegistration());
     return profilePropertySetting;
   }
 

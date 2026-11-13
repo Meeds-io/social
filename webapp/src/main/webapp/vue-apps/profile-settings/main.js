@@ -34,14 +34,17 @@ if (extensionRegistry) {
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';
 
-const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
+const urls = [
+  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social/i18n/locale.portlet.ProfileSettings?lang=${lang}`,
+];
 
 const vuetify = Vue.prototype.vuetifyOptions;
 
 const appId = 'profileSettings';
 
 export function init(languages) {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale resources are ready
     Vue.createApp({
       data: {
