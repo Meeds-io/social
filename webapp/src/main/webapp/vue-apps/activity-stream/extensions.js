@@ -57,10 +57,19 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
   rank: 1000,
 });
 
+// A link to a YouTube or Vimeo video is played by the provider's
+// player, whatever preview the oEmbed provider returned when it was posted
+const getVideoPlayerHtml = activity => activity?.templateParams?.link
+                                       && window.eXo?.videoEmbed?.getPlayerHtml(activity.templateParams.link)
+                                       || null;
+
 const defaultActivityOptions = {
   ckEditorType: 'activityComment',
-  getEmbeddedHtml: activity => activity && activity.templateParams && activity.templateParams.html,
-  getSourceLink: activity => activity && activity.templateParams && !activity.templateParams.html && activity.templateParams.link,
+  getEmbeddedHtml: activity => getVideoPlayerHtml(activity) || activity?.templateParams?.html,
+  getSourceLink: activity => activity?.templateParams
+                             && !getVideoPlayerHtml(activity)
+                             && !activity.templateParams.html
+                             && activity.templateParams.link,
   getTitle: activity => activity && activity.templateParams && (activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link) || '',
   getWindowTitle: activity => activity
                               && activity.templateParams
