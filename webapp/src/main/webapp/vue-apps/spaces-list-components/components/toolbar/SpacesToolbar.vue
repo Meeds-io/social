@@ -21,6 +21,7 @@
 <template>
   <application-toolbar
     id="spacesListToolbar"
+    ref="toolbar"
     :right-text-filter="{
       minCharacters: 3,
       placeholder: $t('spacesList.label.filterSpaces.placeholder'),
@@ -136,6 +137,9 @@ export default {
     }
   },
   mounted() {
+    if (this.$root.keyword) {
+      this.$refs.toolbar.setTerm(this.$root.keyword);
+    }
     if (!this.$root.anonymous) {
       this.refresh();
     }
