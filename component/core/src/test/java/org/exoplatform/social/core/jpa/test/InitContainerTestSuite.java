@@ -78,6 +78,7 @@ import io.meeds.social.observer.plugin.ActivityOberverPluginTest;
 import io.meeds.social.observer.service.ObserverServiceTest;
 import io.meeds.social.richeditor.RichEditorConfigurationServiceTest;
 import io.meeds.social.translation.service.TranslationServiceTest;
+import io.meeds.social.translation.storage.cache.CachedTranslationStorageCacheTest;
 
 @SuiteClasses({
   ActivityDAOTest.class,
@@ -120,6 +121,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   ImageThumbnailServiceImplTest.class,
   RichEditorConfigurationServiceTest.class,
   TranslationServiceTest.class,
+  CachedTranslationStorageCacheTest.class,
   ActivityOberverPluginTest.class,
   AttachmentActivityProcessorTest.class,
   AttachmentServiceTest.class,

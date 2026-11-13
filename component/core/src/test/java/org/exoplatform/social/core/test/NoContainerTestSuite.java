@@ -62,9 +62,13 @@ import io.meeds.social.space.template.service.SpaceTemplateServiceTest;
 import io.meeds.social.space.template.storage.SpaceTemplateStorageTest;
 import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
 import io.meeds.social.user.plugin.UserAclPluginTest;
+import io.meeds.social.translation.storage.cache.CachedTranslationStorageTest;
+import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+    CacheSelectorTest.class,
+    CachedTranslationStorageTest.class,
     GlobalIdTest.class,
     IdentityTest.class,
     ImageUtilsTest.class,

@@ -21,8 +21,10 @@ package io.meeds.social.coediting.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -83,6 +85,18 @@ public class CoeditingServiceTest {
   @Before
   public void setup() {
     coeditingService.setLockCache(lockCache);
+  }
+
+  @Test
+  public void initWithAClusteredCacheThatRefusesALifetimeStartsTheService() {
+    when(cacheService.<CoeditionObjectKey, CoeditionObjectLock> getCacheInstance("portal.coediting")).thenReturn(lockCache);
+    doThrow(UnsupportedOperationException.class).when(lockCache).setLiveTime(anyLong());
+
+    coeditingService.init();
+
+    when(lockCache.get(key)).thenReturn(lock);
+    when(lock.getUsers()).thenReturn(Collections.singletonMap(USERNAME, System.currentTimeMillis()));
+    assertEquals(List.of(USERNAME), coeditingService.getLockHolders(key));
   }
 
   @Test
