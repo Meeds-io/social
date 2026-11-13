@@ -62,4 +62,52 @@ public class ProfilePropertySetting {
   private List<ProfilePropertyOption> propertyOptions;
 
   private Long                        updated;
+
+  private boolean                     listedOnAccountForm;
+
+  private boolean                     listedOnRegistration;
+
+  /**
+   * @deprecated use the constructor that also takes listedOnAccountForm and
+   *             listedOnRegistration; this one leaves both false. Since
+   *             7.3.0, for removal.
+   */
+  @Deprecated(since = "7.3.0", forRemoval = true)
+  public ProfilePropertySetting(Long id, // NOSONAR
+                                String propertyName,
+                                String propertyType,
+                                boolean isDropdownList,
+                                boolean isVisible,
+                                boolean isEditable,
+                                Long parentId,
+                                Long order,
+                                boolean isActive,
+                                boolean isGroupSynchronized,
+                                boolean isHiddenbale,
+                                boolean indexInAnalytics,
+                                boolean isRequired,
+                                boolean isMultiValued,
+                                boolean hasChildProperties,
+                                List<ProfilePropertyOption> propertyOptions,
+                                Long updated) {
+    this(id,
+         propertyName,
+         propertyType,
+         isDropdownList,
+         isVisible,
+         isEditable,
+         parentId,
+         order,
+         isActive,
+         isGroupSynchronized,
+         isHiddenbale,
+         indexInAnalytics,
+         isRequired,
+         isMultiValued,
+         hasChildProperties,
+         propertyOptions,
+         updated,
+         false,
+         false);
+  }
 }
