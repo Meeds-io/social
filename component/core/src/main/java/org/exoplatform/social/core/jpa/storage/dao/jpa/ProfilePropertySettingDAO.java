@@ -18,11 +18,13 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
+import java.util.Date;
 import java.util.List;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 
@@ -62,6 +64,43 @@ public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfileProperty
     } catch (NoResultException e) {
       return false;
     }
+  }
+
+  public List<ProfilePropertySettingEntity> findListedOnAccountForm() {
+    return getEntityManager().createNamedQuery("SocProfileSettingEntity.findListedOnAccountForm",
+                                               ProfilePropertySettingEntity.class)
+                             .getResultList();
+  }
+
+  public List<ProfilePropertySettingEntity> findListedOnRegistration() {
+    return getEntityManager().createNamedQuery("SocProfileSettingEntity.findListedOnRegistration",
+                                               ProfilePropertySettingEntity.class)
+                             .getResultList();
+  }
+
+  /**
+   * Switches off both listing flags of a stored setting by changing its managed
+   * entity, so that the flushed UPDATE names only the changed columns (the
+   * entity is {@code @DynamicUpdate}) and the update date moves with them. The
+   * entity is then detached, so that a later read in the same request reloads
+   * the row, with what another writer committed meanwhile. Runs in the
+   * caller's transaction, which must be active.
+   *
+   * @param  id the setting's technical identifier
+   * @return    true when a flag was on and the row was changed
+   */
+  public boolean clearListingFlags(Long id) {
+    ProfilePropertySettingEntity entity = find(id);
+    if (entity == null || (!entity.isListedOnAccountForm() && !entity.isListedOnRegistration())) {
+      return false;
+    }
+    entity.setListedOnAccountForm(false);
+    entity.setListedOnRegistration(false);
+    entity.setUpdatedDate(new Date());
+    EntityManager entityManager = getEntityManager();
+    entityManager.flush();
+    entityManager.detach(entity);
+    return true;
   }
 
 }
