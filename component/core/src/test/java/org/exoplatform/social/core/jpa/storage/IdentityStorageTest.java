@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.exoplatform.commons.file.model.FileItem;
@@ -430,6 +431,42 @@ public class IdentityStorageTest extends AbstractCoreTest {
       assertFalse(profile.hasChanged());
       assertEquals(profileId, profile.getId());
     }
+  }
+
+  /**
+   * A stored text reads back as a list only when the whole text is a JSON
+   * array of JSON objects under JSON's own grammar, so a bracketed text, one
+   * the lenient org.json parser accepts included, keeps its value through a
+   * whole-profile write, as the one made at each login.
+   */
+  public void testProfileTextReadsBackAsListOnlyWhenArrayOfObjects() {
+    RDBMSIdentityStorageImpl storage = getService(RDBMSIdentityStorageImpl.class);
+    Identity identity = new Identity(OrganizationIdentityProvider.NAME, "readBackUser");
+    identityStorage.saveIdentity(identity);
+    tearDownIdentityList.add(identity);
+    Profile profile = new Profile(identity);
+    profile.setProperty("bracketedText", "[Team A]");
+    profile.setProperty("arrayOfTexts", "[\"a\",\"b\"]");
+    profile.setProperty("arrayFollowedByText", "[{\"value\":\"a\"}] x]");
+    profile.setProperty("arrayFollowedByNul", "[{\"value\":\"a\"}]\u0000 x]");
+    profile.setProperty("arrayWithUnquotedName", "[{a:b}]");
+    profile.setProperty("arrayWithSingleQuotes", "[{'a':'b'}]");
+    profile.setProperty("arrayWithTrailingComma", "[{\"a\":\"b\"},]");
+    profile.setProperty("objectWithSemicolon", "[{\"a\":\"b\";\"c\":\"d\"}]");
+    profile.setProperty("objectWithRepeatedName", "[{\"value\":\"x\"},{\"value\":\"y\",\"value\":\"z\"}]");
+    profile.setProperty("emptyArray", "[]");
+    profile.setProperty("arrayOfValueObjects", "[{\"value\":\"a\"}]");
+    profile.setProperty("arrayOfKeyValueObjects", "[{\"key\":\"k\",\"value\":\"v\"}]");
+    storage.saveProfile(profile);
+    restartTransaction();
+
+    Profile readProfile = storage.loadProfile(new Profile(identity));
+    assertReadBack(readProfile);
+
+    storage.updateProfile(readProfile);
+    restartTransaction();
+
+    assertReadBack(storage.loadProfile(new Profile(identity)));
   }
 
 
@@ -1455,7 +1492,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertEquals("male", identity.getProfile().getGender());
     assertNull(identity.getProfile().getPosition());
 
-    profile.setProperty("multi-field", Collections.singletonList("new field"));
+    profile.setProperty("multi-field", new ArrayList<>(List.of(Map.of("value", "new field"))));
     identityStorage.updateProfile(profile);
 
     identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userName);
@@ -1463,6 +1500,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertNotNull(identity.getProfile());
     assertNotNull(identity.getProfile().getProperty("multi-field"));
     assertTrue(identity.getProfile().getProperty("multi-field") instanceof ArrayList<?>);
+    assertEquals(List.of(Map.of("value", "new field")), identity.getProfile().getProperty("multi-field"));
 
     profile.removeProperty("multi-field");
     identityStorage.updateProfile(profile);
@@ -1632,6 +1670,23 @@ public class IdentityStorageTest extends AbstractCoreTest {
     identity.setProfile(profile);
     tearDownIdentityList.add(identity);
     return identity;
+  }
+
+  private void assertReadBack(Profile profile) {
+    assertEquals("[Team A]", profile.getProperty("bracketedText"));
+    assertEquals("[\"a\",\"b\"]", profile.getProperty("arrayOfTexts"));
+    assertEquals("[{\"value\":\"a\"}] x]", profile.getProperty("arrayFollowedByText"));
+    assertEquals("[{\"value\":\"a\"}]\u0000 x]", profile.getProperty("arrayFollowedByNul"));
+    assertEquals("[{a:b}]", profile.getProperty("arrayWithUnquotedName"));
+    assertEquals("[{'a':'b'}]", profile.getProperty("arrayWithSingleQuotes"));
+    assertEquals("[{\"a\":\"b\"},]", profile.getProperty("arrayWithTrailingComma"));
+    assertEquals("[{\"a\":\"b\";\"c\":\"d\"}]", profile.getProperty("objectWithSemicolon"));
+    assertEquals("[{\"value\":\"x\"},{\"value\":\"y\",\"value\":\"z\"}]", profile.getProperty("objectWithRepeatedName"));
+    assertEquals(new ArrayList<>(), profile.getProperty("emptyArray"));
+    assertEquals(new ArrayList<>(List.of(Map.of("value", "a"))), profile.getProperty("arrayOfValueObjects"));
+    assertEquals(new ArrayList<>(List.of(Map.of("key", "k", "value", "v"))), profile.getProperty("arrayOfKeyValueObjects"));
+    assertTrue(profile.getProperty("emptyArray") instanceof ArrayList<?>);
+    assertTrue(profile.getProperty("arrayOfValueObjects") instanceof ArrayList<?>);
   }
 
 }

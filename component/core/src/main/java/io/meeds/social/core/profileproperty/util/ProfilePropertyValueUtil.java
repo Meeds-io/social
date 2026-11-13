@@ -25,9 +25,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Profile;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+
 /**
  * Rules on profile attribute names shared by the listing cascade of the
- * attribute settings, the forms' allow-list and the attribute form.
+ * attribute settings, the forms' allow-list and the attribute form, and on
+ * how a stored attribute value reads back.
  */
 public class ProfilePropertyValueUtil {
 
@@ -70,6 +76,12 @@ public class ProfilePropertyValueUtil {
    */
   public static final int          MAX_SYNCHRONIZED_NAME_LENGTH     = MAX_GROUP_ID_LENGTH
                                                                       - SYNCHRONIZED_GROUP_ID_PREFIX.length() - 2;
+
+  /** JSON's own grammar, with nothing after the value and no repeated name */
+  private static final JsonMapper  STRICT_JSON                      = JsonMapper.builder()
+                                                                                .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                                                                                .enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
+                                                                                .build();
 
   private ProfilePropertyValueUtil() {
     // Utility class
@@ -116,6 +128,40 @@ public class ProfilePropertyValueUtil {
   public static int getCleanedLength(String text) {
     String cleanedText = Utils.cleanString(text);
     return StringUtils.isBlank(cleanedText) ? 0 : cleanedText.length();
+  }
+
+  /**
+   * Every list the identity storage writes is a JSON array of JSON objects, so
+   * only such a text is read back as a list; any other text, a bracketed one
+   * included, is read back as the text it is. The text is parsed under JSON's
+   * own grammar, a repeated name refused: org.json, which converts it, accepts
+   * unquoted or single-quoted names, extra commas and semicolons, and ignores
+   * what follows the array, so a text it accepts can come back changed, while
+   * it refuses a repeated name, so a text it refuses would come back empty.
+   *
+   * @param  value a profile attribute's stored text
+   * @return       true when the whole text, from its first to its last
+   *               character, is a JSON array whose entries are all JSON
+   *               objects, the empty array included
+   */
+  public static boolean readsBackAsList(String value) {
+    if (value == null || !value.startsWith("[") || !value.endsWith("]")) {
+      return false;
+    }
+    try {
+      JsonNode array = STRICT_JSON.readTree(value);
+      if (!array.isArray()) {
+        return false;
+      }
+      for (JsonNode entry : array) {
+        if (!entry.isObject()) {
+          return false;
+        }
+      }
+      return true;
+    } catch (JacksonException e) {
+      return false;
+    }
   }
 
 }
