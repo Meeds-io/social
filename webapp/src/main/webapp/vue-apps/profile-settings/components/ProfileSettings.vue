@@ -68,6 +68,7 @@
       :languages="languagesData"
       :un-hiddenable-properties="unHiddenableProperties"
       :excluded-analytics-index-properties="excludedAnalyticsIndexProperties"
+      :unlistable-properties="unlistableProperties"
       @open-dropdown-list="openDropdownListDrawer" />
     <dropdown-list-values-drawer
       ref="dropdownListDrawer" />
@@ -83,6 +84,7 @@ export default {
       settings: [],
       unHiddenableProperties: [],
       excludedAnalyticsIndexProperties: [],
+      unlistableProperties: [],
       fieldsToRetrieve: 'settings',
       excludedSettingsProp: [],
       isSavingCardSettings: false,
@@ -194,19 +196,46 @@ export default {
           this.unHiddenableProperties = settings?.unHiddenableProperties;
           this.excludedSettingsProp = settings?.excludedQuickSearchProperties;
           this.excludedAnalyticsIndexProperties = settings?.excludedAnalyticsIndexProperties;
+          this.unlistableProperties = settings?.unlistableProperties || [];
+          return this.settings;
         });
     },
     editSetting(setting, refresh) {
-      this.$profileSettingsService.updateSetting(setting).then(() => {
-        if (refresh) {
-          this.getSettings();
+      // The setting as sent, so that the open form keeps a flag changed since this save
+      const sentSetting = structuredClone(setting);
+      let saved = false;
+      this.$profileSettingsService.updateSetting(setting)
+        .then(() => {
+          saved = true;
+          this.$root.$emit('alert-message', this.$t('profileSettings.update.success.message'), 'success');
+          return refresh ? this.getSettings() : null;
+        })
+        .then(settings => {
+          // The stored setting, since the server switches off a listing flag that cannot be on
+          const storedSetting = settings && this.findSetting(settings, setting.id);
+          this.$root.$emit('setting-updated', storedSetting || setting, sentSetting);
+        })
+        .catch(e => {
+          console.error(e);
+          if (saved) {
+            // The save is stored: a failed reload leaves the form as sent
+            this.$root.$emit('setting-updated', setting, sentSetting);
+          } else {
+            this.$root.$emit('alert-message', this.$t(e.message), 'error');
+          }
+        });
+    },
+    findSetting(settings, id) {
+      for (const setting of settings || []) {
+        if (setting.id === id) {
+          return setting;
         }
-        this.$root.$emit('setting-updated', setting);
-        this.$root.$emit('alert-message', this.$t('profileSettings.update.success.message'), 'success');
-      }).catch(e => {
-        console.error(e);
-        this.$root.$emit('alert-message', this.$t(e.message), 'error');
-      });
+        const child = this.findSetting(setting.children, id);
+        if (child) {
+          return child;
+        }
+      }
+      return null;
     },
     createSetting(setting) {
       this.$profileSettingsService.addSetting(setting).then(storedSetting => {
