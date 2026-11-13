@@ -60,6 +60,7 @@ import org.exoplatform.social.core.processor.I18NActivityProcessorTest;
 import org.exoplatform.social.core.processor.MetadataActivityProcessorTest;
 import org.exoplatform.social.core.processor.OSHtmlSanitizerProcessorTest;
 import org.exoplatform.social.core.processor.TemplateParamsProcessorTest;
+import org.exoplatform.social.core.profile.ProfilePropertyListingTest;
 import org.exoplatform.social.core.profile.ProfilePropertyServiceTest;
 import org.exoplatform.social.core.search.SearchServiceTest;
 import org.exoplatform.social.core.search.SortingTest;
@@ -97,6 +98,7 @@ import io.meeds.social.translation.storage.cache.CachedTranslationStorageCacheTe
   ProfileSettingStorageTest.class,
   ProfileLabelStorageTest.class,
   ProfilePropertyServiceTest.class,
+  ProfilePropertyListingTest.class,
   ProfileLabelServiceTest.class,
   SpaceMemberDAOTest.class,
   SpaceExternalInvitationDAOTest.class,
