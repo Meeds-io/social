@@ -76,9 +76,18 @@
     // DOMPurify passes the lower-cased tag name in data: node.tagName is
     // upper-case in an HTML document
     DOMPurify.addHook('uponSanitizeElement', function(node, data) {
-      if (data.tagName === 'iframe' && !isAllowedIframeSrc(node.getAttribute('src'))) {
-        return node.parentNode?.removeChild(node);
+      if (data.tagName === 'iframe') {
+        // A saved YouTube or Vimeo embed plays in the provider's player
+        window.eXo?.videoEmbed?.usePlayerInSavedEmbed(node);
+        if (!isAllowedIframeSrc(node.getAttribute('src'))) {
+          return node.parentNode?.removeChild(node);
+        }
       }
+    });
+    // Runs on the iframes the host check kept: a YouTube or Vimeo player
+    // shows as a click-to-play facade, so it loads nothing until it is played
+    DOMPurify.addHook('afterSanitizeAttributes', function(node) {
+      window.eXo?.videoEmbed?.usePlayerFacade?.(node, window.vueI18nMessages?.['richeditor.videoEmbed.play']);
     });
   }
   registerHooks();

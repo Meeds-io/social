@@ -3027,6 +3027,9 @@
     <depends>
       <module>vue</module>
     </depends>
+    <depends>
+      <module>videoEmbed</module>
+    </depends>
   </module>
 
   <module>
@@ -3041,6 +3044,9 @@
     </depends>
     <depends>
       <module>purify</module>
+    </depends>
+    <depends>
+      <module>videoEmbed</module>
     </depends>
   </module>
 
