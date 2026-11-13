@@ -99,6 +99,8 @@ export default {
     },
     drawer() {
       if (this.drawer) {
+        this.pageUri = window.location.href;
+        this.pageTitle = window.document.title;
         this.$root.$emit('search-opened');
         document.dispatchEvent(new CustomEvent('search-opened'));
         this.changeURI();
@@ -141,9 +143,6 @@ export default {
         this.loading = false;
         this.setWindowTitle();
       });
-
-    this.pageUri = window.location.href;
-    this.pageTitle = window.document.title;
 
     this.standalone = window.location.pathname.indexOf(this.searchUri) === 0;
     if (this.standalone) {
