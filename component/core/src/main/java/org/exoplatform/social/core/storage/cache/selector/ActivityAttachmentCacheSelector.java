@@ -31,7 +31,9 @@ import org.exoplatform.social.core.storage.cache.model.key.ActivityKey;
  */
 public class ActivityAttachmentCacheSelector extends CacheSelector<ActivityKey, ActivityData> {
 
-  private String attachmentId;
+  private static final long serialVersionUID = 1L;
+
+  private final String      attachmentId;
 
   public ActivityAttachmentCacheSelector(final String attachmentId) {
     this.attachmentId = attachmentId;
@@ -39,13 +41,14 @@ public class ActivityAttachmentCacheSelector extends CacheSelector<ActivityKey, 
 
   @Override
   public boolean select(final ActivityKey key, final ObjectCacheInfo<? extends ActivityData> ocinfo) {
-    if (!super.select(key, ocinfo)) {
-      return false;
-    }
-
     ActivityData data = ocinfo.get();
     return !CollectionUtils.isEmpty(data.getFiles())
         && data.getFiles().stream().anyMatch(file -> StringUtils.equals(file.getId(), attachmentId));
+  }
+
+  @Override
+  protected Object[] criteria() {
+    return new Object[] { attachmentId };
   }
 
 }

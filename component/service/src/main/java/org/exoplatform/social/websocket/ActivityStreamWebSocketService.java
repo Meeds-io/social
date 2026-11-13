@@ -87,6 +87,9 @@ public class ActivityStreamWebSocketService implements Startable {
   @Override
   public void start() {
     executorService = Executors.newFixedThreadPool(1);
+    // The modification of an activity that no longer exists is broadcast:
+    // relay it to the users of the other nodes
+    continuationBayeux.observeChannel(COMETD_CHANNEL);
   }
 
   @Override

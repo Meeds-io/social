@@ -18,28 +18,18 @@
  */
 package org.exoplatform.social.core.storage.cache.selector;
 
-import org.exoplatform.services.cache.CachedObjectSelector;
-import org.exoplatform.services.cache.ExoCache;
-import org.exoplatform.services.cache.ObjectCacheInfo;
+import org.exoplatform.services.cache.ClusterCachedObjectSelector;
 import org.exoplatform.social.core.storage.cache.model.key.CacheKey;
 
-public abstract class CacheSelector<T extends CacheKey, U> implements CachedObjectSelector<T, U> {
+/**
+ * A selection of the social cache entries to remove, which reaches every node
+ * of a cluster.
+ */
+public abstract class CacheSelector<T extends CacheKey, U> extends ClusterCachedObjectSelector<T, U> {
 
-  private T key;
+  private static final long serialVersionUID = 1L;
 
   CacheSelector() {
-  }
-
-  CacheSelector(T key) {
-    this.key = key;
-  }
-
-  public boolean select(final T key, final ObjectCacheInfo<? extends U> ocinfo) {
-    return this.key == null || this.key.equals(key);
-  }
-
-  public void onSelect(final ExoCache<? extends T, ? extends U> exoCache, final T key, final ObjectCacheInfo<? extends U> ocinfo) throws Exception {
-    exoCache.remove(key);
   }
 
 }
