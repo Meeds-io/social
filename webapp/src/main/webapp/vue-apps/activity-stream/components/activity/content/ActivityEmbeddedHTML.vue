@@ -44,7 +44,8 @@ export default {
   }),
   computed: {
     embeddedHTML() {
-      const htmlElement = this.activity?.templateParams?.html;
+      const link = this.activity?.templateParams?.link;
+      const htmlElement = link && window.eXo?.videoEmbed?.getPlayerHtml(link) || this.activity?.templateParams?.html;
       return this.computeEmbeddedHTML(htmlElement);
     },
     sourceLink() {
