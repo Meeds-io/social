@@ -88,6 +88,7 @@ import io.meeds.social.navigation.service.UserHomePageServiceTest;
 import io.meeds.social.organizationalchart.service.OrganizationalChartSettingServiceTest;
 import io.meeds.social.usercard.service.UserCardSettingServiceTest;
 import org.exoplatform.social.core.plugin.OrganizationalChartHeaderTranslationPermissionTest;
+import io.meeds.social.translation.storage.cache.CachedTranslationStorageTest;
 import io.meeds.social.identity.permission.listener.UserPermissionGroupListenerTest;
 import io.meeds.social.identity.permission.listener.UserPermissionMembershipListenerTest;
 import io.meeds.social.identity.permission.listener.UserPermissionNestedMembershipListenerTest;
@@ -100,6 +101,7 @@ import io.meeds.social.group.plugin.GroupAclPluginTest;
 import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
 import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 import io.meeds.social.analytics.CollaborativeActivityDeclarationTest;
+import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -109,6 +111,8 @@ import io.meeds.social.analytics.CollaborativeActivityDeclarationTest;
     OrganizationalChartSettingServiceTest.class,
     OrganizationalChartHeaderTranslationPermissionTest.class,
     UserCardSettingServiceTest.class,
+    CacheSelectorTest.class,
+    CachedTranslationStorageTest.class,
     ReactionServiceImplTest.class,
     ActivityReportServiceImplTest.class,
     ReportActivityProcessorTest.class,
