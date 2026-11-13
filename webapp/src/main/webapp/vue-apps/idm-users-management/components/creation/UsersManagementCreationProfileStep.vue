@@ -116,6 +116,20 @@
         </span>
       </template>
     </v-select>
+    <!-- The fields other applications add to the account, between the
+         preferred language and the password -->
+    <div
+      v-if="extensions.length"
+      id="usersManagementCreationAdditionalFields">
+      <template v-for="extension in extensions">
+        <component
+          :is="extension.vueComponent"
+          v-if="extensionContexts[extension.id]"
+          :key="extension.id"
+          :context="extensionContexts[extension.id]"
+          @update:data="$emit('update-extension-data', extension.id, $event)" />
+      </template>
+    </div>
     <div class="d-flex align-center justify-space-between pt-2">
       <label for="userCreationCustomizePassword" class="text-color">
         {{ $t('UsersManagement.creation.customizePassword') }}
@@ -193,6 +207,15 @@ export default {
     saving: {
       type: Boolean,
       default: false,
+    },
+    // The account-form extensions, and the context the drawer keeps for each
+    extensions: {
+      type: Array,
+      default: () => [],
+    },
+    extensionContexts: {
+      type: Object,
+      default: () => ({}),
     },
   },
   data: () => ({
