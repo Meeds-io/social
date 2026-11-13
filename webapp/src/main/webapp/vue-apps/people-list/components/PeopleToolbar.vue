@@ -36,6 +36,7 @@
       hide: compactDisplay || hideFilter,
       selected: filter,
       items: peopleFilters,
+      ariaLabel: $t('peopleList.label.filter.select'),
     }"
     :compact="compactDisplay"
     :filters-count="advancedFilterCount"

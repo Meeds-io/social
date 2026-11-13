@@ -177,6 +177,7 @@
             v-if="showSelectBoxFilter"
             id="applicationToolbarFilterSelect"
             v-model="select"
+            :aria-label="rightSelectBox.ariaLabel || null"
             :disabled="rightSelectBox?.disabled"
             class="flex-grow-0 ignore-vuetify-classes py-2 height-auto width-auto text-truncate my-auto ms-4"
             @change="$emit('filter-select-change', select)">
