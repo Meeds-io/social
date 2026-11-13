@@ -29,8 +29,8 @@
           :filters-count="filtersCount"
           :can-create-space="canCreateSpace"
           compact-display
-          @keyword-changed="keyword = $event"
-          @loading="loadingSpaces = loadingSpaces || $event" />
+          @keyword-changed="$root.keyword = $event"
+          @loading="typing = $event" />
         <categories-filter
           v-if="$root.allowFilteringPerCategory"
           v-show="spacesExists"
@@ -44,9 +44,9 @@
           class="full-width border-box-sizing px-5" />
         <spaces-card-list
           ref="spacesList"
-          :keyword="keyword"
+          :keyword="$root.keyword"
           :filter="filter"
-          :loading-spaces="loadingSpaces"
+          :loading-spaces="loadingSpaces || typing"
           :spaces-size="spacesSize"
           class="px-3"
           @loading-spaces="loadingSpaces = $event"
@@ -73,9 +73,9 @@ export default {
     },
   },
   data: () => ({
-    keyword: null,
     spacesSize: 0,
     loadingSpaces: false,
+    typing: false,
     initialized: false,
     spacesExists: false,
   }),
