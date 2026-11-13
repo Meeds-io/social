@@ -29,12 +29,14 @@
       href: this.$attrs.href
     }"
     :aria-label="$t(label)"
+    role="menuitem"
     class="ps-0 py-0"
     link>
     <v-list-item-icon class="mx-2">
       <v-icon
         class="ma-auto"
         size="18"
+        aria-hidden="true"
         v-bind="iconColor && {
           color: iconColor,
         }">
