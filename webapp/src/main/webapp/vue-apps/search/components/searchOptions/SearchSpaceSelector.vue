@@ -35,6 +35,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           tabindex="0"
           class="text-body text-header-color mx-1"
           v-bind="attrs"
+          aria-haspopup="dialog"
           v-on="on"
           @keydown.enter.prevent="on.click"
           @keydown.space.prevent="on.click">
@@ -51,6 +52,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       <!-- a panel of fields, not a menu: Tab moves through it, Escape or leaving it with Tab closes it -->
       <v-card
         ref="spaceFilterPanel"
+        :aria-label="$t('search.space.filter.label')"
+        role="dialog"
         class="d-flex flex-column border-box-sizing pa-4"
         @keydown.esc.stop="closeToChip"
         @focusout="closeWhenFocusLeaves">
