@@ -34,8 +34,11 @@ export default {
   methods: {
     menuEntries() {
       const list = elementOf(this.$refs.menuList);
-      return [...(list?.querySelectorAll?.(ENTRY_SELECTOR) || [])]
-        .filter(entry => entry.getClientRects().length && !entry.hasAttribute('disabled'));
+      // An entry an extension mounts itself sits in a role="none" item and may render a plain control (a call
+      // button): its first focusable element is the entry, unless it renders a menu entry of its own
+      return [...(list?.querySelectorAll?.(`${ENTRY_SELECTOR}, [role="none"]`) || [])]
+        .map(entry => (entry.getAttribute('role') === 'none' ? !entry.querySelector(ENTRY_SELECTOR) && entry.querySelector(FOCUSABLE_SELECTOR) : entry))
+        .filter(entry => entry?.getClientRects().length && !entry.hasAttribute('disabled'));
     },
     focusFirstMenuEntry() {
       // the menu's content is rendered on the next tick and shown by a transition
