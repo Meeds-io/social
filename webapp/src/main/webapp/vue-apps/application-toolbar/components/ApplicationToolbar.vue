@@ -78,6 +78,7 @@
             :key="buttonToggle.value"
             :id="`applicationToolbar-${buttonToggle.value}`"
             :value="buttonToggle.value"
+            :aria-pressed="String(buttonToggle.value === toggle)"
             :class="isCompact && 'width-auto px-4'"
             text
             @click="emitToggle(buttonToggle.value)">
@@ -90,7 +91,7 @@
             <span v-if="!isCompact && buttonToggle.icon && buttonToggle.text" class="ms-2"></span>
             <span
               v-if="!isCompact && buttonToggle.text"
-              :class="buttonToggle.value === toggle && 'primary--text' || 'text-color'"
+              :class="buttonToggle.value === toggle && 'primary--text text-decoration-underline' || 'text-color'"
               class="text-truncate text-none">
               {{ buttonToggle.text }}
             </span>
