@@ -195,7 +195,9 @@ export function init(
           this.filter = filter;
         },
         // Rewrites only the parameter that changed: Spaces directories placed on
-        // one page share the page URL, so a change in one keeps the other's
+        // one page share the two parameters, so a search typed in one keeps the
+        // category selected in another, while a category selected in one
+        // replaces the category of another
         updateUrl(name, value) {
           const pageUrl = new URL(window.location.href);
           setUrlParam(pageUrl.searchParams, name, value);
