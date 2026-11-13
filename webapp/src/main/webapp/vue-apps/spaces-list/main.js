@@ -43,6 +43,10 @@ export function init(
   isAdministrator,
   isPublicPage) {
 
+  // Read before any asynchronous load: a search drawer stuck to a side
+  // replaces the page URL with its own once it opens
+  const urlParams = new URLSearchParams(window.location.search);
+
   exoi18n.loadLanguageAsync(lang, url).then(async i18n => {
     if (!settings.filterType) {
       settings.filterType = 'any';
@@ -84,8 +88,8 @@ export function init(
     } else {
       settings.categoryIds = null;
     }
-    const urlKeyword = getUrlParam(KEYWORD_PARAM)?.trim() || null;
-    const urlCategoryId = await getUrlCategoryId(settings, settingsSubcategoryIds, settingsExcludeSubcategoryIds, settingName);
+    const urlKeyword = urlParams.get(KEYWORD_PARAM)?.trim() || null;
+    const urlCategoryId = await getUrlCategoryId(urlParams.get(CATEGORY_PARAM), settings, settingsSubcategoryIds, settingsExcludeSubcategoryIds, settingName);
     const urlCategoryIds = urlCategoryId && await getSubcategoryIds([urlCategoryId], -1, settingName).catch(() => null);
     const selectedCategoryId = urlCategoryIds?.length ? urlCategoryId : null;
     // init Vue app when locale ressources are ready
@@ -234,10 +238,6 @@ async function getSubcategoryIds(categoryIds, depth, token) {
   return [...new Set(subcategoyIdsFlat)];
 }
 
-function getUrlParam(name) {
-  return new URLSearchParams(window.location.search).get(name);
-}
-
 function setUrlParam(params, name, value) {
   if (value) {
     params.set(name, value);
@@ -246,11 +246,10 @@ function setUrlParam(params, name, value) {
   }
 }
 
-// The category of the page URL, kept only when the category filter of this
+// The category given in the page URL, kept only when the category filter of this
 // directory displays it, so a shared URL never widens a pre-filtered directory;
 // null when absent, not an id, out of the filter or not retrievable
-async function getUrlCategoryId(settings, categoryIds, excludeCategoryIds, token) {
-  const value = getUrlParam(CATEGORY_PARAM);
+async function getUrlCategoryId(value, settings, categoryIds, excludeCategoryIds, token) {
   const categoryId = /^[1-9]\d*$/.test(value || '') && Number(value);
   if (!settings.allowFilteringPerCategory || !Number.isSafeInteger(categoryId)) {
     return null;
