@@ -1436,4 +1436,16 @@
     </preConditions>
     <createSequence sequenceName="SEQ_SOC_USER_BINDINGS_QUEUE_ID" startValue="1"/>
   </changeSet>
+
+  <!-- The forms in which an attribute is listed: the administrators' account forms and the registration form -->
+  <changeSet author="social" id="1.0.0-exip-7.3.0.36-01">
+    <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
+      <column name="LISTED_ON_ACCOUNT_FORM" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="LISTED_ON_REGISTRATION" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>
