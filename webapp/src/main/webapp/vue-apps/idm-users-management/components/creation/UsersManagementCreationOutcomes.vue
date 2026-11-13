@@ -50,7 +50,9 @@ export default {
       return invitation.then(sent => {
         this.$root.$emit('refreshUsers');
         this.$root.$emit('pending-users-changed');
-        if (sent) {
+        if (request.extensionsNotSaved) {
+          this.showIncomplete(userName, false, sent ? ['FIELDS'] : ['FIELDS', 'INVITATION'], request);
+        } else if (sent) {
           this.$root.$emit('alert-message', this.$t('UsersManagement.creation.success', {0: userName}), 'success');
         } else {
           this.$root.$emit('alert-message', this.$t('UsersManagement.creation.invitationNotSent'), 'warning');
@@ -80,9 +82,8 @@ export default {
       if (!incomplete) {
         throw this.$userCreationService.translatedError(this.translate, code);
       }
-      const missingLabels = incomplete.missing.map(part => this.$t(`UsersManagement.creation.part.${part}`)).join(', ');
-      const key = incomplete.deactivated ? 'UsersManagement.creation.incomplete' : 'UsersManagement.creation.incompleteEnabled';
-      this.$root.$emit('alert-message', this.$t(key, {0: incomplete.userName, 1: missingLabels}), incomplete.deactivated ? 'warning' : 'error');
+      const missing = request.extensionsNotSaved ? incomplete.missing.concat('FIELDS') : incomplete.missing;
+      this.showIncomplete(incomplete.userName, incomplete.deactivated, missing, request);
       this.$root.$emit('refreshUsers');
       this.$root.$emit('pending-users-changed');
       this.$emit('close', request);
@@ -99,6 +100,21 @@ export default {
           fullname: request.fullName || incomplete.userName,
         });
       }
+    },
+    // An account created without all its parts; the additional fields not
+    // saved are completed from the Edit drawer, the alert's action
+    showIncomplete(userName, deactivated, missing, request) {
+      const missingLabels = missing.map(part => this.$t(`UsersManagement.creation.part.${part}`)).join(', ');
+      const key = deactivated ? 'UsersManagement.creation.incomplete' : 'UsersManagement.creation.incompleteEnabled';
+      const editAction = missing.includes('FIELDS')
+        ? () => this.$root.$emit('editUser', {userName, fullname: request.fullName || userName})
+        : null;
+      this.$root.$emit('alert-message',
+        this.$t(key, {0: userName, 1: missingLabels}),
+        deactivated ? 'warning' : 'error',
+        editAction,
+        editAction && 'fa-edit',
+        editAction && this.$t('UsersManagement.creation.editUser'));
     },
     translate(key) {
       return this.$t(key);
