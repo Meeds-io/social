@@ -48,4 +48,8 @@ public class ProfileProperty {
 
   private boolean indexInAnalytics;
 
+  private boolean listedOnAccountForm;
+
+  private boolean listedOnRegistration;
+
 }

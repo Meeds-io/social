@@ -49,7 +49,8 @@
               maxlength="2000"
               outlined
               dense
-              :rules="[v => !!v || $t('profileSettings.message.field.required')]" />
+              :rules="[v => !!v || $t('profileSettings.message.field.required')]"
+              @input="applyListingRules" />
           </label>
           <label
             for="labelsInput"
@@ -87,6 +88,7 @@
                     item-value="value"
                     dense
                     outlined
+                    @change="applyListingRules"
                     @blur="$refs.propertyType.blur();" />
                 </div>
               </template>
@@ -198,7 +200,8 @@
                 :disabled="saving"
                 :ripple="false"
                 color="primary"
-                class="editableSwitcher my-auto" />
+                class="editableSwitcher my-auto"
+                @change="applyListingRules" />
             </v-list-item-action>
           </v-list-item>
           <v-list-item>
@@ -218,6 +221,76 @@
                 class="requiredSwitcher my-auto" />
             </v-list-item-action>
           </v-list-item>
+          <template v-if="listingSwitchesShown">
+            <v-list-item>
+              <v-list-item-content transition="fade-transition" class="d-flex listedOnAccountFormField py-0">
+                <v-list-item-title class="d-flex listedOnAccountFormLabel flex-grow-1 text-no-wrap pb-2">
+                  <div>
+                    {{ $t('profileSettings.label.listedOnAccountForm') }}
+                  </div>
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-tooltip
+                  :disabled="!accountFormListingReasons.length"
+                  content-class="listedOnAccountFormTooltip"
+                  bottom>
+                  <template #activator="{ on, attrs }">
+                    <div
+                      v-bind="attrs"
+                      v-on="on">
+                      <v-switch
+                        v-model="setting.listedOnAccountForm"
+                        :disabled="saving || !!accountFormListingReasons.length"
+                        :aria-label="$t('profileSettings.label.listedOnAccountForm')"
+                        :ripple="false"
+                        color="primary"
+                        class="listedOnAccountFormSwitcher my-auto" />
+                    </div>
+                  </template>
+                  <div
+                    v-for="reason in accountFormListingReasons"
+                    :key="reason">
+                    {{ $t(reason) }}
+                  </div>
+                </v-tooltip>
+              </v-list-item-action>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content transition="fade-transition" class="d-flex listedOnRegistrationField py-0">
+                <v-list-item-title class="d-flex listedOnRegistrationLabel flex-grow-1 text-no-wrap pb-2">
+                  <div>
+                    {{ $t('profileSettings.label.listedOnRegistration') }}
+                  </div>
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-tooltip
+                  :disabled="!registrationListingReasons.length"
+                  content-class="listedOnRegistrationTooltip"
+                  bottom>
+                  <template #activator="{ on, attrs }">
+                    <div
+                      v-bind="attrs"
+                      v-on="on">
+                      <v-switch
+                        v-model="setting.listedOnRegistration"
+                        :disabled="saving || !!registrationListingReasons.length"
+                        :aria-label="$t('profileSettings.label.listedOnRegistration')"
+                        :ripple="false"
+                        color="primary"
+                        class="listedOnRegistrationSwitcher my-auto" />
+                    </div>
+                  </template>
+                  <div
+                    v-for="reason in registrationListingReasons"
+                    :key="reason">
+                    {{ $t(reason) }}
+                  </div>
+                </v-tooltip>
+              </v-list-item-action>
+            </v-list-item>
+          </template>
           <v-tooltip
             bottom
             :disabled="!isUserType">
@@ -392,6 +465,10 @@ export default {
       type: Array,
       default: () => []
     },
+    unlistableProperties: {
+      type: Array,
+      default: () => []
+    },
     languages: {
       type: Object,
       default: null
@@ -452,7 +529,42 @@ export default {
     },
     isUserType() {
       return this.setting.propertyType === 'user';
-    }
+    },
+    isSelectedUserType() {
+      // The type is the selected option object until the select is used
+      const propertyType = this.setting?.propertyType;
+      return propertyType === 'user' || propertyType?.value === 'user';
+    },
+    hasUnlistableName() {
+      const propertyName = this.setting?.propertyName || '';
+      const lowerCaseName = propertyName.toLowerCase();
+      return propertyName.length > 200
+        || this.unlistableProperties.some(unlistableName => unlistableName.toLowerCase() === lowerCaseName);
+    },
+    listingSwitchesShown() {
+      // The default fields are always in the forms, and a sub-field is listed in none
+      return !this.setting?.parentId && !(this.setting?.default && this.hasUnlistableName);
+    },
+    accountFormListingReasons() {
+      const reasons = [];
+      if (!this.setting?.editable) {
+        reasons.push('profileSettings.label.onlyEditableCanBeListed');
+      }
+      if (this.setting?.children?.length) {
+        reasons.push('profileSettings.label.subFieldsCannotBeListed');
+      }
+      if (this.hasUnlistableName) {
+        reasons.push('profileSettings.label.nameCannotBeListed');
+      }
+      return reasons;
+    },
+    registrationListingReasons() {
+      const reasons = [...this.accountFormListingReasons];
+      if (this.isSelectedUserType) {
+        reasons.push('profileSettings.label.userTypeCannotBeListedOnRegistration');
+      }
+      return reasons;
+    },
   },
   watch: {
     saving() {
@@ -503,7 +615,7 @@ export default {
       return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`)!==`profileSettings.property.name.${item.propertyName}`?this.$t(`profileSettings.property.name.${item.propertyName}`):item.propertyName;
     },
     addNewSetting() {
-      this.setting = {visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
+      this.setting = {visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true, listedOnAccountForm: false, listedOnRegistration: false};
       this.labels = [{language: 'en', label: '', objectType: this.labelsObjectType}];
       this.newSetting = true;
       this.changes= false;
@@ -519,8 +631,17 @@ export default {
       this.changes= false;
       this.drawer = true;     
     },
-    handleSettingUpdated(setting) {
+    handleSettingUpdated(setting, sentSetting) {
+      if (this.setting?.id !== setting?.id) {
+        return;
+      }
       this.initialSetting = structuredClone(setting);
+      // A flag the server switched off is shown as stored, unless it was changed since this save
+      ['listedOnAccountForm', 'listedOnRegistration'].forEach(field => {
+        if (sentSetting && this.setting[field] === sentSetting[field]) {
+          this.setting[field] = setting[field];
+        }
+      });
       this.areLabelsChanged = false;
     },
     saveSetting(event) {
@@ -609,9 +730,19 @@ export default {
       }
       return true;
     },
+    applyListingRules() {
+      // A switch that cannot be on in the new state is switched off at once
+      if (this.accountFormListingReasons.length) {
+        this.setting.listedOnAccountForm = false;
+      }
+      if (this.registrationListingReasons.length) {
+        this.setting.listedOnRegistration = false;
+      }
+    },
     areSettingsEqual(initialSetting, setting) {
       const fields = ['id', 'active', 'groupSynchronized', 'multiValued', 'propertyOptions',
-        'dropdownList', 'visible', 'propertyType', 'required', 'editable', 'hiddenable', 'indexInAnalytics'
+        'dropdownList', 'visible', 'propertyType', 'required', 'editable', 'hiddenable', 'indexInAnalytics',
+        'listedOnAccountForm', 'listedOnRegistration'
       ];
       for (const field of fields) {
         if (field === 'propertyOptions') {

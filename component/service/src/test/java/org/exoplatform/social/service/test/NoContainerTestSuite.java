@@ -30,6 +30,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.social.rest.api.EntityBuilderProfilePropertyListingTest;
 import org.exoplatform.social.rest.api.EntityBuilderProfilePropertyTest;
 import org.exoplatform.social.rest.api.EntityBuilderReactionsTest;
 import org.exoplatform.social.rest.api.EntityBuilderReportsTest;
@@ -44,6 +45,7 @@ import io.meeds.social.report.rest.ActivityReportRestTest;
 @SuiteClasses({
   UtilTest.class,
   EntityBuilderProfilePropertyTest.class,
+  EntityBuilderProfilePropertyListingTest.class,
   EntityBuilderReactionsTest.class,
   EntityBuilderReportsTest.class,
   SpaceEntityTest.class,

@@ -42,6 +42,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
+
 import java.util.*;
 
 @Path(VersionResources.VERSION_ONE + "/social/profile/settings")
@@ -101,6 +103,7 @@ public class ProfileSettingsRest implements ResourceContainer {
       settings.put("unHiddenableProperties", unHiddenbaleProperties);
       settings.put("excludedQuickSearchProperties", excludedQuickSearchProperties);
       settings.put("excludedAnalyticsIndexProperties", excludedAnalyticsIndexProperties);
+      settings.put("unlistableProperties", ProfilePropertyValueUtil.UNLISTABLE_NAMES);
 
       return Response.ok(settings).build();
     }catch (Exception e) {
