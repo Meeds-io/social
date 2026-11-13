@@ -224,6 +224,16 @@ export default {
           }
         });
       }
+      if (newVal) {
+        // a key pressed in the picker, however it was opened, makes the choice that closes it a keyboard one
+        this.$nextTick(() => {
+          const content = document.querySelector(`.${this.menuId}`);
+          if (content && !content.dataset.keyboardTracked) {
+            content.dataset.keyboardTracked = 'true';
+            content.addEventListener('keydown', () => this.usedKeyboard = true);
+          }
+        });
+      }
       if (newVal && this.openedFromKeyboard) {
         this.openedFromKeyboard = false;
         // the read-only field keeps the focus, which the date picker needs to be used from the keyboard
