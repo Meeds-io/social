@@ -162,10 +162,10 @@ export function init(
           }
         },
         keyword() {
-          this.updateUrl();
+          this.updateUrl(KEYWORD_PARAM, this.keyword?.trim());
         },
         async selectedCategoryId() {
-          this.updateUrl();
+          this.updateUrl(CATEGORY_PARAM, this.selectedCategoryId);
           if (this.selectedCategoryId) {
             this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], -1, this.settingName);
           } else if (this.filterType === 'category') {
@@ -190,10 +190,11 @@ export function init(
         updateFilter(filter) {
           this.filter = filter;
         },
-        updateUrl() {
+        // Rewrites only the parameter that changed: Spaces directories placed on
+        // one page share the page URL, so a change in one keeps the other's
+        updateUrl(name, value) {
           const pageUrl = new URL(window.location.href);
-          setUrlParam(pageUrl.searchParams, KEYWORD_PARAM, this.keyword?.trim());
-          setUrlParam(pageUrl.searchParams, CATEGORY_PARAM, this.selectedCategoryId);
+          setUrlParam(pageUrl.searchParams, name, value);
           if (pageUrl.href !== window.location.href) {
             window.history.replaceState(window.history.state, '', pageUrl.href);
           }
