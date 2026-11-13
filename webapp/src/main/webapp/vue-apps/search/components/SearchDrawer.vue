@@ -58,6 +58,7 @@ export default {
     standalone: false,
     pageUri: null,
     pageTitle: null,
+    restorePageUri: false,
     companyName: eXo?.env?.portal?.companyName
   }),
   computed: {
@@ -99,8 +100,13 @@ export default {
     },
     drawer() {
       if (this.drawer) {
-        this.pageUri = window.location.href;
-        this.pageTitle = window.document.title;
+        // A page URL already replaced by the search one belongs to the search
+        // drawer that replaced it, opened by the same event, which restores it
+        this.restorePageUri = window.location.pathname.indexOf(this.searchUri) !== 0;
+        if (this.restorePageUri) {
+          this.pageUri = window.location.href;
+          this.pageTitle = window.document.title;
+        }
         this.$root.$emit('search-opened');
         document.dispatchEvent(new CustomEvent('search-opened'));
         this.changeURI();
@@ -108,8 +114,10 @@ export default {
       } else {
         this.$root.$emit('search-closed');
         document.dispatchEvent(new CustomEvent('search-closed'));
-        window.history.replaceState('', this.pageTitle, this.pageUri);
-        window.document.title = this.pageTitle || `${this.$t('search.window.title')} - ${this.companyName}`;
+        if (this.restorePageUri) {
+          window.history.replaceState('', this.pageTitle, this.pageUri);
+          window.document.title = this.pageTitle || `${this.$t('search.window.title')} - ${this.companyName}`;
+        }
       }
     },
   },
