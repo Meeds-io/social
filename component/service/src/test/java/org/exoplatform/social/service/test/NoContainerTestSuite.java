@@ -25,11 +25,13 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import org.exoplatform.social.rest.entity.SpaceEntityTest;
+import org.exoplatform.social.websocket.ActivityStreamWebSocketServiceTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
   UtilTest.class,
   SpaceEntityTest.class,
+  ActivityStreamWebSocketServiceTest.class,
   })
 public class NoContainerTestSuite {
   

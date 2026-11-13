@@ -27,7 +27,9 @@ import org.exoplatform.social.core.storage.cache.model.key.ListIdentitiesKey;
 
 public class IdentityCacheSelector extends CacheSelector<CacheKey, Object> {
 
-  private String provider;
+  private static final long serialVersionUID = 1L;
+
+  private final String      provider;
 
   public IdentityCacheSelector(final String provider) {
 
@@ -40,14 +42,10 @@ public class IdentityCacheSelector extends CacheSelector<CacheKey, Object> {
 
   @Override
   public boolean select(final CacheKey key, final ObjectCacheInfo<? extends Object> ocinfo) {
-
     if (key == null) {
       return false;
     }
 
-    if (!super.select(key, ocinfo)) {
-      return false;
-    }
 
     if (key instanceof IdentityFilterKey) {
       return provider.equals(((IdentityFilterKey)key).getProviderId());
@@ -59,6 +57,11 @@ public class IdentityCacheSelector extends CacheSelector<CacheKey, Object> {
 
     return false;
 
+  }
+
+  @Override
+  protected Object[] criteria() {
+    return new Object[] { provider };
   }
 
 }
