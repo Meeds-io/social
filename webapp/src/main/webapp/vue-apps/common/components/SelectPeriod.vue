@@ -31,6 +31,7 @@
     min-width="auto">
     <template #activator="{ on, attrs }">
       <v-text-field
+        ref="periodField"
         :value="rangeDate"
         :title="rangeDateTimeTitle"
         :placeholder="placeholder"
@@ -219,7 +220,7 @@ export default {
           const content = document.querySelector(`.${this.menuId}`);
           const active = document.activeElement;
           if (!active || active === document.body || content?.contains(active)) {
-            this.$el.querySelector?.('.select-period-input input')?.focus();
+            this.$refs.periodField?.$refs?.input?.focus();
           }
         });
       }
