@@ -23,6 +23,7 @@
   <component
     v-if="hasActions"
     :is="bottomMenu && 'v-bottom-sheet' || 'v-menu'"
+    :role="!bottomMenu && 'none' || null"
     ref="actionMenu"
     id="peopleCompactCardBottomDrawer"
     v-model="displayActionMenu"
@@ -36,6 +37,7 @@
     <template #activator="{ on }">
       <v-btn
         v-show="displayMenuButton"
+        ref="menuActivator"
         :aria-label="$t('peopleList.label.openUserMenu')"
         v-on="on"
         :title="$t('peopleList.label.openUserMenu')"
@@ -53,8 +55,12 @@
       :min-height="bottomMenu && '30vh' || 'auto'"
       :class="bottomMenu && 'border-top-left-radius border-top-right-radius overflow-hidden white' || 'transparent'">
       <v-list
+        ref="menuList"
+        :aria-label="$t('peopleList.label.openUserMenu')"
+        role="menu"
         class="pa-0 full-height white"
-        dense>
+        dense
+        @keydown.native="onMenuEntriesKeydown">
         <template v-if="filteredProfileActionExtensions.length">
           <people-user-menu-item
             v-for="(extension, i) in filteredProfileActionExtensions"
@@ -85,7 +91,10 @@
   </component>
 </template>
 <script>
+import menuKeyboard from '../../../common/js/MenuKeyboard.js';
+
 export default {
+  mixins: [menuKeyboard],
   props: {
     user: {
       type: Object,
@@ -170,6 +179,7 @@ export default {
       }
       // Workaround to fix closing menu when clicking outside
       if (newVal) {
+        this.focusFirstMenuEntry();
         document.addEventListener('mousedown', this.closeMenu);
         document.addEventListener('drawerOpened', this.closeMenu);
         document.addEventListener('modalOpened', this.closeMenu);
@@ -191,6 +201,9 @@ export default {
     document.removeEventListener('modalOpened', this.closeMenu);
   },
   methods: {
+    closeKeyboardMenu() {
+      this.displayActionMenu = false;
+    },
     openMenu() {
       window.setTimeout(() => {
         document.querySelector('.v-overlay--active').addEventListener('click', this.close);
