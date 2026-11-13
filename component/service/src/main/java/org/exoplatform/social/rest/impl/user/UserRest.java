@@ -129,6 +129,7 @@ import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ExperienceEntity;
+import org.exoplatform.social.rest.entity.ProfileFormFieldErrorEntity;
 import org.exoplatform.social.rest.entity.IMEntity;
 import org.exoplatform.social.rest.entity.OnboardingEmailEntity;
 import org.exoplatform.social.rest.entity.PhoneEntity;
@@ -147,6 +148,10 @@ import io.meeds.social.core.identity.model.UserExportResult;
 import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
+import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
+import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
+import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
+import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.social.space.constant.UserSpacesScope;
 import io.meeds.web.security.service.OtpService;
@@ -288,6 +293,8 @@ public class UserRest implements ResourceContainer, Startable {
 
   private OtpService                      otpService;
 
+  private ProfileFormFieldService         profileFormFieldService;
+
   private ExecutorService                 importExecutorService       = null;
 
   public UserRest(UserACL userACL, // NOSONAR
@@ -304,7 +311,8 @@ public class UserRest implements ResourceContainer, Startable {
                   PasswordRecoveryService passwordRecoveryService,
                   LocaleConfigService localeConfigService,
                   SettingService settingService,
-                  OtpService otpService) {
+                  OtpService otpService,
+                  ProfileFormFieldService profileFormFieldService) {
     this.userACL = userACL;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
@@ -319,6 +327,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.passwordRecoveryService = passwordRecoveryService;
     this.localeConfigService = localeConfigService;
     this.otpService = otpService;
+    this.profileFormFieldService = profileFormFieldService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
     this.settingService = settingService;
 
@@ -769,6 +778,73 @@ public class UserRest implements ResourceContainer, Startable {
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
                                      Response.Status.OK);
+  }
+
+  @POST
+  @Path("form-fields/validate")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
+  @Operation(summary = "Checks the additional fields of an account to create", method = "POST",
+             description = "Applies the rules of the attributes listed in the account form to the values sent, and writes nothing")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "The values are accepted"),
+      @ApiResponse(responseCode = "400", description = "A value is refused: the body holds the refusal's code and the attribute's name"),
+      @ApiResponse(responseCode = "403", description = "The user is no administrator, or has not confirmed the session"), })
+  public Response validateFormFields(@Context HttpServletRequest request,
+                                     @Parameter(description = "Whether every Required attribute of the account form must be sent")
+                                     @QueryParam("complete")
+                                     @DefaultValue("true")
+                                     boolean complete,
+                                     @RequestBody(description = "The values, each as {propertyName, value} or {propertyName, values}", required = true)
+                                     List<ProfilePropertyValue> values) {
+    if (!UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
+    try {
+      profileFormFieldService.validate(values, ProfileFormKind.ACCOUNT, complete, null);
+      return Response.ok().build();
+    } catch (ProfileFormFieldException e) {
+      return getFormFieldRefusal(e);
+    }
+  }
+
+  @PUT
+  @Path("{id}/form-fields")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
+  @Operation(summary = "Saves the additional fields of an account", method = "PUT",
+             description = "Applies the rules of the attributes listed in the account form to the values sent, then writes them in the user's profile")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "The values are saved"),
+      @ApiResponse(responseCode = "400", description = "A value is refused: the body holds the refusal's code and the attribute's name"),
+      @ApiResponse(responseCode = "403", description = "The user is no administrator, or has not confirmed the session"),
+      @ApiResponse(responseCode = "404", description = "The user does not exist or is deleted"), })
+  public Response saveFormFields(@Context HttpServletRequest request,
+                                 @Parameter(description = "User name", required = true)
+                                 @PathParam("id")
+                                 String username,
+                                 @Parameter(description = "true for an account just created: every Required attribute must be sent and an attribute sent empty is ignored; false on edition, where an attribute sent empty clears its value")
+                                 @QueryParam("complete")
+                                 @DefaultValue("true")
+                                 boolean complete,
+                                 @RequestBody(description = "The values, each as {propertyName, value} or {propertyName, values}", required = true)
+                                 List<ProfilePropertyValue> values) {
+    if (!UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
+    try {
+      Profile stored = profileFormFieldService.getProfile(username);
+      Map<String, Object> profileValues = profileFormFieldService.validate(values,
+                                                                           ProfileFormKind.ACCOUNT,
+                                                                           complete,
+                                                                           complete ? null : stored);
+      profileFormFieldService.save(username, profileValues, getCurrentUser());
+      return Response.noContent().build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Status.NOT_FOUND).build();
+    } catch (ProfileFormFieldException e) {
+      return getFormFieldRefusal(e);
+    }
   }
 
   @GET
@@ -2352,4 +2428,12 @@ public class UserRest implements ResourceContainer, Startable {
     }
     return url.toString();
   }
+
+  private Response getFormFieldRefusal(ProfileFormFieldException exception) {
+    return Response.status(Status.BAD_REQUEST)
+                   .type(MediaType.APPLICATION_JSON)
+                   .entity(new ProfileFormFieldErrorEntity(exception.getMessage(), exception.getPropertyName()))
+                   .build();
+  }
+
 }
