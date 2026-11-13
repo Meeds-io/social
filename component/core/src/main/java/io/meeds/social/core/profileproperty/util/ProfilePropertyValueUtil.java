@@ -19,8 +19,12 @@
 package io.meeds.social.core.profileproperty.util;
 
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -77,6 +81,30 @@ public class ProfilePropertyValueUtil {
   public static final int          MAX_SYNCHRONIZED_NAME_LENGTH     = MAX_GROUP_ID_LENGTH
                                                                       - SYNCHRONIZED_GROUP_ID_PREFIX.length() - 2;
 
+  /**
+   * The size of SOC_IDENTITY_PROPERTIES.VALUE, which holds an attribute's
+   * stored form, in UTF-16 units
+   */
+  public static final int          MAX_STORED_VALUE_LENGTH          = 2000;
+
+  /**
+   * The e-mail rule of $utils.isValidEmail (vue-apps/common/js/Utils.js), which
+   * the profile's e-mail fields apply; only an ASCII value passes
+   * {@link #INPUT_EMAIL_PATTERN} too, so Java's ASCII \s is enough here
+   */
+  public static final Pattern      UTILS_EMAIL_PATTERN              = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[a-zA-Z]{2,}$");
+
+  /**
+   * The WHATWG valid e-mail address production, which the browser applies to
+   * the profile's e-mail fields, whose input is of type email. The labels'
+   * repetition is possessive: a greedy one recurses once per label, and a
+   * value of a few thousand labels, checked before its size, overflows the
+   * stack; since a label holds no dot, giving one back never helps the match
+   */
+  public static final Pattern      INPUT_EMAIL_PATTERN              =
+                                                       Pattern.compile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
+                                                           + "(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*+$");
+
   /** JSON's own grammar, with nothing after the value and no repeated name */
   private static final JsonMapper  STRICT_JSON                      = JsonMapper.builder()
                                                                                 .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
@@ -128,6 +156,63 @@ public class ProfilePropertyValueUtil {
   public static int getCleanedLength(String text) {
     String cleanedText = Utils.cleanString(text);
     return StringUtils.isBlank(cleanedText) ? 0 : cleanedText.length();
+  }
+
+  /**
+   * @param  propertyName a group-synchronized attribute's technical name
+   * @param  value        one of its values
+   * @return              the length of the id of the group the value makes, as
+   *                      GroupSynchronizationSocialProfileListener builds it:
+   *                      {@link #SYNCHRONIZED_GROUP_ID_PREFIX}, the cleaned
+   *                      name, a slash and the cleaned value
+   */
+  public static int getSynchronizedGroupIdLength(String propertyName, String value) {
+    return SYNCHRONIZED_GROUP_ID_PREFIX.length() + getCleanedLength(propertyName) + 1 + getCleanedLength(value);
+  }
+
+  /**
+   * @param  value a single value
+   * @return       true when the value passes both e-mail rules the profile's
+   *               e-mail fields apply
+   */
+  public static boolean isValidEmail(String value) {
+    return matchesUtilsEmail(value) && matchesInputEmail(value);
+  }
+
+  /**
+   * @param  value a single value
+   * @return       true when the whole value matches
+   *               {@link #UTILS_EMAIL_PATTERN}
+   */
+  public static boolean matchesUtilsEmail(String value) {
+    return value != null && UTILS_EMAIL_PATTERN.matcher(value).matches();
+  }
+
+  /**
+   * @param  value a single value
+   * @return       true when the whole value matches
+   *               {@link #INPUT_EMAIL_PATTERN}
+   */
+  public static boolean matchesInputEmail(String value) {
+    return value != null && INPUT_EMAIL_PATTERN.matcher(value).matches();
+  }
+
+  /**
+   * @param  value an attribute's value in the storage shape: a text, or a list
+   *                 of maps for a multi-valued attribute
+   * @return       the length, in UTF-16 units, of the text the identity storage
+   *               writes for it: the text itself, or the JSON array org.json
+   *               serialises the list's maps to, escapes included
+   */
+  public static int storedLength(Object value) {
+    if (value instanceof List<?> list) {
+      JSONArray array = new JSONArray();
+      for (Object entry : list) {
+        array.put(entry instanceof Map<?, ?> map ? new JSONObject(map) : entry);
+      }
+      return array.toString().length();
+    }
+    return value == null ? 0 : String.valueOf(value).length();
   }
 
   /**
