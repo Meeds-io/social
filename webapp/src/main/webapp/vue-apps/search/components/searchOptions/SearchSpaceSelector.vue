@@ -23,16 +23,19 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <v-menu
       v-if="initialized"
       v-model="menu"
+      role="none"
       :close-on-content-click="false"
       attach
       offset-y>
       <template #activator="{ on, attrs }">
         <v-chip
+          ref="menuActivator"
           outlined
           :aria-label="$t('search.space.filter.label')"
           tabindex="0"
           class="text-body text-header-color mx-1"
           v-bind="attrs"
+          aria-haspopup="dialog"
           v-on="on"
           @keydown.enter.prevent="on.click"
           @keydown.space.prevent="on.click">
@@ -46,7 +49,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </v-chip>
       </template>
-      <v-card class="d-flex flex-column border-box-sizing pa-4">
+      <!-- a panel of fields, not a menu: Tab moves through it, Escape or leaving it with Tab closes it -->
+      <v-card
+        ref="spaceFilterPanel"
+        :aria-label="$t('search.space.filter.label')"
+        role="dialog"
+        class="d-flex flex-column border-box-sizing pa-4"
+        @keydown.esc.stop="closeToChip"
+        @focusout="closeWhenFocusLeaves">
         <v-radio-group v-model="choice" class="mt-0 pt-0 mb-1">
           <v-radio
             value="any"
@@ -142,6 +152,13 @@ export default {
       if (this.menu && this.selectedSpaces.length) {
         this.choice = 'space';
       }
+      if (this.menu) {
+        // Vuetify keeps the focus on the chip: it goes to the panel's checked option
+        this.$nextTick(() => window.setTimeout(() => {
+          const panel = this.$refs.spaceFilterPanel?.$el;
+          (panel?.querySelector('input[type="radio"]:checked') || panel?.querySelector('input'))?.focus();
+        }, 100));
+      }
     }
   },
   async created() {
@@ -171,6 +188,18 @@ export default {
     },
     closeMenu() {
       this.menu = false;
+    },
+    closeToChip() {
+      this.menu = false;
+      this.$nextTick(() => this.$refs.menuActivator?.$el?.focus());
+    },
+    closeWhenFocusLeaves(event) {
+      // the space suggester's list is rendered outside the panel: moving into it keeps the panel open
+      const target = event.relatedTarget;
+      const panel = this.$refs.spaceFilterPanel?.$el;
+      if (target && panel && !panel.contains(target) && !target.closest('.v-menu__content')) {
+        this.menu = false;
+      }
     },
   }
 };
