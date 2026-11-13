@@ -23,6 +23,7 @@
   <component
     v-if="hasActions"
     :is="bottomMenu && 'v-bottom-sheet' || 'v-menu'"
+    :role="!bottomMenu && 'none' || null"
     ref="actionMenu"
     id="peopleCompactCardBottomDrawer"
     v-model="displayActionMenu"

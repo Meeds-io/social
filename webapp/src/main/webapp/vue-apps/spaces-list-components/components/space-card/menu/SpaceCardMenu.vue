@@ -47,6 +47,7 @@
     <component
       v-if="space.canEdit || space.isMember"
       :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
+      :role="!$root.isMobile && 'none' || null"
       ref="actionMenu"
       v-model="menu"
       :attach="$root.isMobile && '#vuetify-apps' || attachMenu"
