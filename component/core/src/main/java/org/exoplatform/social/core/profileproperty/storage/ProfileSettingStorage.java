@@ -30,6 +30,8 @@ import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEnti
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
+import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
+
 public class ProfileSettingStorage {
 
   private final ProfilePropertySettingDAO profilePropertySettingDAO;
@@ -48,6 +50,24 @@ public class ProfileSettingStorage {
 
   public List<ProfilePropertySetting> getSynchronizedPropertySettings() {
     return profilePropertySettingDAO.findSynchronizedSettings().stream().map(this::convertFromEntity).toList();
+  }
+
+  /**
+   * Reads the settings listed in a form from the store, never from a cache, in
+   * the settings' order: the forms' allow-list must not follow a node's
+   * settings caches, which another node's write invalidates asynchronously.
+   *
+   * @param  formKind the form
+   * @return          the settings whose flag for that form is on
+   */
+  public List<ProfilePropertySetting> getListedSettings(ProfileFormKind formKind) {
+    if (formKind == null) {
+      throw new IllegalArgumentException("Form kind is mandatory");
+    }
+    List<ProfilePropertySettingEntity> entities = formKind == ProfileFormKind.REGISTRATION ?
+                                                                                           profilePropertySettingDAO.findListedOnRegistration() :
+                                                                                           profilePropertySettingDAO.findListedOnAccountForm();
+    return entities.stream().map(this::convertFromEntity).toList();
   }
 
   public ProfilePropertySetting findProfileSettingByName(String name) {
@@ -71,6 +91,17 @@ public class ProfileSettingStorage {
 
   public void deleteProfilePropertySetting(Long id) {
     profilePropertySettingDAO.delete(profilePropertySettingDAO.find(id));
+  }
+
+  /**
+   * Switches off both listing flags of a stored setting, in the caller's
+   * transaction.
+   *
+   * @param  id the setting's technical identifier
+   * @return    true when a flag was on and the setting was changed
+   */
+  public boolean clearListingFlags(Long id) {
+    return profilePropertySettingDAO.clearListingFlags(id);
   }
 
   public List<ProfilePropertyOption> getProfilePropertyOptions(Long propertySettingId, int offset, int limit) {
@@ -98,6 +129,8 @@ public class ProfileSettingStorage {
     profilePropertySettingEntity.setPropertyType(profilePropertySetting.getPropertyType());
     profilePropertySettingEntity.setPropertyOptions(toPropertyOptionEntities(profilePropertySettingEntity, profilePropertySetting.getPropertyOptions()));
     profilePropertySettingEntity.setUpdatedDate(new Date(profilePropertySetting.getUpdated()));
+    profilePropertySettingEntity.setListedOnAccountForm(profilePropertySetting.isListedOnAccountForm());
+    profilePropertySettingEntity.setListedOnRegistration(profilePropertySetting.isListedOnRegistration());
     return profilePropertySettingEntity;
   }
 
@@ -123,6 +156,8 @@ public class ProfileSettingStorage {
     profilePropertySetting.setPropertyOptions(toPropertyOptions(profilePropertySettingEntity.getPropertyOptions()));
     profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdatedDate().getTime());
     profilePropertySetting.setHasChildProperties(hasChildProperties(profilePropertySettingEntity.getId()));
+    profilePropertySetting.setListedOnAccountForm(profilePropertySettingEntity.isListedOnAccountForm());
+    profilePropertySetting.setListedOnRegistration(profilePropertySettingEntity.isListedOnRegistration());
     return profilePropertySetting;
   }
 

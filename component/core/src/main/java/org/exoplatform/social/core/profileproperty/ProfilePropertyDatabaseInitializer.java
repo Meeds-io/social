@@ -93,6 +93,8 @@ public class ProfilePropertyDatabaseInitializer extends BaseComponentPlugin impl
         profilePropertySetting.setRequired(data.isRequired());
         profilePropertySetting.setHiddenbale(data.isHiddenable());
         profilePropertySetting.setPropertyType(data.getPropertyType());
+        profilePropertySetting.setListedOnAccountForm(data.isListedOnAccountForm());
+        profilePropertySetting.setListedOnRegistration(data.isListedOnRegistration());
         if (StringUtils.isNotEmpty(data.getParentName())) {
           ProfilePropertySetting parent = profilePropertyService.getProfileSettingByName(data.getParentName());
           if (parent != null) {
