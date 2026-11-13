@@ -22,6 +22,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <div class="searchConnectorsParent d-flex align-center mx-4 mb-2 pb-2 content-box-sizing overflow-x-auto text-no-wrap">
     <search-space-selector />
     <v-menu
+      v-model="menu"
       :close-on-content-click="false"
       content-class="connectors-list"
       :attach="!$root.isMobile"
@@ -30,6 +31,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       offset-y>
       <template #activator="{ on, attrs }">
         <v-chip
+          ref="menuActivator"
           outlined
           :aria-label="$t('search.filter.type')"
           v-bind="attrs"
@@ -49,10 +51,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </v-chip>
       </template>
       <v-list
+        ref="menuList"
         :aria-label="$t('search.filter.type.group')"
-        role="group"
+        role="menu"
         dense
-        class="pa-0">
+        class="pa-0"
+        @keydown.native="onMenuEntriesKeydown">
         <v-list-item
           :aria-checked="String(allEnabled)"
           role="menuitemcheckbox"
@@ -123,7 +127,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 </template>
 
 <script>
+import menuKeyboard from '../../../common/js/MenuKeyboard.js';
+
 export default {
+  mixins: [menuKeyboard],
   props: {
     favorites: {
       type: Boolean,
@@ -140,6 +147,21 @@ export default {
     enabledConnectors: {
       type: Array,
       default: () => [],
+    },
+  },
+  data: () => ({
+    menu: false,
+  }),
+  watch: {
+    menu(opened) {
+      if (opened) {
+        this.focusFirstMenuEntry();
+      }
+    },
+  },
+  methods: {
+    closeKeyboardMenu() {
+      this.menu = false;
     },
   },
 };

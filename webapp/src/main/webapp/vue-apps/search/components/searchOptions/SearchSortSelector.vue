@@ -21,11 +21,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <template>
   <div class="spaceFilter d-flex flex-row">
     <v-menu
+      v-model="menu"
       offset-y
       left
       :close-on-content-click="true">
       <template #activator="{ on, attrs }">
         <v-chip
+          ref="menuActivator"
           outlined
           :aria-label="$t('search.sort.by.ariaLabel', {0: selectedSortLabel})"
           tabindex="0"
@@ -45,12 +47,22 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </v-chip>
       </template>
 
-      <v-list>
+      <v-list
+        ref="menuList"
+        :aria-label="$t('search.sort.by.ariaLabel', {0: selectedSortLabel})"
+        role="menu"
+        @keydown.native="onMenuEntriesKeydown">
+        <!-- the selected option is announced as checked and shown with a check mark, not by its place alone -->
         <v-list-item
           v-for="option in sortTypes"
           :key="option.value"
+          :aria-checked="String(option.value === selectedSort)"
+          role="menuitemradio"
           @click="selectSort(option)">
-          <v-list-item-title>{{ option.label }}</v-list-item-title>
+          <v-list-item-title :class="option.value === selectedSort && 'font-weight-bold'">{{ option.label }}</v-list-item-title>
+          <v-list-item-icon v-if="option.value === selectedSort" class="my-auto ms-2">
+            <v-icon size="14" aria-hidden="true">fas fa-check</v-icon>
+          </v-list-item-icon>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -58,9 +70,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 </template>
 
 <script>
+import menuKeyboard from '../../../common/js/MenuKeyboard.js';
+
 export default {
+  mixins: [menuKeyboard],
   data() {
     return {
+      menu: false,
       selectedSort: '',
       sortDescending: true,
     };
@@ -76,9 +92,21 @@ export default {
       return this.$t(`search.sort.by.${this.selectedSort || 'relevancy'}`);
     }
   },
+  watch: {
+    menu(opened) {
+      if (opened) {
+        this.focusFirstMenuEntry();
+      }
+    },
+  },
   methods: {
+    closeKeyboardMenu() {
+      this.menu = false;
+    },
     selectSort(option) {
       this.selectedSort = option.value;
+      // the menu closes on the choice: the focus goes back to its button
+      this.$nextTick(() => this.$refs.menuActivator?.$el?.focus());
       this.$root.$emit('sort-changed', option, this.sortDescending);
       if (this.selectedSort === 'date') {
         document.dispatchEvent(new CustomEvent('search-sort-by-date-action'));

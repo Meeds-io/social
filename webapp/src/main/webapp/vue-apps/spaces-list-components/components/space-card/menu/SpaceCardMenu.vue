@@ -57,6 +57,7 @@
       offset-y>
       <template #activator="{attrs}">
         <space-card-button
+          ref="menuActivator"
           v-bind="attrs"
           :extension="{
             icon: 'fa-ellipsis-v',
@@ -68,9 +69,13 @@
           icon />
       </template>
       <v-list
+        ref="menuList"
         :max-width="!$root.isMobile && 300 || 'auto'"
+        :aria-label="$t('spacesList.button.options')"
+        role="menu"
         class="transparent"
-        dense>
+        dense
+        @keydown.native="onMenuEntriesKeydown">
         <space-card-menu-item
           v-if="$root.isMobile"
           :href="url"
@@ -209,7 +214,10 @@
   </div>
 </template>
 <script>
+import menuKeyboard from '../../../../common/js/MenuKeyboard.js';
+
 export default {
+  mixins: [menuKeyboard],
   props: {
     space: {
       type: Object,
@@ -247,6 +255,7 @@ export default {
     menu() {
       // Workaround to fix closing menu when clicking outside
       if (this.menu) {
+        this.focusFirstMenuEntry();
         document.addEventListener('mousedown', this.closeMenu);
         this.$root.$emit('spaces-list-menu-opened', this.id);
       } else {
@@ -265,6 +274,9 @@ export default {
     document.removeEventListener('mousedown', this.closeMenu);
   },
   methods: {
+    closeKeyboardMenu() {
+      this.menu = false;
+    },
     removeSpaceConfirm() {
       this.openConfirmDialog(
         this.$t('spacesList.title.deleteSpace'),
