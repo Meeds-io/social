@@ -19,11 +19,13 @@
 package org.exoplatform.social.core.jpa.storage;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.data.domain.Pageable;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.cache.ExoCache;
@@ -32,6 +34,7 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.model.AvatarAttachment;
+import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -40,6 +43,12 @@ import org.exoplatform.social.core.storage.cache.SocialStorageCacheService;
 import org.exoplatform.social.core.storage.cache.model.data.ListSpacesData;
 import org.exoplatform.social.core.storage.cache.model.key.ListSpacesKey;
 import org.exoplatform.social.core.storage.cache.model.key.SpaceFilterKey;
+
+import io.meeds.social.space.service.SubspacesServiceTest;
+import io.meeds.social.space.template.entity.SpaceTemplateEntity;
+import io.meeds.social.space.template.model.SpaceTemplate;
+import io.meeds.social.space.template.storage.SpaceTemplateStorage;
+import io.meeds.social.space.template.utils.EntityMapper;
 
 public class SpaceStorageTest extends AbstractCoreTest {
 
@@ -1855,4 +1864,116 @@ public class SpaceStorageTest extends AbstractCoreTest {
     return Integer.toUnsignedLong(target);
   }
 
+
+  /**
+   * A keyset walk over one template's spaces ({@link SpaceFilter#setAfterId})
+   * returns each space present for the whole walk exactly once, in id order,
+   * whatever the filter's sorting says, while a space it already returned is
+   * deleted and a new one is created during the walk: an offset walk would
+   * skip a row after the deletion. The spaces of another template stay out.
+   * Run through the cached storage, so each page is its own cache entry.
+   */
+  public void testKeysetWalkOverATemplateSkipsNoSpaceWhenSpacesChangeDuringTheWalk() throws Exception {
+    long templateId = defaultTemplateId();
+    SpaceTemplateEntity otherTemplate = createTemplateRow();
+    try {
+      List<Long> walked = new ArrayList<>();
+      // titles in the reverse order of the ids: an order by title would read them backwards
+      List<Space> spaces = new ArrayList<>();
+      for (String name : List.of("zulu", "yankee", "xray", "whiskey", "victor")) {
+        spaces.add(saveSpaceOfTemplate(name, templateId));
+      }
+      saveSpaceOfTemplate("alpha other", otherTemplate.getId());
+      saveSpaceOfTemplate("bravo other", otherTemplate.getId());
+      restartTransaction();
+
+      SpaceFilter filter = new SpaceFilter();
+      filter.setTemplateIds(List.of(templateId));
+      filter.setSorting(new Sorting(Sorting.SortBy.TITLE, Sorting.OrderBy.ASC));
+      filter.setAfterId(0L);
+      List<Space> page = spaceStorage.getSpacesByFilter(filter, 0, 2);
+      page.forEach(space -> walked.add(space.getSpaceId()));
+
+      spaceStorage.deleteSpace(spaces.get(0).getId());
+      Space created = saveSpaceOfTemplate("uniform", templateId);
+      restartTransaction();
+
+      while (page.size() == 2) {
+        filter.setAfterId(walked.get(walked.size() - 1));
+        page = spaceStorage.getSpacesByFilter(filter, 0, 2);
+        page.forEach(space -> walked.add(space.getSpaceId()));
+      }
+
+      List<Long> expected = new ArrayList<>(spaces.stream().map(Space::getSpaceId).toList());
+      expected.add(created.getSpaceId());
+      assertEquals(expected, walked);
+    } finally {
+      deleteTemplateRow(otherTemplate);
+    }
+  }
+
+  /**
+   * The same template filter, run with and without a keyset bound in one JVM,
+   * keeps its own order each time: the keyset walk by id, the plain filter by
+   * title. A keyset whose query text were registered under the plain filter's
+   * name would read the other order (social pitfall « a filter DAO builds its
+   * JPQL text once per query name »).
+   */
+  public void testKeysetAndTitleOrderOfOneTemplateFilterEachKeepTheirOrder() {
+    long templateId = defaultTemplateId();
+    Space zulu = saveSpaceOfTemplate("zulu", templateId);
+    Space yankee = saveSpaceOfTemplate("yankee", templateId);
+    restartTransaction();
+
+    SpaceFilter titleOrder = new SpaceFilter();
+    titleOrder.setTemplateIds(List.of(templateId));
+    SpaceFilter keyset = titleOrder.clone();
+    keyset.setAfterId(0L);
+
+    List<Long> byTitle = List.of(yankee.getSpaceId(), zulu.getSpaceId());
+    List<Long> byId = List.of(zulu.getSpaceId(), yankee.getSpaceId());
+    assertEquals(byTitle, ids(spaceStorage.getSpacesByFilter(titleOrder, 0, 10)));
+    assertEquals(byId, ids(spaceStorage.getSpacesByFilter(keyset, 0, 10)));
+    assertEquals(byTitle, ids(spaceStorage.getSpacesByFilter(titleOrder, 0, 10)));
+    assertEquals(2, spaceStorage.getAllSpacesByFilterCount(keyset));
+    keyset.setAfterId(zulu.getSpaceId());
+    assertEquals(List.of(yankee.getSpaceId()), ids(spaceStorage.getSpacesByFilter(keyset, 0, 10)));
+    assertEquals(1, spaceStorage.getAllSpacesByFilterCount(keyset));
+  }
+
+  private static List<Long> ids(List<Space> spaces) {
+    return spaces.stream().map(Space::getSpaceId).toList();
+  }
+
+  private Space saveSpaceOfTemplate(String name, long templateId) {
+    Space space = getSpaceInstance(0);
+    space.setDisplayName(name);
+    space.setPrettyName(name.replace(' ', '_'));
+    space.setGroupId("/spaces/" + space.getPrettyName());
+    space.setUrl(space.getPrettyName());
+    space.setTemplateId(templateId);
+    return spaceStorage.saveSpace(space, true);
+  }
+
+  private long defaultTemplateId() {
+    return getService(SpaceTemplateStorage.class).getSpaceTemplates(Pageable.unpaged()).getFirst().getId();
+  }
+
+  private SpaceTemplateEntity createTemplateRow() {
+    SpaceTemplate template = getService(SpaceTemplateStorage.class).getSpaceTemplates(Pageable.unpaged()).getFirst();
+    SpaceTemplateEntity entity = EntityMapper.toEntity(template);
+    entity.setId(null);
+    entity.setAllowedSubspaceTemplates(null);
+    SpaceTemplateEntity created = new SubspacesServiceTest.SpaceTemplateDAO().create(entity);
+    restartTransaction();
+    return created;
+  }
+
+  private void deleteTemplateRow(SpaceTemplateEntity template) throws Exception {
+    deleteAllSpaces();
+    restartTransaction();
+    SubspacesServiceTest.SpaceTemplateDAO dao = new SubspacesServiceTest.SpaceTemplateDAO();
+    dao.delete(dao.find(template.getId()));
+    restartTransaction();
+  }
 }
