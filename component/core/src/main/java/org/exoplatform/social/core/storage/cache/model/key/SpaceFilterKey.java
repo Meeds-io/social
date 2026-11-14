@@ -21,6 +21,7 @@ package org.exoplatform.social.core.storage.cache.model.key;
 import java.util.List;
 import java.util.Objects;
 
+import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
 
 import lombok.Data;
@@ -36,11 +37,14 @@ public class SpaceFilterKey implements CacheKey {
 
   private List<Long>        templateIds;
 
+  private final Sorting     sorting;
+
   private final int         hash;
 
   public SpaceFilterKey(String userId, SpaceFilter filter, SpaceType type) {
     this.hash = Objects.hash(filter);
     this.templateIds = filter == null ? null : filter.getTemplateIds();
+    this.sorting = filter == null ? null : filter.getSorting();
     this.type = type;
     this.userId = userId;
   }
