@@ -86,7 +86,11 @@ public class SpaceFilter implements Cloneable {
    * greater than it are returned, ordered by id ascending, and {@link #sorting}
    * is ignored. A removal or a creation during the walk shifts no page, as an
    * offset would. Null, the default, leaves the filter unbounded and sorted as
-   * {@link #getSorting()} says; 0 starts a walk at the first space.
+   * {@link #getSorting()} says; 0 starts a walk at the first space. The bound
+   * is applied by the database query only: a filter that is also a unified
+   * search ({@link #isUnifiedSearch()}: a name condition, favorites or tags) is
+   * answered by the search index, which ignores it, so a keyset walk carries no
+   * search condition.
    */
   private Long                  afterId;
 
