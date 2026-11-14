@@ -88,9 +88,10 @@ public class SpaceFilter implements Cloneable {
    * offset would. Null, the default, leaves the filter unbounded and sorted as
    * {@link #getSorting()} says; 0 starts a walk at the first space. The bound
    * is applied by the database query only: a filter that is also a unified
-   * search ({@link #isUnifiedSearch()}: a name condition, favorites or tags) is
-   * answered by the search index, which ignores it, so a keyset walk carries no
-   * search condition.
+   * search ({@link #isUnifiedSearch()}: a name condition, favorites or tags)
+   * may be answered by the search index instead, when the space search is
+   * enabled for the list type, and the index ignores the bound; so a keyset
+   * walk carries no search condition.
    */
   private Long                  afterId;
 
