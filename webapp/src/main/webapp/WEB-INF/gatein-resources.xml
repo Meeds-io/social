@@ -1495,7 +1495,11 @@
 
   <portlet>
     <name>Sidebar</name>
+    <!-- The space menu's add-on items: the menu runs, at its first opening,
+         every module of this load-group whose name contains
+         SpaceHamburgerExtension -->
     <module>
+      <load-group>SpaceHamburgerExtensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/sidebar.bundle.js</path>
