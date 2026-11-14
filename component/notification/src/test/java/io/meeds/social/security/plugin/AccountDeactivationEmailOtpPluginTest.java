@@ -20,12 +20,14 @@ package io.meeds.social.security.plugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +36,7 @@ import java.util.Collections;
 import java.util.Properties;
 
 import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.junit.Before;
@@ -181,6 +184,26 @@ public class AccountDeactivationEmailOtpPluginTest {
     assertTrue("OTP code should be injected in the email body", body.contains(OTP_CODE));
     assertTrue("User full name should be injected in the email body", body.contains("John Doe"));
     assertFalse("All i18n placeholders should be resolved", body.contains("${"));
+    assertEquals("The code of this method goes to the address of the account only",
+                 "john@example.com",
+                 InternetAddress.toString(messageCaptor.getValue().getAllRecipients()));
+    verify(otpSendLockCache).put(eq("accountDeactivationEmail:john"), anyString());
+  }
+
+  /**
+   * The send lock of this method holds under its own key, and a wrong code
+   * keeps it
+   */
+  @Test
+  public void testSendLockHoldsAndAWrongCodeKeepsIt() throws Exception {
+    when(otpCache.get("accountDeactivationEmail:john")).thenReturn("999999");
+    assertFalse(plugin.validateOtp("john", OTP_CODE));
+    verify(otpSendLockCache, never()).remove(anyString());
+
+    when(otpSendLockCache.get("accountDeactivationEmail:john")).thenReturn("");
+    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
+    verify(otpCache, never()).put(anyString(), anyString());
+    verify(mailService, never()).sendMessage(any(MimeMessage.class));
   }
 
 }

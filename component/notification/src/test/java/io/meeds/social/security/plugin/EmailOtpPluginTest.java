@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.Properties;
 
 import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.junit.Before;
@@ -202,6 +203,9 @@ public class EmailOtpPluginTest {
     assertTrue("User full name should be injected in the email body", body.contains("John Doe"));
     assertFalse("All i18n placeholders should be resolved", body.contains("${"));
     verify(otpSendLockCache).put(eq("email:john"), anyString());
+    assertEquals("The code of the email method goes to the address of the account only",
+                 "john@example.com",
+                 InternetAddress.toString(messageCaptor.getValue().getAllRecipients()));
   }
 
   @Test

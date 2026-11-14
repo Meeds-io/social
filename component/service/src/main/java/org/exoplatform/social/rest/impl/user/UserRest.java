@@ -148,7 +148,9 @@ import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
+import io.meeds.social.security.plugin.EmailChangeOtpPlugin;
 import io.meeds.social.space.constant.UserSpacesScope;
+import io.meeds.web.security.plugin.OtpPlugin;
 import io.meeds.web.security.service.OtpService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -170,8 +172,6 @@ import lombok.SneakyThrows;
     "/social/users", description = "Operations on users with their activities, connections and spaces")
 public class UserRest implements ResourceContainer, Startable {
 
-  private static final String EMAIL_OTP_METHOD             = "email";
-
   private static final String BULK_ENABLE                  = "enable";
 
   private static final String BULK_DISABLE                 = "disable";
@@ -179,6 +179,12 @@ public class UserRest implements ResourceContainer, Startable {
   private static final String UPLOAD_ID_PROGRESS_NOT_FOUND = "UPLOAD_ID_PROGRESS:NOT_FOUND";
 
   private static final String             EMAIL_MSG_PREFIX            = "EMAIL:";
+
+  /**
+   * The OTP method whose code goes to the address of the account: an email
+   * change needs it beside the code sent to the new address
+   */
+  private static final String             CURRENT_EMAIL_OTP_METHOD    = "email";
 
   private static final String             FIRSTNAME_MSG_PREFIX        = "FIRSTNAME:";
 
@@ -1153,7 +1159,10 @@ public class UserRest implements ResourceContainer, Startable {
                                              String otpMethod,
                                              @Parameter(description = "OTP Code", required = false)
                                              @FormParam("otpCode")
-                                             String otpCode) {
+                                             String otpCode,
+                                             @Parameter(description = "Code sent to the current email address, for an email change", required = false)
+                                             @FormParam("currentOtpCode")
+                                             String currentOtpCode) {
     if (StringUtils.isBlank(name)) {
       return Response.status(Status.BAD_REQUEST).entity("'name' parameter is mandatory").build();
     }
@@ -1186,8 +1195,9 @@ public class UserRest implements ResourceContainer, Startable {
           return Response.status(Response.Status.BAD_REQUEST).entity(LASTNAME_MSG_PREFIX + errorMessage).build();
         }
       }
+      String formerEmail = profile.getEmail();
       if (Profile.EMAIL.equals(fieldName)) {
-        Response response = checkEmail(username, value, otpCode, locale);
+        Response response = checkEmail(username, value, otpCode, currentOtpCode, locale);
         if (response != null) {
           return response;
         }
@@ -1200,7 +1210,7 @@ public class UserRest implements ResourceContainer, Startable {
       } else {
         updateProfileField(profile, fieldName, value, true,currentUser);
         if (Profile.EMAIL.equals(fieldName)) {
-          consumeEmailOtp(username, otpCode);
+          completeEmailChange(username, formerEmail, value, otpCode, currentOtpCode);
         }
       }
     } catch (IllegalAccessException e) {
@@ -1234,6 +1244,9 @@ public class UserRest implements ResourceContainer, Startable {
                                               @Parameter(description = "OTP Code", required = false)
                                               @QueryParam("otpCode")
                                               String otpCode,
+                                              @Parameter(description = "Code sent to the current email address, for an email change", required = false)
+                                              @QueryParam("currentOtpCode")
+                                              String currentOtpCode,
                                               @RequestBody(description = "User profile attributes map", required = true)
                                               ProfileEntity profileEntity) throws Exception {
     if (StringUtils.isBlank(username)) {
@@ -1270,9 +1283,10 @@ public class UserRest implements ResourceContainer, Startable {
       }
     }
     Identity identity = identityManager.getOrCreateUserIdentity(username);
-    boolean emailChange = email != null && !StringUtils.equals(email, identity.getProfile().getEmail());
+    String formerEmail = identity.getProfile().getEmail();
+    boolean emailChange = email != null && !StringUtils.equals(email, formerEmail);
     if (emailChange) {
-      Response response = checkEmail(username, email, otpCode, locale);
+      Response response = checkEmail(username, email, otpCode, currentOtpCode, locale);
       if (response != null) {
         return response;
       }
@@ -1282,7 +1296,7 @@ public class UserRest implements ResourceContainer, Startable {
       Map<String, Object> userProfileProperties = extractPropertiesFromEntities(profileEntity);
       saveProfile(username, userProfileProperties, currentUser);
       if (emailChange) {
-        consumeEmailOtp(username, otpCode);
+        completeEmailChange(username, formerEmail, email, otpCode, currentOtpCode);
       }
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attributes", currentUser);
@@ -1414,6 +1428,74 @@ public class UserRest implements ResourceContainer, Startable {
     }
     identityManager.updateProfile(profile, getCurrentUser(), true);
     return Response.ok().build();
+  }
+
+  /**
+   * Sends the code that confirms an email change to the new address, once the
+   * code sent to the current address is given and valid, the new address is
+   * valid and no other user of this platform has it: the change then takes
+   * effect with both codes only, so it proves that the user reads the mail of
+   * the account and receives mail at the new address. No code goes to a new
+   * address before the current one is proven. The send lock of the user is
+   * taken first, on every request whose current code is valid, refused ones
+   * included, and holds whatever the address.
+   */
+  @POST
+  @Path("{id}/email/otp")
+  @RolesAllowed("users")
+  @Operation(summary = "Sends the code confirming an email change to the new address", method = "POST", description = "This can only be done by the logged in user.")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Code sent"),
+    @ApiResponse(responseCode = "400", description = "Missing or wrong code of the current address, or invalid email address"),
+    @ApiResponse(responseCode = "401", description = "Not the logged in user, or the address is used by another user"),
+    @ApiResponse(responseCode = "429", description = "A request was made less than the send interval ago, retry later") })
+  public Response sendEmailChangeOtpCode(@Context
+  HttpServletRequest request,
+                                         @Parameter(description = "User name", required = true)
+                                         @PathParam("id")
+                                         String username,
+                                         @Parameter(description = "The new email address", required = true)
+                                         @FormParam("email")
+                                         String email,
+                                         @Parameter(description = "Code sent to the current email address", required = true)
+                                         @FormParam("currentOtpCode")
+                                         String currentOtpCode) throws Exception {
+    if (!StringUtils.equals(getCurrentUser(), username)) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+    EmailChangeOtpPlugin emailChangeOtpPlugin = getEmailChangeOtpPlugin();
+    if (emailChangeOtpPlugin == null) {
+      LOG.warn("No OTP method '{}' is registered: the email change code of user {} cannot be sent",
+               EmailChangeOtpPlugin.NAME,
+               username);
+      return Response.serverError().build();
+    }
+    Response currentCodeRefusal = checkCurrentEmailCode(username, currentOtpCode);
+    if (currentCodeRefusal != null) {
+      return currentCodeRefusal;
+    }
+    Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
+    try {
+      // the address is checked under the send lock, so that its refusals are
+      // rate-limited like a send
+      Response refusal = emailChangeOtpPlugin.generateOtpCode(username,
+                                                              email,
+                                                              address -> checkNewEmail(username, address, locale));
+      return refusal == null ? Response.noContent().build() : refusal;
+    } catch (IllegalStateException e) {
+      return Response.status(429).build();
+    }
+  }
+
+  private Response checkNewEmail(String username, String email, Locale locale) throws Exception {
+    String errorMessage = EMAIL_VALIDATOR.validate(locale, email);
+    if (StringUtils.isNotBlank(errorMessage)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(EMAIL_MSG_PREFIX + errorMessage).build();
+    }
+    if (isEmailAlreadyExists(username, email)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
+    }
+    return null;
   }
 
   @DELETE
@@ -2199,17 +2281,31 @@ public class UserRest implements ResourceContainer, Startable {
   }
 
   /**
-   * Validates the code of an email change, always with the email method:
-   * the method a client names is ignored, so a code sent for another flow
-   * never confirms an email change. The code is consumed by
-   * {@link #consumeEmailOtp(String, String)} once the change is written.
+   * Validates the code of an email change, always with the email change
+   * method: the method a client names is ignored, so a code sent for another
+   * flow never confirms an email change. The code was sent to the new address
+   * ({@link #sendEmailChangeOtpCode(HttpServletRequest, String, String, String)})
+   * and is validated bound to the address being set, so a code sent to one
+   * address never confirms a change to another. The code sent to the current
+   * address is validated first ({@link #checkCurrentEmailCode(String, String)}).
+   * Both codes are consumed by
+   * {@link #completeEmailChange(String, String, String, String, String)} once
+   * the change is written.
    */
-  private Response checkEmail(String username, String email, String otpCode, Locale locale) throws Exception {
+  private Response checkEmail(String username,
+                              String email,
+                              String otpCode,
+                              String currentOtpCode,
+                              Locale locale) throws Exception {
+    Response currentCodeRefusal = checkCurrentEmailCode(username, currentOtpCode);
+    if (currentCodeRefusal != null) {
+      return currentCodeRefusal;
+    }
     if (StringUtils.isBlank(otpCode)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_MANDATORY").build();
     }
     try {
-      otpService.validateOtp(username, EMAIL_OTP_METHOD, otpCode);
+      otpService.validateOtp(username, EmailChangeOtpPlugin.NAME, EmailChangeOtpPlugin.bindCode(otpCode, email));
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_WRONG").build();
     }
@@ -2225,14 +2321,61 @@ public class UserRest implements ResourceContainer, Startable {
   }
 
   /**
-   * Consumes the code of an email change once the change is written, so that
-   * it never confirms another one, while a refused request burns nothing.
-   * When another request consumed it in between, this change stands.
+   * Validates the code sent to the address of the account
+   * ({@value #CURRENT_EMAIL_OTP_METHOD} method): an email change, and the send
+   * of its code to a new address, need the proof that the user reads the mail
+   * of the account, so a session alone never moves the account to another
+   * mailbox.
    */
-  private void consumeEmailOtp(String username, String otpCode) {
-    if (!otpService.consumeOtp(username, EMAIL_OTP_METHOD, otpCode)) {
+  private Response checkCurrentEmailCode(String username, String currentOtpCode) throws Exception {
+    if (StringUtils.isBlank(currentOtpCode)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:CURRENT_OTP_CODE_MANDATORY").build();
+    }
+    try {
+      otpService.validateOtp(username, CURRENT_EMAIL_OTP_METHOD, currentOtpCode);
+    } catch (IllegalAccessException e) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:CURRENT_OTP_CODE_WRONG").build();
+    }
+    return null;
+  }
+
+  /**
+   * Once the change is written: consumes both codes, so that they never
+   * confirm another change, while a refused request burns nothing (when
+   * another request consumed one in between, this change stands), then tells
+   * the former address of the change when the address really changed.
+   */
+  private void completeEmailChange(String username,
+                                   String formerEmail,
+                                   String email,
+                                   String otpCode,
+                                   String currentOtpCode) {
+    if (!otpService.consumeOtp(username, EmailChangeOtpPlugin.NAME, EmailChangeOtpPlugin.bindCode(otpCode, email))) {
       LOG.warn("The email change code of user {} was consumed by another request while this change was written", username);
     }
+    if (!otpService.consumeOtp(username, CURRENT_EMAIL_OTP_METHOD, currentOtpCode)) {
+      LOG.warn("The current address code of user {} was consumed by another request while this change was written", username);
+    }
+    if (StringUtils.isNotBlank(formerEmail) && !StringUtils.equalsIgnoreCase(formerEmail.trim(), StringUtils.trim(email))) {
+      EmailChangeOtpPlugin emailChangeOtpPlugin = getEmailChangeOtpPlugin();
+      if (emailChangeOtpPlugin != null) {
+        emailChangeOtpPlugin.sendChangeNotice(username, formerEmail);
+      }
+    }
+  }
+
+  /**
+   * The plugin the OTP service validates the email change method with: the
+   * first one of that name, as the service resolves it
+   */
+  private EmailChangeOtpPlugin getEmailChangeOtpPlugin() {
+    List<OtpPlugin> otpPlugins = otpService.getOtpPlugins();
+    OtpPlugin otpPlugin = otpPlugins == null ? null
+                                             : otpPlugins.stream()
+                                                         .filter(p -> EmailChangeOtpPlugin.NAME.equals(p.getName()))
+                                                         .findFirst()
+                                                         .orElse(null);
+    return otpPlugin instanceof EmailChangeOtpPlugin emailChangeOtpPlugin ? emailChangeOtpPlugin : null;
   }
 
   /**

@@ -154,24 +154,117 @@ public class EmailOtpPlugin implements OtpPlugin {
   }
 
   @Override
-  @SneakyThrows
   public void generateOtpCode(String userName) {
+    sendOtpCode(userName, null);
+  }
+
+  /**
+   * Sends a new code to the user, under the code key and the send lock of
+   * this method: to the given address when there is one, else to the address
+   * of the user's account. The code is stored as
+   * {@link #getStoredCode(String, String)} answers, the value that
+   * {@link #validateOtp(String, String)} and {@link #consumeOtp(String, String)}
+   * compare.
+   *
+   * @param userName the user the code is for
+   * @param recipientEmail the address to send the code to, null for the
+   *          address of the user's account
+   */
+  protected void sendOtpCode(String userName, String recipientEmail) {
     String cacheKey = getCacheKey(userName);
+    checkSendLock(userName, cacheKey);
+    sendCode(userName, recipientEmail, cacheKey);
+    getOtpSendLockCache().put(cacheKey, StringUtils.EMPTY);
+  }
+
+  /**
+   * Takes the send lock of the user at once, before anything is checked or
+   * sent: the lock then holds for the send interval whatever the request
+   * answers, a refusal included. The code is then sent by
+   * {@link #sendOtpCodeUnderLock(String, String)}.
+   *
+   * @param userName the user the code is for
+   * @throws IllegalStateException when the lock is already held
+   */
+  protected void takeSendLock(String userName) {
+    String cacheKey = getCacheKey(userName);
+    checkSendLock(userName, cacheKey);
+    getOtpSendLockCache().put(cacheKey, StringUtils.EMPTY);
+  }
+
+  /**
+   * Sends a new code as {@link #sendOtpCode(String, String)} does, under the
+   * send lock the caller took with {@link #takeSendLock(String)}. When the send
+   * fails, the lock is released and the code dropped: no code left, so the
+   * user may ask again at once.
+   *
+   * @param userName the user the code is for
+   * @param recipientEmail the address to send the code to, null for the
+   *          address of the user's account
+   */
+  protected void sendOtpCodeUnderLock(String userName, String recipientEmail) {
+    String cacheKey = getCacheKey(userName);
+    try {
+      sendCode(userName, recipientEmail, cacheKey);
+    } catch (Exception e) {
+      getOtpCache().remove(cacheKey);
+      getOtpSendLockCache().remove(cacheKey);
+      throw e;
+    }
+  }
+
+  private void checkSendLock(String userName, String cacheKey) {
     if (getOtpSendLockCache().get(cacheKey) != null) {
       throw new IllegalStateException(String.format("OTP email already sent to user %s less than %s seconds ago",
                                                     userName,
                                                     sendInterval));
     }
+  }
+
+  @SneakyThrows
+  private void sendCode(String userName, String recipientEmail, String cacheKey) {
     String lang = brandedEmailSender.getUserLang(userName);
     String emailSubject = resourceBundleService.getSharedString(getEmailSubjectKey(), LocaleUtils.toLocale(lang));
     String otpCode = generateOtpCode();
-    getOtpCache().put(cacheKey, otpCode);
-    brandedEmailSender.sendEmail(userName,
-                                 emailSubject,
-                                 getEmailBodyPath(),
-                                 Map.of("####", otpCode,
-                                        "$CODE_EXPIRATION_LABEL", getCodeExpirationLabel(lang)));
-    getOtpSendLockCache().put(cacheKey, StringUtils.EMPTY);
+    getOtpCache().put(cacheKey, getStoredCode(otpCode, recipientEmail));
+    Map<String, String> tokens = Map.of("####", otpCode, "$CODE_EXPIRATION_LABEL", getCodeExpirationLabel(lang));
+    if (recipientEmail == null) {
+      brandedEmailSender.sendEmail(userName, emailSubject, getEmailBodyPath(), tokens);
+    } else {
+      brandedEmailSender.sendEmail(userName, recipientEmail, emailSubject, getEmailBodyPath(), tokens);
+    }
+  }
+
+  /**
+   * Sends an email with no code to the user, in their language, through the
+   * common branded layout: to the given address when there is one, else to
+   * the address of the user's account
+   *
+   * @param userName the user the email is about
+   * @param recipientEmail the address to send it to, null for the address of
+   *          the user's account
+   * @param subjectKey the shared bundle key of its subject
+   * @param templatePath the path of its content fragment
+   * @throws Exception when the email cannot be built or sent
+   */
+  protected void sendEmail(String userName, String recipientEmail, String subjectKey, String templatePath) throws Exception {
+    String lang = brandedEmailSender.getUserLang(userName);
+    String emailSubject = resourceBundleService.getSharedString(subjectKey, LocaleUtils.toLocale(lang));
+    brandedEmailSender.sendEmail(userName, recipientEmail, emailSubject, templatePath, Map.of());
+  }
+
+  /**
+   * The value a sent code is stored as. The code itself here: the email, API
+   * key, account deactivation and administrator session methods compare the
+   * typed code alone
+   *
+   * @param otpCode the generated code
+   * @param recipientEmail the address the code is sent to, null for the
+   *          address of the user's account
+   * @return the value to store
+   */
+  protected String getStoredCode(String otpCode, String recipientEmail) {
+    return otpCode;
   }
 
   /**
@@ -203,7 +296,11 @@ public class EmailOtpPlugin implements OtpPlugin {
     return secureRandom;
   }
 
-  private ExoCache<String, String> getOtpCache() {
+  /**
+   * The cache that holds the sent codes, under {@link #getCacheKey(String)},
+   * for the code's TTL
+   */
+  protected ExoCache<String, String> getOtpCache() {
     if (otpCache == null) {
       otpCache = cacheService.getCacheInstance(OTP_CACHE_NAME);
       otpCache.setLiveTime(otpTtl * 60);
