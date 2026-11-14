@@ -69,6 +69,7 @@ public class XSpaceFilter extends SpaceFilter {
       this.setVisibility(spaceFilter.getVisibility());
       this.setRegistration(spaceFilter.getRegistration());
       this.setParentSpaceId(spaceFilter.getParentSpaceId());
+      this.setAfterId(spaceFilter.getAfterId());
       if (spaceFilter.getSpaceNameSearchCondition() != null) {
         this.setSpaceNameSearchCondition(spaceFilter.getSpaceNameSearchCondition());
       }
