@@ -81,6 +81,15 @@ public class SpaceFilter implements Cloneable {
 
   private boolean               onlyParentSpaces;
 
+  /**
+   * The keyset bound of a walk by id: when set, only the spaces whose id is
+   * greater than it are returned, ordered by id ascending, and {@link #sorting}
+   * is ignored. A removal or a creation during the walk shifts no page, as an
+   * offset would. Null, the default, leaves the filter unbounded and sorted as
+   * {@link #getSorting()} says; 0 starts a walk at the first space.
+   */
+  private Long                  afterId;
+
   public SpaceFilter(String spaceNameSearchCondition) {
     this.spaceNameSearchCondition = Utils.processUnifiedSearchCondition(spaceNameSearchCondition);
   }
@@ -91,6 +100,13 @@ public class SpaceFilter implements Cloneable {
 
   public List<SpaceMembershipStatus> getStatusList() {
     return Stream.of(status, extraStatus).filter(Objects::nonNull).toList();
+  }
+
+  /**
+   * @return true when the filter walks the spaces by id after {@link #afterId}
+   */
+  public boolean isKeyset() {
+    return afterId != null;
   }
 
   public boolean isSortingEmpty() {
@@ -129,7 +145,8 @@ public class SpaceFilter implements Cloneable {
                            tagNames == null ? null : new ArrayList<>(tagNames),
                            parentSpaceId,
                            subspaceTemplateIds,
-                           onlyParentSpaces);
+                           onlyParentSpaces,
+                           afterId);
   }
 
 }

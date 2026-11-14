@@ -59,6 +59,7 @@ import org.exoplatform.social.core.relationship.RelationshipTest;
 import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
 import org.exoplatform.social.core.storage.cache.CachedActivityStorageTest;
+import org.exoplatform.social.core.storage.cache.model.key.SpaceFilterKeysetTest;
 
 import io.meeds.social.activity.schedule.ActivityPublicationPluginTest;
 import io.meeds.social.authorization.AuthorizationManagerTest;
@@ -201,7 +202,8 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     PortableSequenceChangelogCoverageTest.class,
     CollaborativeActivityDeclarationTest.class,
     CachedProfileSettingStorageClusterTest.class,
-    ProfileFormFieldServiceTest.class
+    ProfileFormFieldServiceTest.class,
+    SpaceFilterKeysetTest.class
 })
 public class NoContainerTestSuite {
 

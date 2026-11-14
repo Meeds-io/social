@@ -87,6 +87,10 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
 
   private static final String                      DISPLAY_NAME_SORT_FIELD     = "s.displayName";
 
+  private static final String                      ID_SORT_FIELD               = "s.id";
+
+  private static final String                      PARAM_AFTER_ID              = "afterId";
+
   private static final String                      PARAM_COMMON_WITH_USER_ID   = "commonWithUserId";
 
   private static final String                      QUERY_FILTER_FIND_PREFIX    = "Space.findSpaces";
@@ -300,6 +304,9 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     if (parameterNames.contains(PARAM_PARENT_SPACE_ID)) {
       query.setParameter(PARAM_PARENT_SPACE_ID, filter.getParentSpaceId());
     }
+    if (parameterNames.contains(PARAM_AFTER_ID)) {
+      query.setParameter(PARAM_AFTER_ID, filter.getAfterId());
+    }
   }
 
   private String getQueryFilterName(List<String> suffixes, boolean count) {
@@ -317,7 +324,7 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
                                        List<String> parameterNames,
                                        boolean count) {
     String querySelect = count ? "SELECT COUNT(DISTINCT s.id) FROM SocSpaceEntity s " :
-                               "SELECT DISTINCT(s.id), " + getSelectedSortFields(spaceFilter) + " FROM SocSpaceEntity s ";
+                               "SELECT DISTINCT(s.id)" + getSelectedSortFields(spaceFilter) + " FROM SocSpaceEntity s ";
     boolean lastAccess = isLastAccess(spaceFilter);
     if (parameterNames.contains(PARAM_USER_ID) || lastAccess) {
       if (StringUtils.isNotBlank(spaceFilter.getRemoteId()) && lastAccess) {
@@ -410,6 +417,12 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       suffixes.add("ParentSpaceId");
       predicates.add("s.parentSpaceId = :parentSpaceId");
       parameterNames.add(PARAM_PARENT_SPACE_ID);
+    }
+
+    if (spaceFilter.isKeyset()) {
+      suffixes.add("AfterId");
+      predicates.add("s.id > :afterId");
+      parameterNames.add(PARAM_AFTER_ID);
     }
 
     buildCommonWithUserPredicates(spaceFilter, suffixes, predicates, parameterNames);
@@ -525,9 +538,20 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     }
   }
 
+  /**
+   * Gives the field a space list is ordered by: the id for a keyset walk,
+   * whatever the filter's sorting says, since a keyset bound on the id only
+   * pages correctly over an id order; else the last visit, the creation date or
+   * the display name.
+   *
+   * @param spaceFilter filter the query is built from
+   * @return the sort field, with its entity alias
+   */
   private String getSortField(XSpaceFilter spaceFilter) {
     Sorting sorting = spaceFilter.getSorting();
-    if (isLastAccess(spaceFilter)) {
+    if (spaceFilter.isKeyset()) {
+      return ID_SORT_FIELD;
+    } else if (isLastAccess(spaceFilter)) {
       return "sm.lastAccess";
     } else if (sorting.sortBy.equals(SortBy.DATE)) {
       return "s.createdDate";
@@ -540,14 +564,19 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
    * Gives the fields the query has to select for its own ordering: the sort
    * field, and the display name it is broken ties with. Both are needed in the
    * select list because the query is a SELECT DISTINCT, which may only be
-   * ordered by what it selects.
+   * ordered by what it selects. A keyset walk is ordered by the id alone,
+   * which is already selected and unique, so it selects nothing more.
    *
    * @param spaceFilter filter the query is built from
-   * @return the sort fields, comma separated, without the ordering direction
+   * @return the sort fields to append to the selected id, each preceded by a
+   *         comma, without the ordering direction; empty for a keyset walk
    */
   private String getSelectedSortFields(XSpaceFilter spaceFilter) {
     String sortField = getSortField(spaceFilter);
-    return DISPLAY_NAME_SORT_FIELD.equals(sortField) ? sortField : sortField + ", " + DISPLAY_NAME_SORT_FIELD;
+    if (ID_SORT_FIELD.equals(sortField)) {
+      return "";
+    }
+    return ", " + (DISPLAY_NAME_SORT_FIELD.equals(sortField) ? sortField : sortField + ", " + DISPLAY_NAME_SORT_FIELD);
   }
 
   /**
@@ -569,6 +598,9 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
    */
   private String getOrderByClause(XSpaceFilter spaceFilter) {
     String sortField = getSortField(spaceFilter);
+    if (ID_SORT_FIELD.equals(sortField)) {
+      return ID_SORT_FIELD + " ASC ";
+    }
     String direction = isSortDescending(spaceFilter) ? " DESC " : " ASC ";
     return DISPLAY_NAME_SORT_FIELD.equals(sortField) ? sortField + direction
                                                      : sortField + direction + ", " + DISPLAY_NAME_SORT_FIELD + " ASC ";
