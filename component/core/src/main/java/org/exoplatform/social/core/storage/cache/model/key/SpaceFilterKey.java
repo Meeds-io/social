@@ -98,6 +98,12 @@ public class SpaceFilterKey implements CacheKey {
 
   private final boolean               onlyParentSpaces;
 
+  /**
+   * The keyset bound of a walk by id ({@link SpaceFilter#getAfterId()}): each
+   * page of a walk is its own entry.
+   */
+  private final Long                  afterId;
+
   public SpaceFilterKey(String userId, SpaceFilter filter, SpaceType type) {
     this(userId, null, filter, type);
   }
@@ -126,6 +132,7 @@ public class SpaceFilterKey implements CacheKey {
       this.parentSpaceId = 0;
       this.subspaceTemplateIds = null;
       this.onlyParentSpaces = false;
+      this.afterId = null;
     } else {
       this.spaceNameSearchCondition = filter.getSpaceNameSearchCondition();
       this.includeSpaceIds = spaceIds(filter.getIncludeSpaces());
@@ -146,6 +153,7 @@ public class SpaceFilterKey implements CacheKey {
       this.parentSpaceId = filter.getParentSpaceId();
       this.subspaceTemplateIds = snapshot(filter.getSubspaceTemplateIds());
       this.onlyParentSpaces = filter.isOnlyParentSpaces();
+      this.afterId = filter.getAfterId();
     }
   }
 
