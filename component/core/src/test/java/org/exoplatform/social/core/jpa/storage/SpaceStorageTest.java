@@ -1874,8 +1874,9 @@ public class SpaceStorageTest extends AbstractCoreTest {
    * Run through the cached storage, so each page is its own cache entry.
    */
   public void testKeysetWalkOverATemplateSkipsNoSpaceWhenSpacesChangeDuringTheWalk() throws Exception {
-    long templateId = defaultTemplateId();
+    SpaceTemplateEntity walkedTemplate = createTemplateRow();
     SpaceTemplateEntity otherTemplate = createTemplateRow();
+    long templateId = walkedTemplate.getId();
     try {
       List<Long> walked = new ArrayList<>();
       // titles in the reverse order of the ids: an order by title would read them backwards
@@ -1908,7 +1909,7 @@ public class SpaceStorageTest extends AbstractCoreTest {
       expected.add(created.getSpaceId());
       assertEquals(expected, walked);
     } finally {
-      deleteTemplateRow(otherTemplate);
+      deleteTemplateRows(walkedTemplate, otherTemplate);
     }
   }
 
@@ -1919,8 +1920,19 @@ public class SpaceStorageTest extends AbstractCoreTest {
    * name would read the other order (social pitfall « a filter DAO builds its
    * JPQL text once per query name »).
    */
-  public void testKeysetAndTitleOrderOfOneTemplateFilterEachKeepTheirOrder() {
-    long templateId = defaultTemplateId();
+  public void testKeysetAndTitleOrderOfOneTemplateFilterEachKeepTheirOrder() throws Exception {
+    SpaceTemplateEntity template = createTemplateRow();
+    try {
+      assertKeysetAndTitleOrderOfOneTemplateFilter(template.getId());
+    } finally {
+      deleteTemplateRows(template);
+    }
+  }
+
+  /**
+   * @param templateId a template whose row exists, holding no space yet
+   */
+  private void assertKeysetAndTitleOrderOfOneTemplateFilter(long templateId) {
     Space zulu = saveSpaceOfTemplate("zulu", templateId);
     Space yankee = saveSpaceOfTemplate("yankee", templateId);
     restartTransaction();
@@ -1955,10 +1967,13 @@ public class SpaceStorageTest extends AbstractCoreTest {
     return spaceStorage.saveSpace(space, true);
   }
 
-  private long defaultTemplateId() {
-    return getService(SpaceTemplateStorage.class).getSpaceTemplates(Pageable.unpaged()).getFirst().getId();
-  }
-
+  /**
+   * Creates a real {@code SOC_SPACE_TEMPLATES} row, which the {@code SOC_SPACES}
+   * foreign key needs: the container's template storage is a mock whose
+   * default template has no row.
+   *
+   * @return the row, its id given by the sequence
+   */
   private SpaceTemplateEntity createTemplateRow() {
     SpaceTemplate template = getService(SpaceTemplateStorage.class).getSpaceTemplates(Pageable.unpaged()).getFirst();
     SpaceTemplateEntity entity = EntityMapper.toEntity(template);
@@ -1969,11 +1984,21 @@ public class SpaceStorageTest extends AbstractCoreTest {
     return created;
   }
 
-  private void deleteTemplateRow(SpaceTemplateEntity template) throws Exception {
+  /**
+   * Deletes the spaces, then the template rows they pointed at.
+   *
+   * @param templates rows {@link #createTemplateRow()} created
+   */
+  private void deleteTemplateRows(SpaceTemplateEntity... templates) throws Exception {
     deleteAllSpaces();
     restartTransaction();
     SubspacesServiceTest.SpaceTemplateDAO dao = new SubspacesServiceTest.SpaceTemplateDAO();
-    dao.delete(dao.find(template.getId()));
+    for (SpaceTemplateEntity template : templates) {
+      SpaceTemplateEntity stored = dao.find(template.getId());
+      if (stored != null) {
+        dao.delete(stored);
+      }
+    }
     restartTransaction();
   }
 }
