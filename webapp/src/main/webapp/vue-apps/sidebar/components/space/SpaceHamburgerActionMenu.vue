@@ -64,6 +64,14 @@
   </v-menu>
 </template>
 <script>
+/**
+ * The add-ons' menu items load once per page, at the first opening of a space
+ * menu: the modules of the SpaceHamburgerExtensions load-group whose name
+ * contains SpaceHamburgerExtension register their own 'space-hamburger'
+ * items.
+ */
+let addonExtensionsLoading = null;
+
 export default {
   props: {
     space: {
@@ -90,6 +98,7 @@ export default {
       } else {
         if (this.menu) {
           this.refreshExtensions();
+          this.loadAddonExtensions();
         }
         this.setMenuVisibility(this.menu);
       }
@@ -114,6 +123,18 @@ export default {
   methods: {
     refreshExtensions() {
       this.extensions = extensionRegistry.loadExtensions('space-hamburger', 'menu-item');
+    },
+    /**
+     * Runs the add-ons' menu item modules once per page, then shows the items
+     * they registered in this open menu.
+     * @returns {void}
+     */
+    loadAddonExtensions() {
+      if (!addonExtensionsLoading) {
+        addonExtensionsLoading = Promise.resolve(this.$utils.includeExtensions('SpaceHamburgerExtension'))
+          .catch(() => null);
+      }
+      addonExtensionsLoading.then(() => this.refreshExtensions());
     },
     setMenuVisibility(visible) {
       if (visible) {
