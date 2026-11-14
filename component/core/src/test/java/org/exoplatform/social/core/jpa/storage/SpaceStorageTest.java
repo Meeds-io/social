@@ -1899,7 +1899,9 @@ public class SpaceStorageTest extends AbstractCoreTest {
       Space created = saveSpaceOfTemplate("uniform", templateId);
       restartTransaction();
 
-      while (page.size() == 2) {
+      // bounded: a walk that never advances fails here instead of filling the heap
+      for (int pages = 1; page.size() == 2; pages++) {
+        assertTrue("the walk does not advance", pages < 10);
         filter.setAfterId(walked.get(walked.size() - 1));
         page = spaceStorage.getSpacesByFilter(filter, 0, 2);
         page.forEach(space -> walked.add(space.getSpaceId()));
