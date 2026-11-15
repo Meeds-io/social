@@ -18,6 +18,7 @@
  */
 package io.meeds.social.security.plugin;
 
+import static org.mockito.ArgumentMatchers.endsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
@@ -194,7 +195,7 @@ public class EmailOtpPluginTest {
   public void testGenerateOtpCodeSuccess() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put("email:john", OTP_CODE);
+    verify(otpCache).put(eq("email:john"), endsWith(":" + OTP_CODE));
     ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
     verify(mailService).sendMessage(messageCaptor.capture());
     String body = String.valueOf(messageCaptor.getValue().getContent());
@@ -211,6 +212,48 @@ public class EmailOtpPluginTest {
     assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
     verify(otpCache, never()).put(anyString(), anyString());
     verify(mailService, never()).sendMessage(any(MimeMessage.class));
+  }
+
+  /**
+   * The code lifetime is the plugin's, whatever the lifetime the cache
+   * declaration gives its entries
+   */
+  @Test
+  public void testACodePastItsLifetimeDoesNotValidate() {
+    when(otpCache.get("email:john")).thenReturn((System.currentTimeMillis() - 1000) + ":" + OTP_CODE);
+    assertFalse(plugin.validateOtp("john", OTP_CODE));
+    when(otpCache.get("email:john")).thenReturn((System.currentTimeMillis() + 60000) + ":" + OTP_CODE);
+    assertTrue(plugin.validateOtp("john", OTP_CODE));
+  }
+
+  @Test
+  public void testACodePastItsLifetimeIsNotConsumed() {
+    when(otpCache.remove("email:john")).thenReturn((System.currentTimeMillis() - 1000) + ":" + OTP_CODE);
+    assertFalse(plugin.consumeOtp("john", OTP_CODE));
+  }
+
+  @Test
+  public void testGeneratedCodeAndSendLockCarryThePluginLifetimes() throws Exception {
+    long before = System.currentTimeMillis();
+    plugin.generateOtpCode("john");
+    long after = System.currentTimeMillis();
+
+    ArgumentCaptor<String> code = ArgumentCaptor.forClass(String.class);
+    verify(otpCache).put(eq("email:john"), code.capture());
+    long codeExpiry = Long.parseLong(code.getValue().substring(0, code.getValue().indexOf(':')));
+    assertTrue(codeExpiry >= before + 5 * 60000 && codeExpiry <= after + 5 * 60000);
+
+    ArgumentCaptor<String> lock = ArgumentCaptor.forClass(String.class);
+    verify(otpSendLockCache).put(eq("email:john"), lock.capture());
+    long lockExpiry = Long.parseLong(lock.getValue());
+    assertTrue(lockExpiry >= before + 60000 && lockExpiry <= after + 60000);
+  }
+
+  @Test
+  public void testAnExpiredSendLockLetsANewCodeBeSent() throws Exception {
+    when(otpSendLockCache.get("email:john")).thenReturn(String.valueOf(System.currentTimeMillis() - 1000));
+    plugin.generateOtpCode("john");
+    verify(mailService).sendMessage(any(MimeMessage.class));
   }
 
 }

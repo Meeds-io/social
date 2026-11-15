@@ -22,7 +22,6 @@ import java.security.SecureRandom;
 import java.util.Map;
 
 import org.apache.commons.lang3.LocaleUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -51,6 +50,8 @@ public class EmailOtpPlugin implements OtpPlugin {
   private static final String      OTP_CACHE_NAME           = "otp.email";
 
   private static final String      OTP_SEND_LOCK_CACHE_NAME = "otp.email.sendLock";
+
+  private static final char        EXPIRY_SEPARATOR         = ':';
 
   @Autowired
   private CacheService             cacheService;
@@ -118,7 +119,8 @@ public class EmailOtpPlugin implements OtpPlugin {
   @Override
   public boolean validateOtp(String userName, String otpCode) {
     String cacheKey = getCacheKey(userName);
-    boolean valid = StringUtils.equals(otpCode, getOtpCache().get(cacheKey));
+    String storedCode = getLiveCode(getOtpCache().get(cacheKey));
+    boolean valid = storedCode != null && storedCode.equals(otpCode);
     if (!valid && releasesSendLockOnWrongCode()) {
       getOtpSendLockCache().remove(cacheKey);
     }
@@ -140,7 +142,8 @@ public class EmailOtpPlugin implements OtpPlugin {
    */
   @Override
   public boolean consumeOtp(String userName, String otpCode) {
-    return StringUtils.equals(otpCode, getOtpCache().remove(getCacheKey(userName)));
+    String storedCode = getLiveCode(getOtpCache().remove(getCacheKey(userName)));
+    return storedCode != null && storedCode.equals(otpCode);
   }
 
   @Override
@@ -157,7 +160,7 @@ public class EmailOtpPlugin implements OtpPlugin {
   @SneakyThrows
   public void generateOtpCode(String userName) {
     String cacheKey = getCacheKey(userName);
-    if (getOtpSendLockCache().get(cacheKey) != null) {
+    if (isLive(getOtpSendLockCache().get(cacheKey))) {
       throw new IllegalStateException(String.format("OTP email already sent to user %s less than %s seconds ago",
                                                     userName,
                                                     sendInterval));
@@ -165,13 +168,13 @@ public class EmailOtpPlugin implements OtpPlugin {
     String lang = brandedEmailSender.getUserLang(userName);
     String emailSubject = resourceBundleService.getSharedString(getEmailSubjectKey(), LocaleUtils.toLocale(lang));
     String otpCode = generateOtpCode();
-    getOtpCache().put(cacheKey, otpCode);
+    getOtpCache().put(cacheKey, String.valueOf(expiringIn(otpTtl * 60)) + EXPIRY_SEPARATOR + otpCode);
     brandedEmailSender.sendEmail(userName,
                                  emailSubject,
                                  getEmailBodyPath(),
                                  Map.of("####", otpCode,
                                         "$CODE_EXPIRATION_LABEL", getCodeExpirationLabel(lang)));
-    getOtpSendLockCache().put(cacheKey, StringUtils.EMPTY);
+    getOtpSendLockCache().put(cacheKey, String.valueOf(expiringIn(sendInterval)));
   }
 
   /**
@@ -203,10 +206,41 @@ public class EmailOtpPlugin implements OtpPlugin {
     return secureRandom;
   }
 
+  /**
+   * The code and the send lock carry their expiry: their lifetimes come from
+   * this plugin's properties, whatever lifetime the declaration of the cache
+   * gives its entries, which only bounds how long an entry stays
+   */
+  private long expiringIn(long seconds) {
+    return System.currentTimeMillis() + seconds * 1000;
+  }
+
+  private String getLiveCode(String storedValue) {
+    if (storedValue == null) {
+      return null;
+    }
+    int separator = storedValue.indexOf(EXPIRY_SEPARATOR);
+    if (separator < 0) {
+      return storedValue;
+    }
+    return isLive(storedValue.substring(0, separator)) ? storedValue.substring(separator + 1) : null;
+  }
+
+  private boolean isLive(String expiry) {
+    if (expiry == null) {
+      return false;
+    }
+    try {
+      return Long.parseLong(expiry) > System.currentTimeMillis();
+    } catch (NumberFormatException e) {
+      // An entry stored without expiry lives as long as its cache keeps it
+      return true;
+    }
+  }
+
   private ExoCache<String, String> getOtpCache() {
     if (otpCache == null) {
       otpCache = cacheService.getCacheInstance(OTP_CACHE_NAME);
-      otpCache.setLiveTime(otpTtl * 60);
     }
     return otpCache;
   }
@@ -214,7 +248,6 @@ public class EmailOtpPlugin implements OtpPlugin {
   private ExoCache<String, String> getOtpSendLockCache() {
     if (otpSendLockCache == null) {
       otpSendLockCache = cacheService.getCacheInstance(OTP_SEND_LOCK_CACHE_NAME);
-      otpSendLockCache.setLiveTime(sendInterval);
     }
     return otpSendLockCache;
   }

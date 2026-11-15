@@ -18,6 +18,7 @@
  */
 package io.meeds.social.security.plugin;
 
+import static org.mockito.ArgumentMatchers.endsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -204,7 +205,7 @@ public class UserAccountEmailOtpPluginTest {
   public void testGenerateOtpCodeUsesDedicatedSubjectAndTemplate() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put("userAccountEmail:john", OTP_CODE);
+    verify(otpCache).put(eq("userAccountEmail:john"), endsWith(":" + OTP_CODE));
     verify(resourceBundleService).getSharedString(eq("social.userAccount.otp.email.subject"), any());
     verify(resourceBundleService).getSharedString(eq("otp.email.label.requestAccessReminder"), any());
     verify(resourceBundleService).getSharedString(eq("otp.email.label.requestAccessConfirmMessage"), any());
@@ -249,6 +250,16 @@ public class UserAccountEmailOtpPluginTest {
       context.refresh();
       return context.getBean(UserAccountEmailOtpPlugin.class);
     }
+  }
+
+  /**
+   * This method shares the email code caches: its code expires with the
+   * lifetime of the email method's properties
+   */
+  @Test
+  public void testACodePastItsLifetimeDoesNotValidate() {
+    when(otpCache.get("userAccountEmail:john")).thenReturn((System.currentTimeMillis() - 1000) + ":" + OTP_CODE);
+    assertFalse(plugin.validateOtp("john", OTP_CODE));
   }
 
 }
