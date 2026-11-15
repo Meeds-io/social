@@ -20,11 +20,9 @@
 package org.exoplatform.social.websocket.listener;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -65,25 +63,20 @@ public class SpaceWebNotificationWebSocketServerListenerTest {
     when(message.getData()).thenReturn(READ_MESSAGE);
   }
 
+  /**
+   * A client's message is handled and consumed: returning true would let
+   * CometD deliver it to every subscriber of the channel, that is to every
+   * connected user's page.
+   */
   @Test
-  public void testAClientsMessageIsHandled() throws Exception {
+  public void testAClientsMessageIsHandledAndNotDeliveredToTheChannel() throws Exception {
     ServerSession client = mock(ServerSession.class);
     when(client.getId()).thenReturn("client");
 
-    assertTrue(listener.onMessage(client, channel, message));
+    assertFalse(listener.onMessage(client, channel, message));
 
     verify(service).receiveMessage(eq("client"),
                                    eq(SpaceWebNotificationService.NOTIFICATION_READ_EVENT_NAME),
                                    any());
-  }
-
-  @Test
-  public void testAMessageRelayedFromAnotherNodeIsHandledThereOnly() throws Exception {
-    ServerSession oortSession = mock(ServerSession.class);
-    when(service.isRelayed(oortSession)).thenReturn(true);
-
-    assertFalse(listener.onMessage(oortSession, channel, message));
-
-    verify(service, never()).receiveMessage(any(), any(), any());
   }
 }
