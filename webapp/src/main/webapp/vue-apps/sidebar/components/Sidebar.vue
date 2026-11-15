@@ -111,6 +111,9 @@ const THIRD_LEVEL = '.HamburgerMenuThirdLevelParent';
 const LEVELS = `.HamburgerMenuFirstLevelParent, ${FIRST_LEVEL}, ${SECOND_LEVEL}, ${THIRD_LEVEL}`;
 const FOCUSABLE_SELECTOR = 'a[href]:not([tabindex="-1"]), button:not([disabled]):not([tabindex="-1"]), input:not([disabled]):not([type="hidden"]):not([tabindex="-1"]), [tabindex="0"]';
 
+/** The side menu's levels and the space menu shown over the page from its space panel, which belongs to it. */
+const MENU_PARTS = `${LEVELS}, .space-hamburger-action-menu`;
+
 export default {
   data: () => ({
     secondLevelOpener: null,
@@ -604,14 +607,13 @@ export default {
       const index = level.indexOf(opener);
       return index < 0 ? [...level, ...subLevel] : [...level.slice(0, index + 1), ...subLevel, ...level.slice(index + 1)];
     },
-    // a menu shown over the page closes once the keyboard focus leaves all its levels
+    // a menu shown over the page closes once the keyboard focus leaves all its levels; the space menu its space panel opens counts as one of them
     closeOnFocusLeave(event) {
       const target = event.relatedTarget;
-      if (!target?.closest?.(LEVELS)) {
+      if (!target?.closest?.(MENU_PARTS)) {
         this.$root.focusMenu = false;
       }
-      if (this.$root.sticky || this.$root.icon || !target
-          || target.closest?.(LEVELS)) {
+      if (this.$root.sticky || this.$root.icon || !target || target.closest?.(MENU_PARTS)) {
         return;
       }
       if (this.firstLevelDrawer || this.secondLevelDrawer || this.thirdLevelDrawer) {
