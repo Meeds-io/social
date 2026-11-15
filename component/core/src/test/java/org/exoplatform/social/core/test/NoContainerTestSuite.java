@@ -24,6 +24,7 @@ import io.meeds.social.cms.service.PageContentBlockPluginServiceImplTest;
 import io.meeds.social.cms.service.PageUrlResolverServiceImplTest;
 import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnectorTest;
 import io.meeds.social.cms.storage.elasticsearch.PageContentSearchConnectorTest;
+import org.exoplatform.social.core.listeners.UpdateLoginTimeListenerImplTest;
 import org.exoplatform.social.core.plugin.PageFavoriteACLPluginTest;
 import io.meeds.social.space.invitation.storage.SpaceInvitationLinkLinkStorageTest;
 import io.meeds.social.space.listener.SpaceGroupCacheListenerTest;
@@ -142,6 +143,7 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     SpaceGroupDecoratorPluginTest.class,
     SpaceTemplateMembershipListenerTest.class,
     SpaceGroupCacheListenerTest.class,
+    UpdateLoginTimeListenerImplTest.class,
     SpaceTemplateDatabindPluginTest.class,
     SpaceTemplateStorageTest.class,
     SpaceTemplateServiceTest.class,
