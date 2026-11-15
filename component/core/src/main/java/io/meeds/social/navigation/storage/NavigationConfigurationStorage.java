@@ -49,29 +49,30 @@ public class NavigationConfigurationStorage {
 
   private static final Scope                   SETTING_SCOPE          = Scope.APPLICATION.id("NavigationConfiguration");
 
-  private static final NavigationConfiguration NULL_VALUE             = new NavigationConfiguration();
-
   @Autowired
   private SettingService                       settingService;
 
-  private NavigationConfiguration              navigationConfiguration;
+  private String                              memoRawValue;
+
+  private List<TopbarApplication>             memoDefaultApplications;
+
+  private NavigationConfiguration              memoConfiguration;
 
   public NavigationConfiguration getConfiguration(List<TopbarApplication> defaultApplications) {
-    if (navigationConfiguration == null) {
-      navigationConfiguration = retrieveNavigationConfiguration(defaultApplications);
+    SettingValue<?> settingValue = settingService.get(SETTING_GLOBAL_CONTEXT, SETTING_SCOPE, SETTING_KEY);
+    if (settingValue == null || settingValue.getValue() == null) {
+      return null;
     }
-    return navigationConfiguration == NULL_VALUE ? null : navigationConfiguration.clone();
+    NavigationConfiguration configuration = retrieveNavigationConfiguration(settingValue.getValue().toString(),
+                                                                            defaultApplications);
+    return configuration.clone();
   }
 
   public void updateConfiguration(NavigationConfiguration navigationConfiguration) {
-    try {
-      settingService.set(SETTING_GLOBAL_CONTEXT,
-                         SETTING_SCOPE,
-                         SETTING_KEY,
-                         SettingValue.create(JsonUtils.toJsonString(navigationConfiguration)));
-    } finally {
-      this.navigationConfiguration = null;
-    }
+    settingService.set(SETTING_GLOBAL_CONTEXT,
+                       SETTING_SCOPE,
+                       SETTING_KEY,
+                       SettingValue.create(JsonUtils.toJsonString(navigationConfiguration)));
   }
 
   public SidebarMode getSidebarUserMode(String username) {
@@ -89,21 +90,21 @@ public class NavigationConfigurationStorage {
                        SettingValue.create(mode.name()));
   }
 
-  private NavigationConfiguration retrieveNavigationConfiguration(List<TopbarApplication> defaultApplications) {
-    SettingValue<?> settingValue = settingService.get(SETTING_GLOBAL_CONTEXT, SETTING_SCOPE, SETTING_KEY);
-    if (settingValue == null || settingValue.getValue() == null) {
-      return NULL_VALUE;
-    } else {
-      NavigationConfiguration configuration = JsonUtils.fromJsonString(settingValue.getValue().toString(),
-                                                                       NavigationConfiguration.class);
-      if (defaultApplications == null) {
-        defaultApplications = Collections.emptyList();
-      }
-      addMissingTopbarApplication(configuration, defaultApplications);
-      removeDroppedApplications(configuration, defaultApplications);
-      updateApplications(configuration, defaultApplications);
-      return configuration;
+  private synchronized NavigationConfiguration retrieveNavigationConfiguration(String rawValue,
+                                                                              List<TopbarApplication> defaultApplications) {
+    List<TopbarApplication> applications = defaultApplications == null ? Collections.emptyList() : defaultApplications;
+    if (memoConfiguration == null
+        || !Objects.equals(memoRawValue, rawValue)
+        || !Objects.equals(memoDefaultApplications, applications)) {
+      NavigationConfiguration configuration = JsonUtils.fromJsonString(rawValue, NavigationConfiguration.class);
+      addMissingTopbarApplication(configuration, applications);
+      removeDroppedApplications(configuration, applications);
+      updateApplications(configuration, applications);
+      memoConfiguration = configuration;
+      memoRawValue = rawValue;
+      memoDefaultApplications = applications;
     }
+    return memoConfiguration;
   }
 
   /**
