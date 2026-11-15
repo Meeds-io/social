@@ -25,7 +25,7 @@
     v-model="menu"
     :left="!$vuetify.rtl"
     :right="$vuetify.rtl"
-    content-class="application-menu z-index-modal layout-drawer"
+    content-class="application-menu z-index-modal layout-drawer space-hamburger-action-menu"
     offset-y>
     <template #activator="{attrs, on}">
       <v-btn
@@ -93,11 +93,11 @@ export default {
         }
         this.setMenuVisibility(this.menu);
       }
-      // Workaround to fix closing menu when clicking outside
+      // Workaround to fix closing menu when clicking outside: on click, never mousedown, which would remove an item pressed long before its click
       if (this.menu) {
-        document.addEventListener('mousedown', this.closeMenuAsync);
+        document.addEventListener('click', this.closeMenuAsync);
       } else {
-        document.removeEventListener('mousedown', this.closeMenuAsync);
+        document.removeEventListener('click', this.closeMenuAsync);
       }
     },
   },

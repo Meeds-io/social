@@ -94,6 +94,12 @@
   </v-app>
 </template>
 <script>
+/** The side menu's levels. */
+const MENU_LEVELS = '.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent';
+
+/** The side menu's levels and the space menu shown over the page from its space panel, which belongs to it. */
+const MENU_PARTS = `${MENU_LEVELS}, .space-hamburger-action-menu`;
+
 export default {
   data: () => ({
     firstLevelDrawer: false,
@@ -426,14 +432,13 @@ export default {
         this.closeMenuEffectively();
       }
     },
-    // a menu shown over the page closes once the keyboard focus leaves all its levels
+    // a menu shown over the page closes once the keyboard focus leaves all its levels; the space menu its space panel opens counts as one of them
     closeOnFocusLeave(event) {
       const target = event.relatedTarget;
-      if (!target?.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')) {
+      if (!target?.closest?.(MENU_PARTS)) {
         this.$root.focusMenu = false;
       }
-      if (this.$root.sticky || this.$root.icon || !target
-          || target.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')) {
+      if (this.$root.sticky || this.$root.icon || !target || target.closest?.(MENU_PARTS)) {
         return;
       }
       if (this.firstLevelDrawer || this.secondLevelDrawer || this.thirdLevelDrawer) {
