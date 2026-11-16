@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.meeds.social.security.plugin.AccountOtpMethods;
 import io.meeds.web.security.service.ApiKeyService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,6 +73,9 @@ public class ApiKeyRest {
                             @Parameter(description = "Whether to renew API Key or not. Possible values: true or false")
                             @RequestParam(value = "renew", required = false, defaultValue = "false")
                             boolean renew) {
+    if (!AccountOtpMethods.provesTheAccount(otpMethod)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
     try {
       return apiKeyService.getPassword(request.getRemoteUser(), otpMethod, otpCode, renew);
     } catch (IllegalAccessException e) {

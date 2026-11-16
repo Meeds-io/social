@@ -45,6 +45,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 
 import io.meeds.portal.security.service.SecuritySettingService;
 import io.meeds.social.core.mail.BrandedEmailSender;
+import io.meeds.social.security.plugin.AccountOtpMethods;
 import io.meeds.web.security.service.OtpService;
 
 import lombok.Setter;
@@ -177,8 +178,11 @@ public class AccountDeactivationService {
    *           account whose creation source isn't managed by the platform), or
    *           when the deletion is requested while the admin deletion option
    *           is off
-   * @throws IllegalAccessException when the OTP code is blank, invalid or the
-   *           validation tentatives are exhausted
+   * @throws IllegalAccessException when the OTP method is not one whose code
+   *           proves access to the account
+   *           ({@link AccountOtpMethods#provesTheAccount(String)}), or when the
+   *           OTP code is blank, invalid or the validation tentatives are
+   *           exhausted
    */
   @SneakyThrows
   public void requestDeactivation(String username,
@@ -190,6 +194,11 @@ public class AccountDeactivationService {
     }
     if (deleteRequested && !securitySettingService.isAccountDeletionEnabled()) {
       throw new IllegalStateException(String.format("Account deletion isn't allowed for user %s", username));
+    }
+    if (!AccountOtpMethods.provesTheAccount(otpMethod)) {
+      throw new IllegalAccessException(String.format("OTP method %s does not prove access to the account of user %s",
+                                                     otpMethod,
+                                                     username));
     }
     otpService.validateOtp(username, otpMethod, otpCode);
     String identityId = identityManager.getOrCreateUserIdentity(username).getId();
