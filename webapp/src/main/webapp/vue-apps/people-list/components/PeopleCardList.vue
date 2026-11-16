@@ -1,9 +1,9 @@
 <template>
   <v-card
-    id="peopleListApplication"
     :class="{
       'mobile-cards': compact,
     }"
+    class="people-list-application"
     flat>
     <v-card
       class="position-relative mx-4 overflow-hidden"
@@ -18,7 +18,7 @@
     </v-card>
     <div
       v-if="initialized"
-      id="peopleListBody"
+      class="people-list-body"
       :class="noMargins && compact && 'pa-0' || (noMargins && 'pt-1 px-3 pb-0') || 'px-4 pb-4'">
       <div
         v-if="filteredPeople && filteredPeople.length"
@@ -69,8 +69,7 @@
     </div>
     <v-card-actions
       v-if="!noLoadMoreButton"
-      id="peopleListFooter"
-      class="pt-0 px-4 border-box-sizing">
+      class="people-list-footer pt-0 px-4 border-box-sizing">
       <v-btn
         v-if="hasMore"
         :loading="displayLoading"
@@ -124,6 +123,11 @@ export default {
     noLoadMoreButton: {
       type: Boolean,
       default: false,
+    },
+    // number of users listed per page and added by 'Show more'
+    itemsPerPage: {
+      type: Number,
+      default: 12,
     },
   },
   data: () => ({
@@ -213,6 +217,11 @@ export default {
     hasMore() {
       this.$emit('has-more', this.hasMore);
     },
+    itemsPerPage() {
+      // the limitToFetch watcher refetches when the fetched window changes;
+      // an unchanged window already lists the right users
+      this.applyItemsPerPage();
+    },
     loadingPeople() {
       this.$emit('loading', this.loadingPeople);
     },
@@ -224,7 +233,7 @@ export default {
     },
   },
   created() {
-    this.originalLimitToFetch = this.limitToFetch = this.limit;
+    this.applyItemsPerPage();
 
     // To refresh menu when a new extension is ready to be used
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
@@ -333,6 +342,10 @@ export default {
           this.initialized = true;
           this.abortController = null;
         });
+    },
+    applyItemsPerPage() {
+      this.pageSize = this.limit = this.itemsPerPage;
+      this.originalLimitToFetch = this.limitToFetch = this.limit;
     },
     resetSearch() {
       if (this.limitToFetch !== this.originalLimitToFetch) {
