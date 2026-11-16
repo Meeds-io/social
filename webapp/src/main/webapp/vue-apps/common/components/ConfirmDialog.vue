@@ -55,6 +55,8 @@ const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled
 const LIST_ITEM_SELECTOR = 'li, [role="listitem"], article, [role="article"]';
 const LIST_SELECTOR = 'ul, ol, [role="list"], [role="feed"]';
 const OPENER_FOLLOW_DELAY = 10000;
+const ACTIVATION_KEYS = ['Enter', ' ', 'Spacebar'];
+const KEYSTROKE_EVENTS = ['keydown', 'keypress', 'keyup'];
 
 export default {
   props: {
@@ -128,6 +130,7 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener('focusin', this.redirectContainerFocus, true);
+    this.stopIgnoringOpeningKeystroke();
   },
   watch: {
     dialog() {
@@ -136,12 +139,14 @@ export default {
         this.pendingOpener = null;
         this.openerContext = this.captureOpenerContext(this.opener);
         window.addEventListener('focusin', this.redirectContainerFocus, true);
+        this.ignoreOpeningKeystroke();
         this.focusDefaultButton();
         this.closed = false;
         this.$emit('dialog-opened');
         document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
         window.removeEventListener('focusin', this.redirectContainerFocus, true);
+        this.stopIgnoringOpeningKeystroke();
         this.restoreFocus();
         this.emitClosedEvent();
       }
@@ -158,6 +163,27 @@ export default {
     },
     defaultButton() {
       return this.$refs.cancelButton || this.$refs.okButton;
+    },
+    ignoreOpeningKeystroke() {
+      // a menu entry opens the dialog on Enter's keydown: once the dialog is built, its button has the focus before
+      // that keystroke's keypress (Enter) or keyup (Space), which would click it and close the dialog unseen
+      KEYSTROKE_EVENTS.forEach(type => window.addEventListener(type, this.ignoreOpeningKeystrokeEvent, true));
+    },
+    stopIgnoringOpeningKeystroke() {
+      KEYSTROKE_EVENTS.forEach(type => window.removeEventListener(type, this.ignoreOpeningKeystrokeEvent, true));
+    },
+    ignoreOpeningKeystrokeEvent(event) {
+      if (event.type === 'keydown' && !event.repeat) {
+        // a new keystroke: the one that opened the dialog is over
+        this.stopIgnoringOpeningKeystroke();
+        return;
+      }
+      if (ACTIVATION_KEYS.includes(event.key)) {
+        event.preventDefault();
+      }
+      if (event.type === 'keyup') {
+        this.stopIgnoringOpeningKeystroke();
+      }
     },
     redirectContainerFocus(event) {
       // v-dialog focuses its container first: a screen reader would read the dialog twice before its button
