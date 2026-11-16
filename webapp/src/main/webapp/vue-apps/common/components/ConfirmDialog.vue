@@ -128,6 +128,7 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener('focusin', this.redirectContainerFocus, true);
+    this.$openingKeystrokeGuard.stop(this.guardOpeningKeystroke);
   },
   watch: {
     dialog() {
@@ -136,18 +137,23 @@ export default {
         this.pendingOpener = null;
         this.openerContext = this.captureOpenerContext(this.opener);
         window.addEventListener('focusin', this.redirectContainerFocus, true);
+        this.$openingKeystrokeGuard.ignore(this.guardOpeningKeystroke);
         this.focusDefaultButton();
         this.closed = false;
         this.$emit('dialog-opened');
         document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
         window.removeEventListener('focusin', this.redirectContainerFocus, true);
+        this.$openingKeystrokeGuard.stop(this.guardOpeningKeystroke);
         this.restoreFocus();
         this.emitClosedEvent();
       }
     },
   },
   methods: {
+    guardOpeningKeystroke(event) {
+      this.$openingKeystrokeGuard.handle(event, this.guardOpeningKeystroke);
+    },
     focusDefaultButton() {
       // fallback when v-dialog does not focus its own container
       window.setTimeout(() => {
