@@ -100,6 +100,7 @@ import io.meeds.social.group.plugin.GroupAclPluginTest;
 import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
 import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 import io.meeds.social.analytics.CollaborativeActivityDeclarationTest;
+import io.meeds.social.people.service.PeopleDirectoryServiceTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -107,6 +108,7 @@ import io.meeds.social.analytics.CollaborativeActivityDeclarationTest;
     ChangesReminderServiceTest.class,
     UserHomePageServiceTest.class,
     OrganizationalChartSettingServiceTest.class,
+    PeopleDirectoryServiceTest.class,
     OrganizationalChartHeaderTranslationPermissionTest.class,
     UserCardSettingServiceTest.class,
     ReactionServiceImplTest.class,

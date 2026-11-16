@@ -1399,6 +1399,9 @@
         <module>peopleListComponents</module>
       </depends>
       <depends>
+        <module>translationField</module>
+      </depends>
+      <depends>
         <module>applicationToolbarComponent</module>
       </depends>
       <depends>
