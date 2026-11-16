@@ -48,7 +48,6 @@ import io.meeds.social.navigation.plugin.SidebarPlugin;
 import io.meeds.social.navigation.storage.NavigationConfigurationStorage;
 
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
@@ -88,18 +87,15 @@ public class NavigationConfigurationServiceImpl implements NavigationConfigurati
   @Setter
   private List<TopbarApplication>        defaultTopbarApplications;
 
-  @Getter
-  @Setter
-  private boolean                        allowUserHome                          = true;
-
   @PostConstruct
   @ContainerTransactional
   public void init() {
     this.defaultTopbarApplications = getDefaultTopbarApplications();
-    NavigationConfiguration configuration = getConfiguration();
-    if (configuration != null) {
-      this.allowUserHome = configuration.getSidebar().isAllowUserCustomHome();
-    }
+  }
+
+  @Override
+  public boolean isAllowUserHome() {
+    return navigationConfigurationStorage.isAllowUserHome(defaultTopbarApplications);
   }
 
   @Override
@@ -153,12 +149,8 @@ public class NavigationConfigurationServiceImpl implements NavigationConfigurati
   @Override
   public void updateConfiguration(NavigationConfiguration navigationConfiguration) {
     NavigationConfiguration existingConfiguration = getConfiguration();
-    try {
-      navigationConfigurationStorage.updateConfiguration(navigationConfiguration);
-      listenerService.broadcast(NAVIGATION_CONFIGURATION_UPDATED_EVENT, existingConfiguration, navigationConfiguration);
-    } finally {
-      this.allowUserHome = navigationConfiguration.getSidebar().isAllowUserCustomHome();
-    }
+    navigationConfigurationStorage.updateConfiguration(navigationConfiguration);
+    listenerService.broadcast(NAVIGATION_CONFIGURATION_UPDATED_EVENT, existingConfiguration, navigationConfiguration);
   }
 
   @Override
