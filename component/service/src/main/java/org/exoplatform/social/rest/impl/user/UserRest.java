@@ -808,6 +808,37 @@ public class UserRest implements ResourceContainer, Startable {
     }
   }
 
+  @POST
+  @Path("{id}/form-fields/validate")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
+  @Operation(summary = "Checks the additional fields of an account to edit", method = "POST",
+             description = "Applies the rules of the attributes listed in the account form to the values sent, against the values the user's profile holds, and writes nothing")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "The values are accepted"),
+      @ApiResponse(responseCode = "400", description = "A value is refused: the body holds the refusal's code and the attribute's name"),
+      @ApiResponse(responseCode = "403", description = "The user is no administrator, or has not confirmed the session"),
+      @ApiResponse(responseCode = "404", description = "The user does not exist or is deleted"), })
+  public Response validateUserFormFields(@Context HttpServletRequest request,
+                                         @Parameter(description = "User name", required = true)
+                                         @PathParam("id")
+                                         String username,
+                                         @RequestBody(description = "The values changed, each as {propertyName, value} or {propertyName, values}; an attribute sent empty is checked as a clear of its value", required = true)
+                                         List<ProfilePropertyValue> values) {
+    if (!UserAccountConfirmation.isConfirmed(request)) {
+      return UserAccountConfirmation.otpRequired();
+    }
+    try {
+      Profile stored = profileFormFieldService.getProfile(username);
+      profileFormFieldService.validate(values, ProfileFormKind.ACCOUNT, false, stored);
+      return Response.ok().build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Status.NOT_FOUND).build();
+    } catch (ProfileFormFieldException e) {
+      return getFormFieldRefusal(e);
+    }
+  }
+
   @PUT
   @Path("{id}/form-fields")
   @Produces(MediaType.APPLICATION_JSON)
