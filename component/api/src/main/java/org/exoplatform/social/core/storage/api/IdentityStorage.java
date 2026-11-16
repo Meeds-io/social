@@ -142,6 +142,20 @@ public interface IdentityStorage {
   public void updateProfile(final Profile profile) throws IdentityStorageException;
 
   /**
+   * Writes one property of a stored profile and leaves every other stored
+   * value as it is, so a caller holding an older copy of the profile cannot
+   * write its other values back.
+   *
+   * @param identityId the profile's identity id
+   * @param propertyName the property to write
+   * @param value its new value, null to clear it
+   * @throws IdentityStorageException when the identity is not stored
+   */
+  default void updateProfileProperty(String identityId, String propertyName, String value) throws IdentityStorageException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Gets total number of identities in storage depend on providerId.
    * @throws IdentityStorageException
    */

@@ -253,6 +253,11 @@ public class IdentityManagerImpl implements IdentityManager {
     this.getIdentityProvider(specificProfile.getIdentity().getProviderId()).onUpdateProfile(specificProfile);
   }
 
+  @Override
+  public void updateProfileProperty(Identity identity, String propertyName, String value) {
+    identityStorage.updateProfileProperty(identity.getId(), propertyName, value);
+  }
+
   /**
    * {@inheritDoc}
    */

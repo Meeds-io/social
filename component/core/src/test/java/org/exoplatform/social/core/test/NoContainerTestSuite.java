@@ -20,6 +20,7 @@ package org.exoplatform.social.core.test;
 
 import io.meeds.social.navigation.service.NavigationConfigurationAllowUserHomeTest;
 import io.meeds.social.navigation.storage.NavigationConfigurationStorageTest;
+import org.exoplatform.social.core.listeners.UpdateLoginTimeListenerImplTest;
 import io.meeds.social.space.invitation.storage.SpaceInvitationLinkLinkStorageTest;
 import io.meeds.social.space.listener.SpaceGroupCacheListenerTest;
 import io.meeds.social.space.listener.SpaceInvitationLinkLinkJoinListenerTest;
@@ -94,6 +95,7 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     SpaceGroupDecoratorPluginTest.class,
     SpaceTemplateMembershipListenerTest.class,
     SpaceGroupCacheListenerTest.class,
+    UpdateLoginTimeListenerImplTest.class,
     SpaceTemplateDatabindPluginTest.class,
     SpaceTemplateStorageTest.class,
     SpaceTemplateServiceTest.class,

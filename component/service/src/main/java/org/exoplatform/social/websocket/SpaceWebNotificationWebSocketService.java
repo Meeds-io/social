@@ -24,7 +24,6 @@ import static org.exoplatform.social.notification.service.SpaceWebNotificationSe
 
 import org.apache.commons.lang3.StringUtils;
 import org.cometd.bayeux.server.ServerChannel;
-import org.cometd.bayeux.server.ServerSession;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 import org.picocontainer.Startable;
 
@@ -78,15 +77,6 @@ public class SpaceWebNotificationWebSocketService implements Startable {
   @Override
   public void stop() {
     // Nothing To stop
-  }
-
-  /**
-   * @param session the session that published a message on the channel
-   * @return true when Oort relayed the message from the node it was published
-   *         to, which handles it
-   */
-  public boolean isRelayed(ServerSession session) {
-    return continuationBayeux.isRelayed(session);
   }
 
   /**

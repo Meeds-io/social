@@ -77,11 +77,6 @@ public class SpaceWebNotificationWebSocketServerListener implements ServerChanne
       LOG.debug("Not adequate channel name {}", channel.getId());
       return false;
     }
-    if (spaceWebNotificationWebSocketService.isRelayed(from)) {
-      // Handled, and delivered to its subscribers, on the node the client
-      // published it to only
-      return false;
-    }
 
     Object data = message.getData();
     ExoContainerContext.setCurrentContainer(container);
@@ -93,7 +88,9 @@ public class SpaceWebNotificationWebSocketServerListener implements ServerChanne
       spaceWebNotificationWebSocketService.receiveMessage(from.getId(),
                                                           webSocketMessage.getWsEventName(),
                                                           spaceWebNotificationItem);
-      return true;
+      // A client message on this channel is never relayed: it is handled here
+      // and consumed.
+      return false;
     } catch (Exception e) {
       if (LOG.isDebugEnabled()) {
         LOG.warn("Error marking as read", e);

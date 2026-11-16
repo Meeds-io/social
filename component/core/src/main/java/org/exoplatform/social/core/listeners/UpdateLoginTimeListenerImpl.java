@@ -45,8 +45,11 @@ public class UpdateLoginTimeListenerImpl extends Listener<ConversationRegistry, 
                                                                 event.getData().getIdentity().getUserId());
     Profile profile = userIdentity.getProfile();
     if (profile != null) {
-      profile.setProperty(Profile.LAST_LOGIN_TIME, user != null ? user.getLastLoginTime() : Calendar.getInstance().getTimeInMillis());
-      identityManager.updateProfile(profile, false);
+      // Writes the login time only: the profile at hand comes from this node's
+      // cache, which can be older than the store on a cluster
+      Object lastLoginTime = user != null ? user.getLastLoginTime() : Calendar.getInstance().getTimeInMillis();
+      profile.setProperty(Profile.LAST_LOGIN_TIME, lastLoginTime);
+      identityManager.updateProfileProperty(userIdentity, Profile.LAST_LOGIN_TIME, String.valueOf(lastLoginTime));
       IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
       indexingService.reindex(ProfileIndexingServiceConnector.TYPE, userIdentity.getId());
     }

@@ -24,8 +24,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.endsWith;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +41,7 @@ import javax.mail.internet.MimeMessage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -153,8 +156,47 @@ public class EmailOtpPluginTest {
   public void testGenerateOtpCodeSuccess() throws Exception {
     plugin.generateOtpCode("john");
 
-    verify(otpCache).put(eq("john"), eq(OTP_CODE));
+    verify(otpCache).put(eq("john"), endsWith(":" + OTP_CODE));
     verify(mailService).sendMessage(any(MimeMessage.class));
+  }
+
+  /**
+   * A declared cache refuses a lifetime change at runtime: the code is sent
+   * all the same
+   */
+  @Test
+  public void testACodeIsSentWhenTheCacheRefusesALifetimeChange() throws Exception {
+    doThrow(new UnsupportedOperationException("The configuration of the cache cannot not be modified")).when(otpCache)
+                                                                                                         .setLiveTime(anyLong());
+    plugin.setOtpCache(null); // looked up from the cache service, as in production
+    plugin.generateOtpCode("john");
+
+    verify(otpCache).put(eq("john"), endsWith(":" + OTP_CODE));
+    verify(mailService).sendMessage(any(MimeMessage.class));
+  }
+
+  /**
+   * The code lifetime is the plugin's, whatever the lifetime the cache
+   * declaration gives its entries
+   */
+  @Test
+  public void testACodePastItsLifetimeDoesNotValidate() {
+    when(otpCache.get("john")).thenReturn((System.currentTimeMillis() - 1000) + ":" + OTP_CODE);
+    assertFalse(plugin.validateOtp("john", OTP_CODE));
+    when(otpCache.get("john")).thenReturn((System.currentTimeMillis() + 60000) + ":" + OTP_CODE);
+    assertTrue(plugin.validateOtp("john", OTP_CODE));
+  }
+
+  @Test
+  public void testTheGeneratedCodeCarriesThePluginLifetime() throws Exception {
+    long before = System.currentTimeMillis();
+    plugin.generateOtpCode("john");
+    long after = System.currentTimeMillis();
+
+    ArgumentCaptor<String> code = ArgumentCaptor.forClass(String.class);
+    verify(otpCache).put(eq("john"), code.capture());
+    long codeExpiry = Long.parseLong(code.getValue().substring(0, code.getValue().indexOf(':')));
+    assertTrue(codeExpiry >= before + 5 * 60000 && codeExpiry <= after + 5 * 60000);
   }
 
 }
