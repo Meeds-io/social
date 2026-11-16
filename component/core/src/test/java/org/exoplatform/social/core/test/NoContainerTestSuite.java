@@ -18,6 +18,8 @@
  */
 package org.exoplatform.social.core.test;
 
+import io.meeds.social.navigation.service.NavigationConfigurationAllowUserHomeTest;
+import io.meeds.social.navigation.storage.NavigationConfigurationStorageTest;
 import io.meeds.social.space.invitation.storage.SpaceInvitationLinkLinkStorageTest;
 import io.meeds.social.space.listener.SpaceGroupCacheListenerTest;
 import io.meeds.social.space.listener.SpaceInvitationLinkLinkJoinListenerTest;
@@ -107,6 +109,8 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     UserAclPluginTest.class,
     RemoveProfilePropertyUpgradePlugin.class,
     SpaceInvitationLinkLinkJoinListenerTest.class,
+    NavigationConfigurationStorageTest.class,
+    NavigationConfigurationAllowUserHomeTest.class,
     SpaceInvitationLinkLinkStorageTest.class
 })
 public class NoContainerTestSuite {
