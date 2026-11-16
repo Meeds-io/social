@@ -179,7 +179,9 @@ public class SearchServiceImpl implements SearchService, Startable {
    * Reads the names of the deployed connectors in a concatenated value that
    * also holds a name no deployed connector has, such as an add-on's removed
    * since: the longest deployed name is taken at each position, and the
-   * characters no deployed name starts with are skipped.
+   * characters no deployed name starts with are skipped. A removed name that
+   * contains a deployed one therefore enables that deployed type: a known
+   * limit of reading a value stored without separators.
    */
   private List<String> findKnownNames(String value) {
     List<String> names = new ArrayList<>();
