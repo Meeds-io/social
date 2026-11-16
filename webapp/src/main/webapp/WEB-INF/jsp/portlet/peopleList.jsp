@@ -1,19 +1,38 @@
+<%@ page import="io.meeds.social.portlet.PeopleListPortlet" %>
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="java.nio.charset.StandardCharsets" %>
+<%@ page import="javax.portlet.PortletPreferences" %>
+<%@ page import="org.json.JSONObject" %>
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<portlet:defineObjects />
+<portlet:actionURL var="saveSettingsUrl" />
+<portlet:resourceURL var="settingsResourceUrl" id="<%=PeopleListPortlet.SETTINGS_RESOURCE_ID%>" />
 <%
-  Object filter = request.getAttribute("filter");
-  if (filter == null) {
-    filter = "";
-  } else {
-    filter = ((String[]) filter)[0];
-  }
+  PortletPreferences preferences = renderRequest.getPreferences();
+  JSONObject settings = new JSONObject();
+  settings.put("headerTranslations", new JSONObject(PeopleListPortlet.storedHeaderTranslations(preferences)));
+  settings.put("pageSize", PeopleListPortlet.storedPageSize(preferences));
+  settings.put("filter", PeopleListPortlet.storedFilter(preferences));
+  settings.put("canEdit", PeopleListPortlet.canEdit(renderRequest.getRemoteUser()));
+
+  String portletId = (String) request.getAttribute("portletStorageId");
+  String appId = "peopleList" + portletId;
+  String settingsDomId = appId + "Settings";
 %>
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application transparent v-application--is-ltr theme--light peopleList"
-    id="peopleListApplication" flat="">
+    id="<%=appId%>">
+    <textarea id="<%=settingsDomId%>" style="display:none;"><%=URLEncoder.encode(settings.toString(), StandardCharsets.UTF_8)%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social/PeopleList'],
-          app => app.init('<%=filter%>')
-      );
+      require(['PORTLET/social/PeopleList'], app => app.init({
+        appId: '<%=appId%>',
+        <%-- Never a // comment inside this script: the layout renderer strips newlines before
+             injecting it, so a line comment swallows the rest of the script. --%>
+        settings: JSON.parse(decodeURIComponent(document.getElementById('<%=settingsDomId%>').value.replace(/\+/g, '%20'))),
+        saveSettingsUrl: '<%=saveSettingsUrl%>',
+        settingsResourceUrl: '<%=settingsResourceUrl%>'
+      }));
     </script>
   </div>
 </div>
