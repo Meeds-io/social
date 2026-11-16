@@ -153,15 +153,50 @@ public class SearchServiceImpl implements SearchService, Startable {
   }
 
   private List<String> parseNames(String storedValue) {
+    // A value without separator may be the concatenated names an earlier
+    // version stored
+    boolean legacyValue = !storedValue.contains(",");
     List<String> names = new ArrayList<>();
     for (String token : storedValue.split(",\\s*")) {
       if (StringUtils.isNotBlank(token)) {
         List<String> split = splitConcatenatedNames(token, 0);
-        if (split == null) {
+        if (split == null && legacyValue) {
+          split = findKnownNames(token);
+        }
+        if (split == null || split.isEmpty()) {
           names.add(token);
         } else {
           names.addAll(split);
         }
+      }
+    }
+    return names;
+  }
+
+  /**
+   * Reads the names of the deployed connectors in a concatenated value that
+   * also holds a name no deployed connector has, such as an add-on's removed
+   * since: the longest deployed name is taken at each position, and the
+   * characters no deployed name starts with are skipped.
+   */
+  private List<String> findKnownNames(String value) {
+    List<String> names = new ArrayList<>();
+    int index = 0;
+    while (index < value.length()) {
+      String longestName = null;
+      for (SearchConnector connector : connectors) {
+        String connectorName = connector.getName();
+        if (StringUtils.isNotEmpty(connectorName)
+            && value.startsWith(connectorName, index)
+            && (longestName == null || connectorName.length() > longestName.length())) {
+          longestName = connectorName;
+        }
+      }
+      if (longestName == null) {
+        index++;
+      } else {
+        names.add(longestName);
+        index += longestName.length();
       }
     }
     return names;

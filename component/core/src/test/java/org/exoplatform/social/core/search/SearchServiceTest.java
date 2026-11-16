@@ -257,6 +257,12 @@ public class SearchServiceTest {
     searchService.setConnectorAsEnabled("people", true);
     searchService.setConnectorAsEnabled("space", true);
 
+    assertEquals("people,space",
+                 String.valueOf(settingService.get(Context.GLOBAL.id("search"),
+                                                   Scope.APPLICATION.id("connectors"),
+                                                   "enabledSearchConnectors")
+                                              .getValue()));
+
     SearchServiceImpl restarted = new SearchServiceImpl(settingService);
     addConnectors(restarted, false, "people", "space", "activity");
     restarted.start();
@@ -275,6 +281,30 @@ public class SearchServiceTest {
 
     assertEquals(Set.of("people", "space"), enabledNames(searchService));
     assertEquals(2, searchService.getEnabledConnectorNames().size());
+  }
+
+  @Test
+  public void testLegacyConcatenatedValueNamingAnUndeployedConnectorKeepsTheDeployedOnes() {
+    addConnectors(searchService, true, "people", "space", "activity");
+    settingService.set(Context.GLOBAL.id("search"),
+                       Scope.APPLICATION.id("connectors"),
+                       "enabledSearchConnectors",
+                       SettingValue.create("peoplewikispace"));
+
+    assertEquals(Set.of("people", "space"), enabledNames(searchService));
+  }
+
+  @Test
+  public void testEveryTypeDisabledStaysDisabledAfterRestart() {
+    addConnectors(searchService, true, "people", "space");
+    searchService.setConnectorAsEnabled("people", false);
+    searchService.setConnectorAsEnabled("space", false);
+
+    SearchServiceImpl restarted = new SearchServiceImpl(settingService);
+    addConnectors(restarted, true, "people", "space");
+    restarted.start();
+
+    assertEquals(Set.of(), enabledNames(restarted));
   }
 
   @Test
