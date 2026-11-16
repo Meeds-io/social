@@ -63,6 +63,8 @@ public class EmailOtpPlugin implements OtpPlugin {
 
   private static final String      OTP_CACHE_NAME              = "otp.email";
 
+  private static final char        EXPIRY_SEPARATOR            = ':';
+
   private static final String      LANG_PARAM                  = "$LANG";
 
   private static final String      USER_FULL_NAME_PARAM        = "$USER_FULL_NAME";
@@ -131,7 +133,8 @@ public class EmailOtpPlugin implements OtpPlugin {
 
   @Override
   public boolean validateOtp(String userName, String otpCode) {
-    return StringUtils.equals(otpCode, getOtpCache().get(userName));
+    String storedCode = getLiveCode(getOtpCache().get(userName));
+    return storedCode != null && storedCode.equals(otpCode);
   }
 
   @Override
@@ -141,7 +144,7 @@ public class EmailOtpPlugin implements OtpPlugin {
     String userFullName = getUserFullName(userName);
     String lang = getUserLang(userName);
     String otpCode = generateOtpCode();
-    getOtpCache().put(userName, otpCode);
+    getOtpCache().put(userName, String.valueOf(expiringIn(otpTtl * 60)) + EXPIRY_SEPARATOR + otpCode);
     sendEmail(email, userFullName, String.valueOf(otpCode), lang);
   }
 
@@ -244,10 +247,38 @@ public class EmailOtpPlugin implements OtpPlugin {
     return secureRandom;
   }
 
+  /**
+   * The code carries its expiry: its lifetime comes from this plugin's
+   * properties, whatever lifetime the declaration of the cache gives its
+   * entries, which only bounds how long an entry stays
+   */
+  private long expiringIn(long seconds) {
+    return System.currentTimeMillis() + seconds * 1000;
+  }
+
+  private String getLiveCode(String storedValue) {
+    if (storedValue == null) {
+      return null;
+    }
+    int separator = storedValue.indexOf(EXPIRY_SEPARATOR);
+    if (separator < 0) {
+      return storedValue;
+    }
+    return isLive(storedValue.substring(0, separator)) ? storedValue.substring(separator + 1) : null;
+  }
+
+  private boolean isLive(String expiry) {
+    try {
+      return Long.parseLong(expiry) > System.currentTimeMillis();
+    } catch (NumberFormatException e) {
+      // An entry stored without expiry lives as long as its cache keeps it
+      return true;
+    }
+  }
+
   private ExoCache<String, String> getOtpCache() {
     if (otpCache == null) {
       otpCache = cacheService.getCacheInstance(OTP_CACHE_NAME);
-      otpCache.setLiveTime(otpTtl * 60);
     }
     return otpCache;
   }

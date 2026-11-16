@@ -165,6 +165,31 @@ public class IdentityStorageTest extends AbstractCoreTest {
   }
 
   /**
+   * Writing one profile property leaves every other stored value as it is: a
+   * value cleared after a caller read its copy of the profile stays cleared.
+   */
+  public void testUpdateProfilePropertyKeepsTheOtherStoredValues() {
+    Identity identity = new Identity(OrganizationIdentityProvider.NAME, "usernameProfileProperty");
+    identityStorage.saveIdentity(identity);
+    tearDownIdentityList.add(identity);
+    Profile profile = identity.getProfile();
+    profile.setProperty(Profile.POSITION, "developer");
+    profile.setProperty("department", "sales");
+    identityStorage.saveProfile(profile);
+
+    Profile cleared = identityStorage.loadProfile(new Profile(identity));
+    cleared.setProperty("department", "");
+    identityStorage.updateProfile(cleared);
+
+    identityStorage.updateProfileProperty(identity.getId(), Profile.LAST_LOGIN_TIME, "1234");
+
+    Profile stored = identityStorage.loadProfile(new Profile(identity));
+    assertEquals("1234", stored.getProperty(Profile.LAST_LOGIN_TIME));
+    assertEquals("", stored.getProperty("department"));
+    assertEquals("developer", stored.getProperty(Profile.POSITION));
+  }
+
+  /**
    * Tests {@link IdenityStorage#findIdentityById(String)}
    *
    */
