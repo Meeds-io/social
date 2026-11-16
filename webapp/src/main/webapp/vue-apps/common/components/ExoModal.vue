@@ -38,7 +38,10 @@
 </template>
 
 <script>
+import openingKeystrokeGuard from '../js/OpeningKeystrokeGuard.js';
+
 export default {
+  mixins: [openingKeystrokeGuard],
   props: {
     title: {
       type: String,
@@ -88,10 +91,12 @@ export default {
     dialog() {
       if (this.dialog) {
         this.opener = document.activeElement;
+        this.ignoreOpeningKeystroke();
         this.focusFirstControl();
         this.$emit('dialog-opened');
         document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
+        this.stopIgnoringOpeningKeystroke();
         this.restoreFocus();
         this.$emit('dialog-closed');
         document.dispatchEvent(new CustomEvent('modalClosed'));
