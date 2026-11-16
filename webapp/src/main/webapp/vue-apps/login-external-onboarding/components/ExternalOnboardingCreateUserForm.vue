@@ -396,6 +396,10 @@ export default {
           }
           this.loading=false;
         }
+      }).catch(() => {
+        // No answer at all: the registration may be sent again
+        this.$root.$emit('alert-message', this.$t('UILoginForm.label.unknownError'), 'error');
+        this.loading = false;
       });
     },
     validateForm() {
