@@ -147,6 +147,25 @@ public class EmailOtpPluginTest {
   }
 
   @Test
+  public void testConsumeOtpRemovesTheCodeOnce() {
+    when(otpCache.remove("john")).thenReturn(OTP_CODE, (String) null);
+    assertTrue(plugin.consumeOtp("john", OTP_CODE));
+    assertFalse(plugin.consumeOtp("john", OTP_CODE));
+  }
+
+  @Test
+  public void testConsumeOtpRefusesAnotherCode() {
+    when(otpCache.remove("john")).thenReturn((System.currentTimeMillis() + 60000) + ":999999");
+    assertFalse(plugin.consumeOtp("john", OTP_CODE));
+  }
+
+  @Test
+  public void testConsumeOtpRefusesAnExpiredCode() {
+    when(otpCache.remove("john")).thenReturn((System.currentTimeMillis() - 1000) + ":" + OTP_CODE);
+    assertFalse(plugin.consumeOtp("john", OTP_CODE));
+  }
+
+  @Test
   public void testValidateOtpInvalid() {
     when(otpCache.get("john")).thenReturn("999999");
     assertFalse(plugin.validateOtp("john", OTP_CODE));

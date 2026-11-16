@@ -164,6 +164,12 @@ public class UserRest implements ResourceContainer, Startable {
 
   private static final String             EMAIL_MSG_PREFIX            = "EMAIL:";
 
+  /**
+   * The one-time code method an email change is confirmed with, whatever
+   * method the client names
+   */
+  private static final String             EMAIL_OTP_METHOD            = "email";
+
   private static final String             FIRSTNAME_MSG_PREFIX        = "FIRSTNAME:";
 
   private static final String             LASTNAME_MSG_PREFIX         = "LASTNAME:";
@@ -1143,6 +1149,9 @@ public class UserRest implements ResourceContainer, Startable {
       } else {
         updateProfileField(profile, fieldName, value, true,currentUser);
       }
+      if (Profile.EMAIL.equals(fieldName)) {
+        consumeEmailChangeCode(username, otpCode);
+      }
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attribute {}", currentUser, name);
       return Response.status(Status.UNAUTHORIZED).build();
@@ -1207,8 +1216,8 @@ public class UserRest implements ResourceContainer, Startable {
       }
     }
     Identity identity = identityManager.getOrCreateUserIdentity(username);
-    if (email != null
-        && !StringUtils.equals(email, identity.getProfile().getEmail())) {
+    boolean emailChange = email != null && !StringUtils.equals(email, identity.getProfile().getEmail());
+    if (emailChange) {
       Response response = checkEmail(username, email, otpMethod, otpCode, locale);
       if (response != null) {
         return response;
@@ -1218,6 +1227,9 @@ public class UserRest implements ResourceContainer, Startable {
     try {
       Map<String, Object> userProfileProperties = extractPropertiesFromEntities(profileEntity);
       saveProfile(username, userProfileProperties, currentUser);
+      if (emailChange) {
+        consumeEmailChangeCode(username, otpCode);
+      }
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attributes", currentUser);
       return Response.status(Status.UNAUTHORIZED).build();
@@ -2013,6 +2025,22 @@ public class UserRest implements ResourceContainer, Startable {
     }
   }
 
+  /**
+   * Once the change is written: consumes the code, so that it never confirms
+   * another change, while a refused request burns nothing (when another
+   * request consumed it in between, this change stands). A failure to consume
+   * is logged and leaves the answer as the written change makes it.
+   */
+  private void consumeEmailChangeCode(String username, String otpCode) {
+    try {
+      if (!otpService.consumeOtp(username, EMAIL_OTP_METHOD, otpCode)) {
+        LOG.warn("The email change code of user {} was consumed by another request while this change was written", username);
+      }
+    } catch (RuntimeException e) {
+      LOG.warn("The email change code of user {} could not be consumed once the change was written", username, e);
+    }
+  }
+
   private Response checkEmail(String username, String email, String otpMethod, String otpCode, Locale locale) throws Exception {
     if (StringUtils.isBlank(otpCode)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_MANDATORY").build();
@@ -2020,7 +2048,7 @@ public class UserRest implements ResourceContainer, Startable {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_METHOD_MANDATORY").build();
     }
     try {
-      otpService.validateOtp(username, otpMethod, otpCode);
+      otpService.validateOtp(username, EMAIL_OTP_METHOD, otpCode);
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_WRONG").build();
     }

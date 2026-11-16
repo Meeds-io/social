@@ -813,11 +813,29 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ContainerResponse response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
     assertNotNull(response);
     assertEquals(String.valueOf(response.getEntity()), 400, response.getStatus());
+    // A refused change burns no code
+    verify(otpService, never()).consumeOtp(any(), any(), any());
   }
 
   public void testUpdateEmailWithCorrectOTPCode() throws Exception {
     startSessionAs("root");
-    doNothing().when(otpService).validateOtp("root", "test", "1234");
+    doNothing().when(otpService).validateOtp("root", "email", "1234");
+    String email = "root@test.com";
+    byte[] formData = ("name=email&value=" + email + "&otpMethod=test&otpCode=1234").getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    // The code is checked and consumed as an email code, whatever method the
+    // client names, and confirmed this change only: it never confirms another
+    verify(otpService).validateOtp("root", "email", "1234");
+    verify(otpService).consumeOtp("root", "email", "1234");
+  }
+
+  public void testUpdateEmailAnswersTheWrittenChangeWhenItsCodeCannotBeConsumed() throws Exception {
+    startSessionAs("root");
+    doThrow(new IllegalStateException("cache unavailable")).when(otpService).consumeOtp(any(), any(), any());
     String email = "root@test.com";
     byte[] formData = ("name=email&value=" + email + "&otpMethod=test&otpCode=1234").getBytes();
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
@@ -1230,6 +1248,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                              johnData.toString());
     assertNotNull(response);
     assertEquals(204, response.getStatus());
+    verify(otpService).consumeOtp("john", "email", "123");
 
     JSONObject data = new JSONObject();
     data.put(ProfileEntity.USERNAME, "demo");
@@ -1260,6 +1279,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals("Email already exists return HTTP 401 code. Response content: " + response.getEntity(),
                  401,
                  response.getStatus());
+    verify(otpService, never()).consumeOtp(eq(user), any(), any());
 
     data.remove(ProfileEntity.EMAIL);
     data.put(ProfileEntity.FIRSTNAME, "d");
