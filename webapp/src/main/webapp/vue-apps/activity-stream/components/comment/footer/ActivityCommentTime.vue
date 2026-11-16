@@ -12,6 +12,7 @@
           plain
           @click="openCommentsDrawer"
           v-on="on">
+          <span class="d-sr-only text-none">{{ $t('activity.comment.time.open') }}</span>
           <relative-date-format
             v-if="isActivityEdited"
             :value="comment.updateDate"

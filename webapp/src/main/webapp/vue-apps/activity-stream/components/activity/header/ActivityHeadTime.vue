@@ -21,6 +21,7 @@
           text
           plain
           v-on="on">
+          <span class="d-sr-only text-none">{{ $t('activity.head.time.open') }}</span>
           <span
             v-if="isScheduled"
             :class="truncateText"
