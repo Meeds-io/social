@@ -53,7 +53,7 @@ public class AccountDeactivationRest {
   @Operation(summary = "Deactivates the current user account after validating the OTP code", method = "POST")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "204", description = "Account deactivated and sessions invalidated"),
-    @ApiResponse(responseCode = "401", description = "OTP code is blank, invalid or tentatives are exhausted"),
+    @ApiResponse(responseCode = "401", description = "OTP method does not prove access to the account, or OTP code is blank, invalid or tentatives are exhausted"),
     @ApiResponse(responseCode = "403", description = "Account deactivation or deletion is not allowed for the current user"),
   })
   public void requestDeactivation(HttpServletRequest request,
