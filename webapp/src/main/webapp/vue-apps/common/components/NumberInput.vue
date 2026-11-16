@@ -25,6 +25,7 @@
     flat>
     <v-btn
       :title="minusTitle"
+      class="number-input-decrease"
       icon
       @click="decrementNumber">
       <v-icon :size="iconSize" class="icon-default-color">fa-minus</v-icon>
@@ -44,6 +45,7 @@
     <div v-if="unit" class="ps-1">{{ unit }}</div>
     <v-btn
       :title="plusTitle"
+      class="number-input-increase"
       icon
       @click="incrementNumber">
       <v-icon :size="iconSize" class="icon-default-color">fa-plus</v-icon>
