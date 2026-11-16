@@ -30,9 +30,17 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.idm.UserDAOImpl;
 import org.exoplatform.services.organization.idm.UserImpl;
+import org.exoplatform.social.core.model.ProfileLabel;
+import org.exoplatform.social.core.profilelabel.ProfileLabelService;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.register.RegisterUIParamsExtension;
+import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,13 +59,27 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.HashMap;
+import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
+import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
+import io.meeds.social.translation.service.TranslationService;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -102,6 +124,12 @@ public class LoginRestTest {
 
   @MockitoBean
   private Captcha captcha;
+
+  @MockitoBean
+  private ProfileFormFieldService profileFormFieldService;
+
+  @MockitoBean
+  private ProfileLabelService profileLabelService;
 
   @Before
   public void setup() {
@@ -807,6 +835,90 @@ public class LoginRestTest {
             .andExpect(content().string(
                 new JSONObject().put("success", "onboardingEmailSent").toString()
             ));
+  }
+
+  /**
+   * The registration form's definitions are read with a registration token
+   * only: an unknown one reads nothing, and its answer is kept by no cache
+   */
+  @Test
+  @SneakyThrows
+  public void testGetRegistrationFieldsWithUnknownToken() {
+    when(passwordRecoveryService.verifyToken("unknown", CookieTokenService.EXTERNAL_REGISTRATION_TOKEN)).thenReturn(null);
+    when(passwordRecoveryService.verifyToken("unknown", "onboard")).thenReturn("john");
+
+    mockMvc.perform(get("/login/registrationFields?token=unknown"))
+           .andExpect(status().isNotFound())
+           .andExpect(header().string("Cache-Control", "no-store"));
+    verify(profileFormFieldService, never()).getSettings(any());
+  }
+
+  /**
+   * An anonymous registrant holding the token reads the registration
+   * allow-list, each attribute with the fields the form needs and none of its
+   * other settings, its labels in every language and its options in the
+   * request's language, and the answer is kept by no cache
+   */
+  @Test
+  @SneakyThrows
+  public void testGetRegistrationFields() {
+    when(passwordRecoveryService.verifyToken("123456789", CookieTokenService.EXTERNAL_REGISTRATION_TOKEN)).thenReturn("jsmith@acme.com");
+    ProfilePropertySetting setting = new ProfilePropertySetting();
+    setting.setId(5L);
+    setting.setPropertyName("team");
+    setting.setPropertyType("text");
+    setting.setDropdownList(true);
+    setting.setRequired(true);
+    setting.setOrder(3L);
+    setting.setActive(true);
+    setting.setEditable(true);
+    setting.setVisible(true);
+    setting.setGroupSynchronized(true);
+    setting.setListedOnRegistration(true);
+    setting.setPropertyOptions(List.of(new ProfilePropertyOption(7L, "Sales", 5L)));
+    when(profileFormFieldService.getSettings(ProfileFormKind.REGISTRATION)).thenReturn(List.of(setting));
+    when(profileLabelService.findLabelByObjectTypeAndObjectId(ProfilePropertyService.LABELS_OBJECT_TYPE,
+                                                              "5")).thenReturn(List.of(new ProfileLabel(1L,
+                                                                                                        ProfilePropertyService.LABELS_OBJECT_TYPE,
+                                                                                                        "5",
+                                                                                                        "Équipe",
+                                                                                                        "fr")));
+    TranslationService translationService = mock(TranslationService.class);
+    when(translationService.getTranslationLabelOrDefault(anyString(), anyLong(), anyString(), eq(Locale.FRENCH))).thenReturn("Ventes");
+    Object cachedTranslationService = ReflectionTestUtils.getField(EntityBuilder.class, "translationService");
+    ReflectionTestUtils.setField(EntityBuilder.class, "translationService", translationService);
+    try {
+      String content = mockMvc.perform(get("/login/registrationFields?token=123456789").locale(Locale.FRENCH))
+                              .andExpect(status().isOk())
+                              .andExpect(header().string("Cache-Control", "no-store"))
+                              .andExpect(jsonPath("$.length()").value(1))
+                              .andExpect(jsonPath("$[0].id").value(5))
+                              .andExpect(jsonPath("$[0].propertyName").value("team"))
+                              .andExpect(jsonPath("$[0].propertyType").value("text"))
+                              .andExpect(jsonPath("$[0].dropdownList").value(true))
+                              .andExpect(jsonPath("$[0].multiValued").value(false))
+                              .andExpect(jsonPath("$[0].required").value(true))
+                              .andExpect(jsonPath("$[0].order").value(3))
+                              .andExpect(jsonPath("$[0].labels[0].label").value("Équipe"))
+                              .andExpect(jsonPath("$[0].labels[0].language").value("fr"))
+                              .andExpect(jsonPath("$[0].propertyOptions[0].id").value(7))
+                              .andExpect(jsonPath("$[0].propertyOptions[0].translatedValue").value("Ventes"))
+                              .andReturn()
+                              .getResponse()
+                              .getContentAsString();
+      assertEquals(Set.of("id",
+                          "propertyName",
+                          "propertyType",
+                          "dropdownList",
+                          "multiValued",
+                          "required",
+                          "order",
+                          "labels",
+                          "propertyOptions"),
+                   new JSONArray(content).getJSONObject(0).keySet());
+    } finally {
+      ReflectionTestUtils.setField(EntityBuilder.class, "translationService", cachedTranslationService);
+    }
   }
 
   private RequestPostProcessor testSimpleUser() {

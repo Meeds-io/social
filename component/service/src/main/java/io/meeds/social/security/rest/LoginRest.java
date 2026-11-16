@@ -42,12 +42,17 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.social.core.profilelabel.ProfileLabelService;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.register.RegisterUIParamsExtension;
 import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,6 +72,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+
+import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
+import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
+import io.meeds.social.security.rest.model.RegistrationFieldEntity;
 
 @RestController
 @RequestMapping("/login")
@@ -125,6 +134,12 @@ public class LoginRest {
   @Autowired
   private RemindPasswordTokenService remindPasswordTokenService;
 
+  @Autowired
+  private ProfileFormFieldService profileFormFieldService;
+
+  @Autowired
+  private ProfileLabelService profileLabelService;
+
   @GetMapping(path = "/verify")
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(summary = "Verify user token", method = "GET")
@@ -150,6 +165,29 @@ public class LoginRest {
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+
+  @GetMapping(path = "/registrationFields", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "The additional fields of the registration form",
+             description = "The profile attributes listed for registration, read from the store, for the holder of a registration token: each attribute's definition only, never a value",
+             method = "GET")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "404", description = "The registration token is unknown or expired"),
+  })
+  public ResponseEntity<List<RegistrationFieldEntity>> getRegistrationFields(HttpServletRequest request,
+                                                                             @Parameter(description = "Registration token")
+                                                                             @RequestParam("token")
+                                                                             String token) {
+    if (passwordRecoveryService.verifyToken(token, CookieTokenService.EXTERNAL_REGISTRATION_TOKEN) == null) {
+      return ResponseEntity.notFound().cacheControl(CacheControl.noStore()).build();
+    }
+    Locale locale = request.getLocale();
+    List<RegistrationFieldEntity> fields = profileFormFieldService.getSettings(ProfileFormKind.REGISTRATION)
+                                                                  .stream()
+                                                                  .map(setting -> toRegistrationField(setting, locale))
+                                                                  .toList();
+    return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(fields);
   }
 
   @PostMapping(path = "/finishRegistration")
@@ -565,6 +603,19 @@ public class LoginRest {
                                                   .put(ERROR_MESSAGE_PARAM, errorMessage).toString());
     }
 
+  }
+
+  private RegistrationFieldEntity toRegistrationField(ProfilePropertySetting setting, Locale locale) {
+    return new RegistrationFieldEntity(setting.getId(),
+                                       setting.getPropertyName(),
+                                       setting.getPropertyType(),
+                                       setting.isDropdownList(),
+                                       setting.isMultiValued(),
+                                       setting.isRequired(),
+                                       setting.getOrder(),
+                                       profileLabelService.findLabelByObjectTypeAndObjectId(ProfilePropertyService.LABELS_OBJECT_TYPE,
+                                                                                            String.valueOf(setting.getId())),
+                                       EntityBuilder.toProfilePropertyOptionEntities(setting.getPropertyOptions(), locale));
   }
 
   /**
