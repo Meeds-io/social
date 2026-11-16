@@ -43,9 +43,10 @@
         v-bind="attrs"
         v-on="on"
         @keydown.enter.prevent="openFromKeyboard"
-        @keydown.space.prevent="openFromKeyboard" />
+        @keydown.space.prevent="openFromKeyboard"
+        @keydown.esc="menu && closeFromKeyboard($event)" />
     </template>
-    <div class="d-flex flex-column">
+    <div class="d-flex flex-column" @keydown.esc="closeFromKeyboard">
       <v-date-picker
         ref="datePicker"
         v-model="dates"
@@ -253,6 +254,10 @@ export default {
           ];
           this.fromTime = fromLocalISOString.slice(11, 16);
           this.toTime = toLocalISOString.slice(11, 16);
+        } else {
+          // no period chosen, or the field was reset: the picker shows no date and no period selected
+          this.dates = [];
+          this.selectedPeriodName = null;
         }
       }
     },
@@ -274,6 +279,15 @@ export default {
       this.openedFromKeyboard = true;
       this.usedKeyboard = true;
       this.menu = true;
+    },
+    closeFromKeyboard(event) {
+      // Escape closes the picker alone: unless stopped here, the key reaches the document, where it closes the
+      // drawer holding the field; Vuetify gives the focus back to the field's wrapper, which cannot take it
+      event.preventDefault();
+      event.stopPropagation();
+      this.usedKeyboard = false;
+      this.menu = false;
+      this.$nextTick(() => this.$refs.periodField?.$refs?.input?.focus());
     },
     toLocalISOString(date) {
       const offset = date.getTimezoneOffset();
