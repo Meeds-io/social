@@ -122,7 +122,7 @@ public class EmailChangeEmailOtpPluginTest {
   private ExoCache<String, String>  otpSendLockCache;
 
   @Mock
-  private ExoCache<String, String>  countCache;
+  private ExoCache<String, String>  tentativesCache;
 
   @Mock
   private UserHandler               userHandler;
@@ -156,7 +156,7 @@ public class EmailChangeEmailOtpPluginTest {
     plugin.setBrandedEmailSender(brandedEmailSender);
     when(cacheService.getCacheInstance("otp.email")).thenReturn((ExoCache) otpCache); // NOSONAR
     when(cacheService.getCacheInstance("otp.email.sendLock")).thenReturn((ExoCache) otpSendLockCache); // NOSONAR
-    when(cacheService.getCacheInstance("otp.emailChange.tentatives")).thenReturn((ExoCache) countCache); // NOSONAR
+    when(cacheService.getCacheInstance("otp.emailChange.tentatives")).thenReturn((ExoCache) tentativesCache); // NOSONAR
     when(secureRandomService.getSecureRandom()).thenReturn(secureRandom);
     when(secureRandom.nextLong(anyLong(), anyLong())).thenReturn(123456L);
 
@@ -423,10 +423,10 @@ public class EmailChangeEmailOtpPluginTest {
     long before = System.currentTimeMillis();
     assertFalse(configured.validateOtp("john", EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL)));
     ArgumentCaptor<String> storedCount = ArgumentCaptor.forClass(String.class);
-    verify(countCache).put(eq("john"), storedCount.capture());
+    verify(tentativesCache).put(eq("john"), storedCount.capture());
     assertEquals(1, countOf(storedCount.getValue()));
     assertLivesUntil(storedCount.getValue(), before, 420);
-    verify(countCache, never()).setLiveTime(anyLong());
+    verify(tentativesCache, never()).setLiveTime(anyLong());
   }
 
   /**
@@ -451,12 +451,12 @@ public class EmailChangeEmailOtpPluginTest {
   public void testConcurrentWrongGuessesDropTheCode() throws Exception {
     Map<String, String> codes = stubOtpCache(new ConcurrentHashMap<>());
     Map<String, String> counts = new ConcurrentHashMap<>();
-    when(countCache.get(anyString())).thenAnswer(invocation -> {
+    when(tentativesCache.get(anyString())).thenAnswer(invocation -> {
       String value = counts.get(invocation.getArgument(0));
       Thread.sleep(20); // widens the window between the read and the write
       return value;
     });
-    doAnswer(invocation -> counts.put(invocation.getArgument(0), invocation.getArgument(1))).when(countCache)
+    doAnswer(invocation -> counts.put(invocation.getArgument(0), invocation.getArgument(1))).when(tentativesCache)
                                                                                            .put(anyString(), anyString());
     plugin.setMaxAttempts(3);
     assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
@@ -550,10 +550,10 @@ public class EmailChangeEmailOtpPluginTest {
   }
 
   private Map<String, String> stubTentativesCache(Map<String, String> counts) {
-    when(countCache.get(anyString())).thenAnswer(invocation -> counts.get(invocation.getArgument(0)));
-    doAnswer(invocation -> counts.put(invocation.getArgument(0), invocation.getArgument(1))).when(countCache)
+    when(tentativesCache.get(anyString())).thenAnswer(invocation -> counts.get(invocation.getArgument(0)));
+    doAnswer(invocation -> counts.put(invocation.getArgument(0), invocation.getArgument(1))).when(tentativesCache)
                                                                                            .put(anyString(), anyString());
-    when(countCache.remove(anyString())).thenAnswer(invocation -> counts.remove(invocation.getArgument(0)));
+    when(tentativesCache.remove(anyString())).thenAnswer(invocation -> counts.remove(invocation.getArgument(0)));
     return counts;
   }
 
