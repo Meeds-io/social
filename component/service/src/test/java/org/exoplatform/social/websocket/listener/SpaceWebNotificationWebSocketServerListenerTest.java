@@ -64,9 +64,8 @@ public class SpaceWebNotificationWebSocketServerListenerTest {
   }
 
   /**
-   * A client's message is handled and consumed: returning true would let
-   * CometD deliver it to every subscriber of the channel, that is to every
-   * connected user's page.
+   * A client message on this channel is never relayed: it is handled and
+   * consumed.
    */
   @Test
   public void testAClientsMessageIsHandledAndNotDeliveredToTheChannel() throws Exception {

@@ -88,9 +88,8 @@ public class SpaceWebNotificationWebSocketServerListener implements ServerChanne
       spaceWebNotificationWebSocketService.receiveMessage(from.getId(),
                                                           webSocketMessage.getWsEventName(),
                                                           spaceWebNotificationItem);
-      // Consumed: every user's page subscribes to this channel, so a message
-      // let through would reach all of them. The change reaches its own user
-      // only, through the per-user sendMessage of the update event's listener.
+      // A client message on this channel is never relayed: it is handled here
+      // and consumed.
       return false;
     } catch (Exception e) {
       if (LOG.isDebugEnabled()) {
