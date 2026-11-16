@@ -55,6 +55,8 @@
       @select="selectCategory" />
     <categories-list-drawer
       ref="moreCategoriesDrawer"
+      :selected-id="value"
+      toggle
       @select="selectCategory" />
   </div>
 </template>
