@@ -95,8 +95,7 @@ public class NavigationConfigurationServiceImpl implements NavigationConfigurati
 
   @Override
   public boolean isAllowUserHome() {
-    NavigationConfiguration configuration = getConfiguration();
-    return configuration == null || configuration.getSidebar().isAllowUserCustomHome();
+    return navigationConfigurationStorage.isAllowUserHome(defaultTopbarApplications);
   }
 
   @Override

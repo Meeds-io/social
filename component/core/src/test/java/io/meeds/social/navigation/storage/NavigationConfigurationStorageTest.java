@@ -90,6 +90,24 @@ public class NavigationConfigurationStorageTest {
     assertEquals(true, nodeB.getConfiguration(null).getSidebar().isAllowUserCustomHome());
   }
 
+  @Test
+  public void storedValueParsedToNullFallsBackToDefaults() {
+    settingService.set(Context.GLOBAL.id("NavigationConfiguration"),
+                       Scope.APPLICATION.id("NavigationConfiguration"),
+                       "configuration",
+                       SettingValue.create("null"));
+
+    assertNull(nodeA.getConfiguration(null));
+    assertTrue(nodeA.isAllowUserHome(null));
+  }
+
+  @Test
+  public void allowUserHomeIsReadFromTheStoredConfigurationOfAnyNode() {
+    assertTrue(nodeB.isAllowUserHome(null));
+    nodeA.updateConfiguration(configuration(false));
+    assertFalse(nodeB.isAllowUserHome(null));
+  }
+
   private NavigationConfigurationStorage newNode() {
     NavigationConfigurationStorage storage = new NavigationConfigurationStorage();
     ReflectionTestUtils.setField(storage, "settingService", settingService);

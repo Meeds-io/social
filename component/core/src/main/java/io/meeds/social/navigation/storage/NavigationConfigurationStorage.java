@@ -59,13 +59,20 @@ public class NavigationConfigurationStorage {
   private NavigationConfiguration              memoConfiguration;
 
   public NavigationConfiguration getConfiguration(List<TopbarApplication> defaultApplications) {
-    SettingValue<?> settingValue = settingService.get(SETTING_GLOBAL_CONTEXT, SETTING_SCOPE, SETTING_KEY);
-    if (settingValue == null || settingValue.getValue() == null) {
-      return null;
-    }
-    NavigationConfiguration configuration = retrieveNavigationConfiguration(settingValue.getValue().toString(),
-                                                                            defaultApplications);
-    return configuration.clone();
+    NavigationConfiguration configuration = readConfiguration(defaultApplications);
+    return configuration == null ? null : configuration.clone();
+  }
+
+  /**
+   * Reads whether users can customize their home page, from the shared
+   * stored configuration, without copying it.
+   *
+   * @param defaultApplications default topbar applications
+   * @return true when no configuration is stored or when it allows it
+   */
+  public boolean isAllowUserHome(List<TopbarApplication> defaultApplications) {
+    NavigationConfiguration configuration = readConfiguration(defaultApplications);
+    return configuration == null || configuration.getSidebar().isAllowUserCustomHome();
   }
 
   public void updateConfiguration(NavigationConfiguration navigationConfiguration) {
@@ -90,6 +97,14 @@ public class NavigationConfigurationStorage {
                        SettingValue.create(mode.name()));
   }
 
+  private NavigationConfiguration readConfiguration(List<TopbarApplication> defaultApplications) {
+    SettingValue<?> settingValue = settingService.get(SETTING_GLOBAL_CONTEXT, SETTING_SCOPE, SETTING_KEY);
+    if (settingValue == null || settingValue.getValue() == null) {
+      return null;
+    }
+    return retrieveNavigationConfiguration(settingValue.getValue().toString(), defaultApplications);
+  }
+
   private synchronized NavigationConfiguration retrieveNavigationConfiguration(String rawValue,
                                                                               List<TopbarApplication> defaultApplications) {
     List<TopbarApplication> applications = defaultApplications == null ? Collections.emptyList() : defaultApplications;
@@ -97,6 +112,9 @@ public class NavigationConfigurationStorage {
         || !Objects.equals(memoRawValue, rawValue)
         || !Objects.equals(memoDefaultApplications, applications)) {
       NavigationConfiguration configuration = JsonUtils.fromJsonString(rawValue, NavigationConfiguration.class);
+      if (configuration == null) {
+        return null;
+      }
       addMissingTopbarApplication(configuration, applications);
       removeDroppedApplications(configuration, applications);
       updateApplications(configuration, applications);
