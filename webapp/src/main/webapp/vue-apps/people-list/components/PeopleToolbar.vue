@@ -21,7 +21,7 @@
 -->
 <template>
   <application-toolbar
-    id="peopleListApplication"
+    class="people-list-application"
     :right-text-filter="{
       minCharacters: 3,
       placeholder: $t('peopleList.label.filterPeople.placeholder'),
@@ -44,9 +44,31 @@
     @filter-button-click="openPeopleAdvancedFilterDrawer"
     @filter-select-change="filterValue = $event"
     @toggle-select="updateFilter($event)">
-    <template v-if="filterMessage" #left>
-      <div :class="filterMessageClass">
+    <template v-if="headerTitle || filterMessage" #left>
+      <div
+        v-if="headerTitle"
+        class="people-list-header-title text-header text-truncate">
+        {{ headerTitle }}
+      </div>
+      <div v-else :class="filterMessageClass">
         {{ filterMessage }}
+      </div>
+    </template>
+    <template v-if="$root.canEdit" #right>
+      <div class="ms-2 people-list-settings-button-container">
+        <!-- hidden visually only: the button stays in the tab order, and
+             focusing it shows it -->
+        <v-btn
+          :style="($root.hover || $root.focusWithin) ? '' : 'opacity: 0;'"
+          :title="$t('peopleList.settings.drawer.title')"
+          :aria-label="$t('peopleList.settings.drawer.title')"
+          class="people-list-settings-button"
+          height="36"
+          width="36"
+          icon
+          @click="$root.$emit('people-list-settings-open')">
+          <v-icon size="20">fa-cog</v-icon>
+        </v-btn>
       </div>
     </template>
   </application-toolbar>
@@ -92,6 +114,9 @@ export default {
     });
   },
   computed: {
+    headerTitle() {
+      return this.$root.headerTitle;
+    },
     peopleFilters() {
       return [{
         text: this.$t('peopleList.label.filter.all'),
