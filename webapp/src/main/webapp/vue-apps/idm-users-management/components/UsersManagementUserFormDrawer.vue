@@ -15,6 +15,7 @@
         @submit.prevent="saveUser">
         <v-text-field
           v-model="user.firstName"
+          :readonly="accountSaved"
           :placeholder="$t('UsersManagement.creation.enterFirstName')"
           :disabled="saving"
           :error-messages="fieldErrors.firstName"
@@ -30,6 +31,7 @@
           @blur="checkField('firstName')" />
         <v-text-field
           v-model="user.lastName"
+          :readonly="accountSaved"
           :placeholder="$t('UsersManagement.creation.enterLastName')"
           :disabled="saving"
           :error-messages="fieldErrors.lastName"
@@ -45,6 +47,7 @@
           @blur="checkField('lastName')" />
         <v-text-field
           v-model="user.email"
+          :readonly="accountSaved"
           :placeholder="$t('UsersManagement.creation.enterEmail')"
           :disabled="saving"
           :error-messages="fieldErrors.email"
@@ -61,6 +64,7 @@
           @blur="checkField('email')" />
         <v-select
           v-model="user.language"
+          :readonly="accountSaved"
           :items="languages"
           :disabled="saving || !languages.length"
           :error-messages="fieldErrors.language"
@@ -79,8 +83,24 @@
             </span>
           </template>
         </v-select>
+        <!-- The fields other applications add to the account, between the
+             preferred language and the password -->
+        <div
+          v-if="extensions.length"
+          id="userFormAdditionalFields">
+          <template v-for="extension in extensions">
+            <component
+              :is="extension.vueComponent"
+              v-if="extensionContexts[extension.id]"
+              :key="extension.id"
+              :context="extensionContexts[extension.id]"
+              @update:data="setExtensionData(extension.id, $event)"
+              @update:blocking="setExtensionBlocking(extension.id, $event)" />
+          </template>
+        </div>
         <v-text-field
           v-model="user.password"
+          :readonly="accountSaved"
           :placeholder="$t('UsersManagement.edit.updatePassword')"
           :disabled="saving || !user.isInternal"
           :error-messages="fieldErrors.password"
@@ -95,6 +115,7 @@
           @blur="checkField('password')" />
         <v-text-field
           v-model="confirmPassword"
+          :readonly="accountSaved"
           :placeholder="$t('UsersManagement.creation.confirmPassword')"
           :disabled="saving || !user.isInternal"
           :error-messages="confirmPasswordErrors"
@@ -131,9 +152,15 @@
 </template>
 
 <script>
+// The extension point where other applications add fields to the account
+const EXTENSION_APP = 'UsersManagement';
+const EXTENSION_TYPE = 'account-form';
+const EXTENSIONS_UPDATED_EVENT = `extension-${EXTENSION_APP}-${EXTENSION_TYPE}-updated`;
+
 /**
  * Edits an existing account: names, email, preferred language and, for an
- * account of the internal store, its password, typed twice
+ * account of the internal store, its password, typed twice; then the fields
+ * other applications add to it, written once the account is
  */
 export default {
   data: () => ({
@@ -147,6 +174,13 @@ export default {
     // Counts the opens and the updates sent: an answer whose request bears
     // an earlier sequence belongs to an account the drawer has left
     sessionSequence: 0,
+    extensions: [],
+    // The context each extension's component receives, by extension id, new
+    // at each open
+    extensionContexts: {},
+    // The account is saved and the extensions' fields are not: its fields
+    // are read-only and Save writes the extensions' fields alone
+    accountSaved: false,
   }),
   computed: {
     passwordMismatch() {
@@ -165,20 +199,36 @@ export default {
       return ['firstName', 'lastName', 'email', 'password']
         .some(field => this.$usersManagementFieldRules.fieldRuleError(field, this.user[field]));
     },
+    // An extension that could not read what it shows asks that nothing be
+    // saved until the drawer is opened again
+    extensionsBlocking() {
+      return Object.values(this.extensionContexts).some(context => context?.blocking);
+    },
     valid() {
       return this.user.enabled != null
         && !!this.user.firstName?.trim()
         && !!this.user.lastName?.trim()
         && !!this.user.email?.trim()
         && !this.passwordMismatch
-        && !this.ruleBroken;
+        && !this.ruleBroken
+        && !this.extensionsBlocking;
+    },
+  },
+  watch: {
+    // The extensions' fields are disabled while the account is saved, like
+    // the drawer's own: what is written is what they held at the submit
+    saving(saving) {
+      Object.values(this.extensionContexts).forEach(context => context.saving = saving);
     },
   },
   created() {
     this.$root.$on('editUser', this.editUser);
+    this.refreshExtensions();
+    document.addEventListener(EXTENSIONS_UPDATED_EVENT, this.refreshExtensions);
   },
   beforeDestroy() {
     this.$root.$off('editUser', this.editUser);
+    document.removeEventListener(EXTENSIONS_UPDATED_EVENT, this.refreshExtensions);
   },
   methods: {
     // The component stays mounted after the drawer closes: every field is
@@ -186,9 +236,13 @@ export default {
     editUser(row) {
       this.sessionSequence++;
       this.saving = false;
+      this.accountSaved = false;
       this.fieldErrors = {};
       this.confirmPassword = '';
       this.confirmPasswordLeft = false;
+      // The values an edit cancelled on one account entered never reach the
+      // next save, on that account or another
+      this.extensionContexts = this.newExtensionContexts(row.userName);
       this.user = {
         userName: row.userName,
         firstName: row.firstName || '',
@@ -263,45 +317,156 @@ export default {
     checkStoredFields() {
       ['firstName', 'lastName', 'email'].forEach(field => this.checkField(field));
     },
-    saveUser() {
+    async saveUser() {
       if (this.saving || !this.valid) {
         return;
+      } else if (this.accountSaved) {
+        return this.saveExtensions();
       }
       this.saving = true;
-      const request = {
-        sequence: ++this.sessionSequence,
-        fullName: this.user.fullname || this.user.userName,
-      };
-      return this.$userCreationService.updateAccount({
-        userName: this.user.userName,
-        firstName: this.user.firstName.trim(),
-        lastName: this.user.lastName.trim(),
-        email: this.user.email.trim(),
-        password: this.user.password || null,
-        language: this.user.language || null,
-        enabled: this.user.enabled,
-      }).then(outcome => {
+      const request = this.newRequest();
+      try {
+        // The extensions' checks come before the account call: a refused
+        // field shows its error, and nothing is written
+        const valid = await this.validateExtensions(request);
+        if (!valid || !this.current(request)) {
+          return;
+        }
+        const outcome = await this.$userCreationService.updateAccount({
+          userName: this.user.userName,
+          firstName: this.user.firstName.trim(),
+          lastName: this.user.lastName.trim(),
+          email: this.user.email.trim(),
+          password: this.user.password || null,
+          language: this.user.language || null,
+          enabled: this.user.enabled,
+        });
         if (outcome.ok) {
-          this.$root.$emit('alert-message', this.$t('UsersManagement.edit.success', {0: request.fullName}), 'success');
           this.$root.$emit('refreshUsers');
-          if (this.current(request)) {
-            this.close();
-          }
+          this.showSaved(await this.executeExtensions(request), request);
         } else if (outcome.status === 500) {
           this.showFailure(outcome.code, request);
         } else {
           this.showRefusal(outcome.code, request);
         }
-      }).catch(error => {
+      } catch (error) {
         if (!this.$userAccountConfirmationService.isCancelled(error)) {
           this.tell(this.$t('IDMManagement.error.UnknownServerError'), request, true);
         }
-      }).finally(() => {
+      } finally {
         // The lock is the request's own: an account opened since keeps its
         if (request.sequence === this.sessionSequence) {
           this.saving = false;
         }
-      });
+      }
+    },
+    // A Save once the account is saved and the extensions' fields are not:
+    // those fields' write alone, never the account's again
+    saveExtensions() {
+      this.saving = true;
+      const request = this.newRequest();
+      return this.executeExtensions(request)
+        .then(saved => this.showSaved(saved, request))
+        .finally(() => {
+          if (request.sequence === this.sessionSequence) {
+            this.saving = false;
+          }
+        });
+    },
+    // What each extension holds is taken at the submit: what is written once
+    // the account is saved is what the administrator submitted
+    newRequest() {
+      return {
+        sequence: ++this.sessionSequence,
+        userName: this.user.userName,
+        fullName: this.user.fullname || this.user.userName,
+        extensions: this.extensions.map(extension => ({
+          extension,
+          context: this.extensionContexts[extension.id],
+          data: this.extensionContexts[extension.id]?.data || null,
+        })),
+      };
+    },
+    // The account and its extensions' fields saved: the drawer closes. The
+    // account saved and those fields not: while the drawer still shows it,
+    // it stays open with the fields filled, the passwords cleared, since a
+    // password sent again would be changed again, and the account's fields
+    // read-only; once the drawer has left it, the message names it
+    showSaved(saved, request) {
+      if (saved) {
+        this.$root.$emit('alert-message', this.$t('UsersManagement.edit.success', {0: request.fullName}), 'success');
+        if (this.current(request)) {
+          this.close();
+        }
+      } else if (this.current(request)) {
+        this.accountSaved = true;
+        this.user = {...this.user, password: null};
+        this.confirmPassword = '';
+        this.confirmPasswordLeft = false;
+        this.$root.$emit('alert-message', this.$t('UsersManagement.edit.fieldsNotSaved'), 'error');
+      } else {
+        this.$root.$emit('alert-message', this.$t('UsersManagement.edit.fieldsNotSavedFor', {0: request.fullName}), 'error');
+      }
+    },
+    refreshExtensions() {
+      this.extensions = (extensionRegistry.loadExtensions(EXTENSION_APP, EXTENSION_TYPE) || [])
+        .filter(extension => extension?.id && extension.vueComponent);
+      const contexts = {...this.extensionContexts};
+      this.extensions
+        .filter(extension => !contexts[extension.id])
+        .forEach(extension => contexts[extension.id] = this.newExtensionContext(this.user.userName));
+      this.extensionContexts = contexts;
+    },
+    newExtensionContexts(userName) {
+      const contexts = {};
+      this.extensions.forEach(extension => contexts[extension.id] = this.newExtensionContext(userName));
+      return contexts;
+    },
+    newExtensionContext(userName) {
+      return {mode: 'edit', username: userName, data: null, saving: this.saving, blocking: false};
+    },
+    setExtensionData(extensionId, data) {
+      const context = this.extensionContexts[extensionId];
+      if (context) {
+        context.data = data;
+      }
+    },
+    setExtensionBlocking(extensionId, blocking) {
+      const context = this.extensionContexts[extensionId];
+      if (context) {
+        context.blocking = !!blocking;
+      }
+    },
+    // Each extension's check, one after the other, since each may ask for the
+    // session confirmation; false as soon as one refuses
+    async validateExtensions(request, index = 0) {
+      const entry = request.extensions[index];
+      if (!entry) {
+        return true;
+      } else if (entry.extension.validate && (await entry.extension.validate(entry.context)) === false) {
+        return false;
+      }
+      return this.validateExtensions(request, index + 1);
+    },
+    // Once the account is saved, each extension writes, with the data its
+    // context held at the submit, and decides whether it has anything to
+    // write; true when all have written. Once the drawer has been opened
+    // again, on that account or another, no write runs, and an extension
+    // that held data has not saved
+    executeExtensions(request) {
+      const entries = request.extensions.filter(({extension}) => extension.execute);
+      if (request.sequence !== this.sessionSequence) {
+        return Promise.resolve(!entries.some(({data}) => (Array.isArray(data) ? data.length > 0 : data != null)));
+      }
+      let saved = true;
+      return Promise.all(entries.map(({extension, context, data}) =>
+        Promise.resolve()
+          .then(() => {
+            context.data = data;
+            return extension.execute(context, {userName: request.userName});
+          })
+          .catch(() => saved = false)))
+        .then(() => saved);
     },
     // Whether the drawer still shows the account that sent a request: not
     // once it has been closed, or opened again on another account
