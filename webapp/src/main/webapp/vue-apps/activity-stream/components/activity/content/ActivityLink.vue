@@ -134,12 +134,13 @@
           dir="auto" />
         <v-btn
           v-if="showReadMore"
-          :aria-label="$t('UIActivity.label.seeMore')"
-          class="d-flex ms-auto pb-2px mb-0 pl-2 pr-0 height-auto r-0 b-0 text-light-color linear-gradient-white-background hover-underline hover-blue-color"
+          :aria-expanded="String(fullContent)"
+          :class="!fullContent && 'linear-gradient-white-background'"
+          class="d-flex ms-auto pb-2px mb-0 pl-2 pr-0 height-auto r-0 b-0 text-light-color hover-underline hover-blue-color"
           text
           plain
           @click="displayFullContent">
-          <span class="pl-6">{{ $t('UIActivity.label.seeMore') }}</span>
+          <span class="pl-6">{{ fullContent && $t('UIActivity.label.seeLess') || $t('UIActivity.label.seeMore') }}</span>
         </v-btn>
         <activity-link-footer
           v-if="showFooter"
@@ -319,7 +320,7 @@ export default {
       return this.activityTypeExtension?.isCollapsed;
     },
     showReadMore() {
-      return this.collapsed && !this.fullContent && this.canCollapse && this.displayReadMoreButton;
+      return this.collapsed && this.canCollapse && (this.fullContent || this.displayReadMoreButton);
     },
     isMobile() {
       return this.$vuetify.breakpoint.smAndDown;
@@ -403,6 +404,10 @@ export default {
       this.activityViews = this.getActivityViews && this.getActivityViews(this.activity);
     },
     displayReadMore() {
+      if (this.fullContent) {
+        // the expanded summary never overflows: keep the button, now 'see less', to collapse it again
+        return;
+      }
       const elem = this.$el?.querySelector?.('.rich-editor-content');
       this.displayReadMoreButton = elem && elem?.scrollHeight > elem?.clientHeight;
     },
