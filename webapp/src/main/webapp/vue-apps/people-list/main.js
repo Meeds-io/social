@@ -48,7 +48,7 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl}) {
         headerTitle() {
           return this.headerTranslations?.[this.language]
             || this.headerTranslations?.[this.defaultLanguage]
-            || Object.values(this.headerTranslations || {}).find(label => label)
+            || Object.values(this.headerTranslations || {}).find(Boolean)
             || null;
         },
       },
