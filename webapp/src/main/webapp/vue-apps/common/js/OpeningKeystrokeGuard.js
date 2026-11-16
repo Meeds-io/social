@@ -17,36 +17,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-// A dialog that moves the focus to one of its buttons when it opens. Stateless: each component keeps its own
-// listener. The component calls `ignoreOpeningKeystroke()` when it opens and `stopIgnoringOpeningKeystroke()`
-// when it closes. A menu entry opens a dialog on Enter's keydown: the dialog's button can have the focus before
-// that keystroke's keypress, or before the repeats of a held Enter, whose default action would click it and
-// close the dialog at once.
+// For a dialog that moves the focus to one of its buttons when it opens. A menu entry opens a dialog on Enter's
+// keydown: the dialog's button can have the focus before that keystroke's keypress, or before the repeats of a
+// held Enter, whose default action would click it and close the dialog at once.
+// Stateless, exposed as `$openingKeystrokeGuard`: each dialog keeps its own listener, a method that calls
+// `handle(event, listener)`, passes it to `ignore` when it opens, and to `stop` when it closes and before it is
+// destroyed.
 const KEYSTROKE_EVENTS = ['keydown', 'keypress', 'keyup'];
 
-export default {
-  beforeDestroy() {
-    this.stopIgnoringOpeningKeystroke();
-  },
-  methods: {
-    ignoreOpeningKeystroke() {
-      KEYSTROKE_EVENTS.forEach(type => window.addEventListener(type, this.ignoreOpeningKeystrokeEvent, true));
-    },
-    stopIgnoringOpeningKeystroke() {
-      KEYSTROKE_EVENTS.forEach(type => window.removeEventListener(type, this.ignoreOpeningKeystrokeEvent, true));
-    },
-    ignoreOpeningKeystrokeEvent(event) {
-      if (event.type === 'keydown' && !event.repeat) {
-        // a new keystroke: the one that opened the dialog is over
-        this.stopIgnoringOpeningKeystroke();
-        return;
-      }
-      if (event.key === 'Enter' && event.type !== 'keyup') {
-        event.preventDefault();
-      }
-      if (event.type === 'keyup') {
-        this.stopIgnoringOpeningKeystroke();
-      }
-    },
-  },
-};
+export function ignore(listener) {
+  KEYSTROKE_EVENTS.forEach(type => window.addEventListener(type, listener, true));
+}
+
+export function stop(listener) {
+  KEYSTROKE_EVENTS.forEach(type => window.removeEventListener(type, listener, true));
+}
+
+export function handle(event, listener) {
+  if (event.type === 'keydown' && !event.repeat) {
+    // a new keystroke: the one that opened the dialog is over
+    stop(listener);
+    return;
+  }
+  if (event.key === 'Enter' && event.type !== 'keyup') {
+    event.preventDefault();
+  }
+  if (event.type === 'keyup') {
+    stop(listener);
+  }
+}

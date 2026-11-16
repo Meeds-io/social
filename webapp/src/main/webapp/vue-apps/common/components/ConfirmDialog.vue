@@ -51,15 +51,12 @@
 </template>
 
 <script>
-import openingKeystrokeGuard from '../js/OpeningKeystrokeGuard.js';
-
 const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 const LIST_ITEM_SELECTOR = 'li, [role="listitem"], article, [role="article"]';
 const LIST_SELECTOR = 'ul, ol, [role="list"], [role="feed"]';
 const OPENER_FOLLOW_DELAY = 10000;
 
 export default {
-  mixins: [openingKeystrokeGuard],
   props: {
     loading: {
       type: Boolean,
@@ -131,6 +128,7 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener('focusin', this.redirectContainerFocus, true);
+    this.$openingKeystrokeGuard.stop(this.guardOpeningKeystroke);
   },
   watch: {
     dialog() {
@@ -139,20 +137,23 @@ export default {
         this.pendingOpener = null;
         this.openerContext = this.captureOpenerContext(this.opener);
         window.addEventListener('focusin', this.redirectContainerFocus, true);
-        this.ignoreOpeningKeystroke();
+        this.$openingKeystrokeGuard.ignore(this.guardOpeningKeystroke);
         this.focusDefaultButton();
         this.closed = false;
         this.$emit('dialog-opened');
         document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
         window.removeEventListener('focusin', this.redirectContainerFocus, true);
-        this.stopIgnoringOpeningKeystroke();
+        this.$openingKeystrokeGuard.stop(this.guardOpeningKeystroke);
         this.restoreFocus();
         this.emitClosedEvent();
       }
     },
   },
   methods: {
+    guardOpeningKeystroke(event) {
+      this.$openingKeystrokeGuard.handle(event, this.guardOpeningKeystroke);
+    },
     focusDefaultButton() {
       // fallback when v-dialog does not focus its own container
       window.setTimeout(() => {
