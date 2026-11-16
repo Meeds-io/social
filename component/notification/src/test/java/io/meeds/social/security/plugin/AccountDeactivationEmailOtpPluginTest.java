@@ -197,11 +197,11 @@ public class AccountDeactivationEmailOtpPluginTest {
    */
   @Test
   public void testSendLockHoldsAndAWrongCodeKeepsIt() throws Exception {
-    when(otpCache.get("accountDeactivationEmail:john")).thenReturn("999999");
+    when(otpCache.get("accountDeactivationEmail:john")).thenReturn((System.currentTimeMillis() + 60000) + ":999999");
     assertFalse(plugin.validateOtp("john", OTP_CODE));
     verify(otpSendLockCache, never()).remove(anyString());
 
-    when(otpSendLockCache.get("accountDeactivationEmail:john")).thenReturn("");
+    when(otpSendLockCache.get("accountDeactivationEmail:john")).thenReturn(String.valueOf(System.currentTimeMillis() + 60000));
     assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
     verify(otpCache, never()).put(anyString(), anyString());
     verify(mailService, never()).sendMessage(any(MimeMessage.class));

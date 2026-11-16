@@ -229,9 +229,9 @@ public class EmailChangeEmailOtpPluginTest {
    */
   @Test
   public void testGenerateOtpCodeSendsToTheNewAddressOnly() throws Exception {
+    long before = System.currentTimeMillis();
     assertNull(plugin.generateOtpCode("john", " " + NEW_EMAIL + " ", ACCEPT));
 
-    long before = System.currentTimeMillis();
     ArgumentCaptor<String> storedCode = ArgumentCaptor.forClass(String.class);
     verify(otpCache).put(eq(CACHE_KEY), storedCode.capture());
     assertEquals(OTP_CODE + ":" + NEW_EMAIL, valueOf(storedCode.getValue()));
@@ -275,7 +275,7 @@ public class EmailChangeEmailOtpPluginTest {
    */
   @Test
   public void testSendLockHoldsWhateverTheAddress() throws Exception {
-    when(otpSendLockCache.get(CACHE_KEY)).thenReturn("");
+    when(otpSendLockCache.get(CACHE_KEY)).thenReturn(String.valueOf(System.currentTimeMillis() + 60000));
     AtomicInteger checks = new AtomicInteger();
     EmailChangeOtpPlugin.AddressCheck<String> countingCheck = email -> {
       checks.incrementAndGet();
