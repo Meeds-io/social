@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.ConversationRegistry;
-import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
@@ -43,9 +42,6 @@ public class SpaceGroupCacheListener implements SpaceLifeCycleListener {
   private ConversationRegistry conversationRegistry;
 
   @Autowired
-  private IdentityRegistry     identityRegistry;
-
-  @Autowired
   private SpaceService         spaceService;
 
   @PostConstruct
@@ -59,8 +55,7 @@ public class SpaceGroupCacheListener implements SpaceLifeCycleListener {
     if (space != null && StringUtils.isNotEmpty(space.getGroupId())) {
       organizationService.getGroupHandler().clearGroupCache(space.getGroupId());
       String spaceCreator = event.getTarget();
-      identityRegistry.unregister(spaceCreator);
-      conversationRegistry.unregisterByUserId(spaceCreator);
+      conversationRegistry.invalidateUser(spaceCreator);
     }
   }
 
@@ -73,8 +68,7 @@ public class SpaceGroupCacheListener implements SpaceLifeCycleListener {
       organizationService.getGroupHandler().clearGroupCache(space.getGroupId());
       String[] spaceMembers = space.getMembers();
       for (String userId : spaceMembers) {
-        identityRegistry.unregister(userId);
-        conversationRegistry.unregisterByUserId(userId);
+        conversationRegistry.invalidateUser(userId);
       }
     }
   }

@@ -20,24 +20,32 @@ package io.meeds.social.space.template.listener;
 
 import io.meeds.social.space.template.model.SpaceTemplate;
 import org.apache.commons.collections4.CollectionUtils;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.NestedMembership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.ConversationRegistry;
-import org.exoplatform.services.security.Identity;
-import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import static io.meeds.social.space.template.service.SpaceTemplateService.SPACE_TEMPLATE_CREATED_EVENT;
 import static io.meeds.social.space.template.service.SpaceTemplateService.SPACE_TEMPLATE_UPDATED_EVENT;
@@ -50,6 +58,8 @@ public class SpaceTemplateMembershipListener extends Listener<String, SpaceTempl
 
   private static final Log      LOG             = ExoLogger.getLogger(SpaceTemplateMembershipListener.class);
 
+  private static final int      PAGE_SIZE       = 100;
+
   @Autowired
   private ListenerService       listenerService;
 
@@ -57,10 +67,10 @@ public class SpaceTemplateMembershipListener extends Listener<String, SpaceTempl
   private OrganizationService   organizationService;
 
   @Autowired
-  private IdentityRegistry      identityRegistry;
+  private ConversationRegistry  conversationRegistry;
 
   @Autowired
-  private ConversationRegistry  conversationRegistry;
+  private SpaceService          spaceService;
 
   @PostConstruct
   public void init() {
@@ -85,8 +95,8 @@ public class SpaceTemplateMembershipListener extends Listener<String, SpaceTempl
       List<NestedMembership> updatedMembership = getEnclosingSpaceTemplateMemberships(updatedSpaceTemplate);
       List<NestedMembership> toAdd = updatedMembership.stream().filter(m -> !storedMembership.contains(m)).toList();
       List<NestedMembership> toRemove = storedMembership.stream().filter(m -> !updatedMembership.contains(m)).toList();
-      clearEnclosingMembershipCache(toAdd);
-      clearEnclosingMembershipCache(toRemove);
+      clearEnclosingMembershipCache(updatedSpaceTemplate,
+                                    Stream.concat(toAdd.stream(), toRemove.stream()).toList());
     }
   }
 
@@ -94,7 +104,7 @@ public class SpaceTemplateMembershipListener extends Listener<String, SpaceTempl
     SpaceTemplate createdSpaceTemplate = (SpaceTemplate) event.getData();
     if (createdSpaceTemplate != null) {
       List<NestedMembership> enclosingMemberships = getEnclosingSpaceTemplateMemberships(createdSpaceTemplate);
-      clearEnclosingMembershipCache(enclosingMemberships);
+      clearEnclosingMembershipCache(createdSpaceTemplate, enclosingMemberships);
     }
   }
 
@@ -108,41 +118,57 @@ public class SpaceTemplateMembershipListener extends Listener<String, SpaceTempl
     return Collections.emptyList();
   }
 
-  private void clearEnclosingMembershipCache(List<NestedMembership> enclosingMemberships) {
-    for (NestedMembership enclosingMembership : enclosingMemberships) {
-      organizationService.getGroupHandler().clearGroupCache(enclosingMembership.getNestedGroupId());
-      refreshIdentitiesMemberships(enclosingMembership);
-    }
-  }
-
-  private void refreshIdentitiesMemberships(NestedMembership nestedMembership) {
-    List<Identity> identities;
-    try {
-      identities = identityRegistry.getIdentities()
-                                   .stream()
-                                   .map(identity -> (Identity) identity)
-                                   .filter(identity -> hasMatchingMembership(identity, nestedMembership))
-                                   .toList();
-    } catch (Exception exception) {
-      LOG.error("Error while fetching cached identities", exception);
+  private void clearEnclosingMembershipCache(SpaceTemplate spaceTemplate, List<NestedMembership> enclosingMemberships) {
+    if (enclosingMemberships.isEmpty()) {
       return;
     }
-    if (org.apache.commons.collections.CollectionUtils.isNotEmpty(identities)) {
-      for (Identity identity : identities) {
-        identityRegistry.unregister(identity.getUserId());
-        conversationRegistry.unregisterByUserId(identity.getUserId());
+    for (NestedMembership enclosingMembership : enclosingMemberships) {
+      organizationService.getGroupHandler().clearGroupCache(enclosingMembership.getNestedGroupId());
+    }
+    findMembers(spaceTemplate).forEach(conversationRegistry::invalidateUser);
+  }
+
+  /**
+   * The users the template's enclosing memberships reach, read from the
+   * store, not from the identities this node holds, so that a user signed in
+   * on another node only is invalidated as well, on every node: the members of
+   * every space created from the template, whose space group is nested into
+   * the template group without a stored membership, and the template group's
+   * own members, of any membership type.
+   */
+  private Set<String> findMembers(SpaceTemplate spaceTemplate) {
+    Set<String> userIds = new HashSet<>();
+    try {
+      Group group = organizationService.getGroupHandler().findGroupById(spaceTemplate.getGroupId());
+      if (group != null) {
+        ListAccess<Membership> memberships = organizationService.getMembershipHandler().findAllMembershipsByGroup(group);
+        int size = memberships.getSize();
+        for (int offset = 0; offset < size; offset += PAGE_SIZE) {
+          Arrays.stream(memberships.load(offset, Math.min(PAGE_SIZE, size - offset)))
+                .map(Membership::getUserName)
+                .forEach(userIds::add);
+        }
       }
+      SpaceFilter spaceFilter = new SpaceFilter();
+      spaceFilter.setTemplateIds(List.of(spaceTemplate.getId()));
+      ListAccess<Space> spaces = spaceService.getAllSpacesByFilter(spaceFilter);
+      int size = spaces.getSize();
+      for (int offset = 0; offset < size; offset += PAGE_SIZE) {
+        for (Space space : spaces.load(offset, Math.min(PAGE_SIZE, size - offset))) {
+          addAll(userIds, space.getMembers());
+          addAll(userIds, space.getManagers());
+        }
+      }
+    } catch (Exception exception) {
+      LOG.error("Error while reading the members of the spaces of template {}", spaceTemplate.getId(), exception);
+    }
+    return userIds;
+  }
+
+  private void addAll(Set<String> userIds, String[] users) {
+    if (users != null) {
+      userIds.addAll(Arrays.asList(users));
     }
   }
 
-  private boolean hasMatchingMembership(Identity identity, NestedMembership nestedMembership) {
-    if (identity.getMemberships() == null) {
-      return false;
-    }
-    return identity.getMemberships()
-                   .stream()
-                   .anyMatch(m -> m.getGroup().equals(nestedMembership.getNestedGroupId())
-                       && (nestedMembership.isIncludeAllMembershipTypes()
-                           || m.getMembershipType().equals(nestedMembership.getNestedMembershipType())));
-  }
 }

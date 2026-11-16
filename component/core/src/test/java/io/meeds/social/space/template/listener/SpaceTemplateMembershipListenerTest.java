@@ -18,15 +18,16 @@
  */
 package io.meeds.social.space.template.listener;
 
-import io.meeds.social.space.template.model.SpaceTemplate;
-import org.exoplatform.services.listener.Event;
-import org.exoplatform.services.listener.ListenerService;
-import org.exoplatform.services.organization.GroupHandler;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.security.ConversationRegistry;
-import org.exoplatform.services.security.Identity;
-import org.exoplatform.services.security.IdentityRegistry;
-import org.exoplatform.services.security.MembershipEntry;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,101 +35,126 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Collections;
-import java.util.List;
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.listener.Event;
+import org.exoplatform.services.listener.ListenerService;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.MembershipHandler;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.security.ConversationRegistry;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import io.meeds.social.space.template.model.SpaceTemplate;
 
+/**
+ * A change of a space template's enclosing memberships invalidates, on every
+ * node, the conversations of the users it reaches, read from the store
+ * whichever node they signed in through: the members of the spaces created
+ * from the template, who hold no stored membership in the template group,
+ * and the template group's own members, who are in none of those spaces.
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class SpaceTemplateMembershipListenerTest {
 
-  private static final String SPACE_TEMPLATE_CREATED_EVENT = "space.template.created";
+  private static final String     SPACE_TEMPLATE_CREATED_EVENT = "space.template.created";
 
-  private static final String SPACE_TEMPLATE_UPDATED_EVENT = "space.template.updated";
+  private static final String     SPACE_TEMPLATE_UPDATED_EVENT = "space.template.updated";
 
-  @Mock
-  private ListenerService listenerService;
+  private static final String     TEMPLATE_GROUP_ID            = "/space_templates/test";
 
-  @Mock
-  private OrganizationService organizationService;
+  private static final String     ENCLOSING_GROUP_ID           = "/enclosing/test";
 
-  @Mock
-  private GroupHandler groupHandler;
+  private static final long       TEMPLATE_ID                  = 3;
 
   @Mock
-  private IdentityRegistry identityRegistry;
+  private ListenerService         listenerService;
 
   @Mock
-  private ConversationRegistry conversationRegistry;
+  private OrganizationService     organizationService;
+
+  @Mock
+  private GroupHandler            groupHandler;
+
+  @Mock
+  private MembershipHandler       membershipHandler;
+
+  @Mock
+  private ConversationRegistry    conversationRegistry;
+
+  @Mock
+  private SpaceService            spaceService;
 
   @InjectMocks
   private SpaceTemplateMembershipListener listener;
 
   @Before
-  public void setUp() {
+  @SuppressWarnings("unchecked")
+  public void setUp() throws Exception {
     when(organizationService.getGroupHandler()).thenReturn(groupHandler);
+    when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
+    Group group = mock(Group.class);
+    when(groupHandler.findGroupById(TEMPLATE_GROUP_ID)).thenReturn(group);
+    ListAccess<Membership> memberships = mock(ListAccess.class);
+    when(membershipHandler.findAllMembershipsByGroup(group)).thenReturn(memberships);
+    Membership directMembership = mock(Membership.class);
+    when(directMembership.getUserName()).thenReturn("paul");
+    when(memberships.getSize()).thenReturn(1);
+    when(memberships.load(0, 1)).thenReturn(new Membership[] { directMembership });
+
+    Space space = new Space();
+    space.setMembers(new String[] { "john", "mary" });
+    space.setManagers(new String[] { "mary" });
+    ListAccess<Space> spaces = mock(ListAccess.class);
+    when(spaces.getSize()).thenReturn(1);
+    when(spaces.load(0, 1)).thenReturn(new Space[] { space });
+    when(spaceService.getAllSpacesByFilter(argThat(filter -> filter.getTemplateIds().equals(List.of(TEMPLATE_ID)))))
+                                                                                                       .thenReturn(spaces);
   }
 
   @Test
-  public void shouldClearCacheAndRefreshIdentitiesOnCreation() throws Exception {
+  public void shouldClearCacheAndInvalidateTheStoredMembersOnCreation() throws Exception {
+    SpaceTemplate template = template(List.of(String.format("*:~:%s", ENCLOSING_GROUP_ID)));
+
+    listener.onEvent(new Event<>(SPACE_TEMPLATE_CREATED_EVENT, null, template));
+
+    verify(groupHandler).clearGroupCache(TEMPLATE_GROUP_ID);
+    verify(conversationRegistry).invalidateUser("john");
+    verify(conversationRegistry).invalidateUser("mary");
+    verify(conversationRegistry).invalidateUser("paul");
+    verify(conversationRegistry, never()).unregisterByUserId(anyString());
+  }
+
+  @Test
+  public void shouldInvalidateNobodyWhenTheEnclosingMembershipsDoNotChange() throws Exception {
+    SpaceTemplate template = template(List.of(String.format("*:~:%s", ENCLOSING_GROUP_ID)));
+
+    listener.onEvent(new Event<>(SPACE_TEMPLATE_UPDATED_EVENT, template, template));
+
+    verify(conversationRegistry, never()).invalidateUser(anyString());
+  }
+
+  @Test
+  public void shouldClearCacheAndInvalidateTheStoredMembersOnUpdate() throws Exception {
+    SpaceTemplate storedTemplate = template(List.of(String.format("*:~:%s", ENCLOSING_GROUP_ID)));
+    SpaceTemplate updatedTemplate = template(Collections.emptyList());
+
+    listener.onEvent(new Event<>(SPACE_TEMPLATE_UPDATED_EVENT, storedTemplate, updatedTemplate));
+
+    verify(groupHandler).clearGroupCache(TEMPLATE_GROUP_ID);
+    verify(conversationRegistry).invalidateUser("john");
+    verify(conversationRegistry).invalidateUser("mary");
+    verify(conversationRegistry).invalidateUser("paul");
+  }
+
+  private SpaceTemplate template(List<String> enclosingMemberships) {
     SpaceTemplate template = mock(SpaceTemplate.class);
-    String enclosingGroupId = "/enclosing/test";
-    String spaceTemplateGroupId = "/space_tesmplates/test";
-    String userName = "john";
-    Identity identity = mock(Identity.class);
-    MembershipEntry membershipEntry = mock(MembershipEntry.class);
-    when(identity.getUserId()).thenReturn(userName);
-    when(identity.getMemberships()).thenReturn(List.of(membershipEntry));
-    when(membershipEntry.getGroup()).thenReturn(spaceTemplateGroupId);
-    when(identityRegistry.getIdentities()).thenReturn(List.of(identity));
-    when(template.getGroupId()).thenReturn(spaceTemplateGroupId);
-    when(template.getEnclosingMemberships())
-            .thenReturn(List.of(String.format("*:~:%s", enclosingGroupId)));
-    //when
-    Event<String, SpaceTemplate> event =
-            new Event<>(SPACE_TEMPLATE_CREATED_EVENT, null, template);
-    listener.onEvent(event);
-    //Then
-    verify(groupHandler).clearGroupCache(spaceTemplateGroupId);
-    verify(identityRegistry).unregister(userName);
-    verify(conversationRegistry).unregisterByUserId(userName);
-  }
-
-  @Test
-  public void shouldClearCacheAndRefreshIdentitiesOnUpdate() throws Exception {
-    // Given
-    String groupId = "/space_templates/test";
-    String enclosingGroupId = "/enclosing/test";
-    String userName = "john";
-
-    SpaceTemplate storedTemplate = mock(SpaceTemplate.class);
-    SpaceTemplate updatedTemplate = mock(SpaceTemplate.class);
-
-    Identity identity = mock(Identity.class);
-    MembershipEntry membershipEntry = mock(MembershipEntry.class);
-
-    when(identity.getUserId()).thenReturn(userName);
-    when(identity.getMemberships()).thenReturn(List.of(membershipEntry));
-    when(identityRegistry.getIdentities()).thenReturn(List.of(identity));
-
-    when(storedTemplate.getGroupId()).thenReturn(groupId);
-    when(updatedTemplate.getGroupId()).thenReturn(groupId);
-
-    when(storedTemplate.getEnclosingMemberships()).thenReturn(List.of(String.format("*:~:%s", enclosingGroupId)));
-
-    when(updatedTemplate.getEnclosingMemberships()).thenReturn(Collections.emptyList());
-
-    when(membershipEntry.getGroup()).thenReturn(groupId);
-
-    Event<SpaceTemplate, SpaceTemplate> event = new Event<>(SPACE_TEMPLATE_UPDATED_EVENT, storedTemplate, updatedTemplate);
-    // When
-    listener.onEvent(event);
-    // Then
-    verify(groupHandler).clearGroupCache(groupId);
-    verify(identityRegistry).unregister(userName);
-    verify(conversationRegistry).unregisterByUserId(userName);
+    when(template.getGroupId()).thenReturn(TEMPLATE_GROUP_ID);
+    when(template.getId()).thenReturn(TEMPLATE_ID);
+    when(template.getEnclosingMemberships()).thenReturn(enclosingMemberships);
+    return template;
   }
 
 }
