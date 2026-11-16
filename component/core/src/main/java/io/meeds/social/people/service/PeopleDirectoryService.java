@@ -177,7 +177,7 @@ public class PeopleDirectoryService {
    */
   public int getPageSize(String storedValue) {
     int pageSize = NumberUtils.toInt(StringUtils.trim(storedValue), DEFAULT_PAGE_SIZE);
-    return Math.min(MAX_PAGE_SIZE, Math.max(MIN_PAGE_SIZE, pageSize));
+    return Math.clamp(pageSize, MIN_PAGE_SIZE, MAX_PAGE_SIZE);
   }
 
   /**
@@ -204,13 +204,12 @@ public class PeopleDirectoryService {
   }
 
   private boolean holdsWindow(ModelObject modelObject, String windowId) {
-    if (modelObject instanceof Application application) {
-      return StringUtils.equals(application.getStorageId(), windowId);
-    } else if (modelObject instanceof Container container && CollectionUtils.isNotEmpty(container.getChildren())) {
-      return container.getChildren().stream().anyMatch(child -> holdsWindow(child, windowId));
-    } else {
-      return false;
-    }
+    return switch (modelObject) {
+    case Application application -> StringUtils.equals(application.getStorageId(), windowId);
+    case Container container -> CollectionUtils.isNotEmpty(container.getChildren())
+        && container.getChildren().stream().anyMatch(child -> holdsWindow(child, windowId));
+    case null, default -> false;
+    };
   }
 
 }
