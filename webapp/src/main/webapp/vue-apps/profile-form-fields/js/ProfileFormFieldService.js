@@ -57,6 +57,32 @@ export function saveAccountFields(userName, values) {
   }).then(readOutcome);
 }
 
+// The server's rules applied to the values an administrator changed on an
+// account, against the values its profile holds, without writing them
+export function validateUserFields(userName, values) {
+  return Vue.prototype.$userAccountConfirmationService.confirmedFetch(`${REST_URL}/v1/social/users/${encodeURIComponent(userName)}/form-fields/validate`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(values || []),
+  }).then(readOutcome);
+}
+
+// Writes the values an administrator changed on an account: an attribute sent
+// empty clears its value
+export function saveUserFields(userName, values) {
+  return Vue.prototype.$userAccountConfirmationService.confirmedFetch(`${REST_URL}/v1/social/users/${encodeURIComponent(userName)}/form-fields?complete=false`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(values || []),
+  }).then(readOutcome);
+}
+
 // A refusal names its code and the refused attribute
 function readOutcome(resp) {
   if (resp.ok) {

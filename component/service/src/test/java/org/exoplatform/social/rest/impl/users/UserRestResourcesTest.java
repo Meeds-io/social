@@ -2657,6 +2657,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("mary");
     assertEquals(403, getResponseAs("POST", FORM_FIELDS_VALIDATION, "[]", "mary").getStatus());
     assertEquals(403, getResponseAs("PUT", formFieldsOf("john"), "[]", "mary").getStatus());
+    assertEquals(403, getResponseAs("POST", formFieldsValidationOf("john"), "[]", "mary").getStatus());
   }
 
   public void testFormFieldsWritesRequireAConfirmedSession() throws Exception {
@@ -2664,10 +2665,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("root", true);
     assertOtpRequired(getResponseAs("POST", FORM_FIELDS_VALIDATION, "[]", "root"));
     assertOtpRequired(getResponseAs("PUT", formFieldsOf("john"), "[]", "root"));
+    assertOtpRequired(getResponseAs("POST", formFieldsValidationOf("john"), "[]", "root"));
 
     confirmedSessionUser = "root";
     assertEquals(200, getResponseAs("POST", FORM_FIELDS_VALIDATION, "[]", "root").getStatus());
     assertEquals(204, getResponseAs("PUT", formFieldsOf("john"), "[]", "root").getStatus());
+    assertEquals(200, getResponseAs("POST", formFieldsValidationOf("john"), "[]", "root").getStatus());
   }
 
   public void testFormFieldsRefusalsNameTheirCodeAndAttribute() throws Exception {
@@ -2691,6 +2694,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       String body = formFieldsBody(refusal[0], refusal[1]);
       assertFormFieldRefused(getResponseAs("POST", FORM_FIELDS_VALIDATION + "?complete=false", body, "root"), refusal[2], refusal[0]);
       assertFormFieldRefused(getResponseAs("PUT", formFieldsOf("john") + "?complete=false", body, "root"), refusal[2], refusal[0]);
+      assertFormFieldRefused(getResponseAs("POST", formFieldsValidationOf("john"), body, "root"), refusal[2], refusal[0]);
     }
     verify(profileFormFieldService, never()).save(nullable(String.class), nullable(Map.class), nullable(String.class));
   }
@@ -2714,6 +2718,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     demo.setEnable(false);
     identityManager.updateIdentity(demo);
     try {
+      assertEquals(200, getResponseAs("POST", formFieldsValidationOf("demo"), formFieldsBody("formTeam", "Support"), "root")
+                                     .getStatus());
       assertEquals(204, getResponseAs("PUT", formFieldsOf("demo"), formFieldsBody("formTeam", "Support"), "root").getStatus());
       assertEquals("Support", profileFormFieldService.getProfile("demo").getProperty("formTeam"));
     } finally {
@@ -2754,6 +2760,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     });
     startSessionAs("root", true);
     assertEquals(404, getResponseAs("PUT", formFieldsOf("nobody"), formFieldsBody("formTeam", "Sales"), "root").getStatus());
+    assertEquals(404,
+                 getResponseAs("POST", formFieldsValidationOf("nobody"), formFieldsBody("formTeam", "Sales"), "root").getStatus());
     assertNull(getContainer().getComponentInstanceOfType(IdentityStorage.class)
                              .findIdentity(OrganizationIdentityProvider.NAME, "nobody"));
 
@@ -2766,9 +2774,80 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     organizationService.getUserHandler().createUser(user, false);
     try {
       assertEquals(404, getResponseAs("PUT", formFieldsOf(login), formFieldsBody("formTeam", "Sales"), "root").getStatus());
+      assertEquals(404,
+                   getResponseAs("POST", formFieldsValidationOf(login), formFieldsBody("formTeam", "Sales"), "root").getStatus());
       assertNull(getContainer().getComponentInstanceOfType(IdentityStorage.class)
                                .findIdentity(OrganizationIdentityProvider.NAME, login));
     } finally {
+      organizationService.getUserHandler().removeUser(login, false);
+    }
+  }
+
+  public void testFormFieldsOfADeletedUserAreNotFound() throws Exception {
+    createFormSetting("formTeam", setting -> {
+    });
+    String login = "formfieldsdeleted" + System.nanoTime();
+    User user = organizationService.getUserHandler().createUserInstance(login);
+    user.setFirstName("Jane");
+    user.setLastName("Doe");
+    user.setEmail(login + "@example.com");
+    organizationService.getUserHandler().createUser(user, false);
+    try {
+      identityManager.hardDeleteIdentity(identityManager.getOrCreateUserIdentity(login));
+      startSessionAs("root", true);
+      assertEquals(404,
+                   getResponseAs("POST", formFieldsValidationOf(login), formFieldsBody("formTeam", "Sales"), "root").getStatus());
+      assertEquals(404, getResponseAs("PUT", formFieldsOf(login), formFieldsBody("formTeam", "Sales"), "root").getStatus());
+    } finally {
+      organizationService.getUserHandler().removeUser(login, false);
+    }
+  }
+
+  /**
+   * The edition's dry run checks the values sent against what the user's
+   * profile holds: a legacy dropdown value already stored passes there and
+   * not on creation, a Required attribute left out is not asked for, an
+   * attribute sent empty is a clear, and nothing is written.
+   */
+  public void testTheEditionDryRunChecksAgainstTheStoredValuesAndWritesNothing() throws Exception {
+    createFormSetting("formTeam", setting -> {
+    });
+    createFormSetting("formCity", setting -> {
+      setting.setDropdownList(true);
+      setting.setPropertyOptions(List.of(new ProfilePropertyOption(null, "Paris", null)));
+    });
+    createFormSetting("formBadge", setting -> setting.setRequired(true));
+    // A user of its own: the legacy value it stores would pass the other
+    // tests' edition refusals on a shared user
+    String login = "formfieldsedit" + System.nanoTime();
+    User user = organizationService.getUserHandler().createUserInstance(login);
+    user.setFirstName("Jane");
+    user.setLastName("Doe");
+    user.setEmail(login + "@example.com");
+    organizationService.getUserHandler().createUser(user, false);
+    Identity identity = identityManager.getOrCreateUserIdentity(login);
+    try {
+      Profile profile = identity.getProfile();
+      profile.setProperty("formTeam", "Sales");
+      profile.setProperty("formCity", "Lyon");
+      identityManager.updateProfile(profile);
+      startSessionAs("root", true);
+
+      String legacy = formFieldsBody("formCity", "Lyon");
+      assertEquals(200, getResponseAs("POST", formFieldsValidationOf(login), legacy, "root").getStatus());
+      assertFormFieldRefused(getResponseAs("POST", FORM_FIELDS_VALIDATION + "?complete=false", legacy, "root"),
+                             ProfileFormFieldException.INVALID_OPTION,
+                             "formCity");
+
+      String changeAndClear = "[{\"propertyName\":\"formTeam\",\"value\":\"Support\"},"
+          + "{\"propertyName\":\"formCity\",\"value\":\"\"}]";
+      assertEquals(200, getResponseAs("POST", formFieldsValidationOf(login), changeAndClear, "root").getStatus());
+      Profile stored = profileFormFieldService.getProfile(login);
+      assertEquals("Sales", stored.getProperty("formTeam"));
+      assertEquals("Lyon", stored.getProperty("formCity"));
+      verify(profileFormFieldService, never()).save(nullable(String.class), nullable(Map.class), nullable(String.class));
+    } finally {
+      identityManager.hardDeleteIdentity(identity);
       organizationService.getUserHandler().removeUser(login, false);
     }
   }
@@ -2867,6 +2946,10 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private String formFieldsOf(String username) {
     return "/v1/social/users/" + username + "/form-fields";
+  }
+
+  private String formFieldsValidationOf(String username) {
+    return formFieldsOf(username) + "/validate";
   }
 
   private String formFieldsBody(String propertyName, String value) {
