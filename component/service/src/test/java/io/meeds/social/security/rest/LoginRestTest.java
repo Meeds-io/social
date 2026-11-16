@@ -998,6 +998,8 @@ public class LoginRestTest {
     inOrder.verify(profileFormFieldService).validate(sentValues.capture(), eq(ProfileFormKind.REGISTRATION), eq(true), isNull());
     inOrder.verify(userHandler).createUser(any(), eq(true));
     inOrder.verify(profileFormFieldService).save("john", profileValues, "john");
+    // Written once, after the account exists: never before it
+    verify(profileFormFieldService).save(any(), any(), any());
     assertEquals(List.of(new ProfilePropertyValue("team", "7", null),
                          new ProfilePropertyValue("skills", null, List.of("Java", "Vue"))),
                  sentValues.getValue());
