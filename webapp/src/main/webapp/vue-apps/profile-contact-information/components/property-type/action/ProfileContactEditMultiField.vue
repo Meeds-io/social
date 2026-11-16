@@ -43,6 +43,11 @@
           :multi-valued="property.multiValued"
           @propertyUpdated="propertyUpdated"
           @remove="remove(index)" />
+        <div
+          v-if="isLockedSubField(childProperty)"
+          class="text-caption text-sub-title mt-n1 mb-2">
+          {{ $t('profileContactInformation.lockedSubField') }}
+        </div>
       </div>
     </v-flex>
   </v-card-text>
