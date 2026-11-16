@@ -314,7 +314,7 @@ export default {
       return `${this.textTruncate || ''} ${!this.useEllipsisOnSummary && this.collapsed && !this.fullContent && 'text-truncate-4' || ''} ${this.regularFontSizeOnSummary && 'text-font-size' || 'caption'}`;
     },
     textTruncate() {
-      return this.useEllipsisOnSummary && `text-truncate-${this.summaryLinesToDisplay}`;
+      return this.useEllipsisOnSummary && !this.fullContent && `text-truncate-${this.summaryLinesToDisplay}`;
     },
     canCollapse() {
       return this.activityTypeExtension?.isCollapsed;
