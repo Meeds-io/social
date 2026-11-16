@@ -24,6 +24,11 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API 
 const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`;
 
+// Page URL parameters carrying the search and the selected category, so that a
+// filtered directory can be shared
+const KEYWORD_PARAM = 'keyword';
+const CATEGORY_PARAM = 'category';
+
 export function init(
   appId,
   filter,
@@ -37,6 +42,10 @@ export function init(
   registrationType,
   isAdministrator,
   isPublicPage) {
+
+  // Read before any asynchronous load: a search drawer stuck to a side
+  // replaces the page URL with its own once it opens
+  const urlParams = new URLSearchParams(window.location.search);
 
   exoi18n.loadLanguageAsync(lang, url).then(async i18n => {
     if (!settings.filterType) {
@@ -79,6 +88,10 @@ export function init(
     } else {
       settings.categoryIds = null;
     }
+    const urlKeyword = urlParams.get(KEYWORD_PARAM)?.trim() || null;
+    const urlCategoryId = await getUrlCategoryId(urlParams.get(CATEGORY_PARAM), settings, settingsSubcategoryIds, settingsExcludeSubcategoryIds, settingName);
+    const urlCategoryIds = urlCategoryId && await getSubcategoryIds([urlCategoryId], -1, settingName).catch(() => null);
+    const selectedCategoryId = urlCategoryIds?.length ? urlCategoryId : null;
     // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
@@ -100,8 +113,9 @@ export function init(
         requestsCount: 0,
         hover: false,
         unreadPerSpace: null,
-        selectedCategoryId: null,
-        selectedCategoryIds: null,
+        keyword: urlKeyword,
+        selectedCategoryId,
+        selectedCategoryIds: selectedCategoryId ? urlCategoryIds : null,
         spaceTemplates: null,
         collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
         id: Math.random() + Math.random(),
@@ -151,7 +165,11 @@ export function init(
             this.filter = 'all';
           }
         },
+        keyword() {
+          this.updateUrl(KEYWORD_PARAM, this.keyword?.trim());
+        },
         async selectedCategoryId() {
+          this.updateUrl(CATEGORY_PARAM, this.selectedCategoryId);
           if (this.selectedCategoryId) {
             this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], -1, this.settingName);
           } else if (this.filterType === 'category') {
@@ -175,6 +193,17 @@ export function init(
       methods: {
         updateFilter(filter) {
           this.filter = filter;
+        },
+        // Rewrites only the parameter that changed: Spaces directories placed on
+        // one page share the two parameters, so a search typed in one keeps the
+        // category selected in another, while a category selected in one
+        // replaces the category of another
+        updateUrl(name, value) {
+          const pageUrl = new URL(window.location.href);
+          setUrlParam(pageUrl.searchParams, name, value);
+          if (pageUrl.href !== window.location.href) {
+            window.history.replaceState(window.history.state, '', pageUrl.href);
+          }
         },
         async handleSettingsUpdate() {
           this.settings = JSON.parse(JSON.stringify(this.settings)); // Force update
@@ -209,4 +238,60 @@ async function getSubcategoryIds(categoryIds, depth, token) {
   const subcategoyIdsFlat = subcategoyIds.flatMap(s => s);
   subcategoyIdsFlat.push(...categoryIds);
   return [...new Set(subcategoyIdsFlat)];
+}
+
+function setUrlParam(params, name, value) {
+  if (value) {
+    params.set(name, value);
+  } else {
+    params.delete(name);
+  }
+}
+
+// The category given in the page URL, kept only when the category filter of this
+// directory displays it, so a shared URL never widens a pre-filtered directory;
+// null when absent, not an id, out of the filter or not retrievable
+async function getUrlCategoryId(value, settings, categoryIds, excludeCategoryIds, token) {
+  const categoryId = /^[1-9]\d*$/.test(value || '') && Number(value);
+  if (!settings.allowFilteringPerCategory || !Number.isSafeInteger(categoryId)) {
+    return null;
+  }
+  try {
+    const displayedCategoryIds = await getDisplayedCategoryIds(settings, categoryIds, excludeCategoryIds, token);
+    return displayedCategoryIds.includes(categoryId) ? categoryId : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// The ids of the categories the categories-filter component displays for these
+// settings, read the way CategoriesFilter.init and addSubcategories read them
+async function getDisplayedCategoryIds(settings, categoryIds, excludeCategoryIds, token) {
+  const options = {
+    objectType: 'space',
+    depth: settings.categoryDepth,
+    offset: 0,
+    limit: -1,
+    token,
+  };
+  const filterCategoryIds = settings.filterType === 'category' ? (categoryIds || settings.categoryIds) : null;
+  const filterExcludeCategoryIds = settings.filterType === 'category' ? (excludeCategoryIds || settings.excludeCategoryIds) : null;
+  let categories;
+  if (filterCategoryIds?.length) {
+    categories = (await Promise.all(filterCategoryIds.map(parentId => Vue.prototype.$categoryService.getCategoryTree({
+      ...options,
+      parentId,
+    }).catch(() => null)))).filter(c => c);
+  } else {
+    categories = (await Vue.prototype.$categoryService.getCategoryTree(options))?.categories || [];
+  }
+  const displayedCategoryIds = [];
+  const addCategories = list => list
+    .filter(category => category && !filterExcludeCategoryIds?.includes?.(category.id))
+    .forEach(category => {
+      displayedCategoryIds.push(category.id);
+      addCategories(category.categories || []);
+    });
+  addCategories(categories);
+  return displayedCategoryIds;
 }

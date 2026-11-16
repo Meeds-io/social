@@ -37,6 +37,15 @@
   </pinneable-drawer>
 </template>
 <script>
+// The page URL and title the search URL replaces, shared by every search
+// drawer of the page (the top bar's, an App Center quick action's, one stuck
+// to a side): the first to open saves them, the last to close restores them
+const replacedPage = {
+  uri: null,
+  title: null,
+  openDrawers: 0,
+};
+
 export default {
   props: {
     connectors: {
@@ -56,8 +65,6 @@ export default {
     selectedTags: [],
     selectedSpaces: [],
     standalone: false,
-    pageUri: null,
-    pageTitle: null,
     companyName: eXo?.env?.portal?.companyName
   }),
   computed: {
@@ -99,6 +106,11 @@ export default {
     },
     drawer() {
       if (this.drawer) {
+        if (!replacedPage.openDrawers && window.location.pathname.indexOf(this.searchUri) !== 0) {
+          replacedPage.uri = window.location.href;
+          replacedPage.title = window.document.title;
+        }
+        replacedPage.openDrawers++;
         this.$root.$emit('search-opened');
         document.dispatchEvent(new CustomEvent('search-opened'));
         this.changeURI();
@@ -106,8 +118,7 @@ export default {
       } else {
         this.$root.$emit('search-closed');
         document.dispatchEvent(new CustomEvent('search-closed'));
-        window.history.replaceState('', this.pageTitle, this.pageUri);
-        window.document.title = this.pageTitle || `${this.$t('search.window.title')} - ${this.companyName}`;
+        this.releasePage();
       }
     },
   },
@@ -142,9 +153,6 @@ export default {
         this.setWindowTitle();
       });
 
-    this.pageUri = window.location.href;
-    this.pageTitle = window.document.title;
-
     this.standalone = window.location.pathname.indexOf(this.searchUri) === 0;
     if (this.standalone) {
       const search = window.location.search && window.location.search.substring(1);
@@ -170,11 +178,23 @@ export default {
     this.drawer = true;
   },
   beforeDestroy() {
+    if (this.drawer) {
+      this.releasePage();
+    }
     this.$root.$off('spaces-changed', this.setSelectedSpaces);
     document.removeEventListener('search-open', this.open);
     document.removeEventListener('search-metadata-tag', this.open);
   },
   methods: {
+    releasePage() {
+      replacedPage.openDrawers = Math.max(replacedPage.openDrawers - 1, 0);
+      if (!replacedPage.openDrawers && replacedPage.uri) {
+        window.history.replaceState('', replacedPage.title, replacedPage.uri);
+        window.document.title = replacedPage.title || `${this.$t('search.window.title')} - ${this.companyName}`;
+        replacedPage.uri = null;
+        replacedPage.title = null;
+      }
+    },
     toogle() {
       this.drawer = !this.drawer;
     },
