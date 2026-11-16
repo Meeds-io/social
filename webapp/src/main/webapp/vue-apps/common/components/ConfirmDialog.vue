@@ -55,7 +55,6 @@ const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled
 const LIST_ITEM_SELECTOR = 'li, [role="listitem"], article, [role="article"]';
 const LIST_SELECTOR = 'ul, ol, [role="list"], [role="feed"]';
 const OPENER_FOLLOW_DELAY = 10000;
-const ACTIVATION_KEYS = ['Enter', ' ', 'Spacebar'];
 const KEYSTROKE_EVENTS = ['keydown', 'keypress', 'keyup'];
 
 export default {
@@ -166,7 +165,7 @@ export default {
     },
     ignoreOpeningKeystroke() {
       // a menu entry opens the dialog on Enter's keydown: once the dialog is built, its button has the focus before
-      // that keystroke's keypress (Enter) or keyup (Space), which would click it and close the dialog unseen
+      // that keystroke's keypress, whose default action would click it and close the dialog unseen
       KEYSTROKE_EVENTS.forEach(type => window.addEventListener(type, this.ignoreOpeningKeystrokeEvent, true));
     },
     stopIgnoringOpeningKeystroke() {
@@ -178,7 +177,7 @@ export default {
         this.stopIgnoringOpeningKeystroke();
         return;
       }
-      if (ACTIVATION_KEYS.includes(event.key)) {
+      if (event.key === 'Enter' && event.type !== 'keyup') {
         event.preventDefault();
       }
       if (event.type === 'keyup') {
