@@ -38,6 +38,7 @@ import io.meeds.social.space.plugin.SpaceGroupDecoratorPluginTest;
 import io.meeds.social.space.template.listener.SpaceTemplateMembershipListenerTest;
 import io.meeds.social.space.template.plugin.decorator.SpaceTemplateGroupDecoratorPluginTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceMockTest;
+import io.meeds.social.core.profileproperty.service.ProfileFormFieldServiceTest;
 import io.meeds.social.core.profileproperty.storage.CachedProfileSettingStorageClusterTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -199,7 +200,8 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     BrandedEmailSenderTest.class,
     PortableSequenceChangelogCoverageTest.class,
     CollaborativeActivityDeclarationTest.class,
-    CachedProfileSettingStorageClusterTest.class
+    CachedProfileSettingStorageClusterTest.class,
+    ProfileFormFieldServiceTest.class
 })
 public class NoContainerTestSuite {
 

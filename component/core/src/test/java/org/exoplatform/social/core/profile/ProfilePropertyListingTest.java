@@ -21,6 +21,7 @@ package org.exoplatform.social.core.profile;
 import static org.junit.Assert.assertThrows;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
@@ -28,6 +29,9 @@ import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.services.listener.ListenerService;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.jpa.storage.RDBMSIdentityStorageImpl;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
@@ -35,10 +39,15 @@ import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyServiceImpl;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
+import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
+import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
+import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
 import io.meeds.social.core.profileproperty.storage.CachedProfileSettingStorage;
+import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
 import io.meeds.social.translation.service.TranslationService;
 
 import jakarta.persistence.EntityManager;
@@ -362,6 +371,120 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
     assertTrue(stored.isGroupSynchronized());
     assertTrue(stored.isDropdownList());
     assertEquals(Long.valueOf(999), stored.getParentId());
+  }
+
+  /**
+   * The forms' allow-list follows the store, not this node's settings caches,
+   * which another node's write invalidates asynchronously: a setting switched
+   * off, or made non-editable, by a write committed in another EntityManager
+   * with no eviction is absent from the allow-list and refused, read in a later
+   * request, while the caches still hold it as it was.
+   */
+  public void testTheFormsAllowListFollowsTheStoreWhileTheCachesHoldThePreviousState() throws Exception {
+    ProfileFormFieldService formFieldService = newProfileFormFieldService();
+    ProfilePropertySetting unlisted = createListed("department", s -> s.setOrder(1L));
+    ProfilePropertySetting locked = createListed("team", s -> s.setOrder(2L));
+    restartTransaction();
+    warmCaches(unlisted, locked);
+    assertEquals(List.of(unlisted.getId(), locked.getId()), ids(formFieldService.getSettings(ProfileFormKind.ACCOUNT)));
+    restartTransaction();
+
+    commitInAnotherEntityManager("UPDATE SocProfileSettingEntity s SET s.listedOnAccountForm = false WHERE s.id = "
+        + unlisted.getId());
+    commitInAnotherEntityManager("UPDATE SocProfileSettingEntity s SET s.isEditable = false WHERE s.id = " + locked.getId());
+    restartTransaction();
+
+    assertTrue("The cached setting is still listed", cachedSetting(unlisted).isListedOnAccountForm());
+    assertTrue("The cached setting is still editable", cachedSetting(locked).isEditable());
+    assertEquals(List.of(), ids(formFieldService.getSettings(ProfileFormKind.ACCOUNT)));
+    assertEquals(List.of(unlisted.getId()), ids(formFieldService.getSettings(ProfileFormKind.REGISTRATION)));
+    for (String name : List.of("department", "team")) {
+      ProfileFormFieldException exception =
+                                           assertThrows(ProfileFormFieldException.class,
+                                                        () -> formFieldService.validate(List.of(new ProfilePropertyValue(name,
+                                                                                                                         "x",
+                                                                                                                         null)),
+                                                                                        ProfileFormKind.ACCOUNT,
+                                                                                        false,
+                                                                                        null));
+      assertEquals(ProfileFormFieldException.NOT_ALLOWED, exception.getMessage());
+      assertEquals(name, exception.getPropertyName());
+    }
+  }
+
+  /**
+   * A multi-valued attribute's stored form is bounded in UTF-16 units, the
+   * count of the test database, HSQLDB, whose SOC_IDENTITY_PROPERTIES.VALUE
+   * column stores a value of exactly 2000 units; org.json writes a
+   * supplementary character as its two units and a typographic quote as a
+   * 6-character escape. A value one unit longer is refused before anything is
+   * written.
+   */
+  public void testAStoredFormOf2000UnitsIsStoredAndOneUnitMoreIsRefusedBeforeStorage() throws Exception {
+    ProfileFormFieldService formFieldService = newProfileFormFieldService();
+    createListed("languages", s -> s.setMultiValued(true));
+    Identity identity = createOrUpdateIdentity("demo");
+    // [{"value":""}] adds 14 units, U+1F600 is 2 units and U+2019 a 6-unit escape
+    String fits = "a".repeat(1978) + "\uD83D\uDE00" + "\u2019";
+    String exceeds = "a" + fits;
+    restartTransaction();
+    try {
+      Map<String, Object> values = formFieldService.validate(List.of(new ProfilePropertyValue("languages", null, List.of(fits))),
+                                                             ProfileFormKind.REGISTRATION,
+                                                             true,
+                                                             null);
+      assertEquals(2000, ProfilePropertyValueUtil.storedLength(values.get("languages")));
+      formFieldService.save("demo", values, "demo");
+      restartTransaction();
+      assertEquals(List.of(Map.of("value", fits)), storedProperty(identity, "languages"));
+
+      ProfileFormFieldException exception =
+                                           assertThrows(ProfileFormFieldException.class,
+                                                        () -> formFieldService.validate(List.of(new ProfilePropertyValue("languages",
+                                                                                                                         null,
+                                                                                                                         List.of(exceeds))),
+                                                                                        ProfileFormKind.REGISTRATION,
+                                                                                        true,
+                                                                                        null));
+      assertEquals(ProfileFormFieldException.TOO_LONG, exception.getMessage());
+      assertEquals(List.of(Map.of("value", fits)), storedProperty(identity, "languages"));
+    } finally {
+      restartTransaction();
+      Profile profile = getService(RDBMSIdentityStorageImpl.class).loadProfile(new Profile(identity));
+      profile.removeProperty("languages");
+      getService(IdentityStorage.class).updateProfile(profile);
+      restartTransaction();
+    }
+  }
+
+  /** The Spring test base scans no io.meeds.social.core package */
+  private ProfileFormFieldService newProfileFormFieldService() {
+    return new ProfileFormFieldService(profileSettingStorage, getService(IdentityStorage.class), identityManager);
+  }
+
+  private void warmCaches(ProfilePropertySetting... settings) {
+    profilePropertyService.getPropertySettings();
+    for (ProfilePropertySetting setting : settings) {
+      profilePropertyService.getProfileSettingById(setting.getId());
+      profilePropertyService.getProfileSettingByName(setting.getPropertyName());
+    }
+  }
+
+  private ProfilePropertySetting cachedSetting(ProfilePropertySetting setting) {
+    return profilePropertyService.getPropertySettings()
+                                 .stream()
+                                 .filter(cached -> cached.getId().equals(setting.getId()))
+                                 .findFirst()
+                                 .orElseThrow();
+  }
+
+  private List<Long> ids(List<ProfilePropertySetting> settings) {
+    return settings.stream().map(ProfilePropertySetting::getId).toList();
+  }
+
+  /** The value as the store holds it, read through no cache */
+  private Object storedProperty(Identity identity, String name) {
+    return getService(RDBMSIdentityStorageImpl.class).loadProfile(new Profile(identity)).getProperty(name);
   }
 
   private void assertParentReadBack(Long parentId, long parentUpdated) {

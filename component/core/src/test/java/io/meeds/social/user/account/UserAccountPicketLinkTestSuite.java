@@ -28,16 +28,20 @@ import org.exoplatform.component.test.KernelBootstrap;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 
+import io.meeds.social.core.profileproperty.service.ProfileFormFieldServicePicketLinkTest;
+
 /**
- * The account creation on a container whose organization service is the
- * PicketLink IDM one, on HSQLDB, in place of the in-memory one the other
- * suites of this module run on. The container is booted from the test
- * class's configuration, as BaseExoContainerTestSuite does, which takes JUnit
- * 3 test cases only
+ * The account creation, and the group memberships the account forms' values
+ * grant, on a container whose organization service is the PicketLink IDM
+ * one, on HSQLDB, in place of the in-memory one the other suites of this
+ * module run on. The container is booted from the test class's
+ * configuration, as BaseExoContainerTestSuite does, which takes JUnit 3 test
+ * cases only
  */
 @RunWith(Suite.class)
 @SuiteClasses({
   UserAccountServiceImplPicketLinkTest.class,
+  ProfileFormFieldServicePicketLinkTest.class,
 })
 public class UserAccountPicketLinkTestSuite {
 
