@@ -198,7 +198,10 @@ public class LoginRest {
                                                                              @Parameter(description = "Registration token")
                                                                              @RequestParam("token")
                                                                              String token) {
-    if (passwordRecoveryService.verifyToken(token, CookieTokenService.EXTERNAL_REGISTRATION_TOKEN) == null) {
+    String usernameToken = passwordRecoveryService.verifyToken(token, CookieTokenService.EXTERNAL_REGISTRATION_TOKEN);
+    // A token whose account exists has been used, whatever registered it: as
+    // register refuses it, so does the read of the form's fields
+    if (usernameToken == null || findUser(usernameToken) != null) {
       return ResponseEntity.notFound().cacheControl(CacheControl.noStore()).build();
     }
     Locale locale = request.getLocale();

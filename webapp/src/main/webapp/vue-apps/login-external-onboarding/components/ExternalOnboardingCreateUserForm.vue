@@ -373,7 +373,8 @@ export default {
     register() {
       this.$loginService.register(this.email, this.firstName, this.lastName, this.password, this.confirmPassword, this.tokenParam, this.captcha, this.getExtensionParameters()).then((resp) => {
         if (!resp || !resp.ok) {
-          resp.json().then((data) => {
+          // A used or expired token answers with no body
+          resp.json().catch(() => ({error: resp.status === 404 ? 'onboarding.linkExpired' : 'UILoginForm.label.unknownError'})).then((data) => {
             this.error = data.error;
             this.errorField = data.errorField;
             if (!this.errorField && !this.showExtensionRefusal(data)) {

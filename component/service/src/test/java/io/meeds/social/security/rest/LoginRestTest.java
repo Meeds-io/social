@@ -865,6 +865,23 @@ public class LoginRestTest {
   }
 
   /**
+   * A token whose account exists has been used, whatever branch registered
+   * the account: it reads nothing
+   */
+  @Test
+  @SneakyThrows
+  public void testGetRegistrationFieldsWithUsedToken() {
+    when(passwordRecoveryService.verifyToken("123456789", CookieTokenService.EXTERNAL_REGISTRATION_TOKEN)).thenReturn("jsmith@acme.com");
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
+    when(userHandler.findUserByName("jsmith@acme.com", UserStatus.ANY)).thenReturn(new UserImpl("jsmith@acme.com"));
+
+    mockMvc.perform(get("/login/registrationFields?token=123456789"))
+           .andExpect(status().isNotFound())
+           .andExpect(header().string("Cache-Control", "no-store"));
+    verify(profileFormFieldService, never()).getSettings(any());
+  }
+
+  /**
    * An anonymous registrant holding the token reads the registration
    * allow-list, each attribute with the fields the form needs and none of its
    * other settings, its labels in every language and its options in the
@@ -874,6 +891,7 @@ public class LoginRestTest {
   @SneakyThrows
   public void testGetRegistrationFields() {
     when(passwordRecoveryService.verifyToken("123456789", CookieTokenService.EXTERNAL_REGISTRATION_TOKEN)).thenReturn("jsmith@acme.com");
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
     ProfilePropertySetting setting = new ProfilePropertySetting();
     setting.setId(5L);
     setting.setPropertyName("team");
