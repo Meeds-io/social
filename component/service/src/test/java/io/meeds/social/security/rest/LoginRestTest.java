@@ -1080,6 +1080,37 @@ public class LoginRestTest {
     verify(userHandler, never()).removeUser(any(), anyBoolean());
   }
 
+  /**
+   * The additional fields are checked after the registration's own checks: a
+   * caller without a valid token, the session's captcha or valid names learns
+   * nothing of the registration form's attributes from their refusals
+   */
+  @Test
+  @SneakyThrows
+  public void testRegisterChecksAdditionalFieldsAfterItsOwnChecks() {
+    prepareRegistration();
+    when(profileFormFieldService.validate(any(),
+                                          any(),
+                                          anyBoolean(),
+                                          any())).thenThrow(new ProfileFormFieldException(ProfileFormFieldException.NOT_ALLOWED,
+                                                                                          "external"));
+    String refused = "[{\"propertyName\":\"external\",\"value\":\"true\"}]";
+
+    performRegistration(refused, "John", "unknown").andExpect(status().isNotFound());
+
+    when(captcha.isCorrect(any())).thenReturn(false);
+    performRegistration(refused, "John", "123456789").andExpect(status().isBadRequest())
+                                                     .andExpect(jsonPath("$.error").value("gatein.forgotPassword.captchaError"))
+                                                     .andExpect(jsonPath("$.propertyName").doesNotExist());
+
+    when(captcha.isCorrect(any())).thenReturn(true);
+    performRegistration(refused, "123John", "123456789").andExpect(status().isBadRequest())
+                                                        .andExpect(jsonPath("$.propertyName").doesNotExist());
+
+    verify(profileFormFieldService, never()).validate(any(), any(), anyBoolean(), any());
+    verify(userHandler, never()).createUser(any(), anyBoolean());
+  }
+
   @SneakyThrows
   private void prepareRegistration() {
     User john = new UserImpl();
@@ -1092,11 +1123,16 @@ public class LoginRestTest {
     when(captcha.isCorrect(any())).thenReturn(true);
   }
 
-  @SneakyThrows
   private ResultActions performRegistration(String profileProperties) {
+    return performRegistration(profileProperties, "John", "123456789");
+  }
+
+  @SneakyThrows
+  private ResultActions performRegistration(String profileProperties, String firstName, String token) {
     HashMap<String, Object> sessionattr = new HashMap<>();
     sessionattr.put("external-registration", captcha);
-    String content = "email=jsmith@acme.com&password=Password1234&password2=Password1234&firstName=John&lastName=Smith&captcha=abcde&token=123456789";
+    String content = "email=jsmith@acme.com&password=Password1234&password2=Password1234&firstName=" + firstName
+        + "&lastName=Smith&captcha=abcde&token=" + token;
     if (profileProperties != null) {
       content += "&profileProperties=" + URLEncoder.encode(profileProperties, StandardCharsets.UTF_8);
     }
