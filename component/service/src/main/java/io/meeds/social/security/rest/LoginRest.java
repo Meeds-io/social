@@ -459,7 +459,9 @@ public class LoginRest {
       HttpSession session = request.getSession();
       username = createUser(email, firsname, lastname, password);
       passwordRecoveryService.sendAccountCreatedConfirmationEmail(username, locale, getUrl(request));
-      remindPasswordTokenService.deleteToken(token);      cleanCapcha(session, "external-registration");
+      // The token was created with its type, which its deletion names
+      remindPasswordTokenService.deleteToken(token, CookieTokenService.EXTERNAL_REGISTRATION_TOKEN);
+      cleanCapcha(session, "external-registration");
     } catch (Exception e) {
       LOG.warn("Error while registering external user", e);
       return ResponseEntity.internalServerError().body(new JSONObject()

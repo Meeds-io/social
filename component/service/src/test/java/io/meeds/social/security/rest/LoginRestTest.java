@@ -1000,6 +1000,10 @@ public class LoginRestTest {
     inOrder.verify(profileFormFieldService).save("john", profileValues, "john");
     // Written once, after the account exists: never before it
     verify(profileFormFieldService).save(any(), any(), any());
+    // The registration token is used: deleted with the type it was created
+    // with, so that it no longer reads the registration form's fields
+    verify(remindPasswordTokenService).deleteToken("123456789", CookieTokenService.EXTERNAL_REGISTRATION_TOKEN);
+    verify(remindPasswordTokenService, never()).deleteToken("123456789");
     assertEquals(List.of(new ProfilePropertyValue("team", "7", null),
                          new ProfilePropertyValue("skills", null, List.of("Java", "Vue"))),
                  sentValues.getValue());
@@ -1038,7 +1042,7 @@ public class LoginRestTest {
                                                                        .andExpect(header().string("Location",
                                                                                                   "/portal/login?error=additionalFieldsNotSaved"));
     verify(passwordRecoveryService).sendAccountCreatedConfirmationEmail(eq("john"), any(), any());
-    verify(remindPasswordTokenService).deleteToken("123456789");
+    verify(remindPasswordTokenService).deleteToken("123456789", CookieTokenService.EXTERNAL_REGISTRATION_TOKEN);
     verify(userHandler, never()).removeUser(any(), anyBoolean());
   }
 
