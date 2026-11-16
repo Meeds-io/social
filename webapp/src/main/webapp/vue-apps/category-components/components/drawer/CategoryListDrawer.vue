@@ -38,6 +38,8 @@
           <category-chip
             :category="category"
             :readonly="readonly"
+            :toggle="toggle && !readonly"
+            :selected="toggle && !readonly && selectedId === category.id"
             max-width="100%"
             class="mb-4"
             @select="select(category)" />
@@ -52,6 +54,14 @@ export default {
     readonly: {
       type: Boolean,
       default: false,
+    },
+    toggle: {
+      type: Boolean,
+      default: false,
+    },
+    selectedId: {
+      type: [String, Number],
+      default: null,
     },
   },
   data: () => ({

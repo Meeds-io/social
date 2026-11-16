@@ -57,6 +57,8 @@
       v-if="moreDrawer"
       ref="drawer"
       :readonly="!canFilter"
+      :toggle="canFilter"
+      :selected-id="canFilter && $root.selectedCategoryId || null"
       @select="selectCategory" />
   </div>
 </template>
