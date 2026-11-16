@@ -213,6 +213,13 @@ export default {
   },
   watch: {
     menu(newVal, oldVal) {
+      // Escape is caught wherever it starts while the picker is open: a click on a part of the picker that takes
+      // no focus (its title, its caption, any button in Safari) leaves the focus on the page's body
+      if (newVal) {
+        document.addEventListener('keydown', this.closeOnEscape, true);
+      } else {
+        document.removeEventListener('keydown', this.closeOnEscape, true);
+      }
       if (!newVal && oldVal && this.usedKeyboard) {
         // closed by a choice made in it with the keyboard: the focus goes back to the field instead of the page
         this.usedKeyboard = false;
@@ -253,6 +260,10 @@ export default {
           ];
           this.fromTime = fromLocalISOString.slice(11, 16);
           this.toTime = toLocalISOString.slice(11, 16);
+        } else {
+          // no period chosen, or the field was reset: the picker shows no date and no period selected
+          this.dates = [];
+          this.selectedPeriodName = null;
         }
       }
     },
@@ -269,11 +280,28 @@ export default {
     });
     this.selectPeriodItem(this.selectedPeriodName);
   },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.closeOnEscape, true);
+  },
   methods: {
     openFromKeyboard() {
       this.openedFromKeyboard = true;
       this.usedKeyboard = true;
       this.menu = true;
+    },
+    closeOnEscape(event) {
+      if (event.key === 'Escape' && this.menu) {
+        this.closeFromKeyboard(event);
+      }
+    },
+    closeFromKeyboard(event) {
+      // Escape closes the picker alone: unless stopped here, the key reaches the document, where it closes the
+      // drawer holding the field; Vuetify gives the focus back to the field's wrapper, which cannot take it
+      event.preventDefault();
+      event.stopPropagation();
+      this.usedKeyboard = false;
+      this.menu = false;
+      this.$nextTick(() => this.$refs.periodField?.$refs?.input?.focus());
     },
     toLocalISOString(date) {
       const offset = date.getTimezoneOffset();
