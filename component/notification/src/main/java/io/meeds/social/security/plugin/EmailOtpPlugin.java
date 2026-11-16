@@ -137,6 +137,16 @@ public class EmailOtpPlugin implements OtpPlugin {
     return storedCode != null && storedCode.equals(otpCode);
   }
 
+  /**
+   * Removes the code from the cache, so that it never validates again. Only
+   * the request that removes it wins: a concurrent one finds it gone.
+   */
+  @Override
+  public boolean consumeOtp(String userName, String otpCode) {
+    String storedCode = getLiveCode(getOtpCache().remove(userName));
+    return storedCode != null && storedCode.equals(otpCode);
+  }
+
   @Override
   @SneakyThrows
   public void generateOtpCode(String userName) {
