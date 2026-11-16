@@ -62,13 +62,21 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.WebApplicationContext;
 
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+
 import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
+import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
+import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
 import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
 import io.meeds.social.translation.service.TranslationService;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -77,6 +85,9 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -919,6 +930,140 @@ public class LoginRestTest {
     } finally {
       ReflectionTestUtils.setField(EntityBuilder.class, "translationService", cachedTranslationService);
     }
+  }
+
+  /**
+   * A refused additional field refuses the registration before the account
+   * exists, with its code and the attribute it names
+   */
+  @Test
+  @SneakyThrows
+  public void testRegisterRefusesAnAdditionalFieldBeforeCreatingTheAccount() {
+    prepareRegistration();
+    when(profileFormFieldService.validate(any(), eq(ProfileFormKind.REGISTRATION), eq(true), isNull()))
+                                                                                                      .thenThrow(new ProfileFormFieldException(ProfileFormFieldException.REQUIRED,
+                                                                                                                                               "team"));
+
+    performRegistration("[{\"propertyName\":\"team\",\"value\":\"\"}]")
+                                                                       .andExpect(status().isBadRequest())
+                                                                       .andExpect(jsonPath("$.error").value("profile.formField.required"))
+                                                                       .andExpect(jsonPath("$.propertyName").value("team"));
+    verify(userHandler, never()).createUser(any(), anyBoolean());
+    verify(profileFormFieldService, never()).save(any(), any(), any());
+    verify(passwordRecoveryService, never()).sendAccountCreatedConfirmationEmail(any(), any(), any());
+  }
+
+  /**
+   * Additional fields that are not a JSON array of attribute values refuse the
+   * registration before the account exists
+   */
+  @Test
+  @SneakyThrows
+  public void testRegisterRefusesMalformedAdditionalFields() {
+    prepareRegistration();
+
+    for (String profileProperties : List.of("not json",
+                                            "{\"propertyName\":\"team\",\"value\":\"A\"}",
+                                            "[\"team\"]",
+                                            "[{\"value\":\"A\"}]",
+                                            "[{\"propertyName\":\"team\",\"value\":{\"id\":1}}]",
+                                            "[{\"propertyName\":\"team\",\"values\":\"A\"}]")) {
+      performRegistration(profileProperties).andExpect(status().isBadRequest())
+                                            .andExpect(jsonPath("$.error").value("profile.formField.invalidValue"));
+    }
+    verify(profileFormFieldService, never()).validate(any(), any(), anyBoolean(), any());
+    verify(userHandler, never()).createUser(any(), anyBoolean());
+  }
+
+  /**
+   * The additional fields are checked as a complete registration form before
+   * the account is created, then written in the created account's profile,
+   * by its own login
+   */
+  @Test
+  @SneakyThrows
+  public void testRegisterSavesAdditionalFields() {
+    prepareRegistration();
+    Map<String, Object> profileValues = Map.of("team", "7");
+    when(profileFormFieldService.validate(any(), eq(ProfileFormKind.REGISTRATION), eq(true), isNull())).thenReturn(profileValues);
+
+    performRegistration("[{\"propertyName\":\"team\",\"value\":\"7\"},{\"propertyName\":\"skills\",\"values\":[\"Java\",\"Vue\"]}]")
+                                                                                                                                  .andExpect(status().isFound())
+                                                                                                                                  .andExpect(header().string("Location",
+                                                                                                                                                             "/portal/login"));
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<ProfilePropertyValue>> sentValues = ArgumentCaptor.forClass(List.class);
+    InOrder inOrder = inOrder(profileFormFieldService, userHandler);
+    inOrder.verify(profileFormFieldService).validate(sentValues.capture(), eq(ProfileFormKind.REGISTRATION), eq(true), isNull());
+    inOrder.verify(userHandler).createUser(any(), eq(true));
+    inOrder.verify(profileFormFieldService).save("john", profileValues, "john");
+    assertEquals(List.of(new ProfilePropertyValue("team", "7", null),
+                         new ProfilePropertyValue("skills", null, List.of("Java", "Vue"))),
+                 sentValues.getValue());
+  }
+
+  /**
+   * A registration listing no additional field, or a client sending none,
+   * still has the Required attributes checked, and writes nothing more
+   */
+  @Test
+  @SneakyThrows
+  public void testRegisterWithoutAdditionalFields() {
+    prepareRegistration();
+
+    performRegistration(null).andExpect(status().isFound())
+                             .andExpect(header().string("Location", "/portal/login"));
+
+    verify(profileFormFieldService).validate(eq(List.of()), eq(ProfileFormKind.REGISTRATION), eq(true), isNull());
+    verify(userHandler).createUser(any(), eq(true));
+    verify(profileFormFieldService, never()).save(any(), any(), any());
+  }
+
+  /**
+   * A failed write of the additional fields keeps the created account and
+   * completes the registration, telling the registrant on the login page
+   */
+  @Test
+  @SneakyThrows
+  public void testRegisterCompletesWhenAdditionalFieldsAreNotSaved() {
+    prepareRegistration();
+    Map<String, Object> profileValues = Map.of("team", "7");
+    when(profileFormFieldService.validate(any(), eq(ProfileFormKind.REGISTRATION), eq(true), isNull())).thenReturn(profileValues);
+    doThrow(new IllegalStateException("store down")).when(profileFormFieldService).save("john", profileValues, "john");
+
+    performRegistration("[{\"propertyName\":\"team\",\"value\":\"7\"}]").andExpect(status().isFound())
+                                                                       .andExpect(header().string("Location",
+                                                                                                  "/portal/login?error=additionalFieldsNotSaved"));
+    verify(passwordRecoveryService).sendAccountCreatedConfirmationEmail(eq("john"), any(), any());
+    verify(remindPasswordTokenService).deleteToken("123456789");
+    verify(userHandler, never()).removeUser(any(), anyBoolean());
+  }
+
+  @SneakyThrows
+  private void prepareRegistration() {
+    User john = new UserImpl();
+    john.setUserName("john");
+    when(userHandler.findUserByName(any(), any())).thenReturn(null);
+    when(userHandler.createUserInstance(any())).thenReturn(john);
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
+    when(passwordRecoveryService.verifyToken("123456789", CookieTokenService.EXTERNAL_REGISTRATION_TOKEN)).thenReturn("jsmith@acme.com");
+    when(passwordRecoveryService.sendAccountCreatedConfirmationEmail(any(), any(), any())).thenReturn(true);
+    when(captcha.isCorrect(any())).thenReturn(true);
+  }
+
+  @SneakyThrows
+  private ResultActions performRegistration(String profileProperties) {
+    HashMap<String, Object> sessionattr = new HashMap<>();
+    sessionattr.put("external-registration", captcha);
+    String content = "email=jsmith@acme.com&password=Password1234&password2=Password1234&firstName=John&lastName=Smith&captcha=abcde&token=123456789";
+    if (profileProperties != null) {
+      content += "&profileProperties=" + URLEncoder.encode(profileProperties, StandardCharsets.UTF_8);
+    }
+    return mockMvc.perform(post("/login/register").sessionAttrs(sessionattr)
+                                                  .content(content)
+                                                  .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                                                  .accept(MediaType.APPLICATION_JSON));
   }
 
   private RequestPostProcessor testSimpleUser() {

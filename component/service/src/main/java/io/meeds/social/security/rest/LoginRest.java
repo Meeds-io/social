@@ -50,6 +50,8 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.register.RegisterUIParamsExtension;
 import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
@@ -67,13 +69,18 @@ import javax.ws.rs.core.MediaType;
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
+import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
+import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
 import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
 import io.meeds.social.security.rest.model.RegistrationFieldEntity;
 
@@ -105,6 +112,18 @@ public class LoginRest {
   public static final String            MEMBER                     = "member";
 
   public static final String             LOCATION_HEADER            = "Location";
+
+  /** The registration's parameter carrying the additional profile fields */
+  public static final String             PROFILE_PROPERTIES_PARAM   = "profileProperties";
+
+  /** The attribute a refused additional field names, beside the error code */
+  public static final String             PROPERTY_NAME_PARAM        = "propertyName";
+
+  /**
+   * The login page's error code telling a registrant whose account was
+   * created that its additional fields were not saved
+   */
+  public static final String             ADDITIONAL_FIELDS_NOT_SAVED = "additionalFieldsNotSaved";
 
   public static final UserFieldValidator PASSWORD_VALIDATOR =
       new UserFieldValidator("password", false, false, 8, 255);
@@ -375,7 +394,10 @@ public class LoginRest {
                                          String captcha,
                                          @Parameter(description = "token")
                                          @RequestParam("token")
-                                         String token) {
+                                         String token,
+                                         @Parameter(description = "The additional profile fields: a JSON array of {propertyName, value} or {propertyName, values}")
+                                         @RequestParam(name = PROFILE_PROPERTIES_PARAM, required = false)
+                                         String profileProperties) {
 
     if (request.getRemoteUser() != null) {
       return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, "/portal").build();
@@ -413,18 +435,49 @@ public class LoginRest {
                                                   .put(ERROR_MESSAGE_PARAM, errorMessageName).toString());
     }
 
+    // The additional fields are checked, Required ones included, before the
+    // account exists: a refused value creates nothing
+    Map<String, Object> profileValues;
+    try {
+      profileValues = profileFormFieldService.validate(parseProfileProperties(profileProperties),
+                                                       ProfileFormKind.REGISTRATION,
+                                                       true,
+                                                       null);
+    } catch (ProfileFormFieldException e) {
+      return ResponseEntity.badRequest().body(new JSONObject()
+                                                  .put(ERROR_MESSAGE_PARAM, e.getMessage())
+                                                  .put(PROPERTY_NAME_PARAM, e.getPropertyName())
+                                                  .toString());
+    } catch (JSONException e) {
+      return ResponseEntity.badRequest().body(new JSONObject()
+                                                  .put(ERROR_MESSAGE_PARAM, ProfileFormFieldException.INVALID_VALUE)
+                                                  .toString());
+    }
 
+    String username;
     try {
       HttpSession session = request.getSession();
-      String username = createUser(email, firsname, lastname, password);
+      username = createUser(email, firsname, lastname, password);
       passwordRecoveryService.sendAccountCreatedConfirmationEmail(username, locale, getUrl(request));
       remindPasswordTokenService.deleteToken(token);      cleanCapcha(session, "external-registration");
-      return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH).build();
     } catch (Exception e) {
       LOG.warn("Error while registering external user", e);
       return ResponseEntity.internalServerError().body(new JSONObject()
                                                   .put(ERROR_MESSAGE_PARAM, "external.registration.fail.create.user").toString());
     }
+    if (!profileValues.isEmpty()) {
+      // The account exists: a failed write of its additional fields leaves it
+      // as it is, and the registrant is told to fill them from the profile
+      try {
+        profileFormFieldService.save(username, profileValues, username);
+      } catch (Exception e) {
+        LOG.warn("Additional profile fields of registered user {} not saved", username, e);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                             .header(LOCATION_HEADER, LOGIN_PATH + "?" + ERROR_MESSAGE_PARAM + "=" + ADDITIONAL_FIELDS_NOT_SAVED)
+                             .build();
+      }
+    }
+    return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH).build();
   }
 
   @PostMapping(path = "/verifyEmail")
@@ -603,6 +656,35 @@ public class LoginRest {
                                                   .put(ERROR_MESSAGE_PARAM, errorMessage).toString());
     }
 
+  }
+
+  /**
+   * The additional fields a registration sends: a JSON array of objects, each
+   * naming its attribute and carrying a text value or a list of text values
+   *
+   * @throws JSONException when the text is not such an array
+   */
+  private List<ProfilePropertyValue> parseProfileProperties(String profileProperties) {
+    if (StringUtils.isBlank(profileProperties)) {
+      return Collections.emptyList();
+    }
+    JSONArray items = new JSONArray(profileProperties);
+    List<ProfilePropertyValue> values = new ArrayList<>();
+    for (int i = 0; i < items.length(); i++) {
+      JSONObject item = items.getJSONObject(i);
+      List<String> entries = null;
+      if (!item.isNull("values")) {
+        JSONArray texts = item.getJSONArray("values");
+        entries = new ArrayList<>();
+        for (int j = 0; j < texts.length(); j++) {
+          entries.add(texts.getString(j));
+        }
+      }
+      values.add(new ProfilePropertyValue(item.getString(PROPERTY_NAME_PARAM),
+                                          item.isNull("value") ? null : item.getString("value"),
+                                          entries));
+    }
+    return values;
   }
 
   private RegistrationFieldEntity toRegistrationField(ProfilePropertySetting setting, Locale locale) {
