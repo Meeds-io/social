@@ -21,8 +21,8 @@
 import * as registry from './js/ProfileFormFieldsRegistry.js';
 
 // The additional fields of the account form: rendered at the insertion point
-// of the users administration's Add user form, checked before the account is
-// created, written once it exists
+// of the users administration's Add user and Edit user forms, checked before
+// the account is written, written once it is
 export function registerExtensions() {
   extensionRegistry.registerExtension('UsersManagement', 'account-form', {
     id: 'profile-fields',
@@ -30,7 +30,8 @@ export function registerExtensions() {
     vueComponent: Vue.options.components['profile-form-fields'],
     // The fields' own rules, then the server's dry run; true when the list
     // holds no attribute or no form is rendered. When the list could not be
-    // read, the server's dry run decides
+    // read, the server's dry run decides on creation, and nothing is sent on
+    // an account's edition
     validate(context) {
       const component = registry.get(context);
       return component ? component.validate() : Promise.resolve(true);
@@ -40,6 +41,9 @@ export function registerExtensions() {
     // writes even with nothing entered: the server's write refuses an
     // account missing a Required attribute
     execute(context, account) {
+      if (context?.mode === 'edit') {
+        return executeEdition(context, account);
+      }
       const loadState = registry.getLoadState(context);
       if (!context?.data?.length && loadState !== 'listed' && loadState !== 'failed') {
         return Promise.resolve();
@@ -52,4 +56,26 @@ export function registerExtensions() {
         });
     },
   });
+}
+
+// On an account's edition, the fields' own rules once more, since a Save
+// after a failed write sends that write alone, then the attributes the
+// administrator changed, when there are any. A refused value shows on its
+// field, the form being still open on that account
+function executeEdition(context, account) {
+  const component = registry.get(context);
+  if (component && !component.checkRules()) {
+    return Promise.reject(new Error('Additional fields refused by their rules'));
+  } else if (!context?.data?.length) {
+    return Promise.resolve();
+  }
+  return Vue.prototype.$profileFormFieldService.saveUserFields(account.userName, context.data)
+    .then(outcome => {
+      if (!outcome.ok) {
+        if (outcome.status === 400) {
+          registry.get(context)?.showRefusal(outcome.refusal);
+        }
+        throw new Error(outcome.refusal?.code || `Additional fields not saved: ${outcome.status}`);
+      }
+    });
 }

@@ -34,6 +34,8 @@
         :key="setting.propertyName"
         :setting="setting"
         :value="values[setting.propertyName]"
+        :unchanged-values="unchangedValues[setting.propertyName]"
+        :legacy-options="legacyOptions[setting.propertyName]"
         :error="errors[setting.propertyName]"
         :disabled="disabled"
         @input="update(setting.propertyName, $event)" />
@@ -48,13 +50,15 @@
 </template>
 <script>
 import * as registry from '../js/ProfileFormFieldsRegistry.js';
-import {hasValue} from '../js/ProfileFormFieldRules.js';
+import {toData, toEditionFields} from '../js/ProfileFormFieldValues.js';
 
 /**
  * The attributes the account form lists, one field each, in the settings'
  * order: rendered by a host at its insertion point with the context it keeps,
  * whose data receives the values the administrator enters and whose saving,
- * set while the host saves, disables the fields
+ * set while the host saves, disables the fields. On an account's edition,
+ * the fields hold the user's values, and the data only the attributes the
+ * administrator changed
  */
 export default {
   props: {
@@ -72,18 +76,30 @@ export default {
     // 'failed'
     load: null,
     loadState: null,
+    // On edition, by attribute: the stored value as it is compared, the
+    // values its format rules accept unchanged, and the dropdown items for
+    // stored values no option is
+    snapshot: {},
+    unchangedValues: {},
+    legacyOptions: {},
   }),
   computed: {
     // The host saves the account: its fields and these are disabled
     disabled() {
       return !!this.context?.saving;
     },
+    editMode() {
+      return this.context?.mode === 'edit';
+    },
   },
   watch: {
     context(newContext, oldContext) {
       registry.unregister(oldContext, this);
       registry.register(newContext, this);
-      if (this.loadState) {
+      if (this.editMode) {
+        // Another account, or the same one opened again: its stored values
+        this.loadFields();
+      } else if (this.loadState) {
         registry.setLoadState(newContext, this.loadState);
       }
     },
@@ -91,21 +107,75 @@ export default {
   // The list is read when the form shows the fields, never when the page loads
   created() {
     registry.register(this.context, this);
-    this.load = this.$profileFormFieldService.getAccountFormSettings()
-      .then(settings => {
-        this.settings = settings;
-        this.loadState = settings.length ? 'listed' : 'empty';
-      })
-      .catch(() => {
-        this.loadState = 'failed';
-        this.$root.$emit('alert-message', this.$t('profileFormFields.notLoaded'), 'error');
-      })
-      .finally(() => registry.setLoadState(this.context, this.loadState));
+    this.loadFields();
   },
   beforeDestroy() {
     registry.unregister(this.context, this);
   },
   methods: {
+    loadFields() {
+      if (this.editMode) {
+        this.loadEditionFields();
+        return;
+      }
+      this.load = this.$profileFormFieldService.getAccountFormSettings()
+        .then(settings => {
+          this.settings = settings;
+          this.loadState = settings.length ? 'listed' : 'empty';
+        })
+        .catch(() => {
+          this.loadState = 'failed';
+          this.$root.$emit('alert-message', this.$t('profileFormFields.notLoaded'), 'error');
+        })
+        .finally(() => registry.setLoadState(this.context, this.loadState));
+    },
+    // The list and the user's values, read together. An answer is applied
+    // only while the host still gives the context it was read for, so a late
+    // one never fills another account's form. When the list read fails, or
+    // the user read fails while the list holds an attribute, no field is
+    // shown and the host is asked not to save, until the form is opened
+    // again; with no attribute listed, nothing is shown and nothing blocked
+    loadEditionFields() {
+      const context = this.context;
+      this.settings = [];
+      this.loadState = null;
+      this.formError = null;
+      // The user's values matter only once the list holds an attribute: their
+      // read failing blocks nothing on a form that lists none
+      const userRead = this.$userService.getUser(context.username, 'settings')
+        .then(user => user?.properties || [], () => null);
+      this.load = Promise.all([
+        this.$profileFormFieldService.getAccountFormSettings(),
+        userRead,
+      ]).then(([settings, properties]) => {
+        if (context !== this.context) {
+          return;
+        } else if (settings.length && !properties) {
+          throw new Error('The user\'s values could not be read');
+        }
+        this.prefill(settings, properties || []);
+        this.loadState = this.settings.length ? 'listed' : 'empty';
+      }).catch(() => {
+        if (context === this.context) {
+          this.loadState = 'failed';
+          this.formError = this.$t('profileFormFields.notLoadedReopen');
+          this.$emit('update:blocking', true);
+        }
+      }).finally(() => {
+        if (context === this.context) {
+          registry.setLoadState(context, this.loadState);
+        }
+      });
+    },
+    prefill(settings, properties) {
+      const fields = toEditionFields(settings, properties);
+      this.values = fields.values;
+      this.snapshot = fields.snapshot;
+      this.unchangedValues = fields.unchangedValues;
+      this.legacyOptions = fields.legacyOptions;
+      this.errors = {};
+      this.settings = fields.settings;
+    },
     // Each change the administrator makes, and only then, gives the host the
     // values to write
     update(propertyName, value) {
@@ -114,27 +184,60 @@ export default {
       this.formError = null;
       this.$emit('update:data', this.toData());
     },
-    // The fields' rules, then the server's on the values to create, once the
-    // list has answered; a list that could not be read leaves the server's
-    // check, which refuses an account missing a Required attribute
+    // The fields' rules, then the server's on the values to write, once the
+    // list has answered
     validate() {
-      this.formError = null;
+      if (!this.editMode) {
+        this.formError = null;
+      }
       // A list that answers while the check waits is rendered on the next
       // tick: the form's rules are read once it is
-      return this.load.then(() => this.$nextTick()).then(() => {
-        if (this.loadState === 'empty') {
-          return true;
-        } else if (this.loadState === 'listed' && !this.$refs.form.validate()) {
-          return false;
-        }
-        return this.$profileFormFieldService.validateAccountFields(this.toData())
-          .then(outcome => {
-            if (!outcome.ok) {
-              this.showRefusal(outcome.refusal);
-            }
-            return outcome.ok;
-          });
-      });
+      return this.load.then(() => this.$nextTick())
+        .then(() => (this.editMode ? this.validateEdition() : this.validateCreation()));
+    },
+    // A list that could not be read leaves the server's check, which refuses
+    // an account missing a Required attribute
+    validateCreation() {
+      if (this.loadState === 'empty') {
+        return true;
+      } else if (this.loadState === 'listed' && !this.$refs.form.validate()) {
+        return false;
+      }
+      return this.$profileFormFieldService.validateAccountFields(this.toData())
+        .then(outcome => this.readOutcome(outcome));
+    },
+    // Required on every field, touched or not; the server's check only when
+    // an attribute changed, against the values the profile holds
+    validateEdition() {
+      if (this.loadState === 'failed') {
+        return false;
+      } else if (this.loadState !== 'listed') {
+        return true;
+      }
+      this.formError = null;
+      if (!this.$refs.form.validate()) {
+        return false;
+      }
+      const data = this.toData();
+      if (!data.length) {
+        return true;
+      }
+      return this.$profileFormFieldService.validateUserFields(this.context.username, data)
+        .then(outcome => this.readOutcome(outcome));
+    },
+    // The fields' own rules, with no call: what a Save after a failed write
+    // checks before it sends that write alone
+    checkRules() {
+      if (this.loadState === 'failed') {
+        return false;
+      }
+      return this.loadState !== 'listed' || this.$refs.form.validate();
+    },
+    readOutcome(outcome) {
+      if (!outcome.ok) {
+        this.showRefusal(outcome.refusal);
+      }
+      return outcome.ok;
     },
     // A refusal goes on the field of the attribute it names, else on the form
     showRefusal(refusal) {
@@ -146,14 +249,7 @@ export default {
       }
     },
     toData() {
-      return this.settings
-        .filter(setting => hasValue(this.values[setting.propertyName]))
-        .map(setting => {
-          const value = this.values[setting.propertyName];
-          return setting.multiValued
-            ? {propertyName: setting.propertyName, values: value.filter(hasValue).map(String)}
-            : {propertyName: setting.propertyName, value: String(value)};
-        });
+      return toData(this.settings, this.values, this.editMode ? this.snapshot : null);
     },
   },
 };
