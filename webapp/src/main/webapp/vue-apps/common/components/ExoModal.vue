@@ -88,10 +88,12 @@ export default {
     dialog() {
       if (this.dialog) {
         this.opener = document.activeElement;
+        this.$openingKeystrokeGuard.ignore(this.guardOpeningKeystroke);
         this.focusFirstControl();
         this.$emit('dialog-opened');
         document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
+        this.$openingKeystrokeGuard.stop(this.guardOpeningKeystroke);
         this.restoreFocus();
         this.$emit('dialog-closed');
         document.dispatchEvent(new CustomEvent('modalClosed'));
@@ -108,8 +110,12 @@ export default {
   },
   beforeDestroy() {
     document.removeEventListener('keydown', this.closeOnEscape);
+    this.$openingKeystrokeGuard.stop(this.guardOpeningKeystroke);
   },
   methods: {
+    guardOpeningKeystroke(event) {
+      this.$openingKeystrokeGuard.handle(event, this.guardOpeningKeystroke);
+    },
     open() {
       this.dialog = true;
     },
