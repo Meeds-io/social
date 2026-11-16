@@ -28,7 +28,7 @@
     allow-expand
     right>
     <template #title>
-      {{ $t('categories.drawer.select.title') }}
+      {{ readonly && $t('categories.drawer.title') || $t('categories.drawer.select.title') }}
     </template>
     <template v-if="drawer && categories" #content>
       <div class="d-flex flex-column ma-5">
@@ -37,6 +37,9 @@
           :key="category.id">
           <category-chip
             :category="category"
+            :readonly="readonly"
+            :toggle="toggle && !readonly"
+            :selected="toggle && !readonly && selectedId === category.id"
             max-width="100%"
             class="mb-4"
             @select="select(category)" />
@@ -47,6 +50,20 @@
 </template>
 <script>
 export default {
+  props: {
+    readonly: {
+      type: Boolean,
+      default: false,
+    },
+    toggle: {
+      type: Boolean,
+      default: false,
+    },
+    selectedId: {
+      type: [String, Number],
+      default: null,
+    },
+  },
   data: () => ({
     drawer: false,
     categories: null,

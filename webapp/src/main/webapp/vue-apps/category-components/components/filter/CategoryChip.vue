@@ -22,7 +22,7 @@
 -->
 <template>
   <v-menu
-    v-if="breadcrumb && category.categories?.length"
+    v-if="breadcrumb && category.categories?.length && !readonly"
     ref="menu"
     v-model="menu"
     :key="category.id"
@@ -102,13 +102,11 @@
     :class="[chipClass, small && 'text-subtitle-font-size' || '', !visible && 'invisible' || '']"
     :color="selected && 'primary'"
     :small="small"
-    :tabindex="tabindex"
-    :aria-pressed="toggle ? String(selected) : null"
+    :tabindex="readonly ? null : tabindex"
+    :aria-pressed="toggle && !readonly ? String(selected) : null"
+    :role="readonly ? null : 'button'"
     class="text-truncate border-box-sizing"
-    role="button"
-    @click.prevent.stop="openCategory(category)"
-    @keydown.enter.stop.prevent="openCategory(category)"
-    @keydown.space.stop.prevent="openCategory(category)">
+    v-on="readonly ? {} : {click: onActivate, keydown: onKeydown}">
     <v-card
       :title="category.name"
       :class="[
@@ -143,6 +141,10 @@ export default {
       default: false,
     },
     breadcrumb: {
+      type: Boolean,
+      default: false,
+    },
+    readonly: {
       type: Boolean,
       default: false,
     },
@@ -205,6 +207,16 @@ export default {
   methods: {
     closeMenuImmediatly() {
       this.menu = false;
+    },
+    onActivate(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.openCategory(this.category);
+    },
+    onKeydown(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        this.onActivate(event);
+      }
     },
     openCategory(category) {
       this.$emit('select', category);
