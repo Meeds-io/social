@@ -180,6 +180,20 @@ public interface IdentityManager {
   }
 
   /**
+   * Writes one property of a stored profile, leaving its other values as
+   * they are stored: for a technical value (a login time) written from a
+   * profile copy that can be older than the store. No profile change is
+   * broadcast.
+   *
+   * @param identity the profile's identity
+   * @param propertyName the property to write
+   * @param value its new value, null to clear it
+   */
+  default void updateProfileProperty(Identity identity, String propertyName, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Gets a list access which contains all identities from a given provider.
    * These identities are filtered by the profile filter.
    * The type of returned result is <code>ListAccess</code> which can be lazy loaded.

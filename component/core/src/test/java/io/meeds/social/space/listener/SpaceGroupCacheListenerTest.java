@@ -21,7 +21,6 @@ package io.meeds.social.space.listener;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.ConversationRegistry;
-import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -32,7 +31,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,9 +48,6 @@ public class SpaceGroupCacheListenerTest {
 
   @Mock
   private ConversationRegistry    conversationRegistry;
-
-  @Mock
-  private IdentityRegistry        identityRegistry;
 
   @Mock
   private SpaceService            spaceService;
@@ -77,8 +75,8 @@ public class SpaceGroupCacheListenerTest {
 
     // Then
     verify(groupHandler).clearGroupCache("/spaces/test");
-    verify(identityRegistry).unregister("john");
-    verify(conversationRegistry).unregisterByUserId("john");
+    verify(conversationRegistry).invalidateUser("john");
+    verify(conversationRegistry, never()).unregisterByUserId(anyString());
   }
 
   @Test
@@ -96,10 +94,9 @@ public class SpaceGroupCacheListenerTest {
 
     // Then
     verify(groupHandler).clearGroupCache("/spaces/test");
-    verify(identityRegistry).unregister("john");
-    verify(identityRegistry).unregister("mary");
-    verify(conversationRegistry).unregisterByUserId("john");
-    verify(conversationRegistry).unregisterByUserId("mary");
+    verify(conversationRegistry).invalidateUser("john");
+    verify(conversationRegistry).invalidateUser("mary");
+    verify(conversationRegistry, never()).unregisterByUserId(anyString());
   }
 
 }

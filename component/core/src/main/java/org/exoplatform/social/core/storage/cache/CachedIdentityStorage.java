@@ -224,6 +224,15 @@ public class CachedIdentityStorage implements IdentityStorage {
   }
 
   @Override
+  public void updateProfileProperty(String identityId, String propertyName, String value) throws IdentityStorageException {
+    try {
+      storage.updateProfileProperty(identityId, propertyName, value);
+    } finally {
+      clearIdentityCache(new Identity(identityId), false, true);
+    }
+  }
+
+  @Override
   public int getIdentitiesCount(final String providerId) throws IdentityStorageException {
     return storage.getIdentitiesCount(providerId);
   }
