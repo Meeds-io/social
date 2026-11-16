@@ -54,6 +54,8 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
 
   private static final String TENTATIVES_CACHE_NAME = "otp.emailChange.tentatives";
 
+  private static final char   EXPIRY_SEPARATOR      = ':';
+
   /**
    * Serializes the read, increment and write of the wrong-guess count:
    * concurrent guesses would otherwise count as one
@@ -74,7 +76,7 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
   @Setter
   private long                attemptsTtl;
 
-  private ExoCache<String, Long> tentativesCache;
+  private ExoCache<String, String> tentativesCache;
 
   @Value("${meeds.emailChange.otp.email.templatePath:assets/email-change-otp-email-content.html}")
   @Setter
@@ -128,8 +130,7 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
   @Override
   public boolean validateOtp(String userName, String otpCode) {
     synchronized (attemptsLock) {
-      Long count = getTentativesCache().get(userName);
-      long attempts = count == null ? 0 : count;
+      long attempts = getAttempts(userName);
       if (attempts >= maxAttempts) {
         return false;
       }
@@ -137,7 +138,9 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
       if (valid) {
         getTentativesCache().remove(userName);
       } else {
-        getTentativesCache().put(userName, attempts + 1);
+        getTentativesCache().put(userName,
+                                 String.valueOf(System.currentTimeMillis() + attemptsTtl * 60000) + EXPIRY_SEPARATOR
+                                     + (attempts + 1));
         if (attempts + 1 >= maxAttempts) {
           getOtpCache().remove(getCacheKey(userName));
         }
@@ -177,10 +180,28 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
     return EmailChangeOtpPlugin.bindCode(otpCode, recipientEmail);
   }
 
-  private ExoCache<String, Long> getTentativesCache() {
+  /**
+   * The count carries its expiry, as the OTP service's own count does: the
+   * attempts window is {@code meeds.apiKey.otp.maxTentatives.ttl} whatever
+   * lifetime the declaration of the cache gives its entries, and an entry the
+   * cache drops sooner counts no attempt
+   */
+  private long getAttempts(String userName) {
+    String storedCount = getTentativesCache().get(userName);
+    if (storedCount == null) {
+      return 0;
+    }
+    int separator = storedCount.indexOf(EXPIRY_SEPARATOR);
+    if (separator < 0) {
+      return Long.parseLong(storedCount);
+    }
+    long expiry = Long.parseLong(storedCount.substring(0, separator));
+    return expiry > System.currentTimeMillis() ? Long.parseLong(storedCount.substring(separator + 1)) : 0;
+  }
+
+  private ExoCache<String, String> getTentativesCache() {
     if (tentativesCache == null) {
       tentativesCache = tentativesCacheService.getCacheInstance(TENTATIVES_CACHE_NAME);
-      tentativesCache.setLiveTime(attemptsTtl * 60);
     }
     return tentativesCache;
   }

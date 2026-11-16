@@ -122,7 +122,7 @@ public class EmailChangeEmailOtpPluginTest {
   private ExoCache<String, String>  otpSendLockCache;
 
   @Mock
-  private ExoCache<String, Long>    countCache;
+  private ExoCache<String, String>  countCache;
 
   @Mock
   private UserHandler               userHandler;
@@ -231,8 +231,14 @@ public class EmailChangeEmailOtpPluginTest {
   public void testGenerateOtpCodeSendsToTheNewAddressOnly() throws Exception {
     assertNull(plugin.generateOtpCode("john", " " + NEW_EMAIL + " ", ACCEPT));
 
-    verify(otpCache).put(CACHE_KEY, OTP_CODE + ":" + NEW_EMAIL);
-    verify(otpSendLockCache).put(CACHE_KEY, "");
+    long before = System.currentTimeMillis();
+    ArgumentCaptor<String> storedCode = ArgumentCaptor.forClass(String.class);
+    verify(otpCache).put(eq(CACHE_KEY), storedCode.capture());
+    assertEquals(OTP_CODE + ":" + NEW_EMAIL, valueOf(storedCode.getValue()));
+    assertLivesUntil(storedCode.getValue(), before, 5 * 60);
+    ArgumentCaptor<String> sendLock = ArgumentCaptor.forClass(String.class);
+    verify(otpSendLockCache).put(eq(CACHE_KEY), sendLock.capture());
+    assertLivesUntil(sendLock.getValue(), before, 60);
     verify(resourceBundleService).getSharedString(eq("social.emailChange.otp.email.subject"), any());
     verify(resourceBundleService).getSharedString(eq("social.emailChange.otp.email.label.requestReminder"), any());
     verify(resourceBundleService).getSharedString(eq("social.emailChange.otp.email.label.confirmMessage"), any());
@@ -341,7 +347,7 @@ public class EmailChangeEmailOtpPluginTest {
    */
   @Test
   public void testValidateOtpIsBoundToTheAddress() {
-    when(otpCache.get(CACHE_KEY)).thenReturn(OTP_CODE + ":" + NEW_EMAIL);
+    when(otpCache.get(CACHE_KEY)).thenReturn(live(OTP_CODE + ":" + NEW_EMAIL));
 
     assertTrue(plugin.validateOtp("john", EmailChangeOtpPlugin.bindCode(OTP_CODE, NEW_EMAIL)));
     assertTrue(plugin.validateOtp("john", EmailChangeOtpPlugin.bindCode(OTP_CODE, "John.New@Example.org")));
@@ -359,7 +365,7 @@ public class EmailChangeEmailOtpPluginTest {
   @Test
   public void testWrongGuessesDropTheCodeAtTheLimit() throws Exception {
     Map<String, String> codes = stubOtpCache(new HashMap<>());
-    Map<String, Long> counts = stubTentativesCache(new HashMap<>());
+    Map<String, String> counts = stubTentativesCache(new HashMap<>());
     plugin.setMaxAttempts(3);
     String sentCode = EmailChangeOtpPlugin.bindCode(OTP_CODE, NEW_EMAIL);
     String wrongCode = EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL);
@@ -375,14 +381,14 @@ public class EmailChangeEmailOtpPluginTest {
     assertTrue(codes.containsKey(CACHE_KEY));
     assertFalse(plugin.validateOtp("john", wrongCode));
     assertFalse("At the limit, the code is dropped", codes.containsKey(CACHE_KEY));
-    assertEquals(Long.valueOf(3), counts.get("john"));
+    assertEquals(3, countOf(counts.get("john")));
 
     assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
     assertTrue(codes.containsKey(CACHE_KEY));
     assertFalse("A new code does not start the count again", plugin.validateOtp("john", sentCode));
-    assertEquals("A refused guess is not counted", Long.valueOf(3), counts.get("john"));
+    assertEquals("A refused guess is not counted", 3, countOf(counts.get("john")));
 
-    counts.clear(); // the count expired
+    counts.put("john", (System.currentTimeMillis() - 1) + ":3"); // the count expired
     assertTrue("Once the count expires, the code validates", plugin.validateOtp("john", sentCode));
   }
 
@@ -393,7 +399,7 @@ public class EmailChangeEmailOtpPluginTest {
   @Test
   public void testANewSendKeepsTheCount() throws Exception {
     Map<String, String> codes = stubOtpCache(new HashMap<>());
-    Map<String, Long> counts = stubTentativesCache(new HashMap<>());
+    Map<String, String> counts = stubTentativesCache(new HashMap<>());
     plugin.setMaxAttempts(3);
     String wrongCode = EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL);
 
@@ -401,21 +407,40 @@ public class EmailChangeEmailOtpPluginTest {
     assertFalse(plugin.validateOtp("john", wrongCode));
     assertFalse(plugin.validateOtp("john", wrongCode));
     assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
-    assertEquals(Long.valueOf(2), counts.get("john"));
+    assertEquals(2, countOf(counts.get("john")));
     assertFalse(plugin.validateOtp("john", wrongCode));
     assertFalse("The third wrong guess, on the new code, reaches the limit", codes.containsKey(CACHE_KEY));
   }
 
   /**
    * The count lives {@code meeds.apiKey.otp.maxTentatives.ttl} minutes after
-   * the last wrong guess, in a cache of this method's own
+   * the last wrong guess, in a cache of this method's own: the expiry is stored
+   * with the count, so the cache's own lifetime is left as declared
    */
   @Test
   public void testTheCountLivesTheTentativesTtl() {
     EmailChangeEmailOtpPlugin configured = loadPlugin(Map.of("meeds.apiKey.otp.maxTentatives.ttl", "7"));
+    long before = System.currentTimeMillis();
     assertFalse(configured.validateOtp("john", EmailChangeOtpPlugin.bindCode("654321", NEW_EMAIL)));
-    verify(countCache).setLiveTime(420);
-    verify(countCache).put("john", 1L);
+    ArgumentCaptor<String> storedCount = ArgumentCaptor.forClass(String.class);
+    verify(countCache).put(eq("john"), storedCount.capture());
+    assertEquals(1, countOf(storedCount.getValue()));
+    assertLivesUntil(storedCount.getValue(), before, 420);
+    verify(countCache, never()).setLiveTime(anyLong());
+  }
+
+  /**
+   * A count past its expiry counts no attempt, whether the cache still holds
+   * it or not
+   */
+  @Test
+  public void testAnExpiredCountCountsNothing() throws Exception {
+    stubOtpCache(new HashMap<>());
+    Map<String, String> counts = stubTentativesCache(new HashMap<>());
+    plugin.setMaxAttempts(3);
+    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    counts.put("john", (System.currentTimeMillis() - 1) + ":3");
+    assertTrue(plugin.validateOtp("john", EmailChangeOtpPlugin.bindCode(OTP_CODE, NEW_EMAIL)));
   }
 
   /**
@@ -425,14 +450,14 @@ public class EmailChangeEmailOtpPluginTest {
   @Test
   public void testConcurrentWrongGuessesDropTheCode() throws Exception {
     Map<String, String> codes = stubOtpCache(new ConcurrentHashMap<>());
-    Map<String, Long> counts = new ConcurrentHashMap<>();
+    Map<String, String> counts = new ConcurrentHashMap<>();
     when(countCache.get(anyString())).thenAnswer(invocation -> {
-      Long value = counts.get(invocation.getArgument(0));
+      String value = counts.get(invocation.getArgument(0));
       Thread.sleep(20); // widens the window between the read and the write
       return value;
     });
     doAnswer(invocation -> counts.put(invocation.getArgument(0), invocation.getArgument(1))).when(countCache)
-                                                                                           .put(anyString(), anyLong());
+                                                                                           .put(anyString(), anyString());
     plugin.setMaxAttempts(3);
     assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
 
@@ -459,7 +484,7 @@ public class EmailChangeEmailOtpPluginTest {
 
   @Test
   public void testValidateOtpIgnoresOtherPurposeCodes() {
-    when(otpCache.get("email:john")).thenReturn(OTP_CODE + ":" + NEW_EMAIL);
+    when(otpCache.get("email:john")).thenReturn(live(OTP_CODE + ":" + NEW_EMAIL));
     when(otpCache.get("accountDeactivationEmail:john")).thenReturn(OTP_CODE);
     assertFalse(plugin.validateOtp("john", OTP_CODE));
     assertFalse(plugin.validateOtp("john", EmailChangeOtpPlugin.bindCode(OTP_CODE, NEW_EMAIL)));
@@ -468,7 +493,7 @@ public class EmailChangeEmailOtpPluginTest {
   @Test
   public void testConsumeOtpRemovesTheBoundCodeOnce() {
     String boundCode = EmailChangeOtpPlugin.bindCode(OTP_CODE, NEW_EMAIL);
-    when(otpCache.remove(CACHE_KEY)).thenReturn(boundCode, (String) null);
+    when(otpCache.remove(CACHE_KEY)).thenReturn(live(boundCode), (String) null);
     assertTrue(plugin.consumeOtp("john", boundCode));
     assertFalse("A consumed code is gone for a concurrent request", plugin.consumeOtp("john", boundCode));
     verify(otpCache, times(2)).remove(CACHE_KEY);
@@ -524,12 +549,33 @@ public class EmailChangeEmailOtpPluginTest {
     return codes;
   }
 
-  private Map<String, Long> stubTentativesCache(Map<String, Long> counts) {
+  private Map<String, String> stubTentativesCache(Map<String, String> counts) {
     when(countCache.get(anyString())).thenAnswer(invocation -> counts.get(invocation.getArgument(0)));
     doAnswer(invocation -> counts.put(invocation.getArgument(0), invocation.getArgument(1))).when(countCache)
-                                                                                           .put(anyString(), anyLong());
+                                                                                           .put(anyString(), anyString());
     when(countCache.remove(anyString())).thenAnswer(invocation -> counts.remove(invocation.getArgument(0)));
     return counts;
+  }
+
+  /** A stored value whose expiry is a minute ahead */
+  private static String live(String value) {
+    return (System.currentTimeMillis() + 60000) + ":" + value;
+  }
+
+  /** The value stored after its expiry */
+  private static String valueOf(String storedValue) {
+    return storedValue.substring(storedValue.indexOf(':') + 1);
+  }
+
+  private static long countOf(String storedCount) {
+    return Long.parseLong(valueOf(storedCount));
+  }
+
+  private static void assertLivesUntil(String storedValue, long before, long seconds) {
+    int separator = storedValue.indexOf(':');
+    long expiry = Long.parseLong(separator < 0 ? storedValue : storedValue.substring(0, separator));
+    assertTrue("expires " + seconds + "s after the write: " + storedValue,
+               expiry >= before + seconds * 1000 && expiry <= System.currentTimeMillis() + seconds * 1000);
   }
 
   private EmailChangeEmailOtpPlugin loadPlugin(Map<String, Object> properties) {
