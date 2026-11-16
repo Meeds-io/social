@@ -109,7 +109,8 @@ export default {
       }
     },
   },
-  // The list is read when the form shows the fields, never when the page loads
+  // The list is read when the host renders the fields: when a drawer opens, or
+  // with the registration form once the page's token is checked
   created() {
     registry.register(this.context, this);
     this.loadFields();
@@ -204,8 +205,7 @@ export default {
       this.errors = {};
       this.settings = fields.settings;
     },
-    // Each change the administrator makes, and only then, gives the host the
-    // values to write
+    // Each change entered, and only then, gives the host the values to write
     update(propertyName, value) {
       this.values = Object.assign({}, this.values, {[propertyName]: value});
       this.errors = Object.assign({}, this.errors, {[propertyName]: null});
