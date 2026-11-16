@@ -84,6 +84,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
@@ -866,15 +867,30 @@ public class LoginRestTest {
 
   /**
    * A token whose account exists has been used, whatever branch registered
-   * the account: it reads nothing
+   * the account: it reads nothing. The account a registration creates is
+   * named after the registrant, so it is found by the token's e-mail
    */
   @Test
   @SneakyThrows
   public void testGetRegistrationFieldsWithUsedToken() {
     when(passwordRecoveryService.verifyToken("123456789", CookieTokenService.EXTERNAL_REGISTRATION_TOKEN)).thenReturn("jsmith@acme.com");
     when(organizationService.getUserHandler()).thenReturn(userHandler);
-    when(userHandler.findUserByName("jsmith@acme.com", UserStatus.ANY)).thenReturn(new UserImpl("jsmith@acme.com"));
+    UserImpl registered = new UserImpl("john.smith");
+    registered.setEmail("jsmith@acme.com");
+    @SuppressWarnings("unchecked")
+    ListAccess<User> byEmail = mock(ListAccess.class);
+    when(byEmail.getSize()).thenReturn(1);
+    when(byEmail.load(0, 1)).thenReturn(new User[] { registered });
+    when(userHandler.findUsersByQuery(argThat(query -> query != null && "jsmith@acme.com".equals(query.getEmail())),
+                                      eq(UserStatus.ANY))).thenReturn(byEmail);
 
+    mockMvc.perform(get("/login/registrationFields?token=123456789"))
+           .andExpect(status().isNotFound())
+           .andExpect(header().string("Cache-Control", "no-store"));
+
+    // An account named after the e-mail itself
+    when(userHandler.findUsersByQuery(any(), any())).thenReturn(null);
+    when(userHandler.findUserByName("jsmith@acme.com", UserStatus.ANY)).thenReturn(new UserImpl("jsmith@acme.com"));
     mockMvc.perform(get("/login/registrationFields?token=123456789"))
            .andExpect(status().isNotFound())
            .andExpect(header().string("Cache-Control", "no-store"));

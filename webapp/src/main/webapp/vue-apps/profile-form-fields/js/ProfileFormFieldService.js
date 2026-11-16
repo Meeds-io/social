@@ -33,12 +33,17 @@ export function getAccountFormSettings() {
 }
 
 // The attributes the registration form lists, read from the store by the
-// server for the holder of the page's registration token, with no session
+// server for the holder of the page's registration token, with no session.
+// A token that can no longer register, used or expired, reads none: the
+// server refuses the registration itself for the same reason, and its
+// answer tells the registrant where to go
 export function getRegistrationFormSettings(token) {
   return fetch(`/social/${eXo.env.portal.rest}/login/registrationFields?token=${encodeURIComponent(token || '')}`, {
     credentials: 'include',
   }).then(resp => {
-    if (!resp?.ok) {
+    if (resp?.status === 404) {
+      return [];
+    } else if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
     return resp.json();
