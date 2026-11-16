@@ -62,6 +62,8 @@
           :title="$t('peopleList.settings.drawer.title')"
           :aria-label="$t('peopleList.settings.drawer.title')"
           class="people-list-settings-button"
+          height="36"
+          width="36"
           icon
           @click="$root.$emit('people-list-settings-open')">
           <v-icon size="20">fa-cog</v-icon>
