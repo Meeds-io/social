@@ -193,7 +193,7 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
     }
     int separator = storedCount.indexOf(EXPIRY_SEPARATOR);
     if (separator < 0) {
-      return Long.parseLong(storedCount);
+      return 0;
     }
     long expiry = Long.parseLong(storedCount.substring(0, separator));
     return expiry > System.currentTimeMillis() ? Long.parseLong(storedCount.substring(separator + 1)) : 0;

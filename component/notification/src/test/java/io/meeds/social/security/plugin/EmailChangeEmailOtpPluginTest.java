@@ -444,6 +444,20 @@ public class EmailChangeEmailOtpPluginTest {
   }
 
   /**
+   * A count stored without its expiry, which nothing writes, counts no attempt:
+   * it would otherwise outlive the attempts window
+   */
+  @Test
+  public void testACountWithoutItsExpiryCountsNothing() throws Exception {
+    stubOtpCache(new HashMap<>());
+    Map<String, String> counts = stubTentativesCache(new HashMap<>());
+    plugin.setMaxAttempts(3);
+    assertNull(plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    counts.put("john", "3");
+    assertTrue(plugin.validateOtp("john", EmailChangeOtpPlugin.bindCode(OTP_CODE, NEW_EMAIL)));
+  }
+
+  /**
    * Concurrent wrong guesses are counted one by one: sent together, they still
    * drop the code at the limit
    */
