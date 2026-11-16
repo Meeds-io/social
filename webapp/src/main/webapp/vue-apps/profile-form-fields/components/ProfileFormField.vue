@@ -45,7 +45,7 @@
   <v-select
     v-else-if="kind === 'select'"
     :value="value"
-    :items="setting.propertyOptions || []"
+    :items="options"
     :item-text="optionLabel"
     :multiple="setting.multiValued"
     :chips="setting.multiValued"
@@ -102,6 +102,7 @@
 </template>
 <script>
 import {hasValue, isValidEmail, storedLength, MAX_STORED_LENGTH} from '../js/ProfileFormFieldRules.js';
+import {optionLabel} from '../js/ProfileFormFieldValues.js';
 
 /**
  * One attribute's field, drawn as the account form's own fields are: a text
@@ -117,6 +118,18 @@ export default {
     value: {
       type: [String, Number, Array],
       default: null,
+    },
+    // On an account's edition, the stored values, which the format rules
+    // accept as they are
+    unchangedValues: {
+      type: Array,
+      default: () => [],
+    },
+    // On an account's edition, the items a dropdown adds for stored values
+    // no option is
+    legacyOptions: {
+      type: Array,
+      default: () => [],
     },
     error: {
       type: String,
@@ -151,6 +164,9 @@ export default {
       const translated = this.$t(key);
       return translated !== key ? translated : this.setting.propertyName;
     },
+    options() {
+      return (this.setting.propertyOptions || []).concat(this.legacyOptions);
+    },
     placeholder() {
       return this.$t('profileFormFields.enterAttribute', {0: this.name});
     },
@@ -159,15 +175,17 @@ export default {
         ? value => hasValue(value) || this.$t('profileSettings.message.field.required')
         : null;
     },
-    // Format rules on each value entered; the size, on the attribute's
-    // stored form, as a courtesy before the server's own count
+    // Format rules on each value entered, never on a stored value left as it
+    // is, which another writer may have stored unchecked; the size, on the
+    // attribute's stored form, as a courtesy before the server's own count
     formatRule() {
+      const unchecked = value => !hasValue(value) || this.unchangedValues.includes(String(value));
       if (!this.setting.multiValued && this.setting.propertyType === 'email') {
-        return value => !hasValue(value) || isValidEmail(value) || this.$t('profile.formField.invalidEmail');
+        return value => unchecked(value) || isValidEmail(value) || this.$t('profile.formField.invalidEmail');
       } else if (!this.setting.multiValued && ['call', 'messaging'].includes(this.setting.propertyType)) {
-        return value => !hasValue(value) || this.$utils.isValidPhone(value) || this.$t('profileFormFields.invalidPhone');
+        return value => unchecked(value) || this.$utils.isValidPhone(value) || this.$t('profileFormFields.invalidPhone');
       } else if (this.setting.propertyName === 'urls') {
-        return value => !hasValue(value) || this.$utils.isValidUrl(value) || this.$t('profileFormFields.invalidUrl');
+        return value => unchecked(value) || this.$utils.isValidUrl(value) || this.$t('profileFormFields.invalidUrl');
       }
       return null;
     },
@@ -179,9 +197,7 @@ export default {
     },
   },
   methods: {
-    optionLabel(option) {
-      return option?.translatedValue || option?.value || '';
-    },
+    optionLabel,
   },
 };
 </script>
