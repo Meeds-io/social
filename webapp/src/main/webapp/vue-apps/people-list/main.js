@@ -21,22 +21,59 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API 
 const url = `/social/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`;
 
-const appId = 'peopleListApplication';
-
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init(filter) {
+export function init({appId, settings, saveSettingsUrl, settingsResourceUrl}) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
+      data: {
+        appId,
+        canEdit: !!settings?.canEdit,
+        filter: settings?.filter || 'all',
+        headerTranslations: settings?.headerTranslations || {},
+        pageSize: settings?.pageSize || 12,
+        saveSettingsUrl,
+        settingsResourceUrl,
+        language: eXo?.env?.portal?.language,
+        defaultLanguage: eXo?.env?.portal?.defaultLanguage,
+        hover: false,
+        focusWithin: false,
+      },
       computed: {
         isMobile() {
           return this.$vuetify.breakpoint.mobile;
+        },
+        // the custom header in the viewer's language, else the default
+        // language's, else any stored label; none when the header is OFF
+        headerTitle() {
+          return this.headerTranslations?.[this.language]
+            || this.headerTranslations?.[this.defaultLanguage]
+            || Object.values(this.headerTranslations || {}).find(label => label)
+            || null;
         },
       },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<people-list id="${appId}" filter="${filter || 'all'}"></people-list>`,
+      methods: {
+        // re-reads the stored settings: a refused save is answered with a
+        // 200 by the portal, so only the stored values tell what was applied
+        refreshSettings() {
+          return fetch(this.settingsResourceUrl, {
+            method: 'GET',
+            credentials: 'include',
+          }).then(resp => {
+            if (!resp?.ok) {
+              throw new Error('Error while reading the people directory settings');
+            }
+            return resp.json();
+          }).then(stored => {
+            this.headerTranslations = stored?.headerTranslations || {};
+            this.pageSize = stored?.pageSize || 12;
+          });
+        },
+      },
+      template: `<people-list id="${appId}" filter="${settings?.filter || 'all'}"></people-list>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, `#${appId}`, 'People List');
