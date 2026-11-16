@@ -29,8 +29,11 @@
         <category-chip
           :ref="`category${index}`"
           :category="c"
+          :readonly="!canFilter"
+          :selected="canFilter && $root.selectedCategoryId === c.id"
           chip-class="flex-shrink-0 me-2"
           breadcrumb
+          toggle
           small
           @select="selectCategory" />
       </div>
@@ -53,6 +56,7 @@
     <categories-list-drawer
       v-if="moreDrawer"
       ref="drawer"
+      :readonly="!canFilter"
       @select="selectCategory" />
   </div>
 </template>
@@ -83,6 +87,10 @@ export default {
     },
     hasInvisibleItems() {
       return this.remainingCount > 0;
+    },
+    canFilter() {
+      // a category filters the Stream only where the Stream shows its category filter
+      return !!this.$root.allowFilteringPerCategory && !this.$root.selectedActivityId;
     },
   },
   created() {
