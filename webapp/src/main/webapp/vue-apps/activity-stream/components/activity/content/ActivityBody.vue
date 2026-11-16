@@ -10,15 +10,14 @@
       class="reset-style-box rich-editor-content text-break mb-0"
       dir="auto" />
     <v-btn
-      v-if="collapsed && !fullContent && readMore"
-      :aria-label="$t('UIActivity.label.seeMore')"
+      v-if="collapsed && (fullContent || readMore)"
       :aria-expanded="String(fullContent)"
-      :class="!isComment && 'linear-gradient-app-background' || 'linear-gradient-comment-background'"
+      :class="!fullContent && (!isComment && 'linear-gradient-app-background' || 'linear-gradient-comment-background')"
       class="d-flex ms-auto mb-0 pb-2px pl-2 pr-0 height-auto text-light-color r-0 b-0 hover-underline hover-blue-color"
       text
       plain
       @click="displayFullContent">
-      <span class="pl-6">{{ $t('UIActivity.label.seeMore') }}</span>
+      <span class="pl-6">{{ fullContent && $t('UIActivity.label.seeLess') || $t('UIActivity.label.seeMore') }}</span>
     </v-btn>
   </div>
 </template>
@@ -113,19 +112,15 @@ export default {
       this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
     },
     displayReadMore() {
+      if (this.fullContent) {
+        // the expanded content never overflows: keep the button, now 'see less', to collapse it again
+        return;
+      }
       const elem = this.getEditorContentElement();
       this.displayReadMoreButton = elem && elem?.scrollHeight > elem?.clientHeight;
     },
     displayFullContent() {
       this.fullContent = !this.fullContent;
-      // the button disappears once the content is expanded: keep the keyboard focus in the activity
-      this.$nextTick(() => {
-        const content = this.getEditorContentElement();
-        if (content) {
-          content.setAttribute('tabindex', '-1');
-          content.focus({preventScroll: true});
-        }
-      });
     },
     getEditorContentElement() {
       return this.$el.querySelector('.rich-editor-content');
