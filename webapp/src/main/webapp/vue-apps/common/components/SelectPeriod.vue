@@ -43,10 +43,9 @@
         v-bind="attrs"
         v-on="on"
         @keydown.enter.prevent="openFromKeyboard"
-        @keydown.space.prevent="openFromKeyboard"
-        @keydown.esc="menu && closeFromKeyboard($event)" />
+        @keydown.space.prevent="openFromKeyboard" />
     </template>
-    <div class="d-flex flex-column" @keydown.esc="closeFromKeyboard">
+    <div class="d-flex flex-column">
       <v-date-picker
         ref="datePicker"
         v-model="dates"
@@ -214,6 +213,13 @@ export default {
   },
   watch: {
     menu(newVal, oldVal) {
+      // Escape is caught wherever it starts while the picker is open: a click on a part of the picker that takes
+      // no focus (its title, its caption, any button in Safari) leaves the focus on the page's body
+      if (newVal) {
+        document.addEventListener('keydown', this.closeOnEscape, true);
+      } else {
+        document.removeEventListener('keydown', this.closeOnEscape, true);
+      }
       if (!newVal && oldVal && this.usedKeyboard) {
         // closed by a choice made in it with the keyboard: the focus goes back to the field instead of the page
         this.usedKeyboard = false;
@@ -274,11 +280,19 @@ export default {
     });
     this.selectPeriodItem(this.selectedPeriodName);
   },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.closeOnEscape, true);
+  },
   methods: {
     openFromKeyboard() {
       this.openedFromKeyboard = true;
       this.usedKeyboard = true;
       this.menu = true;
+    },
+    closeOnEscape(event) {
+      if (event.key === 'Escape' && this.menu) {
+        this.closeFromKeyboard(event);
+      }
     },
     closeFromKeyboard(event) {
       // Escape closes the picker alone: unless stopped here, the key reaches the document, where it closes the
