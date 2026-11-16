@@ -608,6 +608,21 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     updateProfile(profile);
   }
 
+  @Override
+  public void updateProfileProperty(String identityId, String propertyName, String value) throws IdentityStorageException {
+    IdentityEntity entity = identityDAO.find(EntityConverterUtils.parseId(identityId));
+    if (entity == null) {
+      throw new IdentityStorageException(IdentityStorageException.Type.FAIL_TO_UPDATE_PROFILE, "Profile does not exist on RDBMS");
+    }
+    Map<String, String> entityProperties = entity.getProperties();
+    if (entityProperties == null) {
+      entityProperties = new HashMap<>();
+    }
+    entityProperties.put(propertyName, value);
+    entity.setProperties(entityProperties);
+    identityDAO.update(entity);
+  }
+
 
 
   /**
