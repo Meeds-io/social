@@ -55,6 +55,7 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
 import io.meeds.social.space.constant.PublicSiteVisibility;
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
@@ -186,37 +187,8 @@ public class EntityConverterUtils {
       for (Entry<String, String> entry : properties.entrySet()) {
         String key = entry.getKey();
         String value = entry.getValue();
-        boolean isJsonArray = false ;
-        JSONArray arr = null ;
-        try {
-          arr = new JSONArray(value);
-          if (value.startsWith("[") && value.endsWith("]")) {
-            // a value like "[john] smith" is not a json array
-            isJsonArray = true;
-          }
-        } catch (Exception ex) {
-          // Ignore this exception
-        }
-        if (Profile.CONTACT_URLS.equals(key) || isJsonArray) {
-          List<Map<String, String>> list = new ArrayList<>();
-          if (arr != null) {
-            try {
-              for (int i = 0; i < arr.length(); i++) {
-                Map<String, String> map = new HashMap<>();
-                JSONObject json = arr.getJSONObject(i);
-                Iterator<String> keys = json.keys();
-                while (keys.hasNext()) {
-                  String k = keys.next();
-                  map.put(k, json.optString(k));
-                }
-                list.add(map);
-              }
-            } catch (JSONException ex) {
-              // Ignore this exception
-            }
-          }
-          props.put(key, list);
-
+        if (Profile.CONTACT_URLS.equals(key) || ProfilePropertyValueUtil.readsBackAsList(value)) {
+          props.put(key, toMapList(value));
         } else if (!Profile.URL.equals(key)) {
           props.put(key, value);
         }
@@ -336,6 +308,36 @@ public class EntityConverterUtils {
     return relationship;
   }
   
+  /**
+   * @param  value a stored profile attribute text
+   * @return       the JSON objects of the array the text holds, up to the first
+   *               entry that is not one, as maps of their keys to their texts;
+   *               empty when the text is not a JSON array
+   */
+  private static List<Map<String, String>> toMapList(String value) {
+    List<Map<String, String>> list = new ArrayList<>();
+    if (value == null) {
+      return list;
+    }
+    try {
+      JSONArray arr = new JSONArray(value);
+      for (int i = 0; i < arr.length(); i++) {
+        Map<String, String> map = new HashMap<>();
+        JSONObject json = arr.getJSONObject(i);
+        Iterator<String> keys = json.keys();
+        while (keys.hasNext()) {
+          String k = keys.next();
+          map.put(k, json.optString(k));
+        }
+        list.add(map);
+      }
+    } catch (JSONException ex) {
+      // Only the contact URLs reach this point with a text that is not an
+      // array of objects: they keep the entries read before it
+    }
+    return list;
+  }
+
   private static Long getFileLastUpdated(Long fileId) {
     FileService fileService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(FileService.class);
     if (fileService != null) {

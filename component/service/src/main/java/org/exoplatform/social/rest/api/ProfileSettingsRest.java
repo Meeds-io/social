@@ -42,6 +42,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
+import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
 import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
 
 import java.util.*;
@@ -54,7 +56,12 @@ public class ProfileSettingsRest implements ResourceContainer {
 
   private static final String          GROUP_ADMINISTRATORS   = "/platform/administrators";
 
+  /** The form parameter's value that lists the account form's attributes */
+  private static final String          ACCOUNT_FORM           = "account";
+
   private final ProfilePropertyService profilePropertyService;
+
+  private final ProfileFormFieldService profileFormFieldService;
 
   private static final CacheControl    CACHE_CONTROL        = new CacheControl();
 
@@ -62,8 +69,9 @@ public class ProfileSettingsRest implements ResourceContainer {
     CACHE_CONTROL.setNoCache(true);
   }
 
-  public ProfileSettingsRest(ProfilePropertyService profilePropertyService) {
+  public ProfileSettingsRest(ProfilePropertyService profilePropertyService, ProfileFormFieldService profileFormFieldService) {
     this.profilePropertyService = profilePropertyService;
+    this.profileFormFieldService = profileFormFieldService;
   }
 
 
@@ -76,17 +84,25 @@ public class ProfileSettingsRest implements ResourceContainer {
           description = "This returns a list of profile settings")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "The form parameter is neither absent nor 'account'"),
     @ApiResponse(responseCode = "500", description = "Internal server error"),
     @ApiResponse(responseCode = "401", description = "Unauthorized operation") })
   public Response getPropertySettings(@Context
   UriInfo uriInfo, @Context
-  Request request) {
+  Request request,
+                                      @Parameter(description = "'account' to get, as settings, only the attributes the account form lists, read from the store")
+                                      @QueryParam("form")
+                                      String form) {
     long currentIdentityId = RestUtils.getCurrentUserIdentityId();
     if (currentIdentityId == 0) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
+    if (form != null && !ACCOUNT_FORM.equals(form)) {
+      return Response.status(Status.BAD_REQUEST).entity("The form parameter, when sent, must be '" + ACCOUNT_FORM + "'").build();
+    }
     try {
-      List<ProfilePropertySetting> properties = profilePropertyService.getPropertySettings();
+      List<ProfilePropertySetting> properties = form == null ? profilePropertyService.getPropertySettings()
+                                                             : profileFormFieldService.getSettings(ProfileFormKind.ACCOUNT);
       if (!ConversationState.getCurrent().getIdentity().isMemberOf(GROUP_ADMINISTRATORS)) {
         properties = properties.stream().filter(prop -> prop.isVisible() || prop.isEditable()).toList();
       }
