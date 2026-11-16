@@ -34,6 +34,7 @@ import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnectorTes
 import org.exoplatform.social.core.jpa.search.ProfileSearchConnectorTest;
 import org.exoplatform.social.core.jpa.storage.ActivityStorageTest;
 import org.exoplatform.social.core.jpa.storage.IdentityStorageTest;
+import io.meeds.social.identity.permission.entity.UserPermissionEntityContainerTest;
 import org.exoplatform.social.core.jpa.storage.ProfileLabelStorageTest;
 import org.exoplatform.social.core.jpa.storage.ProfileSettingStorageTest;
 import org.exoplatform.social.core.jpa.storage.RelationshipStorageTest;
@@ -96,6 +97,7 @@ import io.meeds.social.translation.storage.cache.CachedTranslationStorageCacheTe
   SpaceStorageTest.class,
   UserSpacesStorageTest.class,
   IdentityStorageTest.class,
+  UserPermissionEntityContainerTest.class,
   ProfileSettingStorageTest.class,
   ProfileLabelStorageTest.class,
   ProfilePropertyServiceTest.class,

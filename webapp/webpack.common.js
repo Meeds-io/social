@@ -115,6 +115,7 @@ let config = {
     userStatusPopup: './src/main/webapp/vue-apps/user-status-popup/main.js',
     spaceMembersDrawer: './src/main/webapp/vue-apps/space-members-drawer/main.js',
     profilePropertiesExtensions: './src/main/webapp/vue-apps/profile-settings/extensions/main.js',
+    profileFormFields: './src/main/webapp/vue-apps/profile-form-fields/main.js',
   },
   module: {
     rules: [
