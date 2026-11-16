@@ -47,6 +47,7 @@ import * as registrationService from './js/RegistrationService';
 import * as databindService from './js/DatabindService.js';
 import * as loginService from './js/LoginService.js';
 import * as userAccountConfirmationService from './js/UserAccountConfirmationService.js';
+import * as openingKeystrokeGuard from './js/OpeningKeystrokeGuard.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -153,6 +154,9 @@ window.Object.defineProperty(Vue.prototype, '$loginService', {
 });
 window.Object.defineProperty(Vue.prototype, '$userAccountConfirmationService', {
   value: userAccountConfirmationService,
+});
+window.Object.defineProperty(Vue.prototype, '$openingKeystrokeGuard', {
+  value: openingKeystrokeGuard,
 });
 
 if (eXo.env.portal.userIdentityId) {
