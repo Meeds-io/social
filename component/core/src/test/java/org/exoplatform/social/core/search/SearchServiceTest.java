@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -37,11 +38,14 @@ import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.social.core.search.impl.SearchServiceImpl;
@@ -312,6 +316,40 @@ public class SearchServiceTest {
     addConnectors(searchService, true, "people", "space");
 
     assertEquals(Set.of("people", "space"), enabledNames(searchService));
+  }
+
+  @Test
+  public void testAnExternalUserGetsNeitherThePeopleNorTheSpacesType() {
+    addConnectors(searchService, true, "people", "spaces", "activity");
+    UserACL userACL = mock(UserACL.class);
+    when(userACL.isUserInGroup(any(), anyString())).thenReturn(true);
+    try (MockedStatic<CommonsUtils> commonsUtils = mockStatic(CommonsUtils.class)) {
+      commonsUtils.when(() -> CommonsUtils.getService(UserACL.class)).thenReturn(userACL);
+
+      Set<String> names = searchService.getEnabledConnectors(TEST_USER)
+                                       .stream()
+                                       .map(SearchConnector::getName)
+                                       .collect(Collectors.toSet());
+
+      assertEquals(Set.of("activity"), names);
+    }
+  }
+
+  @Test
+  public void testAnInternalUserGetsThePeopleAndTheSpacesTypes() {
+    addConnectors(searchService, true, "people", "spaces", "activity");
+    UserACL userACL = mock(UserACL.class);
+    when(userACL.isUserInGroup(any(), anyString())).thenReturn(false);
+    try (MockedStatic<CommonsUtils> commonsUtils = mockStatic(CommonsUtils.class)) {
+      commonsUtils.when(() -> CommonsUtils.getService(UserACL.class)).thenReturn(userACL);
+
+      Set<String> names = searchService.getEnabledConnectors(TEST_USER)
+                                       .stream()
+                                       .map(SearchConnector::getName)
+                                       .collect(Collectors.toSet());
+
+      assertEquals(Set.of("people", "spaces", "activity"), names);
+    }
   }
 
   private void addConnectors(SearchServiceImpl service, boolean enabled, String... names) {

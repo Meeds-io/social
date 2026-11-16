@@ -51,6 +51,9 @@ public class SearchServiceImpl implements SearchService, Startable {
 
   private static final String  PLATFORM_EXTERNALS_GROUP  = "/platform/externals";
 
+  /** The search types an external user never gets: the directory of people and of spaces. */
+  private static final Set<String> TYPES_HIDDEN_FROM_EXTERNALS = Set.of("people", "spaces");
+
   private SettingService       settingService;
 
   private Set<SearchConnector> connectors                     = new HashSet<>();
@@ -91,8 +94,7 @@ public class SearchServiceImpl implements SearchService, Startable {
     Set<String> enabledNames = getEffectiveEnabledNames();
     return Collections.unmodifiableSet(connectors.stream()
                                                  .filter(c -> enabledNames.contains(c.getName())
-                                                              && !((c.getName().equals("people") || c.getName().equals("space"))
-                                                                   && isExternalUser))
+                                                              && !(isExternalUser && TYPES_HIDDEN_FROM_EXTERNALS.contains(c.getName())))
                                                  .map(c -> cloneWithEnabled(c, enabledNames))
                                                  .collect(Collectors.toSet()));
   }
