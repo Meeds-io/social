@@ -39,7 +39,7 @@
         :position-x="positionX"
         :position-y="positionY"
         transition="slide-x-reverse-transition"
-        :left="$vuetify.rtl"
+        :left="$vuetify.rtl || openLeft"
         :open-on-hover="isOpenedOnHover"
         absolute
         eager
@@ -119,6 +119,7 @@ export default {
       showMenu: false,
       positionX: 0,
       positionY: 0,
+      openLeft: false,
     };
   },
   computed: {
@@ -155,8 +156,7 @@ export default {
     },
     showMenu() {
       this.isOpenedOnHover = !this.showMenu;
-      this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
-      this.positionY = this.$el.getBoundingClientRect().top;
+      this.updatePosition();
       this.$root.$emit('close-sibling-drop-menus-children', this);
     },
     hasPage() {
@@ -238,8 +238,16 @@ export default {
       return false;
     },
     updateSize() {
-      this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right) ;
-    }
+      this.updatePosition();
+    },
+    // A sub-menu as wide as this list that does not fit on the right of the entry opens on its left: pushed back into
+    // the window, it would cover the entry and the list the pointer comes from (a zoomed page, a menu near the edge)
+    updatePosition() {
+      const rect = this.$el.getBoundingClientRect();
+      this.openLeft = !this.$vuetify.rtl && rect.right + rect.width > window.innerWidth;
+      this.positionX = this.openLeft ? rect.left : rect.right;
+      this.positionY = rect.top;
+    },
   }
 };
 </script>
