@@ -38,6 +38,7 @@
         :legacy-options="legacyOptions[setting.propertyName]"
         :error="errors[setting.propertyName]"
         :disabled="disabled"
+        :registration="registerMode"
         @input="update(setting.propertyName, $event)" />
     </v-form>
     <div
@@ -53,12 +54,13 @@ import * as registry from '../js/ProfileFormFieldsRegistry.js';
 import {toData, toEditionFields} from '../js/ProfileFormFieldValues.js';
 
 /**
- * The attributes the account form lists, one field each, in the settings'
- * order: rendered by a host at its insertion point with the context it keeps,
- * whose data receives the values the administrator enters and whose saving,
- * set while the host saves, disables the fields. On an account's edition,
- * the fields hold the user's values, and the data only the attributes the
- * administrator changed
+ * The attributes a form lists, one field each, in the settings' order:
+ * rendered by a host at its insertion point with the context it keeps, whose
+ * data receives the values entered and whose saving, set while the host
+ * saves, disables the fields. On an account's edition, the fields hold the
+ * user's values, and the data only the attributes the administrator changed.
+ * On registration, the list is read with the page's token, and nothing is
+ * rendered on the e-mail-verification branch, which sends no attribute
  */
 export default {
   props: {
@@ -91,6 +93,9 @@ export default {
     editMode() {
       return this.context?.mode === 'edit';
     },
+    registerMode() {
+      return this.context?.mode === 'register';
+    },
   },
   watch: {
     context(newContext, oldContext) {
@@ -116,6 +121,9 @@ export default {
     loadFields() {
       if (this.editMode) {
         this.loadEditionFields();
+        return;
+      } else if (this.registerMode) {
+        this.loadRegistrationFields();
         return;
       }
       this.load = this.$profileFormFieldService.getAccountFormSettings()
@@ -167,6 +175,26 @@ export default {
         }
       });
     },
+    // The registration's list, read with the page's token. When it cannot be
+    // read, the form cannot tell which attributes are required: an error is
+    // shown and the registration is refused until the page is reloaded
+    loadRegistrationFields() {
+      if (this.context?.branch === 'verifyEmail') {
+        this.loadState = 'empty';
+        this.load = Promise.resolve();
+        return;
+      }
+      this.load = this.$profileFormFieldService.getRegistrationFormSettings(this.context?.token)
+        .then(settings => {
+          this.settings = settings;
+          this.loadState = settings.length ? 'listed' : 'empty';
+        })
+        .catch(() => {
+          this.loadState = 'failed';
+          this.formError = this.$t('profileFormFields.notLoadedReload');
+        })
+        .finally(() => registry.setLoadState(this.context, this.loadState));
+    },
     prefill(settings, properties) {
       const fields = toEditionFields(settings, properties);
       this.values = fields.values;
@@ -185,15 +213,32 @@ export default {
       this.$emit('update:data', this.toData());
     },
     // The fields' rules, then the server's on the values to write, once the
-    // list has answered
+    // list has answered. A registration list that could not be read keeps its
+    // message until the page is reloaded
     validate() {
-      if (!this.editMode) {
+      if (!this.editMode && !(this.registerMode && this.loadState === 'failed')) {
         this.formError = null;
       }
       // A list that answers while the check waits is rendered on the next
       // tick: the form's rules are read once it is
       return this.load.then(() => this.$nextTick())
-        .then(() => (this.editMode ? this.validateEdition() : this.validateCreation()));
+        .then(() => {
+          if (this.editMode) {
+            return this.validateEdition();
+          } else if (this.registerMode) {
+            return this.validateRegistration();
+          }
+          return this.validateCreation();
+        });
+    },
+    // The fields' rules only: the registration request is the server's check,
+    // which refuses before the account exists. A list that could not be read
+    // refuses, since the required attributes are unknown
+    validateRegistration() {
+      if (this.loadState === 'failed') {
+        return false;
+      }
+      return this.loadState !== 'listed' || this.$refs.form.validate();
     },
     // A list that could not be read leaves the server's check, which refuses
     // an account missing a Required attribute

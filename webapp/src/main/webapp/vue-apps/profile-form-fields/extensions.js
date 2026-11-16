@@ -56,6 +56,34 @@ export function registerExtensions() {
         });
     },
   });
+
+  // The additional fields of the registration form: rendered in its profile
+  // section, checked before the registration is sent, and sent with it under
+  // the request parameter, the registration validating them before it
+  // creates the account
+  extensionRegistry.registerExtension('ExternalOnboarding', 'register-form', {
+    id: 'profile-fields',
+    rank: 10,
+    vueComponent: Vue.options.components['profile-form-fields'],
+    requestParameter: 'profileProperties',
+    // The fields' own rules once the list has answered; false when it could
+    // not be read, the required attributes being unknown
+    validate(context) {
+      const component = registry.get(context);
+      return component ? component.validate() : Promise.resolve(true);
+    },
+    // A refusal of the registration naming an attribute shows with the
+    // fields, on the attribute's field when one is drawn; true when the
+    // fields are there to show it
+    showRefusal(context, refusal) {
+      const component = registry.get(context);
+      if (!component) {
+        return false;
+      }
+      component.showRefusal(refusal);
+      return true;
+    },
+  });
 }
 
 // On an account's edition, the fields' own rules once more, since a Save

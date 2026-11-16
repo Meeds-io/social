@@ -32,6 +32,19 @@ export function getAccountFormSettings() {
   }).then(answer => answer?.settings || []);
 }
 
+// The attributes the registration form lists, read from the store by the
+// server for the holder of the page's registration token, with no session
+export function getRegistrationFormSettings(token) {
+  return fetch(`/social/${eXo.env.portal.rest}/login/registrationFields?token=${encodeURIComponent(token || '')}`, {
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+    return resp.json();
+  }).then(settings => settings || []);
+}
+
 // The server's rules applied to the values of an account to create, without
 // writing them; the session confirmation is asked for when it is missing
 export function validateAccountFields(values) {

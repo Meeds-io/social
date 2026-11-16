@@ -32,8 +32,10 @@
         :name="setting.propertyName"
         :rules="index === 0 ? firstRowRules : rowRules"
         :error-messages="index === 0 ? error : null"
+        :prepend-inner-icon="icon"
+        :background-color="backgroundColor"
+        :class="inputClass"
         class="pt-2"
-        prepend-inner-icon="fas fa-ellipsis-h"
         autocomplete="off"
         outlined
         dense
@@ -103,6 +105,19 @@ export default {
     disabled: {
       type: Boolean,
       default: false,
+    },
+    // The look of the form hosting the rows
+    icon: {
+      type: String,
+      default: 'fas fa-ellipsis-h',
+    },
+    backgroundColor: {
+      type: String,
+      default: null,
+    },
+    inputClass: {
+      type: String,
+      default: null,
     },
   },
   data: () => ({

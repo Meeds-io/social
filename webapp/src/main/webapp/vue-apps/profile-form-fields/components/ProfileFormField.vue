@@ -30,6 +30,9 @@
     :format-rule="formatRule"
     :size-rule="sizeRule"
     :disabled="disabled"
+    :icon="icon"
+    :background-color="backgroundColor"
+    :input-class="inputClass"
     class="profileFormField"
     @input="$emit('input', $event)" />
   <profile-form-user-field
@@ -57,9 +60,11 @@
     :rules="requiredRule ? [requiredRule] : []"
     :error-messages="error"
     :menu-props="{ offsetY: true, contentClass: 'profileFormOptionMenu' }"
+    :prepend-inner-icon="icon"
+    :background-color="backgroundColor"
+    :class="inputClass"
     class="profileFormField pt-2"
     item-value="id"
-    prepend-inner-icon="fas fa-ellipsis-h"
     clearable
     outlined
     dense
@@ -93,8 +98,10 @@
     :name="setting.propertyName"
     :rules="valueRules"
     :error-messages="error"
+    :prepend-inner-icon="icon"
+    :background-color="backgroundColor"
+    :class="inputClass"
     class="profileFormField pt-2"
-    prepend-inner-icon="fas fa-ellipsis-h"
     autocomplete="off"
     outlined
     dense
@@ -139,8 +146,23 @@ export default {
       type: Boolean,
       default: false,
     },
+    // Drawn in the registration form, whose own fields are white on the
+    // page's background
+    registration: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
+    icon() {
+      return this.registration ? 'fas fa-ellipsis-h ms-n2 grey--text text--lighten-1' : 'fas fa-ellipsis-h';
+    },
+    backgroundColor() {
+      return this.registration ? 'white' : null;
+    },
+    inputClass() {
+      return this.registration ? 'login-username border-box-sizing' : null;
+    },
     kind() {
       if (this.setting.propertyType === 'user') {
         return 'user';
