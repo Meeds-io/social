@@ -262,4 +262,20 @@ public class UserAccountEmailOtpPluginTest {
     assertFalse(plugin.validateOtp("john", OTP_CODE));
   }
 
+  /**
+   * The send lock of this method lasts the send interval, from the moment the
+   * code is sent
+   */
+  @Test
+  public void testSendLockCarriesTheSendInterval() throws Exception {
+    long before = System.currentTimeMillis();
+    plugin.generateOtpCode("john");
+    long after = System.currentTimeMillis();
+
+    ArgumentCaptor<String> lock = ArgumentCaptor.forClass(String.class);
+    verify(otpSendLockCache).put(eq("userAccountEmail:john"), lock.capture());
+    long lockExpiry = Long.parseLong(lock.getValue());
+    assertTrue(lockExpiry >= before + 60000 && lockExpiry <= after + 60000);
+  }
+
 }
