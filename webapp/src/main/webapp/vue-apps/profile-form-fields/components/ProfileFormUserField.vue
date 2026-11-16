@@ -116,10 +116,25 @@ export default {
       }
     },
   },
+  // The users the field holds when it is drawn, on an account's edition,
+  // shown by their full names
+  created() {
+    this.addHeldUsers();
+  },
   beforeDestroy() {
     window.clearTimeout(this.searchTimer);
   },
   methods: {
+    // One read per user held, since the stored value is a bare username; the
+    // username itself is shown when that read fails
+    addHeldUsers() {
+      [this.value].flat()
+        .filter(userName => userName && !this.users.some(user => user.userName === userName))
+        .forEach(userName => this.$userService.getUser(userName)
+          .then(user => user?.fullname || userName)
+          .catch(() => userName)
+          .then(fullName => this.users = this.users.concat({userName, fullName})));
+    },
     searchUsers(term) {
       this.restoreFocus();
       this.loading++;
