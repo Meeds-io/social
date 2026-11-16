@@ -57,7 +57,7 @@
       ref="moreCategoriesDrawer"
       :selected-id="value"
       toggle
-      @select="selectCategory" />
+      @select="selectFromDrawer" />
   </div>
 </template>
 <script>
@@ -107,6 +107,7 @@ export default {
     pageSize: 10,
     refresh: 1,
     chipsWidthPerCategory: 1,
+    focusPressedChipOnChange: false,
   }),
   computed: {
     isMobile() {
@@ -166,6 +167,12 @@ export default {
     initialize() {
       if (this.initialize) {
         this.init();
+      }
+    },
+    value() {
+      if (this.focusPressedChipOnChange) {
+        this.focusPressedChipOnChange = false;
+        this.$nextTick(this.focusPressedChip);
       }
     },
   },
@@ -240,6 +247,20 @@ export default {
     },
     openMore(categories) {
       this.$refs.moreCategoriesDrawer.open(categories);
+    },
+    selectFromDrawer(category) {
+      // the bar renders other chips once the filter changes, so the "See all" button
+      // that opened the drawer may be gone: the focus goes to the bar's pressed chip
+      this.focusPressedChipOnChange = true;
+      this.selectCategory(category);
+    },
+    focusPressedChip() {
+      const drawer = this.$refs.moreCategoriesDrawer?.$el;
+      const chips = Array.from(this.$el.querySelectorAll('[role="button"][aria-pressed]'))
+        .filter(chip => !drawer?.contains(chip));
+      const pressed = chips.filter(chip => chip.getAttribute('aria-pressed') === 'true');
+      const chip = pressed.length ? pressed[pressed.length - 1] : chips[0];
+      chip?.focus?.();
     },
     selectCategory(category) {
       if (this.value === category?.id) {

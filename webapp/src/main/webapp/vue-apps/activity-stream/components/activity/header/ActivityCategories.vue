@@ -120,7 +120,26 @@ export default {
         await this.$nextTick();
         this.loading = false;
         this.categories.forEach(c => this.$set(this.loadedCategories, c.id, true));
+        this.focusChosenCategory();
       }
+    },
+    focusChosenCategory() {
+      // choosing a category filters the Stream, which renders every activity again:
+      // the activity it was chosen from gives the keyboard focus back to that category
+      const request = this.$root.categoryFocusRequest;
+      if (!request
+          || request.activityId !== this.activity?.id
+          || Date.now() - request.at > 10000) {
+        return;
+      }
+      this.$root.categoryFocusRequest = null;
+      this.$nextTick(() => {
+        const index = this.filteredCategories.findIndex(c => c.id === request.categoryId);
+        const chipRef = index >= 0 && this.$refs[`category${index}`];
+        const chip = Array.isArray(chipRef) ? chipRef[0] : chipRef;
+        const element = chip?.$refs?.chip?.$el || this.$refs.moreButton?.$el;
+        element?.focus?.();
+      });
     },
     handleUpdateCategories(activityId) {
       if (activityId === this.activity?.id) {
@@ -128,6 +147,11 @@ export default {
       }
     },
     selectCategory(category) {
+      this.$root.categoryFocusRequest = {
+        activityId: this.activity?.id,
+        categoryId: category.id,
+        at: Date.now(),
+      };
       if (this.$root.selectedCategoryId === category.id) {
         this.$root.selectedCategoryId = null;
       } else {
