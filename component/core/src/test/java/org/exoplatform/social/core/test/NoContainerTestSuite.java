@@ -108,6 +108,7 @@ import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
 import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 import io.meeds.social.analytics.CollaborativeActivityDeclarationTest;
 import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
+import io.meeds.social.people.service.PeopleDirectoryServiceTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -116,6 +117,7 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     ChangesReminderServiceTest.class,
     UserHomePageServiceTest.class,
     OrganizationalChartSettingServiceTest.class,
+    PeopleDirectoryServiceTest.class,
     OrganizationalChartHeaderTranslationPermissionTest.class,
     UserCardSettingServiceTest.class,
     CacheSelectorTest.class,
