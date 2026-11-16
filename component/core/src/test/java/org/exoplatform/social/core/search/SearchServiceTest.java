@@ -27,18 +27,25 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.social.core.search.impl.SearchServiceImpl;
@@ -52,17 +59,21 @@ public class SearchServiceTest {
 
   private SearchServiceImpl   searchService;
 
+  private SettingService      settingService;
+
+  private Map<String, String> settingValues;
+
   @Before
   public void setup() {
-    Map<String, String> settingValues = new HashMap<>();
-    SettingService settingService = mock(SettingService.class);
+    settingValues = new HashMap<>();
+    settingService = mock(SettingService.class);
     doAnswer(invocation -> {
       Context context = invocation.getArgument(0, Context.class);
       Scope scope = invocation.getArgument(1, Scope.class);
       String key = invocation.getArgument(2, String.class);
       SettingValue<?> value = invocation.getArgument(3, SettingValue.class);
       String settingKey = context.getId() + context.getName() + scope.getId() + scope.getName() + key;
-      settingValues.put(settingKey, value.toString());
+      settingValues.put(settingKey, String.valueOf(value.getValue()));
       return null;
     }).when(settingService).set(any(Context.class), any(Scope.class), anyString(), any(SettingValue.class));
 
@@ -225,6 +236,142 @@ public class SearchServiceTest {
 
     assertNotNull(searchService.getEnabledConnectorNames());
     assertEquals(1, searchService.getEnabledConnectorNames().size());
+  }
+
+  @Test
+  public void testEnabledConnectorsSharedBetweenInstances() {
+    SearchServiceImpl otherNode = new SearchServiceImpl(settingService);
+    addConnectors(searchService, false, "people", "space", "activity");
+    addConnectors(otherNode, false, "people", "space", "activity");
+
+    searchService.setConnectorAsEnabled("people", true);
+    searchService.setConnectorAsEnabled("space", true);
+
+    assertEquals(Set.of("people", "space"), enabledNames(otherNode));
+    assertEquals(Set.of("people", "space"), enabledNames(searchService));
+
+    otherNode.setConnectorAsEnabled("people", false);
+    assertEquals(Set.of("space"), enabledNames(searchService));
+    assertEquals(Set.of("space"), enabledNames(otherNode));
+  }
+
+  @Test
+  public void testStoredValueIsSeparatedAndSurvivesRestart() {
+    addConnectors(searchService, false, "people", "space", "activity");
+    searchService.setConnectorAsEnabled("people", true);
+    searchService.setConnectorAsEnabled("space", true);
+
+    assertEquals("people,space",
+                 String.valueOf(settingService.get(Context.GLOBAL.id("search"),
+                                                   Scope.APPLICATION.id("connectors"),
+                                                   "enabledSearchConnectors")
+                                              .getValue()));
+
+    SearchServiceImpl restarted = new SearchServiceImpl(settingService);
+    addConnectors(restarted, false, "people", "space", "activity");
+    restarted.start();
+
+    assertEquals(Set.of("people", "space"), enabledNames(restarted));
+    assertEquals(List.of("people", "space"), restarted.getEnabledConnectorNames().stream().sorted().toList());
+  }
+
+  @Test
+  public void testLegacyConcatenatedValueIsRead() {
+    addConnectors(searchService, true, "people", "space", "activity");
+    settingService.set(Context.GLOBAL.id("search"),
+                       Scope.APPLICATION.id("connectors"),
+                       "enabledSearchConnectors",
+                       SettingValue.create("peoplespace"));
+
+    assertEquals(Set.of("people", "space"), enabledNames(searchService));
+    assertEquals(2, searchService.getEnabledConnectorNames().size());
+  }
+
+  @Test
+  public void testLegacyConcatenatedValueNamingAnUndeployedConnectorKeepsTheDeployedOnes() {
+    addConnectors(searchService, true, "people", "space", "activity");
+    settingService.set(Context.GLOBAL.id("search"),
+                       Scope.APPLICATION.id("connectors"),
+                       "enabledSearchConnectors",
+                       SettingValue.create("peoplewikispace"));
+
+    assertEquals(Set.of("people", "space"), enabledNames(searchService));
+  }
+
+  @Test
+  public void testEveryTypeDisabledStaysDisabledAfterRestart() {
+    addConnectors(searchService, true, "people", "space");
+    searchService.setConnectorAsEnabled("people", false);
+    searchService.setConnectorAsEnabled("space", false);
+
+    SearchServiceImpl restarted = new SearchServiceImpl(settingService);
+    addConnectors(restarted, true, "people", "space");
+    restarted.start();
+
+    assertEquals(Set.of(), enabledNames(restarted));
+  }
+
+  @Test
+  public void testPluginDefaultAppliesWhenNothingStored() {
+    addConnectors(searchService, true, "people", "space");
+
+    assertEquals(Set.of("people", "space"), enabledNames(searchService));
+  }
+
+  @Test
+  public void testAnExternalUserGetsNeitherThePeopleNorTheSpacesType() {
+    addConnectors(searchService, true, "people", "spaces", "activity");
+    UserACL userACL = mock(UserACL.class);
+    when(userACL.isUserInGroup(any(), anyString())).thenReturn(true);
+    try (MockedStatic<CommonsUtils> commonsUtils = mockStatic(CommonsUtils.class)) {
+      commonsUtils.when(() -> CommonsUtils.getService(UserACL.class)).thenReturn(userACL);
+
+      Set<String> names = searchService.getEnabledConnectors(TEST_USER)
+                                       .stream()
+                                       .map(SearchConnector::getName)
+                                       .collect(Collectors.toSet());
+
+      assertEquals(Set.of("activity"), names);
+    }
+  }
+
+  @Test
+  public void testAnInternalUserGetsThePeopleAndTheSpacesTypes() {
+    addConnectors(searchService, true, "people", "spaces", "activity");
+    UserACL userACL = mock(UserACL.class);
+    when(userACL.isUserInGroup(any(), anyString())).thenReturn(false);
+    try (MockedStatic<CommonsUtils> commonsUtils = mockStatic(CommonsUtils.class)) {
+      commonsUtils.when(() -> CommonsUtils.getService(UserACL.class)).thenReturn(userACL);
+
+      Set<String> names = searchService.getEnabledConnectors(TEST_USER)
+                                       .stream()
+                                       .map(SearchConnector::getName)
+                                       .collect(Collectors.toSet());
+
+      assertEquals(Set.of("people", "spaces", "activity"), names);
+    }
+  }
+
+  private void addConnectors(SearchServiceImpl service, boolean enabled, String... names) {
+    for (String name : names) {
+      InitParams params = new InitParams();
+      ObjectParameter objectParameter = new ObjectParameter();
+      SearchConnector searchConnector = new SearchConnector();
+      searchConnector.setEnabled(enabled);
+      searchConnector.setName(name);
+      searchConnector.setUri("uri");
+      objectParameter.setObject(searchConnector);
+      params.addParam(objectParameter);
+      service.addConnector(new SearchConnectorPlugin(params));
+    }
+  }
+
+  private Set<String> enabledNames(SearchServiceImpl service) {
+    return service.getConnectors()
+                  .stream()
+                  .filter(SearchConnector::isEnabled)
+                  .map(SearchConnector::getName)
+                  .collect(Collectors.toSet());
   }
 
 }
