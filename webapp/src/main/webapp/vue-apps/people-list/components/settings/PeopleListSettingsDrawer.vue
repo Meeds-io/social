@@ -165,7 +165,8 @@ export default {
   },
   methods: {
     open() {
-      const headerTranslations = JSON.parse(JSON.stringify(this.$root.headerTranslations || {}));
+      // the labels are strings: a shallow copy detaches the form from the root
+      const headerTranslations = {...(this.$root.headerTranslations || {})};
       this.headerEnabled = Object.keys(headerTranslations).length > 0;
       this.headerTranslations = headerTranslations;
       this.pageSize = this.$root.pageSize;
@@ -229,7 +230,7 @@ export default {
       if (value === null || typeof value !== 'object' || Array.isArray(value)) {
         return JSON.stringify(value);
       }
-      return JSON.stringify(Object.keys(value).sort().map(key => [key, this.canonical(value[key])]));
+      return JSON.stringify(Object.keys(value).sort((a, b) => a.localeCompare(b)).map(key => [key, this.canonical(value[key])]));
     },
   },
 };
