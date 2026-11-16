@@ -18,7 +18,7 @@
  */
 package org.exoplatform.social.core.search.impl;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +51,9 @@ public class SearchServiceImpl implements SearchService, Startable {
 
   private static final String  PLATFORM_EXTERNALS_GROUP  = "/platform/externals";
 
+  /** The search types an external user never gets: the directory of people and of spaces. */
+  private static final Set<String> TYPES_HIDDEN_FROM_EXTERNALS = Set.of("people", "spaces");
+
   private SettingService       settingService;
 
   private Set<SearchConnector> connectors                     = new HashSet<>();
@@ -61,12 +64,7 @@ public class SearchServiceImpl implements SearchService, Startable {
 
   @Override
   public void start() {
-    List<String> enabledTypes = getEnabledConnectorNames();
-    if (enabledTypes != null && !enabledTypes.isEmpty()) {
-      for (SearchConnector connector : connectors) {
-        connector.setEnabled(enabledTypes.contains(connector.getName()));
-      }
-    }
+    // Enabled state is read from the settings store on each call
   }
 
   @Override
@@ -83,31 +81,28 @@ public class SearchServiceImpl implements SearchService, Startable {
 
   @Override
   public Set<SearchConnector> getConnectors() {
-    return Collections.unmodifiableSet(connectors.stream().map(SearchConnector::clone).collect(Collectors.toSet()));
+    Set<String> enabledNames = getEffectiveEnabledNames();
+    return Collections.unmodifiableSet(connectors.stream()
+                                                 .map(c -> cloneWithEnabled(c, enabledNames))
+                                                 .collect(Collectors.toSet()));
   }
 
   @Override
   public Set<SearchConnector> getEnabledConnectors(String username) {
     UserACL userACL = CommonsUtils.getService(UserACL.class);
     boolean isExternalUser = userACL.isUserInGroup(userACL.getUserIdentity(username), PLATFORM_EXTERNALS_GROUP);
+    Set<String> enabledNames = getEffectiveEnabledNames();
     return Collections.unmodifiableSet(connectors.stream()
-                                                 .filter(c -> c.isEnabled() && !((c.getName().equals("people") || c.getName().equals("space")) && isExternalUser))
-                                                 .map(SearchConnector::clone)
+                                                 .filter(c -> enabledNames.contains(c.getName())
+                                                              && !(isExternalUser && TYPES_HIDDEN_FROM_EXTERNALS.contains(c.getName())))
+                                                 .map(c -> cloneWithEnabled(c, enabledNames))
                                                  .collect(Collectors.toSet()));
   }
 
   @Override
   public List<String> getEnabledConnectorNames() {
-    SettingValue<?> enabledSearchTypes = settingService.get(SEARCH_CONNECTORS_CONTEXT,
-                                                            SEARCH_CONNECTORS_SCOPE,
-                                                            SEARCH_CONNECTORS_STATUS_PARAM);
-    String enabledSearchTypesValue = enabledSearchTypes == null
-        || enabledSearchTypes.getValue() == null ? null : enabledSearchTypes.getValue().toString();
-    List<String> enabledTypes = null;
-    if (StringUtils.isNotBlank(enabledSearchTypesValue)) {
-      enabledTypes = Arrays.asList(enabledSearchTypesValue.split(",\\s*"));
-    }
-    return enabledTypes == null ? Collections.emptyList() : enabledTypes;
+    String storedValue = getStoredValue();
+    return StringUtils.isBlank(storedValue) ? Collections.emptyList() : parseNames(storedValue);
   }
 
   @Override
@@ -115,28 +110,129 @@ public class SearchServiceImpl implements SearchService, Startable {
     if (StringUtils.isBlank(name)) {
       throw new IllegalStateException("connector name is empty");
     }
-    SearchConnector connector = connectors.stream()
-                                          .filter(conn -> StringUtils.equals(name, conn.getName()))
-                                          .findFirst()
-                                          .orElse(null);
-    if (connector == null) {
+    boolean exists = connectors.stream().anyMatch(conn -> StringUtils.equals(name, conn.getName()));
+    if (!exists) {
       throw new IllegalStateException("Can't find connector with name: " + name);
     }
-    connector.setEnabled(enabled);
-    storeConnectorsStatus();
+    Set<String> enabledNames = new HashSet<>(getEffectiveEnabledNames());
+    if (enabled) {
+      enabledNames.add(name);
+    } else {
+      enabledNames.remove(name);
+    }
+    storeEnabledNames(enabledNames);
   }
 
-  private void storeConnectorsStatus() {
-    StringBuilder statuses = new StringBuilder();
-    for (SearchConnector searchConnector : connectors) {
-      if (searchConnector.isEnabled()) {
-        statuses.append(searchConnector.getName());
-      }
+  private Set<String> getEffectiveEnabledNames() {
+    String storedValue = getStoredValue();
+    if (storedValue == null) {
+      return connectors.stream()
+                       .filter(SearchConnector::isEnabled)
+                       .map(SearchConnector::getName)
+                       .collect(Collectors.toSet());
+    } else {
+      return new HashSet<>(parseNames(storedValue));
     }
+  }
+
+  private String getStoredValue() {
+    SettingValue<?> enabledSearchTypes = settingService.get(SEARCH_CONNECTORS_CONTEXT,
+                                                            SEARCH_CONNECTORS_SCOPE,
+                                                            SEARCH_CONNECTORS_STATUS_PARAM);
+    return enabledSearchTypes == null || enabledSearchTypes.getValue() == null ? null : enabledSearchTypes.getValue().toString();
+  }
+
+  private void storeEnabledNames(Set<String> enabledNames) {
+    String statuses = connectors.stream()
+                                .map(SearchConnector::getName)
+                                .filter(enabledNames::contains)
+                                .sorted()
+                                .collect(Collectors.joining(","));
     settingService.set(SEARCH_CONNECTORS_CONTEXT,
                        SEARCH_CONNECTORS_SCOPE,
                        SEARCH_CONNECTORS_STATUS_PARAM,
-                       SettingValue.create(statuses.toString()));
+                       SettingValue.create(statuses));
+  }
+
+  private List<String> parseNames(String storedValue) {
+    // A value without separator may be the concatenated names an earlier
+    // version stored
+    boolean legacyValue = !storedValue.contains(",");
+    List<String> names = new ArrayList<>();
+    for (String token : storedValue.split(",\\s*")) {
+      if (StringUtils.isNotBlank(token)) {
+        List<String> split = splitConcatenatedNames(token, 0);
+        if (split == null && legacyValue) {
+          split = findKnownNames(token);
+        }
+        if (split == null || split.isEmpty()) {
+          names.add(token);
+        } else {
+          names.addAll(split);
+        }
+      }
+    }
+    return names;
+  }
+
+  /**
+   * Reads the names of the deployed connectors in a concatenated value that
+   * also holds a name no deployed connector has, such as an add-on's removed
+   * since: the longest deployed name is taken at each position, and the
+   * characters no deployed name starts with are skipped. A removed name that
+   * contains a deployed one therefore enables that deployed type: a known
+   * limit of reading a value stored without separators.
+   */
+  private List<String> findKnownNames(String value) {
+    List<String> names = new ArrayList<>();
+    int index = 0;
+    while (index < value.length()) {
+      String longestName = null;
+      for (SearchConnector connector : connectors) {
+        String connectorName = connector.getName();
+        if (StringUtils.isNotEmpty(connectorName)
+            && value.startsWith(connectorName, index)
+            && (longestName == null || connectorName.length() > longestName.length())) {
+          longestName = connectorName;
+        }
+      }
+      if (longestName == null) {
+        index++;
+      } else {
+        names.add(longestName);
+        index += longestName.length();
+      }
+    }
+    return names;
+  }
+
+  /**
+   * Splits a value written without separator by matching the known connector
+   * names.
+   *
+   * @return the names, or null when the value can't be fully matched
+   */
+  private List<String> splitConcatenatedNames(String value, int from) {
+    if (from == value.length()) {
+      return new ArrayList<>();
+    }
+    for (SearchConnector connector : connectors) {
+      String connectorName = connector.getName();
+      if (StringUtils.isNotEmpty(connectorName) && value.startsWith(connectorName, from)) {
+        List<String> rest = splitConcatenatedNames(value, from + connectorName.length());
+        if (rest != null) {
+          rest.add(0, connectorName);
+          return rest;
+        }
+      }
+    }
+    return null;
+  }
+
+  private SearchConnector cloneWithEnabled(SearchConnector connector, Set<String> enabledNames) {
+    SearchConnector clone = connector.clone();
+    clone.setEnabled(enabledNames.contains(connector.getName()));
+    return clone;
   }
 
 }
