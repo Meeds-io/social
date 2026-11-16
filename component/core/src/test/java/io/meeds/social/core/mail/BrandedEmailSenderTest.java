@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +32,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.mail.Address;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
@@ -121,6 +123,28 @@ public class BrandedEmailSenderTest {
     assertTrue("Primary color should be injected in the email body", body.contains("#123456"));
     assertFalse("All i18n placeholders should be resolved", body.contains("${"));
     assertFalse("The content fragment token should be replaced", body.contains("$EMAIL_CONTENT"));
+  }
+
+  /**
+   * The email goes to the address of the user's account, unless the caller
+   * names another one, which then is the only recipient
+   */
+  @Test
+  @SneakyThrows
+  public void testSendEmailGoesToTheGivenAddressOrToTheAccountOne() {
+    brandedEmailSender.sendEmail(USERNAME, "My Email Subject", CONTENT_FRAGMENT_PATH, Map.of());
+    brandedEmailSender.sendEmail(USERNAME, "john.new@example.org", "My Email Subject", CONTENT_FRAGMENT_PATH, Map.of());
+
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    verify(mailService, times(2)).sendMessage(messageCaptor.capture());
+    Address[] accountRecipients = messageCaptor.getAllValues().get(0).getAllRecipients();
+    assertEquals(1, accountRecipients.length);
+    assertEquals("john@example.com", accountRecipients[0].toString());
+    Address[] givenRecipients = messageCaptor.getAllValues().get(1).getAllRecipients();
+    assertEquals(1, givenRecipients.length);
+    assertEquals("john.new@example.org", givenRecipients[0].toString());
+    assertTrue("The wording stays the user's",
+               String.valueOf(messageCaptor.getAllValues().get(1).getContent()).contains("John Doe"));
   }
 
   @Test

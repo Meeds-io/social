@@ -217,6 +217,20 @@ public class AccountDeactivationServiceTest {
     assertFalse(accountDeactivationService.isDeactivationAllowed(USERNAME));
   }
 
+  /**
+   * A code of the email change goes to an address the caller chooses: it never
+   * deactivates the account, and the code is not even checked.
+   */
+  @Test
+  @SneakyThrows
+  public void testRequestDeactivationRefusesAMethodThatDoesNotProveTheAccount() {
+    allowDeactivation();
+    assertThrows(IllegalAccessException.class,
+                 () -> accountDeactivationService.requestDeactivation(USERNAME, "emailChange", "123456:someone@example.org", false));
+    verify(otpService, never()).validateOtp(anyString(), anyString(), anyString());
+    verify(userHandler, never()).setEnabled(anyString(), anyBoolean(), anyBoolean());
+  }
+
   @Test
   @SneakyThrows
   public void testRequestDeactivationDisablesUserAndInvalidatesSessions() {
