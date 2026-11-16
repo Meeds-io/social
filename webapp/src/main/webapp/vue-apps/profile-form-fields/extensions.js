@@ -72,17 +72,6 @@ export function registerExtensions() {
       const component = registry.get(context);
       return component ? component.validate() : Promise.resolve(true);
     },
-    // A refusal of the registration naming an attribute shows with the
-    // fields, on the attribute's field when one is drawn; true when the
-    // fields are there to show it
-    showRefusal(context, refusal) {
-      const component = registry.get(context);
-      if (!component) {
-        return false;
-      }
-      component.showRefusal(refusal);
-      return true;
-    },
   });
 }
 

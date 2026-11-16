@@ -377,7 +377,7 @@ public class LoginRest {
       @ApiResponse(responseCode = "302", description = "Registered, or the token's account already exists: redirect to the login page, with error=additionalFieldsNotSaved when the account was created but its additional fields were not saved; a signed-in caller is redirected to /portal"),
       @ApiResponse(responseCode = "400", description = "A refused field: {error} with its code; for a refused additional field, {error, propertyName}; additional fields that are not a JSON array of {propertyName, value} or {propertyName, values} answer profile.formField.invalidValue with no propertyName"),
       @ApiResponse(responseCode = "404", description = "The registration token is unknown, expired, or already used"),
-      @ApiResponse(responseCode = "500", description = "The account could not be created: {error: external.registration.fail.create.user}"),
+      @ApiResponse(responseCode = "500", description = "The registration failed: {error: external.registration.fail.create.user}; the account may exist when the failure followed its creation"),
   })
   public ResponseEntity<String> register(HttpServletRequest request,
                                          @Parameter(description = "Email")

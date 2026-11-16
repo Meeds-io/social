@@ -112,7 +112,7 @@ import {hasValue, isValidEmail, storedLength, MAX_STORED_LENGTH} from '../js/Pro
 import {optionLabel} from '../js/ProfileFormFieldValues.js';
 
 /**
- * One attribute's field, drawn as the account form's own fields are: a text
+ * One attribute's field, drawn as the hosting form's own fields are: a text
  * field, a select over the attribute's options, rows of values for a
  * multi-valued text, a search on the users for a user attribute
  */

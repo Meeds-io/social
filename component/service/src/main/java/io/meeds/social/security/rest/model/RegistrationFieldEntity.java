@@ -35,7 +35,8 @@ import org.exoplatform.social.rest.entity.ProfilePropertyOptionEntity;
  * @param dropdownList    whether the value is one of the attribute's options
  * @param multiValued     whether the attribute holds several values
  * @param required        whether the registration requires a value
- * @param order           the attribute's position among the listed ones
+ * @param order           the attribute's order among the profile's
+ *                          attributes, which sorts the listed ones
  * @param labels          the attribute's labels, in every language
  * @param propertyOptions the attribute's options, translated in the request's
  *                          locale

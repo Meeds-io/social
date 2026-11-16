@@ -363,13 +363,6 @@ export default {
         .forEach(extension => parameters[extension.requestParameter] = JSON.stringify(this.extensionContexts[extension.id]?.data || []));
       return parameters;
     },
-    // A refusal naming an attribute shows with the extension's fields; true
-    // when one shows it
-    showExtensionRefusal(data) {
-      const refusal = {code: data?.error, propertyName: data?.propertyName};
-      return !!refusal.propertyName
-        && this.extensions.some(extension => extension.showRefusal && extension.showRefusal(this.extensionContexts[extension.id], refusal));
-    },
     register() {
       this.$loginService.register(this.email, this.firstName, this.lastName, this.password, this.confirmPassword, this.tokenParam, this.captcha, this.getExtensionParameters()).then((resp) => {
         if (!resp || !resp.ok) {
@@ -377,7 +370,7 @@ export default {
           resp.json().catch(() => ({error: resp.status === 404 ? 'onboarding.linkExpired' : 'UILoginForm.label.unknownError'})).then((data) => {
             this.error = data.error;
             this.errorField = data.errorField;
-            if (!this.errorField && !this.showExtensionRefusal(data)) {
+            if (!this.errorField) {
               this.$root.$emit('alert-message', this.$t(this.error), 'error');
             }
             this.loading = false;
