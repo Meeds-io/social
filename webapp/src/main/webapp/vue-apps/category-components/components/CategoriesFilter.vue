@@ -57,7 +57,7 @@
       ref="moreCategoriesDrawer"
       :selected-id="value"
       toggle
-      @select="selectFromDrawer" />
+      @select="selectCategory" />
   </div>
 </template>
 <script>
@@ -172,7 +172,7 @@ export default {
     value() {
       if (this.focusPressedChipOnChange) {
         this.focusPressedChipOnChange = false;
-        this.$nextTick(this.focusPressedChip);
+        this.$nextTick(() => this.focusPressedChip());
       }
     },
   },
@@ -248,21 +248,24 @@ export default {
     openMore(categories) {
       this.$refs.moreCategoriesDrawer.open(categories);
     },
-    selectFromDrawer(category) {
-      // the bar renders other chips once the filter changes, so the "See all" button
-      // that opened the drawer may be gone: the focus goes to the bar's pressed chip
-      this.focusPressedChipOnChange = true;
-      this.selectCategory(category);
-    },
-    focusPressedChip() {
+    focusPressedChip(attempts = 10) {
+      // the chips group renders its chips again a tick after it receives them
       const drawer = this.$refs.moreCategoriesDrawer?.$el;
-      const chips = Array.from(this.$el.querySelectorAll('[role="button"][aria-pressed]'))
+      const chips = Array.from(this.$el?.querySelectorAll?.('[role="button"][aria-pressed]') || [])
         .filter(chip => !drawer?.contains(chip));
       const pressed = chips.filter(chip => chip.getAttribute('aria-pressed') === 'true');
       const chip = pressed.length ? pressed[pressed.length - 1] : chips[0];
-      chip?.focus?.();
+      if (chip) {
+        chip.focus();
+      } else if (attempts > 1) {
+        window.setTimeout(() => this.focusPressedChip(attempts - 1), 100);
+      }
     },
     selectCategory(category) {
+      // the bar renders other chips once the filter changes, so the chip or the
+      // "See all" button the choice came from may be gone: the focus goes to the
+      // bar's pressed chip
+      this.focusPressedChipOnChange = true;
       if (this.value === category?.id) {
         const categoryIndex = this.breadcrumb.findIndex(c => c.id === category.id);
         this.$emit('input', categoryIndex > 0 ? this.breadcrumb[categoryIndex - 1]?.id : null);

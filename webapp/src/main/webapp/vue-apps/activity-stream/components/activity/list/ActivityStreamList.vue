@@ -363,6 +363,13 @@ export default {
           this.retrievedSize = activityIds.length;
           this.hasMore = activityIds.length > this.limit;
           const activityIdsToLoad = activityIds.slice(0, this.limit);
+          const focusRequest = this.$root.categoryFocusRequest;
+          if (focusRequest && !activityIdsToLoad.find(a => a?.id === focusRequest.activityId)) {
+            // the activity a category was chosen from is not shown any more:
+            // the focus goes to the Stream's category filter instead
+            this.$root.categoryFocusRequest = null;
+            this.$root.$emit('activity-stream-focus-category-filter');
+          }
           const promises = activityIdsToLoad.map((activity, index) => {
             const activityId = activity && activity.id;
             const existingActivity = this.activities.find(loadedActivity => loadedActivity.id === activityId);
