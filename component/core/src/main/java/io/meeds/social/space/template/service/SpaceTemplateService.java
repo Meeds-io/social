@@ -422,6 +422,18 @@ public class SpaceTemplateService {
                               .toList();
   }
 
+  /**
+   * @param templateId a space template id
+   * @return whether another template allows it as a sub-space template, so
+   *         that a space of this template is created under a parent
+   */
+  public boolean isSubspaceTemplate(long templateId) {
+    return getSpaceTemplates().stream()
+                              .filter(template -> template.getId() != templateId && template.getAllowedSubspaceTemplates() != null)
+                              .flatMap(template -> template.getAllowedSubspaceTemplates().stream().map(this::extractTemplateId))
+                              .anyMatch(id -> id != null && id == templateId);
+  }
+
   public List<Long> getSubspaceTemplateIds(String userName) {
     return getSpaceTemplates().stream()
                               .filter(template -> template.getAllowedSubspaceTemplates() != null)

@@ -42,6 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.SpaceStorageException;
 
 import io.meeds.social.space.rest.model.SpaceSecuritySettingsEntity;
 import io.meeds.social.space.security.exception.SpaceSecurityChangeNotAppliedException;
@@ -54,8 +55,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import jakarta.persistence.LockTimeoutException;
-import jakarta.persistence.PessimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -140,7 +139,7 @@ public class SpaceSecurityRest {
     } catch (IllegalAccessException e) {
       throw forbidden(e);
     } catch (RuntimeException e) {
-      if (isConcurrentUpdate(e)) {
+      if (SpaceStorageException.isConcurrentUpdate(e)) {
         LOG.debug("Concurrent change of space {} refused", spaceId, e);
         throw new ResponseStatusException(HttpStatus.CONFLICT, CONCURRENT_UPDATE_MESSAGE_CODE);
       }
@@ -205,17 +204,6 @@ public class SpaceSecurityRest {
    */
   private boolean canChange(String field, BooleanSupplier hasRight) {
     return FIELDS.contains(field) && hasRight.getAsBoolean();
-  }
-
-  private boolean isConcurrentUpdate(Throwable e) {
-    Throwable cause = e;
-    while (cause != null) {
-      if (cause instanceof LockTimeoutException || cause instanceof PessimisticLockException) {
-        return true;
-      }
-      cause = cause.getCause() == cause ? null : cause.getCause();
-    }
-    return false;
   }
 
   private <T> ResponseEntity<T> noStore(T body) {

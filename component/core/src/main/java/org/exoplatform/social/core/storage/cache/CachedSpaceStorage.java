@@ -62,6 +62,7 @@ import org.exoplatform.web.security.security.RemindPasswordTokenService;
 import io.meeds.social.space.constant.UserSpacesScope;
 import io.meeds.social.space.model.MembershipChange;
 import io.meeds.social.space.model.MembershipChangeResult;
+import io.meeds.social.space.model.SpaceParentChange;
 import io.meeds.social.space.security.model.SpaceSettingsChange;
 import io.meeds.social.space.security.model.SpaceSettingsChangeResult;
 
@@ -213,6 +214,18 @@ public class CachedSpaceStorage extends SpaceStorage {
   public Space saveSpace(final Space space, final boolean isNew) {
     try {
       return super.saveSpace(space, isNew);
+    } finally {
+      spaceCache.remove(new SpaceKey(space.getSpaceId()));
+      clearSpaceCache();
+      clearIdentityCache();
+      cleanRef(space);
+    }
+  }
+
+  @Override
+  public Space saveSpace(final Space space, final SpaceParentChange parentChange) {
+    try {
+      return super.saveSpace(space, parentChange);
     } finally {
       spaceCache.remove(new SpaceKey(space.getSpaceId()));
       clearSpaceCache();
