@@ -1,1 +1,2 @@
-<p style="margin: 0; padding: 15px; font-size:13px; color:#333333; line-height:18px;">$ACTIVITY</p>
+<% def palette = org.exoplatform.commons.notification.mail.MailPalette.of(_templateContext) %>
+<p style="margin: 0; padding: 15px; font-size:13px; color:${palette.text}; line-height:18px;" class="mail-text">$ACTIVITY</p>

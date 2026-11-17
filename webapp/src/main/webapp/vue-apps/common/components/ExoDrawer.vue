@@ -323,6 +323,7 @@ export default {
     }
   },
   data: () => ({
+    lightScope: null,
     initialized: false,
     drawer: false,
     drawerLoading: false,
@@ -498,6 +499,16 @@ export default {
       }
     },
     mountOnParent() {
+      // A drawer of an application that keeps its light display keeps it once moved out of the application: decided
+      // before the first move, as later opens find the drawer already moved
+      if (this.lightScope === null) {
+        this.lightScope = !!(this.$root.lightOnly
+          || this.$el?.closest?.('[data-display-mode="light"]:not(html)')
+          || this.$root.$el?.closest?.('[data-display-mode="light"]:not(html)'));
+      }
+      if (this.lightScope) {
+        this.$el.setAttribute('data-display-mode', 'light');
+      }
       // Re-append the drawer to open in order
       // to ensure to attribute an adequate z-index
       // Which makes it displayed on top of other already

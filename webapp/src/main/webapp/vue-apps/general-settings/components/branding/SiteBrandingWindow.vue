@@ -27,7 +27,7 @@
       <portal-general-settings-branding-site 
         :branding="branding"
         :custom-css="customStylesheet"
-        @changed="$emit('changed')"
+        @changed="$emit('changed', $event)"
         @saved="$emit('saved')"
         @close="$emit('close')" />
     </v-col>

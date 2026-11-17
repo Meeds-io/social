@@ -1,58 +1,59 @@
-<table border="0" cellpadding="0" cellspacing="0" width="600" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 12px;color:#333333;line-height: 18px;font-family: HelveticaNeue, Helvetica, Arial, sans-serif;">
+<% def palette = org.exoplatform.commons.notification.mail.MailPalette.of(_templateContext) %>
+<table border="0" cellpadding="0" cellspacing="0" width="600" bgcolor="${palette.surface}" align="center" style="background-color: ${palette.surface}; font-size: 12px;color:${palette.text};line-height: 18px;font-family: HelveticaNeue, Helvetica, Arial, sans-serif;" class="mail-surface mail-text">
     <%
       _templateContext.put("header_title", _ctx.appRes("Notification.title.ActivityReplyToCommentPlugin"));
       _ctx.include("war:/notification/templates/mail/NotificationHeader.gtmpl", _templateContext);
     %>
     <tr>
-        <td bgcolor="#ffffff" style="background-color: #ffffff;">
-            <table cellpadding="0" cellspacing="0" width="100%"  bgcolor="#ffffff" style="background-color: #ffffff; border-left:1px solid #d8d8d8;border-right:1px solid #d8d8d8;">
+        <td bgcolor="${palette.surface}" style="background-color: ${palette.surface};" class="mail-surface">
+            <table cellpadding="0" cellspacing="0" width="100%"  bgcolor="${palette.surface}" style="background-color: ${palette.surface}; border-left:1px solid ${palette.border};border-right:1px solid ${palette.border};" class="mail-surface mail-border">
                 <tr>
-                    <td bgcolor="#ffffff" style="background-color: #ffffff;">
-                        <table border="0" cellpadding="0" cellspacing="0" width="92%" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 12px;color:#333333;line-height: 18px;">
+                    <td bgcolor="${palette.surface}" style="background-color: ${palette.surface};" class="mail-surface">
+                        <table border="0" cellpadding="0" cellspacing="0" width="92%" bgcolor="${palette.surface}" align="center" style="background-color: ${palette.surface}; font-size: 12px;color:${palette.text};line-height: 18px;" class="mail-surface mail-text">
                             <tr>
-                                <td align="left" bgcolor="#ffffff" style="background-color: #ffffff;padding: 20px 0 10px;">
-                                    <p style="margin: 0 0 10px; line-height: 16px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif; color: #333333;"><%=_ctx.appRes("Notification.label.SayHello")%> <%=_ctx.escapeHTML(FIRSTNAME)%>,</p>
-                                    <p style="margin: 10px 0 20px; line-height: 16px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif; color: #333333;">
+                                <td align="left" bgcolor="${palette.surface}" style="background-color: ${palette.surface};padding: 20px 0 10px;" class="mail-surface">
+                                    <p style="margin: 0 0 10px; line-height: 16px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif; color: ${palette.text};" class="mail-text"><%=_ctx.appRes("Notification.label.SayHello")%> <%=_ctx.escapeHTML(FIRSTNAME)%>,</p>
+                                    <p style="margin: 10px 0 20px; line-height: 16px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif; color: ${palette.text};" class="mail-text">
                                     <%
-                                      String profileUrl = "<strong><a target=\"_blank\" style=\"color: #2f5e92; font-size: 13px; text-decoration: none; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif\" href=\""+ PROFILE_URL + "\">" + _ctx.escapeHTML(USER) + "</a></strong>";
+                                      String profileUrl = "<strong><a target=\"_blank\" style=\"color: ${palette.link}; font-size: 13px; text-decoration: none; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif\" href=\""+ PROFILE_URL + "\" class=\"mail-link\">" + _ctx.escapeHTML(USER) + "</a></strong>";
                                     %>
                                     <%=_ctx.appRes("Notification.message.ActivityReplyToCommentPlugin", profileUrl)%> :
                                     </p>
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 12px;color:#333333;line-height: 18px;">
+                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="${palette.surface}" align="center" style="background-color: ${palette.surface}; font-size: 12px;color:${palette.text};line-height: 18px;" class="mail-surface mail-text">
                                         <tbody>
                                             <tr>
-                                                <td align="left" bgcolor="#ffffff" style="background-color: #f9f9f9; padding: 15px 20px;">
-                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 13px;color:#333333;line-height: 18px;">
+                                                <td align="left" bgcolor="${palette.surface}" style="background-color: ${palette.background}; padding: 15px 20px;" class="mail-bg">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="${palette.surface}" align="center" style="background-color: ${palette.surface}; font-size: 13px;color:${palette.text};line-height: 18px;" class="mail-surface mail-text">
 																											<tbody>
 																												<tr>
-																													<td align="left" bgcolor="#f9f9f9" style="background-color: #f9f9f9; padding: 0x; line-height: 16px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif; color: #333333;">$COMMENT</td>
+																													<td align="left" bgcolor="${palette.background}" style="background-color: ${palette.background}; padding: 0x; line-height: 16px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif; color: ${palette.text};" class="mail-bg mail-text">$COMMENT</td>
 																												</tr>
 																												<tr>
-																													<td align="left" bgcolor="#f9f9f9" style="
-																														background-color: #f9f9f9;
+																													<td align="left" bgcolor="${palette.background}" style="
+																														background-color: ${palette.background};
 																														line-height: 16px;
 																														font-family: HelveticaNeue, Helvetica, Arial, sans-serif;
-																														color: #333333;
+																														color: ${palette.text};
 																														padding: 6px 0 6px;
-																													">
+																													" class="mail-bg mail-text">
 																														<hr style="
 																															border-width: 1px 0 0;
 																															border-style: solid none none;
-																															border-color: #d8d8d8 transparent transparent;
+																															border-color: ${palette.border} transparent transparent;
 																															margin: 6px 0;
 																															padding: 0;
-																														">
+																														" class="mail-border">
 																													</td>
 																												</tr>
 																												<tr>
-																													<td align="left" bgcolor="#f9f9f9" style="
-																														background-color:#f9f9f9;
+																													<td align="left" bgcolor="${palette.background}" style="
+																														background-color:${palette.background};
 																														padding:0 0 1px;
 																														line-height:16px;
 																														font-family:HelveticaNeue,Helvetica,Arial,sans-serif;
-																														color:#333333">
-																														<p style="margin: 0 0 5px;line-height:16px;font-family:HelveticaNeue,Helvetica,Arial,sans-serif;color:#333333">
-																															<%=profileUrl%><strong style="color: #2f5e92; font-size: 13px;">:</strong>
+																														color:${palette.text}" class="mail-bg mail-text">
+																														<p style="margin: 0 0 5px;line-height:16px;font-family:HelveticaNeue,Helvetica,Arial,sans-serif;color:${palette.text}" class="mail-text">
+																															<%=profileUrl%><strong style="color: ${palette.link}; font-size: 13px;" class="mail-link">:</strong>
 																														</p>
                                                             $COMMENT_REPLY
 																													</td>
@@ -72,12 +73,7 @@
                                                 font-size: 11px;
                                                 font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif;
                                                 color: #ffffff;
-                                                background-color: #567ab6;
-                                                background-image: -moz-linear-gradient(top, #638acd, #426393);
-                                                background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#638acd), to(#426393));
-                                                background-image: -webkit-linear-gradient(top, #638acd, #426393);
-                                                background-image: -o-linear-gradient(top, #638acd, #426393);
-                                                background-image: linear-gradient(to bottom, #638acd, #426393);
+                                                background-color: ${palette.primary};
                                                 background-repeat: repeat-x;
                                                 border-radius: 4px;
                                                 -moz-border-radius: 4px;
@@ -86,7 +82,7 @@
                                                 line-height: 11px;
                                                 max-height: 11px;
                                                 text-align: center;
-                                                border: 1px solid #224886;
+                                                border: 1px solid ${palette.primary};
                                                 font-weight: bold;
                                                 -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
                                                 -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
@@ -99,13 +95,8 @@
                                             text-decoration: none;
                                             font-size: 11px;
                                             font-family: HelveticaNeue, Helvetica, Arial, sans-serif,serif;
-                                            color: #333333;
-                                            background-color: #f1f1f1;
-                                            background-image: -moz-linear-gradient(top, #ffffff, #f1f1f1);
-                                            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#f1f1f1));
-                                            background-image: -webkit-linear-gradient(top, #ffffff, #f1f1f1);
-                                            background-image: -o-linear-gradient(top, #ffffff, #f1f1f1);
-                                            background-image: linear-gradient(to bottom, #ffffff, #f1f1f1);
+                                            color: ${palette.text};
+                                            background-color: ${palette.background};
                                             background-repeat: repeat-x;
                                             border-radius: 4px;
                                             -moz-border-radius: 4px;
@@ -114,25 +105,20 @@
                                             line-height: 12px;
                                             max-height: 11px;
                                             text-align: center;
-                                            border: 1px solid #c7c7c7;
+                                            border: 1px solid ${palette.border};
                                             -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
                                             -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
                                             box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
                                             vertical-align: middle;
                                             margin-left: 3px;
-                                        " href="$REPLY_ACTION_URL"><%=_ctx.appRes("Notification.label.Reply")%></a>
+                                        " href="$REPLY_ACTION_URL" class="mail-text mail-bg mail-border"><%=_ctx.appRes("Notification.label.Reply")%></a>
                                         <a target="_blank" style="
                                             display: inline-block;
                                             text-decoration: none;
                                             font-size: 11px;
                                             font-family: HelveticaNeue, Helvetica, Arial, sans-serif,serif;
-                                            color: #333333;
-                                            background-color: #f1f1f1;
-                                            background-image: -moz-linear-gradient(top, #ffffff, #f1f1f1);
-                                            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#f1f1f1));
-                                            background-image: -webkit-linear-gradient(top, #ffffff, #f1f1f1);
-                                            background-image: -o-linear-gradient(top, #ffffff, #f1f1f1);
-                                            background-image: linear-gradient(to bottom, #ffffff, #f1f1f1);
+                                            color: ${palette.text};
+                                            background-color: ${palette.background};
                                             background-repeat: repeat-x;
                                             border-radius: 4px;
                                             -moz-border-radius: 4px;
@@ -141,16 +127,16 @@
                                             line-height: 12px;
                                             max-height: 11px;
                                             text-align: center;
-                                            border: 1px solid #c7c7c7;
+                                            border: 1px solid ${palette.border};
                                             -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
                                             -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
                                             box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
                                             vertical-align: middle;
                                             margin-left: 3px;
-                                        " href="$VIEW_FULL_DISCUSSION_ACTION_URL" target="_blank"><%=_ctx.appRes("Notification.label.ViewFullDiscussion")%></a>
+                                        " href="$VIEW_FULL_DISCUSSION_ACTION_URL" target="_blank" class="mail-text mail-bg mail-border"><%=_ctx.appRes("Notification.label.ViewFullDiscussion")%></a>
                                     </p>
-                                    <p style="margin: 10px 0; color: #999999">
-                                        <%=_ctx.appRes("Notification.label.footer", FOOTER_LINK)%>
+                                    <p style="margin: 10px 0; color: ${palette.secondaryText}" class="mail-secondary-text">
+                                        <%=_ctx.appRes("Notification.label.footer", FOOTER_LINK).replace("color: #2f5e92;", "color: ${palette.link};").replace("<a ", "<a class=\"mail-link\" ")%>
                                     </p>
                                 </td>
                             </tr>
