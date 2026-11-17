@@ -117,12 +117,10 @@ export default {
     // is selected once rendered, a click being the only other thing that selects it
     holdsCurrentPage: {
       immediate: true,
-      handler(current) {
-        if (current) {
-          this.$nextTick(() => this.$emit('select-tab', this.$refs.tab));
-        }
-      },
+      handler: 'selectTabIfCurrent',
     },
+    // a narrower layout lists fewer entries before More, which keeps its place in the bar's tabs by its position
+    navigation: 'selectTabIfCurrent',
   },
   computed: {
     holdsCurrentPage() {
@@ -152,6 +150,11 @@ export default {
     },
   },
   methods: {
+    selectTabIfCurrent() {
+      if (this.holdsCurrentPage) {
+        this.$nextTick(() => this.$emit('select-tab', this.$refs.tab));
+      }
+    },
     holdsSelectedPath(navigation) {
       return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, navigation) === this.selectedPath
         || !!navigation.children?.some?.(child => this.holdsSelectedPath(child));
