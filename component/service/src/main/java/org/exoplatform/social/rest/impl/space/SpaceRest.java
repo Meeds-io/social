@@ -69,6 +69,7 @@ import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.CollectionEntity;
@@ -84,6 +85,7 @@ import io.meeds.portal.security.service.SecuritySettingService;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
+import io.meeds.social.space.rest.SpaceSecurityRest;
 import io.meeds.social.space.service.SpaceDirectoryService;
 import io.meeds.social.space.service.SpaceLayoutService;
 import io.meeds.social.util.JsonUtils;
@@ -813,7 +815,8 @@ public class SpaceRest implements ResourceContainer {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse(responseCode = "500", description = "Internal server error"),
-    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+    @ApiResponse(responseCode = "400", description = "Invalid query input, or a refused parent, answered with the code of its refusal, such as SUBSPACES_PERMISSIONS, SUBSPACES_INVALID_PARENT, SUBSPACES_PARENT_REQUIRED, SUBSPACES_LIMIT_REACHED or SPACE_PERMISSION"),
+    @ApiResponse(responseCode = "409", description = "Another change of the space is being written: retry") })
   public Response updateSpaceById(
                                   @Context
                                   UriInfo uriInfo,
@@ -840,21 +843,45 @@ public class SpaceRest implements ResourceContainer {
       throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME);
     }
 
-    if (StringUtils.isNotBlank(model.getPublicSiteVisibility())) {
-      spaceLayoutService.saveSpacePublicSite(id,
-                                             model.getPublicSiteVisibility(),
-                                             authenticatedUser);
-      space = spaceService.getSpaceById(id);
-    }
+    // The request's own parent, never the one the cached space carries: decided
+    // before any change of the request is written, so that a parent refused
+    // then saves nothing of it. The update decides it again and saves it with
+    // the space's fields, refusing under the row locks a parent changed
+    // meanwhile or become a descendant of the space: a refusal there keeps the
+    // writes made before the save, the external invitations included, and
+    // invites none of the request's invitedMembers
+    Long requestedParentSpaceId = model.getParentSpaceId();
+    Space spaceToMove = space;
+    answerRefusals(() -> {
+      spaceService.checkSpaceParentChange(spaceToMove, requestedParentSpaceId, authenticatedUser);
+      return null;
+    });
 
-    if (StringUtils.isNotBlank(model.getDisplayName()) && !StringUtils.equals(space.getDisplayName(), model.getDisplayName())) {
-      spaceService.renameSpace(space, model.getDisplayName(), authenticatedUser);
-    }
+    // The request's space writes take the space's row lock: one the database
+    // does not grant in time answers a conflict the client retries
+    try {
+      if (StringUtils.isNotBlank(model.getPublicSiteVisibility())) {
+        spaceLayoutService.saveSpacePublicSite(id,
+                                               model.getPublicSiteVisibility(),
+                                               authenticatedUser);
+        space = spaceService.getSpaceById(id);
+      }
 
-    inviteExternalUsers(uriInfo, model, space, authenticatedUser);
-    fillSpaceFromModel(space, model);
-    space.setEditor(authenticatedUser);
-    space = spaceService.updateSpace(space, model.getInvitedMembers());
+      if (StringUtils.isNotBlank(model.getDisplayName()) && !StringUtils.equals(space.getDisplayName(), model.getDisplayName())) {
+        spaceService.renameSpace(space, model.getDisplayName(), authenticatedUser);
+      }
+
+      inviteExternalUsers(uriInfo, model, space, authenticatedUser);
+      fillSpaceFromModel(space, model);
+      space.setEditor(authenticatedUser);
+      Space spaceToSave = space;
+      space = answerRefusals(() -> spaceService.updateSpace(spaceToSave,
+                                                            requestedParentSpaceId,
+                                                            model.getInvitedMembers(),
+                                                            authenticatedUser));
+    } catch (RuntimeException e) {
+      throw answerConcurrentUpdate(e);
+    }
 
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space,
                                                                         authenticatedUser,
@@ -863,6 +890,35 @@ public class SpaceRest implements ResourceContainer {
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
                                      Response.Status.OK);
+  }
+
+  /**
+   * Runs a space write, answering a refused parent with its code and a write
+   * that lost the race on the space's row with a conflict
+   */
+  private <T> T answerRefusals(SpaceWrite<T> write) {
+    try {
+      return write.run();
+    } catch (SpaceException e) {
+      throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
+                                                .entity(e.getCode().name())
+                                                .build());
+    } catch (RuntimeException e) {
+      throw answerConcurrentUpdate(e);
+    }
+  }
+
+  /**
+   * @return a conflict when the failure is a write that lost the race on the
+   *         space's row, else the failure itself
+   */
+  private RuntimeException answerConcurrentUpdate(RuntimeException e) {
+    if (SpaceStorageException.isConcurrentUpdate(e)) {
+      return new WebApplicationException(Response.status(Status.CONFLICT)
+                                                 .entity(SpaceSecurityRest.CONCURRENT_UPDATE_MESSAGE_CODE)
+                                                 .build());
+    }
+    return e;
   }
 
   @DELETE
@@ -1109,9 +1165,9 @@ public class SpaceRest implements ResourceContainer {
       space.setTemplateId(model.getTemplateId());
     }
 
-    // A payload that carries no value for the property leaves the parent
-    // relation untouched; an explicit 0 detaches the space from its parent
-    if (model.getParentSpaceId() != null) {
+    // Only a new space takes its parent from the payload: an update hands the
+    // requested parent to the service apart from the space
+    if (space.getSpaceId() == 0 && model.getParentSpaceId() != null) {
       space.setParentSpaceId(model.getParentSpaceId());
     }
 

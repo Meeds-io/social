@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -72,10 +73,14 @@ import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.space.constant.UserSpacesScope;
 import io.meeds.social.space.model.MembershipChange;
 import io.meeds.social.space.model.MembershipChangeResult;
+import io.meeds.social.space.model.SpaceParentChange;
 import io.meeds.social.space.security.model.SpaceSecuritySettings;
 import io.meeds.social.space.security.model.SpaceSettingsChange;
 import io.meeds.social.space.security.model.SpaceSettingsChangeResult;
 
+import jakarta.persistence.LockTimeoutException;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.PessimisticLockException;
 import jakarta.persistence.Tuple;
 
 public class SpaceStorage {
@@ -469,7 +474,7 @@ public class SpaceStorage {
    */
   @ContainerTransactional(atomic = true)
   public SpaceSettingsChangeResult applySettingsChange(long spaceId, SpaceSettingsChange change) throws ObjectNotFoundException {
-    SpaceEntity entity = spaceDAO.findForUpdate(spaceId);
+    SpaceEntity entity = lockSpace(spaceId);
     if (entity == null) {
       throw new ObjectNotFoundException("Space with id " + spaceId + " doesn't exist");
     }
@@ -491,7 +496,7 @@ public class SpaceStorage {
 
   @ContainerTransactional(atomic = true)
   public void renameSpace(Space space) throws SpaceStorageException {
-    SpaceEntity entity = spaceDAO.findForUpdate(Long.parseLong(space.getId()));
+    SpaceEntity entity = lockSpace(Long.parseLong(space.getId()));
     if (entity == null) {
       throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_RENAME_SPACE, "Space not found: " + space.getId());
     }
@@ -526,7 +531,7 @@ public class SpaceStorage {
    */
   @ContainerTransactional(atomic = true)
   public void ignoreSpace(String spaceId, String userId) {
-    SpaceEntity entity = spaceDAO.findForUpdate(Long.parseLong(spaceId));
+    SpaceEntity entity = lockSpace(Long.parseLong(spaceId));
     if (entity == null) {
       return;
     }
@@ -557,7 +562,7 @@ public class SpaceStorage {
   public MembershipChangeResult changeMembership(long spaceId,
                                                  String userId,
                                                  MembershipChange change) throws ObjectNotFoundException {
-    SpaceEntity entity = spaceDAO.findForUpdate(spaceId);
+    SpaceEntity entity = lockSpace(spaceId);
     if (entity == null) {
       throw new ObjectNotFoundException("Space with id " + spaceId + " doesn't exist");
     }
@@ -653,37 +658,168 @@ public class SpaceStorage {
     return entity != null;
   }
 
+  /**
+   * Saves a space. A new space gets the given parent; an existing space keeps
+   * the parent its row stores, whatever the given space carries.
+   */
   @ExoTransactional
   public Space saveSpace(Space space, Long parentSpaceId, boolean isNew) throws SpaceStorageException {
-    try {
-      SpaceEntity entity = isNew ? new SpaceEntity() : spaceDAO.findForUpdate(Long.parseLong(space.getId()));
-      if (!isNew && entity == null) {
-        throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE);
-      }
-      Map<String, String> storedProperties = isNew ? null : entity.getExtendedProperties();
-      EntityConverterUtils.buildFrom(space, entity);
-      if (!isNew) {
-        keepSecuritySettings(entity, storedProperties);
-        addManagersMemberRows(entity);
-      }
-      if (parentSpaceId != null && parentSpaceId > 0) {
-        SpaceEntity parent = spaceDAO.find(parentSpaceId);
-        if (parent == null) {
-          throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE,
-                                          "Parent space not found: " + parentSpaceId);
-        }
-        entity.setParentSpaceId(parent.getId());
-      } else {
-        entity.setParentSpaceId(null);
-      }
-      entity.setUpdatedDate(new Date());
-      entity = isNew ? spaceDAO.create(entity) : spaceDAO.update(entity);
-      space.setId(String.valueOf(entity.getId()));
+    return isNew ? saveNewSpace(space, parentSpaceId) : saveExistingSpace(space, null);
+  }
 
-      return getSpaceById(entity.getId());
+  /**
+   * Saves an existing space and changes its parent, under the space's row lock:
+   * refused with {@link SpaceStorageException.Type#CONCURRENT_UPDATE} when the
+   * stored parent is no longer the one the change was decided on, and with
+   * {@link SpaceStorageException.Type#INVALID_PARENT} when the new parent is the
+   * space itself or one of its descendants. A refusal writes nothing: the
+   * method runs in one transaction, rolled back when it throws.
+   */
+  @ContainerTransactional(atomic = true)
+  public Space saveSpace(Space space, SpaceParentChange parentChange) throws SpaceStorageException {
+    return saveExistingSpace(space, parentChange);
+  }
+
+  /**
+   * @param spaceId space technical identifier
+   * @return the parent the space's row stores, 0 for none, read outside any
+   *         cache and never from an entity the persistence context holds
+   * @throws ObjectNotFoundException when the space has no row
+   */
+  public long getCommittedParentSpaceId(long spaceId) throws ObjectNotFoundException {
+    return spaceDAO.findParentSpaceId(spaceId)
+                   .orElseThrow(() -> new ObjectNotFoundException("Space with id " + spaceId + " not found"));
+  }
+
+  private Space saveNewSpace(Space space, Long parentSpaceId) {
+    SpaceEntity entity = new SpaceEntity();
+    EntityConverterUtils.buildFrom(space, entity);
+    if (parentSpaceId != null && parentSpaceId > 0) {
+      SpaceEntity parent = spaceDAO.find(parentSpaceId);
+      if (parent == null) {
+        throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE,
+                                        "Parent space not found: " + parentSpaceId);
+      }
+      entity.setParentSpaceId(parent.getId());
+    } else {
+      entity.setParentSpaceId(null);
+    }
+    entity.setUpdatedDate(new Date());
+    entity = spaceDAO.create(entity);
+    space.setId(String.valueOf(entity.getId()));
+    return getSpaceById(entity.getId());
+  }
+
+  private Space saveExistingSpace(Space space, SpaceParentChange parentChange) {
+    long spaceId;
+    try {
+      spaceId = Long.parseLong(space.getId());
     } catch (NumberFormatException e) {
       throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE, "Invalid space ID", e);
     }
+    SpaceEntity entity = lockSpace(spaceId);
+    if (entity == null) {
+      throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE);
+    }
+    Long parentSpaceId = entity.getParentSpaceId();
+    if (parentChange != null) {
+      long storedParentSpaceId = parentSpaceId == null ? 0 : parentSpaceId;
+      if (storedParentSpaceId != parentChange.readParentSpaceId()) {
+        throw new SpaceStorageException(SpaceStorageException.Type.CONCURRENT_UPDATE,
+                                        "The parent of space " + spaceId + " changed meanwhile");
+      }
+      long requestedParentSpaceId = parentChange.parentSpaceId();
+      if (requestedParentSpaceId > 0 && requestedParentSpaceId != storedParentSpaceId) {
+        checkParentAllowed(spaceId, requestedParentSpaceId, true);
+      }
+      parentSpaceId = requestedParentSpaceId > 0 ? requestedParentSpaceId : null;
+    }
+    Map<String, String> storedProperties = entity.getExtendedProperties();
+    EntityConverterUtils.buildFrom(space, entity);
+    keepSecuritySettings(entity, storedProperties);
+    addManagersMemberRows(entity);
+    entity.setParentSpaceId(parentSpaceId);
+    entity.setUpdatedDate(new Date());
+    entity = spaceDAO.update(entity);
+    return getSpaceById(entity.getId());
+  }
+
+  /**
+   * Decides on the committed rows, without locking them, whether a space may be
+   * moved under a parent, as {@link #saveSpace(Space, SpaceParentChange)}
+   * decides it again under the row locks: a caller refuses a parent this way
+   * before it writes anything of a request.
+   *
+   * @param spaceId the space
+   * @param parentSpaceId its new parent
+   * @throws SpaceStorageException {@link SpaceStorageException.Type#INVALID_PARENT}
+   *           when the parent is the space itself or one of its descendants,
+   *           {@link SpaceStorageException.Type#FAILED_TO_SAVE_SPACE} when the
+   *           parent has no row
+   */
+  public void checkParentChange(long spaceId, long parentSpaceId) throws SpaceStorageException {
+    checkParentAllowed(spaceId, parentSpaceId, false);
+  }
+
+  /**
+   * Walks up from the new parent through the parents the rows store, each id
+   * once, and refuses when it meets the space: a cycle already stored ends the
+   * walk.
+   *
+   * @param lock true to lock each ancestor's row in walk order
+   */
+  private void checkParentAllowed(long spaceId, long parentSpaceId, boolean lock) {
+    Set<Long> walked = new HashSet<>();
+    long ancestorId = parentSpaceId;
+    while (ancestorId > 0 && walked.add(ancestorId)) {
+      if (ancestorId == spaceId) {
+        throw new SpaceStorageException(SpaceStorageException.Type.INVALID_PARENT,
+                                        "Space " + parentSpaceId + " cannot be the parent of space " + spaceId);
+      }
+      Optional<Long> nextAncestorId = lock ? lockParentSpaceId(ancestorId) : spaceDAO.findParentSpaceId(ancestorId);
+      if (nextAncestorId.isEmpty()) {
+        if (ancestorId == parentSpaceId) {
+          throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE,
+                                          "Parent space not found: " + parentSpaceId);
+        }
+        return;
+      }
+      ancestorId = nextAncestorId.get();
+    }
+  }
+
+  /**
+   * Locks the space's row, as the first read of the caller's transaction
+   *
+   * @throws SpaceStorageException {@link SpaceStorageException.Type#CONCURRENT_UPDATE}
+   *           when the lock is not obtained in time
+   */
+  private SpaceEntity lockSpace(long spaceId) {
+    try {
+      return spaceDAO.findForUpdate(spaceId);
+    } catch (LockTimeoutException | PessimisticLockException e) {
+      throw lockRefused(spaceId, e);
+    }
+  }
+
+  /**
+   * Locks an ancestor's row and reads its parent, 0 for none
+   *
+   * @throws SpaceStorageException {@link SpaceStorageException.Type#CONCURRENT_UPDATE}
+   *           when the lock is not obtained in time
+   */
+  private Optional<Long> lockParentSpaceId(long spaceId) {
+    try {
+      return spaceDAO.findParentSpaceIdForUpdate(spaceId);
+    } catch (LockTimeoutException | PessimisticLockException e) {
+      throw lockRefused(spaceId, e);
+    }
+  }
+
+  private SpaceStorageException lockRefused(long spaceId, PersistenceException e) {
+    return new SpaceStorageException(SpaceStorageException.Type.CONCURRENT_UPDATE,
+                                     "The row of space " + spaceId + " is locked by another change",
+                                     e);
   }
 
   @ExoTransactional
