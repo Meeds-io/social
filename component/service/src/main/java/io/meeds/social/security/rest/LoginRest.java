@@ -682,7 +682,8 @@ public class LoginRest {
         JSONArray texts = item.getJSONArray("values");
         entries = new ArrayList<>();
         for (int j = 0; j < texts.length(); j++) {
-          entries.add(texts.getString(j));
+          // A null entry is kept for the validation, which drops it
+          entries.add(texts.isNull(j) ? null : texts.getString(j));
         }
       }
       values.add(new ProfilePropertyValue(item.getString(PROPERTY_NAME_PARAM),

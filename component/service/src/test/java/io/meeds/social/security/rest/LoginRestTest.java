@@ -73,6 +73,7 @@ import io.meeds.social.translation.service.TranslationService;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -961,21 +962,28 @@ public class LoginRestTest {
   }
 
   /**
-   * A refused additional field refuses the registration before the account
-   * exists, with its code and the attribute it names
+   * Each refusal of an additional field refuses the registration before the
+   * account exists, with its code and the attribute it names
    */
   @Test
   @SneakyThrows
   public void testRegisterRefusesAnAdditionalFieldBeforeCreatingTheAccount() {
     prepareRegistration();
-    when(profileFormFieldService.validate(any(), eq(ProfileFormKind.REGISTRATION), eq(true), isNull()))
-                                                                                                      .thenThrow(new ProfileFormFieldException(ProfileFormFieldException.REQUIRED,
-                                                                                                                                               "team"));
+    for (String code : List.of(ProfileFormFieldException.NOT_ALLOWED,
+                               ProfileFormFieldException.INVALID_OPTION,
+                               ProfileFormFieldException.REQUIRED,
+                               ProfileFormFieldException.INVALID_EMAIL,
+                               ProfileFormFieldException.TOO_LONG,
+                               ProfileFormFieldException.INVALID_VALUE)) {
+      when(profileFormFieldService.validate(any(), eq(ProfileFormKind.REGISTRATION), eq(true), isNull()))
+                                                                                                        .thenThrow(new ProfileFormFieldException(code,
+                                                                                                                                                 "team"));
 
-    performRegistration("[{\"propertyName\":\"team\",\"value\":\"\"}]")
-                                                                       .andExpect(status().isBadRequest())
-                                                                       .andExpect(jsonPath("$.error").value("profile.formField.required"))
-                                                                       .andExpect(jsonPath("$.propertyName").value("team"));
+      performRegistration("[{\"propertyName\":\"team\",\"value\":\"x\"}]")
+                                                                          .andExpect(status().isBadRequest())
+                                                                          .andExpect(jsonPath("$.error").value(code))
+                                                                          .andExpect(jsonPath("$.propertyName").value("team"));
+    }
     verify(userHandler, never()).createUser(any(), anyBoolean());
     verify(profileFormFieldService, never()).save(any(), any(), any());
     verify(passwordRecoveryService, never()).sendAccountCreatedConfirmationEmail(any(), any(), any());
@@ -1015,7 +1023,7 @@ public class LoginRestTest {
     Map<String, Object> profileValues = Map.of("team", "7");
     when(profileFormFieldService.validate(any(), eq(ProfileFormKind.REGISTRATION), eq(true), isNull())).thenReturn(profileValues);
 
-    performRegistration("[{\"propertyName\":\"team\",\"value\":\"7\"},{\"propertyName\":\"skills\",\"values\":[\"Java\",\"Vue\"]}]")
+    performRegistration("[{\"propertyName\":\"team\",\"value\":\"7\"},{\"propertyName\":\"skills\",\"values\":[\"Java\",null,\"Vue\"]}]")
                                                                                                                                   .andExpect(status().isFound())
                                                                                                                                   .andExpect(header().string("Location",
                                                                                                                                                              "/portal/login"));
@@ -1033,7 +1041,8 @@ public class LoginRestTest {
     verify(remindPasswordTokenService).deleteToken("123456789", CookieTokenService.EXTERNAL_REGISTRATION_TOKEN);
     verify(remindPasswordTokenService, never()).deleteToken("123456789");
     assertEquals(List.of(new ProfilePropertyValue("team", "7", null),
-                         new ProfilePropertyValue("skills", null, List.of("Java", "Vue"))),
+                         // A null entry reaches the validation, which drops it
+                         new ProfilePropertyValue("skills", null, Arrays.asList("Java", null, "Vue"))),
                  sentValues.getValue());
   }
 
