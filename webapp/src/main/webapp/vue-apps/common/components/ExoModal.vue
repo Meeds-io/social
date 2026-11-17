@@ -87,7 +87,8 @@ export default {
   watch: {
     dialog() {
       if (this.dialog) {
-        this.opener = document.activeElement;
+        // a click does not always focus what it clicks (a button in Safari, a menu's own item): the click tells which one it was
+        this.opener = this.$activationOrigin?.element() || document.activeElement;
         this.$openingKeystrokeGuard.ignore(this.guardOpeningKeystroke);
         this.focusFirstControl();
         this.$emit('dialog-opened');

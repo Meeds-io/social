@@ -515,8 +515,8 @@ export default {
     },
     open() {
       if (!this.drawer) {
-        this.opener = !this.permanent && document.activeElement !== document.body
-          && !this.$el.contains(document.activeElement) ? document.activeElement : null;
+        // a click does not always focus what it clicks (a button in Safari, a menu's own item): the click tells which one it was
+        this.opener = !this.permanent ? this.$activationOrigin?.element(this.$el) || null : null;
       }
       if (!this.attached) {
         // Re-append the drawer to open in order
@@ -638,6 +638,11 @@ export default {
       this.drawer = false;
     },
     confirmCloseDrawer() {
+      // the confirmation still holds the focus when the panel closes: it is the one to give it back to the panel's opener
+      if (this.opener) {
+        this.$refs.closeConfirmDialog?.returnFocusTo(this.opener);
+        this.opener = null;
+      }
       this.closeEffectively();
       this.$emit('confirm-close');
     },

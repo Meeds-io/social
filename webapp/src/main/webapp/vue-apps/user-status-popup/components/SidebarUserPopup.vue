@@ -120,7 +120,8 @@ export default {
     open(x, y) {
       this.position.x = x;
       this.position.y = y;
-      this.triggerElement = document.activeElement;
+      // a click does not always focus what it clicks (a button in Safari): the click tells which one it was
+      this.triggerElement = this.$activationOrigin?.element() || document.activeElement;
       this.$nextTick(() => {
         this.menu = !this.menu;
       });
