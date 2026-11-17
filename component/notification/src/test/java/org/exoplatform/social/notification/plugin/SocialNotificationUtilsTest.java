@@ -43,4 +43,27 @@ public class SocialNotificationUtilsTest extends TestCase {
         assertEquals(SocialNotificationUtils.processImageTitle(chromeNotification, placeHolder), chromeNotificationProcessed);
         assertEquals(SocialNotificationUtils.processImageTitle(edgeNotification, placeHolder), edgeNotificationProcessed);
     }
+
+    public void testAttachedFileLabelIsOnlyShownWhenThereIsNoText() {
+        org.exoplatform.social.core.activity.model.ExoSocialActivityImpl comment = new org.exoplatform.social.core.activity.model.ExoSocialActivityImpl();
+        comment.setId("12");
+        assertEquals("a text is quoted as it is", "<p>Hello</p>", SocialNotificationUtils.withAttachedFiles("<p>Hello</p>", comment, "en"));
+        assertEquals("an entity is a text", "&nbsp;x", SocialNotificationUtils.withAttachedFiles("&nbsp;x", comment, "en"));
+        assertEquals("no activity, no files", "", SocialNotificationUtils.withAttachedFiles("", null, "en"));
+        assertEquals("an inline image is not waited for", "<p><img src=\"x\"></p>", SocialNotificationUtils.withAttachedFiles("<p><img src=\"x\"></p>", comment, "en"));
+        java.util.Map<String, String> params = new java.util.HashMap<>();
+        params.put("docTitle", "budget.pdf|@|a<b>.png");
+        comment.setTemplateParams(params);
+        try (org.mockito.MockedStatic<org.exoplatform.commons.notification.template.TemplateUtils> templates =
+            org.mockito.Mockito.mockStatic(org.exoplatform.commons.notification.template.TemplateUtils.class)) {
+            templates.when(() -> org.exoplatform.commons.notification.template.TemplateUtils.getResourceBundle(org.mockito.ArgumentMatchers.eq("Notification.label.AttachedFile"),
+                                                                                                                 org.mockito.ArgumentMatchers.any(java.util.Locale.class),
+                                                                                                                 org.mockito.ArgumentMatchers.eq("locale.social.Webui")))
+                     .thenReturn("Attached file");
+            long start = System.currentTimeMillis();
+            assertEquals("only the generic label, without file names", "<i> [Attached file] </i>", SocialNotificationUtils.withAttachedFiles("<p></p>", comment, "en"));
+            assertTrue("nothing is read or waited for", System.currentTimeMillis() - start < 1000);
+        }
+        assertEquals("a text wins over the files", "Hi", SocialNotificationUtils.withAttachedFiles("Hi", comment, "en"));
+    }
 }

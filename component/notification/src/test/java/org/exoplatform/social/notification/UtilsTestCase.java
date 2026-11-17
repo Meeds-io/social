@@ -67,12 +67,12 @@ public class UtilsTestCase extends AbstractCoreTest {
   public void testProcessLinkInActivityTitle() {
     String title = "<a href=\"www.yahoo.com\">Yahoo Site</a> is better than <a href=\"www.hotmail.com\">Hotmail Site</a>";
     title = Utils.processLinkTitle(title);
-    assertEquals("<a href=\"www.yahoo.com\" style=\"color: #2f5e92; text-decoration: none;\">Yahoo Site</a> is better than <a href=\"www.hotmail.com\" style=\"color: #2f5e92; text-decoration: none;\">Hotmail Site</a>", title);
+    assertEquals("<a href=\"www.yahoo.com\" style=\"color: #476a9c; text-decoration: underline;\">Yahoo Site</a> is better than <a href=\"www.hotmail.com\" style=\"color: #476a9c; text-decoration: underline;\">Hotmail Site</a>", title);
     
     title = "Shared a document <a href=\"portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\">New design. eXo in Smart Watch.jpg</a>";
-    assertEquals("Shared a document <a href=\"http://test.com/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\" style=\"color: #2f5e92; text-decoration: none;\">New design. eXo in Smart Watch.jpg</a>", Utils.processLinkTitle(title));
+    assertEquals("Shared a document <a href=\"http://test.com/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\" style=\"color: #476a9c; text-decoration: underline;\">New design. eXo in Smart Watch.jpg</a>", Utils.processLinkTitle(title));
     title = "Shared a document <a href=\"/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\">New design. eXo in Smart Watch.jpg</a>";
-    assertEquals("Shared a document <a href=\"http://test.com/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\" style=\"color: #2f5e92; text-decoration: none;\">New design. eXo in Smart Watch.jpg</a>", Utils.processLinkTitle(title));
+    assertEquals("Shared a document <a href=\"http://test.com/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\" style=\"color: #476a9c; text-decoration: underline;\">New design. eXo in Smart Watch.jpg</a>", Utils.processLinkTitle(title));
   }
 
   /**

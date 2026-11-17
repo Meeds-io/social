@@ -31,6 +31,7 @@ import CustomStyleInput from './components/branding/form/CustomStyleInput.vue';
 import SiteBranding from './components/branding/SiteBranding.vue';
 import SiteBrandingWindow from './components/branding/SiteBrandingWindow.vue';
 import SiteBrandingPreview from './components/branding/preview/SiteBrandingPreview.vue';
+import EmailPreview from './components/emails/EmailPreview.vue';
 
 import PublicSiteEditDrawer from './components/public-site/PublicSiteEditDrawer.vue';
 import DefaultLanguageDrawer from './components/language/DefaultLanguageDrawer.vue';
@@ -66,6 +67,7 @@ const components = {
   'portal-general-settings-branding-site-window': SiteBrandingWindow,
   'portal-general-settings-branding-site': SiteBranding,
   'portal-general-settings-branding-site-preview': SiteBrandingPreview,
+  'portal-general-settings-email-preview': EmailPreview,
   'portal-general-settings-branding-login': LoginBranding,
   'portal-general-settings-company-logo': CompanyLogo,
   'portal-general-settings-company-favicon': CompanyFavicon,

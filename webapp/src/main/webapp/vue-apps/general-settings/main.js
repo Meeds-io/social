@@ -77,6 +77,10 @@ export function init(publicSiteVisible, publicSiteId) {
               if (window.location.hash !== '#logincustomization') {
                 window.location.hash = '#logincustomization';
               }
+            } else if (this.selectedTab === 'emails') {
+              if (window.location.hash !== '#emailbranding') {
+                window.location.hash = '#emailbranding';
+              }
             } else if (!this.selectedTab) {
               window.history.replaceState('', window.document.title, window.location.href.split('#')[0]);
             }

@@ -55,6 +55,9 @@
                       <template v-else-if="$root.selectedTab === 'login'">
                         {{ $t('generalSettings.loginCharacteristics') }}
                       </template>
+                      <template v-else-if="$root.selectedTab === 'emails'">
+                        {{ $t('generalSettings.emailCharacteristics') }}
+                      </template>
                       <template v-else-if="$root.selectedTab === 'navigation'">
                         {{ $t('generalSettings.navigationCharacteristics') }}
                       </template>
@@ -76,6 +79,8 @@
               v-else-if="$root.selectedTab === 'login'"
               ref="loginSettings"
               @close="close" />
+            <portal-general-settings-email-preview
+              v-else-if="$root.selectedTab === 'emails'" />
             <portal-general-settings-navigation-settings
               v-else-if="$root.selectedTab === 'navigation'"
               ref="navigationSettings"
@@ -130,6 +135,23 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'login'">
+                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item class="px-0" two-line>
+                <v-list-item-content>
+                  <v-list-item-title class="text-title">
+                    {{ $t('generalSettings.emailCharacteristics') }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $t('generalSettings.subtitle.emailCharacteristics') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    @click="$root.selectedTab = 'emails'">
                     <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
                   </v-btn>
                 </v-list-item-action>
@@ -224,6 +246,8 @@ export default {
       this.$root.selectedTab = 'navigation';
     } else if (window.location.hash === '#logincustomization') {
       this.$root.selectedTab = 'login';
+    } else if (window.location.hash === '#emailbranding') {
+      this.$root.selectedTab = 'emails';
     }
   },
   mounted() {

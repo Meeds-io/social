@@ -821,7 +821,9 @@ public class MailTemplateProvider extends TemplateProvider {
   }
 
   private String getActivityTitle(ExoSocialActivity activity, String language) {
-    return MentionUtils.substituteRoleWithLocale(Utils.getActivityManager().getActivityTitle(activity),
+    return MentionUtils.substituteRoleWithLocale(SocialNotificationUtils.withAttachedFiles(Utils.getActivityManager().getActivityTitle(activity),
+                                                                                           activity,
+                                                                                           language),
                                                  Locale.forLanguageTag(language));
   }
 
