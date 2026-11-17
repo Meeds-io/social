@@ -60,7 +60,7 @@
       </template>
       <template #default>
         <div v-if="emptyDescription" class="d-flex flex-column align-center justify-center mb-12">
-          <v-icon size="54" color="tertiary">fa-align-left</v-icon>
+          <v-icon size="54" color="secondary">fa-align-left</v-icon>
           <div class="my-2">{{ $t('social.space.description.noDescription') }}</div>
           <v-btn
             :title="$t('social.space.description.editTooltip')"

@@ -36,12 +36,13 @@
         width="auto"
         class="my-auto mx-0"
         tile>
-        <img
+        <company-logo-picture
           :src="companyLogo"
+          :dark-src="companyDarkLogo"
           alt=""
           height="36"
           width="auto"
-          class="object-fit-contain">
+          img-class="object-fit-contain" />
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title
@@ -116,6 +117,7 @@ export default {
   data: () => ({
     companyName: eXo.env.portal.companyName,
     companyLogo: eXo.env.portal.companyLogo,
+    companyDarkLogo: eXo.env.portal.companyDarkLogo,
     userName: eXo.env.portal.userName,
   }),
   computed: {

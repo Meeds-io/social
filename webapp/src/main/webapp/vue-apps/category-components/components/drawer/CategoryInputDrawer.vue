@@ -127,7 +127,7 @@
         </v-treeview>
       </div>
       <div v-else-if="categoryTree?.owner" class="d-flex flex-column align-center justify-center ma-5">
-        <v-icon size="60" color="tertiary">fa-th-large</v-icon>
+        <v-icon size="60" color="secondary">fa-th-large</v-icon>
         <div class="mt-4 mb-2">{{ $t('categoryInput.admin.placeholder1') }}</div>
         <div
           v-sanitized-html="$t('categoryInput.admin.placeholder2', {
@@ -136,7 +136,7 @@
           })"></div>
       </div>
       <div v-else-if="!loading" class="d-flex flex-column align-center justify-center ma-5">
-        <v-icon size="60" color="tertiary">fa-th-large</v-icon>
+        <v-icon size="60" color="secondary">fa-th-large</v-icon>
         <div class="mt-4 mb-2">{{ $t('categoryInput.user.placeholder1') }}</div>
         <div>{{ $t('categoryInput.user.placeholder2') }}</div>
       </div>

@@ -68,7 +68,7 @@
           },
         }"
         :key="subItem.id"
-        :color="selectedId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
+        :color="selectedId === subItem.id && 'var(--allPagesSecondaryTextColor, var(--allPagesSecondaryColor)) !important'"
         dense>
         <v-card
           :title="subItem.name"
