@@ -54,6 +54,7 @@ import io.meeds.social.observer.rest.ObserverRestTest;
 import io.meeds.social.resource.rest.SkinRestTest;
 import io.meeds.social.translation.rest.TranslationRestResourcesTest;
 import org.exoplatform.social.websocket.listener.SpaceWebNotificationWebSocketServerListenerTest;
+import io.meeds.social.space.rest.SpaceSecurityRestTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -89,6 +90,7 @@ import org.exoplatform.social.websocket.listener.SpaceWebNotificationWebSocketSe
   ApiKeyRestTest.class,
   AccountDeactivationRestTest.class,
   SpaceWebNotificationWebSocketServerListenerTest.class,
+  SpaceSecurityRestTest.class
 })
 @ConfigTestCase(AbstractServiceTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
