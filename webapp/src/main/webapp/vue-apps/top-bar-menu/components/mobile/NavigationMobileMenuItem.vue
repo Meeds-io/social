@@ -74,6 +74,7 @@
       :parent-navigation-uri="navigation.uri"
       :selected-path="selectedPath"
       @close="closeMenu"
+      @leaving-page="leavingPage = true"
       @update-navigation-state="updateNavigationState" />
   </v-menu>
 </template>
@@ -99,16 +100,32 @@ export default {
   },
   data: () => ({
     showMenu: false,
+    leavingPage: false,
   }),
   created() {
     document.addEventListener('click', this.handleCloseMenu);
+    window.addEventListener('pageshow', this.onPageShow);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleCloseMenu);
+    window.removeEventListener('pageshow', this.onPageShow);
     this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
+  watch: {
+    // The bar marks the entry of the current page, or the one whose sheet holds it, as the desktop bar does: its tab
+    // is selected once rendered, a click being the only other thing that selects it
+    holdsCurrentPage: {
+      immediate: true,
+      handler: 'selectTabIfCurrent',
+    },
+    // a narrower layout lists fewer entries before More, which keeps its place in the bar's tabs by its position
+    navigation: 'selectTabIfCurrent',
+  },
   computed: {
+    holdsCurrentPage() {
+      return this.isSelected || this.holdsSelectedEntry;
+    },
     isSelected() {
       return this.selectedPath === this.navigationNodeUri;
     },
@@ -133,6 +150,11 @@ export default {
     },
   },
   methods: {
+    selectTabIfCurrent() {
+      if (this.holdsCurrentPage) {
+        this.$nextTick(() => this.$emit('select-tab', this.$refs.tab));
+      }
+    },
     holdsSelectedPath(navigation) {
       return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, navigation) === this.selectedPath
         || !!navigation.children?.some?.(child => this.holdsSelectedPath(child));
@@ -185,7 +207,20 @@ export default {
         this.showMenu = false;
       }
     },
+    // The page left with the sheet open is shown again by the browser's Back: it shows it closed, the focus on what
+    // opens it
+    onPageShow(event) {
+      if (event.persisted && (this.showMenu || this.leavingPage)) {
+        this.leavingPage = false;
+        this.closeMenu();
+      }
+    },
     handleCloseMenu() {
+      if (this.leavingPage) {
+        // the click on the entry that replaces the page: any later one, the page staying, closes the sheet again
+        this.leavingPage = false;
+        return;
+      }
       if (this.showMenu) {
         setTimeout(() => {
           this.showMenu = false;
