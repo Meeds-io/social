@@ -377,6 +377,11 @@
   </component>
 
   <component>
+    <key>io.meeds.social.space.security.service.SpaceSecurityService</key>
+    <type>io.meeds.social.space.security.service.SpaceSecurityServiceImpl</type>
+  </component>
+
+  <component>
     <type>org.exoplatform.social.core.processor.MentionsProcessor</type>
   </component>
 
