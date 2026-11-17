@@ -30,6 +30,10 @@
     :format-rule="formatRule"
     :size-rule="sizeRule"
     :disabled="disabled"
+    :icon="icon"
+    :background-color="backgroundColor"
+    :input-class="inputClass"
+    :button-class="buttonClass"
     class="profileFormField"
     @input="$emit('input', $event)" />
   <profile-form-user-field
@@ -57,9 +61,11 @@
     :rules="requiredRule ? [requiredRule] : []"
     :error-messages="error"
     :menu-props="{ offsetY: true, contentClass: 'profileFormOptionMenu' }"
-    class="profileFormField pt-2"
+    :prepend-inner-icon="icon"
+    :background-color="backgroundColor"
+    :class="inputClass"
+    class="profileFormField"
     item-value="id"
-    prepend-inner-icon="fas fa-ellipsis-h"
     clearable
     outlined
     dense
@@ -93,8 +99,10 @@
     :name="setting.propertyName"
     :rules="valueRules"
     :error-messages="error"
-    class="profileFormField pt-2"
-    prepend-inner-icon="fas fa-ellipsis-h"
+    :prepend-inner-icon="icon"
+    :background-color="backgroundColor"
+    :class="inputClass"
+    class="profileFormField"
     autocomplete="off"
     outlined
     dense
@@ -105,7 +113,7 @@ import {hasValue, isValidEmail, storedLength, MAX_STORED_LENGTH} from '../js/Pro
 import {optionLabel} from '../js/ProfileFormFieldValues.js';
 
 /**
- * One attribute's field, drawn as the account form's own fields are: a text
+ * One attribute's field, drawn as the hosting form's own fields are: a text
  * field, a select over the attribute's options, rows of values for a
  * multi-valued text, a search on the users for a user attribute
  */
@@ -139,8 +147,26 @@ export default {
       type: Boolean,
       default: false,
     },
+    // Drawn in the registration form, whose own fields are white on the
+    // page's background
+    registration: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
+    icon() {
+      return this.registration ? 'fas fa-ellipsis-h ms-n2 grey--text text--lighten-1' : 'fas fa-ellipsis-h';
+    },
+    backgroundColor() {
+      return this.registration ? 'white' : null;
+    },
+    inputClass() {
+      return this.registration ? 'login-username border-box-sizing' : 'pt-2';
+    },
+    buttonClass() {
+      return this.registration ? null : 'mt-2';
+    },
     kind() {
       if (this.setting.propertyType === 'user') {
         return 'user';
