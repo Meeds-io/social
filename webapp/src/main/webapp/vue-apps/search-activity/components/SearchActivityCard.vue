@@ -31,22 +31,20 @@
                     fullname
                     popover
                     link-style />
-                  <span v-if="isSpaceStreamOwner">
-                    <v-icon class="icon-default-color ms-1" size="14">
+                  <template v-if="isSpaceStreamOwner">
+                    <v-icon
+                      class="icon-default-color mx-1"
+                      size="14"
+                      aria-hidden="true">
                       fas fa-chevron-right
                     </v-icon>
-                    <v-avatar
+                    <exo-space-avatar
+                      :space="streamSpace"
                       :size="22"
-                      tile
-                      class="pb-2px me-1 spaceAvatar">
-                      <img
-                        :src="streamOwner.avatarUrl"
-                        alt=""
-                        class="object-fit-cover ma-auto"
-                        loading="lazy">
-                    </v-avatar>
-                    {{ streamOwner.displayName }}
-                  </span>
+                      class="text-truncate"
+                      link-style
+                      popover />
+                  </template>
                 </span>
               </div>
               <div
@@ -167,6 +165,11 @@ export default {
     streamOwner() {
       return this.activity?.streamOwner?.space || this.activity?.streamOwner?.profile;
     },
+    streamSpace() {
+      // The activity's stream space carries the viewer's favorite and mute
+      // state, which the space popover shows; the search result's does not.
+      return this.activityEntity?.activityStream?.space || this.streamOwner;
+    },
     isSpaceStreamOwner() {
       return this.activity?.streamOwner?.space || false;
     },
@@ -231,12 +234,6 @@ export default {
     isOwner() {
       const currentUserName = eXo.env.portal?.username;
       return  currentUserName === this.posterUsername || this.isSpaceStreamOwner && this.streamOwner?.isMember;
-    },
-    spaceUrl() {
-      if (!this.streamOwner?.id) {
-        return '#';
-      }
-      return `${eXo.env.portal.context}/s/${this.streamOwner?.id}`;
     }
   },
   created() {
