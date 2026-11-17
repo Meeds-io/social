@@ -275,7 +275,9 @@ export default {
       const url = new URL(entry.href, window.location.href);
       const anchorOfThisPage = !!url.hash && url.origin === window.location.origin
         && url.pathname === window.location.pathname && url.search === window.location.search;
-      if (!inNewTab && !anchorOfThisPage) {
+      // an email address or a phone number opens another application: the page stays
+      const opensAPage = /^https?:$/.test(url.protocol);
+      if (!inNewTab && !anchorOfThisPage && opensAPage) {
         this.leavingPage = true;
         // Vuetify's list item blurs itself on a click that has a detail: a mouse's, and a screen reader's activation
         entry.focus();
@@ -284,11 +286,13 @@ export default {
       this.showMenu = false;
       this.focusOpener();
     },
-    // The page left with the menu open is shown again by the browser's Back: it shows it closed
+    // The page left with the menu open is shown again by the browser's Back: it shows it closed, the focus on what
+    // opens it, the entry that had it being hidden
     onPageShow(event) {
-      if (event.persisted) {
+      if (event.persisted && (this.showMenu || this.leavingPage)) {
         this.leavingPage = false;
         this.showMenu = false;
+        this.focusOpener();
       }
     },
     // The menu opens on Enter the entry it highlights: it highlights the entry that has the keyboard focus

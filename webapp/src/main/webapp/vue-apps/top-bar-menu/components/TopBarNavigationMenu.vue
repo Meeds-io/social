@@ -136,17 +136,14 @@ export default {
       return this.siteType === 'GROUP' ? `g/${this.siteName?.replaceAll('/', ':')}` : this.siteName;
     },
     selectedPath() {
-      let pathname = window.location.pathname;
-      // a space is also opened at its short address, /s/<id>, as the side menu does: its entries hold the full one
-      const spaceShortUri = this.siteType === 'GROUP' && eXo.env.portal.spaceId && `${eXo.env.portal.context}/s/${eXo.env.portal.spaceId}`;
-      if (spaceShortUri && (pathname === spaceShortUri || pathname.startsWith(`${spaceShortUri}/`))) {
-        pathname = `${eXo.env.portal.context}/${this.siteUri}${pathname.slice(spaceShortUri.length)}`;
-      }
+      const pathname = window.location.pathname;
       if (pathname.toLowerCase() === `${eXo.env.portal.context}/${this.siteUri}/`.toLowerCase()
           || pathname.toLowerCase() === `${eXo.env.portal.context}/${this.siteUri}`.toLowerCase()) {
         return `${eXo.env.portal.context}/${this.siteUri}/${eXo.env.portal.selectedNodeUri}`;
       } else {
-        return pathname;
+        // a page is also displayed at its address followed by a slash, as a space's home is when opened from the side
+        // menu (its permanent link redirects there): the entries' addresses never end with one
+        return pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
       }
     },
     baseSiteUri() {
