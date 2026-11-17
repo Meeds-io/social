@@ -11,14 +11,15 @@
         max-width="100"
         min-width="auto"
         width="auto"
-        class="ma-0"
+        class="top-bar-company-logo ma-0"
         tile>
-        <img
+        <company-logo-picture
           :src="$root.logoPath"
+          :dark-src="$root.darkLogoPath"
           alt=""
           height="36"
           width="auto"
-          class="object-fit-contain">
+          img-class="object-fit-contain" />
       </v-list-item-avatar>
     </a>
     <a

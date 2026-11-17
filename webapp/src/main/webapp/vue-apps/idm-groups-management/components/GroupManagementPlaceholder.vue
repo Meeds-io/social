@@ -22,7 +22,7 @@
 <template>
   <div class="d-flex flex-column mx-auto mt-15">
     <div class="align-self-center">
-      <v-icon size="42" color="tertiary">fa-users</v-icon>
+      <v-icon size="42" color="secondary">fa-users</v-icon>
     </div>
     <div class="text-title mb-3">{{ $t('GroupsManagement.placeholder.title') }}</div>
     <div class="text-body">{{ $t('GroupsManagement.placeholder.description1') }}</div>

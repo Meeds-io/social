@@ -6,7 +6,7 @@
     @click="count && $emit('click')">
     <div class="ma-auto d-flex flex-column">
       <div class="spacesOverviewCount d-flex align-center justify-center">
-        <v-icon size="22" class="tertiary--text me-2">{{ icon }}</v-icon>
+        <v-icon size="22" class="secondary--text me-2">{{ icon }}</v-icon>
         <span class="text-h5 font-weight-bold text-color"> {{ count }} </span>
       </div>
       <div class="spacesOverviewTitle text-center text-truncate pt-3 d-none d-md-block">

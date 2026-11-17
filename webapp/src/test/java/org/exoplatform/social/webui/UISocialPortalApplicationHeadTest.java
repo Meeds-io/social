@@ -95,6 +95,7 @@ class UISocialPortalApplicationHeadTest {
                                                             "profileOwnerIdentityId",
                                                             "userIdentityId",
                                                             "companyLogo",
+                                                            "companyDarkLogo",
                                                             "cometdToken",
                                                             "cometdContext");
 
@@ -211,6 +212,8 @@ class UISocialPortalApplicationHeadTest {
   void stringValuesEvaluateToWhatTheyPrint() throws Exception {
     givenSignedInUserOnSpacePage("3", "sales", "home", "/spaces/sales", "7", "john", "1", "2");
     when(brandingService.getLogoPath()).thenReturn("/portal/rest/v1/platform/branding/logo?v=12");
+    when(brandingService.getDarkLogoPath()).thenReturn("/portal/rest/v1/platform/branding/darkLogo?v=14");
+    when(brandingService.getLightOnlyVueApps()).thenReturn(List.of("Time Tracker Quick Action"));
     when(continuationService.getUserToken("john")).thenReturn("token");
     when(continuationBayeux.getCometdContextName()).thenReturn("cometd");
     when(brandingService.getCompanyName()).thenReturn("Acme Inc");
@@ -228,6 +231,7 @@ class UISocialPortalApplicationHeadTest {
     assertStringValue(assignments, "profileOwnerIdentityId", "1");
     assertStringValue(assignments, "userIdentityId", "2");
     assertStringValue(assignments, "companyLogo", "/portal/rest/v1/platform/branding/logo?v=12");
+    assertStringValue(assignments, "companyDarkLogo", "/portal/rest/v1/platform/branding/darkLogo?v=14");
     assertStringValue(assignments, "cometdToken", "token");
     assertStringValue(assignments, "cometdContext", "cometd");
     assertStringValue(assignments, "userTimezone", "Europe/Paris");
@@ -235,6 +239,7 @@ class UISocialPortalApplicationHeadTest {
     assertUriComponentValue(assignments, "companyName", "Acme Inc");
     assertArrayValue(assignments, "attachmentObjectTypes", List.of("activity"));
     assertArrayValue(assignments, "iframeAllowedHosts", List.of("*.example.org", "video.example.com"));
+    assertArrayValue(assignments, "lightOnlyVueApps", List.of("Time Tracker Quick Action"));
   }
 
   @Test
@@ -254,6 +259,7 @@ class UISocialPortalApplicationHeadTest {
     assertUriComponentValue(assignments, "companyName", "Company");
     assertArrayValue(assignments, "attachmentObjectTypes", List.of("activity"));
     assertArrayValue(assignments, "iframeAllowedHosts", List.of());
+    assertArrayValue(assignments, "lightOnlyVueApps", List.of());
   }
 
   @Test
@@ -268,6 +274,8 @@ class UISocialPortalApplicationHeadTest {
                                                ODD_VALUE);
     when(space.getDisplayName()).thenReturn(ODD_VALUE);
     when(brandingService.getLogoPath()).thenReturn(ODD_VALUE);
+    when(brandingService.getDarkLogoPath()).thenReturn(ODD_VALUE);
+    when(brandingService.getLightOnlyVueApps()).thenReturn(List.of(ODD_VALUE));
     when(continuationService.getUserToken(anyString())).thenReturn(ODD_VALUE);
     when(continuationBayeux.getCometdContextName()).thenReturn(ODD_VALUE);
     when(brandingService.getCompanyName()).thenReturn(ODD_VALUE);
@@ -285,6 +293,7 @@ class UISocialPortalApplicationHeadTest {
     }
     assertArrayValue(assignments, "attachmentObjectTypes", List.of(ODD_VALUE, "activity"));
     assertArrayValue(assignments, "iframeAllowedHosts", List.of(ODD_VALUE));
+    assertArrayValue(assignments, "lightOnlyVueApps", List.of(ODD_VALUE));
     assertEquals(1, output.split("</script>", -1).length - 1, output);
     assertFalse(output.contains("<!--"), output);
   }

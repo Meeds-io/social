@@ -21,19 +21,19 @@
 <template>
   <div class="d-flex flex-column align-center justify-center">
     <template v-if="filterType === 'unread'">
-      <v-icon class="tertiary-color" size="60">fa-envelope-open</v-icon>
+      <v-icon class="secondary--text" size="60">fa-envelope-open</v-icon>
       <div class="my-6">
         {{ $t('menu.spaces.noUnreadSpaces') }}
       </div>
     </template>
     <template v-else-if="filterType === 'favorite'">
-      <v-icon class="tertiary-color" size="60">fa-star-half-alt</v-icon>
+      <v-icon class="secondary--text" size="60">fa-star-half-alt</v-icon>
       <div class="my-6">
         {{ $t('menu.spaces.noFavoriteSpaces') }}
       </div>
     </template>
     <template v-else>
-      <v-icon class="tertiary-color" size="60">fa-people-arrows</v-icon>
+      <v-icon class="secondary--text" size="60">fa-people-arrows</v-icon>
       <div class="my-6">
         {{ $t('menu.spaces.noSpacesFound') }}
       </div>

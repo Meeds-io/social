@@ -19,6 +19,7 @@
 
 import * as languageSettingService from './js/LanguageSettingService.js';
 import * as navigationConfigurationService from './js/NavigationConfigurationService.js';
+import * as themeService from './js/ThemeService.js';
 
 if (!Vue.prototype.$languageSettingService) {
   window.Object.defineProperty(Vue.prototype, '$languageSettingService', {
@@ -28,5 +29,10 @@ if (!Vue.prototype.$languageSettingService) {
 if (!Vue.prototype.$navigationConfigurationService) {
   window.Object.defineProperty(Vue.prototype, '$navigationConfigurationService', {
     value: navigationConfigurationService,
+  });
+}
+if (!Vue.prototype.$themeService) {
+  window.Object.defineProperty(Vue.prototype, '$themeService', {
+    value: themeService,
   });
 }

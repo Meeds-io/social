@@ -28,6 +28,7 @@
     </template>
     <template v-if="drawer" #content>
       <v-card class="pa-4" flat>
+        <portal-general-settings-theme-shared-marker class="mb-2" />
         <p>
           {{ $t('generalSettings.fontFamily.help1') }}
         </p>
