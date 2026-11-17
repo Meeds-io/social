@@ -142,8 +142,8 @@ export default {
         return `${eXo.env.portal.context}/${this.siteUri}/${eXo.env.portal.selectedNodeUri}`;
       } else {
         // a page is also displayed at its address followed by a slash, as a space's home is when opened from the side
-        // menu (its permanent link redirects there): the entries' addresses never end with one
-        return pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+        // menu (its permanent link redirects there): a page's entry has none, a link's may keep the one it was given
+        return pathname.length > 1 && pathname.endsWith('/') && !this.hasEntryAt(pathname) ? pathname.slice(0, -1) : pathname;
       }
     },
     baseSiteUri() {
@@ -248,6 +248,11 @@ export default {
         }
       }
       window.setTimeout(() => this.cacheMenuContent(), 2000);
+    },
+    hasEntryAt(path) {
+      const isEntryAt = (navigation, baseSiteUri) => this.$navigationUtils.getNavigationNodeUri(baseSiteUri, navigation) === path
+        || !!navigation.children?.some?.(child => isEntryAt(child, baseSiteUri));
+      return this.navigations.some((navigation, index) => isEntryAt(navigation, this.getNavigationBaseUri(index)));
     },
     getNavigationBaseUri(index) {
       const navigationBaseUri = `${this.baseSiteUri}${this.navigations[0].name}`;
