@@ -12,11 +12,11 @@
     tabindex="-1"
     @read="markAsRead"
     @unread="markAsUnread">
-    <!-- the title is read first, before the author and the date; the header keeps its place before the content, so that the keyboard order follows the screen -->
+    <!-- the title is read first, before the author and the date; the header keeps its place before the content, so that the keyboard order follows the screen. The content hides its own copy of the title from screen readers (titleAnnounced), so that it is read once. -->
     <div
-      v-if="!displayLoading && !isActivityShared && articleLabel"
+      v-if="titleAnnounced"
       class="d-sr-only">
-      {{ articleLabel }}
+      {{ announcedTitle }}
     </div>
     <div v-if="displayLoading" class="d-flex">
       <v-progress-circular
@@ -165,20 +165,26 @@ export default {
       }
       return this.activityTypes[this.activityType] || this.activityTypes['default'] || {};
     },
+    announcedTitle() {
+      // Only a real title is announced before the author: a post has none, its text is read once, after the author and the date
+      if (!this.activity || this.loading) {
+        return '';
+      }
+      let title = this.activityTypeExtension?.getTitle?.(this.activity) || '';
+      if (title?.key) {
+        title = this.$t(title.key, title.params || {});
+      }
+      return this.shortenLabel(title);
+    },
+    titleAnnounced() {
+      return !this.displayLoading && !this.isActivityShared && !!this.announcedTitle;
+    },
     articleLabel() {
       if (!this.activity || this.loading) {
         return null;
       }
-      const extension = this.activityTypeExtension;
-      let label = extension?.getTitle?.(this.activity) || '';
-      if (label?.key) {
-        label = this.$t(label.key, label.params || {});
-      }
-      if (typeof label !== 'string' || !label.trim()) {
-        label = extension?.getBody?.(this.activity) || this.activity.title || '';
-      }
-      label = this.$utils.htmlToText(label)?.trim() || '';
-      return label.length > 100 ? `${label.substring(0, 100)}...` : label;
+      return this.announcedTitle
+        || this.shortenLabel(this.activityTypeExtension?.getBody?.(this.activity) || this.activity.title || '');
     },
     sharedActivity() {
       return this.activity && this.activity.originalActivity;
@@ -221,6 +227,7 @@ export default {
         activityTypes: this.activityTypes,
         loading: this.loading,
         collapsed: !this.isCollapsed,
+        titleAnnounced: this.titleAnnounced,
       };
     },
     init() {
@@ -315,6 +322,10 @@ export default {
     this.$root.$off('activity-stream-activity-createComment', this.refreshActivityLastComments);
   },
   methods: {
+    shortenLabel(label) {
+      label = typeof label === 'string' && this.$utils.htmlToText(label)?.trim() || '';
+      return label.length > 100 ? `${label.substring(0, 100)}...` : label;
+    },
     retrieveActivityProperties(activityId) {
       if (this.activityLoading || (activityId && activityId !== this.activityId)) {
         return;

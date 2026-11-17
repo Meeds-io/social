@@ -46,6 +46,7 @@
             v-if="title"
             v-text="titleText"
             :title="titleTooltip"
+            :aria-hidden="titleAnnounced && 'true' || null"
             class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate">
           </div>
           <dynamic-html-element
@@ -122,6 +123,7 @@
         class="no-min-width position-relative d-flex flex-column flex-grow-1 mx-3">
         <div
           v-if="title"
+          :aria-hidden="titleAnnounced && 'true' || null"
           class="text-truncate text-body mb-3 mt-2 font-weight-bold text-color mx-0 mt-0 text-wrap text-break"
           dir="auto">
           <span v-html="titleHtml"></span>
@@ -171,6 +173,10 @@ export default {
     collapsed: {
       type: Boolean,
       default: true
+    },
+    titleAnnounced: {
+      type: Boolean,
+      default: false
     }
   },
   data: () => ({
