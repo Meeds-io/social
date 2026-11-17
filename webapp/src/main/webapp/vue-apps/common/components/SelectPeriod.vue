@@ -147,7 +147,7 @@ export default {
       fromTime: '00:00:00',
       toTime: '23:59:59',
       selectedPeriodName: this.defaultPeriod,
-      menuId: `SelectPeriodMenu${parseInt(Math.random() * 10000).toString()}`,
+      menuId: `SelectPeriodMenu${this._uid}`,
       shortDateFormat: {
         year: 'numeric',
         month: 'short',
@@ -307,7 +307,7 @@ export default {
       if (content) {
         content.id = this.menuId;
         content.setAttribute('role', 'dialog');
-        // the field's own name: its placeholder, else the period it shows
+        // the picker's name: the field's placeholder, else the period it shows, else the From label, never unnamed
         const name = this.placeholder || this.rangeDateTimeTitle || this.labels.from;
         if (name) {
           content.setAttribute('aria-label', name);
