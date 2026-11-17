@@ -88,6 +88,10 @@ import io.meeds.social.richeditor.RichEditorConfigurationServiceTest;
 import io.meeds.social.usercard.service.UserCardSettingServiceTransactionTest;
 import io.meeds.social.translation.service.TranslationServiceTest;
 import io.meeds.social.translation.storage.cache.CachedTranslationStorageCacheTest;
+import io.meeds.social.space.security.service.SpaceSecurityServiceTest;
+import io.meeds.social.space.service.SpaceMembershipWritersTest;
+import io.meeds.social.space.service.SpaceParentUpdateTest;
+import org.exoplatform.social.core.storage.cache.CachedSpaceStorageCommittedReadTest;
 
 @SuiteClasses({
   ActivityDAOTest.class,
@@ -150,6 +154,10 @@ import io.meeds.social.translation.storage.cache.CachedTranslationStorageCacheTe
   ManagerPropertySettingUpdatedListenerTest.class,
   ProfilePropertySettingOptionTranslationTest.class,
   ProfilePropertySettingOptionTranslationListenerTest.class,
+  SpaceSecurityServiceTest.class,
+  SpaceMembershipWritersTest.class,
+  SpaceParentUpdateTest.class,
+  CachedSpaceStorageCommittedReadTest.class
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
