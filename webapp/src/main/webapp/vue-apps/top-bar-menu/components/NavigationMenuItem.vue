@@ -28,6 +28,7 @@
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
     :max-height="menuMaxHeight"
+    :close-on-content-click="false"
     bottom
     offset-y
     eager>
@@ -75,7 +76,9 @@
         </v-btn>
       </v-tab>
     </template>
-    <div @keydown="onMenuKeydown">
+    <div
+      @keydown="onMenuKeydown"
+      @click="onMenuClick">
       <navigation-menu-sub-item
         v-for="children in navigation.children"
         class="transparent"
@@ -85,7 +88,9 @@
         :parent-navigation-uri="navigation.uri"
         :selected-path="selectedPath"
         @update-navigation-state="updateNavigationState"
-        @select="updateNavigationState" />
+        @select="updateNavigationState"
+        @leaving-page="leavingPage = true"
+        @close-menu="closeFromSubMenu" />
     </div>
   </v-menu>
 </template>
@@ -112,6 +117,7 @@ export default {
   data () {
     return {
       showMenu: false,
+      leavingPage: false,
       isOpenedOnHover: true,
       menuMaxHeight: '100vh'
     };
@@ -171,10 +177,12 @@ export default {
   },
   created() {
     document.addEventListener('click', this.handleCloseMenu);
+    window.addEventListener('pageshow', this.onPageShow);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleCloseMenu);
+    window.removeEventListener('pageshow', this.onPageShow);
     this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   methods: {
@@ -250,7 +258,39 @@ export default {
           event.stopPropagation();
         }
         this.showMenu = false;
-        (this.hasPage && this.$refs.chevron?.$el || this.$refs.tab?.$el)?.focus?.();
+        this.focusOpener();
+      }
+    },
+    focusOpener() {
+      (this.hasPage && this.$refs.chevron?.$el || this.$refs.tab?.$el)?.focus?.();
+    },
+    // The chosen entry keeps the menu open and the focus while it replaces the page: see NavigationUtils.js
+    onMenuClick(event) {
+      const entry = event.target?.closest?.('a.v-list-item[href]');
+      if (!entry) {
+        // an entry that only groups others opens its own sub-menu
+        return;
+      }
+      if (this.$navigationUtils.replacesPage(entry, event)) {
+        this.leavingPage = true;
+        // Vuetify's list item blurs itself on a click that has a detail
+        entry.focus();
+        return;
+      }
+      this.closeFromSubMenu();
+    },
+    // an entry of a sub-menu that leaves the page in place closes this menu too
+    closeFromSubMenu() {
+      this.showMenu = false;
+      this.focusOpener();
+    },
+    // The page left with the menu open is shown again by the browser's Back: it shows it closed, the focus on what
+    // opens it, the entry that had it being hidden
+    onPageShow(event) {
+      if (event.persisted && (this.showMenu || this.leavingPage)) {
+        this.leavingPage = false;
+        this.showMenu = false;
+        this.focusOpener();
       }
     },
     // The menu opens on Enter the entry it highlights: it highlights the entry that has the keyboard focus
@@ -310,6 +350,11 @@ export default {
       }
     },
     handleCloseMenu() {
+      if (this.leavingPage) {
+        // the click on the entry that replaces the page: any later one, the page staying, closes the menu again
+        this.leavingPage = false;
+        return;
+      }
       if (this.showMenu) {
         setTimeout(() => {
           this.showMenu = false;

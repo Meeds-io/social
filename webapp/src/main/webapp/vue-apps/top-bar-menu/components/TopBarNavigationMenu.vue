@@ -46,7 +46,8 @@
           :navigation="navigation"
           :base-site-uri="getNavigationBaseUri(index)"
           :selected-path="selectedPath"
-          @update-navigation-state="updateNavigationState" />
+          @update-navigation-state="updateNavigationState"
+          @select-tab="selectTab" />
       </v-tabs>
     </v-footer>
     <v-tabs
@@ -141,7 +142,9 @@ export default {
           || pathname.toLowerCase() === `${eXo.env.portal.context}/${this.siteUri}`.toLowerCase()) {
         return `${eXo.env.portal.context}/${this.siteUri}/${eXo.env.portal.selectedNodeUri}`;
       } else {
-        return pathname;
+        // a page is also displayed at its address followed by a slash, as a space's home is when opened from the side
+        // menu (its permanent link redirects there): a page's entry has none, a link's may keep the one it was given
+        return pathname.length > 1 && pathname.endsWith('/') && !this.hasEntryAt(pathname) ? pathname.slice(0, -1) : pathname;
       }
     },
     baseSiteUri() {
@@ -246,6 +249,11 @@ export default {
         }
       }
       window.setTimeout(() => this.cacheMenuContent(), 2000);
+    },
+    hasEntryAt(path) {
+      const isEntryAt = (navigation, baseSiteUri) => this.$navigationUtils.getNavigationNodeUri(baseSiteUri, navigation) === path
+        || !!navigation.children?.some?.(child => isEntryAt(child, baseSiteUri));
+      return this.navigations.some((navigation, index) => isEntryAt(navigation, this.getNavigationBaseUri(index)));
     },
     getNavigationBaseUri(index) {
       const navigationBaseUri = `${this.baseSiteUri}${this.navigations[0].name}`;
@@ -360,10 +368,12 @@ export default {
       }
       const selectedNavigation = this.desktopNavigations.includes(this.navigations[selectedIndex]) ? this.navigations[selectedIndex] : this.desktopNavigations[this.desktopNavigations.length - 1];
       const selectedItem = (this.$refs.navigationItems || []).find(item => item.navigation === selectedNavigation);
-      const selectedTab = selectedItem && this.findTabComponent(selectedItem);
-      if (selectedTab) {
+      this.selectTab(selectedItem && this.findTabComponent(selectedItem));
+    },
+    selectTab(tab) {
+      if (tab) {
         // A tab with no link takes as its value its index in the tabs group, in the order the tabs registered
-        this.tab = selectedTab.value || selectedTab.tabsBar?.items?.indexOf?.(selectedTab);
+        this.tab = tab.value || tab.tabsBar?.items?.indexOf?.(tab);
       }
     },
     holdsSelectedPath(navigation, baseSiteUri) {
