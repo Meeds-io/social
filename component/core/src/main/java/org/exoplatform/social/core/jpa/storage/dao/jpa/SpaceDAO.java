@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -41,11 +42,16 @@ import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.constant.UserSpacesScope;
 
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 
 public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
+
+  public static final String LOCK_TIMEOUT_HINT   = "jakarta.persistence.lock.timeout";
+
+  public static final int    LOCK_TIMEOUT_MILLIS = 10000;
 
   /**
    * Statuses making a hidden space visible to a user
@@ -106,6 +112,48 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
                        .map(tuple -> tuple.get(0, Long.class))
                        .toList();
     }
+  }
+
+  /**
+   * Locks the space's row for the current transaction, then refreshes the
+   * entity it holds, its members included, so that no state loaded earlier in
+   * the persistence context is written back.
+   *
+   * @param id space technical identifier
+   * @return the locked and refreshed space, or null when it has no row
+   */
+  public SpaceEntity findForUpdate(long id) {
+    TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getSpaceByIdForUpdate", SpaceEntity.class);
+    query.setParameter("id", id);
+    query.setLockMode(LockModeType.PESSIMISTIC_WRITE);
+    query.setHint(LOCK_TIMEOUT_HINT, LOCK_TIMEOUT_MILLIS);
+    List<SpaceEntity> rows = query.getResultList();
+    if (rows.isEmpty()) {
+      return null;
+    }
+    SpaceEntity entity = rows.get(0);
+    getEntityManager().refresh(entity);
+    return entity;
+  }
+
+  /**
+   * Reads the extended properties column of a space's row, never the state of
+   * an entity the persistence context holds.
+   *
+   * @param id space technical identifier
+   * @return the stored extended properties, empty when the column is NULL, or
+   *         an empty {@link Optional} when the space has no row
+   */
+  public Optional<Map<String, String>> findExtendedProperties(long id) {
+    TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SpaceEntity.getExtendedPropertiesById", Tuple.class);
+    query.setParameter("id", id);
+    List<Tuple> rows = query.getResultList();
+    if (rows.isEmpty()) {
+      return Optional.empty();
+    }
+    @SuppressWarnings("unchecked")
+    Map<String, String> properties = (Map<String, String>) rows.get(0).get(1);
+    return Optional.of(properties == null ? Collections.emptyMap() : properties);
   }
 
   public SpaceEntity getSpaceByGroupId(String groupId) {
