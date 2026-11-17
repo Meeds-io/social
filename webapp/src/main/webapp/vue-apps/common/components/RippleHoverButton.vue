@@ -66,6 +66,12 @@ export default {
         return;
       }
       this.mouseEvent = event.pointerType === 'mouse' || event?.type === 'mouseover' || event?.type === 'click';
+      // v-btn blurs itself on a click whose detail is set, before emitting it. A screen reader's activation
+      // (seen with Chrome's accessibility default action) clicks the button with detail 1, not under the
+      // pointer: its user keeps the focus on the button, as with the keyboard
+      if (event?.type === 'click' && event.detail && !this.$el.matches?.(':hover')) {
+        this.$el.focus();
+      }
       if (mouseover) {
         this.toggleRippleEffect();
         // Differ opening the drawer
