@@ -51,6 +51,7 @@ import io.meeds.social.cms.rest.ContentLinkRestTest;
 import io.meeds.social.observer.rest.ObserverRestTest;
 import io.meeds.social.resource.rest.SkinRestTest;
 import io.meeds.social.translation.rest.TranslationRestResourcesTest;
+import io.meeds.social.space.rest.SpaceSecurityRestTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -83,6 +84,7 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
   LoginRestTest.class,
   OtpRestTest.class,
   AccountDeactivationRestTest.class,
+  SpaceSecurityRestTest.class
 })
 @ConfigTestCase(AbstractServiceTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
