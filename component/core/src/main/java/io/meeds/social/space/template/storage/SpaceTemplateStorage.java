@@ -18,8 +18,9 @@
  */
 package io.meeds.social.space.template.storage;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,6 +32,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import io.meeds.social.space.template.dao.SpaceTemplateDAO;
 import io.meeds.social.space.template.entity.SpaceTemplateEntity;
 import io.meeds.social.space.template.model.SpaceTemplate;
+import io.meeds.social.space.template.model.SpaceTemplateAdministration;
 import io.meeds.social.space.template.utils.EntityMapper;
 
 @Component
@@ -104,6 +106,35 @@ public class SpaceTemplateStorage {
     }
     spaceTemplateEntity.setGroupId(groupId);
     spaceTemplateDAO.save(spaceTemplateEntity);
+  }
+
+  /**
+   * Reads who administers the template on its committed row. Not cached: the
+   * space security refusals decide on it.
+   *
+   * @param id space template technical identifier
+   * @return the template's administration, or null when it has no row
+   */
+  public SpaceTemplateAdministration getTemplateAdministration(long id) {
+    return spaceTemplateDAO.findAdministration(id).orElse(null);
+  }
+
+  /**
+   * Reads the template's extended properties on its committed row. Not cached:
+   * a space created from the template copies its security settings from it.
+   *
+   * @param id space template technical identifier
+   * @return the stored extended properties, empty when none is stored
+   * @throws ObjectNotFoundException when the template has no row
+   */
+  @SuppressWarnings("unchecked")
+  public Map<String, String> getTemplateExtendedProperties(long id) throws ObjectNotFoundException {
+    List<Object[]> rows = spaceTemplateDAO.findExtendedProperties(id);
+    if (rows.isEmpty()) {
+      throw new ObjectNotFoundException("Space template with id " + id + " doesn't exist");
+    }
+    Map<String, String> properties = (Map<String, String>) rows.get(0)[1];
+    return properties == null ? Collections.emptyMap() : properties;
   }
 
   @Cacheable(cacheNames = "social.spaceTemplates")
