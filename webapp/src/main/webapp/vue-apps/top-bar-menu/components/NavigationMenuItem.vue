@@ -95,6 +95,7 @@
 
 <script>
 import tabLinkSemantics from './tabLinkSemantics.js';
+import { replacesPage } from './menuEntryNavigation.js';
 
 export default {
   mixins: [tabLinkSemantics],
@@ -262,22 +263,14 @@ export default {
     focusOpener() {
       (this.hasPage && this.$refs.chevron?.$el || this.$refs.tab?.$el)?.focus?.();
     },
-    // An entry that replaces the page keeps the menu open and the focus on it until the new page is displayed: closed
-    // at once, the menu takes the focus away with it, to the start of a page that is leaving. An entry that leaves
-    // the page in place (a new tab, an anchor) closes the menu and gives the focus back to what opens it
+    // The chosen entry keeps the menu open and the focus while it replaces the page: see menuEntryNavigation.js
     onMenuClick(event) {
       const entry = event.target?.closest?.('a.v-list-item[href]');
       if (!entry) {
         // an entry that only groups others opens its own sub-menu
         return;
       }
-      const inNewTab = entry.target === '_blank' || event.ctrlKey || event.metaKey || event.shiftKey;
-      const url = new URL(entry.href, window.location.href);
-      const anchorOfThisPage = !!url.hash && url.origin === window.location.origin
-        && url.pathname === window.location.pathname && url.search === window.location.search;
-      // an email address or a phone number opens another application: the page stays
-      const opensAPage = /^https?:$/.test(url.protocol);
-      if (!inNewTab && !anchorOfThisPage && opensAPage) {
+      if (replacesPage(entry, event)) {
         this.leavingPage = true;
         // Vuetify's list item blurs itself on a click that has a detail: a mouse's, and a screen reader's activation
         entry.focus();

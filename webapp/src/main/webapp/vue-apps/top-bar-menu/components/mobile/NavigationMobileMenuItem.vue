@@ -74,6 +74,7 @@
       :parent-navigation-uri="navigation.uri"
       :selected-path="selectedPath"
       @close="closeMenu"
+      @leaving-page="leavingPage = true"
       @update-navigation-state="updateNavigationState" />
   </v-menu>
 </template>
@@ -99,13 +100,16 @@ export default {
   },
   data: () => ({
     showMenu: false,
+    leavingPage: false,
   }),
   created() {
     document.addEventListener('click', this.handleCloseMenu);
+    window.addEventListener('pageshow', this.onPageShow);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleCloseMenu);
+    window.removeEventListener('pageshow', this.onPageShow);
     this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   computed: {
@@ -185,7 +189,20 @@ export default {
         this.showMenu = false;
       }
     },
+    // The page left with the sheet open is shown again by the browser's Back: it shows it closed, the focus on what
+    // opens it
+    onPageShow(event) {
+      if (event.persisted && (this.showMenu || this.leavingPage)) {
+        this.leavingPage = false;
+        this.closeMenu();
+      }
+    },
     handleCloseMenu() {
+      if (this.leavingPage) {
+        // the click on the entry that replaces the page: any later one, the page staying, closes the sheet again
+        this.leavingPage = false;
+        return;
+      }
       if (this.showMenu) {
         setTimeout(() => {
           this.showMenu = false;

@@ -83,6 +83,8 @@
 </template>
 
 <script>
+import { replacesPage } from '../menuEntryNavigation.js';
+
 export default {
   props: {
     navigation: {
@@ -201,6 +203,7 @@ export default {
         }
       } else {
         this.$emit('update-navigation-state', `${this.parentNavigationUri}`);
+        this.keepOrCloseOnChoice(e);
       }
       if (navigation?.nodeUri?.includes?.('#')) {
         if (navigation?.nodeTarget === '_blank') {
@@ -209,7 +212,18 @@ export default {
           window.location.href = navigation.nodeUri;
         }
       }
-    }
+    },
+    // The chosen entry keeps the sheet open and the focus while it replaces the page: see menuEntryNavigation.js
+    keepOrCloseOnChoice(event) {
+      const entry = event?.target?.closest?.('a.v-list-item');
+      if (replacesPage(entry, event)) {
+        this.$emit('leaving-page');
+        // Vuetify's list item blurs itself on a click that has a detail: a mouse's, and a screen reader's activation
+        entry.focus();
+      } else {
+        this.$emit('close');
+      }
+    },
   }
 };
 </script>
