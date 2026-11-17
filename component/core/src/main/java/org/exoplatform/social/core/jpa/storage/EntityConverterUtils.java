@@ -293,7 +293,10 @@ public class EntityConverterUtils {
       visibility = SpaceVisibility.valueOf(space.getVisibility().toUpperCase());
     }
     spaceEntity.setVisibility(visibility);
-    buildMembers(space, spaceEntity);
+    if (spaceEntity.getId() == null) {
+      // An existing space's member rows are written by their own writers only
+      buildMembers(space, spaceEntity);
+    }
     return spaceEntity;
   }
 

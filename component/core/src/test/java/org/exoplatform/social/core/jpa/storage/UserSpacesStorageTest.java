@@ -18,6 +18,13 @@
  */
 package org.exoplatform.social.core.jpa.storage;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import org.apache.commons.lang3.ArrayUtils;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.model.MembershipChange;
 import static org.junit.Assert.assertThrows;
 
 import org.exoplatform.services.cache.ExoCache;
@@ -310,7 +317,9 @@ public class UserSpacesStorageTest extends AbstractCoreTest {
   }
 
   /**
-   * Saves a full space definition over an existing one. A space reloaded from
+   * Saves a full space definition over an existing one, then brings its
+   * members to the given ones through the member writer: saving an existing
+   * space writes no member row from the arrays it carries. A space reloaded from
    * the cache can carry a simplified form with no membership array, so the
    * update is built from the same helper as the creation and only reuses the
    * stored identifier.
@@ -319,6 +328,20 @@ public class UserSpacesStorageTest extends AbstractCoreTest {
     Space update = getSpaceInstance(number, displayName, visibility, members);
     update.setId(stored.getId());
     spaceStorage.saveSpace(update, false);
+    Set<String> users = new HashSet<>(Arrays.asList(members));
+    users.addAll(Arrays.asList(OWNER, VIEWER_A, VIEWER_B));
+    for (String user : users) {
+      MembershipChange change = ArrayUtils.contains(members, user) ? MembershipChange.of(Set.of(SpaceMembershipStatus.MEMBER),
+                                                                                         Set.of())
+                                                                   : MembershipChange.of(Set.of(),
+                                                                                         Set.of(SpaceMembershipStatus.MEMBER,
+                                                                                                SpaceMembershipStatus.MANAGER));
+      try {
+        spaceStorage.changeMembership(stored.getSpaceId(), user, change);
+      } catch (ObjectNotFoundException e) {
+        throw new IllegalStateException(e);
+      }
+    }
     restartTransaction();
   }
 
