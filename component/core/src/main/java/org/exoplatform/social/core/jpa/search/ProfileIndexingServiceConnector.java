@@ -72,7 +72,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
   private final UserPermissionService  userPermissionService;
 
-  private static final String          HIDDEN_VALUE                 = "hidden";
+  private static final String          POSITION_PROPERTY            = "position";
 
   private static final String          PROFILE_PROPERTY_FIELD_NAME  = "optionValue";
 
@@ -256,6 +256,33 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     return mapping.toString();
   }
 
+  /**
+   * The string the profile index holds for one stored value of a profile
+   * property: a dropdown option id becomes the option's value joined with
+   * {@code -} to each of its translated labels, any other value (free text
+   * typed before the property became a dropdown included) is kept as stored;
+   * the accents are removed for a value of a multi-valued property and for
+   * {@code position}, as the document does. A query matching a stored value
+   * against the index computes the indexed string through this method, with
+   * the setting's multi-valued flag. Known limit: values stored as a list
+   * before the property was made single-valued stay indexed as a joined,
+   * accent-free string until the user saves the property again.
+   *
+   * @param setting the property's setting, may be null
+   * @param storedValue the value as the profile stores it
+   * @param multiValued whether the value is one of a multi-valued property's
+   * @param translationService reads the option labels
+   * @return the indexed string
+   */
+  public static String toIndexedValue(ProfilePropertySetting setting,
+                                      String storedValue,
+                                      boolean multiValued,
+                                      TranslationService translationService) {
+    String value = parseValue(setting, storedValue, translationService);
+    boolean position = setting != null && POSITION_PROPERTY.equals(setting.getPropertyName());
+    return multiValued || position ? removeAccents(value) : value;
+  }
+
   private Document getDocument(String id) {
     if (StringUtils.isBlank(id)) {
       throw new IllegalArgumentException("id is mandatory");
@@ -265,21 +292,25 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     LOG.debug("get profile document for identity id={}", id);
 
     Identity identity = identityManager.getIdentity(id);
+    if (identity == null || !identity.isEnable()) {
+      // only enabled users are listed: the bulk processor skips a null
+      // document, so no per-user reindex puts a disabled user back
+      LOG.debug("no profile document for the disabled identity id={}", id);
+      return null;
+    }
     Profile profile = identity.getProfile();
+    List<Long> hiddenPropertyIds = profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(id));
     boolean isExternal = profile.getProperty(Profile.EXTERNAL) != null && (profile.getProperty(Profile.EXTERNAL)).equals("true");
     Map<String, String> fields = new HashMap<>();
     fields.put("name", profile.getFullName());
     fields.put("firstName", (String) profile.getProperty(Profile.FIRST_NAME));
     fields.put("lastName", (String) profile.getProperty(Profile.LAST_NAME));
-    ProfilePropertySetting positionPropertySetting = profilePropertyService.getProfileSettingByName("position");
-    fields.put("position",
-               StringUtils.isNotEmpty(profile.getPosition()) ? removeAccents(parseValue(positionPropertySetting,
-                                                                                        profile.getPosition()))
-                                                             : profile.getPosition());
     fields.put("aboutMe", removeAccents(profile.getAboutMe()));
     fields.put("skills", removeAccents((String) profile.getProperty(Profile.EXPERIENCES_SKILLS)));
     fields.put("avatarUrl", profile.getAvatarUrl());
     fields.put("userName", identity.getRemoteId());
+    // the name search reads the email: a hidden email stays indexed, which is
+    // why it is never a directory attribute
     fields.put("email", profile.getEmail());
     fields.put("external", String.valueOf(isExternal));
     if (profile.getProperty(Profile.LAST_LOGIN_TIME) != null) {
@@ -289,27 +320,32 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
       fields.put("enrollmentDate", profile.getProperty(Profile.ENROLLMENT_DATE).toString());
     }
     for (ProfilePropertySetting profilePropertySetting : profilePropertyService.getPropertySettings()) {
-      if (profilePropertySetting.isVisible() && !fields.containsKey(profilePropertySetting.getPropertyName())) {
-        Object propertyValue = profile.getProperty(profilePropertySetting.getPropertyName());
-        if (propertyValue instanceof String value && StringUtils.isNotEmpty(value)) {
-          addPropertyToDocumentFields(fields,
-                                      profilePropertySetting.getPropertyName(),
-                                      parseValue(profilePropertySetting, value),
-                                      Long.parseLong(id));
-        } else if (propertyValue instanceof List) {
-          List<Map<String, String>> multiValues = (List<Map<String, String>>) propertyValue;
-          if (CollectionUtils.isNotEmpty(multiValues)) {
-            String value = multiValues.stream()
-                                      .filter(property -> property.get("value") != null)
-                                      .map(property -> parseValue(profilePropertySetting, property.get("value")))
-                                      .collect(Collectors.joining(",", "", ""));
-
-            if (StringUtils.isNotEmpty(value)) {
-              addPropertyToDocumentFields(fields,
-                                          profilePropertySetting.getPropertyName(),
-                                          removeAccents(value),
-                                          Long.parseLong(id));
-            }
+      String propertyName = profilePropertySetting.getPropertyName();
+      // position is the one fixed field a filter can select: it follows the
+      // visibility and hidden rule of the settings
+      boolean position = POSITION_PROPERTY.equals(propertyName);
+      if (!profilePropertySetting.isVisible()
+          || (!position && fields.containsKey(propertyName))
+          || hiddenPropertyIds.contains(profilePropertySetting.getId())) {
+        // a non-visible setting and an owner-hidden value are absent from the
+        // document, so that no query matches them, whoever the viewer
+        continue;
+      }
+      Object propertyValue = position ? profile.getPosition() : profile.getProperty(propertyName);
+      if (propertyValue instanceof String value && StringUtils.isNotEmpty(value)) {
+        // the setting decides the rule, as for the query: a property made
+        // multi-valued keeps the plain values stored before
+        fields.put(getIndexedFieldName(propertyName),
+                   toIndexedValue(profilePropertySetting, value, profilePropertySetting.isMultiValued()));
+      } else if (propertyValue instanceof List) {
+        List<Map<String, String>> multiValues = (List<Map<String, String>>) propertyValue;
+        if (CollectionUtils.isNotEmpty(multiValues)) {
+          String value = multiValues.stream()
+                                    .filter(property -> property.get("value") != null)
+                                    .map(property -> toIndexedValue(profilePropertySetting, property.get("value"), true))
+                                    .collect(Collectors.joining(",", "", ""));
+          if (StringUtils.isNotEmpty(value)) {
+            fields.put(getIndexedFieldName(propertyName), value);
           }
         }
       }
@@ -331,21 +367,8 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     return document;
   }
 
-  private void addPropertyToDocumentFields(Map<String, String> fields, String propertyName, String value, long userIdentityId) {
-    String fieldName = getIndexedFieldName(propertyName);
-    if(isPropertyHidden(propertyName, userIdentityId)) {
-      fields.put(fieldName, HIDDEN_VALUE);
-    } else {
-      fields.put(fieldName, value);
-    }
-  }
-
-  private Boolean isPropertyHidden(String propertyName, long userIdentityId) {
-    ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
-    if (propertySetting != null) {
-      return profilePropertyService.getHiddenProfilePropertyIds(userIdentityId).contains(propertySetting.getId());
-    }
-    return false;
+  private String toIndexedValue(ProfilePropertySetting setting, String storedValue, boolean multiValued) {
+    return toIndexedValue(setting, storedValue, multiValued, translationService);
   }
 
   private static String removeAccents(String string) {
@@ -356,7 +379,9 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     return string;
   }
 
-  private String parseValue(ProfilePropertySetting profilePropertySetting, String value) {
+  private static String parseValue(ProfilePropertySetting profilePropertySetting,
+                                   String value,
+                                   TranslationService translationService) {
     if (profilePropertySetting == null || !profilePropertySetting.isDropdownList() || StringUtils.isBlank(value)) {
       return value;
     }
@@ -381,7 +406,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     return optionValue;
   }
 
-  private ProfilePropertyOption getDropdownOption(ProfilePropertySetting profilePropertySetting, String value) {
+  private static ProfilePropertyOption getDropdownOption(ProfilePropertySetting profilePropertySetting, String value) {
     if (!StringUtils.isNumeric(value) || CollectionUtils.isEmpty(profilePropertySetting.getPropertyOptions())) {
       return null;
     }

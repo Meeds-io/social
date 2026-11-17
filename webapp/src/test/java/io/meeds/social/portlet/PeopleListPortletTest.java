@@ -18,14 +18,19 @@
  */
 package io.meeds.social.portlet;
 
+import static io.meeds.social.portlet.PeopleListPortlet.ATTRIBUTE_FILTER_PREFERENCE;
+import static io.meeds.social.portlet.PeopleListPortlet.ATTRIBUTE_VALUES_RESOURCE_ID;
 import static io.meeds.social.portlet.PeopleListPortlet.HEADER_TRANSLATIONS_PREFERENCE;
 import static io.meeds.social.portlet.PeopleListPortlet.PAGE_SIZE_PREFERENCE;
 import static io.meeds.social.portlet.PeopleListPortlet.SETTINGS_RESOURCE_ID;
+import static io.meeds.social.portlet.PeopleListPortlet.USERS_RESOURCE_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -34,11 +39,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.portlet.ActionRequest;
@@ -48,6 +56,7 @@ import javax.portlet.PortletPreferences;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +64,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -66,6 +76,9 @@ import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.webui.application.UIPortlet;
 
+import io.meeds.social.people.model.PeopleDirectoryAttribute;
+import io.meeds.social.people.model.PeopleDirectoryAttributeValue;
+import io.meeds.social.people.model.PeopleDirectoryPage;
 import io.meeds.social.people.service.PeopleDirectoryService;
 
 /**
@@ -227,6 +240,7 @@ class PeopleListPortletTest {
     ResourceResponse resourceResponse = mock(ResourceResponse.class);
     StringWriter body = new StringWriter();
     when(resourceRequest.getResourceID()).thenReturn(SETTINGS_RESOURCE_ID);
+    when(resourceRequest.getRemoteUser()).thenReturn(USERNAME);
     when(resourceRequest.getPreferences()).thenReturn(preferences);
     when(resourceResponse.getWriter()).thenReturn(new PrintWriter(body, true));
     when(preferences.getValue(eq(PAGE_SIZE_PREFERENCE), nullable(String.class))).thenReturn("5000");
@@ -237,7 +251,186 @@ class PeopleListPortletTest {
     JSONObject settings = new JSONObject(body.toString());
     assertEquals(PeopleDirectoryService.MAX_PAGE_SIZE, settings.getInt(PAGE_SIZE_PREFERENCE));
     assertEquals("Team", settings.getJSONObject(HEADER_TRANSLATIONS_PREFERENCE).getString("en"));
+    // the attribute filter's values are an editor's only
+    assertFalse(settings.has("attributes"));
     verify(resourceResponse).setProperty("Cache-Control", "private, no-store");
+  }
+
+  @Test
+  void settingsResourceAnswersTheAttributesToAnEditor() throws Exception {
+    ResourceRequest resourceRequest = resourceRequest(SETTINGS_RESOURCE_ID);
+    StringWriter body = new StringWriter();
+    ResourceResponse resourceResponse = resourceResponse(body);
+    when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
+    lenient().when(preferences.getValue(eq(ATTRIBUTE_FILTER_PREFERENCE), nullable(String.class))).thenReturn("{\"department\":[\"HR\"]}");
+    when(peopleDirectoryService.getEditorAttributes("{\"department\":[\"HR\"]}", Locale.FRENCH))
+      .thenReturn(List.of(new PeopleDirectoryAttribute("department",
+                                                        List.of(new PeopleDirectoryAttributeValue("HR", "HR")),
+                                                        false)));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    JSONObject attribute = new JSONObject(body.toString()).getJSONArray("attributes").getJSONObject(0);
+    assertEquals("department", attribute.getString("name"));
+    assertEquals("HR", attribute.getJSONArray("values").getJSONObject(0).getString("value"));
+    assertFalse(attribute.getBoolean("available"));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { SETTINGS_RESOURCE_ID, USERS_RESOURCE_ID, ATTRIBUTE_VALUES_RESOURCE_ID })
+  void everyResourceIsRefusedToAnAnonymousUser(String resourceId) throws Exception {
+    // a request complete enough to be answered, but for its user
+    ResourceRequest resourceRequest = resourceRequest(resourceId);
+    when(resourceRequest.getRemoteUser()).thenReturn(null);
+    lenient().when(resourceRequest.getParameterMap()).thenReturn(Map.of());
+    lenient().when(peopleDirectoryService.search(any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt()))
+             .thenReturn(new PeopleDirectoryPage(List.of(), 0));
+    ResourceResponse resourceResponse = resourceResponse(new StringWriter());
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "403");
+    verify(resourceResponse).setProperty("Cache-Control", "private, no-store");
+    verify(resourceResponse, never()).getWriter();
+    verify(peopleDirectoryService, never()).search(any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt());
+    verify(peopleDirectoryService, never()).getAttributeValues(any(), any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void usersResourceListsTheDirectoryOfTheWindowOfThePortalContext() throws Exception {
+    ResourceRequest resourceRequest = resourceRequest(USERS_RESOURCE_ID);
+    StringWriter body = new StringWriter();
+    ResourceResponse resourceResponse = resourceResponse(body);
+    when(preferences.getValue(eq(ATTRIBUTE_FILTER_PREFERENCE), nullable(String.class))).thenReturn("{\"department\":[\"HR\"]}");
+    when(resourceRequest.getParameter("q")).thenReturn("john");
+    when(resourceRequest.getParameter("filter")).thenReturn("connections");
+    when(resourceRequest.getParameter("offset")).thenReturn("12");
+    when(resourceRequest.getParameter("limit")).thenReturn("13");
+    when(resourceRequest.getParameterMap()).thenReturn(Map.of("attr.city",
+                                                              new String[] { "Tunis" },
+                                                              "attributeFilter",
+                                                              new String[] { "{}" },
+                                                              "q",
+                                                              new String[] { "john" }));
+    when(peopleDirectoryService.search(PAGE_KEY,
+                                       SITE_KEY,
+                                       WINDOW_ID,
+                                       "{\"department\":[\"HR\"]}",
+                                       "john",
+                                       Map.of("city", "Tunis"),
+                                       true,
+                                       USERNAME,
+                                       12,
+                                       13)).thenReturn(new PeopleDirectoryPage(List.of(), 40));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    JSONObject users = new JSONObject(body.toString());
+    assertEquals(40, users.getInt("size"));
+    assertEquals(12, users.getInt("offset"));
+    assertEquals(0, users.getJSONArray("users").length());
+    verify(resourceResponse).setProperty("Cache-Control", "private, no-store");
+  }
+
+  @Test
+  void usersResourceAnswersForbiddenWithoutTheViewRight() throws Exception {
+    ResourceRequest resourceRequest = resourceRequest(USERS_RESOURCE_ID);
+    ResourceResponse resourceResponse = mock(ResourceResponse.class);
+    when(resourceRequest.getParameterMap()).thenReturn(Map.of());
+    when(peopleDirectoryService.search(any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt()))
+      .thenThrow(new IllegalAccessException("refused"));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "403");
+    verify(resourceResponse, never()).getWriter();
+  }
+
+  @Test
+  void usersResourceAnswersBadRequestWithTheMessageCode() throws Exception {
+    ResourceRequest resourceRequest = resourceRequest(USERS_RESOURCE_ID);
+    StringWriter body = new StringWriter();
+    ResourceResponse resourceResponse = resourceResponse(body);
+    lenient().when(resourceRequest.getParameter("limit")).thenReturn("many");
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "400");
+    assertEquals(PeopleDirectoryService.INVALID_RANGE_MESSAGE, body.toString());
+    verify(peopleDirectoryService, never()).search(any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt());
+  }
+
+  @Test
+  void attributeValuesResourceAnswersTheValuesOfTheWindowOfThePortalContext() throws Exception {
+    ResourceRequest resourceRequest = resourceRequest(ATTRIBUTE_VALUES_RESOURCE_ID);
+    StringWriter body = new StringWriter();
+    ResourceResponse resourceResponse = resourceResponse(body);
+    when(resourceRequest.getParameter("attribute")).thenReturn("team");
+    when(resourceRequest.getParameter("q")).thenReturn("Eng");
+    when(peopleDirectoryService.getAttributeValues(PAGE_KEY, SITE_KEY, WINDOW_ID, "team", "Eng", USERNAME, Locale.FRENCH))
+      .thenReturn(List.of(new PeopleDirectoryAttributeValue("7", "Ingénierie </script>")));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    JSONObject value = new JSONArray(body.toString()).getJSONObject(0);
+    assertEquals("7", value.getString("value"));
+    assertEquals("Ingénierie </script>", value.getString("label"));
+    verify(resourceResponse).setProperty("Cache-Control", "private, no-store");
+  }
+
+  @Test
+  void attributeValuesResourceAnswersBadRequestForAnUnknownAttribute() throws Exception {
+    ResourceRequest resourceRequest = resourceRequest(ATTRIBUTE_VALUES_RESOURCE_ID);
+    StringWriter body = new StringWriter();
+    ResourceResponse resourceResponse = resourceResponse(body);
+    when(peopleDirectoryService.getAttributeValues(any(), any(), any(), any(), any(), any(), any()))
+      .thenThrow(new IllegalArgumentException(PeopleDirectoryService.UNKNOWN_ATTRIBUTE_MESSAGE));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "400");
+    assertEquals(PeopleDirectoryService.UNKNOWN_ATTRIBUTE_MESSAGE, body.toString());
+  }
+
+  @Test
+  void processActionStoresTheNormalizedAttributeFilter() throws Exception {
+    when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
+    parameters.put(ATTRIBUTE_FILTER_PREFERENCE, "{\"department\":[\"HR\",\"HR\"]}");
+    when(peopleDirectoryService.normalizeAttributeFilter("{\"department\":[\"HR\",\"HR\"]}")).thenReturn("{\"department\":[\"HR\"]}");
+
+    portlet.processAction(request, response);
+
+    verify(preferences).setValue(ATTRIBUTE_FILTER_PREFERENCE, "{\"department\":[\"HR\"]}");
+    verify(preferences).store();
+  }
+
+  @Test
+  void processActionRefusesAnInvalidAttributeFilterBeforeStoringAnything() throws Exception {
+    when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
+    parameters.put(PAGE_SIZE_PREFERENCE, "20");
+    parameters.put(ATTRIBUTE_FILTER_PREFERENCE, "{\"department\":null}");
+    when(peopleDirectoryService.normalizeAttributeFilter("{\"department\":null}"))
+      .thenThrow(new IllegalArgumentException(PeopleDirectoryService.ATTRIBUTE_FILTER_INVALID_MESSAGE));
+
+    PortletException e = assertThrows(PortletException.class, () -> portlet.processAction(request, response));
+
+    assertEquals(PeopleDirectoryService.ATTRIBUTE_FILTER_INVALID_MESSAGE, e.getMessage());
+    verify(preferences, never()).store();
+  }
+
+  private ResourceRequest resourceRequest(String resourceId) {
+    ResourceRequest resourceRequest = mock(ResourceRequest.class);
+    lenient().when(resourceRequest.getResourceID()).thenReturn(resourceId);
+    lenient().when(resourceRequest.getRemoteUser()).thenReturn(USERNAME);
+    lenient().when(resourceRequest.getPreferences()).thenReturn(preferences);
+    lenient().when(resourceRequest.getLocale()).thenReturn(Locale.FRENCH);
+    return resourceRequest;
+  }
+
+  private ResourceResponse resourceResponse(StringWriter body) throws Exception {
+    ResourceResponse resourceResponse = mock(ResourceResponse.class);
+    lenient().when(resourceResponse.getWriter()).thenReturn(new PrintWriter(body, true));
+    return resourceResponse;
   }
 
   @Test

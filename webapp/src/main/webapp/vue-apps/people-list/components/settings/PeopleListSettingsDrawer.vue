@@ -69,6 +69,10 @@
             class="people-list-page-size ms-4"
             @valid="pageSizeTyped = $event" />
         </div>
+        <div class="mt-8 mb-4 text-header">{{ $t('peopleList.settings.filterOptions') }}</div>
+        <people-list-attribute-filter
+          v-model="attributes"
+          :enabled.sync="attributeFilterEnabled" />
       </div>
     </template>
     <template #footer>
@@ -80,7 +84,7 @@
           @click="close">
           {{ $t('peopleList.settings.cancel') }}
         </v-btn>
-        <v-tooltip :disabled="!headerMissing" top>
+        <v-tooltip :disabled="!applyTooltip" top>
           <template #activator="{on, attrs}">
             <div
               v-on="on"
@@ -95,7 +99,7 @@
               </v-btn>
             </div>
           </template>
-          <span>{{ $t('peopleList.settings.header.required') }}</span>
+          <span>{{ applyTooltip }}</span>
         </v-tooltip>
       </div>
     </template>
@@ -119,6 +123,14 @@ export default {
     // whether the typed text is within the bounds: <number-input> emits the
     // clamped value for an out-of-range text, so its value alone cannot tell
     pageSizeTyped: true,
+    attributeFilterEnabled: false,
+    // PeopleDirectoryService MAX_ATTRIBUTES, MAX_VALUES_PER_ATTRIBUTE and
+    // MAX_VALUE_LENGTH: the portlet refuses more
+    maxAttributes: 10,
+    maxValues: 20,
+    maxValueLength: 150,
+    // [{name, values: [{value, label}], available}]
+    attributes: [],
   }),
   computed: {
     headerSwitchId() {
@@ -146,14 +158,68 @@ export default {
     headerTooLong() {
       return Object.values(this.headerToSave).some(label => label.length > this.maxHeaderLength);
     },
+    // the attribute filter to store: none when the toggle is OFF
+    attributeFilterToSave() {
+      const attributeFilter = {};
+      if (this.attributeFilterEnabled) {
+        this.attributes.forEach(attribute => attributeFilter[attribute.name] = attribute.values.map(v => v.value));
+      }
+      return attributeFilter;
+    },
+    // ON with no attribute or an attribute without value
+    attributeValuesMissing() {
+      return this.attributeFilterEnabled
+        && (!this.attributes.length || this.attributes.some(attribute => !attribute.values.length));
+    },
+    // an attribute no longer available, which the portlet refuses
+    attributeUnavailable() {
+      return this.attributeFilterEnabled && this.attributes.some(attribute => !attribute.available);
+    },
+    // more attributes or values than the directory accepts, or a blank or
+    // too long value: only another writer of the window stores those
+    attributeFilterRefused() {
+      return this.attributeFilterEnabled
+        && (this.attributes.length > this.maxAttributes
+          || this.attributes.some(attribute => attribute.values.length > this.maxValues
+            || attribute.values.some(v => !v.value?.trim?.() || v.value.length > this.maxValueLength)));
+    },
+    attributeFilterIncomplete() {
+      return this.attributeValuesMissing || this.attributeUnavailable || this.attributeFilterRefused;
+    },
+    applyTooltip() {
+      if (this.headerMissing) {
+        return this.$t('peopleList.settings.header.required');
+      } else if (this.attributeUnavailable) {
+        return this.$t('peopleList.settings.attribute.unavailable');
+      } else if (this.attributeFilterRefused) {
+        return this.$t('peopleList.settings.attribute.valuesRefused');
+      } else if (this.attributeValuesMissing) {
+        return this.$t('peopleList.settings.attribute.valuesRequired');
+      }
+      return null;
+    },
     validPageSize() {
       return this.pageSizeTyped
         && Number.isInteger(this.pageSize) && this.pageSize >= this.minPageSize && this.pageSize <= this.maxPageSize;
     },
+    // the settings the form would store
+    toSave() {
+      return {
+        headerTranslations: this.headerToSave,
+        pageSize: this.pageSize,
+        attributeFilter: this.attributeFilterToSave,
+      };
+    },
+    // nothing to apply while the form holds the stored settings
+    changed() {
+      return !this.isStored(this.toSave);
+    },
     canSave() {
       return !this.saving
+        && this.changed
         && !this.headerMissing
         && !this.headerTooLong
+        && !this.attributeFilterIncomplete
         && this.validPageSize;
     },
   },
@@ -171,6 +237,12 @@ export default {
       this.headerTranslations = headerTranslations;
       this.pageSize = this.$root.pageSize;
       this.pageSizeTyped = true;
+      // a value stored twice is stored once by the portlet
+      this.attributes = (this.$root.attributes || []).map(attribute => ({
+        ...attribute,
+        values: (attribute.values || []).filter((v, i, values) => values.findIndex(other => other.value === v.value) === i),
+      }));
+      this.attributeFilterEnabled = this.attributes.length > 0;
       this.openCount++;
       this.$refs.drawer.open();
     },
@@ -178,7 +250,8 @@ export default {
       this.$refs.drawer.close();
     },
     /**
-     * Posts the two preferences, then re-reads what the portlet stored: a
+     * Posts the preferences (header, page size, attribute filter), then
+     * re-reads what the portlet stored: a
      * refusal of the action (edit right lost, value rejected) is answered
      * with a 200, so the snackbar follows the stored values, never the HTTP
      * status.
@@ -190,13 +263,11 @@ export default {
         return;
       }
       this.saving = true;
-      const toSave = {
-        headerTranslations: this.headerToSave,
-        pageSize: this.pageSize,
-      };
+      const toSave = this.toSave;
       const body = new URLSearchParams({
         headerTranslations: JSON.stringify(toSave.headerTranslations),
         pageSize: String(toSave.pageSize),
+        attributeFilter: JSON.stringify(toSave.attributeFilter),
       }).toString();
       return fetch(this.$root.saveSettingsUrl, {
         method: 'POST',
@@ -210,6 +281,7 @@ export default {
         .then(() => {
           if (this.isStored(toSave)) {
             this.$root.$emit('alert-message', this.$t('peopleList.settings.saved.success'), 'success');
+            this.$root.$emit('people-list-directory-updated');
             this.close();
           } else {
             this.$root.$emit('alert-message', this.$t('peopleList.settings.saved.error'), 'error');
@@ -219,9 +291,12 @@ export default {
         .finally(() => this.saving = false);
     },
     isStored(toSave) {
+      const storedAttributeFilter = {};
+      (this.$root.attributes || []).forEach(attribute => storedAttributeFilter[attribute.name] = attribute.values.map(v => v.value));
       return this.canonical({
         headerTranslations: this.$root.headerTranslations,
         pageSize: this.$root.pageSize,
+        attributeFilter: storedAttributeFilter,
       }) === this.canonical(toSave);
     },
     // a key-order-independent rendering: the stored translations come back

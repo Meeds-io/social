@@ -8,7 +8,7 @@
         @focusout="updateFocusWithin">
         <people-toolbar
           :filter="filter"
-          :filter-message="peopleCount && $t('peopleList.label.peopleCount', {0: peopleCount})"
+          :filter-message="peopleCount ? $t('peopleList.label.peopleCount', {0: peopleCount}) : null"
           :compact-display="$root.isMobile"
           filter-message-class="showingPeopleText ms-1 d-none d-sm-flex"
           @keyword-changed="keyword = $event"
@@ -19,6 +19,8 @@
           :filter="filter"
           :people-count="peopleCount"
           :items-per-page="$root.pageSize"
+          :users-resource-url="$root.usersResourceUrl"
+          :directory-filtered="$root.directoryFiltered"
           :mobile-display="$root.isMobile"
           @loaded="peopleLoaded" />
       </div>
