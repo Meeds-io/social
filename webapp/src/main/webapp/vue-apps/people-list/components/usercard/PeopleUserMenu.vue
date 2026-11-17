@@ -172,10 +172,10 @@ export default {
   },
   watch: {
     displayActionMenu(newVal) {
-      if (newVal) {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 3;
-      } else {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
+      // the card's wrapper exists in the people lists only, not in the search results
+      const card = document.getElementById(`peopleCardItem${this.user.id}`);
+      if (card) {
+        card.style.zIndex = newVal ? 3 : 0;
       }
       // Workaround to fix closing menu when clicking outside
       if (newVal) {
