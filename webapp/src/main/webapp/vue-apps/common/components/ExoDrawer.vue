@@ -515,7 +515,7 @@ export default {
     },
     open() {
       if (!this.drawer) {
-        // a click does not always focus what it clicks (a button in Safari, a menu's own item): the click tells which one it was
+        // the control that opened it, which a click does not always leave focused: see ActivationOrigin.js
         this.opener = !this.permanent ? this.$activationOrigin?.element(this.$el) || null : null;
       }
       if (!this.attached) {

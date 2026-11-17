@@ -175,7 +175,7 @@ export default {
       }
     },
     activationOrigin() {
-      // a click does not always focus what it clicks (a button in Safari, a menu's own item): the click tells which one it was
+      // the control that opened it, which a click does not always leave focused: see ActivationOrigin.js
       return this.$activationOrigin?.element() || document.activeElement;
     },
     focusOrigin(element) {

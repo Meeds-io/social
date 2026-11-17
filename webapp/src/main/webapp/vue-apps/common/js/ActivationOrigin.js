@@ -18,10 +18,12 @@
  */
 
 // The element whose activation opens a dialog, for the dialog to give the focus back to it once closed.
-// A click does not always focus what it clicks: Safari does not focus a button it clicks, so the document's
-// active element is then the body or whatever had the focus before. So the target of the last click is kept
-// until the focus moves to another element, a menu's item standing for the menu's button: the item is hidden
-// once the menu closes, and the menu's keyboard navigation clicks it while the focus stays on the button.
+// A click does not always leave the focus on what it clicks: Safari does not focus a button it clicks, and
+// Vuetify's v-btn blurs itself on a mouse click in every browser, so the document's active element is then the
+// body or whatever had the focus before. So the target of the last click is kept until the focus moves to
+// another element or a key is pressed, a menu's item standing for the menu's button: the item is hidden once
+// the menu closes, and the menu's keyboard navigation clicks it while the focus stays on the button. A key
+// activation clicks after its keydown and is recorded then; a shortcut clicks nothing and leaves no record.
 // Stateful: exposed as `$activationOrigin` by the common bundle, which installs it once; read it through the
 // prototype, never through an import, which would run a second instance with no click recorded.
 const ACTIVABLE_SELECTOR = 'a[href], button, input, select, textarea, summary, [role="button"], [role="link"], [role="menuitem"], [role="tab"], [role="option"], [tabindex]';
@@ -51,6 +53,10 @@ function forgetOnFocusMove(event) {
   }
 }
 
+function forgetOnKey() {
+  lastActivated = null;
+}
+
 export function install() {
   if (installed) {
     return;
@@ -58,6 +64,7 @@ export function install() {
   installed = true;
   document.addEventListener('click', recordClick, true);
   document.addEventListener('focusin', forgetOnFocusMove, true);
+  document.addEventListener('keydown', forgetOnKey, true);
 }
 
 // An item of a menu opened the dialog: the menu is hidden once the dialog closes, its button stays.
