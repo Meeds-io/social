@@ -28,7 +28,7 @@
         <profile-dropdown-property
           v-if="property.dropdownList"
           :multi-valued="true"
-          :disabled="disabled"
+          :disabled="disabled || isLockedSubField(childProperty)"
           :parent-property="property"
           :property="childProperty"
           :property-label="getResolvedName(childProperty)"
@@ -38,11 +38,16 @@
           v-else
           :property="childProperty"
           :parent-propery="property"
-          :disabled="disabled"
+          :disabled="disabled || isLockedSubField(childProperty)"
           :properties="property.children"
           :multi-valued="property.multiValued"
           @propertyUpdated="propertyUpdated"
           @remove="remove(index)" />
+        <div
+          v-if="isLockedSubField(childProperty)"
+          class="text-caption text-sub-title mt-n1 mb-2">
+          {{ $t('profileContactInformation.lockedSubField') }}
+        </div>
       </div>
     </v-flex>
   </v-card-text>
@@ -81,6 +86,9 @@ export default {
     },
     propertyUpdated() {
       this.$emit('propertyUpdated',this.property);
+    },
+    isLockedSubField(childProperty) {
+      return !!childProperty.parentId && childProperty.editable === false;
     },
     getResolvedName(item){
       const lang = eXo && eXo.env.portal.language || 'en';
