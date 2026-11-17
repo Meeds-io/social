@@ -407,7 +407,9 @@ export default {
      * most 100 users, the resource's bound. When only the number of users
      * grew for the same search ('Show more'), the listed users are kept and
      * only the next ones are fetched; any other change fetches from the
-     * first one.
+     * first one. When a user before the listed ones leaves the list between
+     * two pages, the user who followed the listed ones is not shown until the
+     * next search.
      *
      * @param {number} count the number of users to fetch
      * @param {AbortSignal} signal aborts the requests
@@ -421,14 +423,16 @@ export default {
       ]);
       const listed = queryKey === this.directoryQueryKey && count > this.users.length ? this.users.slice() : [];
       this.directoryQueryKey = null;
-      const fetchChunk = (users, size) => {
-        if (users.length >= count || (size !== null && users.length >= size)) {
+      // offset: the position in the server's list after the users fetched,
+      // which a user already listed and fetched again does not move back
+      const fetchChunk = (users, size, offset) => {
+        if (users.length >= count || (size !== null && offset >= size)) {
           return {users: users.slice(0, count), size: size || 0};
         }
         const params = new URLSearchParams({
           q: this.keyword || '',
           filter: this.filter === 'connections' ? 'connections' : 'all',
-          offset: String(users.length),
+          offset: String(offset),
           limit: String(Math.min(count - users.length, this.maxResourceLimit)),
         });
         Object.keys(this.advancedFilterSettings || {})
@@ -446,11 +450,16 @@ export default {
           return resp.json();
         }).then(data => {
           const chunk = data?.users || [];
-          const allUsers = users.concat(chunk);
-          return chunk.length ? fetchChunk(allUsers, data?.size || 0) : {users: allUsers, size: data?.size || 0};
+          // a user indexed before the listed ones since the last page shifts
+          // them by one: the one fetched again is not listed twice
+          const listedIds = new Set(users.map(user => user.id));
+          const allUsers = users.concat(chunk.filter(user => !listedIds.has(user.id)));
+          return chunk.length
+            ? fetchChunk(allUsers, data?.size || 0, offset + chunk.length)
+            : {users: allUsers, size: data?.size || 0};
         });
       };
-      return Promise.resolve(fetchChunk(listed, null)).then(result => {
+      return Promise.resolve(fetchChunk(listed, null, listed.length)).then(result => {
         this.directoryQueryKey = queryKey;
         return result;
       });

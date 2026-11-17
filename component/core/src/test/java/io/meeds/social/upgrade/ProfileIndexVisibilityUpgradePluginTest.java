@@ -107,7 +107,7 @@ public class ProfileIndexVisibilityUpgradePluginTest {
 
   /**
    * The users are walked by keyset: the next page starts after the last id of
-   * the previous one, whatever the order of the settings contexts.
+   * the previous one.
    */
   @Test
   public void testUsersHidingAValueAreReadOnEveryPage() {
