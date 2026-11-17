@@ -111,6 +111,8 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
 import io.meeds.social.people.service.PeopleDirectoryFilterServiceTest;
 import io.meeds.social.people.service.PeopleDirectoryServiceTest;
 import io.meeds.social.upgrade.ProfileIndexVisibilityUpgradePluginTest;
+import io.meeds.social.space.security.service.SpaceSecurityServiceImplTest;
+import io.meeds.social.space.security.service.SpaceSecurityServiceTemplateAdministrationTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -201,7 +203,9 @@ import io.meeds.social.upgrade.ProfileIndexVisibilityUpgradePluginTest;
     AccountDeactivationServiceTest.class,
     BrandedEmailSenderTest.class,
     PortableSequenceChangelogCoverageTest.class,
-    CollaborativeActivityDeclarationTest.class
+    CollaborativeActivityDeclarationTest.class,
+    SpaceSecurityServiceImplTest.class,
+    SpaceSecurityServiceTemplateAdministrationTest.class
 })
 public class NoContainerTestSuite {
 
