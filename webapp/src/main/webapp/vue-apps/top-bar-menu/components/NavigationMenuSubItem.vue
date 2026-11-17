@@ -33,6 +33,7 @@
       class="py-0 px-0 transparent"
       @click="checkLink">
       <v-menu
+        ref="menu"
         v-model="showMenu"
         rounded
         content-class="topBar-navigation-drop-menu topBar-navigation-drop-sub-menu"
@@ -79,21 +80,18 @@
             </v-list-item-icon>
           </div>
         </template>
-        <!-- the sub-menu is rendered at the end of the page: the menu holding this entry never sees its clicks -->
-        <div @click="onSubMenuClick">
-          <navigation-menu-sub-item
-            v-for="children in navigation.children"
-            class="transparent"
-            :key="children.id"
-            :navigation="children"
-            :parent-navigation-uri="parentNavigationUri"
-            :base-site-uri="baseSiteUri"
-            :selected-path="selectedPath"
-            @update-navigation-state="updateNavigationState"
-            @select="$emit('select')"
-            @leaving-page="$emit('leaving-page')"
-            @close-menu="closeMenu" />
-        </div>
+        <navigation-menu-sub-item
+          v-for="children in navigation.children"
+          class="transparent"
+          :key="children.id"
+          :navigation="children"
+          :parent-navigation-uri="parentNavigationUri"
+          :base-site-uri="baseSiteUri"
+          :selected-path="selectedPath"
+          @update-navigation-state="updateNavigationState"
+          @select="$emit('select')"
+          @leaving-page="$emit('leaving-page')"
+          @close-menu="closeMenu" />
       </v-menu>
     </v-list-item>
   </v-list>
@@ -173,9 +171,16 @@ export default {
     window.addEventListener('resize', this.updateSize);
     this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
   },
+  mounted() {
+    // the sub-menu is rendered at the end of the page (eager: from mount), so the menu holding this entry never sees
+    // its clicks: they are read on the sub-menu's own content
+    this.subMenuContent = this.$refs.menu?.$refs?.content;
+    this.subMenuContent?.addEventListener('click', this.onSubMenuClick);
+  },
   beforeDestroy() {
     window.removeEventListener('resize', this.updateSize);
     this.$root.$off('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
+    this.subMenuContent?.removeEventListener('click', this.onSubMenuClick);
   },
   methods: {
     checkLink(e) {
