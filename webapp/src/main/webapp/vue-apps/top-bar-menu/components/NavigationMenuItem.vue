@@ -95,7 +95,6 @@
 
 <script>
 import tabLinkSemantics from './tabLinkSemantics.js';
-import { replacesPage } from './menuEntryNavigation.js';
 
 export default {
   mixins: [tabLinkSemantics],
@@ -263,16 +262,16 @@ export default {
     focusOpener() {
       (this.hasPage && this.$refs.chevron?.$el || this.$refs.tab?.$el)?.focus?.();
     },
-    // The chosen entry keeps the menu open and the focus while it replaces the page: see menuEntryNavigation.js
+    // The chosen entry keeps the menu open and the focus while it replaces the page: see NavigationUtils.js
     onMenuClick(event) {
       const entry = event.target?.closest?.('a.v-list-item[href]');
       if (!entry) {
         // an entry that only groups others opens its own sub-menu
         return;
       }
-      if (replacesPage(entry, event)) {
+      if (this.$navigationUtils.replacesPage(entry, event)) {
         this.leavingPage = true;
-        // Vuetify's list item blurs itself on a click that has a detail: a mouse's, and a screen reader's activation
+        // Vuetify's list item blurs itself on a click that has a detail
         entry.focus();
         return;
       }
