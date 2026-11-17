@@ -46,7 +46,8 @@
           :navigation="navigation"
           :base-site-uri="getNavigationBaseUri(index)"
           :selected-path="selectedPath"
-          @update-navigation-state="updateNavigationState" />
+          @update-navigation-state="updateNavigationState"
+          @select-tab="selectTab" />
       </v-tabs>
     </v-footer>
     <v-tabs
@@ -367,10 +368,12 @@ export default {
       }
       const selectedNavigation = this.desktopNavigations.includes(this.navigations[selectedIndex]) ? this.navigations[selectedIndex] : this.desktopNavigations[this.desktopNavigations.length - 1];
       const selectedItem = (this.$refs.navigationItems || []).find(item => item.navigation === selectedNavigation);
-      const selectedTab = selectedItem && this.findTabComponent(selectedItem);
-      if (selectedTab) {
+      this.selectTab(selectedItem && this.findTabComponent(selectedItem));
+    },
+    selectTab(tab) {
+      if (tab) {
         // A tab with no link takes as its value its index in the tabs group, in the order the tabs registered
-        this.tab = selectedTab.value || selectedTab.tabsBar?.items?.indexOf?.(selectedTab);
+        this.tab = tab.value || tab.tabsBar?.items?.indexOf?.(tab);
       }
     },
     holdsSelectedPath(navigation, baseSiteUri) {

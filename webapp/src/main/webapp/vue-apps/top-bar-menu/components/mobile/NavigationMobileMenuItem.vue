@@ -112,7 +112,22 @@ export default {
     window.removeEventListener('pageshow', this.onPageShow);
     this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
+  watch: {
+    // The bar marks the entry of the current page, or the one whose sheet holds it, as the desktop bar does: its tab
+    // is selected once rendered, a click being the only other thing that selects it
+    holdsCurrentPage: {
+      immediate: true,
+      handler(current) {
+        if (current) {
+          this.$nextTick(() => this.$emit('select-tab', this.$refs.tab));
+        }
+      },
+    },
+  },
   computed: {
+    holdsCurrentPage() {
+      return this.isSelected || this.holdsSelectedEntry;
+    },
     isSelected() {
       return this.selectedPath === this.navigationNodeUri;
     },
