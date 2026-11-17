@@ -108,10 +108,10 @@ export default {
     // the attributes viewers can filter on in the advanced filter, but email,
     // which the directory does not filter on, and those already selected
     selectableSettings() {
-      const selected = this.value.map(attribute => attribute.name);
+      const selected = new Set(this.value.map(attribute => attribute.name));
       return this.settings
         .filter(setting => setting.active && setting.visible && setting.parentId === null)
-        .filter(setting => setting.propertyName !== 'email' && !selected.includes(setting.propertyName))
+        .filter(setting => setting.propertyName !== 'email' && !selected.has(setting.propertyName))
         .map(setting => ({propertyName: setting.propertyName, label: this.getLabel(setting.propertyName)}));
     },
   },

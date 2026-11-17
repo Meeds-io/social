@@ -266,7 +266,10 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
    * against the index computes the indexed string through this method, with
    * the setting's multi-valued flag. Known limit: values stored as a list
    * before the property was made single-valued stay indexed as a joined,
-   * accent-free string until the user saves the property again.
+   * accent-free string until the user saves the property again; and a plain
+   * string value of a multi-valued property, indexed with its accents before
+   * this rule, keeps that document until the user's next profile change, so a
+   * directory on that value does not list them meanwhile.
    *
    * @param setting the property's setting, may be null
    * @param storedValue the value as the profile stores it

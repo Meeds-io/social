@@ -175,6 +175,27 @@ public class ProfilePropertyHoldersReindexTest {
   }
 
   @Test
+  public void testPropertyShownAgainReindexesTheHolders() throws Exception {
+    mockStoredSetting(false, List.of(), List.of());
+    profileSettingStorage.getProfileSettingById(SETTING_ID).setVisible(false);
+
+    service.updatePropertySetting(postedSetting(false, List.of()));
+
+    verifyOptionsUpdatedBroadcast();
+  }
+
+  @Test
+  public void testPropertyHiddenDoesNotReindex() throws Exception {
+    mockStoredSetting(false, List.of(), List.of());
+    ProfilePropertySetting posted = postedSetting(false, List.of());
+    posted.setVisible(false);
+
+    service.updatePropertySetting(posted);
+
+    verify(listenerService, never()).broadcast(eq(ProfilePropertyServiceImpl.PROPERTY_OPTIONS_UPDATED_EVENT), any(), any());
+  }
+
+  @Test
   public void testUnchangedOptionsDoNotReindex() throws Exception {
     mockStoredSetting(true, List.of(option(1L, "HR")), List.of(option(1L, "HR")));
     mockLabels(1L, Map.of(Locale.ENGLISH, "HR"));
@@ -287,7 +308,7 @@ public class ProfilePropertyHoldersReindexTest {
     return reindexed;
   }
 
-  private void verifyOptionsUpdatedBroadcast() throws Exception {
+  private void verifyOptionsUpdatedBroadcast() {
     verify(listenerService).broadcast(eq(ProfilePropertyServiceImpl.PROPERTY_OPTIONS_UPDATED_EVENT),
                                       eq(service),
                                       any(ProfilePropertySetting.class));

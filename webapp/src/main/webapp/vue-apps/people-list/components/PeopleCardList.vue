@@ -52,11 +52,10 @@
               {{ $t('peopleList.label.noResults') }}
             </p>
             <p v-if="$root.canEdit" class="people-list-review-settings">
-              {{ reviewSettingsPrefix }}<a
-                class="people-list-review-settings-link primary--text"
-                href="#"
-                role="button"
-                @click.prevent="$root.$emit('people-list-settings-open')">{{ $t('peopleList.label.reviewSettings.link') }}</a>{{ reviewSettingsSuffix }}
+              {{ reviewSettingsPrefix }}<button
+                class="people-list-review-settings-link primary--text pa-0"
+                type="button"
+                @click="$root.$emit('people-list-settings-open')">{{ $t('peopleList.label.reviewSettings.link') }}</button>{{ reviewSettingsSuffix }}
             </p>
           </template>
           <template v-else-if="filter === 'connections'">

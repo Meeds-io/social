@@ -78,6 +78,9 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
 
   public static final String        CONNECTIONS_FILTER             = "connections";
 
+  /** The request parameter carrying the viewer's people filter. */
+  public static final String        FILTER_PARAMETER               = "filter";
+
   public static final String        ATTRIBUTE_FILTER_PREFERENCE    = "attributeFilter";
 
   public static final String        SETTINGS_RESOURCE_ID           = "settings";
@@ -294,7 +297,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
                                                                          .getValue(ATTRIBUTE_FILTER_PREFERENCE, null),
                                                                   request.getParameter("q"),
                                                                   viewerAttributes,
-                                                                  StringUtils.equals(request.getParameter("filter"),
+                                                                  StringUtils.equals(request.getParameter(FILTER_PARAMETER),
                                                                                      CONNECTIONS_FILTER),
                                                                   username,
                                                                   offset,

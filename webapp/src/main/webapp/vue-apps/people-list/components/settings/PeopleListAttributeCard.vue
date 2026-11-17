@@ -210,8 +210,8 @@ export default {
         }
         return resp.json();
       }).then(values => {
-        const selected = this.attribute.values.map(v => v.value);
-        this.values = (values || []).filter(v => !selected.includes(v.value));
+        const selected = new Set(this.attribute.values.map(v => v.value));
+        this.values = (values || []).filter(v => !selected.has(v.value));
       }).catch(e => {
         if (e?.name !== 'AbortError') {
           this.values = [];

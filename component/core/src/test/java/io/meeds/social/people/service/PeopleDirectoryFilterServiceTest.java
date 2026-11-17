@@ -233,10 +233,10 @@ public class PeopleDirectoryFilterServiceTest {
     assertEquals(TOO_MANY_VALUES_MESSAGE,
                  assertThrows(IllegalArgumentException.class,
                               () -> peopleDirectoryService.normalizeAttributeFilter(twentyOneValues)).getMessage());
+    String tooLongValue = "{\"department\":[\"" + "x".repeat(151) + "\"]}";
     assertEquals(VALUE_TOO_LONG_MESSAGE,
                  assertThrows(IllegalArgumentException.class,
-                              () -> peopleDirectoryService.normalizeAttributeFilter("{\"department\":[\"" + "x".repeat(151)
-                                  + "\"]}")).getMessage());
+                              () -> peopleDirectoryService.normalizeAttributeFilter(tooLongValue)).getMessage());
     assertEquals(10, new JSONObject(peopleDirectoryService.normalizeAttributeFilter(tenAttributes)).length());
     assertEquals(20, new JSONObject(peopleDirectoryService.normalizeAttributeFilter(twentyValues)).getJSONArray("department").length());
     assertEquals(1, new JSONObject(peopleDirectoryService.normalizeAttributeFilter("{\"department\":[\"" + "x".repeat(150)
@@ -288,10 +288,11 @@ public class PeopleDirectoryFilterServiceTest {
   }
 
   @Test
-  public void searchRefusesALimitOutOfRange() throws Exception {
+  public void searchRefusesALimitOutOfRange() {
+    Map<String, String> noViewerAttribute = Map.of();
     for (int limit : List.of(0, 101)) {
       assertEquals(INVALID_RANGE_MESSAGE,
-                   assertThrows(IllegalArgumentException.class, () -> search("{}", Map.of(), false, limit)).getMessage());
+                   assertThrows(IllegalArgumentException.class, () -> search("{}", noViewerAttribute, false, limit)).getMessage());
     }
   }
 
@@ -373,12 +374,14 @@ public class PeopleDirectoryFilterServiceTest {
     when(userAcl.hasAccessPermission(page, identity)).thenReturn(true);
     settings.getFirst().setVisible(false);
 
+    Map<String, String> hiddenAttribute = Map.of("department", "HR");
+    Map<String, String> unknownAttribute = Map.of("unknown", "HR");
     assertEquals(UNKNOWN_ATTRIBUTE_MESSAGE,
                  assertThrows(IllegalArgumentException.class,
-                              () -> search("{}", Map.of("department", "HR"), false, 12)).getMessage());
+                              () -> search("{}", hiddenAttribute, false, 12)).getMessage());
     assertEquals(UNKNOWN_ATTRIBUTE_MESSAGE,
                  assertThrows(IllegalArgumentException.class,
-                              () -> search("{}", Map.of("unknown", "HR"), false, 12)).getMessage());
+                              () -> search("{}", unknownAttribute, false, 12)).getMessage());
   }
 
   @Test

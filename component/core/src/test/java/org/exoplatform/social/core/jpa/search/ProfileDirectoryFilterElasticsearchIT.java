@@ -113,6 +113,9 @@ public class ProfileDirectoryFilterElasticsearchIT {
   private static ProfileSearchConnector searchConnector;
 
   @BeforeClass
+  // the connector reads identities through the deprecated
+  // IdentityManager#getIdentity(String), which the test stubs as such
+  @SuppressWarnings("removal")
   public static void indexProfiles() throws Exception {
     List<ProfilePropertySetting> settings = List.of(setting(DEPARTMENT_ID, DEPARTMENT, false),
                                                     setting(2L, LANGUAGES, true),

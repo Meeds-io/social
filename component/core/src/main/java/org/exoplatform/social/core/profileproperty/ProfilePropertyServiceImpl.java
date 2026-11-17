@@ -66,7 +66,9 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   /**
    * Broadcast, with the updated setting as data, when an edit changes the
-   * string the profile index holds for the property's values.
+   * string the profile index holds for the property's values: an option's
+   * value or labels, the dropdown switch, or the property shown again after
+   * being hidden, whose values the documents rebuilt meanwhile left out.
    */
   public static final String                         PROPERTY_OPTIONS_UPDATED_EVENT         = "property_options_updated";
 
@@ -266,6 +268,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                                                          profileSettingStorage.getProfileSettingById(profilePropertySetting.getId());
     // read before the save: the stored options are compared after it
     boolean wasDropdownList = createdProfilePropertySetting != null && createdProfilePropertySetting.isDropdownList();
+    boolean wasHidden = createdProfilePropertySetting != null && !createdProfilePropertySetting.isVisible();
     Map<Long, String> previousOptionValues = getOptionValues(createdProfilePropertySetting == null ? null
                                                                                                    : createdProfilePropertySetting.getPropertyOptions());
     
@@ -279,7 +282,9 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     ProfilePropertySetting updatedPropertySetting =
                                                   profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
     boolean labelsChanged = savePropertyOptionsTranslations(updatedPropertySetting, profilePropertySetting.getPropertyOptions());
-    if (labelsChanged || isOptionValueChanged(updatedPropertySetting, wasDropdownList, previousOptionValues)) {
+    if (labelsChanged
+        || (wasHidden && updatedPropertySetting.isVisible())
+        || isOptionValueChanged(updatedPropertySetting, wasDropdownList, previousOptionValues)) {
       try {
         listenerService.broadcast(PROPERTY_OPTIONS_UPDATED_EVENT, this, updatedPropertySetting);
       } catch (Exception e) {

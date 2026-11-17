@@ -44,11 +44,6 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import io.meeds.social.core.profileproperty.storage.CachedProfileSettingStorage;
 import io.meeds.social.identity.permission.service.UserPermissionService;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

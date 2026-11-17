@@ -155,7 +155,11 @@ public class ProfileIndexVisibilityUpgradePlugin extends UpgradeProductPlugin {
    * Unindexes the users of a batch still disabled when the batch runs: a
    * queued delete removes every queued update of the same user, so a user
    * enabled again since the selection would stay out of the index until their
-   * next profile change. A user whose state cannot be read is left alone.
+   * next profile change. A user enabled again after this read and before the
+   * indexing queue is processed is still unindexed, since the queued delete
+   * removes the update that enabling queued: that user stays out of the index
+   * until their next profile change. A user whose state cannot be read is left
+   * alone.
    *
    * @return the number of profiles unindexed
    */
