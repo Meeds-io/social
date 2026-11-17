@@ -177,7 +177,8 @@ export default {
       return this.shortenLabel(title);
     },
     titleAnnounced() {
-      return !this.displayLoading && !this.isActivityShared && !!this.announcedTitle;
+      // a content that draws its own header (an article's page) shows its title first itself
+      return !this.displayLoading && !this.isActivityShared && !this.extendedComponent?.overrideHeader && !!this.announcedTitle;
     },
     articleLabel() {
       if (!this.activity || this.loading) {
