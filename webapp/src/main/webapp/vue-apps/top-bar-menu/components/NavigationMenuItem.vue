@@ -236,7 +236,7 @@ export default {
     },
     onMenuKeydown(event) {
       const entries = this.menuEntries();
-      const index = entries.indexOf(document.activeElement);
+      const index = this.$navigationUtils.entryIndexOf(entries, document.activeElement);
       if (index < 0) {
         return;
       }
@@ -295,19 +295,10 @@ export default {
     },
     // The menu opens on Enter the entry it highlights: it highlights the entry that has the keyboard focus
     focusEntry(entry) {
-      if (!entry) {
-        return;
-      }
-      entry.focus();
-      const menu = this.$refs.menu;
-      if (menu?.getTiles) {
-        menu.getTiles();
-        menu.listIndex = menu.tiles.indexOf(entry);
-      }
+      this.$navigationUtils.focusMenuEntry(this.$refs.menu, entry);
     },
     menuEntries() {
-      const content = this.$refs.menu?.$refs?.content;
-      return content ? [...content.querySelectorAll('a.v-list-item')] : [];
+      return this.$navigationUtils.menuEntries(this.$refs.menu?.$refs?.content);
     },
     focusMenuEntry(index) {
       // once the menu content is displayed
