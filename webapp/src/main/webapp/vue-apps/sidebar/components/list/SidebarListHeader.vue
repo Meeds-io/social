@@ -56,12 +56,11 @@
           </v-card>
         </v-list-item-title>
       </v-list-item-content>
+      <!-- each tooltip's wrapper takes its hover events only: with the activator's role, a screen reader activates the wrapper, whose click reaches the home link instead of the button -->
       <v-list-item-action v-if="$root.hoverDeferred && $root.stickyAllowed" class="d-flex flex-row ms-auto my-auto">
         <v-tooltip v-if="!$root.hidden && $root.allowHidden" bottom>
-          <template #activator="{on, attrs}">
-            <div
-              v-on="on"
-              v-bind="attrs">
+          <template #activator="{on}">
+            <div v-on="on">
               <v-btn
                 :aria-label="$t('menu.collapse')"
                 icon
@@ -75,10 +74,8 @@
           <span>{{ $t('menu.collapse') }}</span>
         </v-tooltip>
         <v-tooltip v-if="!$root.icon && $root.allowIcon" bottom>
-          <template #activator="{on, attrs}">
-            <div
-              v-on="on"
-              v-bind="attrs">
+          <template #activator="{on}">
+            <div v-on="on">
               <v-btn
                 :aria-label="$t('menu.reduce')"
                 icon
@@ -94,10 +91,8 @@
           <span>{{ $t('menu.reduce') }}</span>
         </v-tooltip>
         <v-tooltip v-if="!$root.sticky && $root.allowSticky" bottom>
-          <template #activator="{on, attrs}">
-            <div
-              v-on="on"
-              v-bind="attrs">
+          <template #activator="{on}">
+            <div v-on="on">
               <v-btn
                 :aria-label="$t('menu.expand')"
                 icon
