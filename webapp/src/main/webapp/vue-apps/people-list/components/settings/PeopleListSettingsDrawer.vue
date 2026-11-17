@@ -291,6 +291,12 @@ export default {
         .finally(() => this.saving = false);
     },
     isStored(toSave) {
+      // a filtered directory with no attribute to show stores a filter that
+      // is not a JSON object (PeopleDirectoryService#getEditorAttributes):
+      // it lists nobody, and Apply replaces it with what the form holds
+      if (this.$root.directoryFiltered && !this.$root.attributes?.length) {
+        return false;
+      }
       const storedAttributeFilter = {};
       (this.$root.attributes || []).forEach(attribute => storedAttributeFilter[attribute.name] = attribute.values.map(v => v.value));
       return this.canonical({

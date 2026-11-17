@@ -243,6 +243,24 @@ public class PeopleDirectoryFilterServiceTest {
         + "\"]}")).length());
   }
 
+  /**
+   * The settings drawer reads a filtered directory with no attribute to show
+   * as a stored filter it must replace: that is exactly a stored value that
+   * is not a JSON object. A JSON object the directory refuses still shows its
+   * attributes, which the editor fixes or removes.
+   */
+  @Test
+  public void aStoredFilterThatIsNotAnObjectListsNobodyAndShowsNoAttribute() {
+    for (String stored : List.of("[]", "[\"department\"]", "\"department\"", "42", "not json")) {
+      assertNull(stored, peopleDirectoryService.getAttributeFilter(stored));
+      assertTrue(stored, peopleDirectoryService.getEditorAttributes(stored, Locale.ENGLISH).isEmpty());
+    }
+    for (String stored : List.of("{\"department\":null}", "{\"department\":[\"a\",null]}", "{\"department\":[]}")) {
+      assertNull(stored, peopleDirectoryService.getAttributeFilter(stored));
+      assertFalse(stored, peopleDirectoryService.getEditorAttributes(stored, Locale.ENGLISH).isEmpty());
+    }
+  }
+
   @Test
   public void getAttributeFilterReadsAnInvalidStoredValueAsListingNobody() {
     assertEquals(Map.of(), peopleDirectoryService.getAttributeFilter(null));
