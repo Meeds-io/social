@@ -147,7 +147,13 @@ export default {
     }
   },
   methods: {
+    // v-btn blurs itself on a click whose detail is set: after a screen reader's activation, which clicks the
+    // button where it is, not under the pointer, the button takes the focus back, so the popup returns it there
     openMenu(event) {
+      const button = event?.currentTarget;
+      if (event?.detail && button && !button.matches?.(':hover')) {
+        button.focus();
+      }
       this.$refs?.menu?.open(event.clientX, event.clientY);
     },
     changeStatusColor(statusObject) {
