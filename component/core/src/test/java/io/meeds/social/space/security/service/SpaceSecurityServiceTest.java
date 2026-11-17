@@ -36,6 +36,7 @@ import org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAO;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 
@@ -170,9 +171,9 @@ public class SpaceSecurityServiceTest extends AbstractCoreTest {
   /** Case (d): the cached space lists the user as a publisher, the PUBLISHER row is gone. */
   public void testRefusesAPublisherWhosePublisherRowIsDeleted() throws Exception {
     Space space = createSpace(new String[0]);
-    space.setMembers(new String[] { MANAGER, USER });
-    space.setPublishers(new String[] { USER });
-    space = spaceStorage.saveSpace(space, false);
+    spaceService.addMember(space, USER);
+    spaceService.addPublisher(spaceService.getSpaceById(space.getId()), USER);
+    restartTransaction();
     limitAccessManagement(space);
     Space cachedSpace = cachedSpace(space);
     assertTrue(spaceService.isPublisher(cachedSpace, USER));
@@ -341,7 +342,7 @@ public class SpaceSecurityServiceTest extends AbstractCoreTest {
     space.setPrettyName("security_space");
     space.setRegistration(Space.OPEN);
     space.setVisibility(Space.PUBLIC);
-    space.setGroupId("/spaces/security_space");
+    space.setGroupId(SpaceUtils.createGroup(space.getDisplayName(), MANAGER));
     space.setUrl(space.getPrettyName());
     List<String> spaceManagers = new ArrayList<>(List.of(MANAGER));
     spaceManagers.addAll(List.of(managers));
