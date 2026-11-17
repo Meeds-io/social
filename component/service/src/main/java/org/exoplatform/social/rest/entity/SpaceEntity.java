@@ -508,23 +508,15 @@ public class SpaceEntity extends BaseEntity {
   }
 
   /**
-   * @return the parent space identifier carried by the payload: a positive id
-   *         to attach the space to that parent, <code>0</code> to detach it
-   *         from its parent, or <code>null</code> when the property carries no
-   *         value at all, in which case the existing parent relation must be
-   *         left untouched
-   *         <p>
-   *         Over REST, <em>only an absent key</em> yields that last case. The
-   *         JSON binder feeds this entity through
-   *         {@link #setParentSpaceId(Long)} and converts whatever the payload
-   *         holds to a number first, so an explicit <code>null</code> and any
-   *         unparsable value both arrive here as <code>0</code> - the detach
-   *         sentinel. A REST caller therefore cannot reach the
-   *         <code>String</code> branch nor produce a stored <code>null</code>;
-   *         those guard programmatic callers only. That the binder
-   *         manufactures the detach sentinel out of "no value expressed" is a
-   *         defect of this contract, tracked separately: <code>0</code> cannot
-   *         safely mean detach while the transport produces it by accident.
+   * @return the parent space identifier carried by the payload. On an update:
+   *         a positive id attaches the space to that parent,
+   *         {@link org.exoplatform.social.core.space.spi.SpaceService#DETACH_PARENT_SPACE_ID}
+   *         (<code>-1</code>) detaches it, and <code>0</code> or
+   *         <code>null</code> keep its stored parent. The JSON binder feeds
+   *         this entity through {@link #setParentSpaceId(Long)} and turns an
+   *         explicit <code>null</code> or an unparsable value into
+   *         <code>0</code>, which therefore never detaches; on a creation, a
+   *         positive id names the parent of the new space.
    */
   public Long getParentSpaceId() {
     Object value = getProperty("parentSpaceId");
