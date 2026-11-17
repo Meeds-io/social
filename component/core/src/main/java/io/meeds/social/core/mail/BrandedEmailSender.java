@@ -39,11 +39,13 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.commons.notification.mail.MailPalette;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.MailUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.Constants;
 import org.exoplatform.portal.branding.BrandingService;
+import org.exoplatform.portal.branding.MailDocumentShell;
 import org.exoplatform.services.mail.MailService;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
@@ -103,7 +105,7 @@ public class BrandedEmailSender {
                         Map<String, String> customTokens) throws Exception {
     User user = organizationService.getUserHandler().findUserByName(username);
     String lang = getUserLang(username);
-    String emailBody = getEmailBody(user.getDisplayName(), lang, emailSubject, contentTemplatePath, customTokens);
+    String emailBody = getEmailBody(username, user.getDisplayName(), lang, emailSubject, contentTemplatePath, customTokens);
     MimeMessage mimeMessage = new MimeMessage(mailService.getMailSession());
     mimeMessage.setFrom(getSenderAddress());
     mimeMessage.setRecipient(RecipientType.TO,
@@ -123,7 +125,8 @@ public class BrandedEmailSender {
     }
   }
 
-  private String getEmailBody(String userFullName,
+  private String getEmailBody(String username,
+                              String userFullName,
                               String lang,
                               String emailTitle,
                               String contentTemplatePath,
@@ -138,12 +141,26 @@ public class BrandedEmailSender {
     for (Map.Entry<String, String> customToken : customTokens.entrySet()) {
       content = content.replace(customToken.getKey(), customToken.getValue());
     }
+    // the colours of the recipient's display mode, and in Automatic the dark ones in the head's media query
+    Map<String, String> palette = MailPalette.forRecipient(brandingService, username);
+    String mode = palette.get(MailPalette.MODE);
+    String scheme = "auto".equals(mode) ? "light dark" : mode;
+    String head = "<meta name=\"color-scheme\" content=\"" + scheme + "\"><meta name=\"supported-color-schemes\" content=\""
+        + scheme + "\">"
+        + ("auto".equals(mode) ? "<style>" + MailDocumentShell.darkBlock(brandingService.getMailPalette(true)) + "</style>" : "");
     return content.replace(EMAIL_TITLE_PARAM, emailTitle)
+                  .replace("$MAIL_HEAD", head)
                   .replace("$LANG", lang)
                   .replace("$USER_FULL_NAME", userFullName)
-                  .replace("$SITE_NAME", brandingService.getCompanyName())
+                  .replace("$SITE_NAME", StringEscapeUtils.escapeHtml4(brandingService.getCompanyName()))
                   .replace("$COMPANY_LINK", getBaseUrl())
-                  .replace("$PRIMARY_COLOR", brandingService.getThemeStyle().get("primaryColor"));
+                  .replace("$MAIL_SURFACE", palette.get(MailDocumentShell.SURFACE))
+                  .replace("$MAIL_BACKGROUND", palette.get(MailDocumentShell.BACKGROUND))
+                  .replace("$MAIL_TEXT", palette.get(MailDocumentShell.TEXT))
+                  .replace("$MAIL_SECONDARY_TEXT", palette.get(MailDocumentShell.SECONDARY_TEXT))
+                  .replace("$MAIL_BORDER", palette.get(MailDocumentShell.BORDER))
+                  .replace("$MAIL_LINK", palette.get(MailDocumentShell.LINK))
+                  .replace("$PRIMARY_COLOR", palette.get(MailDocumentShell.PRIMARY));
   }
 
   private String getTemplate(String templatePath) {

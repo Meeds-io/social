@@ -28,6 +28,7 @@ import DatePicker from './components/DatePicker.vue';
 import TimePicker from './components/TimePicker.vue';
 import DateFormat from './components/DateFormat.vue';
 import RelativeDateFormat from './components/RelativeDateFormat.vue';
+import CompanyLogoPicture from './components/CompanyLogoPicture.vue';
 import ExoModal from './components/ExoModal.vue';
 import UserAccountConfirmationDialog from './components/UserAccountConfirmationDialog.vue';
 import ExtendedTextarea from './components/ExtendedTextarea.vue';
@@ -84,6 +85,7 @@ const components = {
   'time-picker': TimePicker,
   'date-format': DateFormat,
   'relative-date-format': RelativeDateFormat,
+  'company-logo-picture': CompanyLogoPicture,
   'exo-modal': ExoModal,
   'user-account-confirmation-dialog': UserAccountConfirmationDialog,
   'extended-textarea': ExtendedTextarea,
@@ -217,6 +219,10 @@ Vue.createApp = function(params, el, appName) {
       params.data = params.data();
     }
     params.data.appName = appName || element.id;
+    // an application not adapted to dark keeps its light display whatever the page's mode: listed by name, or
+    // mounted inside a block that keeps it; its drawers, dialogs and menus follow it (ExoDrawer, ExoModal, detach)
+    params.data.lightOnly = !!(eXo.env.portal.lightOnlyVueApps?.includes(params.data.appName)
+      || element.closest?.('[data-display-mode="light"]:not(html)'));
     document.dispatchEvent(new CustomEvent('vue-app-loading-start', {detail: {
       appName: params.data.appName,
       time: Date.now(),
@@ -253,6 +259,10 @@ Vue.createApp = function(params, el, appName) {
       document.dispatchEvent(new CustomEvent('close-alert-message'));
     });
     vueApp.$mount(element);
+    // Vue 2 replaces the mount element by the app's root: the attribute is written on the root once mounted
+    if (params.data.lightOnly) {
+      vueApp.$el?.setAttribute?.('data-display-mode', 'light');
+    }
     return vueApp;
   } else {
     // eslint-disable-next-line no-console

@@ -27,7 +27,12 @@
       {{ $t('generalSettings.pageStyling.drawer.title') }}
     </template>
     <template v-if="drawer" #content>
-      <v-card class="pa-4" flat>
+      <!-- recreated on each init: the shared styling inputs keep the value they were created with -->
+      <v-card
+        :key="initKey"
+        class="pa-4"
+        flat>
+        <portal-general-settings-theme-version-bar @change="changeVersion" />
         <p>
           {{ $t('generalSettings.pageStyling.help1') }}
         </p>
@@ -38,6 +43,7 @@
           <span class="text-header mt-2">
             {{ $t('generalSettings.page.width.label') }}
           </span>
+          <portal-general-settings-theme-shared-marker />
           <v-list-item
             class="pa-0"
             dense>
@@ -74,6 +80,7 @@
                 editable />
             </v-list-item-action>
           </v-list-item>
+          <portal-general-settings-theme-shared-marker class="mt-2" />
           <styling-section-margin-input
             v-if="initialized"
             v-model="pageMargins"
@@ -91,7 +98,7 @@
           <portal-general-settings-background-input
             v-if="initialized"
             v-model="backgroundProperties"
-            :default-background-color="defaultPageBackground"
+            :default-background-color="versionPageBackground"
             :image-path="pageBackgroundPath"
             class="mt-2 pe-3"
             scrolling />
@@ -103,16 +110,19 @@
           <p class="text-subtitle mt-1 mb-0">
             {{ $t('generalSettings.application.styling.help') }}
           </p>
+          <portal-general-settings-theme-shared-marker class="mt-4" />
           <styling-margin-input
             v-if="initialized"
             v-model="applicationStyling.container"
             :min="0"
             :max="80"
             class="mt-4" />
+          <portal-general-settings-theme-shared-marker class="mt-4" />
           <styling-border-input
             v-if="initialized"
             v-model="applicationStyling.container"
             class="mt-4" />
+          <portal-general-settings-theme-shared-marker class="mt-4" />
           <styling-border-radius-input
             v-if="initialized"
             v-model="applicationStyling.container"
@@ -136,6 +146,7 @@
             v-if="initialized"
             v-model="applicationStyling.container"
             class="mt-4"
+            :icon-placeholder="versionIconColor('appIconColor')"
             custom-icon>
             <template #title-background-image>
               <portal-general-settings-background-image-attachment
@@ -155,6 +166,7 @@
             </template>
           </styling-text-input>
         </div>
+        <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
       </v-card>
     </template>
     <template #footer>
@@ -166,7 +178,7 @@
         </v-btn>
         <v-btn
           class="btn btn-primary ms-2"
-          :disabled="saveButtonDisabled"
+          :disabled="!pageWidthValid || saveButtonDisabled && !draftChanged"
           @click="updatePageStylingProperties">
           {{ $t('generalSettings.button.save') }}
         </v-btn>
@@ -175,6 +187,8 @@
   </exo-drawer>
 </template>
 <script>
+import ThemeAreaDrawerMixin from '../../../js/ThemeAreaDrawerMixin.js';
+
 /**
  * Pages & Apps style: Page Design (width, margins, background) and the
  * platform-wide Application Styling, edited with the shared styling inputs
@@ -182,7 +196,9 @@
  * root component maps that object to the theme variables.
  */
 export default {
+  mixins: [ThemeAreaDrawerMixin],
   data: () => ({
+    themeAreaKeys: ['pageBackgroundColor', 'appBackgroundColor', 'appBorderColor', 'appTextTitleColor', 'appTextHeaderColor', 'appTextColor', 'appTextSubtitleColor', 'appIconColor'],
     drawer: false,
     backgroundProperties: null,
     defaultCustomPageWidth: '1320',
@@ -196,7 +212,10 @@ export default {
     appTextHeaderBackgroundUploadId: null,
     defaultPageStylingProperties: null,
     choice: null,
+    // init() set the choice from the stored width: the watcher must not reset the width as for an admin's switch
+    choiceSetByInit: false,
     initialized: false,
+    initKey: 0,
   }),
   props: {
     pageStylingProperties: {
@@ -205,6 +224,19 @@ export default {
     },
   },
   computed: {
+    // the built-in page background of the edited version, shown while the theme sets none
+    versionPageBackground() {
+      if (this.themeEditSession?.version !== 'dark') {
+        return this.defaultPageBackground;
+      }
+      const resolved = this.themeEditSession?.resolved?.dark?.pageBackgroundColor;
+      return resolved && resolved !== 'initial' ? resolved : '#14181BFF';
+    },
+    // the server accepts a custom width of 3 or 4 digits in px; the field clamps to its range but lets any text through
+    pageWidthValid() {
+      const width = Number(this.pageWidth);
+      return this.choice !== 'custom' || Number.isFinite(width) && width >= 100 && width <= 3000;
+    },
     saveButtonDisabled() {
       if (!this.backgroundProperties || !this.pageWidth) {
         return false;
@@ -216,7 +248,7 @@ export default {
     },
     pageBackgroundPath() {
       const background = this.pageStylingProperties?.pageBackground;
-      return background?.fileId && `/portal/rest/v1/platform/branding/pageBackground?v=${background.updatedDate || 0}` || null;
+      return background?.imageUrl || background?.fileId && `/portal/rest/v1/platform/branding/pageBackground?v=${background.updatedDate || 0}` || null;
     },
     hasAppBackgroundFile() {
       return this.hasFile(this.appBackgroundUploadId, this.applicationStyling?.appBackground);
@@ -230,6 +262,10 @@ export default {
   },
   watch: {
     choice() {
+      if (this.choiceSetByInit) {
+        this.choiceSetByInit = false;
+        return;
+      }
       if (this.initialized) {
         if (this.choice === 'custom') {
           this.pageWidth = this.defaultCustomPageWidth;
@@ -267,8 +303,9 @@ export default {
   },
   methods: {
     init() {
+      this.initKey++;
       this.backgroundProperties = {
-        backgroundColor: this.normalizeBackgroundColor(this.pageStylingProperties?.pageBackgroundColor) || this.defaultPageBackground,
+        backgroundColor: this.normalizeBackgroundColor(this.pageStylingProperties?.pageBackgroundColor) || null,
         backgroundPosition: this.pageStylingProperties?.pageBackgroundPosition || null,
         background: this.pageStylingProperties?.pageBackground || null,
         backgroundRepeat: this.pageStylingProperties?.pageBackgroundRepeat || null,
@@ -295,13 +332,10 @@ export default {
       if (!this.pageWidth ) {
         this.pageWidth = this.defaultCustomPageWidth;
       }
-      if (this.pageWidth.endsWith('px') || this.pageWidth === this.defaultCustomPageWidth) {
-        this.choice = 'custom';
-        this.pageWidth = Number(this.pageWidth.split('px')[0]);
-      } else {
-        this.choice = 'full';
-        this.pageWidth = Number(this.pageWidth.split('%')[0]);
-      }
+      const choice = this.pageWidth.endsWith('px') || this.pageWidth === this.defaultCustomPageWidth ? 'custom' : 'full';
+      this.choiceSetByInit = choice !== this.choice;
+      this.choice = choice;
+      this.pageWidth = Number(this.pageWidth.split(choice === 'custom' ? 'px' : '%')[0]);
       this.defaultPageStylingProperties = {
         backgroundProperties: JSON.parse(JSON.stringify(this.backgroundProperties)),
         pageWidth: this.pageWidth,
@@ -378,15 +412,24 @@ export default {
       }
       return effect;
     },
-    updatePageStylingProperties() {
-      this.pageWidth = this.choice === 'custom' && `${this.pageWidth}px` || '100%';
+    commitEdits() {
+      // the field keeps its number: a commit may run several times while the drawer stays open. A width the field
+      // cannot hold, committed by a version toggle or a row button, gives back the width the draft holds (the
+      // opening's until a first commit)
+      let pageWidth = '100%';
+      if (this.choice === 'custom') {
+        pageWidth = this.pageWidthValid ? `${Math.round(Number(this.pageWidth))}px`
+          : this.pageStylingProperties?.pageWidth || `${this.defaultCustomPageWidth}px`;
+      }
       const pageMargins = this.pageMargins && Object.values(this.pageMargins).some(value => value === 0 || value) && this.pageMargins || null;
       this.$root.$emit('update-page-styling-properties',
         this.backgroundProperties,
-        this.pageWidth,
+        pageWidth,
         JSON.parse(JSON.stringify(this.applicationStyling)),
         pageMargins && JSON.parse(JSON.stringify(pageMargins)) || null);
-      this.close();
+    },
+    updatePageStylingProperties() {
+      this.saveAndClose();
     }
   }
 };

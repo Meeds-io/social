@@ -68,6 +68,7 @@
      eXo.env.portal.profileOwnerIdentityId = <%=Utils.toScriptString(ownerIdentityId == null ? "" : Utils.getOwnerIdentityId())%> ;
      eXo.env.portal.userIdentityId = <%=Utils.toScriptString(viewerIdentityId == null ? "" : viewerIdentityId)%> ;
      eXo.env.portal.companyLogo = <%=Utils.toScriptString(brandingService.getLogoPath())%> ;
+     eXo.env.portal.companyDarkLogo = <%=Utils.toScriptString(brandingService.getDarkLogoPath())%> ;
      eXo.env.portal.companyName = decodeURIComponent(<%=Utils.toScriptString(URLEncoder.encode(brandingService.getCompanyName().replace(" ", "._.")).replace("._.", " "))%>) ;
      eXo.env.portal.isExternal = <%=Utils.isExternal(Utils.getViewerIdentity())%>;
      eXo.env.portal.cometdToken = <%=Utils.toScriptString(cometdToken)%>;
@@ -96,5 +97,6 @@
      eXo.env.portal.editorAttachImageEnabled = <%=featureService.isFeatureActiveForUser("EditorAttachImage", userName)%>;
      eXo.env.portal.attachmentObjectTypes = <%=Utils.toScriptArray(supportedAttachmentObjectTypes)%>;
      eXo.env.portal.iframeAllowedHosts = <%=Utils.toScriptArray(iframeAllowedHosts)%>;
+     eXo.env.portal.lightOnlyVueApps = <%=Utils.toScriptArray(brandingService.getLightOnlyVueApps())%>;
      eXo.env.portal.customStylesheetEnabled = <%=featureService.isFeatureActiveForUser("customStylesheet", userName)%>;
 </script>

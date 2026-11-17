@@ -105,6 +105,12 @@ export default {
     document.addEventListener('keydown', this.closeOnEscape);
   },
   mounted() {
+    // a dialog of an application that keeps its light display keeps it once moved out of the application
+    if (this.$root.lightOnly
+        || this.$el.closest?.('[data-display-mode="light"]:not(html)')
+        || this.$root.$el?.closest?.('[data-display-mode="light"]:not(html)')) {
+      this.$el.setAttribute('data-display-mode', 'light');
+    }
     if (this.$el.closest('.layout-sticky-application')) {
       document.querySelector('#vuetify-apps').appendChild(this.$el);
     }
