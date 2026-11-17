@@ -172,20 +172,21 @@ export default {
   },
   watch: {
     displayActionMenu(newVal) {
-      if (newVal) {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 3;
-      } else {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
+      // the card's wrapper exists in the people lists only, not in the search results
+      const card = document.getElementById(`peopleCardItem${this.user.id}`);
+      if (card) {
+        card.style.zIndex = newVal ? 3 : 0;
       }
       // Workaround to fix closing menu when clicking outside
       if (newVal) {
         this.focusFirstMenuEntry();
-        document.addEventListener('mousedown', this.closeMenu);
+        // in capture: an entry that stops its own click (the call entry of web-conferencing) closes the menu too
+        document.addEventListener('click', this.closeMenu, true);
         document.addEventListener('drawerOpened', this.closeMenu);
         document.addEventListener('modalOpened', this.closeMenu);
         this.$root.$emit('spaces-list-menu-opened', this.id);
       } else {
-        document.removeEventListener('mousedown', this.closeMenu);
+        document.removeEventListener('click', this.closeMenu, true);
         document.removeEventListener('drawerOpened', this.closeMenu);
         document.removeEventListener('modalOpened', this.closeMenu);
       }
@@ -196,7 +197,7 @@ export default {
   },
   beforeDestroy() {
     this.$root.$off('spaces-list-menu-opened', this.closeMenu);
-    document.removeEventListener('mousedown', this.closeMenu);
+    document.removeEventListener('click', this.closeMenu, true);
     document.removeEventListener('drawerOpened', this.closeMenu);
     document.removeEventListener('modalOpened', this.closeMenu);
   },
