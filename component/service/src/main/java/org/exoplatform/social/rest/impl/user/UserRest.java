@@ -2026,15 +2026,16 @@ public class UserRest implements ResourceContainer, Startable {
   }
 
   /**
-   * Once the change is written: consumes the code, so that it never confirms
-   * another change, while a refused request burns nothing (when another
-   * request consumed it in between, this change stands). A failure to consume
-   * is logged and leaves the answer as the written change makes it.
+   * Once the change is written: consumes the code, so that a later request
+   * with it is refused, while a refused request burns nothing. Requests that
+   * validated the same code concurrently each write their change, and the last
+   * write stands. A failure to consume is logged and leaves the answer as the
+   * written change makes it.
    */
   private void consumeEmailChangeCode(String username, String otpCode) {
     try {
       if (!otpService.consumeOtp(username, EMAIL_OTP_METHOD, otpCode)) {
-        LOG.warn("The email change code of user {} was consumed by another request while this change was written", username);
+        LOG.warn("The email change code of user {} was consumed by another request, or replaced by a newer code, while this change was written", username);
       }
     } catch (RuntimeException e) {
       LOG.warn("The email change code of user {} could not be consumed once the change was written", username, e);
