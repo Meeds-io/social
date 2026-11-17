@@ -268,6 +268,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                                                          profileSettingStorage.getProfileSettingById(profilePropertySetting.getId());
     // read before the save: the stored options are compared after it
     boolean wasDropdownList = createdProfilePropertySetting != null && createdProfilePropertySetting.isDropdownList();
+    boolean wasMultiValued = createdProfilePropertySetting != null && createdProfilePropertySetting.isMultiValued();
     boolean wasHidden = createdProfilePropertySetting != null && !createdProfilePropertySetting.isVisible();
     Map<Long, String> previousOptionValues = getOptionValues(createdProfilePropertySetting == null ? null
                                                                                                    : createdProfilePropertySetting.getPropertyOptions());
@@ -284,6 +285,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     boolean labelsChanged = savePropertyOptionsTranslations(updatedPropertySetting, profilePropertySetting.getPropertyOptions());
     if (labelsChanged
         || (wasHidden && updatedPropertySetting.isVisible())
+        // the indexed string of a value depends on the flag (toIndexedValue)
+        || (createdProfilePropertySetting != null && wasMultiValued != updatedPropertySetting.isMultiValued())
         || isOptionValueChanged(updatedPropertySetting, wasDropdownList, previousOptionValues)) {
       try {
         listenerService.broadcast(PROPERTY_OPTIONS_UPDATED_EVENT, this, updatedPropertySetting);

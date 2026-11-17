@@ -195,6 +195,32 @@ public class ProfilePropertyHoldersReindexTest {
     verify(listenerService, never()).broadcast(eq(ProfilePropertyServiceImpl.PROPERTY_OPTIONS_UPDATED_EVENT), any(), any());
   }
 
+  /**
+   * A multi-valued property's value is indexed without its accents, a
+   * single-valued one's with them: switching the flag either way changes the
+   * string the directory computes, so the holders are reindexed.
+   */
+  @Test
+  public void testPropertyMadeMultiValuedReindexesTheHolders() throws Exception {
+    mockStoredSetting(false, List.of(), List.of());
+    ProfilePropertySetting posted = postedSetting(false, List.of());
+    posted.setMultiValued(true);
+
+    service.updatePropertySetting(posted);
+
+    verifyOptionsUpdatedBroadcast();
+  }
+
+  @Test
+  public void testPropertyMadeSingleValuedReindexesTheHolders() throws Exception {
+    mockStoredSetting(false, List.of(), List.of());
+    profileSettingStorage.getProfileSettingById(SETTING_ID).setMultiValued(true);
+
+    service.updatePropertySetting(postedSetting(false, List.of()));
+
+    verifyOptionsUpdatedBroadcast();
+  }
+
   @Test
   public void testUnchangedOptionsDoNotReindex() throws Exception {
     mockStoredSetting(true, List.of(option(1L, "HR")), List.of(option(1L, "HR")));
