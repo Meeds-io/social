@@ -45,7 +45,8 @@
         v-bind="fieldAttributes(attrs)"
         v-on="on"
         @keydown.enter.prevent="openFromKeyboard"
-        @keydown.space.prevent="openFromKeyboard" />
+        @keydown.space.prevent="openFromKeyboard"
+        @keydown.down.prevent="openFromKeyboard" />
     </template>
     <div class="d-flex flex-column">
       <v-date-picker
@@ -214,7 +215,7 @@ export default {
     },
   },
   watch: {
-    // the dialog is named after the period the field shows, which a choice made in it changes
+    // without a placeholder, the dialog is named after the period the field shows, which a choice made in it changes
     rangeDateTimeTitle() {
       this.nameDialog();
     },
