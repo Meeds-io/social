@@ -120,7 +120,8 @@ export default {
     open(x, y) {
       this.position.x = x;
       this.position.y = y;
-      this.triggerElement = document.activeElement;
+      // the control that opened it, which a click does not always leave focused: see ActivationOrigin.js
+      this.triggerElement = this.$activationOrigin?.element() || document.activeElement;
       this.$nextTick(() => {
         this.menu = !this.menu;
       });
