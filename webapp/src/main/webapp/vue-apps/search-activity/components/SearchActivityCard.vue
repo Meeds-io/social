@@ -39,7 +39,7 @@
                       fas fa-chevron-right
                     </v-icon>
                     <exo-space-avatar
-                      :space="streamOwner"
+                      :space="streamSpace"
                       :size="22"
                       class="text-truncate"
                       link-style
@@ -164,6 +164,11 @@ export default {
     },
     streamOwner() {
       return this.activity?.streamOwner?.space || this.activity?.streamOwner?.profile;
+    },
+    streamSpace() {
+      // The activity's stream space carries the viewer's favorite and mute
+      // state, which the space popover shows; the search result's does not.
+      return this.activityEntity?.activityStream?.space || this.streamOwner;
     },
     isSpaceStreamOwner() {
       return this.activity?.streamOwner?.space || false;
