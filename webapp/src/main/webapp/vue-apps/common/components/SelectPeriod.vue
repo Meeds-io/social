@@ -40,8 +40,8 @@
         rel="tooltip"
         hide-details
         readonly
-        v-bind="attrs"
-        v-on="activatorListeners(on)"
+        v-bind="fieldAttributes(attrs)"
+        v-on="on"
         @keydown.enter.prevent="openFromKeyboard"
         @keydown.space.prevent="openFromKeyboard" />
     </template>
@@ -279,20 +279,13 @@ export default {
     document.removeEventListener('keydown', this.closeOnEscape, true);
   },
   methods: {
-    activatorListeners(on) {
-      return {
-        ...on,
-        click: event => {
-          // a click with no pointer is Enter or Space passed by a screen reader, which sends no key to the page: it
-          // opens the picker as the keyboard does, and never closes it, when the key itself has already opened it
-          if (event?.detail === 0) {
-            event.stopPropagation();
-            this.openFromKeyboard();
-          } else {
-            on.click(event);
-          }
-        },
-      };
+    // The menu names its activator a button: on this read-only field, a screen reader then stays in browse mode and
+    // turns Enter into a click, which opens the picker with the focus left on the field. Named a text field, the
+    // screen reader switches to focus mode when it is reached, and Enter or Space opens the picker from the keyboard
+    fieldAttributes(attrs) {
+      // eslint-disable-next-line no-unused-vars
+      const { role, ...fieldAttrs } = attrs || {};
+      return fieldAttrs;
     },
     openFromKeyboard() {
       this.usedKeyboard = true;
