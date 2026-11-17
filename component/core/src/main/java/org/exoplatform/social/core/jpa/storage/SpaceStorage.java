@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -69,6 +70,8 @@ import org.exoplatform.web.security.security.RemindPasswordTokenService;
 import io.meeds.common.ContainerTransactional;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.space.constant.UserSpacesScope;
+import io.meeds.social.space.model.MembershipChange;
+import io.meeds.social.space.model.MembershipChangeResult;
 import io.meeds.social.space.security.model.SpaceSecuritySettings;
 import io.meeds.social.space.security.model.SpaceSettingsChange;
 import io.meeds.social.space.security.model.SpaceSettingsChangeResult;
@@ -498,6 +501,7 @@ public class SpaceStorage {
     Map<String, String> storedProperties = entity.getExtendedProperties();
     EntityConverterUtils.buildFrom(space, entity);
     keepSecuritySettings(entity, storedProperties);
+    addManagersMemberRows(entity);
     entity.setUpdatedDate(new Date());
     spaceDAO.update(entity);
 
@@ -512,19 +516,116 @@ public class SpaceStorage {
     }
   }
 
+  /**
+   * Toggles the user's ignore of the space, under the space's row lock: a
+   * member or a manager is left as they are; otherwise their invitation and
+   * request are removed.
+   *
+   * @param spaceId space technical identifier
+   * @param userId user name
+   */
+  @ContainerTransactional(atomic = true)
   public void ignoreSpace(String spaceId, String userId) {
-    SpaceMemberEntity entity = spaceMemberDAO.getSpaceMemberShip(userId, Long.parseLong(spaceId), null);
-    SpaceEntity spaceEntity = spaceDAO.find(Long.parseLong(spaceId));
+    SpaceEntity entity = spaceDAO.findForUpdate(Long.parseLong(spaceId));
     if (entity == null) {
-      entity = new SpaceMemberEntity();
-      entity.setSpace(spaceEntity);
-      entity.setUserId(userId);
-      entity.setStatus(SpaceMembershipStatus.IGNORED);
-      entity.setCreatedDate(Instant.now());
-      spaceMemberDAO.create(entity);
-    } else {
-      spaceMemberDAO.delete(entity);
+      return;
     }
+    Set<SpaceMembershipStatus> held = getMemberStatuses(entity, userId);
+    if (!held.contains(SpaceMembershipStatus.MEMBER) && !held.contains(SpaceMembershipStatus.MANAGER)) {
+      removeMemberRow(entity, userId, SpaceMembershipStatus.INVITED);
+      removeMemberRow(entity, userId, SpaceMembershipStatus.PENDING);
+      if (!removeMemberRow(entity, userId, SpaceMembershipStatus.IGNORED)) {
+        entity.getMembers().add(new SpaceMemberEntity(entity, userId, SpaceMembershipStatus.IGNORED, Instant.now()));
+      }
+    }
+    addManagersMemberRows(entity);
+    spaceDAO.update(entity);
+  }
+
+  /**
+   * Changes one user's member rows, under the space's row lock, deciding the
+   * change's guard on the locked rows. No other user's row is written, but
+   * the MEMBER row a manager of the space lacks.
+   *
+   * @param spaceId space technical identifier
+   * @param userId user name
+   * @param change the change to apply
+   * @return the statuses added and removed
+   * @throws ObjectNotFoundException when the space has no row
+   */
+  @ContainerTransactional(atomic = true)
+  public MembershipChangeResult changeMembership(long spaceId,
+                                                 String userId,
+                                                 MembershipChange change) throws ObjectNotFoundException {
+    SpaceEntity entity = spaceDAO.findForUpdate(spaceId);
+    if (entity == null) {
+      throw new ObjectNotFoundException("Space with id " + spaceId + " doesn't exist");
+    }
+    // a manager is a member: the change is decided on the rows that say so
+    addManagersMemberRows(entity);
+    Set<SpaceMembershipStatus> held = getMemberStatuses(entity, userId);
+    MembershipChange appliedChange = change;
+    while (appliedChange != null && !appliedChange.accepts(held)) {
+      appliedChange = appliedChange.otherwise();
+    }
+    Set<SpaceMembershipStatus> added = EnumSet.noneOf(SpaceMembershipStatus.class);
+    Set<SpaceMembershipStatus> removed = EnumSet.noneOf(SpaceMembershipStatus.class);
+    if (appliedChange != null) {
+      for (SpaceMembershipStatus status : appliedChange.remove()) {
+        if (removeMemberRow(entity, userId, status)) {
+          removed.add(status);
+        }
+      }
+      for (SpaceMembershipStatus status : appliedChange.add()) {
+        if (!held.contains(status) || removed.contains(status)) {
+          entity.getMembers().add(new SpaceMemberEntity(entity, userId, status, Instant.now()));
+          added.add(status);
+        }
+      }
+      if (removed.contains(SpaceMembershipStatus.MANAGER)
+          && !appliedChange.remove().contains(SpaceMembershipStatus.MEMBER)
+          && !getMemberStatuses(entity, userId).contains(SpaceMembershipStatus.MEMBER)) {
+        // A demoted manager stays a member
+        entity.getMembers().add(new SpaceMemberEntity(entity, userId, SpaceMembershipStatus.MEMBER, Instant.now()));
+        added.add(SpaceMembershipStatus.MEMBER);
+      }
+    }
+    addManagersMemberRows(entity);
+    entity.setUpdatedDate(new Date());
+    spaceDAO.update(entity);
+    return new MembershipChangeResult(added, removed);
+  }
+
+  private Set<SpaceMembershipStatus> getMemberStatuses(SpaceEntity entity, String userId) {
+    Set<SpaceMembershipStatus> statuses = EnumSet.noneOf(SpaceMembershipStatus.class);
+    entity.getMembers()
+          .stream()
+          .filter(member -> StringUtils.equals(member.getUserId(), userId))
+          .forEach(member -> statuses.add(member.getStatus()));
+    return statuses;
+  }
+
+  private boolean removeMemberRow(SpaceEntity entity, String userId, SpaceMembershipStatus status) {
+    return entity.getMembers().removeIf(member -> member.getStatus() == status && StringUtils.equals(member.getUserId(), userId));
+  }
+
+  /**
+   * A manager is a member: adds the MEMBER row a user holding a MANAGER row
+   * lacks, as the member arrays, whose members include the managers, did.
+   */
+  private void addManagersMemberRows(SpaceEntity entity) {
+    Set<String> members = new HashSet<>();
+    Set<String> managers = new HashSet<>();
+    entity.getMembers().forEach(member -> {
+      if (member.getStatus() == SpaceMembershipStatus.MEMBER) {
+        members.add(member.getUserId());
+      } else if (member.getStatus() == SpaceMembershipStatus.MANAGER) {
+        managers.add(member.getUserId());
+      }
+    });
+    managers.removeAll(members);
+    managers.forEach(userId -> entity.getMembers()
+                                     .add(new SpaceMemberEntity(entity, userId, SpaceMembershipStatus.MEMBER, Instant.now())));
   }
 
   /**
@@ -563,6 +664,7 @@ public class SpaceStorage {
       EntityConverterUtils.buildFrom(space, entity);
       if (!isNew) {
         keepSecuritySettings(entity, storedProperties);
+        addManagersMemberRows(entity);
       }
       if (parentSpaceId != null && parentSpaceId > 0) {
         SpaceEntity parent = spaceDAO.find(parentSpaceId);
