@@ -67,8 +67,9 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   /**
    * Broadcast, with the updated setting as data, when an edit changes the
    * string the profile index holds for the property's values: an option's
-   * value or labels, the dropdown switch, or the property shown again after
-   * being hidden, whose values the documents rebuilt meanwhile left out.
+   * value or labels, the dropdown switch, or the property hidden or shown
+   * again by the administrator, whose values the documents leave out while it
+   * is not visible.
    */
   public static final String                         PROPERTY_OPTIONS_UPDATED_EVENT         = "property_options_updated";
 
@@ -269,7 +270,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     // read before the save: the stored options are compared after it
     boolean wasDropdownList = createdProfilePropertySetting != null && createdProfilePropertySetting.isDropdownList();
     boolean wasMultiValued = createdProfilePropertySetting != null && createdProfilePropertySetting.isMultiValued();
-    boolean wasHidden = createdProfilePropertySetting != null && !createdProfilePropertySetting.isVisible();
+    boolean wasVisible = createdProfilePropertySetting != null && createdProfilePropertySetting.isVisible();
     Map<Long, String> previousOptionValues = getOptionValues(createdProfilePropertySetting == null ? null
                                                                                                    : createdProfilePropertySetting.getPropertyOptions());
     
@@ -284,7 +285,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                                                   profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
     boolean labelsChanged = savePropertyOptionsTranslations(updatedPropertySetting, profilePropertySetting.getPropertyOptions());
     if (labelsChanged
-        || (wasHidden && updatedPropertySetting.isVisible())
+        || (createdProfilePropertySetting != null && wasVisible != updatedPropertySetting.isVisible())
         // the indexed string of a value depends on the flag (toIndexedValue)
         || (createdProfilePropertySetting != null && wasMultiValued != updatedPropertySetting.isMultiValued())
         || isOptionValueChanged(updatedPropertySetting, wasDropdownList, previousOptionValues)) {

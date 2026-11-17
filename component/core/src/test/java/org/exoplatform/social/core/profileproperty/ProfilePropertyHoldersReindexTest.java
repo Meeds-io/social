@@ -185,8 +185,20 @@ public class ProfilePropertyHoldersReindexTest {
   }
 
   @Test
-  public void testPropertyHiddenDoesNotReindex() throws Exception {
+  public void testPropertyHiddenReindexesTheHolders() throws Exception {
     mockStoredSetting(false, List.of(), List.of());
+    ProfilePropertySetting posted = postedSetting(false, List.of());
+    posted.setVisible(false);
+
+    service.updatePropertySetting(posted);
+
+    verifyOptionsUpdatedBroadcast();
+  }
+
+  @Test
+  public void testPropertyStillHiddenDoesNotReindex() throws Exception {
+    mockStoredSetting(false, List.of(), List.of());
+    profileSettingStorage.getProfileSettingById(SETTING_ID).setVisible(false);
     ProfilePropertySetting posted = postedSetting(false, List.of());
     posted.setVisible(false);
 
