@@ -27,7 +27,12 @@
       {{ $t('generalSettings.drawerStyling.drawer.title') }}
     </template>
     <template v-if="drawer" #content>
-      <v-card class="pa-4" flat>
+      <!-- recreated on each init: the shared styling inputs keep the value they were created with -->
+      <v-card
+        :key="initKey"
+        class="pa-4"
+        flat>
+        <portal-general-settings-theme-version-bar @change="changeVersion" />
         <p>
           {{ $t('generalSettings.drawerStyling.help1') }}
         </p>
@@ -48,13 +53,16 @@
           <span class="text-title">
             {{ $t('generalSettings.text.label') }}
           </span>
+          <portal-general-settings-theme-shared-marker class="ms-2 my-auto" />
         </div>
         <styling-text-input
           :text-background="false"
           v-model="drawerTextProperties"
           class="mt-2 pe-3"
           no-toggle
+          :icon-placeholder="versionIconColor('drawerIconColor')"
           custom-icon />
+        <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
       </v-card>
     </template>
     <template #footer>
@@ -66,7 +74,7 @@
         </v-btn>
         <v-btn
           class="btn btn-primary ms-2"
-          :disabled="saveButtonDisabled"
+          :disabled="saveButtonDisabled && !draftChanged"
           @click="updateDrawerStylingProperties">
           {{ $t('generalSettings.button.save') }}
         </v-btn>
@@ -75,14 +83,18 @@
   </exo-drawer>
 </template>
 <script>
+import ThemeAreaDrawerMixin from '../../../js/ThemeAreaDrawerMixin.js';
 
 export default {
+  mixins: [ThemeAreaDrawerMixin],
   data: () => ({
+    themeAreaKeys: ['drawerBackgroundColor', 'drawerTextTitleColor', 'drawerTextHeaderColor', 'drawerTextColor', 'drawerTextSubtitleColor', 'drawerIconColor'],
     drawer: false,
     backgroundProperties: null,
     drawerTextProperties: null,
     defaultDrawerStylingProperties: null,
     initialized: false,
+    initKey: 0,
   }),
   props: {
     drawerStylingProperties: {
@@ -93,7 +105,7 @@ export default {
   computed: {
     backgroundImagePath() {
       const background = this.drawerStylingProperties?.drawerBackground;
-      return background?.fileId && `/portal/rest/v1/platform/branding/drawerBackground?v=${background.updatedDate || 0}` || null;
+      return background?.imageUrl || background?.fileId && `/portal/rest/v1/platform/branding/drawerBackground?v=${background.updatedDate || 0}` || null;
     },
     saveButtonDisabled() {
       if (!this.backgroundProperties && !this.drawerTextProperties) {
@@ -115,6 +127,7 @@ export default {
   },
   methods: {
     init() {
+      this.initKey++;
       this.backgroundProperties = {
         backgroundColor: this.drawerStylingProperties?.drawerBackgroundColor || null,
         backgroundPosition: this.drawerStylingProperties?.drawerBackgroundPosition || null,
@@ -172,9 +185,11 @@ export default {
       }
       return effect;
     },
-    updateDrawerStylingProperties() {
+    commitEdits() {
       this.$root.$emit('update-drawer-styling-properties', this.backgroundProperties, this.drawerTextProperties);
-      this.close();
+    },
+    updateDrawerStylingProperties() {
+      this.saveAndClose();
     }
   }
 };

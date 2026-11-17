@@ -23,7 +23,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -102,9 +104,49 @@ public class BrandedEmailSenderTest {
     when(userProfile.getAttribute(Constants.USER_LANGUAGE)).thenReturn("en");
     when(resourceBundleService.getSharedString(anyString(), any())).thenReturn("TranslatedText");
     when(brandingService.getCompanyName()).thenReturn("MyCompany");
-    when(brandingService.getThemeStyle()).thenReturn(Collections.singletonMap("primaryColor", "#123456"));
+    lenient().when(brandingService.getDisplayMode(USERNAME)).thenReturn("light");
+    lenient().when(brandingService.getMailPalette(false)).thenReturn(Map.of("primary", "#123456", "surface", "#FFFFFF"));
+    lenient().when(brandingService.getMailPalette(true)).thenReturn(Map.of("primary", "#5FA9AC", "surface", "#1E2328"));
     when(mailService.getMailSession()).thenReturn(Session.getInstance(new Properties()));
     doNothing().when(mailService).sendMessage(any(MimeMessage.class));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testTheEmailIsWrittenInTheRecipientsDisplayMode() {
+    when(brandingService.getDisplayMode(USERNAME)).thenReturn("dark");
+    brandedEmailSender.sendEmail(USERNAME, "Subject", CONTENT_FRAGMENT_PATH, Collections.emptyMap());
+    String body = sentBody();
+    assertTrue(body, body.contains("background-color: #1E2328"));
+    assertTrue(body, body.contains("content=\"dark\""));
+    assertFalse("an explicit mode writes no media query", body.contains("@media"));
+
+    when(brandingService.getDisplayMode(USERNAME)).thenReturn("auto");
+    brandedEmailSender.sendEmail(USERNAME, "Subject", CONTENT_FRAGMENT_PATH, Collections.emptyMap());
+    body = sentBody();
+    assertTrue("the light palette inline", body.contains("background-color: #FFFFFF"));
+    assertTrue("the dark one in the head", body.contains(".mail-surface{background-color:#1E2328 !important;}"));
+    assertTrue(body.contains("content=\"light dark\""));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testTheContentFragmentTokensTakeThePalette() {
+    brandedEmailSender.sendEmail(USERNAME, "Subject", "assets/palette-tokens-email-content.html", Collections.emptyMap());
+    String body = sentBody();
+    assertFalse(body, body.contains("$MAIL_"));
+    assertTrue(body, body.contains("color: #6B6B6B;"));
+    assertTrue(body, body.contains("border: 1px solid #E1E8EE;"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testTheCompanyNameIsEscaped() {
+    when(brandingService.getCompanyName()).thenReturn("A&B <i>");
+    brandedEmailSender.sendEmail(USERNAME, "Subject", CONTENT_FRAGMENT_PATH, Collections.emptyMap());
+    String body = sentBody();
+    assertTrue(body, body.contains("A&amp;B &lt;i&gt;"));
+    assertFalse(body.contains("<i>"));
   }
 
   @Test
@@ -122,6 +164,7 @@ public class BrandedEmailSenderTest {
     assertTrue("Company name should be injected in the email body", body.contains("MyCompany"));
     assertTrue("Primary color should be injected in the email body", body.contains("#123456"));
     assertFalse("All i18n placeholders should be resolved", body.contains("${"));
+    assertFalse("Every palette token is replaced", body.contains("$MAIL_"));
     assertFalse("The content fragment token should be replaced", body.contains("$EMAIL_CONTENT"));
   }
 
@@ -168,6 +211,13 @@ public class BrandedEmailSenderTest {
 
     when(userProfileHandler.findUserProfileByName(USERNAME)).thenReturn(null);
     assertEquals(ResourceBundleService.DEFAULT_CROWDIN_LANGUAGE, brandedEmailSender.getUserLang(USERNAME));
+  }
+
+  @SneakyThrows
+  private String sentBody() {
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    verify(mailService, atLeastOnce()).sendMessage(messageCaptor.capture());
+    return String.valueOf(messageCaptor.getValue().getContent());
   }
 
 }

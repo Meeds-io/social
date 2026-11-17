@@ -37,6 +37,8 @@
       el.classList.add('reset-style-box');
     }
     el.innerHTML = content && ExtendedDomPurify.purify(content) || '';
+    // black and white text gets the Auto text colour in dark (social's rich text colours)
+    window.eXo?.richTextColors?.markColors(el);
   }
   function renderSanitizedHtmlNoEmbed(el, binding) {
     let content = binding.value;
@@ -55,6 +57,8 @@
 
     }
     el.innerHTML = content && ExtendedDomPurify.purify(content) || '';
+    // black and white text gets the Auto text colour in dark (social's rich text colours)
+    window.eXo?.richTextColors?.markColors(el);
   }
   // A re-render of the host component must not rebuild an unchanged content:
   // rewriting innerHTML recreates every embedded iframe, which ends a playing

@@ -17,6 +17,20 @@ export default {
       ] || null,
     );
   },
+  mounted() {
+    this.markColors();
+  },
+  updated() {
+    this.markColors();
+  },
+  methods: {
+    // black and white text of a rich content gets the Auto text colour in dark (social's rich text colours)
+    markColors() {
+      if (this.html) {
+        this.$richTextColors.markColors(this.$el);
+      }
+    },
+  },
   props: {
     element: {
       type: String,
