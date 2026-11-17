@@ -46,7 +46,8 @@
         v-on="on"
         @keydown.enter.prevent="openFromKeyboard"
         @keydown.space.prevent="openFromKeyboard"
-        @keydown.down.prevent="openFromKeyboard" />
+        @keydown.down.prevent="openFromKeyboard"
+        @keydown.up.prevent="openFromKeyboard" />
     </template>
     <div class="d-flex flex-column">
       <v-date-picker
@@ -307,7 +308,8 @@ export default {
       if (content) {
         content.id = this.menuId;
         content.setAttribute('role', 'dialog');
-        // the picker's name: the field's placeholder, else the period it shows, else the From label, never unnamed
+        // the picker's name: the field's placeholder, else the period it shows, else the From label; unnamed only for
+        // a consumer that passes none of them
         const name = this.placeholder || this.rangeDateTimeTitle || this.labels.from;
         if (name) {
           content.setAttribute('aria-label', name);
