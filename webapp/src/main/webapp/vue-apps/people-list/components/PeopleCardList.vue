@@ -182,6 +182,9 @@ export default {
     actionIconWidth: 36,
     // PeopleDirectoryService.MAX_LIMIT: the users resource refuses more
     maxResourceLimit: 100,
+    // the search the listed directory users answer, null when they must be
+    // fetched again from the first one
+    directoryQueryKey: null,
   }),
   computed: {
     displayLoading() {
@@ -328,6 +331,8 @@ export default {
       this.spaceMemberExtensions = this.spaceId && extensionRegistry.loadExtensions('space-member-extension', 'action') || [];
     },
     searchPeopleNoFilters() {
+      // the saved settings may list other users for the same search
+      this.directoryQueryKey = null;
       this.searchPeople();
     },
     searchPeople(profileSettings) {
@@ -399,14 +404,23 @@ export default {
     },
     /**
      * Lists the directory through its portlet resource, by requests of at
-     * most 100 users, the resource's bound: 'Show more' grows the number of
-     * users fetched from the first one.
+     * most 100 users, the resource's bound. When only the number of users
+     * grew for the same search ('Show more'), the listed users are kept and
+     * only the next ones are fetched; any other change fetches from the
+     * first one.
      *
      * @param {number} count the number of users to fetch
      * @param {AbortSignal} signal aborts the requests
      * @returns {Promise<{users: Array, size: number}>} the users and their total number
      */
     getDirectoryUsers(count, signal) {
+      const queryKey = JSON.stringify([
+        this.keyword || '',
+        this.filter === 'connections' ? 'connections' : 'all',
+        this.advancedFilterSettings || null,
+      ]);
+      const listed = queryKey === this.directoryQueryKey && count > this.users.length ? this.users.slice() : [];
+      this.directoryQueryKey = null;
       const fetchChunk = (users, size) => {
         if (users.length >= count || (size !== null && users.length >= size)) {
           return {users: users.slice(0, count), size: size || 0};
@@ -436,7 +450,10 @@ export default {
           return chunk.length ? fetchChunk(allUsers, data?.size || 0) : {users: allUsers, size: data?.size || 0};
         });
       };
-      return fetchChunk([], null);
+      return Promise.resolve(fetchChunk(listed, null)).then(result => {
+        this.directoryQueryKey = queryKey;
+        return result;
+      });
     },
     applyItemsPerPage() {
       this.pageSize = this.limit = this.itemsPerPage;
