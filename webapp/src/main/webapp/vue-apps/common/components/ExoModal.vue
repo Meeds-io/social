@@ -87,7 +87,8 @@ export default {
   watch: {
     dialog() {
       if (this.dialog) {
-        this.opener = document.activeElement;
+        // the control that opened it, which a click does not always leave focused: see ActivationOrigin.js
+        this.opener = this.$activationOrigin?.element() || document.activeElement;
         this.$openingKeystrokeGuard.ignore(this.guardOpeningKeystroke);
         this.focusFirstControl();
         this.$emit('dialog-opened');
