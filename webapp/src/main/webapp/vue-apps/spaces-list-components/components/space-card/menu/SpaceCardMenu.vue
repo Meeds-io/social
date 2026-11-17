@@ -67,7 +67,8 @@
             click: () => menu = !menu,
           }"
           :space="space"
-          icon />
+          icon
+          @keydown.native.esc="menu && closeMenuToActivator($event)" />
       </template>
       <v-list
         ref="menuList"
@@ -76,7 +77,7 @@
         role="menu"
         class="transparent"
         dense
-        @keydown.native="onMenuEntriesKeydown">
+        @keydown.native="onMenuEntriesKeydown($event); onMenuEntryChosen($event)">
         <space-card-menu-item
           v-if="$root.isMobile"
           :href="url"
