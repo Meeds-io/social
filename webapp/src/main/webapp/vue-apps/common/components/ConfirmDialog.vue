@@ -133,7 +133,7 @@ export default {
   watch: {
     dialog() {
       if (this.dialog) {
-        this.opener = this.pendingOpener || this.focusOrigin(document.activeElement);
+        this.opener = this.pendingOpener || this.focusOrigin(this.activationOrigin());
         this.pendingOpener = null;
         this.openerContext = this.captureOpenerContext(this.opener);
         window.addEventListener('focusin', this.redirectContainerFocus, true);
@@ -174,23 +174,12 @@ export default {
         button.focus();
       }
     },
+    activationOrigin() {
+      // the control that opened it, which a click does not always leave focused: see ActivationOrigin.js
+      return this.$activationOrigin?.element() || document.activeElement;
+    },
     focusOrigin(element) {
-      // an action of a menu opened the dialog: the menu is gone once the dialog closes, its button stays.
-      // Only a menu button is taken: a tooltip activator also has an expanded popup while it is hovered or focused
-      const menu = element?.closest?.('.v-menu__content');
-      if (!menu) {
-        return element;
-      }
-      // an attached menu sits next to its button
-      let ancestor = menu.parentElement;
-      for (let level = 0; ancestor && ancestor !== document.body && level < 4; level++) {
-        const button = ancestor.querySelector(':scope > [aria-haspopup][aria-expanded="true"], :scope > * > [aria-haspopup][aria-expanded="true"]');
-        if (button) {
-          return button;
-        }
-        ancestor = ancestor.parentElement;
-      }
-      return document.querySelector('[aria-haspopup="menu"][aria-expanded="true"]') || element;
+      return this.$activationOrigin ? this.$activationOrigin.menuOrigin(element) : element;
     },
     captureOpenerContext(opener) {
       if (!opener || opener === document.body) {
@@ -233,6 +222,12 @@ export default {
     isFocusLost(active) {
       // the focus left on this closing dialog's button is lost as well
       return !active || active === document.body || this.isInDialog(active);
+    },
+    returnFocusTo(element) {
+      // once closed, the dialog gives the focus to this element instead of its opener (e.g. a side panel the
+      // confirmation closes gives it to the panel's own opener, its control that asked being hidden)
+      this.opener = element;
+      this.openerContext = this.captureOpenerContext(element);
     },
     isShown(element) {
       // a closed side panel keeps its size but is hidden: it cannot take the focus
@@ -359,7 +354,7 @@ export default {
     open() {
       if (!this.dialog) {
         // read during the click: a menu that closes on this click resets its button's aria-expanded before the dialog watcher runs
-        this.pendingOpener = this.focusOrigin(document.activeElement);
+        this.pendingOpener = this.focusOrigin(this.activationOrigin());
       }
       this.dialog = true;
       this.$emit('opened');
