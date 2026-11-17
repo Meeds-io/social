@@ -192,7 +192,7 @@ public class LoginRest {
              method = "GET")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "404", description = "The registration token is unknown or expired; a registration deletes the token it used"),
+      @ApiResponse(responseCode = "404", description = "The registration token is unknown or expired"),
   })
   public ResponseEntity<List<RegistrationFieldEntity>> getRegistrationFields(HttpServletRequest request,
                                                                              @Parameter(description = "Registration token")
