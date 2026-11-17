@@ -87,7 +87,8 @@ export default {
       if (event.key === ' ' || !entry.classList.contains('v-list-item')) {
         entry.click();
       }
-      // an entry that opens a dialog has already given it the focus, which the dialog keeps and gives back itself
+      // an entry whose action has already moved the focus out of the menu keeps it there; a dialog opened later must
+      // focus the menu's button itself before it opens, so that it gives the focus back to that button
       const focusInMenu = elementOf(this.$refs.menuList)?.contains?.(document.activeElement);
       this.closeKeyboardMenu();
       if (focusInMenu) {
