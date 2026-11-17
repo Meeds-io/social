@@ -507,10 +507,11 @@ public class EmailChangeEmailOtpPluginTest {
   @Test
   public void testConsumeOtpRemovesTheBoundCodeOnce() {
     String boundCode = EmailChangeOtpPlugin.bindCode(OTP_CODE, NEW_EMAIL);
-    when(otpCache.remove(CACHE_KEY)).thenReturn(live(boundCode), (String) null);
+    Map<String, String> codes = stubOtpCache(new HashMap<>());
+    codes.put(CACHE_KEY, live(boundCode));
     assertTrue(plugin.consumeOtp("john", boundCode));
     assertFalse("A consumed code is gone for a concurrent request", plugin.consumeOtp("john", boundCode));
-    verify(otpCache, times(2)).remove(CACHE_KEY);
+    assertFalse(codes.containsKey(CACHE_KEY));
   }
 
   /**
