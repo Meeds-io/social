@@ -156,6 +156,50 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     return Optional.of(properties == null ? Collections.emptyMap() : properties);
   }
 
+  /**
+   * Reads the parent column of a space's row, never the state of an entity the
+   * persistence context holds.
+   *
+   * @param id space technical identifier
+   * @return the stored parent id, 0 when the space has no parent, or an empty
+   *         {@link Optional} when the space has no row
+   */
+  public Optional<Long> findParentSpaceId(long id) {
+    TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SpaceEntity.getParentSpaceIdById", Tuple.class);
+    query.setParameter("id", id);
+    List<Tuple> rows = query.getResultList();
+    if (rows.isEmpty()) {
+      return Optional.empty();
+    }
+    Long parentSpaceId = (Long) rows.get(0).get(1);
+    return Optional.of(parentSpaceId == null ? 0L : parentSpaceId);
+  }
+
+  /**
+   * Locks a space's row, as {@link #findForUpdate(long)} does, and reads its
+   * parent from the row: the entity the persistence context holds for that id,
+   * if any, is detached first, so the read is current and the space's
+   * collections stay unloaded.
+   *
+   * @param id space technical identifier
+   * @return the stored parent id, 0 when the space has no parent, or an empty
+   *         {@link Optional} when the space has no row
+   */
+  public Optional<Long> findParentSpaceIdForUpdate(long id) {
+    // the held instance, or an uninitialised proxy, which detach drops
+    getEntityManager().detach(getEntityManager().getReference(SpaceEntity.class, id));
+    TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getSpaceByIdForUpdate", SpaceEntity.class);
+    query.setParameter("id", id);
+    query.setLockMode(LockModeType.PESSIMISTIC_WRITE);
+    query.setHint(LOCK_TIMEOUT_HINT, LOCK_TIMEOUT_MILLIS);
+    List<SpaceEntity> rows = query.getResultList();
+    if (rows.isEmpty()) {
+      return Optional.empty();
+    }
+    Long parentSpaceId = rows.get(0).getParentSpaceId();
+    return Optional.of(parentSpaceId == null ? 0L : parentSpaceId);
+  }
+
   public SpaceEntity getSpaceByGroupId(String groupId) {
     TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getSpaceByGroupId", SpaceEntity.class);
     query.setParameter("groupId", groupId);
