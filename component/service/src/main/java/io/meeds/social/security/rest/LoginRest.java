@@ -192,16 +192,13 @@ public class LoginRest {
              method = "GET")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "404", description = "The registration token is unknown, expired, or already used: an account exists for its e-mail"),
+      @ApiResponse(responseCode = "404", description = "The registration token is unknown or expired; a registration deletes the token it used"),
   })
   public ResponseEntity<List<RegistrationFieldEntity>> getRegistrationFields(HttpServletRequest request,
                                                                              @Parameter(description = "Registration token")
                                                                              @RequestParam("token")
                                                                              String token) {
-    String usernameToken = passwordRecoveryService.verifyToken(token, CookieTokenService.EXTERNAL_REGISTRATION_TOKEN);
-    // A token whose account exists has been used, whatever registered it: as
-    // register refuses it, so does the read of the form's fields
-    if (usernameToken == null || findUser(usernameToken) != null) {
+    if (passwordRecoveryService.verifyToken(token, CookieTokenService.EXTERNAL_REGISTRATION_TOKEN) == null) {
       return ResponseEntity.notFound().cacheControl(CacheControl.noStore()).build();
     }
     Locale locale = request.getLocale();
