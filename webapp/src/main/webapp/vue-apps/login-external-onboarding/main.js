@@ -32,7 +32,9 @@ const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 //should expose the locale ressources as REST API 
 const urls = [
   `/social/i18n/locale.portlet.Login?lang=${lang}`,
-  `/social/i18n/locale.portal.login?lang=${lang}`
+  `/social/i18n/locale.portal.login?lang=${lang}`,
+  // The registration form's additional fields and their refusals
+  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
 ];
 
 export function init(id) {

@@ -18,14 +18,22 @@
  */
 package org.exoplatform.social.rest.api;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
+import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
@@ -33,23 +41,30 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
+import org.exoplatform.web.login.recovery.PasswordRecoveryService;
+import org.exoplatform.web.security.security.CookieTokenService;
+
 import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
 import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
+import io.meeds.social.security.rest.LoginRest;
+import io.meeds.social.security.rest.model.RegistrationFieldEntity;
 
 import jakarta.persistence.EntityManager;
 
 public class ProfileSettingsRestTest extends AbstractResourceTest {
 
-  private ProfilePropertyService profilePropertyService;
+  private ProfilePropertyService  profilePropertyService;
 
-  private List<Long>             createdSettingIds = new ArrayList<>();
+  private ProfileFormFieldService profileFormFieldService;
+
+  private List<Long>              createdSettingIds = new ArrayList<>();
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
-    ProfileFormFieldService profileFormFieldService =
-                                                    new ProfileFormFieldService(getContainer().getComponentInstanceOfType(ProfileSettingStorage.class),
+    profileFormFieldService =
+                            new ProfileFormFieldService(getContainer().getComponentInstanceOfType(ProfileSettingStorage.class),
                                                                                 getContainer().getComponentInstanceOfType(IdentityStorage.class),
                                                                                 identityManager);
     registry(new ProfileSettingsRest(profilePropertyService, profileFormFieldService));
@@ -129,6 +144,30 @@ public class ProfileSettingsRestTest extends AbstractResourceTest {
     assertEquals(List.of("formStoreOnly"), names(getSettings("?form=account")));
   }
 
+  /**
+   * The registration form's anonymous list follows the store as the account
+   * form's does: a setting another writer switched off is absent from it, and
+   * a listed setting another node created, which the cached list lacks, is in
+   * it.
+   */
+  public void testTheRegistrationFormListFollowsTheStoreWhileTheCachesHoldThePreviousState() throws Exception {
+    Long switchedOffId = createSetting("formRegSwitchedOff", false, true);
+    startSessionAs("root");
+    assertTrue(names(getSettings("")).contains("formRegSwitchedOff"));
+    restartTransaction();
+
+    commitInAnotherEntityManager("UPDATE SocProfileSettingEntity s SET s.listedOnRegistration = false WHERE s.id = " + switchedOffId);
+    ProfileSettingStorage storeOnly = new ProfileSettingStorage(getContainer().getComponentInstanceOfType(ProfilePropertySettingDAO.class),
+                                                                getContainer().getComponentInstanceOfType(ProfilePropertyOptionDAO.class));
+    createdSettingIds.add(storeOnly.saveProfilePropertySetting(newSetting("formRegStoreOnly", false, true), true).getId());
+    restartTransaction();
+
+    List<String> cachedNames = names(getSettings(""));
+    assertTrue("The cached list still holds the switched-off setting", cachedNames.contains("formRegSwitchedOff"));
+    assertFalse("The cached list lacks the setting only the store holds", cachedNames.contains("formRegStoreOnly"));
+    assertEquals(List.of("formRegStoreOnly"), registrationNames());
+  }
+
   @SuppressWarnings("unchecked")
   private Map<String, List<?>> getSettings(String query) throws Exception {
     ContainerResponse response = service("GET", getURLResource("profile/settings" + query), "", null, null);
@@ -144,13 +183,35 @@ public class ProfileSettingsRestTest extends AbstractResourceTest {
                  .toList();
   }
 
+  // The names the anonymous registration endpoint answers to a valid token
+  private List<String> registrationNames() {
+    PasswordRecoveryService passwordRecoveryService = mock(PasswordRecoveryService.class);
+    when(passwordRecoveryService.verifyToken("formToken",
+                                             CookieTokenService.EXTERNAL_REGISTRATION_TOKEN)).thenReturn("registrant@acme.com");
+    LoginRest loginRest = new LoginRest();
+    ReflectionTestUtils.setField(loginRest, "passwordRecoveryService", passwordRecoveryService);
+    ReflectionTestUtils.setField(loginRest, "profileFormFieldService", profileFormFieldService);
+    ReflectionTestUtils.setField(loginRest, "profileLabelService", getContainer().getComponentInstanceOfType(ProfileLabelService.class));
+    ResponseEntity<List<RegistrationFieldEntity>> response = loginRest.getRegistrationFields(new MockHttpServletRequest(), "formToken");
+    assertEquals(200, response.getStatusCode().value());
+    return response.getBody().stream().map(RegistrationFieldEntity::propertyName).filter(name -> name.startsWith("form")).toList();
+  }
+
   private Long createSetting(String name, boolean listedOnAccountForm) throws Exception {
-    Long id = profilePropertyService.createPropertySetting(newSetting(name, listedOnAccountForm)).getId();
+    return createSetting(name, listedOnAccountForm, false);
+  }
+
+  private Long createSetting(String name, boolean listedOnAccountForm, boolean listedOnRegistration) throws Exception {
+    Long id = profilePropertyService.createPropertySetting(newSetting(name, listedOnAccountForm, listedOnRegistration)).getId();
     createdSettingIds.add(id);
     return id;
   }
 
   private ProfilePropertySetting newSetting(String name, boolean listedOnAccountForm) {
+    return newSetting(name, listedOnAccountForm, false);
+  }
+
+  private ProfilePropertySetting newSetting(String name, boolean listedOnAccountForm, boolean listedOnRegistration) {
     ProfilePropertySetting setting = new ProfilePropertySetting();
     setting.setPropertyName(name);
     setting.setPropertyType("text");
@@ -159,6 +220,7 @@ public class ProfileSettingsRestTest extends AbstractResourceTest {
     setting.setVisible(true);
     setting.setOrder(0L);
     setting.setListedOnAccountForm(listedOnAccountForm);
+    setting.setListedOnRegistration(listedOnRegistration);
     return setting;
   }
 
