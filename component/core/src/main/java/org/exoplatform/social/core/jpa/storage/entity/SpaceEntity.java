@@ -51,6 +51,9 @@ import org.exoplatform.commons.utils.StringMapConverter;
 @Table(name = "SOC_SPACES")
 @NamedQuery(name = "SpaceEntity.getLastSpaces",
             query = "SELECT sp.id, sp.createdDate FROM SocSpaceEntity sp ORDER BY sp.createdDate DESC")
+@NamedQuery(name = "SpaceEntity.getSpaceByIdForUpdate", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.id = :id")
+@NamedQuery(name = "SpaceEntity.getExtendedPropertiesById",
+            query = "SELECT sp.id, sp.extendedProperties FROM SocSpaceEntity sp WHERE sp.id = :id")
 @NamedQuery(name = "SpaceEntity.getSpaceByGroupId", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.groupId = :groupId")
 @NamedQuery(name = "SpaceEntity.getSpaceByPrettyName",
             query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.prettyName = :prettyName")

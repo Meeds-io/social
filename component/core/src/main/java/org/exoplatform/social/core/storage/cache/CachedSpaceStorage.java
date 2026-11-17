@@ -40,6 +40,7 @@ import org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAO;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.loader.ServiceContext;
@@ -59,6 +60,8 @@ import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 import io.meeds.social.space.constant.UserSpacesScope;
+import io.meeds.social.space.security.model.SpaceSettingsChange;
+import io.meeds.social.space.security.model.SpaceSettingsChangeResult;
 
 public class CachedSpaceStorage extends SpaceStorage {
 
@@ -225,6 +228,23 @@ public class CachedSpaceStorage extends SpaceStorage {
       clearSpaceCache();
       clearIdentityCache();
       cleanRef(space);
+    }
+  }
+
+  @Override
+  public SpaceSettingsChangeResult applySettingsChange(long spaceId,
+                                                       SpaceSettingsChange change) throws ObjectNotFoundException {
+    SpaceKey key = new SpaceKey(spaceId);
+    SpaceData cachedSpace = spaceCache.get(key);
+    try {
+      return super.applySettingsChange(spaceId, change);
+    } finally {
+      spaceCache.remove(key);
+      clearSpaceCache();
+      clearIdentityCache();
+      if (cachedSpace != null) {
+        cleanRef(cachedSpace.build());
+      }
     }
   }
 
