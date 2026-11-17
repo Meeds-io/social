@@ -79,11 +79,11 @@
       color: @textColor !important;
     }
     .KudosNumberLabel {
-      color: @secondaryColor;
+      color: var(--allPagesSecondaryTextColor, @secondaryColor);
     }
     .allLikers {
       padding: 0 12px;
-      color: @primaryColor;
+      color: var(--allPagesPrimaryTextColor, @primaryColor);
       .uiIconThumbUp {
         font-size: 22px;
         padding-right: 5px ~'; /** orientation=lt */ ';

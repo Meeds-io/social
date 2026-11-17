@@ -43,4 +43,15 @@ public class SocialNotificationUtilsTest extends TestCase {
         assertEquals(SocialNotificationUtils.processImageTitle(chromeNotification, placeHolder), chromeNotificationProcessed);
         assertEquals(SocialNotificationUtils.processImageTitle(edgeNotification, placeHolder), edgeNotificationProcessed);
     }
+
+    public void testTheContentFollowsTheRecipientsDisplayMode() {
+        String content = "<p style=\"color: #000000\">black</p>";
+        org.exoplatform.commons.api.notification.service.template.TemplateContext ctx =
+            new org.exoplatform.commons.api.notification.service.template.TemplateContext();
+        assertSame("no palette bound: the light mode, unchanged", content, SocialNotificationUtils.withContentColors(ctx, content));
+        ctx.put(org.exoplatform.commons.notification.mail.MailPalette.CONTEXT_KEY, java.util.Map.of("mode", "dark"));
+        assertEquals("<p>black</p>", SocialNotificationUtils.withContentColors(ctx, content));
+        ctx.put(org.exoplatform.commons.notification.mail.MailPalette.CONTEXT_KEY, java.util.Map.of("mode", "auto"));
+        assertEquals("<p style=\"color: #000000\" class=\"mail-text\">black</p>", SocialNotificationUtils.withContentColors(ctx, content));
+    }
 }

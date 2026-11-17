@@ -38,7 +38,7 @@
         </div>
         <div v-else>
           <div v-if="displayPlaceholder" class="d-flex align-center justify-center mx-lg-6">
-            <v-icon size="24" class="tertiary--text me-3">fas fa-user-cog</v-icon>
+            <v-icon size="24" class="secondary--text me-3">fas fa-user-cog</v-icon>
             <div class="d-flex flex-column">
               <span class="text-left">{{ $t('spacesOverview.label.emptyMessage') }}</span>
             </div>

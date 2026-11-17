@@ -2,6 +2,7 @@
 <html lang="$LANG">
 <head>
 <meta charset="UTF-8">
+$MAIL_HEAD
 <title>$EMAIL_TITLE</title>
 <style>
 body {
@@ -17,18 +18,21 @@ body {
     cellpadding="0"
     cellspacing="0"
     width="600"
-    bgcolor="#ffffff"
+    bgcolor="$MAIL_SURFACE"
     align="center"
-    style="background-color: #ffffff; font-size: 12px; color: #333333; line-height: 18px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif;">
+    class="mail-surface mail-text"
+    style="background-color: $MAIL_SURFACE; font-size: 12px; color: $MAIL_TEXT; line-height: 18px; font-family: HelveticaNeue, Helvetica, Arial, sans-serif;">
     <tr>
       <td align="center" valign="middle">
         <table
           cellpadding="0" cellspacing="0" width="100%"
-          bgcolor="#ffffff" align="center"
-          style="border: 1px solid #d8d8d8;">
+          bgcolor="$MAIL_SURFACE" align="center"
+          class="mail-surface mail-border"
+          style="border: 1px solid $MAIL_BORDER;">
           <tr>
             <td height="45" valign="middle"
-              style="margin: 0; height: 45px; font-weight: bold; vertical-align: middle; background-color: #efefef; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif; color: $PRIMARY_COLOR; font-size: 18px; text-align: center">
+              class="mail-bg mail-link"
+              style="margin: 0; height: 45px; font-weight: bold; vertical-align: middle; background-color: $MAIL_BACKGROUND; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif; color: $MAIL_LINK; font-size: 18px; text-align: center">
               $EMAIL_TITLE
             </td>
           </tr>
@@ -36,18 +40,21 @@ body {
       </td>
     </tr>
     <tr>
-      <td bgcolor="#ffffff" style="background-color: #ffffff;">
+      <td bgcolor="$MAIL_SURFACE" class="mail-surface" style="background-color: $MAIL_SURFACE;">
         <table cellpadding="0" cellspacing="0" width="100%"
-          bgcolor="#ffffff"
-          style="background-color: #ffffff; border-bottom: 1px solid #d8d8d8; border-left: 1px solid #d8d8d8; border-right: 1px solid #d8d8d8;">
+          bgcolor="$MAIL_SURFACE"
+          class="mail-surface mail-border"
+          style="background-color: $MAIL_SURFACE; border-bottom: 1px solid $MAIL_BORDER; border-left: 1px solid $MAIL_BORDER; border-right: 1px solid $MAIL_BORDER;">
           <tr>
             <td>
               <table border="0" cellpadding="0" cellspacing="0"
-                width="92%" bgcolor="#ffffff" align="center"
-                style="background-color: #ffffff; color: #333333; line-height: 20px;">
+                width="92%" bgcolor="$MAIL_SURFACE" align="center"
+                class="mail-surface mail-text"
+                style="background-color: $MAIL_SURFACE; color: $MAIL_TEXT; line-height: 20px;">
                 <tr>
-                  <td align="left" bgcolor="#ffffff"
-                    style="background-color: #ffffff; padding: 10px 0;">
+                  <td align="left" bgcolor="$MAIL_SURFACE"
+                    class="mail-surface"
+                    style="background-color: $MAIL_SURFACE; padding: 10px 0;">
                     <p style="margin: 10px 0;">${Notification.label.SayHello} $USER_FULL_NAME,</p>
                     <table border="0" cellpadding="0" cellspacing="0">
                       <tr>
@@ -66,7 +73,7 @@ $EMAIL_CONTENT
     </tr>
     <tr>
       <td bgcolor="$PRIMARY_COLOR" align="center"
-        style="border: 1px solid #456693;">
+        style="border: 1px solid $PRIMARY_COLOR;">
         <table
           border="0"
           cellpadding="0"
