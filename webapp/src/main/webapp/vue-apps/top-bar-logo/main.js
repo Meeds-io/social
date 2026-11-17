@@ -26,6 +26,7 @@ export function init(params) {
         isMember: params.isMember,
         portalPath: params.portalPath,
         logoPath: params.logoPath,
+        darkLogoPath: params.darkLogoPath,
         logoTitle: decodeURIComponent(params.logoTitle || ''),
         spacePortalPath: params.spacePortalPath,
         spaceLogoPath: params.spaceLogoPath,

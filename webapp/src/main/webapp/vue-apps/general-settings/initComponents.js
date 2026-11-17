@@ -20,8 +20,6 @@ import GeneralSettings from './components/GeneralSettings.vue';
 
 import LoginBranding from './components/login-page/LoginBranding.vue';
 
-import CompanyLogo from './components/branding/form/CompanyLogo.vue';
-import CompanyFavicon from './components/branding/form/CompanyFavicon.vue';
 import LoginBackgroundSelector from './components/branding/form/LoginBackgroundSelector.vue';
 import BackgroundImageAttachment from './components/branding/form/BackgroundImageAttachment.vue';
 // Branding adapter of the shared styling background input (social stylingInputs module)
@@ -30,6 +28,7 @@ import CustomStyleInput from './components/branding/form/CustomStyleInput.vue';
 
 import SiteBranding from './components/branding/SiteBranding.vue';
 import SiteBrandingWindow from './components/branding/SiteBrandingWindow.vue';
+import ThemePreviewModes from './components/branding/preview/ThemePreviewModes.vue';
 import SiteBrandingPreview from './components/branding/preview/SiteBrandingPreview.vue';
 
 import PublicSiteEditDrawer from './components/public-site/PublicSiteEditDrawer.vue';
@@ -61,14 +60,25 @@ import SideBarStylingDrawer from './components/branding/drawers/SideBarStylingDr
 import DrawerStyling from './components/branding/drawers/DrawerStyling.vue';
 import PageStylingDrawer from './components/branding/drawers/PageStylingDrawer.vue';
 
+import BrandingIdentity from './components/branding/themes/BrandingIdentity.vue';
+import BrandingDrawer from './components/branding/themes/BrandingDrawer.vue';
+import BrandingImageTile from './components/branding/themes/BrandingImageTile.vue';
+import ThemesList from './components/branding/themes/ThemesList.vue';
+import ThemesListItem from './components/branding/themes/ThemesListItem.vue';
+import ThemeAddDrawer from './components/branding/themes/ThemeAddDrawer.vue';
+import ThemeEditionDrawer from './components/branding/themes/ThemeEditionDrawer.vue';
+import ThemeVersionBar from './components/branding/themes/ThemeVersionBar.vue';
+import ThemeAutomaticRows from './components/branding/themes/ThemeAutomaticRows.vue';
+import ThemeSharedMarker from './components/branding/themes/ThemeSharedMarker.vue';
+import ModesOffered from './components/branding/themes/ModesOffered.vue';
+
 const components = {
   'portal-general-settings': GeneralSettings,
   'portal-general-settings-branding-site-window': SiteBrandingWindow,
   'portal-general-settings-branding-site': SiteBranding,
   'portal-general-settings-branding-site-preview': SiteBrandingPreview,
+  'portal-general-settings-theme-preview-modes': ThemePreviewModes,
   'portal-general-settings-branding-login': LoginBranding,
-  'portal-general-settings-company-logo': CompanyLogo,
-  'portal-general-settings-company-favicon': CompanyFavicon,
   'portal-general-settings-branding-options': SiteBrandingOptions,
   'portal-general-settings-branding-options-item': SiteBrandingOptionsItem,
   'portal-general-settings-branding-update-colors-drawer': UpdateColorsDrawer,
@@ -77,6 +87,17 @@ const components = {
   'portal-general-settings-branding-sidebar-styling-drawer': SideBarStylingDrawer,
   'portal-general-settings-branding-drawer-styling': DrawerStyling,
   'portal-general-settings-branding-page-styling-drawer': PageStylingDrawer,
+  'portal-general-settings-branding-identity': BrandingIdentity,
+  'portal-general-settings-branding-drawer': BrandingDrawer,
+  'portal-general-settings-branding-image-tile': BrandingImageTile,
+  'portal-general-settings-themes-list': ThemesList,
+  'portal-general-settings-themes-list-item': ThemesListItem,
+  'portal-general-settings-theme-add-drawer': ThemeAddDrawer,
+  'portal-general-settings-theme-edition-drawer': ThemeEditionDrawer,
+  'portal-general-settings-theme-version-bar': ThemeVersionBar,
+  'portal-general-settings-theme-automatic-rows': ThemeAutomaticRows,
+  'portal-general-settings-theme-shared-marker': ThemeSharedMarker,
+  'portal-general-settings-modes-offered': ModesOffered,
   'portal-general-settings-background-image-attachment': BackgroundImageAttachment,
   'portal-general-settings-background-input': BrandingBackgroundInput,
   'portal-general-settings-custom-style-input': CustomStyleInput,

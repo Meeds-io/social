@@ -22,7 +22,7 @@
         </div>
         <div v-else>
           <div v-if="displayPlaceholder" class="d-flex align-center justify-center">
-            <v-icon size="24" class="tertiary--text me-3">fas fa-user-plus</v-icon>
+            <v-icon size="24" class="secondary--text me-3">fas fa-user-plus</v-icon>
             <div class="d-flex flex-nowrap">
               {{ $t('peopleOverview.label.network') }}
               {{ $t('peopleOverview.label.connect') }}
