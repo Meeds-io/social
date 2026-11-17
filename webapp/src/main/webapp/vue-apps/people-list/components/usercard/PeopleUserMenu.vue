@@ -180,12 +180,12 @@ export default {
       // Workaround to fix closing menu when clicking outside
       if (newVal) {
         this.focusFirstMenuEntry();
-        document.addEventListener('mousedown', this.closeMenu);
+        document.addEventListener('click', this.closeMenu);
         document.addEventListener('drawerOpened', this.closeMenu);
         document.addEventListener('modalOpened', this.closeMenu);
         this.$root.$emit('spaces-list-menu-opened', this.id);
       } else {
-        document.removeEventListener('mousedown', this.closeMenu);
+        document.removeEventListener('click', this.closeMenu);
         document.removeEventListener('drawerOpened', this.closeMenu);
         document.removeEventListener('modalOpened', this.closeMenu);
       }
@@ -196,7 +196,7 @@ export default {
   },
   beforeDestroy() {
     this.$root.$off('spaces-list-menu-opened', this.closeMenu);
-    document.removeEventListener('mousedown', this.closeMenu);
+    document.removeEventListener('click', this.closeMenu);
     document.removeEventListener('drawerOpened', this.closeMenu);
     document.removeEventListener('modalOpened', this.closeMenu);
   },
