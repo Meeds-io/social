@@ -27,11 +27,13 @@ import java.util.Map;
 
 import org.springframework.data.domain.Pageable;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.space.SpaceUtils;
 
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
+import io.meeds.social.space.template.model.SpaceTemplateAdministration;
 
 /**
  * One default template (id 2), which every legacy call reads and writes as
@@ -117,6 +119,23 @@ public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
   @Override
   public void deleteSpaceTemplate(long id) {
     otherTemplates.remove(id);
+  }
+
+  @Override
+  public SpaceTemplateAdministration getTemplateAdministration(long id) {
+    SpaceTemplate template = getSpaceTemplate(id);
+    return template == null ? null : new SpaceTemplateAdministration(template.getId(),
+                                                                     template.isDeleted(),
+                                                                     template.getAdminPermissions());
+  }
+
+  @Override
+  public Map<String, String> getTemplateExtendedProperties(long id) throws ObjectNotFoundException {
+    SpaceTemplate template = getSpaceTemplate(id);
+    if (template == null) {
+      throw new ObjectNotFoundException("Space template with id " + id + " doesn't exist");
+    }
+    return template.getExtendedProperties() == null ? Map.of() : template.getExtendedProperties();
   }
 
   private boolean isOtherTemplate(SpaceTemplate template) {

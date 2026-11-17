@@ -20,6 +20,7 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,12 +43,14 @@ import jakarta.persistence.TypedQuery;
 
 public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Long> implements SpaceMemberDAO {
 
-  private static final Log LOG = ExoLogger.getLogger(SpaceMemberDAOImpl.class);
+  private static final Log    LOG      = ExoLogger.getLogger(SpaceMemberDAOImpl.class);
+
+  private static final String SPACE_ID = "spaceId";
 
   @Override
   public void deleteBySpace(SpaceEntity entity) {
     Query query = getEntityManager().createNamedQuery("SpaceMember.deleteBySpace");
-    query.setParameter("spaceId", entity.getId());
+    query.setParameter(SPACE_ID, entity.getId());
     query.executeUpdate();
   }
 
@@ -133,7 +136,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     TypedQuery<String> query = getEntityManager().createNamedQuery("SpaceMember.getSpaceMembersByStatus",
                                                                    String.class);
     query.setParameter("status", status);
-    query.setParameter("spaceId", spaceId);
+    query.setParameter(SPACE_ID, spaceId);
     query.setFirstResult(offset);
     query.setMaxResults(limit);
     return query.getResultList();
@@ -149,7 +152,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     }
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SpaceMember.countSpaceMembersByStatus", Long.class);
     query.setParameter("status", status);
-    query.setParameter("spaceId", spaceId);
+    query.setParameter(SPACE_ID, spaceId);
     return query.getSingleResult().intValue();
   }
 
@@ -158,7 +161,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     if (status == null) {
       TypedQuery<SpaceMemberEntity> query = getEntityManager().createNamedQuery("SpaceMember.getSpaceMemberShip", SpaceMemberEntity.class);
       query.setParameter("userId", remoteId);
-      query.setParameter("spaceId", spaceId);
+      query.setParameter(SPACE_ID, spaceId);
       try {
         List<SpaceMemberEntity> memberEntities = query.getResultList();
         if (memberEntities.size() > 1) {
@@ -173,7 +176,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     } else {
       TypedQuery<SpaceMemberEntity> query = getEntityManager().createNamedQuery("SpaceMember.getMember", SpaceMemberEntity.class);
       query.setParameter("userId", remoteId);
-      query.setParameter("spaceId", spaceId);
+      query.setParameter(SPACE_ID, spaceId);
       query.setParameter("status", status);
       try {
         List<SpaceMemberEntity> memberEntities = query.getResultList();
@@ -270,7 +273,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
             "INNER JOIN SOC_IDENTITIES si ON ssm.USER_ID = si.REMOTE_ID " +
             "INNER JOIN SOC_IDENTITY_PROPERTIES sip ON si.IDENTITY_ID = sip.IDENTITY_ID " +
             "WHERE sip.NAME = 'external' AND sip.VALUE = 'true' AND ssm.SPACE_ID = :spaceId AND si.ENABLED = 1");
-    q.setParameter("spaceId", spaceId);
+    q.setParameter(SPACE_ID, spaceId);
     try {
       return ((Number) q.getSingleResult()).intValue();
     } catch (NoResultException e) {
@@ -282,7 +285,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
   public Instant getSpaceMembershipDate(long spaceId, String username) {
     TypedQuery<Instant> query = getEntityManager().createNamedQuery("SpaceMember.getSpaceMembershipDate",
                                                                     Instant.class);
-    query.setParameter("spaceId", spaceId);
+    query.setParameter(SPACE_ID, spaceId);
     query.setParameter("userId", username);
     query.setMaxResults(1);
     List<Instant> resultList = query.getResultList();
@@ -302,7 +305,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     }
     TypedQuery<String> query = getEntityManager().createNamedQuery("SpaceMember.getDisabledSpaceMembers",
             String.class);
-    query.setParameter("spaceId", spaceId);
+    query.setParameter(SPACE_ID, spaceId);
     query.setFirstResult(offset);
     query.setMaxResults(limit);
     return query.getResultList();
@@ -314,12 +317,34 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
       throw new IllegalArgumentException("spaceId is null or equals to 0");
     }
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SpaceMember.countDisabledSpaceMembers", Long.class);
-    query.setParameter("spaceId", spaceId);
+    query.setParameter(SPACE_ID, spaceId);
     return query.getSingleResult().intValue();
   }
 
   private String escapeSQLValue(String value) {
     return value.replace("'", "'");
+  }
+
+
+  @Override
+  public List<SpaceMembershipStatus> getMemberStatuses(long spaceId, String userId) {
+    TypedQuery<SpaceMembershipStatus> query = getEntityManager().createNamedQuery("SpaceMember.getStatusesBySpaceAndUser",
+                                                                                 SpaceMembershipStatus.class);
+    query.setParameter(SPACE_ID, spaceId);
+    query.setParameter("userId", userId);
+    return query.getResultList();
+  }
+
+  @Override
+  public List<String> getMembersAmong(long spaceId, Collection<String> userIds, Collection<SpaceMembershipStatus> statuses) {
+    if (userIds == null || userIds.isEmpty() || statuses == null || statuses.isEmpty()) {
+      return Collections.emptyList();
+    }
+    TypedQuery<String> query = getEntityManager().createNamedQuery("SpaceMember.getMembersAmong", String.class);
+    query.setParameter(SPACE_ID, spaceId);
+    query.setParameter("userIds", userIds);
+    query.setParameter("statuses", statuses);
+    return query.getResultList();
   }
 
 }

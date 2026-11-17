@@ -105,6 +105,7 @@ import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 import io.meeds.social.search.SpaceSearchConnector;
 import io.meeds.social.space.constant.UserSpacesScope;
+import io.meeds.social.space.security.model.SpaceSecuritySettings;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 
@@ -112,7 +113,7 @@ import lombok.SneakyThrows;
 import org.exoplatform.web.security.security.SecureRandomService;
 import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
-public class SpaceServiceImpl implements SpaceService {
+public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNotifier {
 
   private static final Log            LOG                          = ExoLogger.getLogger(SpaceServiceImpl.class);
 
@@ -1193,6 +1194,11 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public void extendedPropertiesUpdated(Space space, List<String> changedProperties, String username) {
+    spaceLifeCycle.extendedPropertiesUpdated(space, username, changedProperties);
+  }
+
+  @Override
   public void deleteExternalUserInvitations(String email) {
     spaceStorage.deleteExternalUserInvitations(email);
   }
@@ -1524,11 +1530,31 @@ public class SpaceServiceImpl implements SpaceService {
         spaceLifeCycle.spaceRegistrationEdited(newSpace, newSpace.getEditor());
       }
 
-      if (newSpace.getExtendedProperties() != null
-          && !newSpace.getExtendedProperties().equals(oldSpace.getExtendedProperties())) {
-        spaceLifeCycle.extendedPropertiesUpdated(oldSpace, newSpace, newSpace.getEditor());
+      List<String> changedProperties = getChangedExtendedProperties(oldSpace, newSpace);
+      if (!changedProperties.isEmpty()) {
+        spaceLifeCycle.extendedPropertiesUpdated(newSpace, newSpace.getEditor(), changedProperties);
       }
     }
+  }
+
+  /**
+   * The keys this space's update adds or changes. The space security keys are
+   * left out: the update keeps their stored values, and only their own writer
+   * reports their change.
+   */
+  private List<String> getChangedExtendedProperties(Space oldSpace, Space newSpace) {
+    Map<String, String> newProperties = newSpace.getExtendedProperties();
+    if (newProperties == null) {
+      return Collections.emptyList();
+    }
+    Map<String, String> oldProperties = oldSpace.getExtendedProperties() == null ? Collections.emptyMap()
+                                                                                 : oldSpace.getExtendedProperties();
+    return newProperties.keySet()
+                        .stream()
+                        .filter(key -> !SpaceSecuritySettings.KEYS.contains(key))
+                        .filter(key -> !oldProperties.containsKey(key)
+                                       || !Objects.equals(oldProperties.get(key), newProperties.get(key)))
+                        .toList();
   }
 
   private List<String> getUsersToInvite(List<Identity> identities) {
