@@ -218,6 +218,7 @@ export default {
       // Escape is caught wherever it starts while the picker is open: a click on a part of the picker that takes
       // no focus (its title, its caption, any button in Safari) leaves the focus on the page's body
       if (newVal) {
+        this.nameDialog();
         document.addEventListener('keydown', this.closeOnEscape, true);
       } else {
         document.removeEventListener('keydown', this.closeOnEscape, true);
@@ -301,7 +302,11 @@ export default {
       if (content) {
         content.id = this.menuId;
         content.setAttribute('role', 'dialog');
-        content.setAttribute('aria-label', this.placeholder || this.labels.from || 'Period');
+        // the field's own name: its placeholder, else the period it shows
+        const name = this.placeholder || this.rangeDateTimeTitle || this.labels.from;
+        if (name) {
+          content.setAttribute('aria-label', name);
+        }
       }
     },
     openFromKeyboard() {
