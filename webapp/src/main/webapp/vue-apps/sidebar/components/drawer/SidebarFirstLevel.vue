@@ -34,11 +34,15 @@
         :aria-label="$t('menu.role.navigation.first.level')"
         :max-width="drawerWidth"
         max-height="var(--100vh, 100vh)"
-        class="d-flex flex-column fill-height HamburgerNavigationMenu transparent"
+        class="d-flex flex-column fill-height HamburgerNavigationMenu HamburgerMenuFirstLevel transparent"
         role="navigation"
         color="white"
         flat
-        tile>
+        tile
+        @keydown.native.tab="stickyDisplay && $emit('sticky-tab', $event)"
+        @keydown.native.esc="stickyDisplay && $emit('sticky-escape', $event)"
+        @focusin.native="stickyDisplay && $emit('sticky-focusin')"
+        @focusout.native="stickyDisplay && $emit('sticky-focusout', $event)">
         <sidebar-list />
       </v-card>
     </v-hover>
