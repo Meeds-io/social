@@ -114,8 +114,7 @@ public class SubspacesServiceTest extends AbstractCoreTest {
     saveSpace("Alpha subspace", Space.PRIVATE, parentId, PARENT_MANAGER);
     saveSpace("Charlie subspace", Space.HIDDEN, parentId, PARENT_MANAGER, PARENT_MEMBER);
     Space invitedTo = saveSpace("Bravo subspace", Space.HIDDEN, parentId, PARENT_MANAGER);
-    invitedTo.setInvitedUsers(new String[] { PARENT_MEMBER });
-    spaceStorage.saveSpace(invitedTo, false);
+    spaceService.addInvitedUser(invitedTo, PARENT_MEMBER);
     // A sub-space of another parent: it must never leak into this parent's list
     saveSpace("Echo subspace", Space.PUBLIC, otherParentSpace.getSpaceId(), PARENT_MANAGER);
     restartTransaction();
