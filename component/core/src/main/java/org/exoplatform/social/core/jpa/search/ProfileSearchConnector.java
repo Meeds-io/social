@@ -662,7 +662,10 @@ public class ProfileSearchConnector {
    * reached by narrowing with a query. Known limit: the joined string does not
    * tell a separator from a comma inside a value, so a multi-valued value
    * holding a comma ({@code Paris, France}) is listed as its pieces
-   * ({@code Paris}, {@code France}).
+   * ({@code Paris}, {@code France}), each stripped of its spaces, which the
+   * directory clause skips. The values are the index's strings: a
+   * multi-valued property's and {@code position}'s come without their
+   * accents.
    *
    * @param propertyName the property name, a visible setting's
    * @param multiValued whether the property is multi-valued
@@ -680,7 +683,8 @@ public class ProfileSearchConnector {
         String key = bucket.path("key").asString();
         if (multiValued) {
           for (String value : StringUtils.split(key, ',')) {
-            String trimmed = value.trim();
+            // only the spaces the directory clause skips around a separator
+            String trimmed = StringUtils.strip(value, " ");
             if (StringUtils.isNotEmpty(trimmed) && (StringUtils.isEmpty(query) || StringUtils.containsIgnoreCase(trimmed, query))) {
               values.add(trimmed);
             }
@@ -713,8 +717,9 @@ public class ProfileSearchConnector {
   /**
    * One clause per directory attribute, each matching a user holding one of
    * its values: a term on the indexed field for a single-valued property, a
-   * regexp matching one value of the joined string for a multi-valued one. An
-   * attribute that is not a visible, active, top-level setting matches nobody.
+   * regexp matching one value of the joined string for a multi-valued one,
+   * spaces around it ignored as the value picker strips them. An attribute
+   * that is not a visible, active, top-level setting matches nobody.
    * Known limit: a multi-valued value holding a comma is read as several
    * values, so {@code Paris} also matches a user holding {@code Paris, France}.
    */
@@ -745,7 +750,7 @@ public class ProfileSearchConnector {
       for (String value : values) {
         if (setting.isMultiValued()) {
           ObjectNode regexp = should.addObject().putObject("regexp").putObject(field);
-          regexp.put("value", "(.*,)?" + escapeRegexp(value) + "(,.*)?");
+          regexp.put("value", "(.*,)? *" + escapeRegexp(value) + " *(,.*)?");
           regexp.put("flags", "NONE");
         } else {
           should.addObject().putObject("term").put(field, value);

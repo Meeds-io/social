@@ -110,6 +110,9 @@ public class ProfileDirectoryFilterElasticsearchIT {
   /** Holds a plain accented value stored before the property became multi-valued */
   private static final String           PLAIN_MULTI_USER = "2009";
 
+  /** Holds the multi-valued value 'Paris, Berlin', which the index joins as two */
+  private static final String           COMMA_MULTI_USER = "2010";
+
   private static ProfileSearchConnector searchConnector;
 
   @BeforeClass
@@ -141,6 +144,7 @@ public class ProfileDirectoryFilterElasticsearchIT {
     Identity plainMulti = identity(PLAIN_MULTI_USER, "Sales", List.of(), null);
     plainMulti.getProfile().setProperty(LANGUAGES, "Développement");
     identities.put(PLAIN_MULTI_USER, plainMulti);
+    identities.put(COMMA_MULTI_USER, identity(COMMA_MULTI_USER, "Sales", List.of("Paris, Berlin"), null));
     identities.forEach((id, identity) -> when(identityManager.getIdentity(id)).thenReturn(identity));
 
     InitParams indexingParams = new InitParams();
@@ -241,9 +245,22 @@ public class ProfileDirectoryFilterElasticsearchIT {
   @Test
   public void testMultiValuedAttributeValuesAreSplit() {
     List<String> values = searchConnector.getAttributeValues(LANGUAGES, true, null, 50);
-    assertEquals(List.of("(x)", "Developpement", "a", "b", "c", "x"), values.stream().sorted().toList());
+    assertEquals(List.of("(x)", "Berlin", "Developpement", "Paris", "a", "b", "c", "x"), values.stream().sorted().toList());
     assertEquals(List.of("c"), searchConnector.getAttributeValues(LANGUAGES, true, "c", 50));
     assertEquals(List.of("(x)"), searchConnector.getAttributeValues(LANGUAGES, true, "(x)", 50));
+  }
+
+  /**
+   * Every piece the picker offers for a value holding a comma lists its
+   * holder, the one after the comma and its space included.
+   */
+  @Test
+  public void testEveryPieceOfferedForACommaValueListsItsHolder() {
+    assertEquals(List.of("Berlin"), searchConnector.getAttributeValues(LANGUAGES, true, "Berl", 50));
+    assertListed(Map.of(LANGUAGES, List.of("Berlin")), COMMA_MULTI_USER);
+    assertListed(Map.of(LANGUAGES, List.of("Paris")), COMMA_MULTI_USER);
+    assertListed(Map.of(LANGUAGES, List.of("Paris, Berlin")), COMMA_MULTI_USER);
+    assertListed(Map.of(LANGUAGES, List.of("erlin")));
   }
 
   private static void assertListed(Map<String, List<String>> attributes, String... expectedIds) {

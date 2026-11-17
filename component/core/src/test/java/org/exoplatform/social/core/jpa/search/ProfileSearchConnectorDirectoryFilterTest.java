@@ -112,9 +112,9 @@ public class ProfileSearchConnectorDirectoryFilterTest {
 
     JsonNode should = clauses.get(0).get("bool").get("should");
     JsonNode regexp = should.get(0).get("regexp").get("skills_lang.raw");
-    assertEquals("(.*,)?C\\+\\+(,.*)?", regexp.get("value").asString());
+    assertEquals("(.*,)? *C\\+\\+ *(,.*)?", regexp.get("value").asString());
     assertEquals("NONE", regexp.get("flags").asString());
-    assertEquals("(.*,)?a\\.b(,.*)?", should.get(1).get("regexp").get("skills_lang.raw").get("value").asString());
+    assertEquals("(.*,)? *a\\.b *(,.*)?", should.get(1).get("regexp").get("skills_lang.raw").get("value").asString());
     assertFalse(should.get(0).has("term"));
   }
 
@@ -285,6 +285,8 @@ public class ProfileSearchConnectorDirectoryFilterTest {
   /**
    * Known limit pinned: the index joins a multi-valued property's values with
    * commas, so a value holding a comma is listed, and matched, as its pieces.
+   * Every piece the picker offers is one the directory clause matches, the
+   * one after a comma and a space included.
    */
   @Test
   public void testMultiValuedValueHoldingACommaIsReadAsItsPieces() {
@@ -292,9 +294,32 @@ public class ProfileSearchConnectorDirectoryFilterTest {
         {"aggregations":{"values":{"buckets":[{"key":"Paris, France,HR","doc_count":1}]}}}
         """);
 
-    assertEquals(List.of("Paris", "France", "HR"), connector.getAttributeValues("skills.lang", true, null, 50));
-    Pattern clause = Pattern.compile("(.*,)?" + ProfileSearchConnector.escapeRegexp("Paris") + "(,.*)?");
-    assertTrue(clause.matcher("Paris, France,HR").matches());
+    List<String> pieces = connector.getAttributeValues("skills.lang", true, null, 50);
+    assertEquals(List.of("Paris", "France", "HR"), pieces);
+    for (String piece : pieces) {
+      String regexp = searchWithDirectory(Map.of("skills.lang", List.of(piece))).get(0)
+                                                                                 .get("bool")
+                                                                                 .get("should")
+                                                                                 .get(0)
+                                                                                 .get("regexp")
+                                                                                 .get("skills_lang.raw")
+                                                                                 .get("value")
+                                                                                 .asString();
+      assertTrue(piece, Pattern.compile(regexp).matcher("Paris, France,HR").matches());
+    }
+  }
+
+  /**
+   * The picker strips the spaces the directory clause skips, and only them: a
+   * piece keeping another white space is offered as it is held.
+   */
+  @Test
+  public void testMultiValuedPiecesAreStrippedOfSpacesOnly() {
+    when(client.sendRequest(anyString(), anyString())).thenReturn("""
+        {"aggregations":{"values":{"buckets":[{"key":" Paris ,\\tBerlin","doc_count":1}]}}}
+        """);
+
+    assertEquals(List.of("Paris", "\tBerlin"), connector.getAttributeValues("skills.lang", true, null, 50));
   }
 
   @Test
