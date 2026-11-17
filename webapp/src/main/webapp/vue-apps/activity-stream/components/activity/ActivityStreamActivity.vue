@@ -165,8 +165,7 @@ export default {
       }
       return this.activityTypes[this.activityType] || this.activityTypes['default'] || {};
     },
-    announcedTitle() {
-      // Only a real title is announced before the author: a post has none, its text is read once, after the author and the date
+    rawTitle() {
       if (!this.activity || this.loading) {
         return '';
       }
@@ -174,7 +173,15 @@ export default {
       if (title?.key) {
         title = this.$t(title.key, title.params || {});
       }
-      return this.shortenLabel(title);
+      return typeof title === 'string' && title || '';
+    },
+    announcedTitle() {
+      // Only a real title is announced before the author: a post has none, its text is read once, after the author and the date.
+      // A title holding a link (a kudos' receiver) stays readable in the content, where the keyboard reaches that link.
+      if (/<a[\s>]/i.test(this.rawTitle)) {
+        return '';
+      }
+      return this.shortenLabel(this.rawTitle);
     },
     titleAnnounced() {
       // a content that draws its own header (an article's page) shows its title first itself
@@ -184,7 +191,7 @@ export default {
       if (!this.activity || this.loading) {
         return null;
       }
-      return this.announcedTitle
+      return this.shortenLabel(this.rawTitle)
         || this.shortenLabel(this.activityTypeExtension?.getBody?.(this.activity) || this.activity.title || '');
     },
     sharedActivity() {

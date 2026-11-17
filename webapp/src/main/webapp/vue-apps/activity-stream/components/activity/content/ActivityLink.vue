@@ -4,6 +4,7 @@
     :element="htmlElement"
     :href="link"
     :target="linkTarget"
+    :aria-label="unnamedLink && $t('activity.embedded.link.open') || null"
     :class="mainClass">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex">
@@ -247,6 +248,13 @@ export default {
     },
     useMobileView() {
       return this.$vuetify.breakpoint.name === 'sm' && !this.useSameViewForMobile;
+    },
+    unnamedLink() {
+      // the hidden title leaves a card with no summary and no image text without any name to announce
+      return this.titleAnnounced
+        && this.htmlElement === 'a'
+        && !(this.summary && this.$utils.htmlToText(this.summary)?.trim())
+        && !this.featuredThumbnailAltText;
     },
     htmlElement() {
       return this.sourceLink && this.sourceLink !== '#' && 'a' || 'div';
