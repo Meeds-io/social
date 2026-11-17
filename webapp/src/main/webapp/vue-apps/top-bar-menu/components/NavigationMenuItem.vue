@@ -28,6 +28,7 @@
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
     :max-height="menuMaxHeight"
+    :close-on-content-click="false"
     bottom
     offset-y
     eager>
@@ -75,7 +76,9 @@
         </v-btn>
       </v-tab>
     </template>
-    <div @keydown="onMenuKeydown">
+    <div
+      @keydown="onMenuKeydown"
+      @click="onMenuClick">
       <navigation-menu-sub-item
         v-for="children in navigation.children"
         class="transparent"
@@ -112,6 +115,7 @@ export default {
   data () {
     return {
       showMenu: false,
+      leavingPage: false,
       isOpenedOnHover: true,
       menuMaxHeight: '100vh'
     };
@@ -171,10 +175,12 @@ export default {
   },
   created() {
     document.addEventListener('click', this.handleCloseMenu);
+    window.addEventListener('pageshow', this.onPageShow);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleCloseMenu);
+    window.removeEventListener('pageshow', this.onPageShow);
     this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   methods: {
@@ -250,7 +256,36 @@ export default {
           event.stopPropagation();
         }
         this.showMenu = false;
-        (this.hasPage && this.$refs.chevron?.$el || this.$refs.tab?.$el)?.focus?.();
+        this.focusOpener();
+      }
+    },
+    focusOpener() {
+      (this.hasPage && this.$refs.chevron?.$el || this.$refs.tab?.$el)?.focus?.();
+    },
+    // An entry that replaces the page keeps the menu open and the focus on it until the new page is displayed: closed
+    // at once, the menu takes the focus away with it, to the start of a page that is leaving. An entry that leaves
+    // the page in place (a new tab, an anchor) closes the menu and gives the focus back to what opens it
+    onMenuClick(event) {
+      const entry = event.target?.closest?.('a.v-list-item[href]');
+      if (!entry) {
+        // an entry that only groups others opens its own sub-menu
+        return;
+      }
+      const inNewTab = entry.target === '_blank' || event.ctrlKey || event.metaKey || event.shiftKey;
+      if (!inNewTab && !entry.getAttribute('href').includes('#')) {
+        this.leavingPage = true;
+        // Vuetify's list item blurs itself on a click that has a detail: a mouse's, and a screen reader's activation
+        entry.focus();
+        return;
+      }
+      this.showMenu = false;
+      this.focusOpener();
+    },
+    // The page left with the menu open is shown again by the browser's Back: it shows it closed
+    onPageShow(event) {
+      if (event.persisted && this.leavingPage) {
+        this.leavingPage = false;
+        this.showMenu = false;
       }
     },
     // The menu opens on Enter the entry it highlights: it highlights the entry that has the keyboard focus
@@ -310,7 +345,7 @@ export default {
       }
     },
     handleCloseMenu() {
-      if (this.showMenu) {
+      if (this.showMenu && !this.leavingPage) {
         setTimeout(() => {
           this.showMenu = false;
         }, 100);

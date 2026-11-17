@@ -136,7 +136,12 @@ export default {
       return this.siteType === 'GROUP' ? `g/${this.siteName?.replaceAll('/', ':')}` : this.siteName;
     },
     selectedPath() {
-      const pathname = window.location.pathname;
+      let pathname = window.location.pathname;
+      // a space is also opened at its short address, /s/<id>, as the side menu does: its entries hold the full one
+      const spaceShortUri = this.siteType === 'GROUP' && eXo.env.portal.spaceId && `${eXo.env.portal.context}/s/${eXo.env.portal.spaceId}`;
+      if (spaceShortUri && (pathname === spaceShortUri || pathname.startsWith(`${spaceShortUri}/`))) {
+        pathname = `${eXo.env.portal.context}/${this.siteUri}${pathname.slice(spaceShortUri.length)}`;
+      }
       if (pathname.toLowerCase() === `${eXo.env.portal.context}/${this.siteUri}/`.toLowerCase()
           || pathname.toLowerCase() === `${eXo.env.portal.context}/${this.siteUri}`.toLowerCase()) {
         return `${eXo.env.portal.context}/${this.siteUri}/${eXo.env.portal.selectedNodeUri}`;
