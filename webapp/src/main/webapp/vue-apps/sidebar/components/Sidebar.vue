@@ -365,6 +365,7 @@ export default {
       if (!thirdLevel && this.secondLevel === 'spaces') {
         this.space = space;
         this.secondLevel = 'spaceMenu';
+        this.collapseSpacesEntries();
         this.secondLevelDrawer = true;
         this.thirdLevelDrawer = false;
       } else if (this.space?.id === space?.id) {
@@ -380,6 +381,7 @@ export default {
           this.thirdLevelDrawer = true;
         } else {
           this.secondLevel = 'spaceMenu';
+          this.collapseSpacesEntries();
           this.secondLevelDrawer = true;
           this.thirdLevelDrawer = false;
         }
@@ -399,9 +401,19 @@ export default {
         this.site = site;
         this.secondLevel = 'site';
         this.$root.openedFirstLevelType = 'SITE';
+        this.collapseSpacesEntries();
         this.secondLevelDrawer = true;
         this.thirdLevelDrawer = false;
       }
+    },
+    // the second level shows a site or a space instead of a spaces list: the spaces, template or category entry
+    // that showed the list before is no longer expanded
+    collapseSpacesEntries() {
+      this.$root.openedSpaceTemplateId = null;
+      this.$root.openedSpaceCategoryId = null;
+      this.$root.openedSpaceTemplateName = null;
+      this.$root.openedSpaceCategoryName = null;
+      this.$root.openedSpaces = false;
     },
     closeDisplayedDrawerIfNotSelf(event) {
       if (!event?.detail) {
@@ -432,7 +444,14 @@ export default {
     },
     // the deepest level open once the panels have moved in
     focusOpenedLevelFromKeyboard() {
-      if (this.hasKeyboardFocus()) {
+      if (!this.hasKeyboardFocus()) {
+        // opened, or switched to another entry, with the mouse: the entry recorded earlier no longer opens it
+        if (this.thirdLevelDrawer) {
+          this.thirdLevelOpener = null;
+        } else {
+          this.secondLevelOpener = null;
+        }
+      } else {
         this.recordLevelOpener(document.activeElement);
         window.setTimeout(() => {
           const level = (this.thirdLevelDrawer && THIRD_LEVEL)
