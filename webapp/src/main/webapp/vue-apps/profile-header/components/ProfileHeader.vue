@@ -19,7 +19,7 @@
             class="profileBannerImg application-border-radius-top"
             lazy />
           <profile-header-banner-button
-            :owner="owner"
+            :owner="owner && bannerEditable"
             :user="user"
             :is-admin="isAdmin"
             :hover="hover"
@@ -141,6 +141,9 @@ export default {
     },
     useActions() {
       return this.$root?.settings?.useActions;
+    },
+    bannerEditable() {
+      return this.isAdmin || this.user?.properties?.find?.(property => property.propertyName === 'banner')?.editable !== false;
     },
     containerBasedBreakpoints() {
       return this.$root?.settings?.containerBasedBreakpoints;
