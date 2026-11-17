@@ -20,6 +20,12 @@ package org.exoplatform.social.rest.impl.space;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -47,6 +53,7 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.mock.MockUploadService;
@@ -54,6 +61,7 @@ import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
@@ -62,6 +70,7 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
 import io.meeds.portal.security.service.SecuritySettingService;
+import io.meeds.social.space.model.SpaceParentChange;
 import io.meeds.social.space.service.SpaceDirectoryService;
 import io.meeds.social.space.service.SpaceLayoutService;
 
@@ -747,10 +756,10 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   public void testUpdateSpaceKeepsParentSpaceRelation() throws Exception {
     Space parentSpace = getSpaceInstance(20, "root");
     Space subSpace = getSpaceInstance(21, "root");
-    subSpace.setParentSpaceId(parentSpace.getSpaceId());
-    subSpace = spaceService.updateSpace(subSpace);
-    assertNotNull(subSpace.getParentSpaceId());
-    assertEquals(parentSpace.getSpaceId(), subSpace.getParentSpaceId().longValue());
+    getContainer().getComponentInstanceOfType(SpaceStorage.class)
+                  .saveSpace(subSpace, new SpaceParentChange(0, parentSpace.getSpaceId()));
+    restartTransaction();
+    assertEquals(parentSpace.getSpaceId(), spaceService.getSpaceById(subSpace.getId()).getParentSpaceId().longValue());
 
     startSessionAs("root");
     // The access & visibility drawer sends the access rules only: the parent
@@ -767,13 +776,180 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertNotNull(updatedSpace.getParentSpaceId());
     assertEquals(parentSpace.getSpaceId(), updatedSpace.getParentSpaceId().longValue());
 
-    // an explicitly zeroed parent space id still detaches the subspace
-    input = "{\"parentSpaceId\":0}";
-    response = getResponse("PUT", getURLResource("spaces/" + subSpace.getId()), input);
-    assertNotNull(response);
+    // what the transport forges from a null or an unparsable value keeps the
+    // parent: only -1 detaches
+    for (String value : new String[] { "0", "null", "\"abc\"" }) {
+      response = getResponse("PUT", getURLResource("spaces/" + subSpace.getId()), "{\"parentSpaceId\":" + value + "}");
+      assertEquals(value, 200, response.getStatus());
+      restartTransaction();
+      assertEquals(value, parentSpace.getSpaceId(), spaceService.getSpaceById(subSpace.getId()).getParentSpaceId().longValue());
+    }
+
+    response = getResponse("PUT", getURLResource("spaces/" + subSpace.getId()), "{\"parentSpaceId\":" + subSpace.getId() + "}");
+    assertEquals(400, response.getStatus());
+    assertEquals("SUBSPACES_INVALID_PARENT", response.getEntity());
+
+    response = getResponse("PUT", getURLResource("spaces/" + subSpace.getId()), "{\"parentSpaceId\":-1}");
     assertEquals(200, response.getStatus());
     restartTransaction();
     assertNull(spaceService.getSpaceById(subSpace.getId()).getParentSpaceId());
+  }
+
+  public void testUpdateSpaceWithARefusedParentSavesNothingOfTheRequest() throws Exception {
+    Space space = getSpaceInstance(24, "root");
+    String displayName = spaceService.getSpaceById(space.getId()).getDisplayName();
+
+    startSessionAs("root");
+    ContainerResponse response = getResponse("PUT",
+                                             getURLResource("spaces/" + space.getId()),
+                                             "{\"displayName\":\"Renamed space\",\"description\":\"Changed\",\"parentSpaceId\":"
+                                                 + space.getId() + "}");
+    assertEquals(400, response.getStatus());
+    assertEquals("SUBSPACES_INVALID_PARENT", response.getEntity());
+    restartTransaction();
+
+    Space storedSpace = spaceService.getSpaceById(space.getId());
+    assertEquals(displayName, storedSpace.getDisplayName());
+    assertFalse("Changed".equals(storedSpace.getDescription()));
+    assertNull(storedSpace.getParentSpaceId());
+  }
+
+  public void testUpdateSpaceSavesTheParentOnlyWithTheSpaceFields() throws Exception {
+    Space space = getSpaceInstance(25, "root");
+    Space parentSpace = getSpaceInstance(26, "root");
+    SpaceService failingSpaceService = spy(spaceService);
+    // the parent rules are SpaceParentUpdateTest's: here the parent is allowed
+    doNothing().when(failingSpaceService).checkSpaceParentChange(any(), eq(parentSpace.getSpaceId()), eq("root"));
+    doAnswer(invocation -> getContainer().getComponentInstanceOfType(SpaceStorage.class)
+                                         .saveSpace((Space) invocation.getArgument(0),
+                                                    new SpaceParentChange(0, parentSpace.getSpaceId()))).when(failingSpaceService)
+                                                                                                        .updateSpace(any(),
+                                                                                                                     eq(parentSpace.getSpaceId()),
+                                                                                                                     any(),
+                                                                                                                     eq("root"));
+    doThrow(new IllegalStateException("lock timeout")).when(failingSpaceService)
+                                                      .renameSpace(any(), eq("Renamed space"), eq("root"));
+    removeResource(SpaceRest.class);
+    registry(new SpaceRest(failingSpaceService,
+                           getContainer().getComponentInstanceOfType(SpaceDirectoryService.class),
+                           getContainer().getComponentInstanceOfType(SpaceLayoutService.class),
+                           identityManager,
+                           uploadService,
+                           imageThumbnailService,
+                           securitySettingService));
+    try {
+      startSessionAs("root");
+      // a write of the request fails after its parent was decided
+      ContainerResponse response = getResponse("PUT",
+                                               getURLResource("spaces/" + space.getId()),
+                                               "{\"displayName\":\"Renamed space\",\"parentSpaceId\":" + parentSpace.getId()
+                                                   + "}");
+      assertEquals(500, response.getStatus());
+      restartTransaction();
+      assertNull(spaceService.getSpaceById(space.getId()).getParentSpaceId());
+    } finally {
+      removeResource(SpaceRest.class);
+      registry(spaceRestResources);
+    }
+  }
+
+  /**
+   * The request's rename takes the space's row lock too: a lock the database
+   * does not grant answers a conflict the client retries. Mutant: leaving the
+   * rename's lock refusal to the server error answers 500.
+   */
+  public void testUpdateSpaceAnswersARenameThatLostTheRowLockWithAConflict() throws Exception {
+    Space space = getSpaceInstance(24, "root");
+    SpaceService concurrentSpaceService = spy(spaceService);
+    doThrow(new SpaceStorageException(SpaceStorageException.Type.CONCURRENT_UPDATE)).when(concurrentSpaceService)
+                                                                                     .renameSpace(any(),
+                                                                                                  eq("renamed space"),
+                                                                                                  eq("root"));
+    removeResource(SpaceRest.class);
+    registry(new SpaceRest(concurrentSpaceService,
+                           getContainer().getComponentInstanceOfType(SpaceDirectoryService.class),
+                           getContainer().getComponentInstanceOfType(SpaceLayoutService.class),
+                           identityManager,
+                           uploadService,
+                           imageThumbnailService,
+                           securitySettingService));
+    try {
+      startSessionAs("root");
+      ContainerResponse response = getResponse("PUT",
+                                               getURLResource("spaces/" + space.getId()),
+                                               "{\"displayName\":\"renamed space\"}");
+      assertEquals(409, response.getStatus());
+      assertEquals("space.concurrentUpdate", response.getEntity());
+    } finally {
+      removeResource(SpaceRest.class);
+      registry(spaceRestResources);
+    }
+  }
+
+  /**
+   * Saving the request's public site takes the space's row lock too. Mutant:
+   * answering the rename's lock refusal alone leaves this one a server error.
+   */
+  public void testUpdateSpaceAnswersAPublicSiteSaveThatLostTheRowLockWithAConflict() throws Exception {
+    Space space = getSpaceInstance(25, "root");
+    SpaceLayoutService lockedLayoutService = spy(getContainer().getComponentInstanceOfType(SpaceLayoutService.class));
+    doThrow(new IllegalStateException(new SpaceStorageException(SpaceStorageException.Type.CONCURRENT_UPDATE)))
+                                                                                                             .when(lockedLayoutService)
+                                                                                                             .saveSpacePublicSite(eq(space.getId()),
+                                                                                                                                  eq("everyone"),
+                                                                                                                                  eq("root"));
+    removeResource(SpaceRest.class);
+    registry(new SpaceRest(spaceService,
+                           getContainer().getComponentInstanceOfType(SpaceDirectoryService.class),
+                           lockedLayoutService,
+                           identityManager,
+                           uploadService,
+                           imageThumbnailService,
+                           securitySettingService));
+    try {
+      startSessionAs("root");
+      ContainerResponse response = getResponse("PUT",
+                                               getURLResource("spaces/" + space.getId()),
+                                               "{\"publicSiteVisibility\":\"everyone\"}");
+      assertEquals(409, response.getStatus());
+      assertEquals("space.concurrentUpdate", response.getEntity());
+    } finally {
+      removeResource(SpaceRest.class);
+      registry(spaceRestResources);
+    }
+  }
+
+  public void testUpdateSpaceAnswersAConcurrentParentChangeWithAConflict() throws Exception {
+    Space space = getSpaceInstance(22, "root");
+    Space parentSpace = getSpaceInstance(23, "root");
+    SpaceService concurrentSpaceService = spy(spaceService);
+    // the parent rules are SpaceParentUpdateTest's: here the parent is allowed,
+    // and changed by another update before this one saves it
+    doNothing().when(concurrentSpaceService).checkSpaceParentChange(any(), eq(parentSpace.getSpaceId()), eq("root"));
+    doThrow(new SpaceStorageException(SpaceStorageException.Type.CONCURRENT_UPDATE)).when(concurrentSpaceService)
+                                                                                     .updateSpace(any(),
+                                                                                                  eq(parentSpace.getSpaceId()),
+                                                                                                  any(),
+                                                                                                  eq("root"));
+    removeResource(SpaceRest.class);
+    registry(new SpaceRest(concurrentSpaceService,
+                           getContainer().getComponentInstanceOfType(SpaceDirectoryService.class),
+                           getContainer().getComponentInstanceOfType(SpaceLayoutService.class),
+                           identityManager,
+                           uploadService,
+                           imageThumbnailService,
+                           securitySettingService));
+    try {
+      startSessionAs("root");
+      ContainerResponse response = getResponse("PUT",
+                                               getURLResource("spaces/" + space.getId()),
+                                               "{\"parentSpaceId\":" + parentSpace.getId() + "}");
+      assertEquals(409, response.getStatus());
+      assertEquals("space.concurrentUpdate", response.getEntity());
+    } finally {
+      removeResource(SpaceRest.class);
+      registry(spaceRestResources);
+    }
   }
 
   public void testSaveSpacePublicSite() throws Exception {
