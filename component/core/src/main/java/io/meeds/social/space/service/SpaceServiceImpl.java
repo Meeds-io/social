@@ -109,6 +109,7 @@ import io.meeds.social.space.constant.UserSpacesScope;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.space.model.MembershipChange;
 import io.meeds.social.space.model.MembershipChangeResult;
+import io.meeds.social.space.model.SpaceParentChange;
 import io.meeds.social.space.security.model.SpaceSecuritySettings;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
@@ -1077,6 +1078,97 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
   }
 
   @Override
+  public Space updateSpace(Space space,
+                           Long requestedParentSpaceId,
+                           List<Identity> identitiesToInvite,
+                           String username) throws SpaceException {
+    Space storedSpace = getStoredSpace(space);
+    SpaceParentChange parentChange = getParentChange(storedSpace, requestedParentSpaceId, username);
+    try {
+      spaceStorage.saveSpace(space, parentChange);
+    } catch (SpaceStorageException e) {
+      rethrowParentRefusal(e);
+    }
+    triggerSpaceUpdate(space, storedSpace);
+
+    inviteIdentities(space, identitiesToInvite);
+    return getSpaceById(space.getId());
+  }
+
+  @Override
+  public void checkSpaceParentChange(Space space, Long requestedParentSpaceId, String username) throws SpaceException {
+    if (requestedParentSpaceId == null || requestedParentSpaceId == 0) {
+      return;
+    }
+    Space storedSpace = getStoredSpace(space);
+    SpaceParentChange parentChange = getParentChange(storedSpace, requestedParentSpaceId, username);
+    if (parentChange != null && parentChange.parentSpaceId() > 0) {
+      try {
+        spaceStorage.checkParentChange(storedSpace.getSpaceId(), parentChange.parentSpaceId());
+      } catch (SpaceStorageException e) {
+        rethrowParentRefusal(e);
+      }
+    }
+  }
+
+  private Space getStoredSpace(Space space) throws SpaceException {
+    Space storedSpace = spaceStorage.getSpaceById(space.getSpaceId());
+    if (storedSpace == null) {
+      throw new SpaceException(Code.ERROR_DATASTORE, "Space %s not found".formatted(space.getSpaceId()));
+    }
+    return storedSpace;
+  }
+
+  /**
+   * Rethrows a storage failure, a parent that is the space or one of its
+   * descendants as its refusal code
+   */
+  private void rethrowParentRefusal(SpaceStorageException e) throws SpaceException {
+    if (e.getType() == SpaceStorageException.Type.INVALID_PARENT) {
+      throw new SpaceException(Code.SUBSPACES_INVALID_PARENT, e.getMessage(), e);
+    }
+    throw e;
+  }
+
+  /**
+   * Decides a requested parent on the parent the space's row stores, never on
+   * the parent the given space carries: null and 0 keep it and authorize
+   * nothing.
+   *
+   * @return the change to apply under the row lock, or null to keep the stored
+   *         parent
+   */
+  private SpaceParentChange getParentChange(Space storedSpace,
+                                            Long requestedParentSpaceId,
+                                            String username) throws SpaceException {
+    if (requestedParentSpaceId == null || requestedParentSpaceId == 0) {
+      return null;
+    }
+    long spaceId = storedSpace.getSpaceId();
+    long committedParentSpaceId;
+    try {
+      committedParentSpaceId = spaceStorage.getCommittedParentSpaceId(spaceId);
+    } catch (ObjectNotFoundException e) {
+      throw new SpaceException(Code.ERROR_DATASTORE, e.getMessage(), e);
+    }
+    if (requestedParentSpaceId == DETACH_PARENT_SPACE_ID) {
+      if (getSpaceTemplateService().isSubspaceTemplate(storedSpace.getTemplateId())) {
+        throw new SpaceException(Code.SUBSPACES_PARENT_REQUIRED,
+                                 "Space %s has a sub-space template and needs a parent".formatted(spaceId));
+      }
+      return committedParentSpaceId == 0 ? null : new SpaceParentChange(committedParentSpaceId, 0);
+    } else if (requestedParentSpaceId < 0) {
+      throw new SpaceException(Code.SUBSPACES_INVALID_PARENT, "Invalid parent space id " + requestedParentSpaceId);
+    } else if (requestedParentSpaceId == committedParentSpaceId) {
+      return null;
+    } else if (requestedParentSpaceId == spaceId) {
+      throw new SpaceException(Code.SUBSPACES_INVALID_PARENT, "Space %s cannot be its own parent".formatted(spaceId));
+    }
+    checkSubspaceParentAllowed(storedSpace, requestedParentSpaceId, username);
+    return new SpaceParentChange(committedParentSpaceId, requestedParentSpaceId);
+  }
+
+  @Override
   public Space updateSpaceAvatar(Space existingSpace, String username) {
     existingSpace.setEditor(username);
     checkSpaceEditorPermissions(existingSpace);
@@ -1748,7 +1840,38 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
       return;
     }
     Space parentSpace = getSpaceById(parentSpaceId);
-    SpaceTemplate parentTemplate = checkSubspaceCreationPrerequisites(parentSpace, parentSpaceId, username);
+    boolean canAttach = parentSpace != null && (isMember(parentSpace, username) || isSuperManager(parentSpace, username));
+    checkSubspaceAllowed(space, parentSpace, parentSpaceId, canAttach, username);
+  }
+
+  /**
+   * The rule of {@link #checkSubspaceCreationAllowed} for an existing space
+   * moved under a parent: the role test reads the parent's committed member
+   * rows and its template's committed administrators; the template's limits are
+   * read as on creation.
+   */
+  private void checkSubspaceParentAllowed(Space space, long parentSpaceId, String username) throws SpaceException {
+    Space parentSpace = getSpaceById(parentSpaceId);
+    boolean canAttach = parentSpace != null && isCommittedMemberOrAdministrator(parentSpace, username);
+    checkSubspaceAllowed(space, parentSpace, parentSpaceId, canAttach, username);
+  }
+
+  /**
+   * @return true when the user holds a MEMBER or a MANAGER row of the space, or
+   *         is a platform administrator or an administrator of the space's
+   *         template, decided on the committed rows
+   */
+  private boolean isCommittedMemberOrAdministrator(Space space, String username) {
+    Set<SpaceMembershipStatus> statuses = spaceStorage.getMemberStatuses(space.getSpaceId(), username);
+    return statuses.contains(SpaceMembershipStatus.MEMBER)
+           || statuses.contains(SpaceMembershipStatus.MANAGER)
+           || isSuperManager(username)
+           || getSpaceTemplateService().isTemplateAdministrator(space.getTemplateId(), username);
+  }
+
+  @SneakyThrows
+  private void checkSubspaceAllowed(Space space, Space parentSpace, long parentSpaceId, boolean canAttach, String username) {
+    SpaceTemplate parentTemplate = checkSubspaceCreationPrerequisites(parentSpace, parentSpaceId, canAttach, username);
     List<String> allowedSubspaceTemplates = parentTemplate.getAllowedSubspaceTemplates();
 
     long templateId = space.getTemplateId();
@@ -1914,7 +2037,15 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
   private SpaceTemplate checkSubspaceCreationPrerequisites(Space parentSpace,
                                                            long parentSpaceId,
                                                            String username) throws SpaceException {
-    if (parentSpace == null || (!isMember(parentSpace, username) && !isSuperManager(parentSpace, username))) {
+    boolean canAttach = parentSpace != null && (isMember(parentSpace, username) || isSuperManager(parentSpace, username));
+    return checkSubspaceCreationPrerequisites(parentSpace, parentSpaceId, canAttach, username);
+  }
+
+  private SpaceTemplate checkSubspaceCreationPrerequisites(Space parentSpace,
+                                                           long parentSpaceId,
+                                                           boolean canAttach,
+                                                           String username) throws SpaceException {
+    if (parentSpace == null || !canAttach) {
       throw new SpaceException(Code.SUBSPACES_PERMISSIONS,
                                String.format("User %s isn't allowed to create subspace under parent space with id %s",
                                              username,

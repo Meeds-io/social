@@ -25,6 +25,8 @@ import org.exoplatform.social.common.ExoSocialException;
  */
 public class SpaceStorageException extends ExoSocialException {
   private static final String MESSAGE_BUNDLE_DELIMITER = ".";
+
+  private final Type          type;
   
   public static enum Type {
     FAILED_TO_GET_ALL_SPACES("Failed_To_Get_All_Spaces"),
@@ -86,7 +88,14 @@ public class SpaceStorageException extends ExoSocialException {
     FAILED_TO_GET_SPACE_BY_URL("Failed_To_Get_Space_By_Url"),
     FAILED_TO_DELETE_SPACE("Failed_To_Delete_Space"),
     FAILED_TO_SAVE_SPACE("Failed_To_Save_Space"),
-    FAILED_TO_RENAME_SPACE("Failed_To_Rename_Space");
+    FAILED_TO_RENAME_SPACE("Failed_To_Rename_Space"),
+    /** The requested parent is the space itself or one of its descendants. */
+    INVALID_PARENT("Invalid_Parent"),
+    /**
+     * The space's row lock was not obtained in time, or the stored parent is no
+     * longer the one the change was decided on: the change may be retried.
+     */
+    CONCURRENT_UPDATE("Concurrent_Update");
     
     private final String msgKey;
 
@@ -107,6 +116,7 @@ public class SpaceStorageException extends ExoSocialException {
    */
   public SpaceStorageException(Type type) {
     super(type.toString());
+    this.type = type;
   }
 
   /**
@@ -117,6 +127,7 @@ public class SpaceStorageException extends ExoSocialException {
    */
   public SpaceStorageException(Type type, String[] messageArguments) {
     super(type.toString(), messageArguments);
+    this.type = type;
   }
 
   /**
@@ -127,6 +138,7 @@ public class SpaceStorageException extends ExoSocialException {
    */
   public SpaceStorageException(Type type, String message) {
     super(type.toString(), message);
+    this.type = type;
   }
 
   /**
@@ -138,6 +150,7 @@ public class SpaceStorageException extends ExoSocialException {
    */
   public SpaceStorageException(Type type, String message, Throwable cause) {
     super(type.toString(), message, cause);
+    this.type = type;
   }
 
   /**
@@ -150,5 +163,30 @@ public class SpaceStorageException extends ExoSocialException {
    */
   public SpaceStorageException(Type type, String[] messageArguments, String message, Throwable cause) {
     super(type.toString(), messageArguments, message, cause);
+    this.type = type;
+  }
+
+  /**
+   * @return the type of the failure
+   */
+  public Type getType() {
+    return type;
+  }
+
+  /**
+   * @param e a failure of a space write
+   * @return true when the failure, or one of its causes, is a
+   *         {@link Type#CONCURRENT_UPDATE}: the write lost a race on the
+   *         space's row
+   */
+  public static boolean isConcurrentUpdate(Throwable e) {
+    Throwable cause = e;
+    while (cause != null) {
+      if (cause instanceof SpaceStorageException storageException && storageException.getType() == Type.CONCURRENT_UPDATE) {
+        return true;
+      }
+      cause = cause.getCause() == cause ? null : cause.getCause();
+    }
+    return false;
   }
 }
