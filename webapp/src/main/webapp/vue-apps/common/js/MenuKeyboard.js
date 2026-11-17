@@ -71,8 +71,8 @@ export default {
       next?.focus();
     },
     // Optional, bound with `onMenuEntriesKeydown` by a menu whose entries are each a choice that ends it. Vuetify's
-    // menu closes on a click inside it, which Enter on a `v-list-item` (a click of its own, no DOM click) never sends:
-    // the menu stayed open, and the Escape and Enter that followed acted on a menu the focus had left.
+    // menu closes on a DOM click inside it, which Enter on a `v-list-item` (a click of its own) does not send: the
+    // menu is closed here.
     onMenuEntryChosen(event) {
       const entry = event.target;
       if ((event.key !== 'Enter' && event.key !== ' ')

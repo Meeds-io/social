@@ -400,6 +400,8 @@ export default {
       } else {
         this.okMethod = null;
       }
+      // the dialog gives the focus back to the element focused when it opens: the menu's entry is hidden by then
+      this.focusMenuActivator();
       this.$refs.confirmDialog.open();
     },
     okConfirmDialog() {

@@ -55,8 +55,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         :aria-label="$t('search.sort.by.ariaLabel', {0: selectedSortLabel})"
         role="menu"
         @keydown.native="onMenuEntriesKeydown($event); onMenuEntryChosen($event)">
-        <!-- the keys are the menu's own (disable-keys): Vuetify's highlighted entry looked selected beside the focused
-             one, and Enter clicked it as well -->
+        <!-- disable-keys: the chip's arrow keys would move Vuetify's own highlighted entry beside the focused one, and
+             Enter in the menu would click that entry too; the arrow keys are handled by onMenuEntriesKeydown -->
         <!-- the selected option is announced as checked and shown with a check mark, not by its place alone -->
         <v-list-item
           v-for="option in sortTypes"
