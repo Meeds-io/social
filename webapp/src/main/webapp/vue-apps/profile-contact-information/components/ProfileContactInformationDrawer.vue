@@ -159,6 +159,8 @@ export default {
               this.fieldError = error;
               throw new Error(error);
             });
+          } else if (resp.status === 401) {
+            throw new Error(this.$t('profileContactInformation.error.lockedField'));
           } else {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
