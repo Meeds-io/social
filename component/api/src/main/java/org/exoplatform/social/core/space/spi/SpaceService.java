@@ -44,6 +44,13 @@ import org.exoplatform.web.security.security.TokenServiceInitializationException
 public interface SpaceService {
 
   /**
+   * The requested parent that detaches a space from its parent: a value the
+   * REST binder never produces from a null or unparsable payload.
+   */
+  long DETACH_PARENT_SPACE_ID = -1L;
+
+
+  /**
    * Gets a space by its pretty name.
    *
    * @param spacePrettyName The space's pretty name.
@@ -284,25 +291,100 @@ public interface SpaceService {
 
   /**
    * Updates information of a space and invites all users from
-   * identitiesToInvite to join this space.
+   * identitiesToInvite to join this space. The space keeps its stored parent. Its member,
+   * manager, redactor, publisher, invited and pending arrays are not saved:
+   * memberships change through {@link #addMember}, {@link #removeMember},
+   * {@link #setManager}, {@link #addRedactor}, {@link #removeRedactor},
+   * {@link #addPublisher}, {@link #removePublisher}, {@link #addInvitedUser},
+   * {@link #removeInvitedUser}, {@link #addPendingUser},
+   * {@link #removePendingUser} and {@link #setIgnored}.
    *
    * @param existingSpace The existing space to be updated.
    * @param identitiesToInvite The list of identities who are invited to join
    *          the space. Identity could be of type user or space
    * @return updated space entity
+   * @deprecated use {@link #updateSpace(Space, Long, List, String)}, which
+   *             changes the parent on behalf of a user; not for removal
    */
+  @Deprecated(since = "7.3.0", forRemoval = false)
   default Space updateSpace(Space existingSpace, List<Identity> identitiesToInvite) {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * Updates information of a space.
+   * Updates information of a space on behalf of a user, invites all users from
+   * identitiesToInvite to join this space, and changes its parent when one is
+   * requested. The parent is decided on the stored one, never on the parent the
+   * given space carries. Its member,
+   * manager, redactor, publisher, invited and pending arrays are not saved:
+   * memberships change through {@link #addMember}, {@link #removeMember},
+   * {@link #setManager}, {@link #addRedactor}, {@link #removeRedactor},
+   * {@link #addPublisher}, {@link #removePublisher}, {@link #addInvitedUser},
+   * {@link #removeInvitedUser}, {@link #addPendingUser},
+   * {@link #removePendingUser} and {@link #setIgnored}.
+   *
+   * @param existingSpace The existing space to be updated.
+   * @param requestedParentSpaceId null or 0 to keep the stored parent,
+   *          {@link #DETACH_PARENT_SPACE_ID} to detach the space from it, or
+   *          the id of the new parent
+   * @param identitiesToInvite The list of identities who are invited to join
+   *          the space. Identity could be of type user or space
+   * @param username the user changing the space
+   * @return updated space entity
+   * @throws SpaceException {@link SpaceException.Code#SUBSPACES_PERMISSIONS}
+   *           when the user is neither a member nor a super manager of the new
+   *           parent; {@link SpaceException.Code#SPACE_PERMISSION} or
+   *           {@link SpaceException.Code#SUBSPACES_LIMIT_REACHED} when the
+   *           parent's template refuses it;
+   *           {@link SpaceException.Code#SUBSPACES_INVALID_PARENT} when the
+   *           new parent is the space itself or one of its descendants;
+   *           {@link SpaceException.Code#SUBSPACES_PARENT_REQUIRED} when the
+   *           space's template is a sub-space template and the space is
+   *           detached
+   */
+  default Space updateSpace(Space existingSpace,
+                            Long requestedParentSpaceId,
+                            List<Identity> identitiesToInvite,
+                            String username) throws SpaceException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Decides, writing nothing, the parent change
+   * {@link #updateSpace(Space, Long, List, String)} would make with the same
+   * arguments, so that a caller refuses it before it writes anything else of a
+   * request; the update decides it again when it saves.
+   *
+   * @param existingSpace The existing space to be updated.
+   * @param requestedParentSpaceId as for
+   *          {@link #updateSpace(Space, Long, List, String)}
+   * @param username the user changing the space
+   * @throws SpaceException as {@link #updateSpace(Space, Long, List, String)}
+   *           refuses the parent
+   */
+  default void checkSpaceParentChange(Space existingSpace,
+                                      Long requestedParentSpaceId,
+                                      String username) throws SpaceException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Updates information of a space. The space keeps its stored parent. Its member,
+   * manager, redactor, publisher, invited and pending arrays are not saved:
+   * memberships change through {@link #addMember}, {@link #removeMember},
+   * {@link #setManager}, {@link #addRedactor}, {@link #removeRedactor},
+   * {@link #addPublisher}, {@link #removePublisher}, {@link #addInvitedUser},
+   * {@link #removeInvitedUser}, {@link #addPendingUser},
+   * {@link #removePendingUser} and {@link #setIgnored}.
    *
    * @param existingSpace The existing space to be updated.
    * @return The updated space.
    * @LevelAPI Platform
    * @since 1.2.0-GA
+   * @deprecated use {@link #updateSpace(Space, Long, List, String)}, which
+   *             changes the parent on behalf of a user; not for removal
    */
+  @Deprecated(since = "7.3.0", forRemoval = false)
   default Space updateSpace(Space existingSpace) {
     throw new UnsupportedOperationException();
   }
