@@ -37,7 +37,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.api.settings.SettingService;
-import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
@@ -48,8 +47,8 @@ import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 
 /**
- * The user selection is tested against a mocked SettingService: the test
- * container's in-memory settings DAO answers every user on each page.
+ * The selections are tested against a mocked IdentityDAO and
+ * ProfilePropertyService, whose keyset queries IdentityKeysetQueriesTest runs.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ProfileIndexVisibilityUpgradePluginTest {
@@ -91,10 +90,9 @@ public class ProfileIndexVisibilityUpgradePluginTest {
 
   @Test
   public void testOnlyUsersHidingAValueAreReindexed() {
-    when(settingService.getContextNamesByType(Context.USER.getName(), 0, ProfileIndexVisibilityUpgradePlugin.PAGE_SIZE))
-                                                                                                                         .thenReturn(List.of("11",
-                                                                                                                                             "12",
-                                                                                                                                             "john"));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME,
+                                             0,
+                                             ProfileIndexVisibilityUpgradePlugin.PAGE_SIZE)).thenReturn(List.of(11L, 12L));
     when(profilePropertyService.getHiddenProfilePropertyIds(11L)).thenReturn(new ArrayList<>(List.of(5L)));
     when(profilePropertyService.getHiddenProfilePropertyIds(12L)).thenReturn(new ArrayList<>());
     when(identityDAO.getDisabledIdsByProviderAfterId(OrganizationIdentityProvider.NAME,
@@ -105,23 +103,28 @@ public class ProfileIndexVisibilityUpgradePluginTest {
 
     verify(indexingService).reindex(ProfileIndexingServiceConnector.TYPE, "11");
     verify(indexingService, never()).reindex(ProfileIndexingServiceConnector.TYPE, "12");
-    verify(indexingService, never()).reindex(ProfileIndexingServiceConnector.TYPE, "john");
   }
 
+  /**
+   * The users are walked by keyset: the next page starts after the last id of
+   * the previous one, whatever the order of the settings contexts.
+   */
   @Test
   public void testUsersHidingAValueAreReadOnEveryPage() {
-    List<String> fullPage = new ArrayList<>();
-    for (int i = 1; i <= ProfileIndexVisibilityUpgradePlugin.PAGE_SIZE; i++) {
-      fullPage.add("user" + i);
+    List<Long> fullPage = new ArrayList<>();
+    for (long i = 1; i <= ProfileIndexVisibilityUpgradePlugin.PAGE_SIZE; i++) {
+      fullPage.add(i);
     }
-    when(settingService.getContextNamesByType(Context.USER.getName(), 0, ProfileIndexVisibilityUpgradePlugin.PAGE_SIZE))
-                                                                                                                         .thenReturn(fullPage);
-    when(settingService.getContextNamesByType(Context.USER.getName(),
-                                              ProfileIndexVisibilityUpgradePlugin.PAGE_SIZE,
-                                              ProfileIndexVisibilityUpgradePlugin.PAGE_SIZE)).thenReturn(List.of("31"));
-    when(profilePropertyService.getHiddenProfilePropertyIds(31L)).thenReturn(new ArrayList<>(List.of(5L)));
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME,
+                                             0,
+                                             ProfileIndexVisibilityUpgradePlugin.PAGE_SIZE)).thenReturn(fullPage);
+    when(identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME,
+                                             ProfileIndexVisibilityUpgradePlugin.PAGE_SIZE,
+                                             ProfileIndexVisibilityUpgradePlugin.PAGE_SIZE)).thenReturn(List.of(431L));
+    when(profilePropertyService.getHiddenProfilePropertyIds(7L)).thenReturn(new ArrayList<>(List.of(5L)));
+    when(profilePropertyService.getHiddenProfilePropertyIds(431L)).thenReturn(new ArrayList<>(List.of(5L)));
 
-    assertEquals(List.of(31L), plugin.doSelectUsersHidingValues());
+    assertEquals(List.of(7L, 431L), plugin.doSelectUsersHidingValues());
   }
 
   @Test

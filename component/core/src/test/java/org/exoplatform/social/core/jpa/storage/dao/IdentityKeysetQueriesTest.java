@@ -59,6 +59,32 @@ public class IdentityKeysetQueriesTest extends AbstractCoreTest {
     super.tearDown();
   }
 
+  public void testGetIdsByProviderAfterId() {
+    IdentityEntity user1 = identityDAO.create(createIdentityEntity(OrganizationIdentityProvider.NAME, "providerKeyset1"));
+    IdentityEntity disabledUser = createIdentityEntity(OrganizationIdentityProvider.NAME, "providerKeyset2");
+    disabledUser.setEnabled(false);
+    disabledUser = identityDAO.create(disabledUser);
+    IdentityEntity space = identityDAO.create(createIdentityEntity(SpaceIdentityProvider.NAME, "providerKeysetSpace"));
+    IdentityEntity deletedUser = createIdentityEntity(OrganizationIdentityProvider.NAME, "providerKeyset3");
+    deletedUser.setDeleted(true);
+    deletedUser = identityDAO.create(deletedUser);
+    IdentityEntity user2 = identityDAO.create(createIdentityEntity(OrganizationIdentityProvider.NAME, "providerKeyset4"));
+
+    // the users created here, disabled ones included, deleted and space ones not
+    assertEquals(List.of(user1.getId(), disabledUser.getId(), user2.getId()),
+                 identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, user1.getId() - 1, 0));
+    assertEquals(List.of(user1.getId(), disabledUser.getId()),
+                 identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, user1.getId() - 1, 2));
+    assertEquals(List.of(user2.getId()),
+                 identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, disabledUser.getId(), 0));
+
+    deleteIdentities.add(user1);
+    deleteIdentities.add(disabledUser);
+    deleteIdentities.add(space);
+    deleteIdentities.add(deletedUser);
+    deleteIdentities.add(user2);
+  }
+
   public void testGetDisabledIdsByProviderAfterId() {
     IdentityEntity enabledUser = identityDAO.create(createIdentityEntity(OrganizationIdentityProvider.NAME, "disabledKeyset1"));
     IdentityEntity disabledUser1 = createIdentityEntity(OrganizationIdentityProvider.NAME, "disabledKeyset2");

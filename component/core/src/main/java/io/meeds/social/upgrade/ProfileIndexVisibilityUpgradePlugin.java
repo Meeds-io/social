@@ -19,14 +19,9 @@
 package io.meeds.social.upgrade;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.settings.SettingService;
-import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.xml.InitParams;
@@ -53,8 +48,6 @@ public class ProfileIndexVisibilityUpgradePlugin extends UpgradeProductPlugin {
 
   private static final Log        LOG        = ExoLogger.getExoLogger(ProfileIndexVisibilityUpgradePlugin.class);
 
-  private final SettingService         settingService;
-
   private final ProfilePropertyService profilePropertyService;
 
   private final IndexingService        indexingService;
@@ -67,7 +60,6 @@ public class ProfileIndexVisibilityUpgradePlugin extends UpgradeProductPlugin {
                                              IndexingService indexingService,
                                              IdentityDAO identityDAO) {
     super(settingService, initParams);
-    this.settingService = settingService;
     this.profilePropertyService = profilePropertyService;
     this.indexingService = indexingService;
     this.identityDAO = identityDAO;
@@ -93,9 +85,9 @@ public class ProfileIndexVisibilityUpgradePlugin extends UpgradeProductPlugin {
 
   /**
    * @return the identity ids of the users holding a non-empty list of hidden
-   *         profile properties: the user settings contexts are walked page by
-   *         page, the hidden properties setting being stored under the
-   *         identity id
+   *         profile properties: the user identities are walked by keyset, in
+   *         id order, so that no user is skipped between two pages, and each
+   *         one's hidden properties setting is read
    */
   @ContainerTransactional
   List<Long> selectUsersHidingValues() {
@@ -104,25 +96,20 @@ public class ProfileIndexVisibilityUpgradePlugin extends UpgradeProductPlugin {
 
   /** The un-advised body of {@link #selectUsersHidingValues}, which tests call. */
   List<Long> doSelectUsersHidingValues() {
-    Set<Long> identityIds = new LinkedHashSet<>();
-    int offset = 0;
-    List<String> contextNames = settingService.getContextNamesByType(Context.USER.getName(), offset, PAGE_SIZE);
-    while (contextNames != null && !contextNames.isEmpty()) {
-      for (String contextName : contextNames) {
-        if (StringUtils.isNumeric(contextName)) {
-          long identityId = Long.parseLong(contextName);
-          if (!profilePropertyService.getHiddenProfilePropertyIds(identityId).isEmpty()) {
-            identityIds.add(identityId);
-          }
-        }
-      }
-      if (contextNames.size() < PAGE_SIZE) {
+    List<Long> identityIds = new ArrayList<>();
+    long lastId = 0;
+    List<Long> page = identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, lastId, PAGE_SIZE);
+    while (!page.isEmpty()) {
+      page.stream()
+          .filter(identityId -> !profilePropertyService.getHiddenProfilePropertyIds(identityId).isEmpty())
+          .forEach(identityIds::add);
+      if (page.size() < PAGE_SIZE) {
         break;
       }
-      offset += PAGE_SIZE;
-      contextNames = settingService.getContextNamesByType(Context.USER.getName(), offset, PAGE_SIZE);
+      lastId = page.getLast();
+      page = identityDAO.getIdsByProviderAfterId(OrganizationIdentityProvider.NAME, lastId, PAGE_SIZE);
     }
-    return new ArrayList<>(identityIds);
+    return identityIds;
   }
 
   @ContainerTransactional
