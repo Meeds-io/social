@@ -811,11 +811,10 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   public void testGetUsersSpaceById() throws Exception {
     // root creates 1 spaces
     Space space = getSpaceInstance(1, "root");
-    space.setMembers(new String[] { "root", "john" });
-    space.setManagers(new String[] { "root" });
-    space.setInvitedUsers(new String[] { "mary" });
-    space.setPendingUsers(new String[] { "demo" });
-    spaceService.updateSpace(space);
+    // the member rows of an existing space are written by the member writers only
+    spaceService.addMember(space, "john");
+    spaceService.addInvitedUser(space, "mary");
+    spaceService.addPendingUser(space, "demo");
 
     startSessionAs("root");
     ContainerResponse response = service("GET", getURLResource("spaces/" + space.getId()), "", null, null);
@@ -855,9 +854,11 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   public void testGetSpaceByIdWithDeletedDisableUsers() throws Exception {
     // root creates 1 spaces
     Space space = getSpaceInstance(255, "root");
-    space.setMembers(new String[] { "root", "john", "mary", "demo" });
-    space.setManagers(new String[] { "root", "john" });
-    spaceService.updateSpace(space);
+    // the member rows of an existing space are written by the member writers only
+    spaceService.addMember(space, "john");
+    spaceService.addMember(space, "mary");
+    spaceService.addMember(space, "demo");
+    spaceService.setManager(space, "john", true);
 
     startSessionAs("root");
     ContainerResponse response = service("GET", getURLResource("spaces/" + space.getId() + "/users"), "", null, null);

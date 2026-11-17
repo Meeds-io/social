@@ -18,6 +18,10 @@
  */
 package org.exoplatform.social.core.space.spi;
 
+import java.util.Set;
+import org.exoplatform.social.core.jpa.storage.SpaceStorage;
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.model.MembershipChange;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -1228,8 +1232,16 @@ public class SpaceServiceTest extends AbstractCoreTest {
     String[] managers = { MANAGER_NAME };
     Space spaceCreated = createMoreSpace("invitedSpace");
     String[] users = { MEMBER1_NAME, MEMBER2_NAME };
-    spaceCreated.setMembers(users);
-    spaceService.updateSpace(spaceCreated);
+    SpaceStorage spaceStorage = getService(SpaceStorage.class);
+    for (String user : users) {
+      try {
+        spaceStorage.changeMembership(spaceCreated.getSpaceId(),
+                                      user,
+                                      MembershipChange.of(Set.of(SpaceMembershipStatus.MEMBER), Set.of()));
+      } catch (ObjectNotFoundException e) {
+        throw new IllegalStateException(e);
+      }
+    }
     Identity spaceIdentity = getService(IdentityManager.class).getOrCreateSpaceIdentity("invitedspace");
     List<Identity> invitedIdentities = new ArrayList<>(Arrays.asList(tom, dragon, hearBreaker, spaceIdentity));
     Space space = new Space();
@@ -1677,6 +1689,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals(managers, savedSpace.getManagers().length);
 
+    spaceService.addMember(savedSpace, JOHN_NAME);
+    savedSpace = spaceService.getSpaceById(space.getId());
     spaceService.setManager(savedSpace, JOHN_NAME, true);
     savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals("savedSpace.getManagers().length must return: " + managers + 1, managers + 1, savedSpace.getManagers().length);
