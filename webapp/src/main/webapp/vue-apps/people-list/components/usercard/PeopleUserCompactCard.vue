@@ -25,28 +25,6 @@
       :class="hover && 'grey lighten-4'"
       class="peopleCardItem hover-reveal-parent d-flex mx-2"
       flat>
-      <div
-        :class="stretchedLink && 'stretched-link-above'"
-        class="peopleToolbarIcons my-auto ms-auto">
-        <v-avatar
-          v-if="user.isGroupBound"
-          :title="$t('peopleList.label.groupBound')"
-          :size="28"
-          class="peopleGroupMemberBindingIcon d-flex mx-2 my-0">
-          <v-icon size="12" color="white">fa-users</v-icon>
-        </v-avatar>
-        <people-user-menu
-          :user="user"
-          :space-id="spaceId"
-          :user-navigation-extensions="userNavigationExtensions"
-          :space-members-extensions="spaceMembersExtensions"
-          :profile-action-extensions="profileActionExtensions"
-          :hover-reveal="!(displayCompactMenuButton || $root.isMobile)"
-          display-menu-button
-          :bottom-menu="$root.isMobile"
-          :attach-menu="attachMenu"
-          menu-button-class="me-1" />
-      </div>
       <div class="peopleAvatar">
         <a
           :href="url"
@@ -100,6 +78,29 @@
           </v-card-subtitle>
         </div>
       </v-card-text>
+      <!-- after the name in the DOM, so that the name gets the focus first; order-first keeps it on top -->
+      <div
+        :class="stretchedLink && 'stretched-link-above'"
+        class="peopleToolbarIcons order-first my-auto ms-auto">
+        <v-avatar
+          v-if="user.isGroupBound"
+          :title="$t('peopleList.label.groupBound')"
+          :size="28"
+          class="peopleGroupMemberBindingIcon d-flex mx-2 my-0">
+          <v-icon size="12" color="white">fa-users</v-icon>
+        </v-avatar>
+        <people-user-menu
+          :user="user"
+          :space-id="spaceId"
+          :user-navigation-extensions="userNavigationExtensions"
+          :space-members-extensions="spaceMembersExtensions"
+          :profile-action-extensions="profileActionExtensions"
+          :hover-reveal="!(displayCompactMenuButton || $root.isMobile)"
+          display-menu-button
+          :bottom-menu="$root.isMobile"
+          :attach-menu="attachMenu"
+          menu-button-class="me-1" />
+      </div>
     </v-card>
   </v-hover>
 </template>
