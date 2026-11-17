@@ -138,13 +138,26 @@ public class EmailOtpPlugin implements OtpPlugin {
   }
 
   /**
-   * Removes the code from the cache, so that it never validates again. Only
-   * the request that removes it wins: a concurrent one finds it gone.
+   * Removes the code from the cache when it is the one given, so that it never
+   * validates again. Only the request that removes it wins: a concurrent one
+   * finds it gone. Another code the user holds, such as one sent after this one
+   * was validated, stays: it is not removed, or put back when it arrived
+   * between the read and the removal.
    */
   @Override
   public boolean consumeOtp(String userName, String otpCode) {
-    String storedCode = getLiveCode(getOtpCache().remove(userName));
-    return storedCode != null && storedCode.equals(otpCode);
+    ExoCache<String, String> cache = getOtpCache();
+    String liveCode = getLiveCode(cache.get(userName));
+    if (otpCode == null || !otpCode.equals(liveCode)) {
+      return false;
+    }
+    String removed = cache.remove(userName);
+    String removedCode = getLiveCode(removed);
+    if (removedCode != null && !otpCode.equals(removedCode)) {
+      cache.put(userName, removed);
+      return false;
+    }
+    return removedCode != null;
   }
 
   @Override

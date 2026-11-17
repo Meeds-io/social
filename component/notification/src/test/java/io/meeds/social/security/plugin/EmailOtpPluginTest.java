@@ -28,11 +28,14 @@ import static org.mockito.ArgumentMatchers.endsWith;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.security.SecureRandom;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Session;
@@ -148,21 +151,35 @@ public class EmailOtpPluginTest {
 
   @Test
   public void testConsumeOtpRemovesTheCodeOnce() {
-    when(otpCache.remove("john")).thenReturn(OTP_CODE, (String) null);
+    Map<String, String> codes = storeCodesIn(new HashMap<>());
+    codes.put("john", liveCode(OTP_CODE));
     assertTrue(plugin.consumeOtp("john", OTP_CODE));
     assertFalse(plugin.consumeOtp("john", OTP_CODE));
+    assertFalse(codes.containsKey("john"));
   }
 
   @Test
-  public void testConsumeOtpRefusesAnotherCode() {
-    when(otpCache.remove("john")).thenReturn((System.currentTimeMillis() + 60000) + ":999999");
+  public void testConsumeOtpRefusesAnotherCodeAndKeepsIt() {
+    Map<String, String> codes = storeCodesIn(new HashMap<>());
+    codes.put("john", liveCode("999999"));
     assertFalse(plugin.consumeOtp("john", OTP_CODE));
+    assertTrue("A code that was not consumed must stay valid", plugin.validateOtp("john", "999999"));
   }
 
   @Test
   public void testConsumeOtpRefusesAnExpiredCode() {
-    when(otpCache.remove("john")).thenReturn((System.currentTimeMillis() - 1000) + ":" + OTP_CODE);
+    Map<String, String> codes = storeCodesIn(new HashMap<>());
+    codes.put("john", (System.currentTimeMillis() - 1000) + ":" + OTP_CODE);
     assertFalse(plugin.consumeOtp("john", OTP_CODE));
+  }
+
+  @Test
+  public void testACodeSentBetweenTheReadAndTheRemovalIsPutBack() {
+    String newerCode = liveCode("999999");
+    when(otpCache.get("john")).thenReturn(liveCode(OTP_CODE));
+    when(otpCache.remove("john")).thenReturn(newerCode);
+    assertFalse(plugin.consumeOtp("john", OTP_CODE));
+    verify(otpCache).put("john", newerCode);
   }
 
   @Test
@@ -216,6 +233,16 @@ public class EmailOtpPluginTest {
     verify(otpCache).put(eq("john"), code.capture());
     long codeExpiry = Long.parseLong(code.getValue().substring(0, code.getValue().indexOf(':')));
     assertTrue(codeExpiry >= before + 5 * 60000 && codeExpiry <= after + 5 * 60000);
+  }
+
+  private Map<String, String> storeCodesIn(Map<String, String> codes) {
+    lenient().when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0)));
+    lenient().when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
+    return codes;
+  }
+
+  private String liveCode(String code) {
+    return (System.currentTimeMillis() + 60000) + ":" + code;
   }
 
 }
