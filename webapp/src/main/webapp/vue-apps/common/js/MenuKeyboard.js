@@ -87,14 +87,12 @@ export default {
       if (event.key === ' ' || !entry.classList.contains('v-list-item')) {
         entry.click();
       }
+      // an entry that opens a dialog has already given it the focus, which the dialog keeps and gives back itself
+      const focusInMenu = elementOf(this.$refs.menuList)?.contains?.(document.activeElement);
       this.closeKeyboardMenu();
-      this.$nextTick(() => {
-        // an entry that opens a dialog has given it the focus: it stays there
-        const focused = document.activeElement;
-        if (!focused || focused === document.body || elementOf(this.$refs.menuList)?.contains?.(focused)) {
-          this.focusMenuActivator();
-        }
-      });
+      if (focusInMenu) {
+        this.$nextTick(() => this.focusMenuActivator());
+      }
     },
     focusMenuActivator() {
       // the button may be a component wrapping the focusable element
