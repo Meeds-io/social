@@ -109,6 +109,7 @@ export default {
     unreadPerSpace: null,
     interval: null,
     mouseEvent: false,
+    pointerUse: false,
     closeTimeout: null,
     visibility: ['displayed', 'temporal']
   }),
@@ -245,8 +246,12 @@ export default {
     this.$root.$on('change-site-menu', this.changeSiteMenu);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     document.addEventListener('drawerOpened', this.closeDisplayedDrawerIfNotSelf);
+    document.addEventListener('pointerdown', this.trackPointerUse, true);
+    document.addEventListener('mousedown', this.trackPointerUse, true);
   },
   beforeDestroy() {
+    document.removeEventListener('pointerdown', this.trackPointerUse, true);
+    document.removeEventListener('mousedown', this.trackPointerUse, true);
     this.$root.$off('change-space-menu', this.changeSpaceMenu);
     this.$root.$off('change-spaces-menu', this.changeSpacesMenu);
     this.$root.$off('change-site-menu', this.changeSiteMenu);
@@ -255,7 +260,7 @@ export default {
   },
   methods: {
     async openFirstLevel(mouseEvent) {
-      this.mouseEvent = mouseEvent;
+      this.mouseEvent = !!mouseEvent && this.pointerUse;
       this.firstLevelDrawer = false;
       await this.$nextTick();
 
@@ -287,8 +292,8 @@ export default {
       }
       this.focusReturnPending = false;
       const active = document.activeElement;
-      const menu = document.querySelector('#HamburgerMenuNavigation');
-      if (!active || active === document.body || menu?.contains?.(active)) {
+      if (!active || active === document.body
+          || active.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')) {
         this.$el?.querySelector?.('.HamburgerNavigationMenuLink')?.focus?.();
       }
     },
@@ -415,11 +420,24 @@ export default {
         }, 400);
       }
     },
-    // focus reached with the keyboard inside the menu: a clicked entry keeps the focus too, without :focus-visible
+    // a mouse press whose target is not under the pointer comes from a screen reader's activation, which focuses
+    // the control and then presses it where it is (seen with Chrome's accessibility default action: a mouse
+    // pointerdown and mousedown, the target not hovered): only a press under the pointer, or a touch, is the
+    // user's pointer. Both events are tracked, for an activation that sends no pointer event; the mouse press a
+    // tap is followed by, when the browser marks it so, leaves the touch's decision as it is
+    trackPointerUse(event) {
+      if (event.type === 'mousedown' && event.sourceCapabilities?.firesTouchEvents) {
+        return;
+      }
+      this.pointerUse = (!!event.pointerType && event.pointerType !== 'mouse') || !!event.target?.matches?.(':hover');
+      this.$root.focusMenu = this.hasKeyboardFocus();
+    },
+    // focus inside the menu not left there by the mouse: a clicked entry keeps the focus too, without :focus-visible,
+    // and a screen reader's activation leaves it there without :focus-visible as well
     hasKeyboardFocus() {
       const active = document.activeElement;
       return !!active?.closest?.('.HamburgerMenuFirstLevelParent, .HamburgerMenuSecondLevelParent, .HamburgerMenuThirdLevelParent')
-        && !!active.matches?.(':focus-visible');
+        && (!this.pointerUse || !!active.matches?.(':focus-visible'));
     },
     closeOnEscape() {
       if (this.firstLevelDrawer || this.secondLevelDrawer || this.thirdLevelDrawer) {

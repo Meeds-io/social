@@ -63,17 +63,20 @@
             {{ $t(item.name) }}
           </v-list-item-title>
         </v-list-item-content>
-        <!-- Enter on its button stops here: the entry, a list item, would take it as its own click and toggle the panel back -->
+        <!-- Enter on its button stops here: the entry, a list item, would take it as its own click and toggle the panel back.
+             Kept for screen readers while hidden: their browse mode neither hovers nor focuses the entry.
+             Its hover opens the panel only while it shows: a pointer passing by the row leaves no pending open -->
         <v-list-item-action
-          v-if="toggleArrow && $root.expand"
+          v-if="hasArrow"
+          :class="!showArrow && 'd-sr-only'"
           class="my-auto align-center"
           @mousedown.stop.prevent
           @mouseup.stop.prevent
           @keydown.enter.stop>
           <ripple-hover-button
-            :active="!drawerOpened"
-            :title="$t('menu.accessToSpacesList')"
-            :aria-label="$t('menu.accessToSpacesList')"
+            :active="!drawerOpened && showArrow"
+            :title="arrowLabel"
+            :aria-label="arrowLabel"
             :aria-expanded="drawerOpened ? 'true' : 'false'"
             class="ms-2"
             icon
@@ -146,16 +149,18 @@
           {{ item.name }}
         </v-list-item-title>
       </v-list-item-content>
+      <!-- Kept for screen readers while hidden; its hover opens the panel only while it shows -->
       <v-list-item-action
-        v-if="toggleArrow && $root.expand"
+        v-if="hasArrow"
+        :class="!showArrow && 'd-sr-only'"
         class="my-auto align-center z-index-one position-relative"
         @mousedown.stop.prevent
         @mouseup.stop.prevent
         @keydown.enter.stop>
         <ripple-hover-button
-          :active="!drawerOpened"
-          :title="$t('menu.accessToPagesList')"
-          :aria-label="$t('menu.accessToPagesList')"
+          :active="!drawerOpened && showArrow"
+          :title="arrowLabel"
+          :aria-label="arrowLabel"
           :aria-expanded="drawerOpened ? 'true' : 'false'"
           class="ms-2"
           icon
@@ -343,9 +348,20 @@ export default {
       }
       return actions;
     },
+    hasArrow() {
+      return this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaceCategory || this.isSpaces;
+    },
     toggleArrow() {
-      return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaceCategory || this.isSpaces)
-        && (this.hover || this.focused || this.drawerOpened);
+      return this.hasArrow && (this.hover || this.focused || this.drawerOpened);
+    },
+    showArrow() {
+      return this.toggleArrow && this.$root.expand;
+    },
+    // a screen reader lists one arrow per entry: each names the entry it opens
+    arrowLabel() {
+      return (this.isSpaces || this.isSpaceTemplate || this.isSpaceCategory)
+        ? this.$t('menu.accessToEntrySpacesList', {0: this.$t(this.item.name)})
+        : this.$t('menu.accessToEntryPagesList', {0: this.item.name});
     },
     tooltip() {
       if (this.isSpace) {

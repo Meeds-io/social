@@ -20,9 +20,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
   <div class="spaceFilter d-flex flex-row">
+    <!-- disable-keys: the chip's arrow keys would move Vuetify's own highlighted entry beside the focused one, and
+         Enter in the menu would click that entry too; the arrow keys are handled by onMenuEntriesKeydown -->
     <v-menu
       v-model="menu"
       role="none"
+      disable-keys
       offset-y
       left
       :close-on-content-click="true">
@@ -36,7 +39,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           v-bind="attrs"
           v-on="on"
           @keydown.enter.prevent="on.click"
-          @keydown.space.prevent="on.click">
+          @keydown.space.prevent="on.click"
+          @keydown.down.prevent="menu = true">
           <v-icon
             size="22"
             class="pe-2"
@@ -52,7 +56,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         ref="menuList"
         :aria-label="$t('search.sort.by.ariaLabel', {0: selectedSortLabel})"
         role="menu"
-        @keydown.native="onMenuEntriesKeydown">
+        @keydown.native="onMenuEntriesKeydown($event); onMenuEntryChosen($event)">
         <!-- the selected option is announced as checked and shown with a check mark, not by its place alone -->
         <v-list-item
           v-for="option in sortTypes"
