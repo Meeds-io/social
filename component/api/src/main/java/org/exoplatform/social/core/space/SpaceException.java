@@ -118,7 +118,13 @@ public class SpaceException extends Exception {
     SUBSPACES_LIMIT_REACHED,
 
     /** User not allowed to create subspaces. */
-    SUBSPACES_PERMISSIONS
+    SUBSPACES_PERMISSIONS,
+
+    /** The requested parent is the space itself or one of its descendants. */
+    SUBSPACES_INVALID_PARENT,
+
+    /** The space's template is a sub-space template: it cannot be detached. */
+    SUBSPACES_PARENT_REQUIRED
   }
 
   /** The code. */

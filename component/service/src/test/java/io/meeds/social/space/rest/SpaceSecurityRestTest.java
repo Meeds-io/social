@@ -56,6 +56,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.SpaceStorageException;
 
 import io.meeds.social.space.security.exception.SpaceSecurityChangeNotAppliedException;
 import io.meeds.social.space.security.exception.SpaceSecurityRefusedException;
@@ -64,7 +65,6 @@ import io.meeds.social.space.security.service.SpaceSecurityService;
 import io.meeds.spring.web.security.PortalAuthenticationManager;
 import io.meeds.spring.web.security.WebSecurityConfiguration;
 
-import jakarta.persistence.PessimisticLockException;
 import jakarta.servlet.Filter;
 
 @SpringBootTest(classes = { SpaceSecurityRest.class, PortalAuthenticationManager.class, })
@@ -216,7 +216,8 @@ public class SpaceSecurityRestTest {
   public void testPatchDuringAConcurrentChange() throws Exception {
     when(spaceSecurityService.updateSettings(eq(SPACE_ID),
                                              any(),
-                                             eq(USER))).thenThrow(new IllegalStateException(new PessimisticLockException("locked")));
+                                             eq(USER))).thenThrow(new IllegalStateException(new SpaceStorageException(SpaceStorageException.Type.CONCURRENT_UPDATE,
+                                                                                                                      "locked")));
     mockMvc.perform(patch(PATH).with(user()).contentType(MediaType.APPLICATION_JSON).content("{\"limitAccessManagement\":true}"))
            .andExpect(status().isConflict())
            .andExpect(status().reason("space.concurrentUpdate"));

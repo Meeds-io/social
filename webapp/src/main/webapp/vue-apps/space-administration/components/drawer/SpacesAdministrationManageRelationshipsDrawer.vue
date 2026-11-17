@@ -63,14 +63,23 @@
               list-style />
           </v-list-item-content>
           <v-list-item-action class="my-auto me-0 ms-n2">
-            <v-btn
-              small
-              icon
-              @click="unlinkParentSpace()">
-              <v-icon size="18">
-                fas fa-unlink
-              </v-icon>
-            </v-btn>
+            <v-tooltip :disabled="!parentRequired(space)" bottom>
+              <template #activator="{ on, attrs }">
+                <div v-bind="attrs" v-on="on">
+                  <v-btn
+                    :disabled="parentRequired(space)"
+                    :aria-label="$t('social.spaces.administration.relationships.parentRequired')"
+                    small
+                    icon
+                    @click="unlinkParentSpace()">
+                    <v-icon size="18">
+                      fas fa-unlink
+                    </v-icon>
+                  </v-btn>
+                </div>
+              </template>
+              <span>{{ $t('social.spaces.administration.relationships.parentRequired') }}</span>
+            </v-tooltip>
           </v-list-item-action>
         </v-list-item>
         <div class="text-header my-2">
@@ -89,14 +98,23 @@
                 list-style />
             </v-list-item-content>
             <v-list-item-action class="my-auto me-0 ms-n2">
-              <v-btn
-                small
-                icon
-                @click="linkSubspace(subspace, 0)">
-                <v-icon size="18">
-                  fas fa-unlink
-                </v-icon>
-              </v-btn>
+              <v-tooltip :disabled="!parentRequired(subspace)" bottom>
+                <template #activator="{ on, attrs }">
+                  <div v-bind="attrs" v-on="on">
+                    <v-btn
+                      :disabled="parentRequired(subspace)"
+                      :aria-label="$t('social.spaces.administration.relationships.parentRequired')"
+                      small
+                      icon
+                      @click="linkSubspace(subspace, detachParentSpaceId)">
+                      <v-icon size="18">
+                        fas fa-unlink
+                      </v-icon>
+                    </v-btn>
+                  </div>
+                </template>
+                <span>{{ $t('social.spaces.administration.relationships.parentRequired') }}</span>
+              </v-tooltip>
             </v-list-item-action>
           </v-list-item>
         </div>
@@ -121,6 +139,17 @@ export default {
     spaceParent: null,
     spaces: [],
     subspaces: [],
+    subspaceTemplateIds: [],
+    // the parent id that detaches a space: a value no transport forges
+    detachParentSpaceId: -1,
+    refusalCodes: [
+      'SUBSPACES_PERMISSIONS',
+      'SPACE_PERMISSION',
+      'SUBSPACES_LIMIT_REACHED',
+      'SUBSPACES_INVALID_PARENT',
+      'SUBSPACES_PARENT_REQUIRED',
+      'space.concurrentUpdate',
+    ],
   }),
   computed: {
     spaceId() {
@@ -188,24 +217,47 @@ export default {
       this.space = space;
       this.retrieveSubspaces();
       this.retrieveSpaceParent();
+      this.retrieveSubspaceTemplateIds();
       this.$refs.drawer.open();
     },
+    async retrieveSubspaceTemplateIds() {
+      try {
+        this.subspaceTemplateIds = await this.$spaceTemplateService.getSubspaceTemplateIds() || [];
+      } catch (e) {
+        this.subspaceTemplateIds = [];
+      }
+    },
+    parentRequired(space) {
+      return this.subspaceTemplateIds.includes(Number(space?.templateId));
+    },
     async linkSubspace(space, parentSpaceId) {
-      const updatedSpace = await this.$spaceService.updateSpace({
-        id: space.id,
-        parentSpaceId: parentSpaceId,
-      });
-      if (this.spaceId === space.id) {
-        this.space = updatedSpace;
+      const detach = parentSpaceId === this.detachParentSpaceId;
+      this.saving = true;
+      try {
+        const updatedSpace = await this.$spaceService.updateSpace({
+          id: space.id,
+          parentSpaceId: parentSpaceId,
+        });
+        if (this.spaceId === space.id) {
+          this.space = updatedSpace;
+        }
+        await this.retrieveSpaceParent();
+        await this.retrieveSubspaces();
+        if (this.spaceId === space.id && detach) {
+          this.$root.$emit('alert-message', this.$t('social.spaces.administration.spaceNoMoreSubspace'), 'success');
+        } else if (detach) {
+          this.$root.$emit('alert-message', this.$t('social.spaces.administration.subspaceSuccessfullyRemoved'), 'success');
+        }
+        this.$root.$emit('spaces-administration-list-refresh');
+      } catch (e) {
+        // the suggester goes back to the stored parent, and the refusal says why
+        this.spaces = [];
+        const code = this.refusalCodes.includes(e?.message) ? e.message : 'unknown';
+        this.$root.$emit('alert-message', this.$t(`social.spaces.administration.relationships.error.${code}`), 'error');
+        await this.retrieveSpaceParent();
+      } finally {
+        this.saving = false;
       }
-      await this.retrieveSpaceParent();
-      await this.retrieveSubspaces();
-      if (this.spaceId === space.id && !parentSpaceId) {
-        this.$root.$emit('alert-message', this.$t('social.spaces.administration.spaceNoMoreSubspace'), 'success');
-      } else if (!parentSpaceId) {
-        this.$root.$emit('alert-message', this.$t('social.spaces.administration.subspaceSuccessfullyRemoved'), 'success');
-      }
-      this.$root.$emit('spaces-administration-list-refresh');
     },
     selectParentSpace(space) {
       if (!space?.spaceId) {
@@ -217,7 +269,7 @@ export default {
       this.linkSubspace(this.space, space.spaceId);
     },
     unlinkParentSpace() {
-      this.linkSubspace(this.space, 0);
+      void this.linkSubspace(this.space, this.detachParentSpaceId);
       this.spaces = [];
     }
   },
