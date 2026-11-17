@@ -326,7 +326,7 @@ export default {
     refreshExtensions() {
       this.extensions = (extensionRegistry.loadExtensions(EXTENSION_APP, EXTENSION_TYPE) || [])
         .filter(extension => extension?.id && extension.vueComponent);
-      const contexts = Object.assign({}, this.extensionContexts);
+      const contexts = {...this.extensionContexts};
       this.extensions
         .filter(extension => !contexts[extension.id])
         .forEach(extension => contexts[extension.id] = {
@@ -348,11 +348,11 @@ export default {
     validateExtensions() {
       return Promise.all(this.extensions.map(extension => {
         if (!extension.validate) {
-          return true;
+          return Promise.resolve(true);
         }
         return Promise.resolve(extension.validate(this.extensionContexts[extension.id]))
           .then(result => result !== false, () => false);
-      })).then(results => results.every(result => result));
+      })).then(results => results.every(Boolean));
     },
     // The values each extension sends with the registration, under its own
     // request parameter
@@ -410,7 +410,7 @@ export default {
             } else {
               this.loading = false;
             }
-          });
+          }).catch(() => this.loading = false);
         } else {
           this.$loginService.sendEmailVerificationEmail(this.email, this.firstName, this.lastName, this.password, this.confirmPassword, this.tokenParam, this.captcha, this.username).then((resp) => {
             if (!resp || !resp.ok) {
