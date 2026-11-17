@@ -19,6 +19,7 @@
 -->
 <template>
   <v-menu
+    ref="menu"
     v-model="menu"
     :content-class="`${menuId} white select-period-menu-content`"
     :close-on-content-click="false"
@@ -28,6 +29,7 @@
     :right="right"
     offset-y
     attach
+    eager
     min-width="auto">
     <template #activator="{ on, attrs }">
       <v-text-field
@@ -274,18 +276,33 @@ export default {
       }
     });
     this.selectPeriodItem(this.selectedPeriodName);
+    this.$nextTick(this.nameDialog);
   },
   beforeDestroy() {
     document.removeEventListener('keydown', this.closeOnEscape, true);
   },
   methods: {
     // The menu names its activator a button: on this read-only field, a screen reader then stays in browse mode and
-    // turns Enter into a click, which opens the picker with the focus left on the field. Named a text field, the
-    // screen reader switches to focus mode when it is reached, and Enter or Space opens the picker from the keyboard
+    // turns Enter into a click, which opens the picker with the focus left on the field. Named a combobox that opens
+    // a dialog (the date picker pattern), the screen reader switches to focus mode when the field is reached, and
+    // Enter or Space opens the picker from the keyboard; the menu's aria-expanded tells whether it is open
     fieldAttributes(attrs) {
-      // eslint-disable-next-line no-unused-vars
-      const { role, ...fieldAttrs } = attrs || {};
-      return fieldAttrs;
+      return {
+        ...attrs,
+        'role': 'combobox',
+        'aria-haspopup': 'dialog',
+        'aria-controls': this.menuId,
+      };
+    },
+    // The menu renders its content as a menu: it holds a date picker, a dialog named after the field. The content is
+    // rendered once (eager), so the field's aria-controls always names an element of the page
+    nameDialog() {
+      const content = this.$refs.menu?.$refs?.content;
+      if (content) {
+        content.id = this.menuId;
+        content.setAttribute('role', 'dialog');
+        content.setAttribute('aria-label', this.placeholder || this.labels.from || 'Period');
+      }
     },
     openFromKeyboard() {
       this.usedKeyboard = true;
