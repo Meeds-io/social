@@ -369,9 +369,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     // Outside space can't redact
     assertFalse(activityManager.canPostActivityInStream(maryACLIdentity, spaceIdentity));
 
-    space.setMembers(new String[] { "demo", "james", "mary" });
-    space.setRedactors(new String[] { "james" });
-    spaceService.updateSpace(space);
+    spaceService.addMember(space, "mary");
+    spaceService.addRedactor(space, "james");
 
     // Super Manager can redact
     assertTrue(activityManager.canPostActivityInStream(rootACLIdentity, spaceIdentity));
@@ -555,8 +554,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
       // Expected
     }
 
-    targetSpace.setRedactors(new String[] { "james", "demo" });
-    spaceService.updateSpace(targetSpace);
+    spaceService.addRedactor(targetSpace, "demo");
 
     sharedActivities = activityManager.shareActivity(null,
                                                      originalActivity.getId(),
@@ -1276,13 +1274,11 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertFalse(jamesCanPinActivity);
 
     // when
-    String[] managers = new String[] { "mary" };
-    String[] redactors = new String[] { "demo" };
-    String[] publishers = new String[] { "james" };
-    space.setRedactors(redactors);
-    space.setManagers(managers);
-    space.setPublishers(publishers);
-    spaceService.updateSpace(space);
+    spaceService.addMember(space, "mary");
+    spaceService.setManager(space, "mary", true);
+    spaceService.setManager(space, "john", false);
+    spaceService.addRedactor(space, "demo");
+    spaceService.addPublisher(space, "james");
     assertTrue(activityManager.canPinActivity(activity, maryIdentity));
     assertFalse(activityManager.canPinActivity(activity, demoIdentity));
     assertTrue(activityManager.canPinActivity(activity, jamesIdentity));
