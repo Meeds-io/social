@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import java.security.SecureRandom;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -190,16 +191,19 @@ public class UserAccountEmailOtpPluginTest {
 
   @Test
   public void testConsumeOtpRemovesTheCodeOnce() {
-    when(otpCache.remove("userAccountEmail:john")).thenReturn(OTP_CODE, (String) null);
+    Map<String, String> codes = storeCodesIn(new HashMap<>());
+    codes.put("userAccountEmail:john", OTP_CODE);
     assertTrue(plugin.consumeOtp("john", OTP_CODE));
     assertFalse("A consumed code is gone for a concurrent request", plugin.consumeOtp("john", OTP_CODE));
-    verify(otpCache, org.mockito.Mockito.times(2)).remove("userAccountEmail:john");
+    assertFalse(codes.containsKey("userAccountEmail:john"));
   }
 
   @Test
   public void testConsumeOtpRefusesAnotherCode() {
-    when(otpCache.remove("userAccountEmail:john")).thenReturn("999999");
+    Map<String, String> codes = storeCodesIn(new HashMap<>());
+    codes.put("userAccountEmail:john", "999999");
     assertFalse(plugin.consumeOtp("john", OTP_CODE));
+    assertEquals("A code that was not consumed must stay valid", "999999", codes.get("userAccountEmail:john"));
   }
 
   @Test
@@ -280,6 +284,12 @@ public class UserAccountEmailOtpPluginTest {
     verify(otpSendLockCache).put(eq("userAccountEmail:john"), lock.capture());
     long lockExpiry = Long.parseLong(lock.getValue());
     assertTrue(lockExpiry >= before + 60000 && lockExpiry <= after + 60000);
+  }
+
+  private Map<String, String> storeCodesIn(Map<String, String> codes) {
+    when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0)));
+    when(otpCache.remove(anyString())).thenAnswer(invocation -> codes.remove(invocation.getArgument(0)));
+    return codes;
   }
 
 }
