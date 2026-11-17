@@ -95,6 +95,7 @@ import org.exoplatform.social.core.space.SpaceListAccessType;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
+import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
@@ -105,6 +106,9 @@ import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 import io.meeds.social.search.SpaceSearchConnector;
 import io.meeds.social.space.constant.UserSpacesScope;
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.model.MembershipChange;
+import io.meeds.social.space.model.MembershipChangeResult;
 import io.meeds.social.space.security.model.SpaceSecuritySettings;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
@@ -114,6 +118,45 @@ import org.exoplatform.web.security.security.SecureRandomService;
 import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
 public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNotifier {
+
+  private static final Set<SpaceMembershipStatus> NOT_MEMBER_NOR_PENDING = Set.of(SpaceMembershipStatus.MEMBER,
+                                                                                  SpaceMembershipStatus.MANAGER,
+                                                                                  SpaceMembershipStatus.PENDING);
+
+  private static final MembershipChange           ADD_MEMBER            =
+                                                             MembershipChange.of(Set.of(SpaceMembershipStatus.MEMBER),
+                                                                                 Set.of(SpaceMembershipStatus.INVITED,
+                                                                                        SpaceMembershipStatus.PENDING,
+                                                                                        SpaceMembershipStatus.IGNORED));
+
+  private static final MembershipChange           ADD_PENDING           =
+                                                              MembershipChange.of(Set.of(SpaceMembershipStatus.PENDING),
+                                                                                  Collections.emptySet());
+
+  private static final MembershipChange           INVITE                =
+                                                         MembershipChange.of(Set.of(SpaceMembershipStatus.INVITED),
+                                                                             Collections.emptySet())
+                                                                         .requiring(Collections.emptySet(),
+                                                                                    NOT_MEMBER_NOR_PENDING,
+                                                                                    ADD_MEMBER.requiring(Set.of(SpaceMembershipStatus.PENDING),
+                                                                                                         Set.of(SpaceMembershipStatus.MEMBER,
+                                                                                                                SpaceMembershipStatus.MANAGER),
+                                                                                                         null));
+
+  private static final MembershipChange           REMOVE_MEMBER         =
+                                                                MembershipChange.of(Collections.emptySet(),
+                                                                                    Set.of(SpaceMembershipStatus.MEMBER,
+                                                                                           SpaceMembershipStatus.MANAGER,
+                                                                                           SpaceMembershipStatus.REDACTOR,
+                                                                                           SpaceMembershipStatus.PUBLISHER));
+
+  private static final MembershipChange           REMOVE_INVITED        =
+                                                                 MembershipChange.of(Collections.emptySet(),
+                                                                                     Set.of(SpaceMembershipStatus.INVITED));
+
+  private static final MembershipChange           REMOVE_PENDING        =
+                                                                 MembershipChange.of(Collections.emptySet(),
+                                                                                     Set.of(SpaceMembershipStatus.PENDING));
 
   private static final Log            LOG                          = ExoLogger.getLogger(SpaceServiceImpl.class);
 
@@ -709,22 +752,11 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
 
   @Override
   public void addMember(Space space, String username) {
-    spaceLifeCycle.setCurrentEvent(Type.JOINED);
-    try {
-      String[] members = space.getMembers();
-      space = this.removeInvited(space, username);
-      space = this.removePending(space, username);
-      if (!ArrayUtils.contains(members, username)) {
-        members = ArrayUtils.add(members, username);
-        space.setMembers(members);
-        spaceStorage.saveSpace(space, false);
-        // Add User to Group after adding member to space to not
-        // invoke twice the membership change
-        addUserToGroupWithMemberMembership(username, space.getGroupId());
-        spaceLifeCycle.memberJoined(space, username);
-      }
-    } finally {
-      spaceLifeCycle.resetCurrentEvent(Type.JOINED);
+    MembershipChangeResult result = changeMembership(space, username, ADD_MEMBER);
+    removeInvited(space, username);
+    removePending(space, username);
+    if (result.added().contains(SpaceMembershipStatus.MEMBER)) {
+      memberAdded(space, username);
     }
   }
 
@@ -733,41 +765,33 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
     if (groupSpaceBindingStorage.countUserBindings(space.getId(), username) > 0) {
       throw new IllegalStateException("space.cantLeaveBoundSpace");
     }
-    if (isManager(space, username)) {
-      setManager(space, username, false);
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    if (spaceIdentity != null && spaceIdentity.isDeleted()) {
+      return;
     }
-    if (isManager(space, username)) {
-      setManager(space, username, false);
+    MembershipChangeResult result = changeMembership(space, username, REMOVE_MEMBER);
+    space.setMembers(ArrayUtils.removeAllOccurrences(space.getMembers(), username));
+    space.setManagers(ArrayUtils.removeAllOccurrences(space.getManagers(), username));
+    space.setRedactors(ArrayUtils.removeAllOccurrences(space.getRedactors(), username));
+    space.setPublishers(ArrayUtils.removeAllOccurrences(space.getPublishers(), username));
+    if (result.removed().contains(SpaceMembershipStatus.MANAGER)) {
+      managerRemoved(space, username);
     }
-    if (isRedactor(space, username)) {
-      removeRedactor(space, username);
+    if (result.removed().contains(SpaceMembershipStatus.REDACTOR)) {
+      redactorRemoved(space, username);
     }
-    if (isPublisher(space, username)) {
-      removePublisher(space, username);
+    if (result.removed().contains(SpaceMembershipStatus.PUBLISHER)) {
+      publisherRemoved(space, username);
     }
-    spaceLifeCycle.setCurrentEvent(Type.LEFT);
-    try {
-      Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
-      if (spaceIdentity != null && spaceIdentity.isDeleted()) {
-        return;
-      }
-      String[] members = space.getMembers();
-      List<String> disabledMembers = identityManager.getDisabledSpaceMembers(Long.parseLong(space.getId()));
-      if (disabledMembers != null && !disabledMembers.isEmpty()) {
-        members = ArrayUtils.addAll(members, disabledMembers.toArray(String[]::new));
-      }
-      if (ArrayUtils.contains(members, username)) {
+    if (result.removed().contains(SpaceMembershipStatus.MEMBER)) {
+      spaceLifeCycle.setCurrentEvent(Type.LEFT);
+      try {
         removeUserFromGroupWithMemberMembership(username, space.getGroupId());
-        members = ArrayUtils.removeAllOccurrences(members, username);
-        space.setMembers(members);
-        spaceStorage.saveSpace(space, false);
-        setManager(space, username, false);
-        removeRedactor(space, username);
         removeUserFromGroupWithAnyMembership(username, space.getGroupId());
         spaceLifeCycle.memberLeft(space, username);
+      } finally {
+        spaceLifeCycle.resetCurrentEvent(Type.LEFT);
       }
-    } finally {
-      spaceLifeCycle.resetCurrentEvent(Type.LEFT);
     }
   }
 
@@ -804,59 +828,49 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
 
   @Override
   public void addInvitedUser(Space space, String username) {
-    if (ArrayUtils.contains(space.getMembers(), username)) {
-      // user is already member. Do nothing
-      return;
-    }
-
-    if (isPendingUser(space, username)) {
+    MembershipChangeResult result = changeMembership(space, username, INVITE);
+    if (result.added().contains(SpaceMembershipStatus.MEMBER)) {
       removePending(space, username);
-      addMember(space, username);
-    } else {
+      memberAdded(space, username);
+    } else if (result.added().contains(SpaceMembershipStatus.INVITED)) {
       addInvited(space, username);
     }
-    spaceStorage.saveSpace(space, false);
-    spaceLifeCycle.addInvitedUser(space, username);
+    if (!result.isEmpty()) {
+      spaceLifeCycle.addInvitedUser(space, username);
+    }
   }
 
   @Override
   public void addPendingUser(Space space, String username) {
-    if (ArrayUtils.contains(space.getMembers(), username)) {
-      // user is already member. Do nothing
-      return;
-    }
-
-    if (ArrayUtils.contains(space.getPendingUsers(), username)) {
-      // user is already pending. Do nothing
-      return;
-    }
-
-    if (ArrayUtils.contains(space.getInvitedUsers(), username)) {
-      addMember(space, username);
-      removeInvited(space, username);
-      spaceStorage.saveSpace(space, false);
-      return;
-    }
-
     String registration = space.getRegistration();
-    String visibility = space.getVisibility();
-    if (visibility.equals(Space.HIDDEN) && registration.equals(Space.CLOSED)) {
-      LOG.warn("Unable request to join hidden");
-      return;
+    MembershipChange registrationChange = null;
+    if (Space.HIDDEN.equals(space.getVisibility()) && Space.CLOSED.equals(registration)) {
+      LOG.debug("Request to join hidden and closed space {} refused", space.getId());
+    } else if (Space.OPEN.equals(registration)) {
+      registrationChange = ADD_MEMBER;
+    } else if (Space.VALIDATION.equals(registration)) {
+      registrationChange = ADD_PENDING;
+    } else {
+      LOG.debug("Request to join closed space {} refused", space.getId());
     }
-    if (registration.equals(Space.OPEN)) {
-      addMember(space, username);
-    } else if (registration.equals(Space.VALIDATION)) {
+    MembershipChange change = ADD_MEMBER.requiring(Set.of(SpaceMembershipStatus.INVITED),
+                                                  NOT_MEMBER_NOR_PENDING,
+                                                  registrationChange == null ? null
+                                                                             : registrationChange.requiring(Collections.emptySet(),
+                                                                                                            NOT_MEMBER_NOR_PENDING,
+                                                                                                            null));
+    MembershipChangeResult result = changeMembership(space, username, change);
+    if (result.added().contains(SpaceMembershipStatus.MEMBER)) {
+      removeInvited(space, username);
+      memberAdded(space, username);
+    } else if (result.added().contains(SpaceMembershipStatus.PENDING)) {
       spaceLifeCycle.setCurrentEvent(Type.ADD_PENDING_USER);
       try {
         addPending(space, username);
-        spaceStorage.saveSpace(space, false);
         spaceLifeCycle.addPendingUser(space, username);
       } finally {
         spaceLifeCycle.resetCurrentEvent(Type.ADD_PENDING_USER);
       }
-    } else {
-      LOG.warn("Unable request to join");
     }
   }
 
@@ -949,11 +963,11 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
 
   @Override
   public void removeInvitedUser(Space space, String username) {
-    if (ArrayUtils.contains(space.getInvitedUsers(), username)) {
+    MembershipChangeResult result = changeMembership(space, username, REMOVE_INVITED);
+    removeInvited(space, username);
+    if (result.removed().contains(SpaceMembershipStatus.INVITED)) {
       spaceLifeCycle.setCurrentEvent(Type.DENY_INVITED_USER);
       try {
-        space = removeInvited(space, username);
-        spaceStorage.saveSpace(space, false);
         spaceLifeCycle.removeInvitedUser(space, username);
       } finally {
         spaceLifeCycle.resetCurrentEvent(Type.DENY_INVITED_USER);
@@ -963,24 +977,20 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
 
   @Override
   public void removePendingUser(Space space, String username) {
-    if (ArrayUtils.contains(space.getPendingUsers(), username)) {
-      removePending(space, username);
-      spaceStorage.saveSpace(space, false);
+    MembershipChangeResult result = changeMembership(space, username, REMOVE_PENDING);
+    removePending(space, username);
+    if (result.removed().contains(SpaceMembershipStatus.PENDING)) {
       spaceLifeCycle.removePendingUser(space, username);
     }
   }
 
   @Override
   public void addRedactor(Space space, String username) {
-    String[] redactors = space.getRedactors();
-    if (!ArrayUtils.contains(redactors, username)) {
+    MembershipChangeResult result = changeMembership(space, username, grantRole(SpaceMembershipStatus.REDACTOR));
+    if (result.added().contains(SpaceMembershipStatus.REDACTOR)) {
       spaceLifeCycle.setCurrentEvent(Type.ADD_REDACTOR_USER);
       try {
-        redactors = ArrayUtils.add(redactors, username);
-        space.setRedactors(redactors);
-        spaceStorage.saveSpace(space, false);
-        // Add User to Group after adding member to space to not
-        // invoke twice the membership change
+        space.setRedactors(addUnique(space.getRedactors(), username));
         addUserToGroupWithRedactorMembership(username, space.getGroupId());
         spaceLifeCycle.addRedactorUser(space, username);
       } finally {
@@ -991,32 +1001,20 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
 
   @Override
   public void removeRedactor(Space space, String username) {
-    String[] redactors = space.getRedactors();
-    if (ArrayUtils.contains(redactors, username)) {
-      spaceLifeCycle.setCurrentEvent(Type.REMOVE_REDACTOR_USER);
-      try {
-        redactors = ArrayUtils.removeAllOccurrences(redactors, username);
-        space.setRedactors(redactors);
-        spaceStorage.saveSpace(space, false);
-        removeUserFromGroupWithRedactorMembership(username, space.getGroupId());
-        spaceLifeCycle.removeRedactorUser(space, username);
-      } finally {
-        spaceLifeCycle.resetCurrentEvent(Type.REMOVE_REDACTOR_USER);
-      }
+    MembershipChangeResult result = changeMembership(space, username, revokeRole(SpaceMembershipStatus.REDACTOR));
+    space.setRedactors(ArrayUtils.removeAllOccurrences(space.getRedactors(), username));
+    if (result.removed().contains(SpaceMembershipStatus.REDACTOR)) {
+      redactorRemoved(space, username);
     }
   }
 
   @Override
   public void addPublisher(Space space, String username) {
-    String[] publishers = space.getPublishers();
-    if (!ArrayUtils.contains(publishers, username)) {
+    MembershipChangeResult result = changeMembership(space, username, grantRole(SpaceMembershipStatus.PUBLISHER));
+    if (result.added().contains(SpaceMembershipStatus.PUBLISHER)) {
       spaceLifeCycle.setCurrentEvent(Type.ADD_PUBLISHER_USER);
       try {
-        publishers = ArrayUtils.add(publishers, username);
-        space.setPublishers(publishers);
-        spaceStorage.saveSpace(space, false);
-        // Add User to Group after adding member to space to not
-        // invoke twice the membership change
+        space.setPublishers(addUnique(space.getPublishers(), username));
         addUserToGroupWithPublisherMembership(username, space.getGroupId());
         spaceLifeCycle.addPublisherUser(space, username);
       } finally {
@@ -1027,33 +1025,22 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
 
   @Override
   public void removePublisher(Space space, String username) {
-    String[] publishers = space.getPublishers();
-    if (ArrayUtils.contains(publishers, username)) {
-      spaceLifeCycle.setCurrentEvent(Type.REMOVE_PUBLISHER_USER);
-      try {
-        publishers = ArrayUtils.removeAllOccurrences(publishers, username);
-        space.setPublishers(publishers);
-        spaceStorage.saveSpace(space, false);
-        removeUserFromGroupWithPublisherMembership(username, space.getGroupId());
-        spaceLifeCycle.removePublisherUser(space, username);
-      } finally {
-        spaceLifeCycle.resetCurrentEvent(Type.REMOVE_PUBLISHER_USER);
-      }
+    MembershipChangeResult result = changeMembership(space, username, revokeRole(SpaceMembershipStatus.PUBLISHER));
+    space.setPublishers(ArrayUtils.removeAllOccurrences(space.getPublishers(), username));
+    if (result.removed().contains(SpaceMembershipStatus.PUBLISHER)) {
+      publisherRemoved(space, username);
     }
   }
 
   @Override
   public void setManager(Space space, String username, boolean isManager) {
-    String[] managers = space.getManagers();
     if (isManager) {
-      if (!ArrayUtils.contains(managers, username)) {
+      MembershipChangeResult result = changeMembership(space, username, grantRole(SpaceMembershipStatus.MANAGER));
+      if (result.added().contains(SpaceMembershipStatus.MANAGER)) {
         spaceLifeCycle.setCurrentEvent(Type.GRANTED_LEAD);
         try {
-          managers = ArrayUtils.add(managers, username);
-          space.setManagers(managers);
-          spaceStorage.saveSpace(space, false);
-          // Add User to Group after adding member to space to not
-          // invoke twice the membership change
+          space.setManagers(addUnique(space.getManagers(), username));
+          space.setMembers(addUnique(space.getMembers(), username));
           addUserToGroupWithManagerMembership(username, space.getGroupId());
           spaceLifeCycle.grantedLead(space, username);
         } finally {
@@ -1061,20 +1048,10 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
         }
       }
     } else {
-      if (ArrayUtils.contains(managers, username)) {
-        spaceLifeCycle.setCurrentEvent(Type.REVOKED_LEAD);
-        try {
-          removeUserFromGroupWithManagerMembership(username, space.getGroupId());
-          managers = ArrayUtils.removeAllOccurrences(managers, username);
-          space.setManagers(managers);
-          spaceStorage.saveSpace(space, false);
-          Space updatedSpace = getSpaceById(space.getId());
-          if (isMember(updatedSpace, username)) {
-            spaceLifeCycle.revokedLead(space, username);
-          }
-        } finally {
-          spaceLifeCycle.resetCurrentEvent(Type.REVOKED_LEAD);
-        }
+      MembershipChangeResult result = changeMembership(space, username, revokeRole(SpaceMembershipStatus.MANAGER));
+      space.setManagers(ArrayUtils.removeAllOccurrences(space.getManagers(), username));
+      if (result.removed().contains(SpaceMembershipStatus.MANAGER)) {
+        managerRemoved(space, username);
       }
     }
   }
@@ -1639,6 +1616,76 @@ public class SpaceServiceImpl implements SpaceService, SpaceExtendedPropertiesNo
 
   private MembershipEntry getMembershipEntry(String expression) {
     return expression.contains(":") ? MembershipEntry.parse(expression) : new MembershipEntry(expression);
+  }
+
+  /**
+   * Applies one user's member-row change on the space's locked rows, whatever
+   * the given space lists of the user's roles.
+   */
+  private MembershipChangeResult changeMembership(Space space, String username, MembershipChange change) {
+    try {
+      return spaceStorage.changeMembership(space.getSpaceId(), username, change);
+    } catch (ObjectNotFoundException e) {
+      throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE, "Space not found: " + space.getId(), e);
+    }
+  }
+
+  private static MembershipChange grantRole(SpaceMembershipStatus role) {
+    return MembershipChange.of(Set.of(role), Collections.emptySet())
+                           .requiring(Set.of(SpaceMembershipStatus.MEMBER, SpaceMembershipStatus.MANAGER),
+                                      Collections.emptySet(),
+                                      null);
+  }
+
+  private static MembershipChange revokeRole(SpaceMembershipStatus role) {
+    return MembershipChange.of(Collections.emptySet(), Set.of(role));
+  }
+
+  private void memberAdded(Space space, String username) {
+    spaceLifeCycle.setCurrentEvent(Type.JOINED);
+    try {
+      space.setMembers(addUnique(space.getMembers(), username));
+      // Add User to Group after adding member to space to not
+      // invoke twice the membership change
+      addUserToGroupWithMemberMembership(username, space.getGroupId());
+      spaceLifeCycle.memberJoined(space, username);
+    } finally {
+      spaceLifeCycle.resetCurrentEvent(Type.JOINED);
+    }
+  }
+
+  private void managerRemoved(Space space, String username) {
+    spaceLifeCycle.setCurrentEvent(Type.REVOKED_LEAD);
+    try {
+      removeUserFromGroupWithManagerMembership(username, space.getGroupId());
+      spaceLifeCycle.revokedLead(space, username);
+    } finally {
+      spaceLifeCycle.resetCurrentEvent(Type.REVOKED_LEAD);
+    }
+  }
+
+  private void redactorRemoved(Space space, String username) {
+    spaceLifeCycle.setCurrentEvent(Type.REMOVE_REDACTOR_USER);
+    try {
+      removeUserFromGroupWithRedactorMembership(username, space.getGroupId());
+      spaceLifeCycle.removeRedactorUser(space, username);
+    } finally {
+      spaceLifeCycle.resetCurrentEvent(Type.REMOVE_REDACTOR_USER);
+    }
+  }
+
+  private void publisherRemoved(Space space, String username) {
+    spaceLifeCycle.setCurrentEvent(Type.REMOVE_PUBLISHER_USER);
+    try {
+      removeUserFromGroupWithPublisherMembership(username, space.getGroupId());
+      spaceLifeCycle.removePublisherUser(space, username);
+    } finally {
+      spaceLifeCycle.resetCurrentEvent(Type.REMOVE_PUBLISHER_USER);
+    }
+  }
+
+  private static String[] addUnique(String[] users, String username) {
+    return ArrayUtils.contains(users, username) ? users : ArrayUtils.add(users, username);
   }
 
   private Space removeInvited(Space space, String username) {
