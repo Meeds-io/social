@@ -41,6 +41,7 @@
         transition="slide-x-reverse-transition"
         :left="$vuetify.rtl || openLeft"
         :open-on-hover="isOpenedOnHover"
+        :close-on-content-click="false"
         absolute
         eager
         offset-x>
@@ -78,16 +79,21 @@
             </v-list-item-icon>
           </div>
         </template>
-        <navigation-menu-sub-item
-          v-for="children in navigation.children"
-          class="transparent"
-          :key="children.id"
-          :navigation="children"
-          :parent-navigation-uri="parentNavigationUri"
-          :base-site-uri="baseSiteUri"
-          :selected-path="selectedPath"
-          @update-navigation-state="updateNavigationState"
-          @select="$emit('select')" />
+        <!-- the sub-menu is rendered at the end of the page: the menu holding this entry never sees its clicks -->
+        <div @click="onSubMenuClick">
+          <navigation-menu-sub-item
+            v-for="children in navigation.children"
+            class="transparent"
+            :key="children.id"
+            :navigation="children"
+            :parent-navigation-uri="parentNavigationUri"
+            :base-site-uri="baseSiteUri"
+            :selected-path="selectedPath"
+            @update-navigation-state="updateNavigationState"
+            @select="$emit('select')"
+            @leaving-page="$emit('leaving-page')"
+            @close-menu="closeMenu" />
+        </div>
       </v-menu>
     </v-list-item>
   </v-list>
@@ -186,6 +192,27 @@ export default {
           window.location.href = this.navigationNodeUri;
         }
       }
+    },
+    // The chosen entry of the sub-menu keeps every menu up to the bar open, and the focus, while it replaces the page:
+    // see NavigationUtils.js
+    onSubMenuClick(event) {
+      const entry = event.target?.closest?.('a.v-list-item[href]');
+      if (!entry) {
+        // an entry that only groups others opens its own sub-menu
+        return;
+      }
+      if (this.$navigationUtils.replacesPage(entry, event)) {
+        this.$emit('leaving-page');
+        // Vuetify's list item blurs itself on a click that has a detail
+        entry.focus();
+        return;
+      }
+      this.closeMenu();
+    },
+    // an entry that leaves the page in place closes every menu up to the bar
+    closeMenu() {
+      this.showMenu = false;
+      this.$emit('close-menu');
     },
     updateNavigationState(value) {
       this.$emit('update-navigation-state', value);

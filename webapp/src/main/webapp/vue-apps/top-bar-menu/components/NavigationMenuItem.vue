@@ -88,7 +88,9 @@
         :parent-navigation-uri="navigation.uri"
         :selected-path="selectedPath"
         @update-navigation-state="updateNavigationState"
-        @select="updateNavigationState" />
+        @select="updateNavigationState"
+        @leaving-page="leavingPage = true"
+        @close-menu="closeFromSubMenu" />
     </div>
   </v-menu>
 </template>
@@ -275,6 +277,10 @@ export default {
         entry.focus();
         return;
       }
+      this.closeFromSubMenu();
+    },
+    // an entry of a sub-menu that leaves the page in place closes this menu too
+    closeFromSubMenu() {
       this.showMenu = false;
       this.focusOpener();
     },
