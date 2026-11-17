@@ -245,7 +245,9 @@ export default {
       if (event.key === openKey || event.key === ' ' && !this.hasPage) {
         event.preventDefault();
         event.stopPropagation();
-        this.openSubMenu(this.$refs.entry?.$el);
+        // pressed on a page link's chevron, the key bubbles through the link: the focus comes back to the chevron
+        const chevron = this.$refs.chevron?.$el;
+        this.openSubMenu(chevron?.contains?.(event.target) ? chevron : this.$refs.entry?.$el);
       } else if (event.key === 'Enter' && !this.hasPage) {
         // Vuetify makes a click of it, which opened the sub-menu: the menu holding this entry would click it again
         event.stopPropagation();
@@ -278,7 +280,8 @@ export default {
         this.closeMenu();
       }
     },
-    // the focus goes back to what opened the sub-menu when it closes: the entry, or the chevron of a page link
+    // the focus goes back to what opened the sub-menu when it closes: the entry, or the chevron of a page link, never
+    // the chevron of an entry that only groups pages, hidden from the keyboard and the screen readers
     openSubMenu(opener) {
       this.subMenuOpener = opener;
       this.showMenu = true;
@@ -295,7 +298,7 @@ export default {
       if (this.showMenu) {
         this.showMenu = false;
       } else {
-        this.openSubMenu(this.$refs.chevron?.$el);
+        this.openSubMenu(this.hasPage ? this.$refs.chevron?.$el : this.$refs.entry?.$el);
       }
     },
     checkLink(e) {
