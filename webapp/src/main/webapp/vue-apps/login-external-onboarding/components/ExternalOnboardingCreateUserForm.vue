@@ -350,7 +350,9 @@ export default {
         if (!extension.validate) {
           return Promise.resolve(true);
         }
-        return Promise.resolve(extension.validate(this.extensionContexts[extension.id]))
+        // Called inside the chain, so that a check throwing at once refuses
+        return Promise.resolve()
+          .then(() => extension.validate(this.extensionContexts[extension.id]))
           .then(result => result !== false, () => false);
       })).then(results => results.every(Boolean));
     },
