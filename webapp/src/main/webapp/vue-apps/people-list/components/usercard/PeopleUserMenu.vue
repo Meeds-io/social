@@ -180,12 +180,13 @@ export default {
       // Workaround to fix closing menu when clicking outside
       if (newVal) {
         this.focusFirstMenuEntry();
-        document.addEventListener('click', this.closeMenu);
+        // in capture: an entry that stops its own click (the call entry of web-conferencing) closes the menu too
+        document.addEventListener('click', this.closeMenu, true);
         document.addEventListener('drawerOpened', this.closeMenu);
         document.addEventListener('modalOpened', this.closeMenu);
         this.$root.$emit('spaces-list-menu-opened', this.id);
       } else {
-        document.removeEventListener('click', this.closeMenu);
+        document.removeEventListener('click', this.closeMenu, true);
         document.removeEventListener('drawerOpened', this.closeMenu);
         document.removeEventListener('modalOpened', this.closeMenu);
       }
@@ -196,7 +197,7 @@ export default {
   },
   beforeDestroy() {
     this.$root.$off('spaces-list-menu-opened', this.closeMenu);
-    document.removeEventListener('click', this.closeMenu);
+    document.removeEventListener('click', this.closeMenu, true);
     document.removeEventListener('drawerOpened', this.closeMenu);
     document.removeEventListener('modalOpened', this.closeMenu);
   },
