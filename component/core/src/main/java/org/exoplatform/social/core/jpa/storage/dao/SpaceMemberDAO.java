@@ -19,6 +19,7 @@
 package org.exoplatform.social.core.jpa.storage.dao;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
@@ -170,5 +171,21 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
     default Instant getSpaceMembershipDate(long spaceId, String username) {
       throw new UnsupportedOperationException();
     }
+
+
+  /**
+   * @param spaceId space technical identifier
+   * @param userId user name
+   * @return every status the user holds in the space, one per row
+   */
+  List<SpaceMembershipStatus> getMemberStatuses(long spaceId, String userId);
+
+  /**
+   * @param spaceId space technical identifier
+   * @param userIds user names to look for
+   * @param statuses statuses one of which a user must hold
+   * @return the given users who are enabled and hold one of the statuses
+   */
+  List<String> getMembersAmong(long spaceId, Collection<String> userIds, Collection<SpaceMembershipStatus> statuses);
 
 }

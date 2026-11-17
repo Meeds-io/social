@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -64,8 +66,12 @@ import org.exoplatform.web.security.Token;
 import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
+import io.meeds.common.ContainerTransactional;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.space.constant.UserSpacesScope;
+import io.meeds.social.space.security.model.SpaceSecuritySettings;
+import io.meeds.social.space.security.model.SpaceSettingsChange;
+import io.meeds.social.space.security.model.SpaceSettingsChangeResult;
 
 import jakarta.persistence.Tuple;
 
@@ -77,6 +83,11 @@ public class SpaceStorage {
   private static final Log           LOG                        = ExoLogger.getLogger(SpaceStorage.class);
 
   private static final int           BATCH_SIZE                 = 100;
+
+  private static final int           MEMBERS_AMONG_CHUNK_SIZE   = 500;
+
+  private static final List<SpaceMembershipStatus> MEMBER_STATUSES = List.of(SpaceMembershipStatus.MEMBER,
+                                                                             SpaceMembershipStatus.MANAGER);
 
   private static final String        SPACE_METADATA_OBJECT_TYPE = "space";
 
@@ -395,12 +406,98 @@ public class SpaceStorage {
     return spaceMemberDAO.getSpaceMembershipDate(spaceId, username);
   }
 
+  /**
+   * Reads the extended properties of the space's committed row. Not cached:
+   * the space security refusals decide on it.
+   *
+   * @param spaceId space technical identifier
+   * @return the stored extended properties, empty when none is stored
+   * @throws ObjectNotFoundException when the space has no row
+   */
+  public Map<String, String> getSpaceExtendedProperties(long spaceId) throws ObjectNotFoundException {
+    return spaceDAO.findExtendedProperties(spaceId)
+                   .orElseThrow(() -> new ObjectNotFoundException("Space with id " + spaceId + " doesn't exist"));
+  }
+
+  /**
+   * Reads the user's rows of the space. Not cached: the space security
+   * refusals decide on it.
+   *
+   * @param spaceId space technical identifier
+   * @param userId user name
+   * @return every status the user holds in the space
+   */
+  public Set<SpaceMembershipStatus> getMemberStatuses(long spaceId, String userId) {
+    if (StringUtils.isBlank(userId)) {
+      return Collections.emptySet();
+    }
+    return new HashSet<>(spaceMemberDAO.getMemberStatuses(spaceId, userId));
+  }
+
+  /**
+   * Reads which of the given users are members of the space on its rows. Not
+   * cached: the space security refusals and removals decide on it.
+   *
+   * @param spaceId space technical identifier
+   * @param userIds user names to classify
+   * @return the users who are enabled and hold a MEMBER or a MANAGER row
+   */
+  public Set<String> getMembersAmong(long spaceId, Collection<String> userIds) {
+    if (CollectionUtils.isEmpty(userIds)) {
+      return Collections.emptySet();
+    }
+    List<String> distinctUserIds = userIds.stream().filter(StringUtils::isNotBlank).distinct().toList();
+    Set<String> members = new HashSet<>();
+    for (int start = 0; start < distinctUserIds.size(); start += MEMBERS_AMONG_CHUNK_SIZE) {
+      List<String> chunk = distinctUserIds.subList(start, Math.min(start + MEMBERS_AMONG_CHUNK_SIZE, distinctUserIds.size()));
+      members.addAll(spaceMemberDAO.getMembersAmong(spaceId, chunk, MEMBER_STATUSES));
+    }
+    return members;
+  }
+
+  /**
+   * The single writer of the space security settings: locks the space's row,
+   * then writes only the extended properties the change names.
+   *
+   * @param spaceId space technical identifier
+   * @param change the extended properties to change
+   * @return the extended properties before and after the change
+   * @throws ObjectNotFoundException when the space has no row
+   */
+  @ContainerTransactional(atomic = true)
+  public SpaceSettingsChangeResult applySettingsChange(long spaceId, SpaceSettingsChange change) throws ObjectNotFoundException {
+    SpaceEntity entity = spaceDAO.findForUpdate(spaceId);
+    if (entity == null) {
+      throw new ObjectNotFoundException("Space with id " + spaceId + " doesn't exist");
+    }
+    Map<String, String> previous = entity.getExtendedProperties() == null ? new HashMap<>()
+                                                                          : new HashMap<>(entity.getExtendedProperties());
+    Map<String, String> stored = new HashMap<>(previous);
+    change.extendedProperties().forEach((key, value) -> {
+      if (value == null) {
+        stored.remove(key);
+      } else {
+        stored.put(key, value);
+      }
+    });
+    entity.setExtendedProperties(stored);
+    entity.setUpdatedDate(new Date());
+    spaceDAO.update(entity);
+    return new SpaceSettingsChangeResult(previous, new HashMap<>(stored));
+  }
+
+  @ContainerTransactional(atomic = true)
   public void renameSpace(Space space) throws SpaceStorageException {
-    SpaceEntity entity = spaceDAO.find(Long.parseLong(space.getId()));
+    SpaceEntity entity = spaceDAO.findForUpdate(Long.parseLong(space.getId()));
+    if (entity == null) {
+      throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_RENAME_SPACE, "Space not found: " + space.getId());
+    }
     // Retrieve identity before saving
     Identity identitySpace = identityStorage.findIdentity(SpaceIdentityProvider.NAME, entity.getPrettyName());
 
+    Map<String, String> storedProperties = entity.getExtendedProperties();
     EntityConverterUtils.buildFrom(space, entity);
+    keepSecuritySettings(entity, storedProperties);
     entity.setUpdatedDate(new Date());
     spaceDAO.update(entity);
 
@@ -430,6 +527,26 @@ public class SpaceStorage {
     }
   }
 
+  /**
+   * Puts back the stored values of the space security keys, which only
+   * {@link #applySettingsChange(long, SpaceSettingsChange)} writes, whatever
+   * the space being saved carries.
+   */
+  private void keepSecuritySettings(SpaceEntity entity, Map<String, String> storedProperties) {
+    Map<String, String> properties = entity.getExtendedProperties() == null ? new HashMap<>()
+                                                                            : new HashMap<>(entity.getExtendedProperties());
+    for (String key : SpaceSecuritySettings.KEYS) {
+      if (storedProperties != null && storedProperties.containsKey(key)) {
+        properties.put(key, storedProperties.get(key));
+      } else {
+        properties.remove(key);
+      }
+    }
+    if (entity.getExtendedProperties() != null || !properties.isEmpty()) {
+      entity.setExtendedProperties(properties);
+    }
+  }
+
   public boolean isSpaceIgnored(String spaceId, String userId) {
     SpaceMemberEntity entity = spaceMemberDAO.getSpaceMemberShip(userId, Long.parseLong(spaceId), SpaceMembershipStatus.IGNORED);
     return entity != null;
@@ -438,11 +555,15 @@ public class SpaceStorage {
   @ExoTransactional
   public Space saveSpace(Space space, Long parentSpaceId, boolean isNew) throws SpaceStorageException {
     try {
-      SpaceEntity entity = isNew ? new SpaceEntity() : spaceDAO.find(Long.parseLong(space.getId()));
+      SpaceEntity entity = isNew ? new SpaceEntity() : spaceDAO.findForUpdate(Long.parseLong(space.getId()));
       if (!isNew && entity == null) {
         throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE);
       }
+      Map<String, String> storedProperties = isNew ? null : entity.getExtendedProperties();
       EntityConverterUtils.buildFrom(space, entity);
+      if (!isNew) {
+        keepSecuritySettings(entity, storedProperties);
+      }
       if (parentSpaceId != null && parentSpaceId > 0) {
         SpaceEntity parent = spaceDAO.find(parentSpaceId);
         if (parent == null) {
