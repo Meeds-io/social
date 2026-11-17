@@ -67,7 +67,8 @@
             click: () => menu = !menu,
           }"
           :space="space"
-          icon />
+          icon
+          @keydown.native.esc="menu && closeMenuToActivator($event)" />
       </template>
       <v-list
         ref="menuList"
@@ -76,7 +77,7 @@
         role="menu"
         class="transparent"
         dense
-        @keydown.native="onMenuEntriesKeydown">
+        @keydown.native="onMenuEntriesKeydown($event); onMenuEntryChosen($event)">
         <space-card-menu-item
           v-if="$root.isMobile"
           :href="url"
@@ -399,6 +400,8 @@ export default {
       } else {
         this.okMethod = null;
       }
+      // the dialog gives the focus back to the element focused when it opens: the menu's entry is hidden by then
+      this.focusMenuActivator();
       this.$refs.confirmDialog.open();
     },
     okConfirmDialog() {

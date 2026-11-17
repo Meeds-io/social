@@ -70,15 +70,41 @@ export default {
       event.stopPropagation();
       next?.focus();
     },
+    // Optional, bound with `onMenuEntriesKeydown` by a menu whose entries are each a choice that ends it. Vuetify's
+    // menu closes on a DOM click inside it, which Enter on a `v-list-item` (a click of its own) does not send: the
+    // menu is closed here.
+    onMenuEntryChosen(event) {
+      const entry = event.target;
+      if ((event.key !== 'Enter' && event.key !== ' ')
+          || entry.getAttribute('role') === 'menuitemcheckbox'
+          || entry.matches('a[href]')
+          || !this.menuEntries().includes(entry)) {
+        return;
+      }
+      // the keystroke's default action would click the element that has the focus once it is back on the menu's
+      // button, and open the menu again: the entry is clicked here instead, unless a `v-list-item` already did on Enter
+      event.preventDefault();
+      if (event.key === ' ' || !entry.classList.contains('v-list-item')) {
+        entry.click();
+      }
+      // an entry whose action has already moved the focus out of the menu keeps it there; a dialog opened later must
+      // focus the menu's button itself before it opens, so that it gives the focus back to that button
+      const focusInMenu = elementOf(this.$refs.menuList)?.contains?.(document.activeElement);
+      this.closeKeyboardMenu();
+      if (focusInMenu) {
+        this.$nextTick(() => this.focusMenuActivator());
+      }
+    },
+    focusMenuActivator() {
+      // the button may be a component wrapping the focusable element
+      const activator = elementOf(this.$refs.menuActivator);
+      (activator?.matches?.(FOCUSABLE_SELECTOR) ? activator : activator?.querySelector?.(FOCUSABLE_SELECTOR))?.focus?.();
+    },
     closeMenuToActivator(event) {
       event?.preventDefault?.();
       event?.stopPropagation?.();
       this.closeKeyboardMenu();
-      this.$nextTick(() => {
-        // the button may be a component wrapping the focusable element
-        const activator = elementOf(this.$refs.menuActivator);
-        (activator?.matches?.(FOCUSABLE_SELECTOR) ? activator : activator?.querySelector?.(FOCUSABLE_SELECTOR))?.focus?.();
-      });
+      this.$nextTick(() => this.focusMenuActivator());
     },
   },
 };
