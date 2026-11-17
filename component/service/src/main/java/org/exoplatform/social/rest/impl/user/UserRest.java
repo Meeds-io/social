@@ -2432,10 +2432,11 @@ public class UserRest implements ResourceContainer, Startable {
   }
 
   /**
-   * Once the change is written: consumes both codes, so that they never
-   * confirm another change, while a refused request burns nothing (when
-   * another request consumed one in between, this change stands), then tells
-   * the former address of the change when the address really changed.
+   * Once the change is written: consumes both codes, so that a later request
+   * with them is refused, while a refused request burns nothing. Requests that
+   * validated the same codes concurrently each write their change, and the last
+   * write stands. Then tells the former address of the change when the address
+   * really changed.
    */
   private void completeEmailChange(String username,
                                    String formerEmail,
@@ -2443,10 +2444,12 @@ public class UserRest implements ResourceContainer, Startable {
                                    String otpCode,
                                    String currentOtpCode) {
     if (!otpService.consumeOtp(username, EmailChangeOtpPlugin.NAME, EmailChangeOtpPlugin.bindCode(otpCode, email))) {
-      LOG.warn("The email change code of user {} was consumed by another request while this change was written", username);
+      LOG.warn("The email change code of user {} was consumed by another request, or replaced by a newer code, "
+          + "while this change was written", username);
     }
     if (!otpService.consumeOtp(username, CURRENT_EMAIL_OTP_METHOD, currentOtpCode)) {
-      LOG.warn("The current address code of user {} was consumed by another request while this change was written", username);
+      LOG.warn("The current address code of user {} was consumed by another request, or replaced by a newer code, "
+          + "while this change was written", username);
     }
     if (StringUtils.isNotBlank(formerEmail) && !StringUtils.equalsIgnoreCase(formerEmail.trim(), StringUtils.trim(email))) {
       EmailChangeOtpPlugin emailChangeOtpPlugin = getEmailChangeOtpPlugin();
