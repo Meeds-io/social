@@ -27,7 +27,12 @@
       {{ $t('generalSettings.topBarStyling.drawer.title') }}
     </template>
     <template v-if="drawer" #content>
-      <v-card class="pa-4" flat>
+      <!-- recreated on each init: the shared styling inputs keep the value they were created with -->
+      <v-card
+        :key="initKey"
+        class="pa-4"
+        flat>
+        <portal-general-settings-theme-version-bar @change="changeVersion" />
         <p>
           {{ $t('generalSettings.topBarStyling.help1') }}
         </p>
@@ -50,6 +55,7 @@
           <span class="text-title">
             {{ $t('generalSettings.text.label') }}
           </span>
+          <portal-general-settings-theme-shared-marker class="ms-2 my-auto" />
         </div>
         <styling-text-input
           :text-background="false"
@@ -60,7 +66,9 @@
           :custom-text="true"
           :custom-sub-title="false"
           :custom-title="false"
+          :icon-placeholder="versionIconColor('topBarIconColor')"
           custom-icon />
+        <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
       </v-card>
     </template>
     <template #footer>
@@ -72,7 +80,7 @@
         </v-btn>
         <v-btn
           class="btn btn-primary ms-2"
-          :disabled="saveButtonDisabled"
+          :disabled="saveButtonDisabled && !draftChanged"
           @click="updatePageStylingProperties">
           {{ $t('generalSettings.button.save') }}
         </v-btn>
@@ -81,14 +89,18 @@
   </exo-drawer>
 </template>
 <script>
+import ThemeAreaDrawerMixin from '../../../js/ThemeAreaDrawerMixin.js';
 
 export default {
+  mixins: [ThemeAreaDrawerMixin],
   data: () => ({
+    themeAreaKeys: ['topBarBackgroundColor', 'topBarTextColor', 'topBarIconColor'],
     drawer: false,
     backgroundProperties: null,
     topBarTextProperties: null,
     defaultTopBarStylingProperties: null,
     initialized: false,
+    initKey: 0,
   }),
   props: {
     topBarStylingProperties: {
@@ -99,7 +111,7 @@ export default {
   computed: {
     backgroundImagePath() {
       const background = this.topBarStylingProperties?.topBarBackground;
-      return background?.fileId && `/portal/rest/v1/platform/branding/topBarBackground?v=${background.updatedDate || 0}` || null;
+      return background?.imageUrl || background?.fileId && `/portal/rest/v1/platform/branding/topBarBackground?v=${background.updatedDate || 0}` || null;
     },
     saveButtonDisabled() {
       if (!this.backgroundProperties && !this.topBarTextProperties) {
@@ -121,6 +133,7 @@ export default {
   },
   methods: {
     init() {
+      this.initKey++;
       this.backgroundProperties = {
         backgroundColor: this.topBarStylingProperties?.topBarBackgroundColor || null,
         backgroundPosition: this.topBarStylingProperties?.topBarBackgroundPosition || null,
@@ -168,9 +181,11 @@ export default {
       }
       return effect;
     },
-    updatePageStylingProperties() {
+    commitEdits() {
       this.$root.$emit('update-top-bar-styling-properties', this.backgroundProperties, this.topBarTextProperties);
-      this.close();
+    },
+    updatePageStylingProperties() {
+      this.saveAndClose();
     }
   }
 };

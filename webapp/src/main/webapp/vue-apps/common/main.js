@@ -47,6 +47,9 @@ import * as registrationService from './js/RegistrationService';
 import * as databindService from './js/DatabindService.js';
 import * as loginService from './js/LoginService.js';
 import * as userAccountConfirmationService from './js/UserAccountConfirmationService.js';
+import * as displayMode from './js/DisplayMode.js';
+import { wrapDetachables } from './js/LightScope.js';
+import * as richTextColors from './js/RichTextColors.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -62,6 +65,10 @@ Vuetify.prototype.preset = eXo.env.portal.vuetifyPreset;
 Vue.prototype.vuetifyOptions = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 Vue.use(Vuetify);
+
+// the menus, dialogs and tooltips Vuetify moves out of an application keep its light display: after the Vuetify install,
+// which registers them; a later global mixin keeps the wrapper
+wrapDetachables(Vue);
 
 window.Object.defineProperty(Vue.prototype, '$siteService', {
   value: siteService,
@@ -121,6 +128,19 @@ window.Object.defineProperty(Vue.prototype, '$spacesConstants', {
 window.Object.defineProperty(Vue.prototype, '$brandingService', {
   value: brandingService,
 });
+window.Object.defineProperty(Vue.prototype, '$displayMode', {
+  value: displayMode,
+});
+
+// a device change shows the other version of a page in Automatic: one listener per page
+displayMode.listenToDevice();
+
+window.Object.defineProperty(Vue.prototype, '$richTextColors', {
+  value: richTextColors,
+});
+// for the editor configurations, which are no modules
+window.eXo = window.eXo || {};
+window.eXo.richTextColors = richTextColors;
 window.Object.defineProperty(Vue.prototype, '$profileSettingsService', {
   value: profileSettingsService,
 });

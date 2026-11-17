@@ -28,17 +28,15 @@
     </template>
     <template v-if="drawer" #content>
       <v-card class="pa-4" flat>
+        <portal-general-settings-theme-version-bar @change="changeVersion" />
         <p>
-          {{ $t('generalSettings.themeColors.help1') }}
+          {{ $t('generalSettings.themeColors.description') }}
         </p>
         <p class="ma-0">
           {{ $t('generalSettings.themeColors.help2') }}
         </p>
         <p class="ma-0">
           {{ $t('generalSettings.themeColors.help3') }}
-        </p>
-        <p class="ma-0">
-          {{ $t('generalSettings.themeColors.help4') }}
         </p>
         <p>
           {{ $t('generalSettings.themeColors.help5') }}
@@ -57,12 +55,8 @@
               v-model="secondaryColor"
               :label="`${$t('generalSettings.secondaryColor.label')} ${$t('generalSettings.color.label')}`" />
           </div>
-          <div class="pt-2">
-            <styling-color-picker
-              v-model="tertiaryColor"
-              :label="`${$t('generalSettings.tertiaryColor.label')} ${$t('generalSettings.color.label')}`" />
-          </div>
         </div>
+        <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
       </v-card>
     </template>
     <template #footer>
@@ -74,7 +68,7 @@
         </v-btn>
         <v-btn
           class="btn btn-primary ms-2"
-          :disabled="saveButtonDisabled"
+          :disabled="saveButtonDisabled && !draftChanged"
           @click="updateBrandingThemeColors">
           {{ $t('generalSettings.button.save') }}
         </v-btn>
@@ -83,12 +77,15 @@
   </exo-drawer>
 </template>
 <script>
+import ThemeAreaDrawerMixin from '../../../js/ThemeAreaDrawerMixin.js';
+
 export default {
+  mixins: [ThemeAreaDrawerMixin],
   data: () => ({
+    themeAreaKeys: ['primaryColor', 'secondaryColor'],
     drawer: false,
     primaryColor: null,
     secondaryColor: null,
-    tertiaryColor: null,
   }),
   props: {
     themeColors: {
@@ -99,8 +96,7 @@ export default {
   computed: {
     saveButtonDisabled() {
       return this.primaryColor === this.themeColors.primaryColor &&
-          this.secondaryColor === this.themeColors.secondaryColor &&
-          this.tertiaryColor === this.themeColors.tertiaryColor;
+          this.secondaryColor === this.themeColors.secondaryColor;
     }
   },
   created() {
@@ -113,12 +109,10 @@ export default {
     init() {
       this.primaryColor = this.themeColors?.primaryColor;
       this.secondaryColor = this.themeColors?.secondaryColor;
-      this.tertiaryColor = this.themeColors?.tertiaryColor;
     },
     reset() {
       this.primaryColor = null;
       this.secondaryColor = null;
-      this.tertiaryColor = null;
     },
     open() {
       this.init();
@@ -128,9 +122,11 @@ export default {
       this.reset();
       this.$refs.drawer.close();
     },
+    commitEdits() {
+      this.$root.$emit('update-branding-theme-colors', this.primaryColor, this.secondaryColor);
+    },
     updateBrandingThemeColors() {
-      this.$root.$emit('update-branding-theme-colors', this.primaryColor, this.secondaryColor, this.tertiaryColor);
-      this.close();
+      this.saveAndClose();
     }
   }
 };

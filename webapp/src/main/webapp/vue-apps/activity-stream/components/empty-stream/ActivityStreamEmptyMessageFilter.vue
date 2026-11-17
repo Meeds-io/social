@@ -20,7 +20,7 @@
       <div class="d-flex flex-column ma-auto py-10 text-center">
         <v-icon
           size="70"
-          color="tertiary"
+          color="secondary"
           class="mx-auto mt-8 fa"
           :class="emptyStreamIcon" />
         <span class="my-7">{{ emptyStreamLabel }}</span>

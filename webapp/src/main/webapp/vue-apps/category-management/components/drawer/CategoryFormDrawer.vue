@@ -40,7 +40,7 @@
           <v-card
             height="24"
             width="24"
-            class="d-flex align-center justify-center tertiary border-radius-circle"
+            class="d-flex align-center justify-center secondary border-radius-circle"
             flat>
             1
           </v-card>
@@ -86,7 +86,7 @@
           class="d-flex mb-4"
           flat>
           <v-card
-            :class="step > 1 ? 'tertiary' : 'mask-color'"
+            :class="step > 1 ? 'secondary' : 'mask-color'"
             height="24"
             width="24"
             class="d-flex align-center justify-center border-radius-circle white--text"

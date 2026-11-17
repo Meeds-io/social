@@ -120,7 +120,7 @@
         </div>
         <div v-else class="d-flex flex-column flex-grow-1 full-height">
           <div class="d-flex flex-column align-center justify-center mt-6">
-            <v-icon class="tertiary--text" size="60">fas fa-layer-group</v-icon>
+            <v-icon class="secondary--text" size="60">fas fa-layer-group</v-icon>
             <span class="mt-5">{{ $t('social.spaces.administration.manageSpaces.subspaces.instructionsOne') }}</span>
             <span>{{ $t('social.spaces.administration.manageSpaces.subspaces.instructionsTwo') }}</span>
           </div>

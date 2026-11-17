@@ -39,6 +39,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.portal.branding.BrandingUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.DisabledUserException;
@@ -156,6 +157,7 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
     if (detectedUser != null && createNewAccount == null) {
       RequestDispatcher invitation = context.getRequestDispatcher(OAUTH_INVITATION_JSP_PATH);
       if (invitation != null) {
+        BrandingUtils.getDisplayMode(request);
         invitation.forward(request, response);
         return;
       }
@@ -199,6 +201,7 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
     String username = getUserName(request, authenticationRegistry);
     if (StringUtils.isBlank(username)) {
       request.setAttribute(INVITATION_CONFIRM_ERROR_PARAM, bundle.resolve("UIOAuthInvitationForm.message.not-in-oauth-login"));
+      BrandingUtils.getDisplayMode(request);
       getContext().getRequestDispatcher(OAUTH_INVITATION_JSP_PATH).forward(request, response);
       return;
     }
@@ -241,6 +244,7 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
       log.warn("Exception while checking password of user", ex);
     }
 
+    BrandingUtils.getDisplayMode(request);
     getContext().getRequestDispatcher(OAUTH_INVITATION_JSP_PATH).forward(request, response);
   }
 
@@ -333,6 +337,8 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
     }
     req.setAttribute("register_errors", errors);
     req.setAttribute("register_error_fields", errorFields);
+    // the JSP writes the page's display mode on its <html>
+    BrandingUtils.getDisplayMode(req);
     getContext().getRequestDispatcher(OAUTH_REGISTER_JSP_PATH).forward(req, res);
   }
 

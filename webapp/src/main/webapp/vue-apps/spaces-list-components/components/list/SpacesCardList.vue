@@ -58,7 +58,7 @@
         flat>
         <div class="noSpacesYet">
           <p>
-            <v-icon color="tertiary" size="60">fa-layer-group</v-icon>
+            <v-icon color="secondary" size="60">fa-layer-group</v-icon>
           </p>
           <p class="text-title">
             {{ $t('spacesList.noSpacesFound') }}
