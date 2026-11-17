@@ -272,7 +272,10 @@ export default {
         return;
       }
       const inNewTab = entry.target === '_blank' || event.ctrlKey || event.metaKey || event.shiftKey;
-      if (!inNewTab && !entry.getAttribute('href').includes('#')) {
+      const url = new URL(entry.href, window.location.href);
+      const anchorOfThisPage = !!url.hash && url.origin === window.location.origin
+        && url.pathname === window.location.pathname && url.search === window.location.search;
+      if (!inNewTab && !anchorOfThisPage) {
         this.leavingPage = true;
         // Vuetify's list item blurs itself on a click that has a detail: a mouse's, and a screen reader's activation
         entry.focus();
@@ -283,7 +286,7 @@ export default {
     },
     // The page left with the menu open is shown again by the browser's Back: it shows it closed
     onPageShow(event) {
-      if (event.persisted && this.leavingPage) {
+      if (event.persisted) {
         this.leavingPage = false;
         this.showMenu = false;
       }
@@ -345,7 +348,12 @@ export default {
       }
     },
     handleCloseMenu() {
-      if (this.showMenu && !this.leavingPage) {
+      if (this.leavingPage) {
+        // the click on the entry that replaces the page: any later one, the page staying, closes the menu again
+        this.leavingPage = false;
+        return;
+      }
+      if (this.showMenu) {
         setTimeout(() => {
           this.showMenu = false;
         }, 100);
