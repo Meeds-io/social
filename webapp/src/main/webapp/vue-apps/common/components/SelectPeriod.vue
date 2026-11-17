@@ -214,6 +214,10 @@ export default {
     },
   },
   watch: {
+    // the dialog is named after the period the field shows, which a choice made in it changes
+    rangeDateTimeTitle() {
+      this.nameDialog();
+    },
     menu(newVal, oldVal) {
       // Escape is caught wherever it starts while the picker is open: a click on a part of the picker that takes
       // no focus (its title, its caption, any button in Safari) leaves the focus on the page's body
