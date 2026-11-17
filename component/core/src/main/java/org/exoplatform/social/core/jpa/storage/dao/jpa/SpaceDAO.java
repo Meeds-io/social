@@ -42,6 +42,7 @@ import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.constant.UserSpacesScope;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Tuple;
@@ -198,6 +199,51 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     }
     Long parentSpaceId = rows.get(0).getParentSpaceId();
     return Optional.of(parentSpaceId == null ? 0L : parentSpaceId);
+  }
+
+  /**
+   * Reads a space's row as committed, never the state of an entity the
+   * persistence context holds: a held instance is detached first, after a
+   * flush when a transaction is active, so that the thread's own change is
+   * written; an instance the context does not hold is read as by a plain find.
+   *
+   * @param id space technical identifier
+   * @return the space read from its row, null when the row is gone
+   */
+  public SpaceEntity findCommitted(long id) {
+    EntityManager entityManager = getEntityManager();
+    // the held instance, or an uninitialised proxy, which detach drops
+    SpaceEntity reference = entityManager.getReference(SpaceEntity.class, id);
+    if (entityManager.getEntityManagerFactory().getPersistenceUnitUtil().isLoaded(reference)
+        && entityManager.getTransaction().isActive()) {
+      entityManager.flush();
+    }
+    entityManager.detach(reference);
+    return entityManager.find(SpaceEntity.class, id);
+  }
+
+  /**
+   * @param groupId space group identifier
+   * @return the space's technical identifier, read from its row, or null
+   */
+  public Long findIdByGroupId(String groupId) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SpaceEntity.getSpaceIdByGroupId", Long.class);
+    query.setParameter("groupId", groupId);
+    query.setMaxResults(1);
+    List<Long> ids = query.getResultList();
+    return ids.isEmpty() ? null : ids.get(0);
+  }
+
+  /**
+   * @param prettyName space pretty name
+   * @return the space's technical identifier, read from its row, or null
+   */
+  public Long findIdByPrettyName(String prettyName) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SpaceEntity.getSpaceIdByPrettyName", Long.class);
+    query.setParameter("prettyName", prettyName);
+    query.setMaxResults(1);
+    List<Long> ids = query.getResultList();
+    return ids.isEmpty() ? null : ids.get(0);
   }
 
   public SpaceEntity getSpaceByGroupId(String groupId) {

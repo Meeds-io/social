@@ -54,7 +54,6 @@ import org.exoplatform.social.core.storage.cache.model.key.SpaceFilterKey;
 import org.exoplatform.social.core.storage.cache.model.key.SpaceKey;
 import org.exoplatform.social.core.storage.cache.model.key.SpaceRefKey;
 import org.exoplatform.social.core.storage.cache.model.key.SpaceType;
-import org.exoplatform.social.core.storage.cache.selector.IdentityCacheSelector;
 import org.exoplatform.social.core.storage.cache.selector.LastAccessedSpacesCacheSelector;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
@@ -189,8 +188,7 @@ public class CachedSpaceStorage extends SpaceStorage {
   private ListSpacesData buildIds(List<Space> spaces) {
     List<SpaceKey> data = new ArrayList<>();
     for (Space s : spaces) {
-      SpaceKey k = putSpaceInCacheIfNotExists(s);
-      data.add(k);
+      data.add(new SpaceKey(s.getSpaceId()));
     }
     return new ListSpacesData(data);
   }
@@ -215,7 +213,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     try {
       return super.saveSpace(space, isNew);
     } finally {
-      spaceCache.remove(new SpaceKey(space.getSpaceId()));
+      evictSpace(new SpaceKey(space.getSpaceId()));
       clearSpaceCache();
       clearIdentityCache();
       cleanRef(space);
@@ -227,7 +225,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     try {
       return super.saveSpace(space, parentChange);
     } finally {
-      spaceCache.remove(new SpaceKey(space.getSpaceId()));
+      evictSpace(new SpaceKey(space.getSpaceId()));
       clearSpaceCache();
       clearIdentityCache();
       cleanRef(space);
@@ -239,7 +237,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     try {
       return super.saveSpace(space, parentSpaceId, isNew);
     } finally {
-      spaceCache.remove(new SpaceKey(space.getSpaceId()));
+      evictSpace(new SpaceKey(space.getSpaceId()));
       clearSpaceCache();
       clearIdentityCache();
       cleanRef(space);
@@ -254,7 +252,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     try {
       return super.changeMembership(spaceId, userId, change);
     } finally {
-      spaceCache.remove(key);
+      evictSpace(key);
       clearSpaceCache();
       clearIdentityCache();
     }
@@ -268,7 +266,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     try {
       return super.applySettingsChange(spaceId, change);
     } finally {
-      spaceCache.remove(key);
+      evictSpace(key);
       clearSpaceCache();
       clearIdentityCache();
       if (cachedSpace != null) {
@@ -302,12 +300,12 @@ public class CachedSpaceStorage extends SpaceStorage {
     cachedActivityStorage.clearOwnerStreamCache(oldPrettyName);
 
     // remove space cached
-    spaceCache.remove(new SpaceKey(space.getSpaceId()));
+    evictSpace(new SpaceKey(space.getSpaceId()));
     clearSpaceCache();
     clearIdentityCache();
     cleanRef(space);
-    spaceRefCache.remove(new SpaceRefKey(oldPrettyName));
-    spaceRefCache.remove(new SpaceRefKey(null, space.getGroupId()));
+    evictRef(new SpaceRefKey(oldPrettyName));
+    evictRef(new SpaceRefKey(null, space.getGroupId()));
   }
 
   @Override
@@ -318,7 +316,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     super.deleteSpace(id);
 
     //
-    spaceCache.remove(new SpaceKey(Long.parseLong(id)));
+    evictSpace(new SpaceKey(Long.parseLong(id)));
     clearSpaceCache();
     cleanRef(space);
 
@@ -332,9 +330,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     try {
       super.ignoreSpace(spaceId, userId);
     } finally {
-      spaceCache.remove(new SpaceKey(Long.parseLong(spaceId)));
-      clearSpaceCache();
-      clearIdentityCache();
+      clearSpaceCached(spaceId);
     }
   }
 
@@ -679,12 +675,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     //
     SpaceData data = spaceFutureCache.get(() -> {
       Space space = CachedSpaceStorage.super.getSpaceById(id);
-      if (space != null) {
-        putSpaceInCacheIfNotExists(space);
-        return new SpaceData(space);
-      } else {
-        return null;
-      }
+      return space == null ? null : new SpaceData(space);
     }, key);
 
     if (data != null) {
@@ -703,12 +694,8 @@ public class CachedSpaceStorage extends SpaceStorage {
 
     //
     SpaceKey key = spaceRefFutureCache.get(() -> {
-      Space space = CachedSpaceStorage.super.getSpaceByPrettyName(spacePrettyName);
-      if (space != null) {
-        return putSpaceInCacheIfNotExists(space);
-      } else {
-        return SpaceKey.NULL_OBJECT;
-      }
+      Long spaceId = CachedSpaceStorage.super.getSpaceIdByPrettyName(spacePrettyName);
+      return spaceId == null ? SpaceKey.NULL_OBJECT : new SpaceKey(spaceId);
     }, refKey);
 
     //
@@ -728,12 +715,8 @@ public class CachedSpaceStorage extends SpaceStorage {
 
     //
     SpaceKey key = spaceRefFutureCache.get(() -> {
-      Space space = CachedSpaceStorage.super.getSpaceByGroupId(groupId);
-      if (space != null) {
-        return putSpaceInCacheIfNotExists(space);
-      } else {
-        return SpaceKey.NULL_OBJECT;
-      }
+      Long spaceId = CachedSpaceStorage.super.getSpaceIdByGroupId(groupId);
+      return spaceId == null ? SpaceKey.NULL_OBJECT : new SpaceKey(spaceId);
     }, refKey);
 
     //
@@ -854,13 +837,19 @@ public class CachedSpaceStorage extends SpaceStorage {
                                                 EMPTY_SPACE_KEY);
   }
 
+  /**
+   * Evicts a space's entries, whether or not the cache holds it, after
+   * invalidating the loads in flight: on a miss, the keys of its refs are not
+   * known, so every ref load in flight is invalidated.
+   */
   public void clearSpaceCached(String spaceId) {
     SpaceKey cacheKey = new SpaceKey(Long.parseLong(spaceId));
     SpaceData cachedSpace = spaceCache.get(cacheKey);
+    evictSpace(cacheKey);
     if (cachedSpace != null) {
-      Space space = cachedSpace.build();
-      spaceCache.remove(cacheKey);
-      cleanRef(space);
+      cleanRef(cachedSpace.build());
+    } else {
+      spaceRefFutureCache.clearFutures();
     }
     clearSpaceCache();
     clearIdentityCache();
@@ -875,22 +864,6 @@ public class CachedSpaceStorage extends SpaceStorage {
     identitiesCache.clearCache();
   }
 
-  private SpaceKey putSpaceInCacheIfNotExists(Space space) {
-    SpaceKey key = new SpaceKey(space.getSpaceId());
-    if (spaceCache.get(key) == null) {
-      spaceCache.putLocal(key, new SpaceData(space));
-    }
-    SpaceRefKey refKey = new SpaceRefKey(null, space.getGroupId());
-    if (spaceRefCache.get(refKey) == null) {
-      spaceRefCache.putLocal(refKey, key);
-    }
-    refKey = new SpaceRefKey(space.getPrettyName());
-    if (spaceRefCache.get(refKey) == null) {
-      spaceRefCache.putLocal(refKey, key);
-    }
-    return key;
-  }
-
   private CachedActivityStorage getCachedActivityStorage() {
     if (cachedActivityStorage == null) {
       cachedActivityStorage = PortalContainer.getInstance()
@@ -903,23 +876,33 @@ public class CachedSpaceStorage extends SpaceStorage {
     if (removed == null) {
       return;
     }
-    spaceRefCache.remove(new SpaceRefKey(removed.getPrettyName()));
-    spaceRefCache.remove(new SpaceRefKey(null, removed.getGroupId()));
+    evictRef(new SpaceRefKey(removed.getPrettyName()));
+    evictRef(new SpaceRefKey(null, removed.getGroupId()));
+  }
 
-    spaceRefFutureCache.remove(new SpaceRefKey(removed.getPrettyName()));
-    spaceRefFutureCache.remove(new SpaceRefKey(null, removed.getGroupId()));
+  /**
+   * Evicts a space entry after invalidating its load in flight, so that a load
+   * that read the row before the eviction stores nothing.
+   */
+  private void evictSpace(SpaceKey key) {
+    spaceFutureCache.removeFuture(key);
+    spaceCache.remove(key);
+  }
+
+  private void evictRef(SpaceRefKey refKey) {
+    spaceRefFutureCache.removeFuture(refKey);
+    spaceRefCache.remove(refKey);
   }
 
   private void clearIdentityCache() {
-    try {
-      identitiesCache.select(new IdentityCacheSelector(SpaceIdentityProvider.NAME));
-    } catch (Exception e) {
-      LOG.error("Error deleting cache entries of provider type 'Space Identities'", e);
-    }
+    getCachedIdentityStorage().clearSpaceIdentityLists();
   }
 
   private void clearSpaceCache() {
     try {
+      spacesFutureCache.clearFutures();
+      spacesCountFutureCache.clearFutures();
+      spacesCountByTemplateFutureCache.clearFutures();
       spacesCache.clearCache();
       spacesCountCache.clearCache();
       spacesCountByTemplateCache.clearCache();
