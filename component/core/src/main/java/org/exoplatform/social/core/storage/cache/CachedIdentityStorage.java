@@ -646,6 +646,19 @@ public class CachedIdentityStorage implements IdentityStorage {
     }
   }
 
+  /**
+   * Evicts the cached lists of space identities, after invalidating the list
+   * loads in flight, so that none stores a list read before the eviction.
+   */
+  public void clearSpaceIdentityLists() {
+    identitiesCache.clearFutures();
+    try {
+      cacheService.getIdentitiesCache().select(new IdentityCacheSelector(SpaceIdentityProvider.NAME));
+    } catch (Exception e) {
+      LOG.error("Error deleting cache entries of provider type 'Space Identities'", e);
+    }
+  }
+
   private void clearIdentityCache(Identity identity, boolean removeCachedId, boolean clearList) {
     IdentityKey key = new IdentityKey(identity.getId());
     identityCache.remove(key);
