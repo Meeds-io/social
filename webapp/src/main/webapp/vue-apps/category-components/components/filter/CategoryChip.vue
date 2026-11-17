@@ -75,7 +75,7 @@
         v-for="subItem in category.categories"
         :key="subItem.id"
         :ref="i === 0 ? 'firstItem' : null"
-        :color="selectedId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
+        :color="selectedId === subItem.id && 'var(--allPagesSecondaryTextColor, var(--allPagesSecondaryColor)) !important'"
         class="text-truncate"
         tabindex="0"
         dense

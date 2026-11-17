@@ -6,7 +6,7 @@
     <div class="ma-auto">
       <div
         class="peopleOverviewCount d-flex align-center justify-center">
-        <v-icon size="22" class="tertiary--text me-2">{{ icon }}</v-icon>
+        <v-icon size="22" class="secondary--text me-2">{{ icon }}</v-icon>
         <span class="text-h5 font-weight-bold text-color">{{ count }}</span>
       </div>
       <div class="peopleOverviewTitle text-center text-truncate pt-3 text-body d-none d-md-block">

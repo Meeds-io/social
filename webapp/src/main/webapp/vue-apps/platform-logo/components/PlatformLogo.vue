@@ -47,11 +47,12 @@
           </v-fab-transition>
         </div>
 
-        <img
+        <company-logo-picture
           :src="platformLogo"
+          :dark-src="darkLogo"
           alt=""
-          class="object-fit-contain full-width full-height"
-          :style="align">
+          img-class="object-fit-contain full-width full-height"
+          :img-style="align" />
       </v-card>
     </v-hover>
     <platform-logo-settings-drawer v-if="$root.canEdit" />
@@ -70,6 +71,10 @@ export default {
     focus: false,
   }),
   computed: {
+    // the company logo has a dark version; another image set on this application has none
+    darkLogo() {
+      return this.platformLogo === eXo.env.portal.companyLogo ? eXo.env.portal.companyDarkLogo : null;
+    },
     align() {
       let align = 'object-position:';
       switch (this.$root.vAlign) {

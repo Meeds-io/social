@@ -22,81 +22,29 @@
   <v-row class="ma-0">
     <v-col
       cols="12"
-      lg="7"
-      class="pa-0 mb-4">
-      <div class="text-header mb-6">
-        {{ $t('generalSettings.companyNameTitle') }}
-      </div>
-      <v-card
-        max-width="450px"
-        class="me-2"
-        flat>
-        <v-text-field
-          id="companyName"
-          v-model="companyName"
-          :placeholder="$t('generalSettings.companyNamePlaceholder')"
-          class="setup-company-name border-box-sizing pt-0"
-          name="companyName"
-          type="text"
-          autofocus="autofocus"
-          aria-required="true"
-          required="required"
-          outlined
-          dense />
-      </v-card>
-    </v-col>
-    <v-col
-      cols="12"
-      lg="2"
-      class="pa-0 mb-4 d-flex flex-column">
-      <div class="mb-2 text-header">
-        <help-label
-          label="generalSettings.companyLogo.label"
-          label-class="text-header"
-          tooltip="generalSettings.companyLogo.tooltip">
-          <template slot="helpContent">
-            <p>
-              {{ $t('generalSettings.companyLogo.help1') }}
-            </p>
-            <p>
-              {{ $t('generalSettings.companyLogo.help2') }}
-            </p>
-            <p>
-              {{ $t('generalSettings.companyLogo.help3') }}
-            </p>
-          </template>
-        </help-label>
-      </div>
-      <portal-general-settings-company-logo
-        ref="companyLogo"
-        v-model="logoUploadId"
-        :branding="branding"
-        class="my-auto" />
-    </v-col>
-    <v-col
-      cols="12"
-      lg="3"
-      class="pa-0 mb-4 d-flex flex-column">
-      <div class="mb-2 text-header">
-        {{ $t('generalSettings.companyFaviconTitle') }}
-      </div>
-      <portal-general-settings-company-favicon
-        ref="companyFavicon"
-        v-model="faviconUploadId"
-        :branding="branding"
-        class="my-auto" />
-    </v-col>
-    <v-col
-      cols="12"
       lg="8"
       class="pa-0">
-      <portal-general-settings-branding-site-preview />
+      <portal-general-settings-branding-site-preview
+        :working="working"
+        :stored="view && view.themes || []" />
     </v-col>
     <v-col
+      v-if="working"
       cols="12"
       lg="4"
-      class="pa-0">
-      <portal-general-settings-branding-options />
+      class="pa-0 ps-lg-6 border-box-sizing">
+      <portal-general-settings-branding-identity
+        :company-name="working.companyName"
+        @edit="$refs.brandingDrawer.open()" />
+      <portal-general-settings-themes-list
+        :themes="working.themes"
+        :theme-in-use-key="working.themeInUseKey"
+        @select="working.themeInUseKey = $event"
+        @add="$refs.themeAddDrawer.open()"
+        @edit="$refs.themeEditionDrawer.open($event, false)"
+        @restore="restoreTheme"
+        @delete="deleteTheme" />
+      <portal-general-settings-modes-offered v-model="working.modesOffered" />
     </v-col>
     <v-col
       v-if="customStylesheetEnabled"
@@ -122,7 +70,7 @@
         </v-btn>
         <v-btn
           :aria-label="$t('generalSettings.apply')"
-          :disabled="!validForm"
+          :disabled="!changed"
           :loading="loading"
           color="primary"
           class="btn btn-primary register-button"
@@ -134,928 +82,186 @@
         </v-btn>
       </div>
     </v-col>
-    <portal-general-settings-branding-update-colors-drawer
-      :theme-colors="{
-        'primaryColor': primaryColor,
-        'secondaryColor': secondaryColor,
-        'tertiaryColor': tertiaryColor
-      }" />
-    <portal-general-settings-branding-update-font-drawer
-      :font-family="fontFamily"
-      :font-families="supportedFontFamilies" />
-    <portal-general-settings-branding-top-bar-styling-drawer :top-bar-styling-properties="topBarStylingProperties" />
-    <portal-general-settings-branding-sidebar-styling-drawer :side-bar-styling-properties="sideBarStylingProperties" />
-    <portal-general-settings-branding-drawer-styling :drawer-styling-properties="drawerStylingProperties" />
-    <portal-general-settings-branding-page-styling-drawer :page-styling-properties="pageStylingProperties" />
+    <portal-general-settings-branding-drawer
+      v-if="working"
+      ref="brandingDrawer"
+      :value="working"
+      @apply="applyBranding" />
+    <portal-general-settings-theme-add-drawer
+      ref="themeAddDrawer"
+      :themes="themes"
+      :theme-in-use-key="working && working.themeInUseKey"
+      @next="startTheme" />
+    <portal-general-settings-theme-edition-drawer
+      ref="themeEditionDrawer"
+      :themes="themes"
+      :stored="view && view.themes || []"
+      :modes-offered="working && working.modesOffered"
+      @apply="applyTheme" />
   </v-row>
 </template>
 <script>
+import {createWorkingCopy, createWorkingTheme, createRestoredTheme, buildPublication, publicationHasChanges} from '../../js/ThemePublicationBuilder.js';
+
 export default {
   props: {
+    // the branding as the general settings loaded it: the custom CSS, the supported fonts
     branding: {
       type: Object,
       default: null,
     },
   },
   data: () => ({
-    companyName: null,
-    primaryColor: null,
-    secondaryColor: null,
-    tertiaryColor: null,
-    fontFamily: null,
-    errorMessage: null,
-    logoUploadId: null,
-    faviconUploadId: null,
-    defaultCustomPageWidth: '1320px',
-    defaultPageBackground: '#F0F0F0',
-    customStylesheetEnabled: eXo.env.portal.customStylesheetEnabled,
+    // the themes view of the server as the page loaded it, and the working copy edited until Apply
+    view: null,
+    working: null,
+    snapshot: null,
+    loading: false,
     customCss: null,
-    topBarStylingProperties: null,
-    isTopBarStylingPropertiesChanged: false,
-    sideBarStylingProperties: null,
-    isSideBarStylingPropertiesChanged: false,
-    drawerStylingProperties: null,
-    isDrawerStylingPropertiesChanged: false,
-    pageStylingProperties: null,
-    isPageStylingPropertiesChanged: false,
-    isThemeColorsChanged: false,
-    isFontFamilyReset: false,
-    brandingStylingType: Object.freeze({
-      TOP_BAR: 'topBar',
-      SIDE_BAR: 'sideBar',
-      DRAWER: 'drawer',
-    }),
-    // A platform-wide theme variable that is not set is simply absent from the theme style returned by the server
-    // (an empty configured default); 'none' is the not-set value of the *BackgroundImage variables
-    themeUnsetValue: 'initial',
-    // Margins are on the platform scale at every level: 20 = no extra margin (a value of 32 renders 12px)
-    marginNeutral: 20,
-    applicationTextKeys: Object.freeze([
-      'textTitleColor', 'textTitleFontSize', 'textTitleFontWeight', 'textTitleFontStyle',
-      'textHeaderColor', 'textHeaderFontSize', 'textHeaderFontWeight', 'textHeaderFontStyle',
-      'textColor', 'textFontSize', 'textFontWeight', 'textFontStyle',
-      'textSubtitleColor', 'textSubtitleFontSize', 'textSubtitleFontWeight', 'textSubtitleFontStyle',
-      // The platform-wide icon colour of page content rides the same read, save and preview paths as the text keys
-      'iconColor',
-    ]),
-    sides: Object.freeze(['Top', 'Right', 'Bottom', 'Left']),
-    textBackgroundTypes: Object.freeze(['Title', 'Header']),
-    applicationBoxShadowValue: '0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12)',
+    // the custom CSS as saved, once this page saved it: the loaded branding is stale until it reloads
+    savedCustomCss: null,
+    // a custom CSS the server refused after a committed publication, kept in the field while the page reloads
+    keptCustomCss: null,
+    customStylesheetEnabled: eXo.env.portal.customStylesheetEnabled,
   }),
   computed: {
-    defaultCompanyName() {
-      return this.branding?.companyName;
+    themes() {
+      return this.working?.themes || [];
     },
-    defaultPrimaryColor() {
-      return this.branding?.themeStyle?.primaryColor;
-    },
-    defaultSecondaryColor() {
-      return this.branding?.themeStyle?.secondaryColor;
-    },
-    defaultTertiaryColor() {
-      return this.branding?.themeStyle?.tertiaryColor;
-    },
-    defaultFontFamily() {
-      return this.branding?.themeStyle?.fontFamily;
-    },
-    supportedFontFamilies() {
-      return this.branding?.supportedFontFamilies || [];
-    },
-    isFontFamilyChanged() {
-      return this.fontFamily !== this.defaultFontFamily;
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
-    },
-    oldCustomStyle() {
-      return this.branding?.customCss;
-    },
-    isCustomStyleChanged() {
-      return this.oldCustomStyle !== this.customCss;
-    },
-    validForm() {
-      return this.changed && this.isValidForm;
-    },
-    isValidForm() {
-      return this.companyName?.length
-          && this.primaryColor?.length
-          && this.secondaryColor?.length
-          && this.tertiaryColor?.length;
-    },
+    // the page's working copy differs from what is published
     changed() {
-      return this.branding
-          && (this.logoUploadId
-          || this.companyName !== this.defaultCompanyName
-          || this.faviconUploadId
-          || this.isTopBarStylingPropertiesChanged
-          || this.isSideBarStylingPropertiesChanged
-          || this.isDrawerStylingPropertiesChanged
-          || this.isPageStylingPropertiesChanged
-          || this.isThemeColorsChanged
-          || this.isFontFamilyChanged
-          || this.isFontFamilyReset
-          || this.isCustomStyleChanged);
+      return !!this.working
+        && (JSON.stringify(this.working) !== this.snapshot || this.customCss !== this.customCssBaseline);
+    },
+    customCssBaseline() {
+      return this.savedCustomCss ? this.savedCustomCss.value : this.branding?.customCss || null;
     },
   },
   watch: {
-    '$root.defaultBrandingThemeStyle'() {
-      if (this.branding && this.pageStylingProperties && !this.isPageStylingPropertiesChanged) {
-        this.pageStylingProperties.applicationStyling = this.createApplicationStyling(this.branding.themeStyle, this.branding);
-      }
-    },
-    errorMessage() {
-      if (this.errorMessage) {
-        this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
-      } else {
-        this.$root.$emit('close-alert-message');
-      }
+    branding() {
+      this.savedCustomCss = null;
+      this.customCss = this.keptCustomCss ? this.keptCustomCss.value : this.branding?.customCss || null;
+      this.keptCustomCss = null;
     },
     changed() {
       this.$emit('changed', this.changed);
     },
-    primaryColor() {
-      this.$root.$emit('refresh-style-property', {
-        detail: {
-          propertyName: '--allPagesPrimaryColor',
-          propertyValue: this.primaryColor
-        }
-      });
-    },
-    secondaryColor() {
-      this.$root.$emit('refresh-style-property', {
-        detail: {
-          propertyName: '--allPagesSecondaryColor',
-          propertyValue: this.secondaryColor
-        }
-      });
-    },
-    tertiaryColor() {
-      this.$root.$emit('refresh-style-property', {
-        detail: {
-          propertyName: '--allPagesTertiaryColor',
-          propertyValue: this.tertiaryColor
-        }
-      });
-    },
-    fontFamily() {
-      this.$root.$emit('refresh-style-property', {
-        detail: {
-          propertyName: '--allPagesFontFamily',
-          propertyValue: this.fontFamily
-        }
-      });
-    },
-    companyName() {
-      this.$root.$emit('refresh-company-name', this.companyName);
-    },
-    branding() {
-      this.init();
+    'working.companyName'() {
+      this.$root.$emit('refresh-company-name', this.working?.companyName);
     },
   },
   created() {
-    this.$root.$on('update-branding-theme-colors', this.updateBrandingThemeColors);
-    this.$root.$on('update-branding-font-family', this.updateBrandingFontFamily);
-    this.$root.$on('update-top-bar-styling-properties', this.updateTopBarProperties);
-    this.$root.$on('update-sidebar-styling-properties', this.updateSideBarProperties);
-    this.$root.$on('update-drawer-styling-properties', this.updateDrawerProperties);
-    this.$root.$on('reset-theme-colors', this.resetThemeStyleColors);
-    this.$root.$on('reset-font-family', this.resetFontFamily);
-    this.$root.$on('reset-top-bar-styling', this.resetTopBarStylingProperties);
-    this.$root.$on('reset-sidebar-styling', this.resetSidebarStylingProperties);
-    this.$root.$on('reset-drawer-styling', this.resetDrawerStylingProperties);
-    this.$root.$on('update-page-styling-properties', this.updatePageStylingProperties);
-    this.$root.$on('reset-page-styling', this.resetPageStyling);
-  },
-  mounted() {
     this.init();
-  },
-  beforeDestroy() {
-    this.$root.$off('update-branding-theme-colors', this.updateBrandingThemeColors);
-    this.$root.$off('update-branding-font-family', this.updateBrandingFontFamily);
-    this.$root.$off('update-top-bar-styling-properties', this.updateTopBarProperties);
-    this.$root.$off('update-sidebar-styling-properties', this.updateSideBarProperties);
-    this.$root.$off('update-drawer-styling-properties', this.updateDrawerProperties);
-    this.$root.$off('reset-theme-colors', this.resetThemeStyleColors);
-    this.$root.$off('reset-font-family', this.resetFontFamily);
-    this.$root.$off('reset-top-bar-styling', this.resetTopBarStylingProperties);
-    this.$root.$off('reset-sidebar-styling', this.resetSidebarStylingProperties);
-    this.$root.$off('reset-drawer-styling', this.resetDrawerStylingProperties);
-    this.$root.$off('update-page-styling-properties', this.updatePageStylingProperties);
-    this.$root.$off('reset-page-styling', this.resetPageStyling);
   },
   methods: {
     init() {
-      this.$refs.companyLogo?.resetLogo();
-      this.$refs.companyFavicon?.resetFavicon();
-      this.companyName = this.defaultCompanyName;
-      this.primaryColor = this.defaultPrimaryColor;
-      this.secondaryColor = this.defaultSecondaryColor;
-      this.tertiaryColor = this.defaultTertiaryColor;
-      this.fontFamily = this.defaultFontFamily;
-      this.isFontFamilyReset = false;
-      this.customCss = this.branding?.customCss;
-      this.pageStylingProperties = {
-        pageBackground: this.branding?.pageBackground || null,
-        pageBackgroundSize: this.branding?.pageBackgroundSize || null,
-        pageBackgroundRepeat: this.branding?.pageBackgroundRepeat || null,
-        pageBackgroundPosition: this.branding?.pageBackgroundPosition || null,
-        pageBackgroundAttachment: this.branding?.pageBackgroundAttachment || null,
-        pageBackgroundColor: this.branding?.pageBackgroundColor || null,
-        pageBackgroundEffect: this.branding?.pageBackgroundEffect || null,
-        pageWidth: this.branding.pageWidth,
-        pageMargins: this.createPageMargins(this.branding?.themeStyle),
-        applicationStyling: this.createApplicationStyling(this.branding?.themeStyle, this.branding),
-      };
-      this.logoUploadId = null;
-      this.faviconUploadId = null;
-      this.errorMessage = null;
-      this.topBarStylingProperties = this.createStylingProperties(this.branding.themeStyle,this.branding.topBarBackground, this.brandingStylingType.TOP_BAR);
-      this.sideBarStylingProperties = this.createStylingProperties(this.branding.themeStyle, this.branding.sideBarBackground, this.brandingStylingType.SIDE_BAR);
-      this.drawerStylingProperties = this.createStylingProperties(this.branding.themeStyle, this.branding.drawerBackground, this.brandingStylingType.DRAWER);
-    },
-    save() {
-      this.errorMessage = null;
-      const topBarBackground = this.topBarStylingProperties.topBarBackground;
-      delete this.topBarStylingProperties.topBarBackground;
-      const sideBarBackground = this.sideBarStylingProperties.sideBarBackground;
-      delete this.sideBarStylingProperties.sideBarBackground;
-      const drawerBackground = this.drawerStylingProperties.drawerBackground;
-      delete this.drawerStylingProperties.drawerBackground;
-      let themeStyle = {
-        primaryColor: this.primaryColor,
-        secondaryColor: this.secondaryColor,
-        tertiaryColor: this.tertiaryColor,
-        fontFamily: this.fontFamily,
-      };
-      const applicationStyling = this.pageStylingProperties.applicationStyling;
-      Object.assign(themeStyle, this.toApplicationThemeStyle(applicationStyling));
-      Object.assign(themeStyle, this.toPageMarginsThemeStyle(this.pageStylingProperties.pageMargins));
-      const appBackground = applicationStyling?.appBackground || this.emptyBrandingFile();
-      const appTextTitleBackground = applicationStyling?.appTextTitleBackground || this.emptyBrandingFile();
-      const appTextHeaderBackground = applicationStyling?.appTextHeaderBackground || this.emptyBrandingFile();
-      themeStyle = Object.assign(this.topBarStylingProperties, themeStyle);
-      themeStyle = Object.assign(this.sideBarStylingProperties, themeStyle);
-      themeStyle = Object.assign(this.drawerStylingProperties, themeStyle);
-      const branding = Object.assign({}, this.branding);
-      Object.assign(branding, {
-        companyName: this.companyName,
-        logo: {
-          uploadId: this.logoUploadId,
-        },
-        favicon: {
-          uploadId: this.faviconUploadId,
-        },
-        themeStyle: themeStyle,
-        topBarBackground: topBarBackground,
-        sideBarBackground: sideBarBackground,
-        drawerBackground: drawerBackground,
-        appBackground: appBackground,
-        appTextTitleBackground: appTextTitleBackground,
-        appTextHeaderBackground: appTextHeaderBackground,
-        pageBackground: {
-          uploadId: this.pageStylingProperties.pageBackground?.uploadId,
-        },
-        pageBackgroundSize: this.pageStylingProperties.pageBackgroundSize || null,
-        pageBackgroundRepeat: this.pageStylingProperties.pageBackgroundRepeat || null,
-        pageBackgroundPosition: this.pageStylingProperties.pageBackgroundPosition || null,
-        pageBackgroundAttachment: this.pageStylingProperties.pageBackgroundAttachment || null,
-        pageBackgroundColor: this.pageStylingProperties.pageBackgroundColor || null,
-        pageBackgroundEffect: this.pageStylingProperties.pageBackgroundEffect || null,
-        pageWidth: this.pageStylingProperties.pageWidth,
-        customCss: this.customCss,
-      });
       this.$root.loading = true;
-      return this.$brandingService.updateBrandingInformation(branding)
-        .then(() => this.$emit('saved'))
-        .then(() => {
-          this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success');
-          this.$root.$emit('refresh-iframe');
+      return this.$themeService.getThemes()
+        .then(view => {
+          const first = !this.view;
+          this.view = view;
+          this.working = createWorkingCopy(view);
+          this.snapshot = JSON.stringify(this.working);
+          // a reload after a conflict keeps what the administrator typed
+          if (first) {
+            this.customCss = this.customCssBaseline;
+          }
         })
-        .catch(e => this.errorMessage = String(e))
+        .catch(() => this.$root.$emit('alert-message', this.$t('generalSettings.themes.loadingError'), 'error'))
         .finally(() => this.$root.loading = false);
     },
-    updateBrandingFontFamily(fontFamily) {
-      this.fontFamily = fontFamily;
-      this.isFontFamilyReset = false;
+    applyBranding(companyName, identity) {
+      this.working.companyName = companyName;
+      this.working.identity = identity;
     },
-    updateBrandingThemeColors(primary, secondary, tertiary) {
-      this.primaryColor = primary;
-      this.secondaryColor = secondary;
-      this.tertiaryColor = tertiary;
-      this.isThemeColorsChanged = true;
+    startTheme(name, source) {
+      this.$refs.themeEditionDrawer.open(createWorkingTheme(source, name, this.view?.themes), true);
     },
-    updateTopBarProperties(topBarBackgroundProperties, topBarTextProperties) {
-      this.topBarStylingProperties = this.updateStylingProperties(topBarBackgroundProperties, topBarTextProperties, this.brandingStylingType.TOP_BAR);
-      this.isTopBarStylingPropertiesChanged = true;
-      this.refreshTopBarPreview();
-    },
-    refreshTopBarPreview() {
-      const properties = {
-        '--allPagesTopBarTextColor': this.topBarStylingProperties.topBarTextColor,
-        '--allPagesTopBarTextFontSize': this.topBarStylingProperties.topBarTextFontSize,
-        '--allPagesTopBarTextFontStyle': this.topBarStylingProperties.topBarTextFontStyle,
-        '--allPagesTopBarTextFontWeight': this.topBarStylingProperties.topBarTextFontWeight,
-        // a cleared icon colour previews the effective value, the configured default or 'initial', never the stylesheet's stored one
-        '--allPagesTopBarIconColor': this.topBarStylingProperties.topBarIconColor
-          || this.$root.defaultBrandingThemeStyle?.topBarIconColor
-          || 'initial',
-        '--allPagesTopBarBackgroundColor': this.topBarStylingProperties.topBarBackgroundColor,
-        '--allPagesTopBarBackgroundPosition': this.topBarStylingProperties.topBarBackgroundPosition,
-        '--allPagesTopBarBackgroundRepeat': this.topBarStylingProperties.topBarBackgroundRepeat,
-        '--allPagesTopBarBackgroundSize': this.topBarStylingProperties.topBarBackgroundSize,
-      };
-
-      // Determine the background image property
-      if (this.topBarStylingProperties.topBarBackground?.data) {
-        let url = `url(${this.$utils.convertImageDataAsSrc(this.topBarStylingProperties.topBarBackground?.data)})`;
-        if (this.topBarStylingProperties?.topBarBackgroundImage) {
-          url = `${url}, ${this.topBarStylingProperties.topBarBackgroundImage}`;
-        }
-        properties['--allPagesTopBarBackgroundImage'] = url;
-      } else if (this.topBarStylingProperties.topBarBackground?.fileId) {
-        properties['--allPagesTopBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/topBarBackground?v=") ${', ' && this.topBarStylingProperties?.topBarBackgroundImage || ''}`;
-      } else if (this.topBarStylingProperties?.topBarBackgroundImage) {
-        properties['--allPagesTopBarBackgroundImage'] = this.topBarStylingProperties?.topBarBackgroundImage;
+    // an edited theme replaces its working copy; a new one is added to the list, unselected
+    applyTheme(theme, creating) {
+      if (!creating && !theme.dirty) {
+        // nothing changed: the draft comes back in another key order, which must not mark the page as changed
+        return;
+      }
+      const index = this.working.themes.findIndex(item => item.key === theme.key);
+      if (creating) {
+        this.working.themes.push(theme);
       } else {
-        properties['--allPagesTopBarBackgroundImage'] = 'none';
+        this.working.themes.splice(index, 1, theme);
       }
-      properties['--allPagesTopBarBackgroundScrollColor'] = this.topBarStylingProperties.topBarBackgroundScrollColor || null;
-      this.$root.$emit('refresh-style-properties', { detail: properties });
-      this.$root.$emit('refresh-body-class', {
-        name: 'topbar-sticky',
-        enabled: this.topBarStylingProperties.topBarSticky === 'true',
-      });
     },
-    updateSideBarProperties(sideBarBackgroundProperties, sideBarTextProperties) {
-      this.sideBarStylingProperties = this.updateStylingProperties(sideBarBackgroundProperties, sideBarTextProperties, this.brandingStylingType.SIDE_BAR);
-      this.isSideBarStylingPropertiesChanged = true;
-      this.refreshSideBarPreview();
+    restoreTheme(theme) {
+      const index = this.working.themes.findIndex(item => item.key === theme.key);
+      this.working.themes.splice(index, 1, createRestoredTheme(theme));
+      this.$root.$emit('refresh-iframe');
     },
-    refreshSideBarPreview() {
-      const properties = {
-        '--allPagesSideBarTextColor': this.sideBarStylingProperties.sideBarTextColor,
-        '--allPagesSideBarTextFontSize': this.sideBarStylingProperties.sideBarTextFontSize,
-        '--allPagesSideBarTextFontStyle': this.sideBarStylingProperties.sideBarTextFontStyle,
-        '--allPagesSideBarTextFontWeight': this.sideBarStylingProperties.sideBarTextFontWeight,
-        '--allPagesSideBarTextSubtitleColor': this.sideBarStylingProperties.sideBarTextSubtitleColor,
-        '--allPagesSideBarTextSubtitleFontSize': this.sideBarStylingProperties.sideBarTextSubtitleFontSize,
-        '--allPagesSideBarTextSubtitleFontStyle': this.sideBarStylingProperties.sideBarTextSubtitleFontStyle,
-        '--allPagesSideBarTextSubtitleFontWeight': this.sideBarStylingProperties.sideBarTextSubtitleFontWeight,
-        // a cleared icon colour previews the effective value, the configured default or 'initial', never the stylesheet's stored one
-        '--allPagesSideBarIconColor': this.sideBarStylingProperties.sideBarIconColor
-          || this.$root.defaultBrandingThemeStyle?.sideBarIconColor
-          || 'initial',
-        '--allPagesSideBarBackgroundColor': this.sideBarStylingProperties.sideBarBackgroundColor,
-        '--allPagesSideBarBackgroundPosition': this.sideBarStylingProperties.sideBarBackgroundPosition,
-        '--allPagesSideBarBackgroundRepeat': this.sideBarStylingProperties.sideBarBackgroundRepeat,
-        '--allPagesSideBarBackgroundSize': this.sideBarStylingProperties.sideBarBackgroundSize,
-      };
-
-      // Determine the background image property
-      if (this.sideBarStylingProperties.sideBarBackground?.data) {
-        let url = `url(${this.$utils.convertImageDataAsSrc(this.sideBarStylingProperties.sideBarBackground?.data)})`;
-        if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
-          url = `${url}, ${this.sideBarStylingProperties.sideBarBackgroundImage}`;
-        }
-        properties['--allPagesSideBarBackgroundImage'] = url;
-      } else if (this.sideBarStylingProperties.sideBarBackground?.fileId) {
-        properties['--allPagesSideBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/sideBarBackground?v=") ${', ' && this.sideBarStylingProperties?.backgroundImage || ';'}`;
-      } else if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
-        properties['--allPagesSideBarBackgroundImage'] = this.sideBarStylingProperties?.sideBarBackgroundImage;
-      } else {
-        properties['--allPagesSideBarBackgroundImage'] = 'none';
+    deleteTheme(theme) {
+      this.working.themes = this.working.themes.filter(item => item.key !== theme.key);
+      if (theme.id) {
+        this.working.deletedThemeIds.push(theme.id);
       }
-      this.$root.$emit('refresh-style-properties', { detail: properties });
-    },
-    updateDrawerProperties(drawerBackgroundProperties, drawerTextProperties) {
-      this.drawerStylingProperties = this.updateStylingProperties(drawerBackgroundProperties, drawerTextProperties, this.brandingStylingType.DRAWER);
-      this.isDrawerStylingPropertiesChanged = true;
-      this.refreshDrawerPreview();
-    },
-    refreshDrawerPreview() {
-      const properties = {
-        '--allPagesDrawerTextColor': this.drawerStylingProperties.drawerTextColor,
-        '--allPagesDrawerTextFontSize': this.drawerStylingProperties.drawerTextFontSize,
-        '--allPagesDrawerTextFontStyle': this.drawerStylingProperties.drawerTextFontStyle,
-        '--allPagesDrawerTextFontWeight': this.drawerStylingProperties.drawerTextFontWeight,
-        // a cleared icon colour previews the effective value, the configured default or 'initial', never the stylesheet's stored one
-        '--allPagesDrawerIconColor': this.drawerStylingProperties.drawerIconColor
-          || this.$root.defaultBrandingThemeStyle?.drawerIconColor
-          || 'initial',
-        '--allPagesDrawerTextSubtitleColor': this.drawerStylingProperties.drawerTextSubtitleColor,
-        '--allPagesDrawerTextSubtitleFontSize': this.drawerStylingProperties.drawerTextSubtitleFontSize,
-        '--allPagesDrawerTextSubtitleFontStyle': this.drawerStylingProperties.drawerTextSubtitleFontStyle,
-        '--allPagesDrawerTextSubtitleFontWeight': this.drawerStylingProperties.drawerTextSubtitleFontWeight,
-        '--allPagesDrawerTextTitleColor': this.drawerStylingProperties.drawerTextTitleColor,
-        '--allPagesDrawerTextTitleFontSize': this.drawerStylingProperties.drawerTextTitleFontSize,
-        '--allPagesDrawerTextTitleFontStyle': this.drawerStylingProperties.drawerTextTitleFontStyle,
-        '--allPagesDrawerTextTitleFontWeight': this.drawerStylingProperties.drawerTextTitleFontWeight,
-        '--allPagesDrawerTextHeaderColor': this.drawerStylingProperties.drawerTextHeaderColor,
-        '--allPagesDrawerTextHeaderFontSize': this.drawerStylingProperties.drawerTextHeaderFontSize,
-        '--allPagesDrawerTextHeaderFontStyle': this.drawerStylingProperties.drawerTextHeaderFontStyle,
-        '--allPagesDrawerTextHeaderFontWeight': this.drawerStylingProperties.drawerTextHeaderFontWeight,
-        '--allPagesDrawerBackgroundColor': this.drawerStylingProperties.drawerBackgroundColor,
-        '--allPagesDrawerBackgroundPosition': this.drawerStylingProperties.drawerBackgroundPosition,
-        '--allPagesDrawerBackgroundRepeat': this.drawerStylingProperties.drawerBackgroundRepeat,
-        '--allPagesDrawerBackgroundSize': this.drawerStylingProperties.drawerBackgroundSize,
-        '--allPagesDrawerCommentBackgroundColor': this.previewCommentBackgroundColor(this.drawerStylingProperties.drawerBackgroundColor
-          || this.$root.defaultBrandingThemeStyle?.drawerBackgroundColor),
-      };
-
-      // Determine the background image property
-      if (this.drawerStylingProperties.drawerBackground?.data) {
-        let url = `url(${this.$utils.convertImageDataAsSrc(this.drawerStylingProperties.drawerBackground?.data)})`;
-        if (this.drawerStylingProperties?.drawerBackgroundImage) {
-          url = `${url}, ${this.drawerStylingProperties.drawerBackgroundImage}`;
-        }
-        properties['--allPagesDrawerBackgroundImage'] = url;
-      } else if (this.drawerStylingProperties.drawerBackground?.fileId && this.drawerStylingProperties?.drawerBackgroundImage) {
-        properties['--allPagesDrawerBackgroundImage'] = `url(/portal/rest/v1/platform/branding/drawerBackground?v="), ${this.drawerStylingProperties?.drawerBackgroundImage}`;
-      } else if (this.drawerStylingProperties?.drawerBackgroundImage) {
-        properties['--allPagesDrawerBackgroundImage'] = this.drawerStylingProperties?.drawerBackgroundImage;
-      } else {
-        properties['--allPagesDrawerBackgroundImage'] = 'none';
+      if (this.working.themeInUseKey === theme.key) {
+        // the platform switches to the Default Theme
+        this.working.themeInUseKey = this.working.themes.find(item => item.origin === 'DEFAULT')?.key;
       }
-      this.$root.$emit('refresh-style-properties', { detail: properties });
     },
-    createStylingProperties(themeStyle, background, type) {
-      const properties =  {
-        [`${type}BackgroundColor`]: themeStyle?.[`${type}BackgroundColor`] || null,
-        [`${type}BackgroundPosition`]: themeStyle?.[`${type}BackgroundPosition`] || null,
-        [`${type}BackgroundRepeat`]: themeStyle?.[`${type}BackgroundRepeat`] || null,
-        [`${type}BackgroundSize`]: themeStyle?.[`${type}BackgroundSize`] || null,
-        [`${type}BackgroundImage`]: themeStyle?.[`${type}BackgroundImage`] || null,
-        [`${type}Background`]: background || null,
-        [`${type}TextColor`]: themeStyle?.[`${type}TextColor`] || null,
-        [`${type}TextFontSize`]: themeStyle?.[`${type}TextFontSize`] || null,
-        [`${type}TextFontStyle`]: themeStyle?.[`${type}TextFontStyle`] || null,
-        [`${type}TextFontWeight`]: themeStyle?.[`${type}TextFontWeight`] || null,
-        [`${type}IconColor`]: themeStyle?.[`${type}IconColor`] || null,
-      };
-      if (type === this.brandingStylingType.TOP_BAR) {
-        // off sends no key, so the configured value comes back
-        properties.topBarSticky = themeStyle?.topBarSticky === 'true' ? 'true' : null;
-        properties.topBarBackgroundScrollColor = this.themeValue(themeStyle, 'topBarBackgroundScrollColor');
-      }
-      if (type !== 'topBar') {
-        properties[`${type}TextSubtitleColor`] = themeStyle?.[`${type}TextSubtitleColor`] || null;
-        properties[`${type}TextSubtitleFontSize`] = themeStyle?.[`${type}TextSubtitleFontSize`] || null;
-        properties[`${type}TextSubtitleFontStyle`] = themeStyle?.[`${type}TextSubtitleFontStyle`] || null;
-        properties[`${type}TextSubtitleFontWeight`] = themeStyle?.[`${type}TextSubtitleFontWeight`] || null;
-      }
-      if (type !== 'topBar' && type !== 'sideBar') {
-        properties[`${type}TextTitleColor`] = themeStyle?.[`${type}TextTitleColor`] || null;
-        properties[`${type}TextTitleFontSize`] = themeStyle?.[`${type}TextTitleFontSize`] || null;
-        properties[`${type}TextTitleFontStyle`] = themeStyle?.[`${type}TextTitleFontStyle`] || null;
-        properties[`${type}TextTitleFontWeight`] = themeStyle?.[`${type}TextTitleFontWeight`] || null;
-        properties[`${type}TextHeaderColor`] = themeStyle?.[`${type}TextHeaderColor`] || null;
-        properties[`${type}TextHeaderFontSize`] = themeStyle?.[`${type}TextHeaderFontSize`] || null;
-        properties[`${type}TextHeaderFontStyle`] = themeStyle?.[`${type}TextHeaderFontStyle`] || null;
-        properties[`${type}TextHeaderFontWeight`] = themeStyle?.[`${type}TextHeaderFontWeight`] || null;
-      }
-      return properties;
-    },
-    updateStylingProperties(backgroundProperties, textProperties, type) {
-      const properties =  {
-        [`${type}BackgroundColor`]: backgroundProperties.backgroundColor,
-        [`${type}BackgroundPosition`]: backgroundProperties.backgroundPosition,
-        [`${type}BackgroundRepeat`]: backgroundProperties.backgroundRepeat || 'unset',
-        [`${type}BackgroundSize`]: backgroundProperties.backgroundSize || 'unset',
-        [`${type}BackgroundImage`]: backgroundProperties.backgroundEffect || null,
-        [`${type}Background`]: backgroundProperties.background,
-        [`${type}TextColor`]: textProperties.textColor,
-        [`${type}TextFontSize`]: textProperties.textFontSize,
-        [`${type}TextFontStyle`]: textProperties.textFontStyle,
-        [`${type}TextFontWeight`]: textProperties.textFontWeight,
-        [`${type}IconColor`]: textProperties.iconColor || null,
-      };
-      if (type === this.brandingStylingType.TOP_BAR) {
-        properties.topBarSticky = backgroundProperties.sticky ? 'true' : null;
-        properties.topBarBackgroundScrollColor = backgroundProperties.sticky && backgroundProperties.backgroundScrollColor || null;
-      }
-      if (type !== this.brandingStylingType.TOP_BAR) {
-        properties[`${type}TextSubtitleColor`] = textProperties.textSubtitleColor;
-        properties[`${type}TextSubtitleFontSize`] = textProperties.textSubtitleFontSize;
-        properties[`${type}TextSubtitleFontStyle`] = textProperties.textSubtitleFontStyle;
-        properties[`${type}TextSubtitleFontWeight`] = textProperties.textSubtitleFontWeight;
-      }
-      // Add title and header properties if type is drawer
-      if (type !== this.brandingStylingType.TOP_BAR && type !== this.brandingStylingType.SIDE_BAR) {
-        properties[`${type}TextTitleColor`] = textProperties.textTitleColor;
-        properties[`${type}TextTitleFontSize`] = textProperties.textTitleFontSize;
-        properties[`${type}TextTitleFontStyle`] = textProperties.textTitleFontStyle;
-        properties[`${type}TextTitleFontWeight`] = textProperties.textTitleFontWeight;
-        properties[`${type}TextHeaderColor`] = textProperties.textHeaderColor;
-        properties[`${type}TextHeaderFontSize`] = textProperties.textHeaderFontSize;
-        properties[`${type}TextHeaderFontStyle`] = textProperties.textHeaderFontStyle;
-        properties[`${type}TextHeaderFontWeight`] = textProperties.textHeaderFontWeight;
-      }
-      return properties;
-    },
-    resetThemeStyleColors() {
-      this.primaryColor = this.$root.defaultBrandingThemeStyle?.primaryColor;
-      this.secondaryColor = this.$root.defaultBrandingThemeStyle?.secondaryColor;
-      this.tertiaryColor = this.$root.defaultBrandingThemeStyle?.tertiaryColor;
-    },
-    resetFontFamily() {
-      this.fontFamily = this.$root.defaultBrandingThemeStyle?.fontFamily;
-      this.isFontFamilyReset = true;
-    },
-    resetTopBarStylingProperties() {
-      this.topBarStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
-        data: null,
-        fileId: 0,
-        updatedDate: 0,
-        uploadId: 0,
-      }, this.brandingStylingType.TOP_BAR);
-      this.isTopBarStylingPropertiesChanged = true;
-      this.refreshTopBarPreview();
-    },
-    resetSidebarStylingProperties() {
-      this.sideBarStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
-        data: null,
-        fileId: 0,
-        updatedDate: 0,
-        uploadId: 0,
-      }, this.brandingStylingType.SIDE_BAR);
-      this.isSideBarStylingPropertiesChanged = true;
-      this.refreshSideBarPreview();
-    },
-    resetDrawerStylingProperties() {
-      this.drawerStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
-        data: null,
-        fileId: 0,
-        updatedDate: 0,
-        uploadId: 0,
-      }, this.brandingStylingType.DRAWER);
-      this.isDrawerStylingPropertiesChanged = true;
-      this.refreshDrawerPreview();
-    },
-    updatePageStylingProperties(backgroundProperties, pageWidth, applicationStyling, pageMargins) {
-      this.pageStylingProperties = {
-        pageBackground: backgroundProperties?.background,
-        pageBackgroundSize: backgroundProperties?.backgroundSize || 'unset',
-        pageBackgroundRepeat: backgroundProperties?.backgroundRepeat || 'no-repeat',
-        pageBackgroundPosition: backgroundProperties?.backgroundPosition || 'unset',
-        pageBackgroundAttachment: backgroundProperties?.backgroundAttachment || null,
-        pageBackgroundColor: backgroundProperties?.backgroundColor ,
-        pageBackgroundEffect: backgroundProperties?.backgroundEffect,
-        pageWidth: pageWidth,
-        pageMargins: pageMargins || null,
-        applicationStyling: applicationStyling || null,
-      };
-      this.isPageStylingPropertiesChanged = true;
-      this.updatePagePropertiesPreview();
-    },
-    // Value of a theme variable, null when it is not set ('initial' is the
-    // server-side marker of an unset platform-wide setting)
-    themeValue(themeStyle, key) {
-      const value = themeStyle?.[key];
-      return value && value !== this.themeUnsetValue && value !== 'none' ? value : null;
-    },
-    themePx(themeStyle, key) {
-      const value = this.themeValue(themeStyle, key);
-      return value === null ? null : Number(String(value).replace('px', ''));
-    },
-    // Page Design > Page Margins: platform default of the page padding (site and page values keep precedence)
-    createPageMargins(themeStyle) {
-      const px = key => this.themePx(themeStyle, key);
-      // an unset side stays null: it is neither shown as 0 nor written back on the next save (the skin default keeps applying)
-      return ['pageMarginTop', 'pageMarginRight', 'pageMarginBottom', 'pageMarginLeft'].some(key => px(key) !== null) && {
-        marginTop: px('pageMarginTop'),
-        marginRight: px('pageMarginRight'),
-        marginBottom: px('pageMarginBottom'),
-        marginLeft: px('pageMarginLeft'),
-      } || null;
-    },
-    toPageMarginsThemeStyle(pageMargins) {
-      if (!pageMargins) {
-        return {};
-      }
-      // only the sides that are set travel; a null side is left to the configured or skin default
-      const themeStyle = {};
-      this.sides.forEach(side => {
-        const value = pageMargins[`margin${side}`];
-        if (value === 0 || value) {
-          themeStyle[`pageMargin${side}`] = `${value}px`;
-        }
-      });
-      return themeStyle;
-    },
-    emptyBrandingFile() {
-      return {
-        data: null,
-        fileId: 0,
-        updatedDate: 0,
-        uploadId: 0,
-      };
-    },
-    themeKey(field) {
-      return `app${field.charAt(0).toUpperCase()}${field.slice(1)}`;
-    },
-    // URL of a stored branding image, null when none is stored
-    brandingImagePath(file, name) {
-      return file?.fileId && `/portal/rest/v1/platform/branding/${name}?v=${file.updatedDate || 0}` || null;
-    },
-    // Builds the Application Styling model edited by the shared styling inputs
-    // (a container-shaped object, each group off when its fields are unset)
-    // from the theme variables returned by the branding service
-    createApplicationStyling(themeStyle, branding) {
-      const value = key => this.themeValue(themeStyle, key);
-      const px = key => this.themePx(themeStyle, key);
-      const has = key => value(key) !== null;
-      const files = {
-        appBackground: branding?.appBackground || this.emptyBrandingFile(),
-        appTextTitleBackground: branding?.appTextTitleBackground || this.emptyBrandingFile(),
-        appTextHeaderBackground: branding?.appTextHeaderBackground || this.emptyBrandingFile(),
-      };
-      const container = {};
-      // Margins on the platform scale (20 = neutral); every side at the neutral value = toggle off
-      this.sides.forEach(side => {
-        container[`margin${side}`] = has(`appMargin${side}`) ? px(`appMargin${side}`) : this.marginNeutral;
-      });
-      // Border: a colour means on; the shared input reads the shadow flag as the string 'true'
-      container.borderColor = value('appBorderColor');
-      container.borderSize = has('appBorderColor') ? (px('appBorderSize') || 1) : 0;
-      container.boxShadow = has('appBoxShadow') ? 'true' : null;
-      // Corners: per-corner keys, or a uniform radius different from the configured default (null = off)
-      const corners = ['TopLeft', 'TopRight', 'BottomRight', 'BottomLeft'];
-      const defaultRadius = this.$root.defaultBrandingThemeStyle?.borderRadius;
-      const uniformRadius = themeStyle?.borderRadius;
-      if (corners.some(corner => has(`appBorderRadius${corner}`))) {
-        corners.forEach(corner => container[`radius${corner}`] = px(`appBorderRadius${corner}`) || 0);
-      } else if (uniformRadius && defaultRadius && uniformRadius !== defaultRadius) {
-        const radius = Number(String(uniformRadius).replace('px', '')) || 0;
-        corners.forEach(corner => container[`radius${corner}`] = radius);
-      } else {
-        corners.forEach(corner => container[`radius${corner}`] = null);
-      }
-      // Background: the gradient travels in the *BackgroundImage variable, the image is a branding file
-      const backgroundOn = has('appBackgroundColor') || !!files.appBackground.fileId || has('appBackgroundImage');
-      container.backgroundColor = backgroundOn ? (value('appBackgroundColor') || '#FFFFFFFF') : null;
-      container.backgroundEffect = this.extractBackgroundEffect(themeStyle?.appBackgroundImage);
-      container.backgroundImage = this.brandingImagePath(files.appBackground, 'appBackground');
-      container.backgroundSize = value('appBackgroundSize');
-      container.backgroundPosition = value('appBackgroundPosition');
-      container.backgroundRepeat = value('appBackgroundRepeat');
-      container.backgroundAttachment = null;
-      // Text
-      this.applicationTextKeys.forEach(key => container[key] = value(this.themeKey(key)));
-      // Title and Header text backgrounds
-      this.textBackgroundTypes.forEach(type => {
-        const field = `text${type}Background`;
-        const key = `appText${type}Background`;
-        container[`${field}Color`] = value(`${key}Color`);
-        container[`${field}Effect`] = this.extractBackgroundEffect(themeStyle?.[`${key}Image`]);
-        container[`${field}Image`] = this.brandingImagePath(files[key], key);
-        container[`${field}Position`] = value(`${key}Position`);
-        container[`${field}Size`] = value(`${key}Size`);
-        container[`${field}Repeat`] = value(`${key}Repeat`);
-        container[`${field}Padding`] = this.sides.some(side => has(`${key}Padding${side}`))
-          && this.sides.map(side => `${px(`${key}Padding${side}`) || 0}px`).join(' ')
-          || null;
-        container[`${field}Radius`] = value(`${key}Radius`);
-      });
-      return Object.assign({ container }, files);
-    },
-    currentBorderRadius() {
-      return this.branding?.themeStyle?.borderRadius
-        || this.$root.defaultBrandingThemeStyle?.borderRadius
-        || '8px';
-    },
-    extractBackgroundEffect(backgroundImage) {
-      if (!backgroundImage || backgroundImage === 'none' || backgroundImage === this.themeUnsetValue) {
-        return null;
-      }
-      if (backgroundImage.includes('url(')) {
-        const effect = backgroundImage.split('), ')[1];
-        return effect || null;
-      }
-      return backgroundImage;
-    },
-    // Converts the Application Styling model into the theme variables the
-    // branding service persists (a group that is off sets no key, which
-    // removes the stored setting and lets the configured default apply)
-    toApplicationThemeStyle(applicationStyling) {
-      const themeStyle = {};
-      const container = applicationStyling?.container || {};
-      const isSet = v => v === 0 || !!v;
-      // Margins: the theme variable carries the platform-scale value the shared input holds (20 = neutral);
-      // no key when the input is off (null sides) or every side is neutral
-      const margins = this.sides.map(side => container[`margin${side}`]);
-      if (margins.every(isSet) && margins.some(margin => margin !== this.marginNeutral)) {
-        this.sides.forEach(side => {
-          themeStyle[`appMargin${side}`] = `${container[`margin${side}`]}px`;
-        });
-      }
-      if (container.borderColor) {
-        themeStyle.appBorderColor = container.borderColor;
-        themeStyle.appBorderSize = `${container.borderSize || 1}px`;
-        if (container.boxShadow === true || container.boxShadow === 'true') {
-          themeStyle.appBoxShadow = this.applicationBoxShadowValue;
-        }
-      }
-      if (isSet(container.radiusBottomLeft)) {
-        const uniform = container.radiusTopLeft === container.radiusTopRight
-          && container.radiusTopRight === container.radiusBottomLeft
-          && container.radiusBottomLeft === container.radiusBottomRight;
-        if (uniform) {
-          // The uniform radius keeps the existing global variable (it also shapes buttons and components)
-          themeStyle.borderRadius = `${container.radiusTopLeft || 0}px`;
-        } else {
-          themeStyle.borderRadius = this.currentBorderRadius();
-          ['TopLeft', 'TopRight', 'BottomLeft', 'BottomRight'].forEach(corner => {
-            themeStyle[`appBorderRadius${corner}`] = `${container[`radius${corner}`] || 0}px`;
-          });
-        }
-      } else {
-        // Closed toggle: the configured default applies (never omit the key, the global radius also shapes buttons
-        // and components); the stored value is only kept while the defaults are not loaded yet
-        themeStyle.borderRadius = this.$root.defaultBrandingThemeStyle?.borderRadius
-          || this.branding?.themeStyle?.borderRadius
-          || '8px';
-      }
-      if (container.backgroundColor || container.backgroundImage) {
-        themeStyle.appBackgroundColor = container.backgroundColor || '#FFFFFFFF';
-        // The gradient travels in the *BackgroundImage variable, the server prepends the uploaded image URL
-        themeStyle.appBackgroundImage = container.backgroundEffect || null;
-        if (container.backgroundImage) {
-          themeStyle.appBackgroundSize = container.backgroundSize || 'unset';
-          themeStyle.appBackgroundPosition = container.backgroundPosition || 'unset';
-          themeStyle.appBackgroundRepeat = container.backgroundRepeat || 'no-repeat';
-        }
-      }
-      if (this.applicationTextKeys.some(key => container[key])) {
-        this.applicationTextKeys.forEach(key => {
-          if (container[key]) {
-            themeStyle[this.themeKey(key)] = container[key];
+    save() {
+      this.$root.$emit('close-alert-message');
+      this.$root.loading = true;
+      this.loading = true;
+      this.keptCustomCss = null;
+      const publication = buildPublication(this.working, this.view);
+      // the custom CSS is saved by its own request, after the publication: saving it moves the stylesheet version the
+      // publication is checked against, so before it the publication would be refused as a conflict
+      const customCss = this.customCss;
+      const customCssChanged = customCss !== this.customCssBaseline;
+      let published = false;
+      return Promise.resolve(publicationHasChanges(publication))
+        .then(changes => changes && this.$themeService.publish(publication).then(() => published = true))
+        .then(() => !customCssChanged || this.$themeService.saveCustomCss(customCss)
+          .then(() => {
+            this.savedCustomCss = {value: customCss};
+            return true;
+          }, error => this.handleCustomCssError(error, published)))
+        .then(saved => {
+          if (saved) {
+            this.$emit('saved');
+            this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success');
+            this.$root.$emit('refresh-iframe');
+            return this.init();
           }
-        });
+        })
+        .catch(error => this.handlePublishError(error))
+        .finally(() => this.loading = this.$root.loading = false);
+    },
+    // a refusal of the custom CSS leaves the publication committed: the page, the preview and the view reload for the
+    // version the next Apply is checked against, the CSS typed stays in its field, and the message names the CSS
+    handleCustomCssError(error, published) {
+      if (published) {
+        this.keptCustomCss = {value: this.customCss};
+        this.$emit('saved');
+        this.$root.$emit('refresh-iframe');
       }
-      this.textBackgroundTypes.forEach(type => {
-        const field = `text${type}Background`;
-        const key = `appText${type}Background`;
-        if (container[`${field}Color`] || container[`${field}Image`]) {
-          themeStyle[`${key}Color`] = container[`${field}Color`] || '#FFFFFFFF';
-          themeStyle[`${key}Image`] = container[`${field}Effect`] || null;
-          if (container[`${field}Image`]) {
-            themeStyle[`${key}Size`] = container[`${field}Size`] || 'unset';
-            themeStyle[`${key}Position`] = container[`${field}Position`] || 'unset';
-            themeStyle[`${key}Repeat`] = container[`${field}Repeat`] || 'no-repeat';
-          }
-          // The shared input writes a "top right bottom left" shorthand; the skin reads one variable per side
-          if (container[`${field}Padding`]) {
-            const parts = container[`${field}Padding`].trim().split(/\s+/);
-            this.sides.forEach((side, index) => {
-              themeStyle[`${key}Padding${side}`] = `${parseInt(parts[index] || parts[0]) || 0}px`;
-            });
-          }
-          if (container[`${field}Radius`]) {
-            themeStyle[`${key}Radius`] = container[`${field}Radius`];
-          }
-        }
+      return this.init().then(() => {
+        const defaultLabel = published ? 'generalSettings.publish.error.customCssAfterPublication' : 'generalSettings.publish.error.customCss';
+        this.$root.$emit('alert-message', this.errorMessage(error, defaultLabel), 'error');
+        return false;
       });
-      return themeStyle;
     },
-    updatePagePropertiesPreview() {
-      this.refreshApplicationStylingPreview();
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundColor',
-        value: this.pageStylingProperties.pageBackgroundColor || this.defaultBackgroundColor,
-      });
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundRepeat',
-        value: this.pageStylingProperties.pageBackgroundRepeat || 'no-repeat',
-      });
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundSize',
-        value: this.pageStylingProperties.pageBackgroundSize || 'unset',
-      });
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundPosition',
-        value: this.pageStylingProperties.pageBackgroundPosition || 'unset',
-      });
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundAttachment',
-        // The site background paints on the scroll container, where 'scroll'
-        // would mean "fixed with regard to that box"; 'local' is what makes it
-        // follow the scrolled content. Mirrors UIPortalApplication.gtmpl.
-        value: this.pageStylingProperties.pageBackgroundAttachment === 'scroll'
-          && 'local' || this.pageStylingProperties.pageBackgroundAttachment || 'scroll',
-      });
-      this.$root.$emit('refresh-body-style-property', {
-        name: 'background-image',
-        value: null,
-      });
-      let url = null;
-      if (this.pageStylingProperties.pageBackground?.data) {
-        url = `url(${this.$utils.convertImageDataAsSrc(this.pageStylingProperties.pageBackground?.data)})`;
-        if (this.pageStylingProperties?.pageBackgroundEffect) {
-          url = `${url}, ${this.pageStylingProperties.pageBackgroundEffect}`;
-        }
-      } else if (this.pageStylingProperties.pageBackground?.fileId && this.pageStylingProperties?.pageBackgroundEffect) {
-        url = `url(/portal/rest/v1/platform/branding/pageBackground?v="), ${this.pageStylingProperties?.pageBackgroundEffect}`;
-      } else if (this.pageStylingProperties?.pageBackgroundEffect) {
-        url = this.pageStylingProperties?.pageBackgroundEffect;
+    handlePublishError(error) {
+      if (error?.status === 409) {
+        // someone published since this page loaded: show what is published now
+        return this.init().then(() => this.$root.$emit('alert-message', this.$t('generalSettings.publish.error.conflict'), 'error'));
       }
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundImage',
-        value: url !== null && url || 'none',
-      });
+      this.$root.$emit('alert-message', this.errorMessage(error, 'generalSettings.publish.error.default'), 'error');
     },
-    resetPageStyling() {
-      this.pageStylingProperties.pageBackground = {
-        data: null,
-        fileId: 0,
-        updatedDate: 0,
-        uploadId: 0,
-      };
-      // Configured defaults (exo.branding.page.*) when the server exposes them, built-in ones otherwise
-      this.pageStylingProperties.pageWidth = this.$root.defaultBrandingThemeStyle?.pageWidth || this.defaultCustomPageWidth;
-      this.pageStylingProperties.pageBackgroundColor = this.$root.defaultBrandingThemeStyle?.pageBackgroundColor || this.defaultPageBackground;
-      this.pageStylingProperties.pageBackgroundEffect = this.$root.defaultBrandingThemeStyle?.pageBackgroundEffect || null;
-      this.pageStylingProperties.pageMargins = this.createPageMargins(this.$root.defaultBrandingThemeStyle);
-      // Application Styling: every toggle off, configured defaults apply
-      this.pageStylingProperties.applicationStyling = this.createApplicationStyling(this.$root.defaultBrandingThemeStyle, null);
-      this.isPageStylingPropertiesChanged = true;
-      this.updatePagePropertiesPreview();
+    // a 400 carries the code of its refusal, shown by its own label; any other failure by the default label given
+    errorMessage(error, defaultLabel) {
+      const code = error?.status === 400 && error.code || null;
+      const label = code && `generalSettings.publish.error.${code.split(':')[0]}`;
+      return label && this.$te(label) && this.$t(label, {0: code.split(':')[1] || ''})
+        || this.$t(defaultLabel);
     },
-    // Live preview of the platform-wide application styling: the same custom
-    // properties the branding stylesheet emits on :root
-    refreshApplicationStylingPreview() {
-      const applicationStyling = this.pageStylingProperties.applicationStyling;
-      const themeStyle = this.toApplicationThemeStyle(applicationStyling);
-      const properties = {
-        '--allPagesBorderRadius': themeStyle.borderRadius || this.$root.defaultBrandingThemeStyle?.borderRadius,
-      };
-      const keys = ['appMarginTop', 'appMarginRight', 'appMarginBottom', 'appMarginLeft',
-        'appBorderColor', 'appBorderSize', 'appBoxShadow',
-        'appBorderRadiusTopLeft', 'appBorderRadiusTopRight', 'appBorderRadiusBottomLeft', 'appBorderRadiusBottomRight',
-        'appBackgroundColor', 'appBackgroundSize', 'appBackgroundPosition', 'appBackgroundRepeat',
-        ...this.applicationTextKeys.map(key => this.themeKey(key))];
-      this.textBackgroundTypes.forEach(type => {
-        const key = `appText${type}Background`;
-        keys.push(`${key}Color`, `${key}Position`, `${key}Size`, `${key}Repeat`, `${key}Radius`,
-          ...this.sides.map(side => `${key}Padding${side}`));
-      });
-      keys.forEach(key => {
-        properties[`--allPages${key.charAt(0).toUpperCase()}${key.slice(1)}`] = themeStyle[key] || null;
-      });
-      // Platform icon colour: an unset inline value would leave the stored colour of the stylesheet in the preview, so the
-      // effective value is previewed instead, the configured default or 'initial' (each icon family's built-in colour)
-      properties['--allPagesAppIconColor'] = themeStyle.appIconColor
-        || this.$root.defaultBrandingThemeStyle?.appIconColor
-        || 'initial';
-      properties['--allPagesCommentBackgroundColor'] = this.previewCommentBackgroundColor(themeStyle.appBackgroundColor
-        || this.$root.defaultBrandingThemeStyle?.appBackgroundColor);
-      // Application corners: the stylesheet emits the four --allPagesAppBorderRadius* as literals (the stored
-      // uniform radius), so an unset inline value would leave the stored corners in the preview; the effective
-      // value is previewed instead — per corner when set, the uniform value or the default otherwise (0px included)
-      ['TopLeft', 'TopRight', 'BottomLeft', 'BottomRight'].forEach(corner => {
-        properties[`--allPagesAppBorderRadius${corner}`] = themeStyle[`appBorderRadius${corner}`]
-          || properties['--allPagesBorderRadius']
-          || null;
-      });
-      const pageMargins = this.toPageMarginsThemeStyle(this.pageStylingProperties.pageMargins);
-      this.sides.forEach(side => {
-        properties[`--allPagesMargin${side}`] = pageMargins[`pageMargin${side}`] || null;
-      });
-      const container = applicationStyling?.container || {};
-      properties['--allPagesAppBackgroundImage'] = this.previewBackgroundImage(applicationStyling?.appBackground,
-        'appBackground',
-        themeStyle.appBackgroundColor && container.backgroundEffect);
-      this.textBackgroundTypes.forEach(type => {
-        const key = `appText${type}Background`;
-        properties[`--allPages${key.charAt(0).toUpperCase()}${key.slice(1)}Image`] = this.previewBackgroundImage(applicationStyling?.[key],
-          key,
-          themeStyle[`${key}Color`] && container[`text${type}BackgroundEffect`]);
-      });
-      this.$root.$emit('refresh-style-properties', { detail: properties });
-    },
-    // Comment bubble colour the branding stylesheet derives from an application or drawer background colour
-    // (portal branding.less, same two patterns, emitted only where color-mix() is supported): 60% of a coloured
-    // background mixed with white; 'initial' for a white, transparent, unset or non-colour value, which leaves the
-    // skin's default bubble colour, where an unset inline value would keep the stored derivation
-    previewCommentBackgroundColor(backgroundColor) {
-      return window.CSS?.supports?.('color', 'color-mix(in srgb, white 60%, white)')
-        && /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(backgroundColor)
-        && !/^#(f{3,4}|f{6}|f{8}|[0-9a-f]{3}0|[0-9a-f]{6}00)$/i.test(backgroundColor)
-        && `color-mix(in srgb, ${backgroundColor} 60%, white)`
-        || 'initial';
-    },
-    // background-image value of the preview: the uploaded or stored image first, then the gradient
-    previewBackgroundImage(file, name, effect) {
-      let image = null;
-      if (file?.data) {
-        image = `url(${this.$utils.convertImageDataAsSrc(file.data)})`;
-      } else if (file?.fileId) {
-        image = `url(${this.brandingImagePath(file, name)})`;
-      }
-      if (image && effect) {
-        return `${image}, ${effect}`;
-      }
-      return image || effect || 'none';
-    }
-  }
+  },
 };
 </script>

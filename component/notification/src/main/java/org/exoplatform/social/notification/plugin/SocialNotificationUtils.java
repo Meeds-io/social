@@ -38,6 +38,8 @@ import org.exoplatform.commons.api.notification.service.WebNotificationService;
 import org.exoplatform.commons.api.notification.service.setting.PluginContainer;
 import org.exoplatform.commons.api.notification.service.template.TemplateContext;
 import org.exoplatform.commons.notification.NotificationUtils;
+import org.exoplatform.commons.notification.mail.MailContentColors;
+import org.exoplatform.commons.notification.mail.MailPalette;
 import org.exoplatform.commons.notification.template.TemplateUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
@@ -162,6 +164,19 @@ public class SocialNotificationUtils {
     templateContext.put("FIRSTNAME", firstName);
     templateContext.put("FOOTER_LINK", redirectUrl);
     templateContext.put("COMPANY_LINK", LinkProviderUtils.getBaseUrl());
+    // the colours and logos of the recipient's display mode, read by the shared header, footer and templates
+    MailPalette.bind(templateContext, remoteId);
+  }
+
+  /**
+   * @param templateContext a mail's template context, its recipient's palette
+   *          bound by {@link #addFooterAndFirstName(String, TemplateContext)}
+   * @param content user content printed in the mail
+   * @return the content whose black and white text follows the recipient's
+   *         display mode
+   */
+  public static String withContentColors(TemplateContext templateContext, String content) {
+    return MailContentColors.apply(content, MailPalette.of(templateContext).get(MailPalette.MODE));
   }
 
   public static String processImageTitle(String body, String placeholder) {

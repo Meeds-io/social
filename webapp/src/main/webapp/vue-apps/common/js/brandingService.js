@@ -45,6 +45,41 @@ export function getDefaultBrandingThemeStyle() {
   }).then(resp => resp.json());
 }
 
+/**
+ * @returns {Promise<{mode: string, effectiveMode: string, modesOffered: string}>} the display mode the user chose
+ *   (AUTOMATIC, LIGHT or DARK), the one the page renders in and the modes the theme offers
+ */
+export function getDisplayMode() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/displayMode`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Error reading the display mode');
+    }
+    return resp.json();
+  });
+}
+
+/**
+ * @param {string} mode AUTOMATIC, LIGHT or DARK
+ * @returns {Promise<void>} resolved once saved
+ */
+export function setDisplayMode(mode) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/displayMode`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({mode}),
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Error saving the display mode');
+    }
+  });
+}
+
 export function throwErrorFromServerCall(serverResponse, defaultErrorMessage) {
   if (!serverResponse || !serverResponse.ok) {
     const contentType = serverResponse && serverResponse.headers && serverResponse.headers.get('content-type');
