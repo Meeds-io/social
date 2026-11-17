@@ -52,6 +52,7 @@ import org.exoplatform.social.notification.listener.AccountDeactivationNotificat
 import org.exoplatform.social.notification.plugin.AccountDeactivationRequestPluginTest;
 import org.exoplatform.social.notification.plugin.ActivitySpaceWebNotificationPluginTest;
 import org.exoplatform.social.notification.plugin.SocialNotificationUtilsTest;
+import org.exoplatform.social.notification.plugin.child.DefaultActivityChildPluginTest;
 
 import io.meeds.social.report.notification.listener.ReportNotificationListenerTest;
 import io.meeds.social.security.plugin.AccountDeactivationEmailOtpPluginTest;
@@ -83,6 +84,7 @@ import io.meeds.social.security.plugin.UserAccountEmailOtpPluginTest;
   EditCommentMailBuilderTest.class,
   SpaceWebNotificationServiceTest.class,
   SocialNotificationUtilsTest.class,
+  DefaultActivityChildPluginTest.class,
   UtilsTestCase.class,
   EmailOtpPluginTest.class,
   SocialSendAllRecipientProviderTest.class,

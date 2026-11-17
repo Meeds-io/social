@@ -40,7 +40,7 @@
         <v-icon
           v-else-if="item.icon"
           size="32"
-          color="tertiary">
+          color="secondary">
           {{ item.icon }}
         </v-icon>
       </div>

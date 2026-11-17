@@ -27,7 +27,12 @@
       {{ $t('generalSettings.sideBarStyling.drawer.title') }}
     </template>
     <template v-if="drawer" #content>
-      <v-card class="pa-4" flat>
+      <!-- recreated on each init: the shared styling inputs keep the value they were created with -->
+      <v-card
+        :key="initKey"
+        class="pa-4"
+        flat>
+        <portal-general-settings-theme-version-bar @change="changeVersion" />
         <p>
           {{ $t('generalSettings.sideBarStyling.help1') }}
         </p>
@@ -48,6 +53,7 @@
           <span class="text-title">
             {{ $t('generalSettings.text.label') }}
           </span>
+          <portal-general-settings-theme-shared-marker class="ms-2 my-auto" />
         </div>
         <styling-text-input
           :text-background="false"
@@ -58,7 +64,9 @@
           :custom-text="true"
           :custom-sub-title="true"
           :custom-title="false"
+          :icon-placeholder="versionIconColor('sideBarIconColor')"
           custom-icon />
+        <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
       </v-card>
     </template>
     <template #footer>
@@ -70,7 +78,7 @@
         </v-btn>
         <v-btn
           class="btn btn-primary ms-2"
-          :disabled="saveButtonDisabled"
+          :disabled="saveButtonDisabled && !draftChanged"
           @click="updateSideBarStylingProperties">
           {{ $t('generalSettings.button.save') }}
         </v-btn>
@@ -79,14 +87,18 @@
   </exo-drawer>
 </template>
 <script>
+import ThemeAreaDrawerMixin from '../../../js/ThemeAreaDrawerMixin.js';
 
 export default {
+  mixins: [ThemeAreaDrawerMixin],
   data: () => ({
+    themeAreaKeys: ['sideBarBackgroundColor', 'sideBarTextColor', 'sideBarTextSubtitleColor', 'sideBarIconColor'],
     drawer: false,
     backgroundProperties: null,
     sideBarTextProperties: null,
     defaultSideBarStylingProperties: null,
     initialized: false,
+    initKey: 0,
   }),
   props: {
     sideBarStylingProperties: {
@@ -97,7 +109,7 @@ export default {
   computed: {
     backgroundImagePath() {
       const background = this.sideBarStylingProperties?.sideBarBackground;
-      return background?.fileId && `/portal/rest/v1/platform/branding/sideBarBackground?v=${background.updatedDate || 0}` || null;
+      return background?.imageUrl || background?.fileId && `/portal/rest/v1/platform/branding/sideBarBackground?v=${background.updatedDate || 0}` || null;
     },
     saveButtonDisabled() {
       if (!this.backgroundProperties && !this.sideBarTextProperties) {
@@ -119,6 +131,7 @@ export default {
   },
   methods: {
     init() {
+      this.initKey++;
       this.backgroundProperties = {
         backgroundColor: this.sideBarStylingProperties?.sideBarBackgroundColor || null,
         backgroundPosition: this.sideBarStylingProperties?.sideBarBackgroundPosition || null,
@@ -168,9 +181,11 @@ export default {
       }
       return effect;
     },
-    updateSideBarStylingProperties() {
+    commitEdits() {
       this.$root.$emit('update-sidebar-styling-properties', this.backgroundProperties, this.sideBarTextProperties);
-      this.close();
+    },
+    updateSideBarStylingProperties() {
+      this.saveAndClose();
     }
   }
 };

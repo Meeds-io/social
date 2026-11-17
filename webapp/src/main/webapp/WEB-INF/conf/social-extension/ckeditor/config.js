@@ -70,6 +70,54 @@ CKEDITOR.editorConfig = function(config) {
   // Remove "More colors..." button
   config.colorButton_enableMore = false;
 
+  // The editor frame is a document of its own: it takes the page's display mode when it is ready, when its content
+  // document is rebuilt, and on each mode change, so the branding stylesheet applies the same version inside it. Its
+  // black and white text is marked as the displayed content is (social's rich text colours), on each change. Every
+  // editor configuration starts with this file: registered once for every editor of the page.
+  if (!CKEDITOR.displayModeSynchronized) {
+    CKEDITOR.displayModeSynchronized = true;
+    const copyDisplayMode = editor => {
+      const mode = document.documentElement.getAttribute('data-display-mode');
+      const frameDocument = editor?.document?.$;
+      if (mode && frameDocument && frameDocument !== document && frameDocument.documentElement) {
+        frameDocument.documentElement.setAttribute('data-display-mode', mode);
+      }
+    };
+    const markColors = editor => window.eXo?.richTextColors?.markColors(editor?.editable?.()?.$);
+    CKEDITOR.on('instanceReady', event => {
+      copyDisplayMode(event.editor);
+      markColors(event.editor);
+      event.editor.on('contentDom', () => {
+        copyDisplayMode(event.editor);
+        markColors(event.editor);
+      });
+      let markTimer = null;
+      event.editor.on('change', () => {
+        clearTimeout(markTimer);
+        markTimer = setTimeout(() => markColors(event.editor), 200);
+      });
+      event.editor.on('destroy', () => clearTimeout(markTimer));
+      // the marks are a display concern: the saved content never carries them
+      event.editor.dataProcessor?.htmlFilter?.addRules({
+        elements: {
+          $: element => {
+            const classes = element.attributes?.class;
+            if (classes?.includes('rt-color-')) {
+              const kept = classes.split(/\s+/).filter(name => name && !name.startsWith('rt-color-')).join(' ');
+              if (kept) {
+                element.attributes.class = kept;
+              } else {
+                delete element.attributes.class;
+              }
+            }
+            return element;
+          },
+        },
+      });
+    });
+    document.addEventListener('displayModeChanged', () => Object.values(CKEDITOR.instances).forEach(copyDisplayMode));
+  }
+
   // style inside the editor
   config.contentsCss = [];
   document.querySelectorAll('[skin-type=portal-skin]')
