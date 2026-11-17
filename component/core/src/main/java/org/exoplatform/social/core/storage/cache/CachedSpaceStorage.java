@@ -60,6 +60,8 @@ import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 import io.meeds.social.space.constant.UserSpacesScope;
+import io.meeds.social.space.model.MembershipChange;
+import io.meeds.social.space.model.MembershipChangeResult;
 import io.meeds.social.space.security.model.SpaceSettingsChange;
 import io.meeds.social.space.security.model.SpaceSettingsChangeResult;
 
@@ -232,6 +234,20 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   @Override
+  public MembershipChangeResult changeMembership(long spaceId,
+                                                 String userId,
+                                                 MembershipChange change) throws ObjectNotFoundException {
+    SpaceKey key = new SpaceKey(spaceId);
+    try {
+      return super.changeMembership(spaceId, userId, change);
+    } finally {
+      spaceCache.remove(key);
+      clearSpaceCache();
+      clearIdentityCache();
+    }
+  }
+
+  @Override
   public SpaceSettingsChangeResult applySettingsChange(long spaceId,
                                                        SpaceSettingsChange change) throws ObjectNotFoundException {
     SpaceKey key = new SpaceKey(spaceId);
@@ -303,15 +319,9 @@ public class CachedSpaceStorage extends SpaceStorage {
     try {
       super.ignoreSpace(spaceId, userId);
     } finally {
-      SpaceData spaceData = spaceCache.remove(new SpaceKey(Long.parseLong(spaceId)));
-      if (spaceData != null) {
-        Space space = spaceData.build();
-        clearSpaceCache();
-        clearIdentityCache();
-        if (space != null) {
-          cleanRef(space);
-        }
-      }
+      spaceCache.remove(new SpaceKey(Long.parseLong(spaceId)));
+      clearSpaceCache();
+      clearIdentityCache();
     }
   }
 

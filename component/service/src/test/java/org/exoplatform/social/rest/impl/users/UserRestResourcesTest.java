@@ -21,6 +21,11 @@ package org.exoplatform.social.rest.impl.users;
 import io.meeds.portal.plugin.AclPlugin;
 import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.organizationalunit.plugin.GroupAclPlugin;
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.model.MembershipChange;
+
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.web.security.service.OtpService;
@@ -418,8 +423,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   public void testGetAllUsersWithExtraFields() throws Exception {
     Space spaceTest = getSpaceInstance(700, "root");
     spaceTest.getId();
-    spaceTest.setMembers(new String[] { "mary", "john", "demo" });
-    spaceService.updateSpace(spaceTest);
+    addMemberRow(spaceTest, "mary");
+    addMemberRow(spaceTest, "john");
+    addMemberRow(spaceTest, "demo");
 
     relationshipManager.inviteToConnect(rootIdentity, maryIdentity);
 
@@ -493,8 +499,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     Space spaceTest = getSpaceInstance(0, "root");
     String spaceId = spaceTest.getId();
-    spaceTest.setMembers(new String[] { "john" });
-    spaceService.updateSpace(spaceTest);
+    addMemberRow(spaceTest, "john");
 
     when(continuationService.isPresent("john")).thenReturn(true);
     when(continuationService.isPresent("mary")).thenReturn(true);
@@ -776,8 +781,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     getSpaceInstance(10, "john");
     Space hiddenSpace = getSpaceInstance(11, "john");
     hiddenSpace.setVisibility(Space.HIDDEN);
-    hiddenSpace.setMembers(new String[] { "john", "demo" });
     spaceService.updateSpace(hiddenSpace);
+    addMemberRow(hiddenSpace, "demo");
 
     relationshipManager.inviteToConnect(maryIdentity, johnIdentity);
     relationshipManager.confirm(johnIdentity, maryIdentity);
@@ -819,8 +824,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     // john has a public space shared with demo and a public space of his own.
     // mary and demo are both confirmed connections of john; demo is external.
     Space commonSpace = getSpaceInstance(12, "john");
-    commonSpace.setMembers(new String[] { "john", "demo" });
-    spaceService.updateSpace(commonSpace);
+    addMemberRow(commonSpace, "demo");
     getSpaceInstance(13, "john");
 
     relationshipManager.inviteToConnect(maryIdentity, johnIdentity);
@@ -870,8 +874,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(0, collections.getEntities().size());
 
-    spaceTest.setMembers(new String[] { "john" });
-    spaceService.updateSpace(spaceTest);
+    addMemberRow(spaceTest, "john");
     response = service("GET", getURLResource("users/root/spaces/john?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -885,8 +888,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
 
-    spaceTest1.setMembers(new String[] { "john", "root" });
-    spaceService.updateSpace(spaceTest1);
+    addMemberRow(spaceTest1, "john");
+    addMemberRow(spaceTest1, "root");
 
     response = service("GET", getURLResource("users/john/spaces/root?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
@@ -1517,6 +1520,23 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
     List<Long> hiddenPropertiesId = profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(identity.getId()));
     assertTrue(hiddenPropertiesId.contains(setting.getId()));
+  }
+
+  /**
+   * Makes the user a member of an existing space through its member row, as
+   * the member writers do. The fixture's spaces keep the group id set before
+   * their creation, which createSpace does not create, so adding the user to
+   * the space's group, as SpaceService#addMember does, would fail
+   */
+  private void addMemberRow(Space space, String username) {
+    try {
+      getContainer().getComponentInstanceOfType(SpaceStorage.class)
+                    .changeMembership(space.getSpaceId(),
+                                      username,
+                                      MembershipChange.of(Set.of(SpaceMembershipStatus.MEMBER), Set.of()));
+    } catch (ObjectNotFoundException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   private Space getSpaceInstance(int number, String creator) throws Exception {
