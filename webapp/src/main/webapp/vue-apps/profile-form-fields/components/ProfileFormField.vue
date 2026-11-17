@@ -33,6 +33,7 @@
     :icon="icon"
     :background-color="backgroundColor"
     :input-class="inputClass"
+    :button-class="buttonClass"
     class="profileFormField"
     @input="$emit('input', $event)" />
   <profile-form-user-field
@@ -162,6 +163,9 @@ export default {
     },
     inputClass() {
       return this.registration ? 'login-username border-box-sizing' : 'pt-2';
+    },
+    buttonClass() {
+      return this.registration ? null : 'mt-2';
     },
     kind() {
       if (this.setting.propertyType === 'user') {

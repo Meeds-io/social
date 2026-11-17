@@ -44,7 +44,8 @@
         :aria-label="$t('profileFormFields.removeValue', {0: name})"
         :title="$t('profileFormFields.removeValue', {0: name})"
         :disabled="disabled"
-        class="profileFormFieldRemove mt-2 ms-1"
+        :class="buttonClass"
+        class="profileFormFieldRemove ms-1"
         icon
         @click="removeRow(index)">
         <v-icon size="16">fa-times</v-icon>
@@ -117,6 +118,11 @@ export default {
     inputClass: {
       type: String,
       default: 'pt-2',
+    },
+    // The remove button's offset, which follows its row's field
+    buttonClass: {
+      type: String,
+      default: 'mt-2',
     },
   },
   data: () => ({
