@@ -74,3 +74,24 @@ export function getNavigationNodeRel(navigation) {
   navigation.nodeRel = navigation?.target === 'NEW_TAB' && 'nofollow noreferrer noopener' || null;
   return navigation.nodeRel;
 }
+
+/**
+ * Whether the click on a menu entry replaces the page displayed. The menu then stays open, the focus on the entry,
+ * until the new page is displayed: closed at once, it takes the focus away with it, to the start of a page that is
+ * leaving. An entry that leaves the page in place (a new tab, a download, an anchor of this page, an email address or
+ * a phone number) closes the menu and gives the focus back to what opens it.
+ *
+ * @param {Element} entry the menu entry's link
+ * @param {MouseEvent} event the click on it
+ * @returns {boolean} whether the page is replaced
+ */
+export function replacesPage(entry, event) {
+  if (!entry?.getAttribute?.('href')) {
+    return false;
+  }
+  const inNewTab = entry.target === '_blank' || event?.ctrlKey || event?.metaKey || event?.shiftKey || event?.altKey;
+  const url = new URL(entry.href, window.location.href);
+  const anchorOfThisPage = !!url.hash && url.origin === window.location.origin
+    && url.pathname === window.location.pathname && url.search === window.location.search;
+  return !inNewTab && !anchorOfThisPage && /^https?:$/.test(url.protocol);
+}

@@ -33,6 +33,7 @@
       class="py-0 px-0 transparent"
       @click="checkLink">
       <v-menu
+        ref="menu"
         v-model="showMenu"
         rounded
         content-class="topBar-navigation-drop-menu topBar-navigation-drop-sub-menu"
@@ -41,6 +42,7 @@
         transition="slide-x-reverse-transition"
         :left="$vuetify.rtl || openLeft"
         :open-on-hover="isOpenedOnHover"
+        :close-on-content-click="false"
         absolute
         eager
         offset-x>
@@ -87,7 +89,9 @@
           :base-site-uri="baseSiteUri"
           :selected-path="selectedPath"
           @update-navigation-state="updateNavigationState"
-          @select="$emit('select')" />
+          @select="$emit('select')"
+          @leaving-page="$emit('leaving-page')"
+          @close-menu="closeMenu" />
       </v-menu>
     </v-list-item>
   </v-list>
@@ -167,9 +171,16 @@ export default {
     window.addEventListener('resize', this.updateSize);
     this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
   },
+  mounted() {
+    // the sub-menu is rendered at the end of the page (eager: from mount), so the menu holding this entry never sees
+    // its clicks: they are read on the sub-menu's own content
+    this.subMenuContent = this.$refs.menu?.$refs?.content;
+    this.subMenuContent?.addEventListener('click', this.onSubMenuClick);
+  },
   beforeDestroy() {
     window.removeEventListener('resize', this.updateSize);
     this.$root.$off('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
+    this.subMenuContent?.removeEventListener('click', this.onSubMenuClick);
   },
   methods: {
     checkLink(e) {
@@ -186,6 +197,27 @@ export default {
           window.location.href = this.navigationNodeUri;
         }
       }
+    },
+    // The chosen entry of the sub-menu keeps every menu up to the bar open, and the focus, while it replaces the page:
+    // see NavigationUtils.js
+    onSubMenuClick(event) {
+      const entry = event.target?.closest?.('a.v-list-item[href]');
+      if (!entry) {
+        // an entry that only groups others opens its own sub-menu
+        return;
+      }
+      if (this.$navigationUtils.replacesPage(entry, event)) {
+        this.$emit('leaving-page');
+        // Vuetify's list item blurs itself on a click that has a detail
+        entry.focus();
+        return;
+      }
+      this.closeMenu();
+    },
+    // an entry that leaves the page in place closes every menu up to the bar
+    closeMenu() {
+      this.showMenu = false;
+      this.$emit('close-menu');
     },
     updateNavigationState(value) {
       this.$emit('update-navigation-state', value);
