@@ -60,6 +60,7 @@ String spaceId = null;
 
   BrandingService brandingService = CommonsUtils.getService(BrandingService.class);
   String logoPath = brandingService.getLogoPath();
+  String darkLogoPath = brandingService.getDarkLogoPath();
   String logoTitle = brandingService.getCompanyName();
   if (StringUtils.equals(requestContext.getPortalOwner(), "public")) {
     portalPath = "/portal/public";
@@ -150,6 +151,7 @@ String spaceId = null;
           isMember: `<%=isMember%>`,
           portalPath: '<%=StringEscapeUtils.escapeEcmaScript(portalPath)%>',
           logoPath: `<%=logoPath%>`,
+          darkLogoPath: '<%=darkLogoPath == null ? "" : StringEscapeUtils.escapeEcmaScript(darkLogoPath)%>',
           logoTitle: `<%=URLEncoder.encode(logoTitle.replace(" ", "._.")).replace("._.", " ")%>`,
           spacePortalPath: `<%=spacePortalPath == null ? "": spacePortalPath%>`,
           spaceLogoPath: `<%=spaceLogoPath == null ? "": spaceLogoPath%>`,

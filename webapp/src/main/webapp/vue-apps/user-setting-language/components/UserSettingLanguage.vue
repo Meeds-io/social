@@ -2,6 +2,7 @@
   <v-app>
     <div class="application-body">
       <v-list two-line>
+        <user-setting-display-mode />
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="text-title">

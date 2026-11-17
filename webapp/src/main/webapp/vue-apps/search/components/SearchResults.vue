@@ -40,9 +40,9 @@
       class="d-flex justify-center align-center">
       <div class="d-flex flex-column ma-auto text-center text-subtitle">
         <v-icon
-          class="tertiary-color my-auto"
+          class="secondary--text my-auto"
           size="60"
-          color="tertiary">
+          color="secondary">
           fas fa-search
         </v-icon>
         <span class="text-body mt-3">{{ $t('Search.noResults.placeholder') }}</span>

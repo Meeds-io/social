@@ -25,6 +25,7 @@ import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.AbstractNotificationChildPlugin;
 import org.exoplatform.commons.api.notification.service.template.TemplateContext;
 import org.exoplatform.commons.notification.NotificationUtils;
+import org.exoplatform.commons.notification.mail.MailPalette;
 import org.exoplatform.commons.notification.template.TemplateUtils;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -46,6 +47,10 @@ public class DefaultActivityChildPlugin extends AbstractNotificationChildPlugin 
 
     String language = getLanguage(notification);
     TemplateContext templateContext = new TemplateContext(ID, language);
+    // a context of its own: the recipient's palette is bound again, so the activity follows the recipient's mode
+    if (notification.getTo() != null) {
+      MailPalette.bind(templateContext, notification.getTo());
+    }
 
     String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
     ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
@@ -53,8 +58,8 @@ public class DefaultActivityChildPlugin extends AbstractNotificationChildPlugin 
       //we need to build the content of activity by type, so if it's a comment, we will get the parent activity
       activity = Utils.getActivityManager().getParentActivity(activity);
     }
-    templateContext.put("ACTIVITY", processBody(Utils.getActivityManager().getActivityTitle(activity),
-                                                language));
+    templateContext.put("ACTIVITY", SocialNotificationUtils.withContentColors(templateContext, processBody(Utils.getActivityManager().getActivityTitle(activity),
+                                                language)));
     //
     return TemplateUtils.processGroovy(templateContext);
   }

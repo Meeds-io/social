@@ -88,6 +88,9 @@
 
   function renderSanitizedDocument(el, binding) {
     el.innerHTML = binding.value && purifier.sanitize(binding.value, config) || '';
+    // black and white text gets the Auto text colour in dark (social's rich text colours): a class, the content's own
+    // markup unchanged
+    window.eXo?.richTextColors?.markColors(el);
   }
 
   window.Vue.directive('sanitized-document', {
