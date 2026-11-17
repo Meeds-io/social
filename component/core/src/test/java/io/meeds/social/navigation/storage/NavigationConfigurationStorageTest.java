@@ -108,6 +108,16 @@ public class NavigationConfigurationStorageTest {
     assertFalse(nodeB.isAllowUserHome(null));
   }
 
+  @Test
+  public void allowUserHomeWhenStoredConfigurationHasNoSidebar() {
+    TopbarConfiguration topbar = new TopbarConfiguration();
+    topbar.setApplications(new ArrayList<>());
+    nodeA.updateConfiguration(new NavigationConfiguration(topbar, null));
+
+    assertTrue(nodeA.isAllowUserHome(null));
+    assertTrue(nodeB.isAllowUserHome(null));
+  }
+
   private NavigationConfigurationStorage newNode() {
     NavigationConfigurationStorage storage = new NavigationConfigurationStorage();
     ReflectionTestUtils.setField(storage, "settingService", settingService);

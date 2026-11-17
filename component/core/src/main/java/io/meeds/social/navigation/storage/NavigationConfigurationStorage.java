@@ -72,7 +72,9 @@ public class NavigationConfigurationStorage {
    */
   public boolean isAllowUserHome(List<TopbarApplication> defaultApplications) {
     NavigationConfiguration configuration = readConfiguration(defaultApplications);
-    return configuration == null || configuration.getSidebar().isAllowUserCustomHome();
+    return configuration == null
+           || configuration.getSidebar() == null
+           || configuration.getSidebar().isAllowUserCustomHome();
   }
 
   public void updateConfiguration(NavigationConfiguration navigationConfiguration) {
