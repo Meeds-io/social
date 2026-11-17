@@ -76,22 +76,24 @@
       <v-list-item-content>
         <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
       </v-list-item-content>
-      <!-- Enter on its button stops here: the entry, a list item, would take it as its own click -->
+      <!-- Enter on its button stops here: the entry, a list item, would take it as its own click.
+           Kept for screen readers while hidden: their browse mode neither hovers nor focuses the entry.
+           Its hover opens the panel only while it shows: a pointer passing by the row leaves no pending open -->
       <v-list-item-action
-        v-if="toggleArrow"
+        :class="!toggleArrow && 'd-sr-only'"
         :disabled="loading"
         :loading="loading"
         class="me-2 my-auto align-center"
         @keydown.enter.stop>
         <ripple-hover-button
-          :active="!drawerOpened"
-          :title="$t('menu.accessToPagesList')"
-          :aria-label="$t('menu.accessToPagesList')"
+          :active="!drawerOpened && toggleArrow"
+          :title="$t('menu.accessToEntryPagesList', {0: spaceDisplayName})"
+          :aria-label="$t('menu.accessToEntryPagesList', {0: spaceDisplayName})"
           :aria-expanded="drawerOpened ? 'true' : 'false'"
           icon
           @ripple-hover="openOrCloseDrawer()">
           <v-icon
-            :id="space.id"
+            :id="toggleArrow && space.id || null"
             class="me-0 pa-2 icon-default-color"
             small>
             {{ arrowIcon }} 
