@@ -41,7 +41,7 @@
         hide-details
         readonly
         v-bind="attrs"
-        v-on="on"
+        v-on="activatorListeners(on)"
         @keydown.enter.prevent="openFromKeyboard"
         @keydown.space.prevent="openFromKeyboard" />
     </template>
@@ -243,12 +243,7 @@ export default {
       }
       if (newVal && this.openedFromKeyboard) {
         this.openedFromKeyboard = false;
-        // the read-only field keeps the focus, which the date picker needs to be used from the keyboard
-        this.$nextTick(() => window.setTimeout(() => {
-          const picker = this.$refs.datePicker?.$el;
-          (picker?.querySelector('.v-date-picker-table .v-btn--active, .v-date-picker-table .v-date-picker-table__current')
-            || picker?.querySelector('.v-date-picker-table button'))?.focus();
-        }, 200));
+        this.focusPicker();
       }
       if (newVal && !oldVal && newVal !== oldVal) {
         if (this.value) {
@@ -284,10 +279,37 @@ export default {
     document.removeEventListener('keydown', this.closeOnEscape, true);
   },
   methods: {
+    activatorListeners(on) {
+      return {
+        ...on,
+        click: event => {
+          // a click with no pointer is Enter or Space passed by a screen reader, which sends no key to the page: it
+          // opens the picker as the keyboard does, and never closes it, when the key itself has already opened it
+          if (event?.detail === 0) {
+            event.stopPropagation();
+            this.openFromKeyboard();
+          } else {
+            on.click(event);
+          }
+        },
+      };
+    },
     openFromKeyboard() {
-      this.openedFromKeyboard = true;
       this.usedKeyboard = true;
-      this.menu = true;
+      if (this.menu) {
+        this.focusPicker();
+      } else {
+        this.openedFromKeyboard = true;
+        this.menu = true;
+      }
+    },
+    focusPicker() {
+      // the read-only field keeps the focus, which the date picker needs to be used from the keyboard
+      this.$nextTick(() => window.setTimeout(() => {
+        const picker = this.$refs.datePicker?.$el;
+        (picker?.querySelector('.v-date-picker-table .v-btn--active, .v-date-picker-table .v-date-picker-table__current')
+          || picker?.querySelector('.v-date-picker-table button'))?.focus();
+      }, 200));
     },
     closeOnEscape(event) {
       if (event.key === 'Escape' && this.menu) {
