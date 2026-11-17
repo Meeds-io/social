@@ -23,9 +23,12 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import io.meeds.social.space.template.entity.SpaceTemplateEntity;
+import io.meeds.social.space.template.model.SpaceTemplateAdministration;
 
 @Repository
 public interface SpaceTemplateDAO extends JpaRepository<SpaceTemplateEntity, Long> {
@@ -37,4 +40,15 @@ public interface SpaceTemplateDAO extends JpaRepository<SpaceTemplateEntity, Lon
   Optional<SpaceTemplateEntity> findByLayout(String layout);
 
   Optional<SpaceTemplateEntity> findByGroupId(String groupId);
+
+  @Query("""
+      SELECT new io.meeds.social.space.template.model.SpaceTemplateAdministration(t.id, t.deleted, t.adminPermissions)
+      FROM SpaceTemplate t
+      WHERE t.id = :id
+      """)
+  Optional<SpaceTemplateAdministration> findAdministration(@Param("id") long id);
+
+  @Query("SELECT t.id, t.extendedProperties FROM SpaceTemplate t WHERE t.id = :id")
+  List<Object[]> findExtendedProperties(@Param("id") long id);
+
 }

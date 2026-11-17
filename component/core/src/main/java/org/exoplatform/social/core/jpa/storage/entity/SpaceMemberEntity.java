@@ -51,6 +51,19 @@ import lombok.Setter;
                     WHERE mem.space.id = :spaceId
                     AND mem.userId = :userId
                 """)
+@NamedQuery(name = "SpaceMember.getStatusesBySpaceAndUser",
+            query = "SELECT mem.status FROM SocSpaceMember mem WHERE mem.space.id = :spaceId AND mem.userId = :userId")
+@NamedQuery(name = "SpaceMember.getMembersAmong",
+            query = """
+                SELECT DISTINCT mem.userId FROM SocSpaceMember mem
+                INNER JOIN SocIdentityEntity identity ON mem.userId = identity.remoteId
+                WHERE mem.space.id = :spaceId
+                AND mem.status IN :statuses
+                AND identity.providerId = 'organization'
+                AND identity.enabled = true
+                AND identity.deleted = false
+                AND mem.userId IN :userIds
+                """)
 @NamedQuery(name = "SpaceMember.deleteBySpace", query = "DELETE FROM SocSpaceMember mem WHERE mem.space.id = :spaceId")
 @NamedQuery(name = "SpaceMember.getSpaceIdentitiesIdByMemberId",
         query = "SELECT DISTINCT identity.id FROM SocIdentityEntity AS identity WHERE "
