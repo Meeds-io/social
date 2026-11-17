@@ -289,10 +289,11 @@ export default {
     document.removeEventListener('keydown', this.closeOnEscape, true);
   },
   methods: {
-    // The menu names its activator a button: on this read-only field, a screen reader then stays in browse mode and
-    // turns Enter into a click, which opens the picker with the focus left on the field. Named a combobox that opens
-    // a dialog (the date picker pattern), the screen reader switches to focus mode when the field is reached, and
-    // Enter or Space opens the picker from the keyboard; the menu's aria-expanded tells whether it is open
+    // The menu names its activator a button, and the text field puts that role on its input. Named a combobox that
+    // opens a dialog instead (the date picker pattern), the field is one a screen reader is expected to switch to
+    // focus mode on when reached, so that Enter or Space reach the field as keys and open the picker from the
+    // keyboard; as a button, a screen reader in browse mode is expected to turn Enter into a click, which opens the
+    // picker with the focus left on the field. The menu's aria-expanded tells whether it is open
     fieldAttributes(attrs) {
       return {
         ...attrs,
