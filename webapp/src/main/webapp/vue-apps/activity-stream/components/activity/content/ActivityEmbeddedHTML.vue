@@ -18,6 +18,7 @@
       class="pa-3 text-color z-index-one light-grey-background-color">
       <div
         v-text="titleText"
+        :title="titleAnnounced && titleText || null"
         :aria-hidden="titleAnnounced && 'true' || null"
         class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate-2"></div>
     </a>
