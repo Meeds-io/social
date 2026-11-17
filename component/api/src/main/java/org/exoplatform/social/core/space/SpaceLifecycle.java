@@ -287,8 +287,11 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
     Set<String> set = new HashSet<>(addedPropertiesKeys);
     set.addAll(updatedValuesKeys);
 
-    List<String> changedProperties = new ArrayList<>(set);
-    broadcast(new SpaceExtendedPropertiesLifeCycleEvent(newSpace,
+    extendedPropertiesUpdated(newSpace, userId, new ArrayList<>(set));
+  }
+
+  public void extendedPropertiesUpdated(Space space, String userId, List<String> changedProperties) {
+    broadcast(new SpaceExtendedPropertiesLifeCycleEvent(space,
                                                          userId,
                                                          Type.EXTENDED_PROPERTIES_UPDATED,
                                                          changedProperties));

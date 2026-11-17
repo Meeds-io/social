@@ -51,6 +51,7 @@ import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.attachment.AttachmentService;
 
 import io.meeds.social.space.template.model.SpaceTemplate;
+import io.meeds.social.space.template.model.SpaceTemplateAdministration;
 import io.meeds.social.space.template.model.SpaceTemplateFilter;
 import io.meeds.social.space.template.plugin.attachment.SpaceTemplateBannerAttachmentPlugin;
 import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslationPlugin;
@@ -261,6 +262,31 @@ public class SpaceTemplateService {
                              .stream()
                              .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)));
     }
+  }
+
+  /**
+   * Decides on the template's committed row, outside every cache, whether a
+   * user is one of its administrators: the space security refusals and the
+   * parent change of a space rest on it.
+   *
+   * @param templateId space template technical identifier
+   * @param username a user
+   * @return true when the template exists, is not deleted and one of its
+   *         administrator permissions holds the user
+   */
+  public boolean isTemplateAdministrator(long templateId, String username) {
+    if (templateId <= 0) {
+      return false;
+    }
+    SpaceTemplateAdministration administration = spaceTemplateStorage.getTemplateAdministration(templateId);
+    if (administration == null || administration.deleted() || CollectionUtils.isEmpty(administration.adminPermissions())) {
+      return false;
+    }
+    Identity aclIdentity = userAcl.getUserIdentity(username);
+    return aclIdentity != null
+           && administration.adminPermissions()
+                            .stream()
+                            .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)));
   }
 
   public boolean canManageTemplates(String username) {
