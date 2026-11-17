@@ -362,18 +362,38 @@ public class SpaceStorage {
   }
 
   public Space getSpaceByGroupId(String groupId) throws SpaceStorageException {
-    SpaceEntity entity = spaceDAO.getSpaceByGroupId(groupId);
-    return fillSpaceFromEntity(entity);
+    Long spaceId = getSpaceIdByGroupId(groupId);
+    return spaceId == null ? null : getSpaceById(spaceId);
   }
 
+  /**
+   * Maps the space's committed row, never the state of an entity the
+   * persistence context holds.
+   */
   public Space getSpaceById(long spaceId) throws SpaceStorageException {
-    SpaceEntity entity = spaceDAO.find(spaceId);
+    SpaceEntity entity = spaceDAO.findCommitted(spaceId);
     return fillSpaceFromEntity(entity);
   }
 
   public Space getSpaceByPrettyName(String spacePrettyName) throws SpaceStorageException {
-    SpaceEntity entity = spaceDAO.getSpaceByPrettyName(spacePrettyName);
-    return fillSpaceFromEntity(entity);
+    Long spaceId = getSpaceIdByPrettyName(spacePrettyName);
+    return spaceId == null ? null : getSpaceById(spaceId);
+  }
+
+  /**
+   * @param groupId space group identifier
+   * @return the identifier of the space bound to that group, or null
+   */
+  public Long getSpaceIdByGroupId(String groupId) {
+    return spaceDAO.findIdByGroupId(groupId);
+  }
+
+  /**
+   * @param spacePrettyName space pretty name
+   * @return the identifier of the space of that pretty name, or null
+   */
+  public Long getSpaceIdByPrettyName(String spacePrettyName) {
+    return spaceDAO.findIdByPrettyName(spacePrettyName);
   }
 
   public List<Space> getSpaces(long offset, long limit) throws SpaceStorageException {
