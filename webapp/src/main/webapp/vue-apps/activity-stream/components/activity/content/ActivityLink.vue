@@ -4,6 +4,7 @@
     :element="htmlElement"
     :href="link"
     :target="linkTarget"
+    :aria-label="unnamedLink && $t('activity.embedded.link.open') || null"
     :class="mainClass">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex">
@@ -46,6 +47,7 @@
             v-if="title"
             v-text="titleText"
             :title="titleTooltip"
+            :aria-hidden="titleAnnounced && 'true' || null"
             class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate">
           </div>
           <dynamic-html-element
@@ -122,6 +124,7 @@
         class="no-min-width position-relative d-flex flex-column flex-grow-1 mx-3">
         <div
           v-if="title"
+          :aria-hidden="titleAnnounced && 'true' || null"
           class="text-truncate text-body mb-3 mt-2 font-weight-bold text-color mx-0 mt-0 text-wrap text-break"
           dir="auto">
           <span v-html="titleHtml"></span>
@@ -171,6 +174,10 @@ export default {
     collapsed: {
       type: Boolean,
       default: true
+    },
+    titleAnnounced: {
+      type: Boolean,
+      default: false
     }
   },
   data: () => ({
@@ -241,6 +248,13 @@ export default {
     },
     useMobileView() {
       return this.$vuetify.breakpoint.name === 'sm' && !this.useSameViewForMobile;
+    },
+    unnamedLink() {
+      // the hidden title leaves a card with no summary and no image text without any name to announce
+      return this.titleAnnounced
+        && this.htmlElement === 'a'
+        && !(this.summary && this.$utils.htmlToText(this.summary)?.trim())
+        && !this.featuredThumbnailAltText;
     },
     htmlElement() {
       return this.sourceLink && this.sourceLink !== '#' && 'a' || 'div';
