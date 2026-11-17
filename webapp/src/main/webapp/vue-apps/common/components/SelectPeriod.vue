@@ -19,6 +19,7 @@
 -->
 <template>
   <v-menu
+    ref="menu"
     v-model="menu"
     :content-class="`${menuId} white select-period-menu-content`"
     :close-on-content-click="false"
@@ -28,6 +29,7 @@
     :right="right"
     offset-y
     attach
+    eager
     min-width="auto">
     <template #activator="{ on, attrs }">
       <v-text-field
@@ -40,10 +42,12 @@
         rel="tooltip"
         hide-details
         readonly
-        v-bind="attrs"
+        v-bind="fieldAttributes(attrs)"
         v-on="on"
         @keydown.enter.prevent="openFromKeyboard"
-        @keydown.space.prevent="openFromKeyboard" />
+        @keydown.space.prevent="openFromKeyboard"
+        @keydown.down.prevent="openFromKeyboard"
+        @keydown.up.prevent="openFromKeyboard" />
     </template>
     <div class="d-flex flex-column">
       <v-date-picker
@@ -144,7 +148,7 @@ export default {
       fromTime: '00:00:00',
       toTime: '23:59:59',
       selectedPeriodName: this.defaultPeriod,
-      menuId: `SelectPeriodMenu${parseInt(Math.random() * 10000).toString()}`,
+      menuId: `SelectPeriodMenu${this._uid}`,
       shortDateFormat: {
         year: 'numeric',
         month: 'short',
@@ -212,10 +216,15 @@ export default {
     },
   },
   watch: {
+    // without a placeholder, the dialog is named after the period the field shows, which a choice made in it changes
+    rangeDateTimeTitle() {
+      this.nameDialog();
+    },
     menu(newVal, oldVal) {
       // Escape is caught wherever it starts while the picker is open: a click on a part of the picker that takes
       // no focus (its title, its caption, any button in Safari) leaves the focus on the page's body
       if (newVal) {
+        this.nameDialog();
         document.addEventListener('keydown', this.closeOnEscape, true);
       } else {
         document.removeEventListener('keydown', this.closeOnEscape, true);
@@ -243,12 +252,7 @@ export default {
       }
       if (newVal && this.openedFromKeyboard) {
         this.openedFromKeyboard = false;
-        // the read-only field keeps the focus, which the date picker needs to be used from the keyboard
-        this.$nextTick(() => window.setTimeout(() => {
-          const picker = this.$refs.datePicker?.$el;
-          (picker?.querySelector('.v-date-picker-table .v-btn--active, .v-date-picker-table .v-date-picker-table__current')
-            || picker?.querySelector('.v-date-picker-table button'))?.focus();
-        }, 200));
+        this.focusPicker();
       }
       if (newVal && !oldVal && newVal !== oldVal) {
         if (this.value) {
@@ -279,15 +283,56 @@ export default {
       }
     });
     this.selectPeriodItem(this.selectedPeriodName);
+    this.$nextTick(this.nameDialog);
   },
   beforeDestroy() {
     document.removeEventListener('keydown', this.closeOnEscape, true);
   },
   methods: {
+    // The menu names its activator a button, and the text field puts that role on its input. Named a combobox that
+    // opens a dialog instead (the date picker pattern), the field is one a screen reader is expected to switch to
+    // focus mode on when reached, so that Enter or Space reach the field as keys and open the picker from the
+    // keyboard; as a button, a screen reader in browse mode is expected to turn Enter into a click, which opens the
+    // picker with the focus left on the field. The menu's aria-expanded tells whether it is open
+    fieldAttributes(attrs) {
+      return {
+        ...attrs,
+        'role': 'combobox',
+        'aria-haspopup': 'dialog',
+        'aria-controls': this.menuId,
+      };
+    },
+    // The menu renders its content as a menu: it holds a date picker, a dialog named after the field. The content is
+    // rendered once (eager), so the field's aria-controls always names an element of the page
+    nameDialog() {
+      const content = this.$refs.menu?.$refs?.content;
+      if (content) {
+        content.id = this.menuId;
+        content.setAttribute('role', 'dialog');
+        // the picker's name: the field's placeholder, else the period it shows, else the From label; unnamed only for
+        // a consumer that passes none of them
+        const name = this.placeholder || this.rangeDateTimeTitle || this.labels.from;
+        if (name) {
+          content.setAttribute('aria-label', name);
+        }
+      }
+    },
     openFromKeyboard() {
-      this.openedFromKeyboard = true;
       this.usedKeyboard = true;
-      this.menu = true;
+      if (this.menu) {
+        this.focusPicker();
+      } else {
+        this.openedFromKeyboard = true;
+        this.menu = true;
+      }
+    },
+    focusPicker() {
+      // the read-only field keeps the focus, which the date picker needs to be used from the keyboard
+      this.$nextTick(() => window.setTimeout(() => {
+        const picker = this.$refs.datePicker?.$el;
+        (picker?.querySelector('.v-date-picker-table .v-btn--active, .v-date-picker-table .v-date-picker-table__current')
+          || picker?.querySelector('.v-date-picker-table button'))?.focus();
+      }, 200));
     },
     closeOnEscape(event) {
       if (event.key === 'Escape' && this.menu) {
