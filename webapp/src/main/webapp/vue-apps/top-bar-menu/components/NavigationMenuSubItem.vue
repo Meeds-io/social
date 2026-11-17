@@ -247,7 +247,7 @@ export default {
         event.stopPropagation();
         // pressed on a page link's chevron, the key bubbles through the link: the focus comes back to the chevron
         const chevron = this.$refs.chevron?.$el;
-        this.openSubMenu(chevron?.contains?.(event.target) ? chevron : this.$refs.entry?.$el);
+        this.openSubMenu(this.hasPage && chevron?.contains?.(event.target) ? chevron : this.$refs.entry?.$el);
       } else if (event.key === 'Enter' && !this.hasPage) {
         // Vuetify makes a click of it, which opened the sub-menu: the menu holding this entry would click it again
         event.stopPropagation();
