@@ -63,7 +63,7 @@
     :prepend-inner-icon="icon"
     :background-color="backgroundColor"
     :class="inputClass"
-    class="profileFormField pt-2"
+    class="profileFormField"
     item-value="id"
     clearable
     outlined
@@ -101,7 +101,7 @@
     :prepend-inner-icon="icon"
     :background-color="backgroundColor"
     :class="inputClass"
-    class="profileFormField pt-2"
+    class="profileFormField"
     autocomplete="off"
     outlined
     dense
@@ -161,7 +161,7 @@ export default {
       return this.registration ? 'white' : null;
     },
     inputClass() {
-      return this.registration ? 'login-username border-box-sizing' : null;
+      return this.registration ? 'login-username border-box-sizing' : 'pt-2';
     },
     kind() {
       if (this.setting.propertyType === 'user') {

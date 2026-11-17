@@ -35,7 +35,6 @@
         :prepend-inner-icon="icon"
         :background-color="backgroundColor"
         :class="inputClass"
-        class="pt-2"
         autocomplete="off"
         outlined
         dense
@@ -117,7 +116,7 @@ export default {
     },
     inputClass: {
       type: String,
-      default: null,
+      default: 'pt-2',
     },
   },
   data: () => ({
