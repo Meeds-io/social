@@ -56,6 +56,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         role="dialog"
         class="d-flex flex-column border-box-sizing pa-4"
         @keydown.esc.stop="closeToChip"
+        @mousedown="pressInPanel = true"
+        @mouseup="pressInPanel = false"
         @focusout="closeWhenFocusLeaves">
         <v-radio-group v-model="choice" class="mt-0 pt-0 mb-1">
           <v-radio
@@ -110,7 +112,8 @@ export default {
       choice: 'any',
       space: [],
       selectedSpaces: [],
-      initialized: false
+      initialized: false,
+      pressInPanel: false,
     };
   },
   computed: {
@@ -197,7 +200,7 @@ export default {
       if (!target || !panel || panel.contains(target) || target.closest('.v-menu__content')) {
         return;
       }
-      if (target.contains(panel)) {
+      if (this.pressInPanel && target.contains(panel)) {
         // a mouse press on a part of the panel that takes no focus (a radio's label, its padding) focuses
         // the drawer around it: the focus goes back to the panel, where Escape and Tab close it
         this.$nextTick(() => this.focusCheckedOption());
