@@ -154,10 +154,7 @@ export default {
       }
       if (this.menu) {
         // Vuetify keeps the focus on the chip: it goes to the panel's checked option
-        this.$nextTick(() => window.setTimeout(() => {
-          const panel = this.$refs.spaceFilterPanel?.$el;
-          (panel?.querySelector('input[type="radio"]:checked') || panel?.querySelector('input'))?.focus();
-        }, 100));
+        this.$nextTick(() => window.setTimeout(this.focusCheckedOption, 100));
       }
     }
   },
@@ -194,14 +191,23 @@ export default {
       this.$nextTick(() => this.$refs.menuActivator?.$el?.focus());
     },
     closeWhenFocusLeaves(event) {
-      // the space suggester's list is rendered outside the panel: moving into it keeps the panel open.
-      // A mouse press on a part of the panel that takes no focus (a radio's label, its padding)
-      // focuses the closest focusable element around it, the drawer: that keeps the panel open too.
+      // the space suggester's list is rendered outside the panel: moving into it keeps the panel open
       const target = event.relatedTarget;
       const panel = this.$refs.spaceFilterPanel?.$el;
-      if (target && panel && !panel.contains(target) && !target.contains(panel) && !target.closest('.v-menu__content')) {
+      if (!target || !panel || panel.contains(target) || target.closest('.v-menu__content')) {
+        return;
+      }
+      if (target.contains(panel)) {
+        // a mouse press on a part of the panel that takes no focus (a radio's label, its padding) focuses
+        // the drawer around it: the focus goes back to the panel, where Escape and Tab close it
+        this.$nextTick(() => this.focusCheckedOption());
+      } else {
         this.menu = false;
       }
+    },
+    focusCheckedOption() {
+      const panel = this.$refs.spaceFilterPanel?.$el;
+      (panel?.querySelector('input[type="radio"]:checked') || panel?.querySelector('input'))?.focus();
     },
   }
 };
