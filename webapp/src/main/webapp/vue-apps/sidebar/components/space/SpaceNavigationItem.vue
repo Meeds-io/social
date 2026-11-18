@@ -61,7 +61,7 @@
         :aria-label="$t('space.avatar.href.title',{0:space.prettyName})"
         :aria-current="isCurrentPage && 'page' || null"
         :title="spaceDisplayName"
-        :class="[homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink'), toggleArrow && 'pe-15']"
+        :class="[homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink'), toggleArrow && 'pe-15', showItemActions && 'v-list-item--highlighted']"
         class="px-2 spaceItem"
         role="link">
         <v-list-item-avatar 
@@ -97,7 +97,7 @@
            Its hover opens the panel only while it shows: a pointer passing by the row leaves no pending open -->
       <div
         :class="$vuetify.rtl && 'l-0' || 'r-0'"
-        class="position-absolute t-0 fill-height d-flex align-center pe-4 z-index-one">
+        class="HamburgerMenuItemActions position-absolute t-0 fill-height d-flex align-center pe-4 z-index-one">
         <div :class="!toggleArrow && 'd-sr-only'">
           <ripple-hover-button
             :active="!drawerOpened && toggleArrow"

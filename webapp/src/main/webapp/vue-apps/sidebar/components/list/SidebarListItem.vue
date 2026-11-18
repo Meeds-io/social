@@ -41,7 +41,7 @@
           :title="spacesTooltip"
           :aria-expanded="spacesExpanded"
           :aria-label="$t(item.name)"
-          :class="[$root.iconCollapse && 'mx-0', showArrow && 'pe-15']"
+          :class="[$root.iconCollapse && 'mx-0', showArrow && 'pe-15', hover && 'v-list-item--highlighted']"
           role="button"
           class="d-flex ps-3"
           dense
@@ -73,7 +73,7 @@
         <div
           v-if="hasArrow"
           :class="$vuetify.rtl && 'l-0' || 'r-0'"
-          class="position-absolute t-0 fill-height d-flex align-center pe-4 z-index-one">
+          class="HamburgerMenuItemActions position-absolute t-0 fill-height d-flex align-center pe-4 z-index-one">
           <div :class="!showArrow && 'd-sr-only'">
             <ripple-hover-button
               :active="!drawerOpened && showArrow"
@@ -113,7 +113,7 @@
         :title="tooltip"
         :value="item.url"
         :disabled="!item.url"
-        :class="[(!$root.expand || !item.avatar) && avatar && 'ms-n2px', actionDisplayed && 'pe-15']"
+        :class="[(!$root.expand || !item.avatar) && avatar && 'ms-n2px', actionDisplayed && 'pe-15', hover && 'v-list-item--highlighted']"
         class="d-flex ps-3"
         dense>
         <v-list-item-avatar
@@ -167,7 +167,7 @@
       <div
         v-if="hasArrow || homeButtonAllowed"
         :class="$vuetify.rtl && 'l-0' || 'r-0'"
-        class="position-absolute t-0 fill-height d-flex align-center pe-4 z-index-one">
+        class="HamburgerMenuItemActions position-absolute t-0 fill-height d-flex align-center pe-4 z-index-one">
         <div v-if="hasArrow" :class="!showArrow && 'd-sr-only'">
           <ripple-hover-button
             :active="!drawerOpened && showArrow"
