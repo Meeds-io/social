@@ -5,8 +5,7 @@
         <v-btn
           :id="`FavoriteLink_${type}_${id}`"
           :style="buttonStyle"
-          :loading="loading"
-          :disabled="loading || disabled"
+          :disabled="disabled"
           :class="disabled && 'opacity-5'"
           :aria-label="$t('Favorite.button.label')"
           :aria-pressed="String(isFavorite)"
@@ -119,7 +118,7 @@ export default {
   },
   data: () => ({
     isFavorite: false,
-    loading: false,
+    saving: false,
   }),
   computed: {
     buttonStyle() {
@@ -174,44 +173,36 @@ export default {
       }}));
     },
     changeFavorite() {
-      this.loading = true;
-      if (this.isFavorite) {
-        this.$favoriteService.removeFavorite(this.type, this.id)
-          .then(() => {
-            document.dispatchEvent(new CustomEvent('favorite-removed', {
-              detail: {
-                type: this.type,
-                typeLabel: this.typeLabel,
-                id: this.id,
-                spaceId: this.spaceId,
-                entityType: this.entityType,
-              }
-            }));
-            this.isFavorite = false;
-            this.$emit('removed');
-            this.updateFavorite();
-          })
-          .catch(() => this.$emit('remove-error'))
-          .finally(() => this.loading = false);
-      } else {
-        this.$favoriteService.addFavorite(this.type, this.id, this.parentId, this.spaceId)
-          .then(() => {
-            document.dispatchEvent(new CustomEvent('favorite-added', {
-              detail: {
-                type: this.type,
-                typeLabel: this.typeLabel,
-                id: this.id,
-                spaceId: this.spaceId,
-                entityType: this.entityType,
-              }
-            }));
-            this.isFavorite = true;
-            this.$emit('added');
-            this.updateFavorite();
-          })
-          .catch(() => this.$emit('add-error'))
-          .finally(() => this.loading = false);
+      // a click while the previous change is saved is ignored: the pressed state already shows that change
+      if (this.saving) {
+        return;
       }
+      this.saving = true;
+      // the toggle shows its new state at once, and goes back to the previous one if the save fails
+      const removing = this.isFavorite;
+      this.isFavorite = !removing;
+      const save = removing
+        ? this.$favoriteService.removeFavorite(this.type, this.id)
+        : this.$favoriteService.addFavorite(this.type, this.id, this.parentId, this.spaceId);
+      save
+        .then(() => {
+          document.dispatchEvent(new CustomEvent(removing ? 'favorite-removed' : 'favorite-added', {
+            detail: {
+              type: this.type,
+              typeLabel: this.typeLabel,
+              id: this.id,
+              spaceId: this.spaceId,
+              entityType: this.entityType,
+            }
+          }));
+          this.$emit(removing ? 'removed' : 'added');
+          this.updateFavorite();
+        })
+        .catch(() => {
+          this.isFavorite = removing;
+          this.$emit(removing ? 'remove-error' : 'add-error');
+        })
+        .finally(() => this.saving = false);
     },
   },
 };
