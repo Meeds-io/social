@@ -152,6 +152,18 @@ public interface ProfilePropertyService {
   List<Long> getHiddenProfilePropertyIds(long userIdentityId);
 
   /**
+   * Queues the reindexing of every user holding a value for a profile
+   * property, after an edit that changes the string the profile index holds
+   * for its values (a dropdown option's value or labels, a removed option, the
+   * dropdown switch). The holders are read from the database in pages, on a
+   * single thread of the service, one walk at a time; the method returns at
+   * once.
+   *
+   * @param propertyName the name of the profile property
+   */
+  void reindexPropertyHolders(String propertyName);
+
+  /**
    * Gets excluded analytics index properties
    *
    * @return {@link List} of {@link String}

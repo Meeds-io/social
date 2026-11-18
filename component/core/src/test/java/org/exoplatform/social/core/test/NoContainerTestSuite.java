@@ -48,6 +48,8 @@ import org.exoplatform.social.core.jpa.storage.entity.PortableSequenceChangelogC
 import org.exoplatform.social.core.plugin.ActivityAttachmentPluginTest;
 import org.exoplatform.social.core.processor.ActivityResourceBundlePluginTest;
 import org.exoplatform.social.core.profile.UserProfileComparatorTest;
+import org.exoplatform.social.core.jpa.search.ProfileSearchConnectorDirectoryFilterTest;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyHoldersReindexTest;
 import org.exoplatform.social.core.relationship.RelationshipTest;
 import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
@@ -100,7 +102,9 @@ import io.meeds.social.group.plugin.GroupAclPluginTest;
 import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
 import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 import io.meeds.social.analytics.CollaborativeActivityDeclarationTest;
+import io.meeds.social.people.service.PeopleDirectoryFilterServiceTest;
 import io.meeds.social.people.service.PeopleDirectoryServiceTest;
+import io.meeds.social.upgrade.ProfileIndexVisibilityUpgradePluginTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -109,6 +113,10 @@ import io.meeds.social.people.service.PeopleDirectoryServiceTest;
     UserHomePageServiceTest.class,
     OrganizationalChartSettingServiceTest.class,
     PeopleDirectoryServiceTest.class,
+    PeopleDirectoryFilterServiceTest.class,
+    ProfilePropertyHoldersReindexTest.class,
+    ProfileSearchConnectorDirectoryFilterTest.class,
+    ProfileIndexVisibilityUpgradePluginTest.class,
     OrganizationalChartHeaderTranslationPermissionTest.class,
     UserCardSettingServiceTest.class,
     ReactionServiceImplTest.class,

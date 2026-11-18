@@ -2,18 +2,26 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.nio.charset.StandardCharsets" %>
 <%@ page import="javax.portlet.PortletPreferences" %>
+<%@ page import="org.json.JSONArray" %>
 <%@ page import="org.json.JSONObject" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects />
 <portlet:actionURL var="saveSettingsUrl" />
 <portlet:resourceURL var="settingsResourceUrl" id="<%=PeopleListPortlet.SETTINGS_RESOURCE_ID%>" />
+<portlet:resourceURL var="usersResourceUrl" id="<%=PeopleListPortlet.USERS_RESOURCE_ID%>" />
+<portlet:resourceURL var="attributeValuesResourceUrl" id="<%=PeopleListPortlet.ATTRIBUTE_VALUES_RESOURCE_ID%>" />
 <%
   PortletPreferences preferences = renderRequest.getPreferences();
   JSONObject settings = new JSONObject();
   settings.put("headerTranslations", new JSONObject(PeopleListPortlet.storedHeaderTranslations(preferences)));
   settings.put("pageSize", PeopleListPortlet.storedPageSize(preferences));
   settings.put("filter", PeopleListPortlet.storedFilter(preferences));
-  settings.put("canEdit", PeopleListPortlet.canEdit(renderRequest.getRemoteUser()));
+  settings.put("directoryFiltered", PeopleListPortlet.isDirectoryFiltered(preferences));
+  boolean canEdit = PeopleListPortlet.canEdit(renderRequest.getRemoteUser());
+  settings.put("canEdit", canEdit);
+  if (canEdit) {
+    settings.put("attributes", new JSONArray(PeopleListPortlet.storedAttributes(preferences, renderRequest.getLocale())));
+  }
 
   String portletId = (String) request.getAttribute("portletStorageId");
   String appId = "peopleList" + portletId;
@@ -31,7 +39,9 @@
              injecting it, so a line comment swallows the rest of the script. --%>
         settings: JSON.parse(decodeURIComponent(document.getElementById('<%=settingsDomId%>').value.replace(/\+/g, '%20'))),
         saveSettingsUrl: '<%=saveSettingsUrl%>',
-        settingsResourceUrl: '<%=settingsResourceUrl%>'
+        settingsResourceUrl: '<%=settingsResourceUrl%>',
+        usersResourceUrl: '<%=usersResourceUrl%>',
+        attributeValuesResourceUrl: '<%=attributeValuesResourceUrl%>'
       }));
     </script>
   </div>

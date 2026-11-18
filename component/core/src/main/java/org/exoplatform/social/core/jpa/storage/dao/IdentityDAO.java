@@ -51,6 +51,27 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
 
   /**
    * @param providerId the identity provider
+   * @param propertyName the name of a profile property
+   * @param lastId the id after which the page starts, excluded
+   * @param limit the page size, 0 or less for no limit
+   * @return the non-deleted identity ids of the provider, disabled ones
+   *         included, that hold a value for the property (a multi-valued
+   *         property's values are one stored row), strictly greater than lastId,
+   *         in ascending id order
+   */
+  List<Long> getIdsHoldingPropertyAfterId(String providerId, String propertyName, long lastId, int limit);
+
+  /**
+   * @param providerId the identity provider
+   * @param lastId the id after which the page starts, excluded
+   * @param limit the page size, 0 or less for no limit
+   * @return the non-deleted disabled identity ids of the provider strictly
+   *         greater than lastId, in ascending id order
+   */
+  List<Long> getDisabledIdsByProviderAfterId(String providerId, long lastId, int limit);
+
+  /**
+   * @param providerId the identity provider
    * @param internalsOnly whether the identities marked external are left out
    * @param afterRemoteId the remote id after which the list starts, excluded,
    *          or null to start from the first one
