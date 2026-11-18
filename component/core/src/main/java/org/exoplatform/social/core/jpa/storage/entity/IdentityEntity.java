@@ -84,6 +84,14 @@ import jakarta.persistence.TemporalType;
                 query = "SELECT i.id FROM SocIdentityEntity i WHERE i.deleted = FALSE AND i.providerId = :providerId AND i.id > :lastId ORDER BY i.id ASC"
         ),
         @NamedQuery(
+                name = "SocIdentity.getDisabledIdsByProviderAfterId",
+                query = "SELECT i.id FROM SocIdentityEntity i WHERE i.deleted = FALSE AND i.enabled = FALSE AND i.providerId = :providerId AND i.id > :lastId ORDER BY i.id ASC"
+        ),
+        @NamedQuery(
+                name = "SocIdentity.getIdsHoldingPropertyAfterId",
+                query = "SELECT i.id FROM SocIdentityEntity i JOIN i.properties p WHERE i.deleted = FALSE AND i.providerId = :providerId AND KEY(p) = :propertyName AND i.id > :lastId ORDER BY i.id ASC"
+        ),
+        @NamedQuery(
                 name = "SocIdentity.getEnabledRemoteIds",
                 query = "SELECT i.remoteId FROM SocIdentityEntity i WHERE i.providerId = :providerId AND i.enabled = TRUE AND i.deleted = FALSE ORDER BY i.remoteId ASC"
         ),
