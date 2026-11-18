@@ -56,6 +56,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         role="dialog"
         class="d-flex flex-column border-box-sizing pa-4"
         @keydown.esc.stop="closeToChip"
+        @mousedown="pressInPanel = true"
+        @mouseup="pressInPanel = false"
         @focusout="closeWhenFocusLeaves">
         <v-radio-group v-model="choice" class="mt-0 pt-0 mb-1">
           <v-radio
@@ -110,7 +112,8 @@ export default {
       choice: 'any',
       space: [],
       selectedSpaces: [],
-      initialized: false
+      initialized: false,
+      pressInPanel: false,
     };
   },
   computed: {
@@ -154,10 +157,7 @@ export default {
       }
       if (this.menu) {
         // Vuetify keeps the focus on the chip: it goes to the panel's checked option
-        this.$nextTick(() => window.setTimeout(() => {
-          const panel = this.$refs.spaceFilterPanel?.$el;
-          (panel?.querySelector('input[type="radio"]:checked') || panel?.querySelector('input'))?.focus();
-        }, 100));
+        this.$nextTick(() => window.setTimeout(this.focusCheckedOption, 100));
       }
     }
   },
@@ -197,9 +197,20 @@ export default {
       // the space suggester's list is rendered outside the panel: moving into it keeps the panel open
       const target = event.relatedTarget;
       const panel = this.$refs.spaceFilterPanel?.$el;
-      if (target && panel && !panel.contains(target) && !target.closest('.v-menu__content')) {
+      if (!target || !panel || panel.contains(target) || target.closest('.v-menu__content')) {
+        return;
+      }
+      if (this.pressInPanel && target.contains(panel)) {
+        // a mouse press on a part of the panel that takes no focus (a radio's label, its padding) focuses
+        // the drawer around it: the focus goes back to the panel, where Escape and Tab close it
+        this.$nextTick(() => this.focusCheckedOption());
+      } else {
         this.menu = false;
       }
+    },
+    focusCheckedOption() {
+      const panel = this.$refs.spaceFilterPanel?.$el;
+      (panel?.querySelector('input[type="radio"]:checked') || panel?.querySelector('input'))?.focus();
     },
   }
 };
