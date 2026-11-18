@@ -42,12 +42,26 @@
             :mobile-display="mobileDisplay" />
         </div>
       </div>
-      <div v-else-if="!displayLoading" class="d-flex text-center noPeopleYetBlock">
+      <div
+        v-else-if="!displayLoading"
+        role="status"
+        class="d-flex text-center noPeopleYetBlock">
         <div class="ma-auto noPeopleYet">
           <p class="noPeopleYetIcons">
-            <v-icon>fa-users</v-icon>
+            <v-icon aria-hidden="true">fa-users</v-icon>
           </p>
-          <template v-if="filter === 'connections'">
+          <template v-if="directoryEmpty">
+            <p class="text-title">
+              {{ $t('peopleList.label.noResults') }}
+            </p>
+            <p v-if="$root.canEdit" class="people-list-review-settings">
+              {{ reviewSettingsPrefix }}<button
+                class="people-list-review-settings-link primary--text pa-0"
+                type="button"
+                @click="$root.$emit('people-list-settings-open')">{{ $t('peopleList.label.reviewSettings.link') }}</button>{{ reviewSettingsSuffix }}
+            </p>
+          </template>
+          <template v-else-if="filter === 'connections'">
             <p class="text-title">
               {{ $t('peopleList.label.noConnection') }}
             </p>
@@ -63,6 +77,7 @@
             </p>
           </template>
           <v-btn
+            v-if="!directoryEmpty"
             class="btn btn-primary"
             @click="resetFilters">
             {{ $t('pepole.advanced.filter.button.reset') }}
@@ -132,6 +147,17 @@ export default {
       type: Number,
       default: 12,
     },
+    // the People Directory lists through its portlet resource, which applies
+    // the instance's filter server-side; other lists keep their REST calls
+    usersResourceUrl: {
+      type: String,
+      default: null,
+    },
+    // whether the instance filters its users by profile attribute
+    directoryFiltered: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     profileExtensions: [],
@@ -158,6 +184,11 @@ export default {
     baseCardMinWidth: 200,
     baseActionIconsCount: 5,
     actionIconWidth: 36,
+    // PeopleDirectoryService.MAX_LIMIT: the users resource refuses more
+    maxResourceLimit: 100,
+    // the search the listed directory users answer, null when they must be
+    // fetched again from the first one
+    directoryQueryKey: null,
   }),
   computed: {
     displayLoading() {
@@ -196,6 +227,25 @@ export default {
     },
     columnSpan() {
       return 12 / this.columnsCount;
+    },
+    // no user matches the directory's own filter: nothing the viewer did
+    // narrows the list
+    directoryEmpty() {
+      return !!this.usersResourceUrl
+        && this.directoryFiltered
+        && !this.keyword
+        && !this.advancedFilterSettings
+        && this.filter !== 'connections';
+    },
+    // the sentence around the settings link, whose label is translated apart
+    reviewSettingsParts() {
+      return this.$t('peopleList.label.reviewSettings', {0: '\u0000'}).split('\u0000');
+    },
+    reviewSettingsPrefix() {
+      return this.reviewSettingsParts[0];
+    },
+    reviewSettingsSuffix() {
+      return this.reviewSettingsParts[1] || '';
     },
     filteredPeople() {
       if (!this.keyword || !this.loadingPeople) {
@@ -244,6 +294,8 @@ export default {
     document.addEventListener('extension-space-member-extension-action-updated', this.refreshExtensions);
     document.addEventListener('user-extension-updated', this.refreshUserExtensions);
     document.addEventListener('people-list-refresh', this.searchPeopleNoFilters);
+    // the instance's settings were saved: its filter may have changed
+    this.$root.$on('people-list-directory-updated', this.searchPeopleNoFilters);
 
     this.$root.$on('reset-advanced-filter', () => {
       this.advancedFilterSettings = null;
@@ -283,6 +335,8 @@ export default {
       this.spaceMemberExtensions = this.spaceId && extensionRegistry.loadExtensions('space-member-extension', 'action') || [];
     },
     searchPeopleNoFilters() {
+      // the saved settings may list other users for the same search
+      this.directoryQueryKey = null;
       this.searchPeople();
     },
     searchPeople(profileSettings) {
@@ -294,7 +348,12 @@ export default {
       }
       this.abortController = new AbortController();
       let searchUsersFunction;
-      if (this.filter === 'connections') {
+      if (profileSettings) {
+        this.advancedFilterSettings = profileSettings;
+      }
+      if (this.usersResourceUrl && (!this.filter || this.filter === 'all' || this.filter === 'connections')) {
+        searchUsersFunction = this.getDirectoryUsers(this.limitToFetch + 1, this.abortController.signal);
+      } else if (this.filter === 'connections') {
         searchUsersFunction = this.$userService.getConnections(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
       } else if (this.filter === 'member'
           || this.filter === 'manager'
@@ -347,6 +406,68 @@ export default {
           this.initialized = true;
           this.abortController = null;
         });
+    },
+    /**
+     * Lists the directory through its portlet resource, by requests of at
+     * most 100 users, the resource's bound. When only the number of users
+     * grew for the same search ('Show more'), the listed users are kept and
+     * only the next ones are fetched; any other change fetches from the
+     * first one. When a user before the listed ones leaves the list between
+     * two pages, the user who followed the listed ones is not shown until the
+     * next search.
+     *
+     * @param {number} count the number of users to fetch
+     * @param {AbortSignal} signal aborts the requests
+     * @returns {Promise<{users: Array, size: number}>} the users and their total number
+     */
+    getDirectoryUsers(count, signal) {
+      const queryKey = JSON.stringify([
+        this.keyword || '',
+        this.filter === 'connections' ? 'connections' : 'all',
+        this.advancedFilterSettings || null,
+      ]);
+      const listed = queryKey === this.directoryQueryKey && count > this.users.length ? this.users.slice() : [];
+      this.directoryQueryKey = null;
+      // offset: the position in the server's list after the users fetched,
+      // which a user already listed and fetched again does not move back
+      const fetchChunk = (users, size, offset) => {
+        if (users.length >= count || (size !== null && offset >= size)) {
+          return {users: users.slice(0, count), size: size || 0};
+        }
+        const params = new URLSearchParams({
+          q: this.keyword || '',
+          filter: this.filter === 'connections' ? 'connections' : 'all',
+          offset: String(offset),
+          limit: String(Math.min(count - users.length, this.maxResourceLimit)),
+        });
+        Object.keys(this.advancedFilterSettings || {})
+          .filter(name => this.advancedFilterSettings[name])
+          .forEach(name => params.append(`attr.${name}`, this.advancedFilterSettings[name]));
+        const separator = this.usersResourceUrl.includes('?') ? '&' : '?';
+        return fetch(`${this.usersResourceUrl}${separator}${params.toString()}`, {
+          method: 'GET',
+          credentials: 'include',
+          signal,
+        }).then(resp => {
+          if (!resp?.ok) {
+            throw new Error('Error while listing the people directory');
+          }
+          return resp.json();
+        }).then(data => {
+          const chunk = data?.users || [];
+          // a user indexed before the listed ones since the last page shifts
+          // them by one: the one fetched again is not listed twice
+          const listedIds = new Set(users.map(user => user.id));
+          const allUsers = users.concat(chunk.filter(user => !listedIds.has(user.id)));
+          return chunk.length
+            ? fetchChunk(allUsers, data?.size || 0, offset + chunk.length)
+            : {users: allUsers, size: data?.size || 0};
+        });
+      };
+      return Promise.resolve(fetchChunk(listed, null, listed.length)).then(result => {
+        this.directoryQueryKey = queryKey;
+        return result;
+      });
     },
     applyItemsPerPage() {
       this.pageSize = this.limit = this.itemsPerPage;

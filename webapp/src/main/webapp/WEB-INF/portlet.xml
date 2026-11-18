@@ -775,6 +775,10 @@
         <name>pageSize</name>
         <value>12</value>
       </preference>
+      <preference>
+        <name>attributeFilter</name>
+        <value>{}</value>
+      </preference>
     </portlet-preferences>
   </portlet>
 
