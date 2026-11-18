@@ -20,7 +20,9 @@
 -->
 <template>
   <div class="recentDrawer d-flex flex-column full-height full-width overflow-hidden">
-    <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center flex-grow-0 flex-shrink-0">
+    <!-- shown from the start, while the spaces load: the level opened from the keyboard gives the focus to its first
+         control, which would otherwise be the link at the bottom of the level until the spaces are displayed -->
+    <v-flex class="filterSpaces d-flex align-center flex-grow-0 flex-shrink-0">
       <v-card
         min-height="58"
         class="d-flex align-center full-width transparent"
