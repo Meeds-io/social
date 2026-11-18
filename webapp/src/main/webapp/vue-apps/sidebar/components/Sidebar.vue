@@ -457,8 +457,9 @@ export default {
           const level = (this.thirdLevelDrawer && THIRD_LEVEL)
             || (this.secondLevelDrawer && SECOND_LEVEL);
           if (level) {
-            document.querySelector(level)
-              ?.querySelector?.('a[href], button:not([disabled]), [tabindex="0"]')
+            // the first control shown: a hidden one (v-show) is still matched, and does not take the focus
+            Array.from(document.querySelector(level)?.querySelectorAll?.('a[href], button:not([disabled]), [tabindex="0"]') || [])
+              .find(control => control.getClientRects().length)
               ?.focus();
           }
         }, 400);
