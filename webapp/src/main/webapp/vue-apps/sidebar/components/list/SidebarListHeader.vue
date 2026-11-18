@@ -21,14 +21,14 @@
 -->
 <template>
   <v-card
-    class="no-border-radius"
+    class="no-border-radius d-flex"
     min-height="57"
     flat>
     <v-list-item
       :href="defaultUserPath"
       :target="defaultUserPathTarget"
       :aria-label="$t('menu.userHomeLink')"
-      class="fill-height">
+      class="fill-height flex-grow-1 min-width-0">
       <v-list-item-avatar
         height="36"
         max-width="100"
@@ -56,57 +56,59 @@
           </v-card>
         </v-list-item-title>
       </v-list-item-content>
-      <!-- each tooltip's wrapper takes its hover events only: with the activator's role, a screen reader activates the wrapper, whose click reaches the home link instead of the button -->
-      <v-list-item-action v-if="$root.hoverDeferred && $root.stickyAllowed" class="d-flex flex-row ms-auto my-auto">
-        <v-tooltip v-if="!$root.hidden && $root.allowHidden" bottom>
-          <template #activator="{on}">
-            <div v-on="on">
-              <v-btn
-                :aria-label="$t('menu.collapse')"
-                icon
-                @click.stop.prevent="changeMenuStickiness('HIDDEN')"
-                @mousedown.stop.prevent
-                @mouseup.stop.prevent>
-                <v-icon size="20">{{ arrowIconLeft }}</v-icon>
-              </v-btn>
-            </div>
-          </template>
-          <span>{{ $t('menu.collapse') }}</span>
-        </v-tooltip>
-        <v-tooltip v-if="!$root.icon && $root.allowIcon" bottom>
-          <template #activator="{on}">
-            <div v-on="on">
-              <v-btn
-                :aria-label="$t('menu.reduce')"
-                icon
-                @click.stop.prevent="changeMenuStickiness('ICON')"
-                @mousedown.stop.prevent
-                @mouseup.stop.prevent>
-                <i
-                  class="icon-sidebar icon-default-color"
-                  aria-hidden="true"></i>
-              </v-btn>
-            </div>
-          </template>
-          <span>{{ $t('menu.reduce') }}</span>
-        </v-tooltip>
-        <v-tooltip v-if="!$root.sticky && $root.allowSticky" bottom>
-          <template #activator="{on}">
-            <div v-on="on">
-              <v-btn
-                :aria-label="$t('menu.expand')"
-                icon
-                @click.stop.prevent="changeMenuStickiness('STICKY')"
-                @mousedown.stop.prevent
-                @mouseup.stop.prevent>
-                <v-icon size="20">{{ arrowIconRight }}</v-icon>
-              </v-btn>
-            </div>
-          </template>
-          <span>{{ $t('menu.expand') }}</span>
-        </v-tooltip>
-      </v-list-item-action>
     </v-list-item>
+    <!-- the mode buttons follow the home link instead of sitting in it: a screen reader's browse mode reads a link
+         as one object and follows it on Enter, whatever control inside it has the focus.
+         Each tooltip's wrapper takes its hover events only: with the activator's role, a screen reader activates the wrapper instead of the button -->
+    <div v-if="$root.hoverDeferred && $root.stickyAllowed" class="d-flex flex-row flex-shrink-0 align-center pe-2">
+      <v-tooltip v-if="!$root.hidden && $root.allowHidden" bottom>
+        <template #activator="{on}">
+          <div v-on="on">
+            <v-btn
+              :aria-label="$t('menu.collapse')"
+              icon
+              @click.stop.prevent="changeMenuStickiness('HIDDEN')"
+              @mousedown.stop.prevent
+              @mouseup.stop.prevent>
+              <v-icon size="20">{{ arrowIconLeft }}</v-icon>
+            </v-btn>
+          </div>
+        </template>
+        <span>{{ $t('menu.collapse') }}</span>
+      </v-tooltip>
+      <v-tooltip v-if="!$root.icon && $root.allowIcon" bottom>
+        <template #activator="{on}">
+          <div v-on="on">
+            <v-btn
+              :aria-label="$t('menu.reduce')"
+              icon
+              @click.stop.prevent="changeMenuStickiness('ICON')"
+              @mousedown.stop.prevent
+              @mouseup.stop.prevent>
+              <i
+                class="icon-sidebar icon-default-color"
+                aria-hidden="true"></i>
+            </v-btn>
+          </div>
+        </template>
+        <span>{{ $t('menu.reduce') }}</span>
+      </v-tooltip>
+      <v-tooltip v-if="!$root.sticky && $root.allowSticky" bottom>
+        <template #activator="{on}">
+          <div v-on="on">
+            <v-btn
+              :aria-label="$t('menu.expand')"
+              icon
+              @click.stop.prevent="changeMenuStickiness('STICKY')"
+              @mousedown.stop.prevent
+              @mouseup.stop.prevent>
+              <v-icon size="20">{{ arrowIconRight }}</v-icon>
+            </v-btn>
+          </div>
+        </template>
+        <span>{{ $t('menu.expand') }}</span>
+      </v-tooltip>
+    </div>
   </v-card>
 </template>
 <script>
