@@ -34,11 +34,15 @@
     content-class="peopleActionMenu position-absolute z-index-modal"
     offset-y
     top>
-    <template #activator="{ on }">
+    <template #activator="{ on, attrs }">
+      <!-- aria-expanded, from the activator's attrs, and aria-haspopup="menu" let a panel opened from an
+        entry give the focus back to this button once closed (ActivationOrigin.js) -->
       <v-btn
         v-show="displayMenuButton"
         ref="menuActivator"
         :aria-label="$t('peopleList.label.openUserMenu')"
+        v-bind="attrs"
+        aria-haspopup="menu"
         v-on="on"
         :title="$t('peopleList.label.openUserMenu')"
         :class="[menuButtonClass, hoverReveal && !displayActionMenu && 'hover-reveal']"
