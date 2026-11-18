@@ -43,13 +43,16 @@
     @filter-button-click="openPeopleAdvancedFilterDrawer"
     @filter-select-change="filterValue = $event"
     @toggle-select="updateFilter($event)">
-    <template v-if="headerTitle || filterMessage" #left>
+    <!-- always passed: the toolbar reads $slots.left, which is not
+         reactive, so a slot removed when the count drops to 0 would leave
+         the previous count displayed -->
+    <template #left>
       <div
         v-if="headerTitle"
         class="people-list-header-title text-header text-truncate">
         {{ headerTitle }}
       </div>
-      <div v-else :class="filterMessageClass">
+      <div v-else-if="filterMessage" :class="filterMessageClass">
         {{ filterMessage }}
       </div>
     </template>

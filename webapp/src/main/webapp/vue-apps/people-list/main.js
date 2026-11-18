@@ -23,7 +23,7 @@ const url = `/social/i18n/locale.portlet.social.PeopleListApplication?lang=${lan
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init({appId, settings, saveSettingsUrl, settingsResourceUrl}) {
+export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, usersResourceUrl, attributeValuesResourceUrl}) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
       data: {
@@ -32,8 +32,13 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl}) {
         filter: settings?.filter || 'all',
         headerTranslations: settings?.headerTranslations || {},
         pageSize: settings?.pageSize || 12,
+        // the attribute filter as the settings drawer shows it: an editor's only
+        attributes: settings?.attributes || [],
+        directoryFiltered: !!settings?.directoryFiltered,
         saveSettingsUrl,
         settingsResourceUrl,
+        usersResourceUrl,
+        attributeValuesResourceUrl,
         language: eXo?.env?.portal?.language,
         defaultLanguage: eXo?.env?.portal?.defaultLanguage,
         hover: false,
@@ -70,6 +75,8 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl}) {
           }).then(stored => {
             this.headerTranslations = stored?.headerTranslations || {};
             this.pageSize = stored?.pageSize || 12;
+            this.attributes = stored?.attributes || [];
+            this.directoryFiltered = !!stored?.directoryFiltered;
           });
         },
       },

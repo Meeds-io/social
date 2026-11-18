@@ -18,60 +18,30 @@
  */
 package org.exoplatform.social.core.listeners;
 
-import io.meeds.common.ContainerTransactional;
-import org.exoplatform.commons.search.index.IndexingService;
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
-import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
-import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-@Asynchronous
-public class ProfilePropertySettingOptionTranslationListener extends Listener<ProfilePropertyOption, Map<Locale, String>> {
-
-  private final IdentityManager        identityManager;
+/**
+ * Glue: when an edit of a property's options changes the string the profile
+ * index holds for its values, hands the property to
+ * {@link ProfilePropertyService#reindexPropertyHolders(String)}, which
+ * reindexes its holders on its own thread.
+ */
+public class ProfilePropertySettingOptionTranslationListener extends Listener<Object, ProfilePropertySetting> {
 
   private final ProfilePropertyService profilePropertyService;
 
-  private final IndexingService        indexingService;
-
-  public ProfilePropertySettingOptionTranslationListener(IdentityManager identityManager,
-                                                         ProfilePropertyService profilePropertyService,
-                                                         IndexingService indexingService) {
-    this.identityManager = identityManager;
+  public ProfilePropertySettingOptionTranslationListener(ProfilePropertyService profilePropertyService) {
     this.profilePropertyService = profilePropertyService;
-    this.indexingService = indexingService;
   }
 
   @Override
-  @ContainerTransactional
-  public void onEvent(Event<ProfilePropertyOption, Map<Locale, String>> event) throws Exception {
-    ProfilePropertyOption profilePropertyOption = event.getSource();
-    Map<Locale, String> oldTranslations = event.getData();
-    ProfilePropertySetting propertySetting =
-                                           profilePropertyService.getProfileSettingById(profilePropertyOption.getPropertySettingId());
-    String translations = String.join("-", oldTranslations.values());
-    String indexedValue = String.join("-", profilePropertyOption.getValue(), translations);
-
-    ProfileFilter profileFilter = new ProfileFilter();
-    profileFilter.setProfileSettings(Map.of(propertySetting.getPropertyName(), indexedValue));
-    ListAccess<Identity> identities = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME,
-                                                                                   profileFilter,
-                                                                                   true);
-    List<Identity> identityList = List.of(identities.load(0, identities.getSize()));
-    for (Identity identity : identityList) {
-      indexingService.reindex(ProfileIndexingServiceConnector.TYPE, String.valueOf(identity.getId()));
+  public void onEvent(Event<Object, ProfilePropertySetting> event) {
+    ProfilePropertySetting propertySetting = event.getData();
+    if (propertySetting != null) {
+      profilePropertyService.reindexPropertyHolders(propertySetting.getPropertyName());
     }
   }
 }
