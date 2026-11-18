@@ -18,25 +18,20 @@
  */
 package org.exoplatform.social.core.listeners;
 
-import org.exoplatform.commons.search.index.IndexingService;
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.services.listener.Event;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
-import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
-import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
-import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.*;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import org.exoplatform.services.listener.Event;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyServiceImpl;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProfilePropertySettingOptionTranslationListenerTest {
@@ -44,63 +39,32 @@ public class ProfilePropertySettingOptionTranslationListenerTest {
   @Mock
   private ProfilePropertyService                          profilePropertyService;
 
-  @Mock
-  private IdentityManager                                 identityManager;
-
-  @Mock
-  private IndexingService                                 indexingService;
-
   private ProfilePropertySettingOptionTranslationListener profilePropertySettingOptionListener;
 
   @Before
-  public void setUp() throws Exception {
-    profilePropertySettingOptionListener = new ProfilePropertySettingOptionTranslationListener(identityManager,
-                                                                                               profilePropertyService,
-                                                                                               indexingService);
+  public void setUp() {
+    profilePropertySettingOptionListener = new ProfilePropertySettingOptionTranslationListener(profilePropertyService);
   }
 
   @Test
-  public void testOnEvent() throws Exception {
-    Identity identity1 = mock(Identity.class);
-    Identity identity2 = mock(Identity.class);
+  public void testOnEventHandsThePropertyToTheService() {
+    ProfilePropertySetting propertySetting = new ProfilePropertySetting();
+    propertySetting.setId(1L);
+    propertySetting.setPropertyName("department");
 
-    when(identity1.getId()).thenReturn("identity1");
-    when(identity2.getId()).thenReturn("identity2");
+    profilePropertySettingOptionListener.onEvent(new Event<>(ProfilePropertyServiceImpl.PROPERTY_OPTIONS_UPDATED_EVENT,
+                                                             profilePropertyService,
+                                                             propertySetting));
 
-    Map<Locale, String> labels = new HashMap<>();
-    labels.put(Locale.US, "option en");
-    labels.put(Locale.FRANCE, "option fr");
+    verify(profilePropertyService).reindexPropertyHolders("department");
+  }
 
-    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
-    profilePropertySetting.setId(1L);
-    profilePropertySetting.setPropertyName("test1");
+  @Test
+  public void testOnEventWithoutSettingDoesNothing() {
+    profilePropertySettingOptionListener.onEvent(new Event<>(ProfilePropertyServiceImpl.PROPERTY_OPTIONS_UPDATED_EVENT,
+                                                             profilePropertyService,
+                                                             null));
 
-    ProfilePropertyOption profilePropertyOption1 = new ProfilePropertyOption();
-    profilePropertyOption1.setId(1L);
-    profilePropertyOption1.setValue("value");
-    profilePropertyOption1.setPropertySettingId(1L);
-
-    Event<ProfilePropertyOption, Map<Locale, String>> event = new Event<>("property_options_updated",
-                                                                          profilePropertyOption1,
-                                                                          labels);
-
-    ListAccess<Identity> identityListAccess = new ListAccess<>() {
-      public Identity[] load(int index, int length) {
-        List<Identity> identities = new ArrayList<>();
-        identities.add(identity1);
-        identities.add(identity2);
-        Identity[] result = new Identity[identities.size()];
-        return identities.toArray(result);
-      }
-
-      public int getSize() {
-        return 2;
-      }
-    };
-    when(profilePropertyService.getProfileSettingById(eq(1L))).thenReturn(profilePropertySetting);
-    when(identityManager.getIdentitiesByProfileFilter(anyString(), any(), anyBoolean())).thenReturn(identityListAccess);
-    profilePropertySettingOptionListener.onEvent(event);
-    verify(indexingService, times(1)).reindex(ProfileIndexingServiceConnector.TYPE, "identity1");
-    verify(indexingService, times(1)).reindex(ProfileIndexingServiceConnector.TYPE, "identity1");
+    verify(profilePropertyService, never()).reindexPropertyHolders(any());
   }
 }

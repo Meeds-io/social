@@ -64,6 +64,8 @@ import org.exoplatform.social.core.search.Sorting;
 public class ProfileSearchConnectorTest {
     private ProfileSearchConnector profileSearchConnector;
 
+    private final List<ProfilePropertySetting> registeredSettings = new ArrayList<>();
+
     @Mock
     private ProfilePropertyService profilePropertyService;
 
@@ -457,7 +459,7 @@ public class ProfileSearchConnectorTest {
         Sorting sorting = new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC);
         ProfilePropertySetting profilePropertySetting = mock(ProfilePropertySetting.class);
         lenient().when(profilePropertySetting.getPropertyName()).thenReturn("testProperty");
-        when(profilePropertyService.getProfileSettingByName("testProperty")).thenReturn(profilePropertySetting);
+        registerSetting("testProperty", profilePropertySetting);
         Map <String,String> profileSettings = new HashMap<>();
         List<Identity> excludedIdentityList = new ArrayList<>();
         Identity identity1 = new Identity("test","test");
@@ -584,7 +586,7 @@ public class ProfileSearchConnectorTest {
         Sorting sorting = new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC);
         ProfilePropertySetting profilePropertySetting = mock(ProfilePropertySetting.class);
         lenient().when(profilePropertySetting.getPropertyName()).thenReturn("testProperty");
-        when(profilePropertyService.getProfileSettingByName("testProperty")).thenReturn(profilePropertySetting);
+        registerSetting("testProperty", profilePropertySetting);
         Map <String,String> profileSettings = new HashMap<>();
         List<Identity> excludedIdentityList = new ArrayList<>();
         Identity identity1 = new Identity("test","test");
@@ -712,7 +714,7 @@ public class ProfileSearchConnectorTest {
         Sorting sorting = new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC);
         ProfilePropertySetting profilePropertySetting = mock(ProfilePropertySetting.class);
         lenient().when(profilePropertySetting.getPropertyName()).thenReturn("testProperty");
-        when(profilePropertyService.getProfileSettingByName("testProperty")).thenReturn(profilePropertySetting);
+        registerSetting("testProperty", profilePropertySetting);
         Map <String,String> profileSettings = new HashMap<>();
         List<Identity> excludedIdentityList = new ArrayList<>();
         Identity identity1 = new Identity("test","test");
@@ -868,7 +870,7 @@ public class ProfileSearchConnectorTest {
         profileSettings.put("testProperty", "value");
         profileSettings.put("otherProperty", "  ");
         ProfilePropertySetting otherPropertySetting = mock(ProfilePropertySetting.class);
-        when(profilePropertyService.getProfileSettingByName("otherProperty")).thenReturn(otherPropertySetting);
+        registerSetting("otherProperty", otherPropertySetting);
 
         Assert.assertEquals("testProperty.whitespace:*value*", getProfileSettingQueryString(profileSettings));
     }
@@ -880,7 +882,7 @@ public class ProfileSearchConnectorTest {
         profileSettings.put("otherProperty", "b");
         ProfilePropertySetting otherPropertySetting = mock(ProfilePropertySetting.class);
         when(otherPropertySetting.getPropertyName()).thenReturn("otherProperty");
-        when(profilePropertyService.getProfileSettingByName("otherProperty")).thenReturn(otherPropertySetting);
+        registerSetting("otherProperty", otherPropertySetting);
 
         Assert.assertEquals(Arrays.asList("testProperty.whitespace:*a*", "otherProperty.whitespace:*b*"),
                             getProfileSettingQueryStrings(profileSettings));
@@ -949,7 +951,7 @@ public class ProfileSearchConnectorTest {
         String propertyName = "my\"prop\\x";
         ProfilePropertySetting propertySetting = mock(ProfilePropertySetting.class);
         when(propertySetting.getPropertyName()).thenReturn(propertyName);
-        when(profilePropertyService.getProfileSettingByName(propertyName)).thenReturn(propertySetting);
+        registerSetting(propertyName, propertySetting);
 
         ProfileFilter filter = new ProfileFilter();
         filter.setProfileSettings(Collections.singletonMap(propertyName, "a"));
@@ -966,7 +968,7 @@ public class ProfileSearchConnectorTest {
         String propertyName = "my\tprop";
         ProfilePropertySetting propertySetting = mock(ProfilePropertySetting.class);
         when(propertySetting.getPropertyName()).thenReturn(propertyName);
-        when(profilePropertyService.getProfileSettingByName(propertyName)).thenReturn(propertySetting);
+        registerSetting(propertyName, propertySetting);
 
         ProfileFilter filter = new ProfileFilter();
         filter.setProfileSettings(Collections.singletonMap(propertyName, "a"));
@@ -988,7 +990,7 @@ public class ProfileSearchConnectorTest {
         String propertyName = "phones.work";
         ProfilePropertySetting propertySetting = mock(ProfilePropertySetting.class);
         when(propertySetting.getPropertyName()).thenReturn(propertyName);
-        when(profilePropertyService.getProfileSettingByName(propertyName)).thenReturn(propertySetting);
+        registerSetting(propertyName, propertySetting);
 
         ProfileFilter filter = new ProfileFilter();
         filter.setProfileSettings(Collections.singletonMap(propertyName, "a"));
@@ -1057,7 +1059,7 @@ public class ProfileSearchConnectorTest {
     private List<String> getProfileSettingQueryStrings(Map<String, String> profileSettings, boolean wildcardSearch) {
         ProfilePropertySetting profilePropertySetting = mock(ProfilePropertySetting.class);
         lenient().when(profilePropertySetting.getPropertyName()).thenReturn("testProperty");
-        when(profilePropertyService.getProfileSettingByName("testProperty")).thenReturn(profilePropertySetting);
+        registerSetting("testProperty", profilePropertySetting);
         ProfileFilter filter = new ProfileFilter();
         filter.setProfileSettings(profileSettings);
         filter.setWildcardSearch(wildcardSearch);
@@ -1321,6 +1323,17 @@ public class ProfileSearchConnectorTest {
       return (String) method.invoke(profileSearchConnector, filter);
     }
     
+    /**
+     * Registers a visible setting in the list the connector looks settings up
+     * in.
+     */
+    private void registerSetting(String propertyName, ProfilePropertySetting propertySetting) {
+        lenient().when(propertySetting.getPropertyName()).thenReturn(propertyName);
+        lenient().when(propertySetting.isVisible()).thenReturn(true);
+        registeredSettings.add(propertySetting);
+        lenient().when(profilePropertyService.getPropertySettings()).thenReturn(registeredSettings);
+    }
+
     private InitParams getInitParams() {
         InitParams params = new InitParams();
         PropertiesParam constructorParams = new PropertiesParam();

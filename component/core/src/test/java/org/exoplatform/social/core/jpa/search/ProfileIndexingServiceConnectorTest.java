@@ -113,7 +113,100 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
     profilePropertyService.hidePropertySetting(Long.parseLong(userIdentity.getId()),
                                                profilePropertyService.getProfileSettingByName("profession").getId());
     document = profileIndexingServiceConnector.update(userIdentity.getId());
-    assertEquals("hidden", document.getFields().get("profession"));
+    // an owner-hidden value is absent: no query can match it, "hidden" included
+    assertFalse(document.getFields().containsKey("profession"));
+    assertFalse(document.getFields().containsValue("hidden"));
+  }
+
+  @Test
+  public void testHiddenPositionIsNotIndexed() {
+    Profile profile = userIdentity.getProfile();
+    profile.setProperty(Profile.POSITION, "Ingénieur");
+    identityManager.updateProfile(profile, true);
+    Document document = profileIndexingServiceConnector.update(userIdentity.getId());
+    assertEquals("Ingenieur", document.getFields().get("position"));
+
+    long positionId = profilePropertyService.getProfileSettingByName("position").getId();
+    profilePropertyService.hidePropertySetting(Long.parseLong(userIdentity.getId()), positionId);
+    try {
+      document = profileIndexingServiceConnector.update(userIdentity.getId());
+      assertFalse(document.getFields().containsKey("position"));
+    } finally {
+      profilePropertyService.showPropertySetting(Long.parseLong(userIdentity.getId()), positionId);
+    }
+  }
+
+  @Test
+  public void testNonVisiblePositionIsNotIndexed() {
+    Profile profile = userIdentity.getProfile();
+    profile.setProperty(Profile.POSITION, "Developer");
+    identityManager.updateProfile(profile, true);
+    ProfilePropertySetting positionSetting = profilePropertyService.getProfileSettingByName("position");
+    positionSetting.setVisible(false);
+    profilePropertyService.updatePropertySetting(positionSetting);
+    try {
+      Document document = profileIndexingServiceConnector.update(userIdentity.getId());
+      assertFalse(document.getFields().containsKey("position"));
+    } finally {
+      positionSetting.setVisible(true);
+      profilePropertyService.updatePropertySetting(positionSetting);
+    }
+  }
+
+  @Test
+  public void testHiddenEmailStaysIndexed() {
+    long emailId = profilePropertyService.getProfileSettingByName("email").getId();
+    profilePropertyService.hidePropertySetting(Long.parseLong(userIdentity.getId()), emailId);
+    try {
+      Document document = profileIndexingServiceConnector.update(userIdentity.getId());
+      assertEquals(userIdentity.getProfile().getEmail(), document.getFields().get("email"));
+    } finally {
+      profilePropertyService.showPropertySetting(Long.parseLong(userIdentity.getId()), emailId);
+    }
+  }
+
+  @Test
+  public void testDisabledIdentityHasNoDocument() {
+    Identity disabledIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary");
+    identityManager.processEnabledIdentity("mary", false);
+    try {
+      assertNull(profileIndexingServiceConnector.update(disabledIdentity.getId()));
+      assertNull(profileIndexingServiceConnector.create(disabledIdentity.getId()));
+    } finally {
+      identityManager.processEnabledIdentity("mary", true);
+    }
+    assertNotNull(profileIndexingServiceConnector.update(disabledIdentity.getId()));
+  }
+
+  @Test
+  public void testToIndexedValue() throws Exception {
+    ProfilePropertySetting dropdown = profilePropertyService.createPropertySetting(createProfileSettingDropdownInstance("propIndexedValue"));
+    long optionId = dropdown.getPropertyOptions().getFirst().getId();
+    translationService.saveTranslationLabels("propertySettingOption",
+                                             optionId,
+                                             "optionValue",
+                                             Map.of(Locale.FRANCE, "option fr", Locale.US, "option en"));
+    String indexedOption = ProfileIndexingServiceConnector.toIndexedValue(dropdown,
+                                                                          String.valueOf(optionId),
+                                                                          false,
+                                                                          translationService);
+    assertTrue(indexedOption, indexedOption.startsWith("option-"));
+    assertTrue(indexedOption, indexedOption.contains("option fr") && indexedOption.contains("option en"));
+    // the indexer and the query compute the same string
+    Profile profile = userIdentity.getProfile();
+    profile.setProperty("propIndexedValue", String.valueOf(optionId));
+    identityManager.updateProfile(profile, true);
+    assertEquals(indexedOption, profileIndexingServiceConnector.update(userIdentity.getId()).getFields().get("propIndexedValue"));
+
+    assertEquals("Senior développeur",
+                 ProfileIndexingServiceConnector.toIndexedValue(dropdown, "Senior développeur", false, translationService));
+    assertEquals("Senior developpeur",
+                 ProfileIndexingServiceConnector.toIndexedValue(dropdown, "Senior développeur", true, translationService));
+    assertEquals("Ingenieur",
+                 ProfileIndexingServiceConnector.toIndexedValue(profilePropertyService.getProfileSettingByName("position"),
+                                                                "Ingénieur",
+                                                                false,
+                                                                translationService));
   }
 
   @Test

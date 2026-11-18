@@ -32,6 +32,7 @@ import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.jpa.storage.RDBMSIdentityStorageImpl;
+import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
@@ -270,7 +271,8 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
                                                                                 getService(SettingService.class),
                                                                                 getService(IndexingService.class),
                                                                                 getService(ListenerService.class),
-                                                                                getService(TranslationService.class));
+                                                                                getService(TranslationService.class),
+                                                                                getService(IdentityDAO.class));
 
     ProfilePropertySetting child = newSetting("street");
     child.setParentId(parent.getId());
