@@ -194,10 +194,12 @@ export default {
       this.$nextTick(() => this.$refs.menuActivator?.$el?.focus());
     },
     closeWhenFocusLeaves(event) {
-      // the space suggester's list is rendered outside the panel: moving into it keeps the panel open
+      // the space suggester's list is rendered outside the panel: moving into it keeps the panel open.
+      // A mouse press on a part of the panel that takes no focus (a radio's label, its padding)
+      // focuses the closest focusable element around it, the drawer: that keeps the panel open too.
       const target = event.relatedTarget;
       const panel = this.$refs.spaceFilterPanel?.$el;
-      if (target && panel && !panel.contains(target) && !target.closest('.v-menu__content')) {
+      if (target && panel && !panel.contains(target) && !target.contains(panel) && !target.closest('.v-menu__content')) {
         this.menu = false;
       }
     },
