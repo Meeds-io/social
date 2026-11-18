@@ -29,6 +29,8 @@ import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.search.Sorting;
 
+import io.meeds.social.people.model.PeopleDirectoryFilter;
+
 /**
  * This class using for filter profile of identity
  */
@@ -99,6 +101,12 @@ public class ProfileFilter implements Cloneable {
   private boolean isEnabled = true;
 
   private boolean wildcardSearch = true;
+
+  /*
+   * The filter of the People Directory instance serving the list: every
+   * listed user must match it, whatever the other criteria
+   */
+  private PeopleDirectoryFilter directoryFilter;
 
   public ProfileFilter() {
     this("");
@@ -378,8 +386,21 @@ public class ProfileFilter implements Cloneable {
     this.profileSettings = profileSettings;
   }
 
+  public PeopleDirectoryFilter getDirectoryFilter() {
+    return directoryFilter;
+  }
+
+  public void setDirectoryFilter(PeopleDirectoryFilter directoryFilter) {
+    this.directoryFilter = directoryFilter;
+  }
+
+  /**
+   * @return true when no criterion needs the profile index: an empty filter is
+   *         served from the database, which applies no directory filter
+   */
   public boolean isEmpty() {
-    return StringUtils.isBlank(this.all)
+    return this.directoryFilter == null
+        && StringUtils.isBlank(this.all)
         && StringUtils.isBlank(this.name)
         && StringUtils.isBlank(this.company)
         && StringUtils.isBlank(this.position)
