@@ -29,7 +29,6 @@
     :right="right"
     offset-y
     attach
-    eager
     min-width="auto">
     <template #activator="{ on, attrs }">
       <v-text-field
@@ -141,6 +140,7 @@ export default {
   data() {
     return {
       menu: false,
+      menuRendered: false,
       openedFromKeyboard: false,
       usedKeyboard: false,
       lang: eXo.env.portal.language && eXo.env.portal.language.replace('_', '-'),
@@ -224,7 +224,11 @@ export default {
       // Escape is caught wherever it starts while the picker is open: a click on a part of the picker that takes
       // no focus (its title, its caption, any button in Safari) leaves the focus on the page's body
       if (newVal) {
-        this.nameDialog();
+        // the content is rendered at the first opening, and kept afterwards
+        this.$nextTick(() => {
+          this.nameDialog();
+          this.menuRendered = !!this.$refs.menu?.$refs?.content;
+        });
         document.addEventListener('keydown', this.closeOnEscape, true);
       } else {
         document.removeEventListener('keydown', this.closeOnEscape, true);
@@ -299,11 +303,12 @@ export default {
         ...attrs,
         'role': 'combobox',
         'aria-haspopup': 'dialog',
-        'aria-controls': this.menuId,
+        // only once the picker exists: before its first opening, it is not rendered
+        ...(this.menuRendered && {'aria-controls': this.menuId} || {}),
       };
     },
     // The menu renders its content as a menu: it holds a date picker, a dialog named after the field. The content is
-    // rendered once (eager), so the field's aria-controls always names an element of the page
+    // rendered at the first opening only, and the field's aria-controls names it from then on
     nameDialog() {
       const content = this.$refs.menu?.$refs?.content;
       if (content) {
