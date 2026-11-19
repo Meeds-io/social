@@ -35,16 +35,32 @@ export function toEditionFields(settings, properties) {
   properties
     .filter(property => property?.propertyName)
     .forEach(property => served[property.propertyName] = property);
+  return toFields(settings.filter(setting => served[setting.propertyName]),
+    setting => readStoredEntries(served[setting.propertyName], setting));
+}
+
+// The fields of the onboarding page: one per listed attribute, with or
+// without a value, holding the values the server read from the account as
+// its rules read a stored value, by attribute
+export function toOnboardingFields(settings, values) {
+  return toFields(settings, setting => (values?.[setting.propertyName] || [])
+    .filter(entry => typeof entry === 'string' && entry.length));
+}
+
+// The fields of the given attributes, each holding its stored entries, with
+// the stored value as it is compared, the values its format rules accept
+// unchanged, and the dropdown items for stored values no option is
+function toFields(settings, entriesOf) {
   const fields = {
-    settings: settings.filter(setting => served[setting.propertyName]),
+    settings,
     values: {},
     snapshot: {},
     unchangedValues: {},
     legacyOptions: {},
   };
-  fields.settings.forEach(setting => {
+  settings.forEach(setting => {
     const name = setting.propertyName;
-    const entries = readStoredEntries(served[name], setting);
+    const entries = entriesOf(setting);
     fields.values[name] = toFieldValue(entries, setting);
     fields.snapshot[name] = toComparable(fields.values[name], setting);
     fields.unchangedValues[name] = fields.snapshot[name];
