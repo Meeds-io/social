@@ -59,7 +59,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         @mousedown="pressInPanel = true"
         @mouseup="pressInPanel = false"
         @focusout="closeWhenFocusLeaves">
-        <v-radio-group v-model="choice" class="mt-0 pt-0 mb-1">
+        <v-radio-group
+          v-model="choice"
+          class="mt-0 pt-0 mb-1"
+          @keydown.native="moveChoice">
           <v-radio
             value="any"
             class="mx-0">
@@ -132,8 +135,8 @@ export default {
   },
   watch: {
     choice() {
-      // an arrow key checks the next radio, then the browser unchecks it again because Vuetify cancels the click
-      // it fires: once the key is handled, the checked state that screen readers announce follows the choice
+      // a click on a radio's own input checks it, then the browser unchecks it again because Vuetify cancels
+      // that click: once the click is handled, the checked state that screen readers announce follows the choice
       window.setTimeout(this.syncCheckedOption);
     },
     space() {
@@ -216,6 +219,21 @@ export default {
     syncCheckedOption() {
       this.$refs.spaceFilterPanel?.$el?.querySelectorAll('input[type="radio"]')
         .forEach(input => input.checked = input.value === this.choice);
+    },
+    moveChoice(event) {
+      if (event.target.type !== 'radio' || event.ctrlKey || event.altKey || event.metaKey
+          || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+        return;
+      }
+      // the browser's own arrow handling checks the next radio through a click that Vuetify cancels, so a screen
+      // reader hears it unchecked before it is checked: with two options, every arrow key checks and focuses the
+      // other one at once, before Vuetify updates the radios a tick later
+      event.preventDefault();
+      const next = [...event.currentTarget.querySelectorAll('input[type="radio"]')]
+        .find(input => input !== event.target);
+      next.checked = true;
+      next.focus();
+      this.choice = next.value;
     },
     focusCheckedOption() {
       const panel = this.$refs.spaceFilterPanel?.$el;
