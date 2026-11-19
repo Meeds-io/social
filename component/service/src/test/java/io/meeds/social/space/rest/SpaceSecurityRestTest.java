@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
@@ -173,9 +174,53 @@ public class SpaceSecurityRestTest {
     inOrder.verify(spaceSecurityService).updateSettings(SPACE_ID, new SpaceSecuritySettings(true, null, null), USER);
   }
 
+  /**
+   * "Keep documents inside the space" alone: the rights are checked on it
+   * whatever its value, and only it is passed on. Mutants: leaving it out of
+   * the fields a request may change answers 400; leaving it unnamed in the
+   * rights checks no right on it; dropping its value changes nothing.
+   */
+  @Test
+  public void testPatchKeepDocumentsInsideChecksItsRightsThenPassesOnlyIt() throws Exception {
+    for (boolean value : new boolean[] { true, false }) {
+      clearInvocations(spaceSecurityService);
+      SpaceSecuritySettings stored = new SpaceSecuritySettings(false, value, true);
+      when(spaceSecurityService.updateSettings(eq(SPACE_ID), any(), eq(USER))).thenReturn(stored);
+
+      mockMvc.perform(patch(PATH).with(user())
+                                 .contentType(MediaType.APPLICATION_JSON)
+                                 .content("{\"keepDocumentsInside\":" + value + "}"))
+             .andExpect(status().isOk())
+             .andExpect(header().string("Cache-Control", "no-store"))
+             .andExpect(jsonPath("$.keepDocumentsInside").value(value))
+             .andExpect(jsonPath("$.limitAccessManagement").value(false));
+      InOrder inOrder = inOrder(spaceSecurityService);
+      inOrder.verify(spaceSecurityService).checkCanUpdateSettings(SPACE_ID, new SpaceSecuritySettings(null, true, null), USER);
+      inOrder.verify(spaceSecurityService).updateSettings(SPACE_ID, new SpaceSecuritySettings(null, value, null), USER);
+    }
+  }
+
+  @Test
+  public void testPatchBothDocumentsSettingsInOneRequest() throws Exception {
+    SpaceSecuritySettings stored = new SpaceSecuritySettings(false, true, true);
+    when(spaceSecurityService.updateSettings(eq(SPACE_ID), any(), eq(USER))).thenReturn(stored);
+
+    mockMvc.perform(patch(PATH).with(user())
+                               .contentType(MediaType.APPLICATION_JSON)
+                               .content("{\"limitAccessManagement\":false,\"keepDocumentsInside\":true}"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.limitAccessManagement").value(false))
+           .andExpect(jsonPath("$.keepDocumentsInside").value(true));
+    InOrder inOrder = inOrder(spaceSecurityService);
+    inOrder.verify(spaceSecurityService).checkCanUpdateSettings(SPACE_ID, new SpaceSecuritySettings(true, true, null), USER);
+    inOrder.verify(spaceSecurityService).updateSettings(SPACE_ID, new SpaceSecuritySettings(false, true, null), USER);
+  }
+
   @Test
   public void testPatchRefusesAnInvalidValueOfASettingTheUserMayChange() throws Exception {
-    for (String body : new String[] { "{\"limitAccessManagement\":\"yes\"}", "{\"limitAccessManagement\":null}" }) {
+    for (String body : new String[] { "{\"limitAccessManagement\":\"yes\"}", "{\"limitAccessManagement\":null}",
+        "{\"keepDocumentsInside\":\"true\"}", "{\"keepDocumentsInside\":null}",
+        "{\"limitAccessManagement\":true,\"keepDocumentsInside\":1}" }) {
       mockMvc.perform(patch(PATH).with(user()).contentType(MediaType.APPLICATION_JSON).content(body))
              .andExpect(status().isBadRequest())
              .andExpect(status().reason(INVALID_VALUE));
@@ -187,16 +232,19 @@ public class SpaceSecurityRestTest {
   public void testPatchChecksTheRightsBeforeTheValue() throws Exception {
     doThrow(new SpaceSecurityRefusedException(NOT_ALLOWED)).when(spaceSecurityService)
                                                           .checkCanUpdateSettings(eq(SPACE_ID), any(), eq(USER));
-    mockMvc.perform(patch(PATH).with(user()).contentType(MediaType.APPLICATION_JSON).content("{\"limitAccessManagement\":\"yes\"}"))
-           .andExpect(status().isForbidden())
-           .andExpect(status().reason(NOT_ALLOWED));
+    for (String body : new String[] { "{\"limitAccessManagement\":\"yes\"}", "{\"keepDocumentsInside\":\"yes\"}" }) {
+      mockMvc.perform(patch(PATH).with(user()).contentType(MediaType.APPLICATION_JSON).content(body))
+             .andExpect(status().isForbidden())
+             .andExpect(status().reason(NOT_ALLOWED));
+    }
     verify(spaceSecurityService, never()).updateSettings(anyLong(), any(), anyString());
   }
 
   @Test
-  public void testPatchRefusesUnknownFieldsAndTheSettingsNoRequestChangesYet() throws Exception {
-    for (String body : new String[] { "{\"unknown\":true}", "{}", "{\"keepDocumentsInside\":true}",
-        "{\"externalMembersAllowed\":false}", "{\"limitAccessManagement\":true,\"keepDocumentsInside\":true}" }) {
+  public void testPatchRefusesUnknownFieldsAndTheSettingNoRequestChangesYet() throws Exception {
+    for (String body : new String[] { "{\"unknown\":true}", "{}", "{\"externalMembersAllowed\":false}",
+        "{\"keepDocumentsInside\":true,\"externalMembersAllowed\":false}",
+        "{\"limitAccessManagement\":true,\"unknown\":true}" }) {
       mockMvc.perform(patch(PATH).with(user()).contentType(MediaType.APPLICATION_JSON).content(body))
              .andExpect(status().isBadRequest())
              .andExpect(status().reason(INVALID_VALUE));
