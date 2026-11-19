@@ -56,8 +56,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         role="dialog"
         class="d-flex flex-column border-box-sizing pa-4"
         @keydown.esc.stop="closeToChip"
-        @mousedown="pressInPanel = true"
-        @mouseup="pressInPanel = false"
+        @mousedown="startPressInPanel"
         @focusout="closeWhenFocusLeaves">
         <v-radio-group
           v-model="choice"
@@ -160,6 +159,7 @@ export default {
       this.$root.$emit('spaces-changed', selectedSpaceIds);
     },
     menu() {
+      this.endPressInPanel();
       if (this.menu && this.selectedSpaces.length) {
         this.choice = 'space';
       }
@@ -200,6 +200,15 @@ export default {
     closeToChip() {
       this.menu = false;
       this.$nextTick(() => this.$refs.menuActivator?.$el?.focus());
+    },
+    startPressInPanel() {
+      this.pressInPanel = true;
+      // the press ends wherever the button is released, inside the panel or out of it
+      document.addEventListener('mouseup', this.endPressInPanel, {capture: true, once: true});
+    },
+    endPressInPanel() {
+      this.pressInPanel = false;
+      document.removeEventListener('mouseup', this.endPressInPanel, {capture: true});
     },
     closeWhenFocusLeaves(event) {
       // the space suggester's list is rendered outside the panel: moving into it keeps the panel open
