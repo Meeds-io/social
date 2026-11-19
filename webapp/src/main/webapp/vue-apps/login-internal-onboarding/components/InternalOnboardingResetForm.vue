@@ -83,7 +83,6 @@
               class="login-password border-box-sizing"
               name="password"
               autocomplete="new-password"
-              autofocus="autofocus"
               tabindex="0"
               required="required"
               outlined
