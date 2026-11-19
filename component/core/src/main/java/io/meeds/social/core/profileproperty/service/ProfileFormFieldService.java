@@ -105,14 +105,17 @@ public class ProfileFormFieldService {
    *
    * @param  values                     the values sent
    * @param  kind                       the form
-   * @param  complete                   true on creation and registration, where
-   *                                      every Required attribute of the form
-   *                                      must be sent
-   * @param  stored                     the user's profile on edition, null on
-   *                                      creation and registration: on edition
-   *                                      an attribute sent empty clears its
-   *                                      value, and a dropdown value equal to a
-   *                                      stored one is kept
+   * @param  complete                   true on creation, registration and
+   *                                      onboarding, where every Required
+   *                                      attribute of the form must be sent,
+   *                                      or, given a stored profile, be held
+   *                                      by it with a non-blank value
+   * @param  stored                     the user's profile on edition and
+   *                                      onboarding, null on creation and
+   *                                      registration: an attribute sent
+   *                                      empty clears its value, and a
+   *                                      dropdown value equal to a stored one
+   *                                      is kept
    * @return                            the attributes to write, by name: a
    *                                    text for a single-valued attribute, an
    *                                    {@link ArrayList} of maps holding the
@@ -149,6 +152,7 @@ public class ProfileFormFieldService {
               .stream()
               .filter(ProfilePropertySetting::isRequired)
               .filter(setting -> !sentNames.contains(setting.getPropertyName()))
+              .filter(setting -> !hasStoredValue(setting, stored))
               .findFirst()
               .ifPresent(setting -> {
                 throw new ProfileFormFieldException(REQUIRED, setting.getPropertyName());
@@ -176,6 +180,30 @@ public class ProfileFormFieldService {
     values.forEach(profile::setProperty);
     profile.setListUpdateTypes(new ArrayList<>(List.of(Profile.UpdateType.CONTACT)));
     identityManager.updateProfile(profile, modifier, false);
+  }
+
+  /**
+   * Reads the values a profile holds for the attributes of a form, as
+   * {@link #validate} reads a stored value.
+   *
+   * @param  settings the form's attributes
+   * @param  profile  the user's profile, null when the user has no identity
+   * @return          by attribute name, the non-empty values the profile holds
+   *                  for it, with no entry for an attribute it holds none for;
+   *                  an empty map for a null profile
+   */
+  public Map<String, List<String>> getStoredValues(List<ProfilePropertySetting> settings, Profile profile) {
+    Map<String, List<String>> storedValues = new LinkedHashMap<>();
+    if (profile == null || settings == null) {
+      return storedValues;
+    }
+    for (ProfilePropertySetting setting : settings) {
+      List<String> values = readStoredValues(profile.getProperty(setting.getPropertyName()), setting.isMultiValued());
+      if (!values.isEmpty()) {
+        storedValues.put(setting.getPropertyName(), values);
+      }
+    }
+    return storedValues;
   }
 
   /**
@@ -229,7 +257,7 @@ public class ProfileFormFieldService {
     }
     if (setting.isDropdownList()) {
       List<String> storedValues = stored == null ? Collections.emptyList()
-                                                 : getStoredValues(stored.getProperty(propertyName), setting.isMultiValued());
+                                                 : readStoredValues(stored.getProperty(propertyName), setting.isMultiValued());
       entries = entries.stream().map(entry -> toOptionValue(setting, entry, storedValues)).toList();
     }
     if (!setting.isMultiValued()
@@ -305,7 +333,7 @@ public class ProfileFormFieldService {
    * another text one value, split on commas under a multi-valued attribute,
    * and a list its entries' values under any attribute.
    */
-  private List<String> getStoredValues(Object storedValue, boolean multiValued) {
+  private List<String> readStoredValues(Object storedValue, boolean multiValued) {
     if (storedValue instanceof String text) {
       if (text.isEmpty()) {
         return Collections.emptyList();
@@ -321,6 +349,16 @@ public class ProfileFormFieldService {
                  .toList();
     }
     return Collections.emptyList();
+  }
+
+  /**
+   * @return whether a stored profile holds a value that satisfies the
+   *         attribute's Required rule: a non-blank one, as a value sent must be
+   */
+  private boolean hasStoredValue(ProfilePropertySetting setting, Profile stored) {
+    return stored != null
+           && readStoredValues(stored.getProperty(setting.getPropertyName()), setting.isMultiValued()).stream()
+                                                                                                    .anyMatch(StringUtils::isNotBlank);
   }
 
   private ArrayList<Map<String, String>> toStorageList(List<String> entries) {
