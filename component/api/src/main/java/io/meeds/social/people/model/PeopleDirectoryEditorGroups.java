@@ -32,11 +32,17 @@ import java.util.List;
  *          those groups, which count against the bound of the filter; 0
  *          otherwise
  * @param unresolvableGroups whether, for an editor who may set the filter,
- *          stored groups no longer exist: they match nobody until the editor
- *          selects groups or turns the filter OFF
+ *          stored groups no longer exist or the stored value cannot be read:
+ *          they match nobody until the editor selects groups or turns the
+ *          filter OFF
+ * @param groupFilterInvalid whether, for an editor who may set the filter,
+ *          the stored value cannot be read: the directory lists nobody, and
+ *          any save of the group filter, the shown groups unchanged included,
+ *          rewrites it
  */
 public record PeopleDirectoryEditorGroups(List<PeopleDirectoryGroup> groups,
                                           boolean otherGroupsApplied,
                                           int otherGroupsCount,
-                                          boolean unresolvableGroups) {
+                                          boolean unresolvableGroups,
+                                          boolean groupFilterInvalid) {
 }

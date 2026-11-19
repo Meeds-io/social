@@ -588,7 +588,8 @@ public class PeopleDirectoryService {
     List<PeopleDirectoryGroup> groups = new ArrayList<>();
     int otherGroupsCount = 0;
     // a value the directory cannot read lists nobody (getGroupFilter)
-    boolean unresolvableGroups = canSetGroupFilter && readStoredGroups(storedValue, true) == null;
+    boolean groupFilterInvalid = canSetGroupFilter && readStoredGroups(storedValue, true) == null;
+    boolean unresolvableGroups = groupFilterInvalid;
     for (DirectoryGroup group : stored) {
       if (!isResolvable(group)) {
         unresolvableGroups = canSetGroupFilter;
@@ -606,7 +607,8 @@ public class PeopleDirectoryService {
     return new PeopleDirectoryEditorGroups(groups,
                                            otherGroupsCount > 0,
                                            canSetGroupFilter ? otherGroupsCount : 0,
-                                           unresolvableGroups);
+                                           unresolvableGroups,
+                                           groupFilterInvalid);
   }
 
   /**

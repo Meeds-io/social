@@ -202,10 +202,13 @@ export default {
     storedGroupIds() {
       return (this.$root.groups || []).map(group => group.groupId);
     },
+    // a stored value the directory cannot read lists nobody: any Apply
+    // rewrites it, the shown groups unchanged included
     groupFilterChanged() {
       return this.canSetGroupFilter
         && (this.canonical(this.groupIdsToSave) !== this.canonical(this.storedGroupIds)
-          || (!!this.$root.unresolvableGroups && !this.groupFilterEnabled));
+          || (!!this.$root.unresolvableGroups && !this.groupFilterEnabled)
+          || !!this.$root.groupFilterInvalid);
     },
     groupsMissing() {
       return this.canSetGroupFilter && this.groupFilterEnabled && !this.groups.length;
@@ -351,8 +354,10 @@ export default {
       };
       if (toSave.groupIds) {
         // groups that no longer exist stay stored, unless the editor turns
-        // the group filter OFF: until that save, OFF is not the stored state
-        if (this.$root.unresolvableGroups && !toSave.groupIds.length) {
+        // the group filter OFF: until that save, OFF is not the stored state;
+        // a stored value the directory cannot read is never the stored state
+        // of the groups shown, which Apply rewrites
+        if (this.$root.groupFilterInvalid || (this.$root.unresolvableGroups && !toSave.groupIds.length)) {
           return false;
         }
         stored.groupIds = this.storedGroupIds;

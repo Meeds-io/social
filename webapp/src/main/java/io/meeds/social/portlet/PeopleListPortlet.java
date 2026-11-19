@@ -200,7 +200,8 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
    * @param preferences the window preferences
    * @param username the editor
    * @return a JSON object {@code {groups: [{groupId, label}],
-   *         otherGroupsApplied, otherGroupsCount, unresolvableGroups}}
+   *         otherGroupsApplied, otherGroupsCount, unresolvableGroups,
+   *         groupFilterInvalid}}
    */
   public static String storedGroups(PortletPreferences preferences, String username) {
     PeopleDirectoryEditorGroups editorGroups =
@@ -211,6 +212,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
                            .put("otherGroupsApplied", editorGroups.otherGroupsApplied())
                            .put("otherGroupsCount", editorGroups.otherGroupsCount())
                            .put("unresolvableGroups", editorGroups.unresolvableGroups())
+                           .put("groupFilterInvalid", editorGroups.groupFilterInvalid())
                            .toString();
   }
 
@@ -350,6 +352,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
       settings.put("otherGroupsApplied", groups.getBoolean("otherGroupsApplied"));
       settings.put("otherGroupsCount", groups.getInt("otherGroupsCount"));
       settings.put("unresolvableGroups", groups.getBoolean("unresolvableGroups"));
+      settings.put("groupFilterInvalid", groups.getBoolean("groupFilterInvalid"));
     }
     return settings.toString();
   }

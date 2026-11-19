@@ -373,8 +373,10 @@ public class PeopleDirectoryGroupFilterServiceTest {
       assertEquals(invalid, List.of(), peopleDirectoryService.getGroupFilter(invalid));
       assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, MANAGER).unresolvableGroups());
       assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, ADMIN).unresolvableGroups());
+      assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, MANAGER).groupFilterInvalid());
       // an editor who may not set the filter cannot clear it either
       assertFalse(invalid, peopleDirectoryService.getEditorGroups(invalid, EDITOR).unresolvableGroups());
+      assertFalse(invalid, peopleDirectoryService.getEditorGroups(invalid, EDITOR).groupFilterInvalid());
       // turning it OFF stores no group
       assertEquals(invalid, "[]", peopleDirectoryService.normalizeGroupFilter("[]", invalid, MANAGER));
     }
@@ -382,11 +384,21 @@ public class PeopleDirectoryGroupFilterServiceTest {
     String mixed = "[" + entry(PARIS, "3") + ",1]";
     PeopleDirectoryEditorGroups manager = peopleDirectoryService.getEditorGroups(mixed, MANAGER);
     assertTrue(manager.unresolvableGroups());
+    // so that Apply rewrites it with the shown groups unchanged
+    assertTrue(manager.groupFilterInvalid());
     assertEquals(List.of(new PeopleDirectoryGroup(PARIS, "Paris office")), manager.groups());
+    JSONArray rewritten = new JSONArray(peopleDirectoryService.normalizeGroupFilter("[\"" + PARIS + "\"]", mixed, MANAGER));
+    assertEquals(1, rewritten.length());
+    assertEquals(PARIS, rewritten.getJSONObject(0).getString("groupId"));
+    assertEquals(List.of(PARIS), peopleDirectoryService.getGroupFilter(rewritten.toString()));
     // a readable value is not flagged
     assertFalse(peopleDirectoryService.getEditorGroups(null, MANAGER).unresolvableGroups());
     assertFalse(peopleDirectoryService.getEditorGroups("[]", MANAGER).unresolvableGroups());
     assertFalse(peopleDirectoryService.getEditorGroups(stored(PARIS, "3"), MANAGER).unresolvableGroups());
+    assertFalse(peopleDirectoryService.getEditorGroups(stored(PARIS, "3"), MANAGER).groupFilterInvalid());
+    // a vanished group is unresolvable, not invalid
+    assertTrue(peopleDirectoryService.getEditorGroups(stored(GONE, null), MANAGER).unresolvableGroups());
+    assertFalse(peopleDirectoryService.getEditorGroups(stored(GONE, null), MANAGER).groupFilterInvalid());
   }
 
   @Test

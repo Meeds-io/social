@@ -253,7 +253,7 @@ class PeopleListPortletTest {
     when(peopleDirectoryService.getDirectoryAttributeNames("{\"department\":[\"HR\"]}")).thenReturn(List.of("department"));
     // what an editor would get: a viewer must get none of it
     lenient().when(peopleDirectoryService.getEditorGroups(nullable(String.class), any()))
-             .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/hidden", "Hidden")), true, 3, true));
+             .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/hidden", "Hidden")), true, 3, true, true));
     lenient().when(peopleDirectoryService.getEditorAttributes(nullable(String.class), any())).thenReturn(List.of());
 
     portlet.serveResource(resourceRequest, resourceResponse);
@@ -271,6 +271,7 @@ class PeopleListPortletTest {
     assertFalse(settings.has("groups"));
     assertFalse(settings.has("otherGroupsApplied"));
     assertFalse(settings.has("unresolvableGroups"));
+    assertFalse(settings.has("groupFilterInvalid"));
     assertFalse(settings.has("otherGroupsCount"));
     verify(peopleDirectoryService, never()).getEditorGroups(nullable(String.class), any());
     verify(resourceResponse).setProperty("Cache-Control", "private, no-store");
@@ -288,7 +289,7 @@ class PeopleListPortletTest {
                                                         List.of(new PeopleDirectoryAttributeValue("HR", "HR")),
                                                         false)));
     when(peopleDirectoryService.getEditorGroups(null, USERNAME))
-      .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/paris", "Paris office")), true, 3, true));
+      .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/paris", "Paris office")), true, 3, true, true));
     when(peopleDirectoryService.canSetGroupFilter(USERNAME)).thenReturn(true);
 
     portlet.serveResource(resourceRequest, resourceResponse);
@@ -297,6 +298,7 @@ class PeopleListPortletTest {
     assertTrue(settings.getBoolean("canSetGroupFilter"));
     assertTrue(settings.getBoolean("otherGroupsApplied"));
     assertTrue(settings.getBoolean("unresolvableGroups"));
+    assertTrue(settings.getBoolean("groupFilterInvalid"));
     assertEquals(3, settings.getInt("otherGroupsCount"));
     assertEquals(1, settings.getJSONArray("groups").length());
     assertEquals("/spaces/paris", settings.getJSONArray("groups").getJSONObject(0).getString("groupId"));

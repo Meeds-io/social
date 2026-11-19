@@ -30,6 +30,7 @@
     settings.put("otherGroupsApplied", groups.getBoolean("otherGroupsApplied"));
     settings.put("otherGroupsCount", groups.getInt("otherGroupsCount"));
     settings.put("unresolvableGroups", groups.getBoolean("unresolvableGroups"));
+    settings.put("groupFilterInvalid", groups.getBoolean("groupFilterInvalid"));
   }
 
   String portletId = (String) request.getAttribute("portletStorageId");
