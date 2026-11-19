@@ -118,6 +118,7 @@ export default {
   },
   data: () => ({
     isFavorite: false,
+    storedFavorite: false,
     saving: false,
   }),
   computed: {
@@ -148,7 +149,10 @@ export default {
     favorite: {
       immediate: true,
       handler(newVal) {
-        this.isFavorite = newVal;
+        this.storedFavorite = newVal;
+        if (!this.saving) {
+          this.isFavorite = newVal;
+        }
       },
     },
   },
@@ -161,32 +165,40 @@ export default {
   methods: {
     favoriteUpdated(event) {
       const metadata = event && event.detail;
-      if (metadata && metadata.objectType === this.type && metadata.objectId === this.id && metadata.favorite !== this.isFavorite) {
-        this.isFavorite = metadata.favorite;
+      if (metadata && metadata.objectType === this.type && metadata.objectId === this.id) {
+        this.storedFavorite = metadata.favorite;
+        // while a change is saved, the toggle keeps showing the user's last click
+        if (!this.saving) {
+          this.isFavorite = metadata.favorite;
+        }
       }
     },
     updateFavorite() {
       document.dispatchEvent(new CustomEvent('metadata.favorite.updated', {detail: {
         objectType: this.type,
         objectId: this.id,
-        favorite: this.isFavorite,
+        favorite: this.storedFavorite,
       }}));
     },
     changeFavorite() {
-      // a click while the previous change is saved is ignored: the pressed state already shows that change
-      if (this.saving) {
+      // every click shows its new state at once, even while the previous change is saved
+      this.isFavorite = !this.isFavorite;
+      this.saveFavorite();
+    },
+    saveFavorite() {
+      // one request at a time: once it ends, one more is sent only if the state shown differs from the stored one
+      if (this.saving || this.isFavorite === this.storedFavorite) {
         return;
       }
       this.saving = true;
-      // the toggle shows its new state at once, and goes back to the previous one if the save fails
-      const removing = this.isFavorite;
-      this.isFavorite = !removing;
-      const save = removing
-        ? this.$favoriteService.removeFavorite(this.type, this.id)
-        : this.$favoriteService.addFavorite(this.type, this.id, this.parentId, this.spaceId);
+      const adding = this.isFavorite;
+      const save = adding
+        ? this.$favoriteService.addFavorite(this.type, this.id, this.parentId, this.spaceId)
+        : this.$favoriteService.removeFavorite(this.type, this.id);
       save
         .then(() => {
-          document.dispatchEvent(new CustomEvent(removing ? 'favorite-removed' : 'favorite-added', {
+          this.storedFavorite = adding;
+          document.dispatchEvent(new CustomEvent(adding ? 'favorite-added' : 'favorite-removed', {
             detail: {
               type: this.type,
               typeLabel: this.typeLabel,
@@ -195,14 +207,18 @@ export default {
               entityType: this.entityType,
             }
           }));
-          this.$emit(removing ? 'removed' : 'added');
+          this.$emit(adding ? 'added' : 'removed');
           this.updateFavorite();
         })
         .catch(() => {
-          this.isFavorite = removing;
-          this.$emit(removing ? 'remove-error' : 'add-error');
+          // a failed save shows the last stored state again
+          this.isFavorite = this.storedFavorite;
+          this.$emit(adding ? 'add-error' : 'remove-error');
         })
-        .finally(() => this.saving = false);
+        .finally(() => {
+          this.saving = false;
+          this.saveFavorite();
+        });
     },
   },
 };
