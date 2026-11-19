@@ -212,14 +212,15 @@ export default {
       }
     },
     moveChoice(event) {
-      if (event.target.type !== 'radio' || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+      if (event.target.type !== 'radio' || event.ctrlKey || event.altKey || event.metaKey
+          || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
         return;
       }
       // the browser's own arrow handling checks the next radio through a click that Vuetify cancels, so a screen
       // reader hears it unchecked before it is checked: with two options, every arrow key checks and focuses the
       // other one at once, before Vuetify updates the radios a tick later
       event.preventDefault();
-      const next = [...this.$refs.spaceFilterPanel.$el.querySelectorAll('input[type="radio"]')]
+      const next = [...event.currentTarget.querySelectorAll('input[type="radio"]')]
         .find(input => input !== event.target);
       next.checked = true;
       next.focus();
