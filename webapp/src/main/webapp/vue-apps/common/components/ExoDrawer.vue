@@ -566,15 +566,24 @@ export default {
       if (!root) {
         return;
       }
-      const focusables = Array.from(root.querySelectorAll(FOCUSABLE_SELECTOR))
-        .filter(el => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden');
-      if (!focusables.length) {
+      // only the first and the last shown focusables matter: each is found by walking from its end of the list
+      const focusables = root.querySelectorAll(FOCUSABLE_SELECTOR);
+      const isShown = el => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+      let firstIndex = 0;
+      while (firstIndex < focusables.length && !isShown(focusables[firstIndex])) {
+        firstIndex++;
+      }
+      if (firstIndex === focusables.length) {
         event.preventDefault();
         root.focus();
         return;
       }
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
+      let lastIndex = focusables.length - 1;
+      while (lastIndex > firstIndex && !isShown(focusables[lastIndex])) {
+        lastIndex--;
+      }
+      const first = focusables[firstIndex];
+      const last = focusables[lastIndex];
       const active = document.activeElement;
       if (event.shiftKey && (active === first || active === root)) {
         event.preventDefault();

@@ -574,7 +574,7 @@ export default {
     // the first level is elsewhere in the page. In the narrow display the levels are stacked at the same place,
     // the deepest one covering the others: the focus then cycles within that one
     followLevelsFocusOrder(event) {
-      if (!this.secondLevelDrawer) {
+      if (!this.secondLevelDrawer || !this.levelsOrderApplies(event.target, event.shiftKey)) {
         return;
       }
       const order = this.$root.displaySequentially ? this.levelsFocusOrder() : this.levelFocusables(
@@ -585,6 +585,40 @@ export default {
       }
       event.preventDefault();
       order[(index + (event.shiftKey ? -1 : 1) + order.length) % order.length].focus();
+    },
+    // the browser's own Tab order already follows the levels, except at a level's ends and around an open level's
+    // opener: the whole order is built only there
+    levelsOrderApplies(target, backward) {
+      const firstLevel = this.firstLevelElement();
+      const level = target?.closest?.(THIRD_LEVEL) || target?.closest?.(SECOND_LEVEL)
+        || firstLevel?.contains?.(target) && firstLevel;
+      if (!level) {
+        return false;
+      }
+      const neighbour = this.shownNeighbour(level, target, backward);
+      if (!neighbour || !this.$root.displaySequentially) {
+        return !neighbour;
+      }
+      const openers = [
+        this.levelOpener(this.secondLevelOpener, firstLevel),
+        this.thirdLevelDrawer && this.levelOpener(this.thirdLevelOpener, document.querySelector(SECOND_LEVEL)),
+      ];
+      return openers.includes(backward ? neighbour : target);
+    },
+    shownNeighbour(level, target, backward) {
+      const focusables = level.querySelectorAll(FOCUSABLE_SELECTOR);
+      const step = backward ? -1 : 1;
+      let index = Array.prototype.indexOf.call(focusables, target);
+      if (index < 0) {
+        return null;
+      }
+      for (index += step; index >= 0 && index < focusables.length; index += step) {
+        const element = focusables[index];
+        if (element.getClientRects().length && window.getComputedStyle(element).visibility !== 'hidden') {
+          return element;
+        }
+      }
+      return null;
     },
     levelsFocusOrder() {
       const firstLevel = this.firstLevelElement();
