@@ -134,6 +134,11 @@ export default {
     },
   },
   watch: {
+    choice() {
+      // a click on a radio's own input checks it, then the browser unchecks it again because Vuetify cancels
+      // that click: once the click is handled, the checked state that screen readers announce follows the choice
+      window.setTimeout(this.syncCheckedOption);
+    },
     space() {
       if (!this.space) {
         this.$nextTick(this.$refs.spacesSuggester.$refs.selectAutoComplete.deleteCurrentItem);
@@ -210,6 +215,10 @@ export default {
       } else {
         this.menu = false;
       }
+    },
+    syncCheckedOption() {
+      this.$refs.spaceFilterPanel?.$el?.querySelectorAll('input[type="radio"]')
+        .forEach(input => input.checked = input.value === this.choice);
     },
     moveChoice(event) {
       if (event.target.type !== 'radio' || event.ctrlKey || event.altKey || event.metaKey
