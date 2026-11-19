@@ -44,6 +44,9 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
         otherGroupsCount: settings?.otherGroupsCount || 0,
         unresolvableGroups: !!settings?.unresolvableGroups,
         directoryFiltered: !!settings?.directoryFiltered,
+        // the names of the attributes the directory filters on, for every
+        // viewer: the advanced filter shows them greyed out
+        directoryAttributes: settings?.directoryAttributes || [],
         saveSettingsUrl,
         settingsResourceUrl,
         usersResourceUrl,
@@ -93,6 +96,7 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
             this.otherGroupsCount = stored?.otherGroupsCount || 0;
             this.unresolvableGroups = !!stored?.unresolvableGroups;
             this.directoryFiltered = !!stored?.directoryFiltered;
+            this.directoryAttributes = stored?.directoryAttributes || [];
           });
         },
       },

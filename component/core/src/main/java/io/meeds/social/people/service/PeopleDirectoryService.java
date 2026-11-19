@@ -294,6 +294,19 @@ public class PeopleDirectoryService {
   }
 
   /**
+   * The names of the profile attributes the directory filters on, which a
+   * viewer's advanced filter shows greyed out: the names only, never the
+   * values. A stored filter the directory cannot read gives none.
+   *
+   * @param storedValue the stored preference value, may be null
+   * @return the attribute names, in their stored order
+   */
+  public List<String> getDirectoryAttributeNames(String storedValue) {
+    Map<String, List<String>> attributeFilter = getAttributeFilter(storedValue);
+    return attributeFilter == null ? Collections.emptyList() : List.copyOf(attributeFilter.keySet());
+  }
+
+  /**
    * The stored attribute filter as the settings drawer shows it: each entry
    * with its values labelled, and flagged when the attribute is no longer
    * available. Values the directory refuses are left to the drawer to flag;

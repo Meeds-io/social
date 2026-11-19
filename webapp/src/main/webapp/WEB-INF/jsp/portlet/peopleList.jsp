@@ -18,6 +18,7 @@
   settings.put("pageSize", PeopleListPortlet.storedPageSize(preferences));
   settings.put("filter", PeopleListPortlet.storedFilter(preferences));
   settings.put("directoryFiltered", PeopleListPortlet.isDirectoryFiltered(preferences));
+  settings.put("directoryAttributes", new JSONArray(PeopleListPortlet.directoryAttributes(preferences)));
   boolean canEdit = PeopleListPortlet.canEdit(renderRequest.getRemoteUser());
   settings.put("canEdit", canEdit);
   if (canEdit) {

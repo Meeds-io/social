@@ -249,6 +249,8 @@ class PeopleListPortletTest {
     when(resourceResponse.getWriter()).thenReturn(new PrintWriter(body, true));
     when(preferences.getValue(eq(PAGE_SIZE_PREFERENCE), nullable(String.class))).thenReturn("5000");
     when(preferences.getValue(eq(HEADER_TRANSLATIONS_PREFERENCE), nullable(String.class))).thenReturn("{\"en\":\"Team\"}");
+    when(preferences.getValue(eq(ATTRIBUTE_FILTER_PREFERENCE), nullable(String.class))).thenReturn("{\"department\":[\"HR\"]}");
+    when(peopleDirectoryService.getDirectoryAttributeNames("{\"department\":[\"HR\"]}")).thenReturn(List.of("department"));
     // what an editor would get: a viewer must get none of it
     lenient().when(peopleDirectoryService.getEditorGroups(nullable(String.class), any()))
              .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/hidden", "Hidden")), true, 3, true));
@@ -259,6 +261,9 @@ class PeopleListPortletTest {
     JSONObject settings = new JSONObject(body.toString());
     assertEquals(PeopleDirectoryService.MAX_PAGE_SIZE, settings.getInt(PAGE_SIZE_PREFERENCE));
     assertEquals("Team", settings.getJSONObject(HEADER_TRANSLATIONS_PREFERENCE).getString("en"));
+    // a viewer gets the names of the directory's attributes, never their values
+    assertEquals(List.of("department"), settings.getJSONArray("directoryAttributes").toList());
+    assertFalse(body.toString().contains("\"HR\""));
     // the attribute and group filters are an editor's only
     assertFalse(settings.has("attributes"));
     assertFalse(settings.has("attributeFilterInvalid"));

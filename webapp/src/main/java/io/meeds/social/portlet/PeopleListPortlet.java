@@ -172,6 +172,16 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
 
   /**
    * @param preferences the window preferences
+   * @return the names of the profile attributes the directory filters on, for
+   *         every viewer: the advanced filter shows them greyed out
+   */
+  public static String directoryAttributes(PortletPreferences preferences) {
+    return new JSONArray(getPeopleDirectoryService().getDirectoryAttributeNames(preferences.getValue(ATTRIBUTE_FILTER_PREFERENCE,
+                                                                                                      null))).toString();
+  }
+
+  /**
+   * @param preferences the window preferences
    * @return whether the stored attribute filter is one the directory cannot
    *         read, so that it lists nobody: the settings drawer then shows no
    *         attribute, and Apply replaces the stored value
@@ -328,6 +338,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
     settings.put(HEADER_TRANSLATIONS_PREFERENCE, new JSONObject(storedHeaderTranslations(preferences)));
     settings.put(PAGE_SIZE_PREFERENCE, storedPageSize(preferences));
     settings.put("directoryFiltered", isDirectoryFiltered(preferences));
+    settings.put("directoryAttributes", new JSONArray(directoryAttributes(preferences)));
     if (canEdit(username)) {
       settings.put("attributes", new JSONArray(storedAttributes(preferences, request.getLocale())));
       settings.put("attributeFilterInvalid", isAttributeFilterInvalid(preferences));
