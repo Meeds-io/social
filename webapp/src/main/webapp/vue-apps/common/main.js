@@ -49,6 +49,7 @@ import * as loginService from './js/LoginService.js';
 import * as userAccountConfirmationService from './js/UserAccountConfirmationService.js';
 import * as openingKeystrokeGuard from './js/OpeningKeystrokeGuard.js';
 import * as activationOrigin from './js/ActivationOrigin.js';
+import * as dialogFocus from './js/DialogFocus.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -162,6 +163,9 @@ window.Object.defineProperty(Vue.prototype, '$openingKeystrokeGuard', {
 activationOrigin.install();
 window.Object.defineProperty(Vue.prototype, '$activationOrigin', {
   value: activationOrigin,
+});
+window.Object.defineProperty(Vue.prototype, '$dialogFocus', {
+  value: dialogFocus,
 });
 
 if (eXo.env.portal.userIdentityId) {
