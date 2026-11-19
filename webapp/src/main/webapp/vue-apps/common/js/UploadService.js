@@ -92,11 +92,11 @@ function isEmptyBodyWebKit() {
     return false;
   }
   const userAgent = window.navigator.userAgent || '';
-  const safariVersion = userAgent.match(/\bVersion\/(\d+)/);
+  const safariVersion = /\bVersion\/(\d+)/.exec(userAgent);
   if (safariVersion) {
     return Number(safariVersion[1]) >= SAFARI_EMPTY_BODY_VERSION;
   }
-  const iosVersion = userAgent.match(/ OS (\d+)_(\d+)/);
+  const iosVersion = / OS (\d+)_(\d+)/.exec(userAgent);
   if (iosVersion) {
     const major = Number(iosVersion[1]);
     return major > IOS_FROZEN_VERSION[0]
