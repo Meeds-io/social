@@ -70,14 +70,18 @@ public class SpaceSecurityRest {
 
   private static final String LIMIT_ACCESS_MANAGEMENT_FIELD  = "limitAccessManagement";
 
+  private static final String KEEP_DOCUMENTS_INSIDE_FIELD    = "keepDocumentsInside";
+
   private static final String EXTERNAL_MEMBERS_ALLOWED_FIELD = "externalMembersAllowed";
 
   /**
-   * The settings a client may change: "Keep documents inside the space" and
-   * "External users can join this space" are read here, and changed by no
-   * request until the stories that enforce them ship
+   * The settings a client may change: "Limit Access Management" and "Keep
+   * documents inside the space". "External users can join this space" is
+   * read here, and changed by no request until the stories that set and
+   * enforce it ship
    */
-  private static final Set<String> FIELDS                    = Set.of(LIMIT_ACCESS_MANAGEMENT_FIELD);
+  private static final Set<String> FIELDS                    = Set.of(LIMIT_ACCESS_MANAGEMENT_FIELD,
+                                                                      KEEP_DOCUMENTS_INSIDE_FIELD);
 
   @Autowired
   private SpaceSecurityService spaceSecurityService;
@@ -113,7 +117,7 @@ public class SpaceSecurityRest {
                 produces = MediaType.APPLICATION_JSON_VALUE)
   @Secured("users")
   @Operation(summary = "Changes security settings of a space", method = "PATCH",
-             description = "Changes 'limitAccessManagement', the only setting a request may change, by a space admin")
+             description = "Changes 'limitAccessManagement', 'keepDocumentsInside' or both, the settings a request may change, by a space admin, a platform administrator or an administrator of the space's template")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse(responseCode = "400", description = "A field is unknown, or, for a user who may change it, its value is not a boolean"),
@@ -173,11 +177,29 @@ public class SpaceSecurityRest {
     if (changes == null || changes.isEmpty() || !FIELDS.containsAll(changes.keySet())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_VALUE_MESSAGE_CODE);
     }
-    return new SpaceSecuritySettings(Boolean.TRUE, null, null);
+    SpaceSecuritySettings changedFields = new SpaceSecuritySettings();
+    if (changes.containsKey(LIMIT_ACCESS_MANAGEMENT_FIELD)) {
+      changedFields.setLimitAccessManagement(Boolean.TRUE);
+    }
+    if (changes.containsKey(KEEP_DOCUMENTS_INSIDE_FIELD)) {
+      changedFields.setKeepDocumentsInside(Boolean.TRUE);
+    }
+    return changedFields;
   }
 
+  /**
+   * @return the settings the request names, with their values; the others
+   *         left {@code null}, as stored
+   */
   private SpaceSecuritySettings toChanges(Map<String, Object> changes) {
-    return new SpaceSecuritySettings(toBoolean(changes, LIMIT_ACCESS_MANAGEMENT_FIELD), null, null);
+    SpaceSecuritySettings settings = new SpaceSecuritySettings();
+    if (changes.containsKey(LIMIT_ACCESS_MANAGEMENT_FIELD)) {
+      settings.setLimitAccessManagement(toBoolean(changes, LIMIT_ACCESS_MANAGEMENT_FIELD));
+    }
+    if (changes.containsKey(KEEP_DOCUMENTS_INSIDE_FIELD)) {
+      settings.setKeepDocumentsInside(toBoolean(changes, KEEP_DOCUMENTS_INSIDE_FIELD));
+    }
+    return settings;
   }
 
   private Boolean toBoolean(Map<String, Object> changes, String field) {
