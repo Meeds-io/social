@@ -100,6 +100,8 @@
 </template>
 
 <script>
+const LABEL_SOURCE_MAX_LENGTH = 2000;
+
 export default {
   props: {
     activity: {
@@ -331,6 +333,10 @@ export default {
   },
   methods: {
     shortenLabel(label) {
+      if (typeof label === 'string' && label.length > LABEL_SOURCE_MAX_LENGTH) {
+        // 100 characters are kept: the tags are removed from the whole body, and only the start of its text is decoded
+        label = label.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').substring(0, LABEL_SOURCE_MAX_LENGTH);
+      }
       label = typeof label === 'string' && this.$utils.htmlToText(label)?.trim() || '';
       return label.length > 100 ? `${label.substring(0, 100)}...` : label;
     },
