@@ -130,13 +130,15 @@ export function resetPassword(username, password, confirmPassword, token) {
   });
 }
 
-export function setPassword(username, password, confirmPassword, token, captcha) {
+// additionalParameters: the form's extensions' values, by request parameter
+export function setPassword(username, password, confirmPassword, token, captcha, additionalParameters) {
   const formData = new FormData();
   formData.append('username', username);
   formData.append('password', password);
   formData.append('password2', confirmPassword);
   formData.append('token', token);
   formData.append('captcha', captcha);
+  Object.entries(additionalParameters || {}).forEach(([name, value]) => formData.append(name, value));
   const body = new URLSearchParams(formData).toString();
   return fetch(`/social/${eXo.env.portal.rest}/login/setPassword`, {
     method: 'POST',

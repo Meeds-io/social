@@ -272,6 +272,96 @@ public class ProfileFormFieldServiceTest {
   }
 
   @Test
+  public void testRequiredAttributeNotSentIsSatisfiedByTheStoredProfile() {
+    ProfilePropertySetting team = listed("team");
+    team.setRequired(true);
+    ProfilePropertySetting phones = multiValued("phones");
+    phones.setRequired(true);
+    givenListed(REGISTRATION, team, phones);
+
+    assertEquals(Map.of(),
+                 service.validate(List.of(), REGISTRATION, true, storedProfile(Map.of("team", "Sales", "phones", listOf("1")))));
+    assertEquals(Map.of(),
+                 service.validate(null, REGISTRATION, true, storedProfile(Map.of("team", listOf("Sales"), "phones", "1,2"))));
+    assertEquals(Map.of("team", "Sales"),
+                 service.validate(List.of(single("team", "Sales")), REGISTRATION, true, storedProfile(Map.of("phones", listOf("", "1")))));
+  }
+
+  @Test
+  public void testRequiredAttributeNotSentIsRefusedWhenTheStoredProfileHoldsNoValue() {
+    ProfilePropertySetting team = listed("team");
+    team.setRequired(true);
+    ProfilePropertySetting phones = multiValued("phones");
+    givenListed(REGISTRATION, team, phones);
+
+    for (Object storedValue : Arrays.asList("", " ", listOf(), listOf("", " "), 12L)) {
+      Profile stored = storedProfile(Map.of("team", storedValue));
+      assertRefused(REQUIRED, "team", () -> service.validate(List.of(), REGISTRATION, true, stored));
+    }
+    assertRefused(REQUIRED,
+                  "team",
+                  () -> service.validate(List.of(multi("phones", List.of("1"))), REGISTRATION, true, storedProfile(Map.of("phones", "2"))));
+  }
+
+  @Test
+  public void testRequiredAttributeSentBlankIsRefusedWhateverTheStoredProfileHolds() {
+    ProfilePropertySetting team = listed("team");
+    team.setRequired(true);
+    ProfilePropertySetting phones = multiValued("phones");
+    phones.setRequired(true);
+    givenListed(REGISTRATION, team, phones);
+    Profile stored = storedProfile(Map.of("team", "Sales", "phones", listOf("1")));
+
+    assertRefused(REQUIRED, "team", () -> service.validate(List.of(single("team", " ")), REGISTRATION, true, stored));
+    assertRefused(REQUIRED, "phones", () -> service.validate(List.of(multi("phones", List.of())), REGISTRATION, true, stored));
+  }
+
+  @Test
+  public void testNotRequiredAttributeSentBlankClearsTheStoredValue() {
+    givenListed(REGISTRATION, listed("team"), multiValued("phones"));
+    Profile stored = storedProfile(Map.of("team", "Sales", "phones", listOf("1")));
+
+    Map<String, Object> profileValues = service.validate(List.of(single("team", ""), multi("phones", List.of(" "))),
+                                                         REGISTRATION,
+                                                         true,
+                                                         stored);
+    assertEquals("", profileValues.get("team"));
+    assertEquals(new ArrayList<>(), profileValues.get("phones"));
+  }
+
+  @Test
+  public void testStoredValuesAreReadAsTheValidationReadsThem() {
+    ProfilePropertySetting team = listed("team");
+    ProfilePropertySetting phones = multiValued("phones");
+    ProfilePropertySetting cities = multiValued("cities");
+    ProfilePropertySetting city = listed("city");
+    ProfilePropertySetting empty = listed("empty");
+    ProfilePropertySetting count = listed("count");
+    ProfilePropertySetting missing = listed("missing");
+    Profile profile = storedProfile(Map.of("team",
+                                           "Sales",
+                                           "phones",
+                                           "1,2",
+                                           "cities",
+                                           listOf("Paris", "", "Lyon"),
+                                           "city",
+                                           listOf("Tunis"),
+                                           "empty",
+                                           "",
+                                           "count",
+                                           12L,
+                                           "unlisted",
+                                           "secret"));
+
+    Map<String, List<String>> storedValues = service.getStoredValues(List.of(team, phones, cities, city, empty, count, missing),
+                                                                     profile);
+    assertEquals(Map.of("team", List.of("Sales"), "phones", List.of("1", "2"), "cities", List.of("Paris", "Lyon"), "city", List.of("Tunis")),
+                 storedValues);
+    assertEquals(List.of("team", "phones", "cities", "city"), new ArrayList<>(storedValues.keySet()));
+    assertTrue(service.getStoredValues(List.of(team), null).isEmpty());
+  }
+
+  @Test
   public void testDropdownValueIsStoredAsItsOptionId() {
     givenListed(REGISTRATION, dropdown("city", 123L, 7L));
 
