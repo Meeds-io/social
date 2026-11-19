@@ -75,15 +75,12 @@
           <v-chip
             v-for="group in value"
             :key="group.groupId"
-            :close-label="$t('peopleList.settings.group.remove', {0: group.label})"
             color="primary"
             text-color="white"
             class="people-directory-group-chip me-2 mb-2"
             role="listitem"
             dark
-            small
-            close
-            @click:close="removeGroup(group)">
+            small>
             <v-icon
               size="12"
               class="me-1"
@@ -91,6 +88,19 @@
               fa-users
             </v-icon>
             {{ group.label }}
+            <!-- the platform's Vuetify renders a chip's own close icon
+                 without its close-label: this button carries the name -->
+            <v-btn
+              :aria-label="$t('peopleList.settings.group.remove', {0: group.label})"
+              :title="$t('peopleList.settings.group.remove', {0: group.label})"
+              class="people-directory-group-remove ms-1 me-n1"
+              width="18"
+              height="18"
+              icon
+              dark
+              @click="removeGroup(group)">
+              <v-icon size="12" aria-hidden="true">fa-times</v-icon>
+            </v-btn>
           </v-chip>
         </div>
       </template>
