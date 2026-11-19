@@ -38,7 +38,7 @@
         :legacy-options="legacyOptions[setting.propertyName]"
         :error="errors[setting.propertyName]"
         :disabled="disabled"
-        :registration="registerMode"
+        :registration="loginPageMode"
         @input="update(setting.propertyName, $event)" />
     </v-form>
     <div
@@ -51,7 +51,7 @@
 </template>
 <script>
 import * as registry from '../js/ProfileFormFieldsRegistry.js';
-import {toData, toEditionFields} from '../js/ProfileFormFieldValues.js';
+import {toData, toEditionFields, toOnboardingFields} from '../js/ProfileFormFieldValues.js';
 
 /**
  * The attributes a form lists, one field each, in the settings' order:
@@ -60,7 +60,10 @@ import {toData, toEditionFields} from '../js/ProfileFormFieldValues.js';
  * saves, disables the fields. On an account's edition, the fields hold the
  * user's values, and the data only the attributes the administrator changed.
  * On registration, the list is read with the page's token, and nothing is
- * rendered on the e-mail-verification branch, which sends no attribute
+ * rendered on the e-mail-verification branch, which sends no attribute. On
+ * onboarding, the list and the account's values are read with the page's
+ * token, every listed attribute gets a field, and the data holds only the
+ * attributes the user changed
  */
 export default {
   props: {
@@ -96,6 +99,14 @@ export default {
     registerMode() {
       return this.context?.mode === 'register';
     },
+    onboardMode() {
+      return this.context?.mode === 'onboard';
+    },
+    // The anonymous forms of the login pages, whose fields are drawn in their
+    // own style and checked by their one request
+    loginPageMode() {
+      return this.registerMode || this.onboardMode;
+    },
   },
   watch: {
     context(newContext, oldContext) {
@@ -125,6 +136,9 @@ export default {
         return;
       } else if (this.registerMode) {
         this.loadRegistrationFields();
+        return;
+      } else if (this.onboardMode) {
+        this.loadOnboardingFields();
         return;
       }
       this.load = this.$profileFormFieldService.getAccountFormSettings()
@@ -162,7 +176,7 @@ export default {
         } else if (settings.length && !properties) {
           throw new Error('The user\'s values could not be read');
         }
-        this.prefill(settings, properties || []);
+        this.prefill(toEditionFields(settings, properties || []));
         this.loadState = this.settings.length ? 'listed' : 'empty';
       }).catch(() => {
         if (context === this.context) {
@@ -196,8 +210,25 @@ export default {
         })
         .finally(() => registry.setLoadState(this.context, this.loadState));
     },
-    prefill(settings, properties) {
-      const fields = toEditionFields(settings, properties);
+    // The onboarding's list and the values the link's account holds, read
+    // with the page's token in one answer. The page renders this form only
+    // once its own token check answered, so a link used or expired since
+    // reads no field, and the save reports it. When the answer cannot be
+    // read, the required attributes are unknown: an error is shown and the
+    // onboarding is refused until the page is reloaded
+    loadOnboardingFields() {
+      this.load = this.$profileFormFieldService.getOnboardingFormFields(this.context?.token)
+        .then(answer => {
+          this.prefill(toOnboardingFields(answer.fields, answer.values));
+          this.loadState = this.settings.length ? 'listed' : 'empty';
+        })
+        .catch(() => {
+          this.loadState = 'failed';
+          this.formError = this.$t('profileFormFields.notLoadedReload');
+        })
+        .finally(() => registry.setLoadState(this.context, this.loadState));
+    },
+    prefill(fields) {
       this.values = fields.values;
       this.snapshot = fields.snapshot;
       this.unchangedValues = fields.unchangedValues;
@@ -213,10 +244,10 @@ export default {
       this.$emit('update:data', this.toData());
     },
     // The fields' rules, then the server's on the values to write, once the
-    // list has answered. A registration list that could not be read keeps its
+    // list has answered. A login page's list that could not be read keeps its
     // message until the page is reloaded
     validate() {
-      if (!this.editMode && !(this.registerMode && this.loadState === 'failed')) {
+      if (!this.editMode && !(this.loginPageMode && this.loadState === 'failed')) {
         this.formError = null;
       }
       // A list that answers while the check waits is rendered on the next
@@ -225,15 +256,16 @@ export default {
         .then(() => {
           if (this.editMode) {
             return this.validateEdition();
-          } else if (this.registerMode) {
+          } else if (this.loginPageMode) {
             return this.validateRegistration();
           }
           return this.validateCreation();
         });
     },
-    // The fields' rules only: the registration request is the server's check,
-    // which refuses before the account exists. A list that could not be read
-    // refuses, since the required attributes are unknown
+    // The fields' rules only, Required on every field, touched or not: the
+    // registration or onboarding request is the server's check, which refuses
+    // before the account exists or the password is set. A list that could
+    // not be read refuses, since the required attributes are unknown
     validateRegistration() {
       if (this.loadState === 'failed') {
         return false;
@@ -293,8 +325,11 @@ export default {
         this.formError = message;
       }
     },
+    // On an account's edition and on onboarding, the attributes changed from
+    // the values the account holds; on creation and registration, the filled
+    // ones
     toData() {
-      return toData(this.settings, this.values, this.editMode ? this.snapshot : null);
+      return toData(this.settings, this.values, this.editMode || this.onboardMode ? this.snapshot : null);
     },
   },
 };

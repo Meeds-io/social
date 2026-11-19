@@ -509,6 +509,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>ProfileFormFields</module>
+      </depends>
     </module>
   </portlet>
 
@@ -3634,9 +3637,9 @@
     </depends>
   </module>
 
-  <!-- The additional fields of the account forms and of the registration
-       form, registered on their extension points before the hosts' apps
-       start -->
+  <!-- The additional fields of the account forms, of the registration form
+       and of the onboarding page, registered on their extension points
+       before the hosts' apps start -->
   <module>
     <name>ProfileFormFields</name>
     <script>
