@@ -73,6 +73,23 @@ export function registerExtensions() {
       return component ? component.validate() : Promise.resolve(true);
     },
   });
+
+  // The additional fields of the onboarding page: rendered after its e-mail,
+  // holding the values the account has, checked before the password is sent,
+  // and sent with it under the request parameter, the attributes the user
+  // changed only, the request validating them before it sets the password
+  extensionRegistry.registerExtension('InternalOnboarding', 'onboarding-form', {
+    id: 'profile-fields',
+    rank: 10,
+    vueComponent: Vue.options.components['profile-form-fields'],
+    requestParameter: 'profileProperties',
+    // The fields' own rules once the list has answered; false when it could
+    // not be read, the required attributes being unknown
+    validate(context) {
+      const component = registry.get(context);
+      return component ? component.validate() : Promise.resolve(true);
+    },
+  });
 }
 
 // On an account's edition, the fields' own rules once more, since a Save

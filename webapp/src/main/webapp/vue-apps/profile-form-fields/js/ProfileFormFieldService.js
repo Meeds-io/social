@@ -51,6 +51,27 @@ export function getRegistrationFormSettings(token) {
   }).then(settings => settings || []);
 }
 
+// The attributes the onboarding page lists and the values the link's account
+// holds for them, read from the store by the server for the holder of the
+// page's onboarding token, with no session. A link used or expired since the
+// page's own check reads no field: the page's save then reports the link
+// expired
+export function getOnboardingFormFields(token) {
+  return fetch(`/social/${eXo.env.portal.rest}/login/onboardingFields?token=${encodeURIComponent(token || '')}`, {
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.status === 404) {
+      return Promise.resolve(null);
+    } else if (!resp?.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+    return resp.json();
+  }).then(answer => ({
+    fields: answer?.fields || [],
+    values: answer?.values || {},
+  }));
+}
+
 // The server's rules applied to the values of an account to create, without
 // writing them; the session confirmation is asked for when it is missing
 export function validateAccountFields(values) {
