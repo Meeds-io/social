@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -213,6 +214,26 @@ public class SpaceSecurityServiceImplTest {
     when(spaceStorage.getMemberStatuses(SPACE_ID, USER)).thenReturn(Set.of(SpaceMembershipStatus.MANAGER));
     spaceSecurityService.checkCanUpdateSettings(SPACE_ID, new SpaceSecuritySettings(true, null, null), USER);
     verify(spaceStorage, never()).applySettingsChange(anyLong(), any());
+  }
+
+  /**
+   * Turning a documents setting off needs the same right as turning it on.
+   * Mutants: deciding the right only on a setting turned on lets a member turn
+   * "Keep documents inside the space", or "Limit Access Management", off.
+   */
+  @Test
+  public void testAMemberTurnsNoDocumentsSettingOff() throws Exception {
+    when(spaceStorage.getMemberStatuses(SPACE_ID, USER)).thenReturn(Set.of(SpaceMembershipStatus.MEMBER));
+    lenient().when(spaceStorage.applySettingsChange(anyLong(), any())).thenReturn(result(Map.of(), Map.of()));
+
+    for (SpaceSecuritySettings changes : new SpaceSecuritySettings[] { keepDocumentsInside(false),
+        new SpaceSecuritySettings(false, null, null) }) {
+      assertEquals(NOT_ALLOWED,
+                   assertThrows(SpaceSecurityRefusedException.class,
+                                () -> spaceSecurityService.updateSettings(SPACE_ID, changes, USER)).getMessageCode());
+    }
+    verify(spaceStorage, never()).applySettingsChange(anyLong(), any());
+    verify(plugin, never()).beforeDocumentsKeptInsideChange(any(), anyBoolean(), anyString());
   }
 
   @Test
