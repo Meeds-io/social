@@ -367,6 +367,29 @@ public class PeopleDirectoryGroupFilterServiceTest {
   }
 
   @Test
+  public void editorGroupsFlagAStoredValueTheDirectoryCannotReadSoThatTurningItOffClearsIt() {
+    for (String invalid : List.of("not json", "{}", "[\"" + HR + "\"]")) {
+      // the directory lists nobody: the drawer must show the filter as set
+      assertEquals(invalid, List.of(), peopleDirectoryService.getGroupFilter(invalid));
+      assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, MANAGER).unresolvableGroups());
+      assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, ADMIN).unresolvableGroups());
+      // an editor who may not set the filter cannot clear it either
+      assertFalse(invalid, peopleDirectoryService.getEditorGroups(invalid, EDITOR).unresolvableGroups());
+      // turning it OFF stores no group
+      assertEquals(invalid, "[]", peopleDirectoryService.normalizeGroupFilter("[]", invalid, MANAGER));
+    }
+    // an array holding one invalid entry is not read either, its live groups still shown
+    String mixed = "[" + entry(PARIS, "3") + ",1]";
+    PeopleDirectoryEditorGroups manager = peopleDirectoryService.getEditorGroups(mixed, MANAGER);
+    assertTrue(manager.unresolvableGroups());
+    assertEquals(List.of(new PeopleDirectoryGroup(PARIS, "Paris office")), manager.groups());
+    // a readable value is not flagged
+    assertFalse(peopleDirectoryService.getEditorGroups(null, MANAGER).unresolvableGroups());
+    assertFalse(peopleDirectoryService.getEditorGroups("[]", MANAGER).unresolvableGroups());
+    assertFalse(peopleDirectoryService.getEditorGroups(stored(PARIS, "3"), MANAGER).unresolvableGroups());
+  }
+
+  @Test
   public void selectableGroupsOfAManagerAreTheManagedGroupsMatchingTheQuery() throws Exception {
     when(userAcl.hasEditPermission(page, identities.get(MANAGER))).thenReturn(true);
 

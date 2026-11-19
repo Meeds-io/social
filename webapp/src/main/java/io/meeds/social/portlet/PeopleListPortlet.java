@@ -111,6 +111,8 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
 
   private static final String       BAD_REQUEST_STATUS             = "400";
 
+  private static final String       GROUPS_KEY                     = "groups";
+
   /**
    * The only preference names {@link #processAction} stores. Any other posted
    * parameter is ignored: a blanket copy would let an editor store arbitrary
@@ -205,7 +207,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
                                              getPeopleDirectoryService().getEditorGroups(preferences.getValue(GROUP_FILTER_PREFERENCE,
                                                                                                               null),
                                                                                          username);
-    return new JSONObject().put("groups", toGroupsJson(editorGroups.groups()))
+    return new JSONObject().put(GROUPS_KEY, toGroupsJson(editorGroups.groups()))
                            .put("otherGroupsApplied", editorGroups.otherGroupsApplied())
                            .put("otherGroupsCount", editorGroups.otherGroupsCount())
                            .put("unresolvableGroups", editorGroups.unresolvableGroups())
@@ -344,7 +346,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
       settings.put("attributeFilterInvalid", isAttributeFilterInvalid(preferences));
       settings.put("canSetGroupFilter", canSetGroupFilter(username));
       JSONObject groups = new JSONObject(storedGroups(preferences, username));
-      settings.put("groups", groups.getJSONArray("groups"));
+      settings.put(GROUPS_KEY, groups.getJSONArray(GROUPS_KEY));
       settings.put("otherGroupsApplied", groups.getBoolean("otherGroupsApplied"));
       settings.put("otherGroupsCount", groups.getInt("otherGroupsCount"));
       settings.put("unresolvableGroups", groups.getBoolean("unresolvableGroups"));

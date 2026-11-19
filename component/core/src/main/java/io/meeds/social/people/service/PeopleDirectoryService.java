@@ -555,7 +555,15 @@ public class PeopleDirectoryService {
     } else if (groups.isEmpty()) {
       return null; // NOSONAR null means the directory is not filtered by group
     }
-    return groups.stream().filter(this::isResolvable).map(DirectoryGroup::groupId).toList();
+    List<String> groupIds = new ArrayList<>();
+    for (DirectoryGroup group : groups) {
+      if (isResolvable(group)) {
+        groupIds.add(group.groupId());
+      } else {
+        LOG.debug("The stored group '{}' of a directory's group filter no longer exists, it matches nobody", group.groupId());
+      }
+    }
+    return groupIds;
   }
 
   /**
@@ -563,8 +571,9 @@ public class PeopleDirectoryService {
    * groups the editor can select, as chips, whether other groups are
    * applied, never named, for an editor who may set the filter how many,
    * which count against {@link #MAX_GROUPS}, and whether
-   * stored groups no longer exist, so that the filter shows as set although
-   * no chip remains.
+   * stored groups no longer exist or the stored value cannot be read, so that
+   * the filter shows as set although no chip remains, and turning it OFF
+   * clears it.
    *
    * @param storedValue the stored preference value, may be null
    * @param username the editor
@@ -578,7 +587,8 @@ public class PeopleDirectoryService {
                                                                       : getManagedGroupIds(username);
     List<PeopleDirectoryGroup> groups = new ArrayList<>();
     int otherGroupsCount = 0;
-    boolean unresolvableGroups = false;
+    // a value the directory cannot read lists nobody (getGroupFilter)
+    boolean unresolvableGroups = canSetGroupFilter && readStoredGroups(storedValue, true) == null;
     for (DirectoryGroup group : stored) {
       if (!isResolvable(group)) {
         unresolvableGroups = canSetGroupFilter;
