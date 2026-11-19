@@ -20,14 +20,19 @@ package io.meeds.social.people.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +55,8 @@ import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
@@ -60,10 +67,16 @@ import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 
+import io.meeds.social.identity.permission.service.UserPermissionService;
+import io.meeds.social.people.model.DirectoryGroup;
 import io.meeds.social.people.model.PeopleDirectoryAttribute;
 import io.meeds.social.people.model.PeopleDirectoryAttributeValue;
+import io.meeds.social.people.model.PeopleDirectoryEditorGroups;
 import io.meeds.social.people.model.PeopleDirectoryFilter;
+import io.meeds.social.people.model.PeopleDirectoryGroup;
 import io.meeds.social.people.model.PeopleDirectoryPage;
 import io.meeds.social.translation.service.TranslationService;
 import tools.jackson.core.JacksonException;
@@ -72,7 +85,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Rules of the People Directory application instances (EXO-93255,
- * EXO-93256): who may change an instance's settings or list its users, which
+ * EXO-93256, EXO-93257): who may change an instance's settings or list its users, which
  * stored values are valid, and the users an instance lists. The
  * portlet is glue: it reads the page, the site and its own window id from the
  * portal context and its preferences from the portlet container, and every
@@ -121,6 +134,20 @@ public class PeopleDirectoryService {
 
   public static final String  INVALID_RANGE_MESSAGE              = "peopleDirectory.invalidRange";
 
+  public static final int     MAX_GROUPS                         = 20;
+
+  public static final int     MAX_GROUPS_SUGGESTED               = 20;
+
+  public static final int     MAX_GROUP_QUERY_LENGTH             = 100;
+
+  public static final String  EMPTY_JSON_ARRAY                   = "[]";
+
+  public static final String  GROUP_FILTER_INVALID_MESSAGE       = "peopleDirectory.groupFilter.invalid";
+
+  public static final String  GROUP_NOT_SELECTABLE_MESSAGE       = "peopleDirectory.groupFilter.notSelectable";
+
+  public static final String  TOO_MANY_GROUPS_MESSAGE            = "peopleDirectory.groupFilter.tooManyGroups";
+
   private static final Log    LOG                                = ExoLogger.getLogger(PeopleDirectoryService.class);
 
   private static final String EMAIL_PROPERTY                     = "email";
@@ -130,6 +157,12 @@ public class PeopleDirectoryService {
   private static final String PROFILE_PROPERTY_OPTION_OBJECT_TYPE = "propertySettingOption";
 
   private static final String PROFILE_PROPERTY_OPTION_FIELD_NAME = "optionValue";
+
+  private static final String GROUP_ID_FIELD                     = "groupId";
+
+  private static final String SPACE_ID_FIELD                     = "spaceId";
+
+  private static final String SPACE_GROUP_PREFIX                 = "/spaces/";
 
   /**
    * A language key of the header map: a language code, optionally followed by
@@ -160,6 +193,15 @@ public class PeopleDirectoryService {
 
   @Autowired
   protected ProfileSearchConnector  profileSearchConnector;
+
+  @Autowired
+  protected UserPermissionService   userPermissionService;
+
+  @Autowired
+  protected OrganizationService     organizationService;
+
+  @Autowired
+  protected SpaceService            spaceService;
 
   /**
    * Whether a user may change the settings of one People Directory window.
@@ -285,7 +327,7 @@ public class PeopleDirectoryService {
 
   /**
    * One page of the users a People Directory window lists to a viewer: the
-   * users matching the window's attribute filter and the viewer's own
+   * users matching the window's attribute and group filters and the viewer's own
    * criteria, of all the users or of the viewer's connections. The
    * directory's filter is read from the window's stored preferences, never
    * from the request; the viewer's criteria on an attribute the directory
@@ -295,6 +337,7 @@ public class PeopleDirectoryService {
    * @param siteKey the rendering site, may be null
    * @param windowId the storage id of the window
    * @param storedAttributeFilter the window's stored attribute filter
+   * @param storedGroupFilter the window's stored group filter
    * @param query the viewer's name search, may be blank
    * @param viewerAttributes the viewer's advanced filter, one text per
    *          attribute, may be null
@@ -314,6 +357,7 @@ public class PeopleDirectoryService {
                                     SiteKey siteKey,
                                     String windowId,
                                     String storedAttributeFilter,
+                                    String storedGroupFilter,
                                     String query,
                                     Map<String, String> viewerAttributes,
                                     boolean connectionsOnly,
@@ -340,8 +384,11 @@ public class PeopleDirectoryService {
     if (!viewerSettings.isEmpty()) {
       filter.setProfileSettings(viewerSettings);
     }
-    if (!attributeFilter.isEmpty()) {
-      filter.setDirectoryFilter(new PeopleDirectoryFilter(toIndexedValues(settings, attributeFilter)));
+    List<String> groupFilter = getGroupFilter(storedGroupFilter);
+    if (!attributeFilter.isEmpty() || groupFilter != null) {
+      PeopleDirectoryFilter directoryFilter = new PeopleDirectoryFilter(toIndexedValues(settings, attributeFilter));
+      directoryFilter.setGroups(groupFilter);
+      filter.setDirectoryFilter(directoryFilter);
     }
     ListAccess<org.exoplatform.social.core.identity.model.Identity> users;
     if (connectionsOnly) {
@@ -362,6 +409,207 @@ public class PeopleDirectoryService {
     } catch (Exception e) {
       throw new IllegalStateException("Error while listing the people directory " + windowId, e);
     }
+  }
+
+
+  /**
+   * Whether a user may set the group filter of a People Directory window: a
+   * platform administrator, or a manager of at least one group, space or
+   * organizational unit (see {@link #getManagedGroupIds}).
+   *
+   * @param username the user asking, may be null
+   * @return true when the group filter is offered to the user
+   */
+  public boolean canSetGroupFilter(String username) {
+    Identity identity = StringUtils.isBlank(username) ? null : userAcl.getUserIdentity(username);
+    return identity != null && (userAcl.isAdministrator(identity) || !getManagedGroupIds(username).isEmpty());
+  }
+
+  /**
+   * The groups an editor can select for a People Directory window's group
+   * filter: any group for a platform administrator, the groups the editor
+   * manages otherwise, each matched on its label or its id, ignoring case; at
+   * most
+   * {@link #MAX_GROUPS_SUGGESTED}, the groups the drawer already holds left
+   * out before the bound applies.
+   *
+   * @param pageKey the page resolved from the portal context, may be null
+   * @param siteKey the rendering site, may be null
+   * @param windowId the storage id of the window
+   * @param query a text the groups must contain, may be blank
+   * @param excludedGroupIds the groups the drawer already holds, at most
+   *          {@link #MAX_GROUPS} of them read, may be null
+   * @param username the editor
+   * @return the groups, labelled
+   * @throws IllegalAccessException when the user may not edit the window's
+   *           settings or may not set its group filter
+   */
+  public List<PeopleDirectoryGroup> getSelectableGroups(PageKey pageKey,
+                                                        SiteKey siteKey,
+                                                        String windowId,
+                                                        String query,
+                                                        Collection<String> excludedGroupIds,
+                                                        String username) throws IllegalAccessException {
+    if (!canEditSettings(pageKey, siteKey, windowId, username) || !canSetGroupFilter(username)) {
+      throw new IllegalAccessException("User " + username + " may not set the group filter of the people directory " + windowId);
+    }
+    String text = StringUtils.left(StringUtils.trimToEmpty(query), MAX_GROUP_QUERY_LENGTH);
+    Set<String> excluded = excludedGroupIds == null ? Collections.emptySet()
+                                                    : excludedGroupIds.stream()
+                                                                      .filter(StringUtils::isNotBlank)
+                                                                      .limit(MAX_GROUPS)
+                                                                      .collect(Collectors.toSet());
+    Stream<Group> candidates = isAdministrator(username) ? getAllGroups().stream()
+                                                         : getManagedGroupIds(username).stream()
+                                                                                       .map(this::findGroup)
+                                                                                       .filter(Objects::nonNull);
+    return candidates.filter(group -> !excluded.contains(group.getId()))
+                     .map(this::toDirectoryGroup)
+                     .filter(Objects::nonNull)
+                     .filter(group -> StringUtils.containsIgnoreCase(group.label(), text)
+                         || StringUtils.containsIgnoreCase(group.groupId(), text))
+                     .limit(MAX_GROUPS_SUGGESTED)
+                     .toList();
+  }
+
+  /**
+   * Validates a posted group filter and merges it with the stored one, for
+   * the editor saving it. The filter of an editor who may not set it is kept
+   * as stored, whatever is posted. For an editor who may, the stored groups
+   * the editor cannot select stay applied, and the posted ones replace the
+   * others; an empty post turns the editor's part of the filter OFF and drops
+   * the stored groups that no longer exist. A space's group is stored with
+   * its space's id, resolved here, never posted.
+   *
+   * @param posted the posted value: a JSON array of group ids, {@code []}
+   *          when the editor's group filter is OFF
+   * @param stored the stored preference value, may be null
+   * @param username the editor
+   * @return the value to store: a JSON array of {@code {groupId, spaceId}}
+   * @throws IllegalArgumentException with {@link #GROUP_FILTER_INVALID_MESSAGE}
+   *           when the post is not such an array,
+   *           {@link #GROUP_NOT_SELECTABLE_MESSAGE} when a posted group is
+   *           not one the editor can select, or {@link #TOO_MANY_GROUPS_MESSAGE}
+   *           beyond {@link #MAX_GROUPS} existing groups
+   */
+  public String normalizeGroupFilter(String posted, String stored, String username) {
+    if (!canSetGroupFilter(username)) {
+      return StringUtils.defaultIfBlank(stored, EMPTY_JSON_ARRAY);
+    }
+    List<String> postedIds = readPostedGroupIds(posted);
+    boolean administrator = isAdministrator(username);
+    Set<String> managedGroupIds = administrator ? Collections.emptySet() : getManagedGroupIds(username);
+    List<DirectoryGroup> groups = new ArrayList<>();
+    for (DirectoryGroup group : readStoredGroups(stored, false)) {
+      boolean resolvable = isResolvable(group);
+      if (!(resolvable && isSelectable(group.groupId(), administrator, managedGroupIds))
+          && (resolvable || !postedIds.isEmpty())) {
+        groups.add(group);
+      }
+    }
+    for (String groupId : postedIds) {
+      if (!isSelectable(groupId, administrator, managedGroupIds)) {
+        throw new IllegalArgumentException(GROUP_NOT_SELECTABLE_MESSAGE);
+      }
+      // a posted group replaces the stored entry of the same id, which can
+      // only be one that no longer resolves here: a space re-created under
+      // the same name gets its new id
+      groups.removeIf(group -> group.groupId().equals(groupId));
+      groups.add(new DirectoryGroup(groupId, getSpaceId(groupId)));
+    }
+    if (groups.stream().filter(this::isResolvable).count() > MAX_GROUPS) {
+      throw new IllegalArgumentException(TOO_MANY_GROUPS_MESSAGE);
+    }
+    return toGroupsJson(groups);
+  }
+
+  /**
+   * The stored group filter as the directory applies it: the ids of the
+   * stored groups that still exist. A stored group that no longer exists, or
+   * a space's group whose space was deleted, matches nobody, and a value that
+   * is not a stored group filter lists nobody.
+   *
+   * @param storedValue the stored preference value, may be null
+   * @return null when the directory is not filtered by group, the ids of the
+   *         groups a listed user must belong to one of otherwise, empty when
+   *         it lists nobody
+   */
+  public List<String> getGroupFilter(String storedValue) {
+    List<DirectoryGroup> groups = readStoredGroups(storedValue, true);
+    if (groups == null) {
+      LOG.debug("The stored group filter '{}' is not valid, the directory lists nobody", storedValue);
+      return Collections.emptyList();
+    } else if (groups.isEmpty()) {
+      return null; // NOSONAR null means the directory is not filtered by group
+    }
+    return groups.stream().filter(this::isResolvable).map(DirectoryGroup::groupId).toList();
+  }
+
+  /**
+   * The stored group filter as the settings drawer shows it to an editor: the
+   * groups the editor can select, as chips, whether other groups are
+   * applied, never named, for an editor who may set the filter how many,
+   * which count against {@link #MAX_GROUPS}, and whether
+   * stored groups no longer exist, so that the filter shows as set although
+   * no chip remains.
+   *
+   * @param storedValue the stored preference value, may be null
+   * @param username the editor
+   * @return the editor's groups
+   */
+  public PeopleDirectoryEditorGroups getEditorGroups(String storedValue, String username) {
+    List<DirectoryGroup> stored = readStoredGroups(storedValue, false);
+    boolean canSetGroupFilter = canSetGroupFilter(username);
+    boolean administrator = canSetGroupFilter && isAdministrator(username);
+    Set<String> managedGroupIds = !canSetGroupFilter || administrator ? Collections.emptySet()
+                                                                      : getManagedGroupIds(username);
+    List<PeopleDirectoryGroup> groups = new ArrayList<>();
+    int otherGroupsCount = 0;
+    boolean unresolvableGroups = false;
+    for (DirectoryGroup group : stored) {
+      if (!isResolvable(group)) {
+        unresolvableGroups = canSetGroupFilter;
+        continue;
+      }
+      if (canSetGroupFilter && isSelectable(group.groupId(), administrator, managedGroupIds)) {
+        PeopleDirectoryGroup directoryGroup = toDirectoryGroup(findGroup(group.groupId()));
+        if (directoryGroup != null) {
+          groups.add(directoryGroup);
+        }
+      } else {
+        otherGroupsCount++;
+      }
+    }
+    return new PeopleDirectoryEditorGroups(groups,
+                                           otherGroupsCount > 0,
+                                           canSetGroupFilter ? otherGroupsCount : 0,
+                                           unresolvableGroups);
+  }
+
+  /**
+   * @param username a user
+   * @return the ids of the groups the user directly holds the manager
+   *         membership type, or {@code *}, of: a membership inherited through
+   *         a nested-group link does not make a manager
+   */
+  public Set<String> getManagedGroupIds(String username) {
+    if (StringUtils.isBlank(username)) {
+      return Collections.emptySet();
+    }
+    String managerType = userAcl.getAdminMSType();
+    Set<String> groupIds = new LinkedHashSet<>();
+    for (String token : userPermissionService.getPermissionTokens(username)) {
+      int separator = token == null ? -1 : token.indexOf(":/");
+      if (separator <= 0 || token.startsWith(UserPermissionService.INHERITED_TOKEN_PREFIX)) {
+        continue;
+      }
+      String membershipType = token.substring(0, separator);
+      if (StringUtils.equals(membershipType, managerType)
+          || StringUtils.equals(membershipType, UserPermissionService.ANY_MEMBERSHIP_TYPE)) {
+        groupIds.add(token.substring(separator + 1));
+      }
+    }
+    return groupIds;
   }
 
   /**
@@ -503,6 +751,142 @@ public class PeopleDirectoryService {
     } catch (IllegalArgumentException e) {
       return EMPTY_HEADER_TRANSLATIONS;
     }
+  }
+
+  private boolean isAdministrator(String username) {
+    Identity identity = userAcl.getUserIdentity(username);
+    return identity != null && userAcl.isAdministrator(identity);
+  }
+
+  private boolean isSelectable(String groupId, boolean administrator, Set<String> managedGroupIds) {
+    return administrator ? findGroup(groupId) != null : managedGroupIds.contains(groupId);
+  }
+
+  /**
+   * @return whether a stored group still designates the group it was saved
+   *         with: the group exists and, for a space's group, its space is the
+   *         one stored
+   */
+  private boolean isResolvable(DirectoryGroup group) {
+    if (findGroup(group.groupId()) == null) {
+      return false;
+    } else if (!StringUtils.startsWith(group.groupId(), SPACE_GROUP_PREFIX)) {
+      return true;
+    }
+    return group.spaceId() != null && StringUtils.equals(group.spaceId(), getSpaceId(group.groupId()));
+  }
+
+  private String getSpaceId(String groupId) {
+    if (!StringUtils.startsWith(groupId, SPACE_GROUP_PREFIX)) {
+      return null;
+    }
+    Space space = spaceService.getSpaceByGroupId(groupId);
+    return space == null ? null : space.getId();
+  }
+
+  private Group findGroup(String groupId) {
+    if (StringUtils.isBlank(groupId) || !groupId.startsWith("/")) {
+      return null;
+    }
+    try {
+      return organizationService.getGroupHandler().findGroupById(groupId);
+    } catch (Exception e) {
+      LOG.warn("Error while reading the group {}", groupId, e);
+      return null;
+    }
+  }
+
+  /**
+   * Every group, for an administrator's search on labels: the store's own
+   * search matches a group's name only.
+   */
+  private Collection<Group> getAllGroups() {
+    try {
+      Collection<Group> groups = organizationService.getGroupHandler().getAllGroups();
+      return groups == null ? Collections.emptyList() : groups;
+    } catch (Exception e) {
+      LOG.warn("Error while reading the groups", e);
+      return Collections.emptyList();
+    }
+  }
+
+  private PeopleDirectoryGroup toDirectoryGroup(Group group) {
+    if (group == null) {
+      return null;
+    }
+    String label = null;
+    if (StringUtils.startsWith(group.getId(), SPACE_GROUP_PREFIX)) {
+      Space space = spaceService.getSpaceByGroupId(group.getId());
+      label = space == null ? null : space.getDisplayName();
+    }
+    return new PeopleDirectoryGroup(group.getId(),
+                                    StringUtils.firstNonBlank(label, group.getLabel(), group.getGroupName(), group.getId()));
+  }
+
+  /**
+   * @return the posted group ids, de-duplicated
+   * @throws IllegalArgumentException with {@link #GROUP_FILTER_INVALID_MESSAGE}
+   *           when the value is not a JSON array of non-blank texts, or
+   *           {@link #TOO_MANY_GROUPS_MESSAGE} beyond {@link #MAX_GROUPS}
+   */
+  private static List<String> readPostedGroupIds(String value) {
+    JsonNode posted;
+    try {
+      posted = JSON_MAPPER.readTree(StringUtils.defaultIfBlank(value, EMPTY_JSON_ARRAY));
+    } catch (JacksonException e) {
+      throw new IllegalArgumentException(GROUP_FILTER_INVALID_MESSAGE, e);
+    }
+    List<String> groupIds = toStringValues(posted);
+    if (groupIds == null || groupIds.stream().anyMatch(StringUtils::isBlank)) {
+      throw new IllegalArgumentException(GROUP_FILTER_INVALID_MESSAGE);
+    }
+    List<String> distinct = groupIds.stream().distinct().toList();
+    if (distinct.size() > MAX_GROUPS) {
+      throw new IllegalArgumentException(TOO_MANY_GROUPS_MESSAGE);
+    }
+    return distinct;
+  }
+
+  /**
+   * @param strict whether a value that is not a stored group filter gives
+   *          null rather than no group
+   * @return the stored groups, empty for a blank value
+   */
+  private static List<DirectoryGroup> readStoredGroups(String value, boolean strict) {
+    JsonNode stored;
+    try {
+      stored = JSON_MAPPER.readTree(StringUtils.defaultIfBlank(value, EMPTY_JSON_ARRAY));
+    } catch (JacksonException e) {
+      stored = null;
+    }
+    List<DirectoryGroup> groups = new ArrayList<>();
+    if (stored == null || !stored.isArray()) {
+      return strict ? null : groups; // NOSONAR null means an invalid value
+    }
+    for (JsonNode element : stored) {
+      JsonNode groupId = element.get(GROUP_ID_FIELD);
+      JsonNode spaceId = element.get(SPACE_ID_FIELD);
+      if (!element.isObject() || groupId == null || !groupId.isString() || StringUtils.isBlank(groupId.asString())
+          || (spaceId != null && !spaceId.isNull() && !spaceId.isString())) {
+        if (strict) {
+          return null; // NOSONAR null means an invalid value
+        }
+        continue;
+      }
+      groups.add(new DirectoryGroup(groupId.asString(), spaceId == null || spaceId.isNull() ? null : spaceId.asString()));
+    }
+    return groups;
+  }
+
+  private static String toGroupsJson(List<DirectoryGroup> groups) {
+    List<Map<String, String>> entries = new ArrayList<>();
+    for (DirectoryGroup group : groups) {
+      Map<String, String> entry = new LinkedHashMap<>();
+      entry.put(GROUP_ID_FIELD, group.groupId());
+      entry.put(SPACE_ID_FIELD, group.spaceId());
+      entries.add(entry);
+    }
+    return JSON_MAPPER.writeValueAsString(entries);
   }
 
   private static boolean isSelectableAttribute(ProfilePropertySetting setting) {

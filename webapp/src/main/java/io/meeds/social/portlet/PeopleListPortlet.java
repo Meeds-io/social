@@ -20,6 +20,7 @@ package io.meeds.social.portlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -51,6 +52,8 @@ import org.exoplatform.social.rest.entity.DataEntity;
 
 import io.meeds.social.people.model.PeopleDirectoryAttribute;
 import io.meeds.social.people.model.PeopleDirectoryAttributeValue;
+import io.meeds.social.people.model.PeopleDirectoryEditorGroups;
+import io.meeds.social.people.model.PeopleDirectoryGroup;
 import io.meeds.social.people.model.PeopleDirectoryPage;
 import io.meeds.social.people.service.PeopleDirectoryService;
 
@@ -83,11 +86,15 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
 
   public static final String        ATTRIBUTE_FILTER_PREFERENCE    = "attributeFilter";
 
+  public static final String        GROUP_FILTER_PREFERENCE        = "groupIds";
+
   public static final String        SETTINGS_RESOURCE_ID           = "settings";
 
   public static final String        USERS_RESOURCE_ID              = "users";
 
   public static final String        ATTRIBUTE_VALUES_RESOURCE_ID   = "attributeValues";
+
+  public static final String        GROUPS_RESOURCE_ID             = "groups";
 
   /** Prefix of a parameter carrying one criterion of the viewer's own filter. */
   public static final String        VIEWER_ATTRIBUTE_PREFIX        = "attr.";
@@ -111,11 +118,13 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
    */
   private static final List<String> STORED_PREFERENCES             = List.of(HEADER_TRANSLATIONS_PREFERENCE,
                                                                              PAGE_SIZE_PREFERENCE,
-                                                                             ATTRIBUTE_FILTER_PREFERENCE);
+                                                                             ATTRIBUTE_FILTER_PREFERENCE,
+                                                                             GROUP_FILTER_PREFERENCE);
 
   private static final List<String> RESOURCE_IDS                   = List.of(SETTINGS_RESOURCE_ID,
                                                                              USERS_RESOURCE_ID,
-                                                                             ATTRIBUTE_VALUES_RESOURCE_ID);
+                                                                             ATTRIBUTE_VALUES_RESOURCE_ID,
+                                                                             GROUPS_RESOURCE_ID);
 
   /**
    * Whether the current user may change the settings of the window being
@@ -137,16 +146,60 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
   }
 
   /**
+   * @param username the current user, may be null
+   * @return whether the group filter is offered to the user in the settings
+   *         drawer, who must also be allowed to edit the window
+   */
+  public static boolean canSetGroupFilter(String username) {
+    return getPeopleDirectoryService().canSetGroupFilter(username);
+  }
+
+  /**
    * @param preferences the window preferences
-   * @return whether the directory filters its users by profile attribute, or
-   *         lists nobody because its stored filter is no longer valid: the
-   *         empty state then names the directory's filter, not the viewer's
+   * @return whether the directory filters its users by profile attribute or
+   *         by group, or lists nobody because its stored filter is no longer
+   *         valid: the empty state then names the directory's filter, not the
+   *         viewer's
    */
   public static boolean isDirectoryFiltered(PortletPreferences preferences) {
+    PeopleDirectoryService peopleDirectoryService = getPeopleDirectoryService();
     Map<String, List<String>> attributeFilter =
-                                              getPeopleDirectoryService().getAttributeFilter(preferences.getValue(ATTRIBUTE_FILTER_PREFERENCE,
-                                                                                                                  null));
-    return attributeFilter == null || !attributeFilter.isEmpty();
+                                              peopleDirectoryService.getAttributeFilter(preferences.getValue(ATTRIBUTE_FILTER_PREFERENCE,
+                                                                                                             null));
+    return attributeFilter == null || !attributeFilter.isEmpty()
+        || peopleDirectoryService.getGroupFilter(preferences.getValue(GROUP_FILTER_PREFERENCE, null)) != null;
+  }
+
+  /**
+   * @param preferences the window preferences
+   * @return whether the stored attribute filter is one the directory cannot
+   *         read, so that it lists nobody: the settings drawer then shows no
+   *         attribute, and Apply replaces the stored value
+   */
+  public static boolean isAttributeFilterInvalid(PortletPreferences preferences) {
+    return getPeopleDirectoryService().getAttributeFilter(preferences.getValue(ATTRIBUTE_FILTER_PREFERENCE, null)) == null;
+  }
+
+  /**
+   * The group filter as the settings drawer shows it, for a user who may edit
+   * the window: the stored groups the user can select, and whether other
+   * groups are applied, never named. The other viewers get nothing of it.
+   *
+   * @param preferences the window preferences
+   * @param username the editor
+   * @return a JSON object {@code {groups: [{groupId, label}],
+   *         otherGroupsApplied, otherGroupsCount, unresolvableGroups}}
+   */
+  public static String storedGroups(PortletPreferences preferences, String username) {
+    PeopleDirectoryEditorGroups editorGroups =
+                                             getPeopleDirectoryService().getEditorGroups(preferences.getValue(GROUP_FILTER_PREFERENCE,
+                                                                                                              null),
+                                                                                         username);
+    return new JSONObject().put("groups", toGroupsJson(editorGroups.groups()))
+                           .put("otherGroupsApplied", editorGroups.otherGroupsApplied())
+                           .put("otherGroupsCount", editorGroups.otherGroupsCount())
+                           .put("unresolvableGroups", editorGroups.unresolvableGroups())
+                           .toString();
   }
 
   /**
@@ -212,6 +265,9 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
           preferences.setValue(name, switch (name) {
           case PAGE_SIZE_PREFERENCE -> peopleDirectoryService.normalizePageSize(value);
           case ATTRIBUTE_FILTER_PREFERENCE -> peopleDirectoryService.normalizeAttributeFilter(value);
+          case GROUP_FILTER_PREFERENCE -> peopleDirectoryService.normalizeGroupFilter(value,
+                                                                                      preferences.getValue(name, null),
+                                                                                      request.getRemoteUser());
           default -> peopleDirectoryService.normalizeHeaderTranslations(value);
           });
         }
@@ -230,7 +286,8 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
    * only the stored values tell whether the save was applied);
    * {@code users}, the users the directory lists to the viewer, filtered
    * server-side by the window's stored filter; {@code attributeValues}, the
-   * values an editor can select for a filter attribute. An anonymous request
+   * values an editor can select for a filter attribute; {@code groups}, the
+   * groups an editor can select for the group filter. An anonymous request
    * is refused before anything is read.
    */
   @Override
@@ -250,6 +307,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
       String body = switch (resourceId) {
       case USERS_RESOURCE_ID -> getUsers(request, username);
       case ATTRIBUTE_VALUES_RESOURCE_ID -> getAttributeValues(request, username);
+      case GROUPS_RESOURCE_ID -> getGroups(request, username);
       default -> getSettings(request, username);
       };
       response.setContentType("application/json");
@@ -272,6 +330,13 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
     settings.put("directoryFiltered", isDirectoryFiltered(preferences));
     if (canEdit(username)) {
       settings.put("attributes", new JSONArray(storedAttributes(preferences, request.getLocale())));
+      settings.put("attributeFilterInvalid", isAttributeFilterInvalid(preferences));
+      settings.put("canSetGroupFilter", canSetGroupFilter(username));
+      JSONObject groups = new JSONObject(storedGroups(preferences, username));
+      settings.put("groups", groups.getJSONArray("groups"));
+      settings.put("otherGroupsApplied", groups.getBoolean("otherGroupsApplied"));
+      settings.put("otherGroupsCount", groups.getInt("otherGroupsCount"));
+      settings.put("unresolvableGroups", groups.getBoolean("unresolvableGroups"));
     }
     return settings.toString();
   }
@@ -295,6 +360,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
                                                                   uiPortlet.getStorageId(),
                                                                   request.getPreferences()
                                                                          .getValue(ATTRIBUTE_FILTER_PREFERENCE, null),
+                                                                  request.getPreferences().getValue(GROUP_FILTER_PREFERENCE, null),
                                                                   request.getParameter("q"),
                                                                   viewerAttributes,
                                                                   StringUtils.equals(request.getParameter(FILTER_PARAMETER),
@@ -329,6 +395,28 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
     JSONArray json = new JSONArray();
     values.forEach(value -> json.put(new JSONObject().put("value", value.value()).put("label", value.label())));
     return json.toString();
+  }
+
+  private String getGroups(ResourceRequest request, String username) throws IllegalAccessException {
+    PortalRequestContext requestContext = PortalRequestContext.getCurrentInstance();
+    UIPortlet uiPortlet = UIPortlet.getCurrentUIPortlet();
+    if (requestContext == null || uiPortlet == null) {
+      throw new IllegalAccessException("No people directory window in the request");
+    }
+    String[] excluded = request.getParameterValues("exclude");
+    List<PeopleDirectoryGroup> groups = getPeopleDirectoryService().getSelectableGroups(getPageKey(requestContext),
+                                                                                        requestContext.getSiteKey(),
+                                                                                        uiPortlet.getStorageId(),
+                                                                                        request.getParameter("q"),
+                                                                                        excluded == null ? List.of() : Arrays.asList(excluded),
+                                                                                        username);
+    return toGroupsJson(groups).toString();
+  }
+
+  private static JSONArray toGroupsJson(List<PeopleDirectoryGroup> groups) {
+    JSONArray json = new JSONArray();
+    groups.forEach(group -> json.put(new JSONObject().put("groupId", group.groupId()).put("label", group.label())));
+    return json;
   }
 
   private static int parseInt(String value, int defaultValue) {

@@ -23,7 +23,7 @@ const url = `/social/i18n/locale.portlet.social.PeopleListApplication?lang=${lan
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, usersResourceUrl, attributeValuesResourceUrl}) {
+export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, usersResourceUrl, attributeValuesResourceUrl, groupsResourceUrl}) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
       data: {
@@ -34,11 +34,21 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
         pageSize: settings?.pageSize || 12,
         // the attribute filter as the settings drawer shows it: an editor's only
         attributes: settings?.attributes || [],
+        attributeFilterInvalid: !!settings?.attributeFilterInvalid,
+        // the group filter as the settings drawer shows it: an editor's only,
+        // and only the groups the editor can select, never the others' names
+        canSetGroupFilter: !!settings?.canSetGroupFilter,
+        groups: settings?.groups || [],
+        otherGroupsApplied: !!settings?.otherGroupsApplied,
+        // how many of them: they count against the bound of the filter
+        otherGroupsCount: settings?.otherGroupsCount || 0,
+        unresolvableGroups: !!settings?.unresolvableGroups,
         directoryFiltered: !!settings?.directoryFiltered,
         saveSettingsUrl,
         settingsResourceUrl,
         usersResourceUrl,
         attributeValuesResourceUrl,
+        groupsResourceUrl,
         language: eXo?.env?.portal?.language,
         defaultLanguage: eXo?.env?.portal?.defaultLanguage,
         hover: false,
@@ -76,6 +86,12 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
             this.headerTranslations = stored?.headerTranslations || {};
             this.pageSize = stored?.pageSize || 12;
             this.attributes = stored?.attributes || [];
+            this.attributeFilterInvalid = !!stored?.attributeFilterInvalid;
+            this.canSetGroupFilter = !!stored?.canSetGroupFilter;
+            this.groups = stored?.groups || [];
+            this.otherGroupsApplied = !!stored?.otherGroupsApplied;
+            this.otherGroupsCount = stored?.otherGroupsCount || 0;
+            this.unresolvableGroups = !!stored?.unresolvableGroups;
             this.directoryFiltered = !!stored?.directoryFiltered;
           });
         },

@@ -518,6 +518,7 @@ public class PeopleDirectoryFilterServiceTest {
                                          SITE_KEY,
                                          WINDOW_ID,
                                          storedFilter,
+                                         null,
                                          " john d ",
                                          viewerAttributes,
                                          connectionsOnly,

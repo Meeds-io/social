@@ -20,6 +20,8 @@ package io.meeds.social.portlet;
 
 import static io.meeds.social.portlet.PeopleListPortlet.ATTRIBUTE_FILTER_PREFERENCE;
 import static io.meeds.social.portlet.PeopleListPortlet.ATTRIBUTE_VALUES_RESOURCE_ID;
+import static io.meeds.social.portlet.PeopleListPortlet.GROUPS_RESOURCE_ID;
+import static io.meeds.social.portlet.PeopleListPortlet.GROUP_FILTER_PREFERENCE;
 import static io.meeds.social.portlet.PeopleListPortlet.HEADER_TRANSLATIONS_PREFERENCE;
 import static io.meeds.social.portlet.PeopleListPortlet.PAGE_SIZE_PREFERENCE;
 import static io.meeds.social.portlet.PeopleListPortlet.SETTINGS_RESOURCE_ID;
@@ -77,6 +79,8 @@ import org.exoplatform.portal.webui.application.UIPortlet;
 
 import io.meeds.social.people.model.PeopleDirectoryAttribute;
 import io.meeds.social.people.model.PeopleDirectoryAttributeValue;
+import io.meeds.social.people.model.PeopleDirectoryEditorGroups;
+import io.meeds.social.people.model.PeopleDirectoryGroup;
 import io.meeds.social.people.model.PeopleDirectoryPage;
 import io.meeds.social.people.service.PeopleDirectoryService;
 
@@ -208,13 +212,14 @@ class PeopleListPortletTest {
     when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
     parameters.put(PAGE_SIZE_PREFERENCE, "20");
     parameters.put("canEdit", "true");
-    parameters.put("groupIds", "[\"/platform/users\"]");
+    parameters.put("otherGroupsApplied", "true");
 
     portlet.processAction(request, response);
 
     verify(preferences).setValue(PAGE_SIZE_PREFERENCE, "20");
     verify(preferences, never()).setValue(eq("canEdit"), nullable(String.class));
-    verify(preferences, never()).setValue(eq("groupIds"), nullable(String.class));
+    verify(preferences, never()).setValue(eq("otherGroupsApplied"), nullable(String.class));
+    verify(preferences, never()).setValue(eq(GROUP_FILTER_PREFERENCE), nullable(String.class));
     verify(preferences, never()).setValue(eq(HEADER_TRANSLATIONS_PREFERENCE), nullable(String.class));
   }
 
@@ -244,14 +249,25 @@ class PeopleListPortletTest {
     when(resourceResponse.getWriter()).thenReturn(new PrintWriter(body, true));
     when(preferences.getValue(eq(PAGE_SIZE_PREFERENCE), nullable(String.class))).thenReturn("5000");
     when(preferences.getValue(eq(HEADER_TRANSLATIONS_PREFERENCE), nullable(String.class))).thenReturn("{\"en\":\"Team\"}");
+    // what an editor would get: a viewer must get none of it
+    lenient().when(peopleDirectoryService.getEditorGroups(nullable(String.class), any()))
+             .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/hidden", "Hidden")), true, 3, true));
+    lenient().when(peopleDirectoryService.getEditorAttributes(nullable(String.class), any())).thenReturn(List.of());
 
     portlet.serveResource(resourceRequest, resourceResponse);
 
     JSONObject settings = new JSONObject(body.toString());
     assertEquals(PeopleDirectoryService.MAX_PAGE_SIZE, settings.getInt(PAGE_SIZE_PREFERENCE));
     assertEquals("Team", settings.getJSONObject(HEADER_TRANSLATIONS_PREFERENCE).getString("en"));
-    // the attribute filter's values are an editor's only
+    // the attribute and group filters are an editor's only
     assertFalse(settings.has("attributes"));
+    assertFalse(settings.has("attributeFilterInvalid"));
+    assertFalse(settings.has("canSetGroupFilter"));
+    assertFalse(settings.has("groups"));
+    assertFalse(settings.has("otherGroupsApplied"));
+    assertFalse(settings.has("unresolvableGroups"));
+    assertFalse(settings.has("otherGroupsCount"));
+    verify(peopleDirectoryService, never()).getEditorGroups(nullable(String.class), any());
     verify(resourceResponse).setProperty("Cache-Control", "private, no-store");
   }
 
@@ -266,23 +282,34 @@ class PeopleListPortletTest {
       .thenReturn(List.of(new PeopleDirectoryAttribute("department",
                                                         List.of(new PeopleDirectoryAttributeValue("HR", "HR")),
                                                         false)));
+    when(peopleDirectoryService.getEditorGroups(null, USERNAME))
+      .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/paris", "Paris office")), true, 3, true));
+    when(peopleDirectoryService.canSetGroupFilter(USERNAME)).thenReturn(true);
 
     portlet.serveResource(resourceRequest, resourceResponse);
 
-    JSONObject attribute = new JSONObject(body.toString()).getJSONArray("attributes").getJSONObject(0);
+    JSONObject settings = new JSONObject(body.toString());
+    assertTrue(settings.getBoolean("canSetGroupFilter"));
+    assertTrue(settings.getBoolean("otherGroupsApplied"));
+    assertTrue(settings.getBoolean("unresolvableGroups"));
+    assertEquals(3, settings.getInt("otherGroupsCount"));
+    assertEquals(1, settings.getJSONArray("groups").length());
+    assertEquals("/spaces/paris", settings.getJSONArray("groups").getJSONObject(0).getString("groupId"));
+    assertEquals("Paris office", settings.getJSONArray("groups").getJSONObject(0).getString("label"));
+    JSONObject attribute = settings.getJSONArray("attributes").getJSONObject(0);
     assertEquals("department", attribute.getString("name"));
     assertEquals("HR", attribute.getJSONArray("values").getJSONObject(0).getString("value"));
     assertFalse(attribute.getBoolean("available"));
   }
 
   @ParameterizedTest
-  @ValueSource(strings = { SETTINGS_RESOURCE_ID, USERS_RESOURCE_ID, ATTRIBUTE_VALUES_RESOURCE_ID })
+  @ValueSource(strings = { SETTINGS_RESOURCE_ID, USERS_RESOURCE_ID, ATTRIBUTE_VALUES_RESOURCE_ID, GROUPS_RESOURCE_ID })
   void everyResourceIsRefusedToAnAnonymousUser(String resourceId) throws Exception {
     // a request complete enough to be answered, but for its user
     ResourceRequest resourceRequest = resourceRequest(resourceId);
     when(resourceRequest.getRemoteUser()).thenReturn(null);
     lenient().when(resourceRequest.getParameterMap()).thenReturn(Map.of());
-    lenient().when(peopleDirectoryService.search(any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt()))
+    lenient().when(peopleDirectoryService.search(any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt()))
              .thenReturn(new PeopleDirectoryPage(List.of(), 0));
     ResourceResponse resourceResponse = resourceResponse(new StringWriter());
 
@@ -291,8 +318,9 @@ class PeopleListPortletTest {
     verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "403");
     verify(resourceResponse).setProperty("Cache-Control", "private, no-store");
     verify(resourceResponse, never()).getWriter();
-    verify(peopleDirectoryService, never()).search(any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt());
+    verify(peopleDirectoryService, never()).search(any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt());
     verify(peopleDirectoryService, never()).getAttributeValues(any(), any(), any(), any(), any(), any(), any());
+    verify(peopleDirectoryService, never()).getSelectableGroups(any(), any(), any(), any(), any(), any());
   }
 
   @Test
@@ -301,6 +329,8 @@ class PeopleListPortletTest {
     StringWriter body = new StringWriter();
     ResourceResponse resourceResponse = resourceResponse(body);
     when(preferences.getValue(eq(ATTRIBUTE_FILTER_PREFERENCE), nullable(String.class))).thenReturn("{\"department\":[\"HR\"]}");
+    when(preferences.getValue(eq(GROUP_FILTER_PREFERENCE), nullable(String.class)))
+      .thenReturn("[{\"groupId\":\"/platform/users\",\"spaceId\":null}]");
     when(resourceRequest.getParameter("q")).thenReturn("john");
     when(resourceRequest.getParameter("filter")).thenReturn("connections");
     when(resourceRequest.getParameter("offset")).thenReturn("12");
@@ -315,6 +345,7 @@ class PeopleListPortletTest {
                                        SITE_KEY,
                                        WINDOW_ID,
                                        "{\"department\":[\"HR\"]}",
+                                       "[{\"groupId\":\"/platform/users\",\"spaceId\":null}]",
                                        "john",
                                        Map.of("city", "Tunis"),
                                        true,
@@ -336,7 +367,7 @@ class PeopleListPortletTest {
     ResourceRequest resourceRequest = resourceRequest(USERS_RESOURCE_ID);
     ResourceResponse resourceResponse = mock(ResourceResponse.class);
     when(resourceRequest.getParameterMap()).thenReturn(Map.of());
-    when(peopleDirectoryService.search(any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt()))
+    when(peopleDirectoryService.search(any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt()))
       .thenThrow(new IllegalAccessException("refused"));
 
     portlet.serveResource(resourceRequest, resourceResponse);
@@ -356,7 +387,7 @@ class PeopleListPortletTest {
 
     verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "400");
     assertEquals(PeopleDirectoryService.INVALID_RANGE_MESSAGE, body.toString());
-    verify(peopleDirectoryService, never()).search(any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt());
+    verify(peopleDirectoryService, never()).search(any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt());
   }
 
   @Test
@@ -415,6 +446,66 @@ class PeopleListPortletTest {
 
     assertEquals(PeopleDirectoryService.ATTRIBUTE_FILTER_INVALID_MESSAGE, e.getMessage());
     verify(preferences, never()).store();
+  }
+
+  @Test
+  void processActionStoresTheGroupFilterMergedForTheEditor() throws Exception {
+    when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
+    String stored = "[{\"groupId\":\"/platform/x\",\"spaceId\":null}]";
+    when(preferences.getValue(eq(GROUP_FILTER_PREFERENCE), nullable(String.class))).thenReturn(stored);
+    parameters.put(GROUP_FILTER_PREFERENCE, "[\"/spaces/paris\"]");
+    String merged = "[{\"groupId\":\"/platform/x\",\"spaceId\":null},{\"groupId\":\"/spaces/paris\",\"spaceId\":\"3\"}]";
+    lenient().when(peopleDirectoryService.normalizeGroupFilter("[\"/spaces/paris\"]", stored, USERNAME)).thenReturn(merged);
+
+    portlet.processAction(request, response);
+
+    verify(preferences).setValue(GROUP_FILTER_PREFERENCE, merged);
+    verify(preferences).store();
+  }
+
+  @Test
+  void processActionRefusesAGroupTheEditorCannotSelectBeforeStoringAnything() throws Exception {
+    when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
+    parameters.put(PAGE_SIZE_PREFERENCE, "20");
+    parameters.put(GROUP_FILTER_PREFERENCE, "[\"/platform/administrators\"]");
+    when(peopleDirectoryService.normalizeGroupFilter(eq("[\"/platform/administrators\"]"), nullable(String.class), eq(USERNAME)))
+      .thenThrow(new IllegalArgumentException(PeopleDirectoryService.GROUP_NOT_SELECTABLE_MESSAGE));
+
+    PortletException e = assertThrows(PortletException.class, () -> portlet.processAction(request, response));
+
+    assertEquals(PeopleDirectoryService.GROUP_NOT_SELECTABLE_MESSAGE, e.getMessage());
+    verify(preferences, never()).store();
+  }
+
+  @Test
+  void groupsResourceAnswersTheGroupsTheEditorCanSelectForTheWindowOfThePortalContext() throws Exception {
+    ResourceRequest resourceRequest = resourceRequest(GROUPS_RESOURCE_ID);
+    StringWriter body = new StringWriter();
+    ResourceResponse resourceResponse = resourceResponse(body);
+    when(resourceRequest.getParameter("q")).thenReturn("par");
+    when(resourceRequest.getParameterValues("exclude")).thenReturn(new String[] { "/spaces/lyon" });
+    when(peopleDirectoryService.getSelectableGroups(PAGE_KEY, SITE_KEY, WINDOW_ID, "par", List.of("/spaces/lyon"), USERNAME))
+      .thenReturn(List.of(new PeopleDirectoryGroup("/spaces/paris", "Paris </script>")));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    JSONObject group = new JSONArray(body.toString()).getJSONObject(0);
+    assertEquals("/spaces/paris", group.getString("groupId"));
+    assertEquals("Paris </script>", group.getString("label"));
+    verify(resourceResponse).setProperty("Cache-Control", "private, no-store");
+  }
+
+  @Test
+  void groupsResourceAnswersForbiddenToAnEditorWhoMayNotSetTheGroupFilter() throws Exception {
+    ResourceRequest resourceRequest = resourceRequest(GROUPS_RESOURCE_ID);
+    ResourceResponse resourceResponse = mock(ResourceResponse.class);
+    when(peopleDirectoryService.getSelectableGroups(any(), any(), any(), any(), any(), any()))
+      .thenThrow(new IllegalAccessException("refused"));
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "403");
+    verify(resourceResponse, never()).getWriter();
   }
 
   private ResourceRequest resourceRequest(String resourceId) {
