@@ -1,4 +1,4 @@
-<table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="width:100%;overflow-wrap:anywhere;word-break:break-word;background-color: #ffffff; font-size: 15px;color: #1d2327;line-height: 1.7;font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()};" dir="${io.meeds.portal.mail.EmailLayout.dir(_ctx.language)}">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="width:100%;overflow-wrap:anywhere;word-break:break-word;background-color: #ffffff; font-size: 15px;color: #1d2327;line-height: 1.7;font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()};" dir="${io.meeds.portal.mail.util.EmailLayout.dir(_ctx.language)}">
     <%
       _templateContext.put("header_title", _ctx.appRes("Notification.title.ActivityCommentPlugin"));
       _ctx.include("war:/notification/templates/mail/NotificationHeader.gtmpl", _templateContext);
@@ -10,35 +10,35 @@
                     <td bgcolor="#ffffff" style="background-color: #ffffff;">
                         <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" style="background-color: #ffffff; color: #1d2327;line-height: 1.7;">
                             <tr>
-                                <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff;padding: 30px 0 10px 0;">
-                                    <p style="margin: 0 0 14px; font-size: 15px; color: #1d2327; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()};"><%=_ctx.appRes("Notification.label.SayHello")%> <%=_ctx.escapeHTML(FIRSTNAME)%>,</p>
-                                    <p style="margin:0 0 14px; color:#1d2327; line-height:1.7; font-size:15px; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()};" dir="auto">
+                                <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff;padding: 30px 0 10px 0;">
+                                    <p style="margin: 0 0 14px; font-size: 15px; color: #1d2327; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()};"><%=_ctx.appRes("Notification.label.SayHello")%> <%=_ctx.escapeHTML(FIRSTNAME)%>,</p>
+                                    <p style="margin:0 0 14px; color:#1d2327; line-height:1.7; font-size:15px; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()};" dir="auto">
                                     <%
-                                      String profileUrl = "<a target=\"_blank\" style=\"color: ${io.meeds.portal.mail.EmailLayout.linkColor()}; text-decoration: none; font-weight: bold; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()}\" href=\""+ PROFILE_URL + "\">" + _ctx.escapeHTML(USER) + "</a>";
+                                      String profileUrl = "<a target=\"_blank\" style=\"color: ${io.meeds.portal.mail.util.EmailLayout.linkColor()}; text-decoration: none; font-weight: bold; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()}\" href=\""+ PROFILE_URL + "\">" + _ctx.escapeHTML(USER) + "</a>";
                                     %>
                                     <%=_ctx.appRes("Notification.message.ActivityCommentPlugin", profileUrl)%> :
                                     </p>
                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 15px;color: #1d2327;line-height: 1.7;">
                                         <tbody>
                                             <tr>
-                                                <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff; padding: 0;">
+                                                <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff; padding: 0;">
                                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 15px;color: #1d2327;line-height: 1.7;">
 																											<tbody>
 																												<tr>
-																													<td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff; padding: 0; line-height: 1.7; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()}; color: #1d2327;" dir="auto"><%=io.meeds.portal.mail.EmailLayout.quoteStart(_ctx.language)%>$ACTIVITY<%=io.meeds.portal.mail.EmailLayout.quoteEnd()%></td>
+																													<td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff; padding: 0; line-height: 1.7; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()}; color: #1d2327;" dir="auto"><%=io.meeds.portal.mail.util.EmailLayout.quoteStart(_ctx.language)%>$ACTIVITY<%=io.meeds.portal.mail.util.EmailLayout.quoteEnd()%></td>
 																												</tr>
 																												
 																												<tr>
-																													<td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="
+																													<td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="
 																														background-color: #ffffff;
 																														padding: 0;
 																														line-height: 1.7;
-																														font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()};
+																														font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()};
 																														color: #1d2327" dir="auto">
-																														<p style="margin:0 0 14px; color:#1d2327; line-height:1.7; font-size:15px; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()};" dir="auto">
-																															<%=profileUrl%><strong style="color: ${io.meeds.portal.mail.EmailLayout.linkColor()}; font-size: 15px;">:</strong>
+																														<p style="margin:0 0 14px; color:#1d2327; line-height:1.7; font-size:15px; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()};" dir="auto">
+																															<%=profileUrl%><strong style="color: ${io.meeds.portal.mail.util.EmailLayout.linkColor()}; font-size: 15px;">:</strong>
 																														</p>
-                                                            <%=io.meeds.portal.mail.EmailLayout.quoteStart(false, _ctx.language)%>$COMMENT<%=io.meeds.portal.mail.EmailLayout.quoteEnd()%>
+                                                            <%=io.meeds.portal.mail.util.EmailLayout.quoteStart(false, _ctx.language)%>$COMMENT<%=io.meeds.portal.mail.util.EmailLayout.quoteEnd()%>
 																													</td>
 																												</tr>
 																											</tbody>
@@ -47,15 +47,15 @@
                                             </tr>
                                         </tbody>
                                     </table>
-                                    <div dir="${io.meeds.portal.mail.EmailLayout.dir(_ctx.language)}" style="margin: 20px 0 8px 0;">
+                                    <div dir="${io.meeds.portal.mail.util.EmailLayout.dir(_ctx.language)}" style="margin: 20px 0 8px 0;">
                                         <% if (OPEN_URL != null) { %>
-                                            <%=io.meeds.portal.mail.EmailLayout.actionLink(_ctx.appRes("Notification.label.Open"), "$OPEN_URL", true)%>
+                                            <%=io.meeds.portal.mail.util.EmailLayout.actionLink(_ctx.appRes("Notification.label.Open"), "$OPEN_URL", true)%>
                                             <% } %>
-                                        <%=io.meeds.portal.mail.EmailLayout.actionLink(_ctx.appRes("Notification.label.Reply"), "$REPLY_ACTION_URL", false)%>
-                                        <%=io.meeds.portal.mail.EmailLayout.actionLink(_ctx.appRes("Notification.label.ViewFullDiscussion"), "$VIEW_FULL_DISCUSSION_ACTION_URL", false)%>
+                                        <%=io.meeds.portal.mail.util.EmailLayout.actionLink(_ctx.appRes("Notification.label.Reply"), "$REPLY_ACTION_URL", false)%>
+                                        <%=io.meeds.portal.mail.util.EmailLayout.actionLink(_ctx.appRes("Notification.label.ViewFullDiscussion"), "$VIEW_FULL_DISCUSSION_ACTION_URL", false)%>
                                     </div>
-                                    <p style="margin:28px 0 0 0; color: #5d676d;font-size: 13px;font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()}">
-                                        <%=io.meeds.portal.mail.EmailLayout.linkStyled(_ctx.appRes("Notification.label.footerSettings", FOOTER_LINK))%>
+                                    <p style="margin:28px 0 0 0; color: #5d676d;font-size: 13px;font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()}">
+                                        <%=io.meeds.portal.mail.util.EmailLayout.linkStyled(_ctx.appRes("Notification.label.footerSettings", FOOTER_LINK))%>
                                     </p>
                                 </td>
                             </tr>
