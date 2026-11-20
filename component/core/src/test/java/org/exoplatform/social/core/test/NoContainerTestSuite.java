@@ -111,6 +111,7 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 import io.meeds.social.analytics.CollaborativeActivityDeclarationTest;
 import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
 import io.meeds.social.people.service.PeopleDirectoryFilterServiceTest;
+import io.meeds.social.people.service.PeopleDirectoryGroupFilterServiceTest;
 import io.meeds.social.people.service.PeopleDirectoryServiceTest;
 import io.meeds.social.upgrade.ProfileIndexVisibilityUpgradePluginTest;
 import io.meeds.social.space.security.service.SpaceSecurityServiceImplTest;
@@ -125,6 +126,7 @@ import io.meeds.social.space.security.service.SpaceSecurityServiceTemplateAdmini
     OrganizationalChartSettingServiceTest.class,
     PeopleDirectoryServiceTest.class,
     PeopleDirectoryFilterServiceTest.class,
+    PeopleDirectoryGroupFilterServiceTest.class,
     ProfilePropertyHoldersReindexTest.class,
     ProfileSearchConnectorDirectoryFilterTest.class,
     ProfileIndexVisibilityUpgradePluginTest.class,

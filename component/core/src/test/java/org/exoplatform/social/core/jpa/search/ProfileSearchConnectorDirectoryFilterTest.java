@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -340,6 +341,92 @@ public class ProfileSearchConnectorDirectoryFilterTest {
     }
     assertEquals(expected.toString(), ProfileSearchConnector.escapeRegexp(reserved));
     assertEquals("plain text, 1", ProfileSearchConnector.escapeRegexp("plain text, 1"));
+  }
+
+  @Test
+  public void testGroupsAreOneClauseOfMembershipTermsAndSubGroupPrefixes() {
+    when(userPermissionService.getMembershipTypes()).thenReturn(List.of("member", "manager"));
+
+    JsonNode clauses = searchWithDirectory(Map.of(), List.of("/organization/hr", "/spaces/paris", "/organization/hr"));
+
+    assertEquals(1, clauses.size());
+    JsonNode bool = clauses.get(0).get("bool");
+    assertEquals(1, bool.get("minimum_should_match").asInt());
+    JsonNode should = bool.get("should");
+    List<String> terms = new ArrayList<>();
+    should.get(0).get("terms").get("permissions").forEach(token -> terms.add(token.asString()));
+    List<String> prefixes = new ArrayList<>();
+    for (int i = 1; i < should.size(); i++) {
+      prefixes.add(should.get(i).get("prefix").get("permissions").asString());
+    }
+    // two groups, three membership types (the star always), direct and inherited
+    assertEquals(12, terms.size());
+    assertTrue(terms.containsAll(List.of("member:/organization/hr",
+                                         "inherited:member:/organization/hr",
+                                         "*:/organization/hr",
+                                         "manager:/spaces/paris",
+                                         "inherited:*:/spaces/paris")));
+    assertEquals(12, prefixes.size());
+    assertTrue(prefixes.containsAll(List.of("member:/organization/hr/",
+                                            "inherited:manager:/organization/hr/",
+                                            "*:/spaces/paris/",
+                                            "inherited:*:/spaces/paris/")));
+    // a sub-group prefix ends with its separator: /organization/hr does not
+    // match /organization/hrx
+    assertTrue(prefixes.toString(), prefixes.stream().allMatch(prefix -> prefix.endsWith("/")));
+  }
+
+  @Test
+  public void testGroupsAndAttributesMustBothBeMatched() {
+    when(userPermissionService.getMembershipTypes()).thenReturn(List.of("member"));
+
+    JsonNode clauses = searchWithDirectory(Map.of("department", List.of("HR")), List.of("/organization/hr"));
+
+    assertEquals(2, clauses.size());
+    assertTrue(clauses.get(0).get("bool").get("should").get(0).has("terms"));
+    assertTrue(clauses.get(1).get("bool").get("should").get(0).has("term"));
+  }
+
+  @Test
+  public void testNoLiveGroupMatchesNobody() {
+    JsonNode clauses = searchWithDirectory(Map.of(), List.of());
+
+    assertEquals(1, clauses.size());
+    assertTrue(clauses.get(0).has("match_none"));
+    verify(userPermissionService, never()).getMembershipTypes();
+  }
+
+  @Test
+  public void testNoGroupFilterAddsNoGroupClause() {
+    JsonNode clauses = searchWithDirectory(Map.of("department", List.of("HR")), null);
+
+    assertEquals(1, clauses.size());
+    assertFalse(clauses.toString(), clauses.toString().contains("permissions"));
+  }
+
+  @Test
+  public void testGroupIdIsWrittenAsAJsonValue() {
+    when(userPermissionService.getMembershipTypes()).thenReturn(List.of("member"));
+    String groupId = "/organization/a\"b\\c\"}]";
+
+    JsonNode clauses = searchWithDirectory(Map.of(), List.of(groupId));
+
+    JsonNode should = clauses.get(0).get("bool").get("should");
+    assertEquals("member:" + groupId, should.get(0).get("terms").get("permissions").get(0).asString());
+    assertEquals("member:" + groupId + "/", should.get(1).get("prefix").get("permissions").asString());
+  }
+
+  private JsonNode searchWithDirectory(Map<String, List<String>> attributes, List<String> groups) {
+    lenient().when(profilePropertyService.getPropertySettings()).thenReturn(settings);
+    when(client.sendRequest(anyString(), anyString())).thenReturn(NO_HITS);
+    ProfileFilter filter = new ProfileFilter();
+    PeopleDirectoryFilter directoryFilter = new PeopleDirectoryFilter(attributes);
+    directoryFilter.setGroups(groups);
+    filter.setDirectoryFilter(directoryFilter);
+
+    connector.search(null, filter, null, 0, 10);
+
+    return capturedQuery().get("query").get("constant_score").get("filter").get("bool").get("filter");
   }
 
   private JsonNode searchWithDirectory(Map<String, List<String>> attributes) {
