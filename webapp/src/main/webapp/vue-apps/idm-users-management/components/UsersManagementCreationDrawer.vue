@@ -299,7 +299,7 @@ export default {
         this.stepper++;
       }
     },
-    create() {
+    async create() {
       if (!this.currentStepValid || this.saving) {
         return;
       }
@@ -330,33 +330,35 @@ export default {
       // The extensions' checks come before the account call: a refused field
       // takes the administrator back to the step showing it, and nothing is
       // created
-      return this.validateExtensions(request).then(valid => {
+      try {
+        const valid = await this.validateExtensions(request);
         if (!this.current(request)) {
           return null;
         } else if (!valid) {
           this.stepper = 1;
           return null;
         }
-        return this.$userCreationService.createAccount(account)
-          .then(outcome => this.executeExtensions(outcome, request)
-            .then(() => this.$refs.outcomes.handle(outcome, request)));
-      }).catch(error => {
+        const outcome = await this.$userCreationService.createAccount(account);
+        await this.executeExtensions(outcome, request);
+        return await this.$refs.outcomes.handle(outcome, request);
+      } catch (error) {
         // A rejection is either the administrator's cancel, an outcome the
         // outcomes component named, or a transport failure shown as the
         // generic error
         if (!this.$userAccountConfirmationService.isCancelled(error)) {
           this.$root.$emit('alert-message', error?.translated && error.message || this.$t('IDMManagement.error.UnknownServerError'), 'error');
         }
-      }).finally(() => {
+        return null;
+      } finally {
         if (this.current(request)) {
           this.saving = false;
         }
-      });
+      }
     },
     refreshExtensions() {
       this.extensions = (extensionRegistry.loadExtensions(EXTENSION_APP, EXTENSION_TYPE) || [])
         .filter(extension => extension?.id && extension.vueComponent);
-      const contexts = Object.assign({}, this.extensionContexts);
+      const contexts = {...this.extensionContexts};
       this.extensions
         .filter(extension => !contexts[extension.id])
         .forEach(extension => contexts[extension.id] = this.newExtensionContext());
@@ -379,12 +381,13 @@ export default {
     // Each extension's check, one after the other, since each may ask for the
     // session confirmation; false as soon as one refuses
     validateExtensions(request) {
-      return request.extensions.reduce((previous, {extension, context}) => previous.then(valid => {
+      return request.extensions.reduce(async (previous, {extension, context}) => {
+        const valid = await previous;
         if (!valid || !extension.validate) {
           return valid;
         }
-        return Promise.resolve(extension.validate(context)).then(result => result !== false);
-      }), Promise.resolve(true));
+        return await extension.validate(context) !== false;
+      }, Promise.resolve(true));
     },
     // Once the account exists, created or created without all its parts,
     // each extension writes, with the data its context held at the submit,

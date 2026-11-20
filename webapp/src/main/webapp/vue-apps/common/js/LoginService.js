@@ -28,8 +28,13 @@ export function finishRegistration(token, tokenType) {
   });
 }
 
-// additionalParameters: the form's extensions' values, by request parameter
-export function register(email, firstName, lastName, password, confirmPassword, token, captcha, additionalParameters) {
+export function register(email, firstName, lastName, password, confirmPassword, token, captcha) {
+  return registerWithFields({email, firstName, lastName, password, confirmPassword, token, captcha});
+}
+
+// The registration with the values of the form's extensions, by request
+// parameter (additionalParameters)
+export function registerWithFields({email, firstName, lastName, password, confirmPassword, token, captcha, additionalParameters}) {
   const formData = new FormData();
   formData.append('email', email);
   formData.append('firstName', firstName);

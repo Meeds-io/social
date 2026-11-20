@@ -365,19 +365,19 @@ export default {
         .forEach(extension => parameters[extension.requestParameter] = JSON.stringify(this.extensionContexts[extension.id]?.data || []));
       return parameters;
     },
-    register() {
-      this.$loginService.register(this.email, this.firstName, this.lastName, this.password, this.confirmPassword, this.tokenParam, this.captcha, this.getExtensionParameters()).then((resp) => {
-        if (!resp || !resp.ok) {
-          // A used or expired token answers with no body
-          resp.json().catch(() => ({error: resp.status === 404 ? 'onboarding.linkExpired' : 'UILoginForm.label.unknownError'})).then((data) => {
-            this.error = data.error;
-            this.errorField = data.errorField;
-            if (!this.errorField) {
-              this.$root.$emit('alert-message', this.$t(this.error), 'error');
-            }
-            this.loading = false;
-          });
-        } else {
+    async register() {
+      try {
+        const resp = await this.$loginService.registerWithFields({
+          email: this.email,
+          firstName: this.firstName,
+          lastName: this.lastName,
+          password: this.password,
+          confirmPassword: this.confirmPassword,
+          token: this.tokenParam,
+          captcha: this.captcha,
+          additionalParameters: this.getExtensionParameters(),
+        });
+        if (resp?.ok) {
           if (resp.redirected) {
             sessionStorage.setItem('email',this.email);
 
@@ -390,12 +390,22 @@ export default {
             this.success = true;
           }
           this.loading=false;
+          return;
         }
-      }).catch(() => {
+        // A used or expired token answers with no body
+        const data = await resp.json()
+          .catch(() => ({error: resp.status === 404 ? 'onboarding.linkExpired' : 'UILoginForm.label.unknownError'}));
+        this.error = data.error;
+        this.errorField = data.errorField;
+        if (!this.errorField) {
+          this.$root.$emit('alert-message', this.$t(this.error), 'error');
+        }
+        this.loading = false;
+      } catch {
         // No answer at all: the registration may be sent again
         this.$root.$emit('alert-message', this.$t('UILoginForm.label.unknownError'), 'error');
         this.loading = false;
-      });
+      }
     },
     validateForm() {
       this.loading = this.$refs.form.reportValidity();

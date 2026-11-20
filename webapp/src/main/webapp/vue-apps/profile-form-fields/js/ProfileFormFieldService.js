@@ -43,7 +43,7 @@ export function getRegistrationFormSettings(token) {
     credentials: 'include',
   }).then(resp => {
     if (resp?.status === 404) {
-      return Promise.resolve([]);
+      return [];
     } else if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
@@ -61,7 +61,7 @@ export function getOnboardingFormFields(token) {
     credentials: 'include',
   }).then(resp => {
     if (resp?.status === 404) {
-      return Promise.resolve(null);
+      return null;
     } else if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
