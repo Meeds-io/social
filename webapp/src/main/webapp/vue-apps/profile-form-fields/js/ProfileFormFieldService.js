@@ -38,17 +38,17 @@ export function getAccountFormSettings() {
 // registration with the same 404, which the form shows. A token whose
 // account exists reads the list, and its registration is redirected to the
 // login page
-export function getRegistrationFormSettings(token) {
-  return fetch(`/social/${eXo.env.portal.rest}/login/registrationFields?token=${encodeURIComponent(token || '')}`, {
+export async function getRegistrationFormSettings(token) {
+  const resp = await fetch(`/social/${eXo.env.portal.rest}/login/registrationFields?token=${encodeURIComponent(token || '')}`, {
     credentials: 'include',
-  }).then(resp => {
-    if (resp?.status === 404) {
-      return [];
-    } else if (!resp?.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-    return resp.json();
-  }).then(settings => settings || []);
+  });
+  if (resp?.status === 404) {
+    return [];
+  } else if (!resp?.ok) {
+    throw new Error('Response code indicates a server error', resp);
+  }
+  const settings = await resp.json();
+  return settings || [];
 }
 
 // The attributes the onboarding page lists and the values the link's account
@@ -56,20 +56,20 @@ export function getRegistrationFormSettings(token) {
 // page's onboarding token, with no session. A link used or expired since the
 // page's own check reads no field: the page's save then reports the link
 // expired
-export function getOnboardingFormFields(token) {
-  return fetch(`/social/${eXo.env.portal.rest}/login/onboardingFields?token=${encodeURIComponent(token || '')}`, {
+export async function getOnboardingFormFields(token) {
+  const resp = await fetch(`/social/${eXo.env.portal.rest}/login/onboardingFields?token=${encodeURIComponent(token || '')}`, {
     credentials: 'include',
-  }).then(resp => {
-    if (resp?.status === 404) {
-      return null;
-    } else if (!resp?.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-    return resp.json();
-  }).then(answer => ({
+  });
+  if (resp?.status === 404) {
+    return {fields: [], values: {}};
+  } else if (!resp?.ok) {
+    throw new Error('Response code indicates a server error', resp);
+  }
+  const answer = await resp.json();
+  return {
     fields: answer?.fields || [],
     values: answer?.values || {},
-  }));
+  };
 }
 
 // The server's rules applied to the values of an account to create, without
