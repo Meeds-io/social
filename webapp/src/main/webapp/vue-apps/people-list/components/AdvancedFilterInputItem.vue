@@ -17,11 +17,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 <template>
-  <input
-    v-model="inputValueItem"
-    :placeholder="itemResolvedName"
-    type="text"
-    class="input-block-level ignore-vuetify-classes my-3">
+  <v-tooltip
+    :disabled="!disabled"
+    bottom>
+    <template #activator="{on}">
+      <div class="flex-grow-1">
+        <!-- a filter the directory already applies: greyed, read-only,
+             exposed as disabled, and still focusable for its tooltip; the
+             tooltip listens on the input, as focus does not bubble, and on
+             a greyed input only: VTooltip opens on focus even disabled -->
+        <input
+          v-model="inputValueItem"
+          v-on="disabled ? on : {}"
+          :placeholder="itemResolvedName"
+          :aria-label="itemResolvedName"
+          :aria-disabled="disabled ? 'true' : null"
+          :aria-describedby="disabled ? disabledHintId : null"
+          :readonly="disabled"
+          :class="disabled && 'people-advanced-filter-input-disabled disabled-background'"
+          type="text"
+          class="input-block-level ignore-vuetify-classes my-3">
+        <span
+          v-if="disabled"
+          :id="disabledHintId"
+          class="d-sr-only">
+          {{ $t('peopleList.label.attributeUsedByDirectory') }}
+        </span>
+      </div>
+    </template>
+    <span>{{ $t('peopleList.label.attributeUsedByDirectory') }}</span>
+  </v-tooltip>
 </template>
 <script>
 export default {
@@ -30,6 +55,11 @@ export default {
     settingsItem: {
       type: Object,
       default: null,
+    },
+    // the directory already filters on this attribute
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
@@ -40,6 +70,9 @@ export default {
     this.$root.$on('cancel-advanced-filter', () => this.inputValueItem = '');
   },
   computed: {
+    disabledHintId() {
+      return `${this.$root.appId || 'people'}AdvancedFilterUsed-${this.settingsItem?.id}`;
+    },
     itemResolvedName(){
       const item = this.settingsItem ;
       const lang = eXo && eXo.env.portal.language || 'en';
@@ -51,6 +84,13 @@ export default {
     },
   },
   watch: {
+    // the directory filters on this attribute since the settings were
+    // saved: the viewer's value no longer applies
+    disabled() {
+      if (this.disabled) {
+        this.inputValueItem = '';
+      }
+    },
     inputValueItem() {
       this.$emit('input-value-changed', {'itemId': this.settingsItem.id, 'valueTosearch': this.inputValueItem});
     }

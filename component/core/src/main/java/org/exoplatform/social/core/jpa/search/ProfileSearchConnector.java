@@ -80,6 +80,8 @@ public class ProfileSearchConnector {
 
   private static final String MATCH_NONE_CLAUSE = "{\"match_none\": {}}";
 
+  private static final String PERMISSIONS_FIELD = "permissions";
+
   private final ElasticSearchingClient client;
   private final ProfilePropertyService profilePropertyService;
   private final UserPermissionService  userPermissionService;
@@ -715,7 +717,8 @@ public class ProfileSearchConnector {
   }
 
   /**
-   * One clause per directory attribute, each matching a user holding one of
+   * The group clause (see {@link #buildDirectoryGroupsClause}), then one clause
+   * per directory attribute, each matching a user holding one of
    * its values: a term on the indexed field for a single-valued property, a
    * regexp matching one value of the joined string for a multi-valued one,
    * spaces around it ignored as the value picker strips them. An attribute
@@ -724,11 +727,17 @@ public class ProfileSearchConnector {
    * values, so {@code Paris} also matches a user holding {@code Paris, France}.
    */
   private List<String> buildDirectoryClauses(PeopleDirectoryFilter directoryFilter) {
-    if (directoryFilter == null || MapUtils.isEmpty(directoryFilter.getAttributes())) {
+    if (directoryFilter == null) {
       return Collections.emptyList();
     }
-    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
     List<String> clauses = new ArrayList<>();
+    if (directoryFilter.getGroups() != null) {
+      clauses.add(buildDirectoryGroupsClause(directoryFilter.getGroups()));
+    }
+    if (MapUtils.isEmpty(directoryFilter.getAttributes())) {
+      return clauses;
+    }
+    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
     for (Map.Entry<String, List<String>> attribute : directoryFilter.getAttributes().entrySet()) {
       ProfilePropertySetting setting = settings.stream()
                                                .filter(s -> StringUtils.equals(s.getPropertyName(), attribute.getKey()))
@@ -760,6 +769,38 @@ public class ProfileSearchConnector {
       clauses.add(bool.toString());
     }
     return clauses;
+  }
+
+  /**
+   * The clause matching a user who is a member of one of the groups, or of one
+   * of their sub-groups, through any membership type, directly or through a
+   * nested-group link: a term on each membership token of a group, and a
+   * prefix on the tokens of its sub-groups ({@code member:/organization/hr/}
+   * matches {@code member:/organization/hr/payroll}), so neither the group
+   * tree nor a member list is loaded. No group matches nobody.
+   */
+  String buildDirectoryGroupsClause(List<String> groupIds) {
+    List<String> groups = groupIds.stream().filter(StringUtils::isNotBlank).distinct().toList();
+    if (groups.isEmpty()) {
+      return MATCH_NONE_CLAUSE;
+    }
+    Set<String> membershipTypes = new LinkedHashSet<>(userPermissionService.getMembershipTypes());
+    membershipTypes.add(UserPermissionService.ANY_MEMBERSHIP_TYPE);
+    ObjectNode root = JSON_MAPPER.createObjectNode();
+    ObjectNode bool = root.putObject("bool");
+    ArrayNode should = bool.putArray("should");
+    ArrayNode tokens = should.addObject().putObject("terms").putArray(PERMISSIONS_FIELD);
+    for (String groupId : groups) {
+      for (String membershipType : membershipTypes) {
+        String token = membershipType + ":" + groupId;
+        tokens.add(token);
+        tokens.add(UserPermissionService.INHERITED_TOKEN_PREFIX + token);
+        should.addObject().putObject("prefix").put(PERMISSIONS_FIELD, token + "/");
+        should.addObject().putObject("prefix").put(PERMISSIONS_FIELD, UserPermissionService.INHERITED_TOKEN_PREFIX + token + "/");
+      }
+    }
+    bool.put("minimum_should_match", 1);
+    return root.toString();
   }
 
   /**

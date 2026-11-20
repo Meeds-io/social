@@ -758,6 +758,13 @@
       <name>layout-content-editable</name>
       <value>true</value>
     </init-param>
+    <!-- The group filter is stored by the app only, under the group right
+         PeopleDirectoryService checks: the layout API neither writes nor
+         returns these preferences. Comma-separated names. -->
+    <init-param>
+      <name>layout-protected-preferences</name>
+      <value>groupIds</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -778,6 +785,10 @@
       <preference>
         <name>attributeFilter</name>
         <value>{}</value>
+      </preference>
+      <preference>
+        <name>groupIds</name>
+        <value>[]</value>
       </preference>
     </portlet-preferences>
   </portlet>
