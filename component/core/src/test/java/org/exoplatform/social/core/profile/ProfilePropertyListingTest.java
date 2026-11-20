@@ -399,11 +399,10 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
     assertEquals(List.of(), ids(formFieldService.getSettings(ProfileFormKind.ACCOUNT)));
     assertEquals(List.of(unlisted.getId()), ids(formFieldService.getSettings(ProfileFormKind.REGISTRATION)));
     for (String name : List.of("department", "team")) {
+      List<ProfilePropertyValue> notListed = List.of(new ProfilePropertyValue(name, "x", null));
       ProfileFormFieldException exception =
                                            assertThrows(ProfileFormFieldException.class,
-                                                        () -> formFieldService.validate(List.of(new ProfilePropertyValue(name,
-                                                                                                                         "x",
-                                                                                                                         null)),
+                                                        () -> formFieldService.validate(notListed,
                                                                                         ProfileFormKind.ACCOUNT,
                                                                                         false,
                                                                                         null));
@@ -438,11 +437,10 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
       restartTransaction();
       assertEquals(List.of(Map.of("value", fits)), storedProperty(identity, "languages"));
 
+      List<ProfilePropertyValue> tooLong = List.of(new ProfilePropertyValue("languages", null, List.of(exceeds)));
       ProfileFormFieldException exception =
                                            assertThrows(ProfileFormFieldException.class,
-                                                        () -> formFieldService.validate(List.of(new ProfilePropertyValue("languages",
-                                                                                                                         null,
-                                                                                                                         List.of(exceeds))),
+                                                        () -> formFieldService.validate(tooLong,
                                                                                         ProfileFormKind.REGISTRATION,
                                                                                         true,
                                                                                         null));
