@@ -53,7 +53,9 @@ public class DefaultActivityChildPlugin extends AbstractNotificationChildPlugin 
       //we need to build the content of activity by type, so if it's a comment, we will get the parent activity
       activity = Utils.getActivityManager().getParentActivity(activity);
     }
-    templateContext.put("ACTIVITY", processBody(Utils.getActivityManager().getActivityTitle(activity),
+    templateContext.put("ACTIVITY", processBody(SocialNotificationUtils.withAttachedFiles(Utils.getActivityManager().getActivityTitle(activity),
+                                                                                          activity,
+                                                                                          language),
                                                 language));
     //
     return TemplateUtils.processGroovy(templateContext);
