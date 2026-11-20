@@ -40,9 +40,9 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import io.meeds.portal.mail.EmailBrand;
-import io.meeds.portal.mail.EmailLayout;
-import io.meeds.portal.mail.EmailModel;
+import io.meeds.portal.mail.model.EmailBrand;
+import io.meeds.portal.mail.model.EmailModel;
+import io.meeds.portal.mail.util.EmailLayout;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.MailUtils;
