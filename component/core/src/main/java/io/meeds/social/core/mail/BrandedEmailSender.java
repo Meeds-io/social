@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -39,6 +40,10 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import io.meeds.portal.mail.EmailBrand;
+import io.meeds.portal.mail.EmailLayout;
+import io.meeds.portal.mail.EmailModel;
+
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.MailUtils;
 import org.exoplatform.container.PortalContainer;
@@ -53,9 +58,9 @@ import org.exoplatform.services.resources.ResourceBundleService;
 /**
  * Sends branded HTML emails to platform users: a caller provides the resolved
  * subject, a content fragment (the paragraphs specific to its email) and
- * optional custom tokens; this sender injects the fragment in the common
- * branded layout, resolves the ${...} shared bundle keys in the user language,
- * then substitutes the standard tokens ($EMAIL_TITLE with the subject, $LANG,
+ * optional custom tokens; this sender injects the fragment in the shared
+ * email layout of the portal (see {@link EmailLayout}), resolves the ${...}
+ * shared bundle keys in the user language, then substitutes the standard tokens ($EMAIL_TITLE with the subject, $LANG,
  * $USER_FULL_NAME, $SITE_NAME, $COMPANY_LINK, $PRIMARY_COLOR) before sending
  * through the mail service.
  */
@@ -64,9 +69,10 @@ public class BrandedEmailSender {
 
   public static final String        EMAIL_TITLE_PARAM    = "$EMAIL_TITLE";
 
-  public static final String        EMAIL_CONTENT_PARAM  = "$EMAIL_CONTENT";
+  /** The token of a one-time code, which the sender also shows in the preview line of the inbox */
+  public static final String        CODE_TOKEN           = "####";
 
-  private static final String       LAYOUT_TEMPLATE_PATH = "assets/branded-email-layout.html";
+  private static final String       SAY_HELLO_LABEL_KEY  = "Notification.label.SayHello";
 
   private static final Pattern      I18N_LABEL_PATTERN   = Pattern.compile("\\$\\{([a-zA-Z0-9\\.]+)\\}");
 
@@ -128,22 +134,34 @@ public class BrandedEmailSender {
                               String emailTitle,
                               String contentTemplatePath,
                               Map<String, String> customTokens) {
-    String content = getTemplate(LAYOUT_TEMPLATE_PATH).replace(EMAIL_CONTENT_PARAM, getTemplate(contentTemplatePath));
+    Locale locale = LocaleUtils.toLocale(lang);
+    String content = getTemplate(contentTemplatePath);
     Matcher matcher = I18N_LABEL_PATTERN.matcher(content);
     while (matcher.find()) {
       String i18nKey = matcher.group(1);
-      String label = resourceBundleService.getSharedString(i18nKey, LocaleUtils.toLocale(lang));
+      String label = resourceBundleService.getSharedString(i18nKey, locale);
       content = content.replace(matcher.group(), label);
     }
     for (Map.Entry<String, String> customToken : customTokens.entrySet()) {
       content = content.replace(customToken.getKey(), customToken.getValue());
     }
-    return content.replace(EMAIL_TITLE_PARAM, emailTitle)
-                  .replace("$LANG", lang)
-                  .replace("$USER_FULL_NAME", userFullName)
-                  .replace("$SITE_NAME", brandingService.getCompanyName())
-                  .replace("$COMPANY_LINK", getBaseUrl())
-                  .replace("$PRIMARY_COLOR", brandingService.getThemeStyle().get("primaryColor"));
+    EmailBrand brand = EmailBrand.from(brandingService);
+    content = content.replace(EMAIL_TITLE_PARAM, emailTitle)
+                     .replace("$LANG", lang)
+                     .replace("$USER_FULL_NAME", userFullName)
+                     .replace("$SITE_NAME", brand.getCompanyName())
+                     .replace("$COMPANY_LINK", getBaseUrl())
+                     .replace("$PRIMARY_COLOR", brand.getColor());
+    EmailModel email = EmailModel.builder()
+                                 .lang(lang.replace('_', '-'))
+                                 // the subject may carry html entities for the mail header
+                                 .title(StringEscapeUtils.unescapeHtml4(emailTitle))
+                                 // a code in the preview line of the inbox is readable without opening the email
+                                 .preheader(StringUtils.trimToNull(customTokens.get(CODE_TOKEN)))
+                                 .paragraph(resourceBundleService.getSharedString(SAY_HELLO_LABEL_KEY, locale) + " " + userFullName + ",")
+                                 .trustedHtml(content)
+                                 .build();
+    return EmailLayout.render(email, brand);
   }
 
   private String getTemplate(String templatePath) {
