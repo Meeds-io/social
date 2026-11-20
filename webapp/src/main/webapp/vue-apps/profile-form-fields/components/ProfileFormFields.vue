@@ -238,8 +238,8 @@ export default {
     },
     // Each change entered, and only then, gives the host the values to write
     update(propertyName, value) {
-      this.values = Object.assign({}, this.values, {[propertyName]: value});
-      this.errors = Object.assign({}, this.errors, {[propertyName]: null});
+      this.values = {...this.values, [propertyName]: value};
+      this.errors = {...this.errors, [propertyName]: null};
       this.formError = null;
       this.$emit('update:data', this.toData());
     },
@@ -320,7 +320,7 @@ export default {
     showRefusal(refusal) {
       const message = refusal?.code ? this.$t(refusal.code) : this.$t('profileFormFields.notChecked');
       if (refusal?.propertyName && this.settings.some(setting => setting.propertyName === refusal.propertyName)) {
-        this.errors = Object.assign({}, this.errors, {[refusal.propertyName]: message});
+        this.errors = {...this.errors, [refusal.propertyName]: message};
       } else {
         this.formError = message;
       }

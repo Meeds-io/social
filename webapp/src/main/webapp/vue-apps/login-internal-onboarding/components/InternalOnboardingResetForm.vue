@@ -283,29 +283,28 @@ export default {
         })
         .catch(() => this.loading = false);
     },
-    setPassword() {
-      return this.$loginService.setPassword(this.usernameParam, this.password, this.confirmPassword, this.tokenParam, this.captcha, this.getExtensionParameters())
-        .then(resp => {
-          if (!resp.ok) {
-            // A used or expired link answers with no body
-            return resp.json()
-              .catch(() => ({error: resp.status === 404 ? 'onboarding.linkExpired' : 'UILoginForm.label.unknownError'}))
-              .then(data => {
-                this.$root.$emit('alert-message', this.$t(data?.error || 'UILoginForm.label.unknownError'), 'error');
-                this.loading = false;
-              });
-          } else if (resp.redirected) {
+    async setPassword() {
+      try {
+        const resp = await this.$loginService.setPassword(this.usernameParam, this.password, this.confirmPassword, this.tokenParam, this.captcha, this.getExtensionParameters());
+        if (resp.ok) {
+          if (resp.redirected) {
             sessionStorage.setItem('email', this.accountIdentifier);
             window.location.href = resp.url;
           } else {
             this.loading = false;
           }
-        })
-        .catch(() => {
-          // No answer at all: the password may be sent again
-          this.$root.$emit('alert-message', this.$t('UILoginForm.label.unknownError'), 'error');
-          this.loading = false;
-        });
+          return;
+        }
+        // A used or expired link answers with no body
+        const data = await resp.json()
+          .catch(() => ({error: resp.status === 404 ? 'onboarding.linkExpired' : 'UILoginForm.label.unknownError'}));
+        this.$root.$emit('alert-message', this.$t(data?.error || 'UILoginForm.label.unknownError'), 'error');
+        this.loading = false;
+      } catch {
+        // No answer at all: the password may be sent again
+        this.$root.$emit('alert-message', this.$t('UILoginForm.label.unknownError'), 'error');
+        this.loading = false;
+      }
     },
   }
 };

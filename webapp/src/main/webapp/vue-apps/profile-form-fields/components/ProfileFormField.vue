@@ -219,7 +219,7 @@ export default {
       return () => storedLength(this.value) <= MAX_STORED_LENGTH || this.$t('profile.formField.tooLong');
     },
     valueRules() {
-      return [this.requiredRule, this.formatRule, this.sizeRule].filter(rule => rule);
+      return [this.requiredRule, this.formatRule, this.sizeRule].filter(Boolean);
     },
   },
   methods: {
