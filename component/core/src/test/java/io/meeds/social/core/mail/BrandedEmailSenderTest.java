@@ -44,6 +44,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import io.meeds.portal.mail.model.EmailBrand;
+
 import org.exoplatform.portal.Constants;
 import org.exoplatform.portal.branding.BrandingService;
 import org.exoplatform.services.mail.MailService;
@@ -200,7 +202,7 @@ public class BrandedEmailSenderTest {
     verify(mailService).sendMessage(messageCaptor.capture());
     String body = String.valueOf(messageCaptor.getValue().getContent());
     assertFalse(body, body.contains("url(x)"));
-    assertTrue(body, body.contains("#476a9c"));
+    assertTrue(body, body.contains(new EmailBrand("", EmailBrand.DEFAULT_COLOR).getFillColor()));
   }
 
   @Test
