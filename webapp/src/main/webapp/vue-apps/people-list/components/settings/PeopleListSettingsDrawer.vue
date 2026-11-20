@@ -216,10 +216,10 @@ export default {
     attributeFilterIncomplete() {
       return this.attributeValuesMissing || this.attributeUnavailable || this.attributeFilterRefused;
     },
+    // a missing header only disables Apply: its required state belongs on
+    // the field, a tooltip on a disabled button reaches no keyboard user
     applyTooltip() {
-      if (this.headerMissing) {
-        return this.$t('peopleList.settings.header.required');
-      } else if (this.attributeUnavailable) {
+      if (this.attributeUnavailable) {
         return this.$t('peopleList.settings.attribute.unavailable');
       } else if (this.attributeFilterRefused) {
         return this.$t('peopleList.settings.attribute.valuesRefused');
