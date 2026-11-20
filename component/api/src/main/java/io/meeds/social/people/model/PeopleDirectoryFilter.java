@@ -18,6 +18,7 @@
  */
 package io.meeds.social.people.model;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,8 @@ import lombok.NoArgsConstructor;
 /**
  * The filter a People Directory instance applies to every list it serves,
  * whoever the viewer: the server builds it from the instance's settings, the
- * client never sends it.
+ * client never sends it. Its attribute and group criteria must all be
+ * matched.
  */
 @Data
 @NoArgsConstructor
@@ -44,8 +46,21 @@ public class PeopleDirectoryFilter implements Cloneable {
    */
   private Map<String, List<String>> attributes = new LinkedHashMap<>();
 
+  /**
+   * The ids of the groups a listed user must be a member of one of, a member
+   * of one of their sub-groups included; null when the directory is not
+   * filtered by group, empty when none of its stored groups still exists, so
+   * that it lists nobody.
+   */
+  private List<String>              groups;
+
+  public PeopleDirectoryFilter(Map<String, List<String>> attributes) {
+    this.attributes = attributes;
+  }
+
   @Override
   public PeopleDirectoryFilter clone() { // NOSONAR
-    return new PeopleDirectoryFilter(attributes == null ? null : new LinkedHashMap<>(attributes));
+    return new PeopleDirectoryFilter(attributes == null ? null : new LinkedHashMap<>(attributes),
+                                     groups == null ? null : new ArrayList<>(groups));
   }
 }
