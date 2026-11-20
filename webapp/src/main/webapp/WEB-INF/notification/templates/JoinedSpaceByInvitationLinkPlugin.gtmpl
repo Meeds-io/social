@@ -20,12 +20,12 @@
 %>
 <style>
     a{
-        color: ${io.meeds.portal.mail.EmailLayout.linkColor()};
+        color: ${io.meeds.portal.mail.util.EmailLayout.linkColor()};
         text-decoration: none;
-        font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()};
+        font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()};
     }
 </style>
-<table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="width:100%;overflow-wrap:anywhere;word-break:break-word;background-color: #ffffff; font-size: 15px;color: #1d2327;line-height: 1.7;font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()};" dir="${io.meeds.portal.mail.EmailLayout.dir(_ctx.language)}">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="width:100%;overflow-wrap:anywhere;word-break:break-word;background-color: #ffffff; font-size: 15px;color: #1d2327;line-height: 1.7;font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()};" dir="${io.meeds.portal.mail.util.EmailLayout.dir(_ctx.language)}">
     <%
     _templateContext.put("header_title", _ctx.appRes("Notification.subject.JoinedSpaceByInvitationLinkPlugin"));
     _ctx.include("war:/notification/templates/mail/NotificationHeader.gtmpl", _templateContext);
@@ -37,14 +37,14 @@
                     <td bgcolor="#ffffff" style="background-color: #ffffff;">
                         <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" style="background-color: #ffffff; color: #1d2327;line-height: 1.7;">
                             <tr>
-                                <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff;padding: 30px 0 10px 0;">
-                                    <p style="margin: 0 0 14px; font-size: 15px; color: #1d2327; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()};">
+                                <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff;padding: 30px 0 10px 0;">
+                                    <p style="margin: 0 0 14px; font-size: 15px; color: #1d2327; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()};">
                                         <%=_ctx.appRes("Notification.label.SayHello")%> <%=_ctx.escapeHTML(FIRSTNAME)%>,
                                     </p>
                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="background-color: #ffffff; font-size: 15px;color: #1d2327;line-height: 1.7;">
                                         <tbody>
                                         <tr>
-                                            <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" style="padding: 0;">
+                                            <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" style="padding: 0;">
                                                 <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="width: 100%; background-color: #ffffff; font-size: 15px; color: #1d2327;line-height: 1.7;">
                                                     <tr>
                                                         <!--[if mso]>
@@ -55,8 +55,8 @@
                                                         <td width="64" valign="top" style="mso-hide:all; ">
                                                             <img width="44" height="44" style="margin-top: 2px; border-radius: 8px;" src="$AVATAR" alt="$SPACE_DISPLAY_NAME" />
                                                         </td>
-                                                        <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff; padding: 0 0; vertical-align: top;">
-                                                            <p style="margin:0; color:#1d2327; line-height:1.7; font-size:15px; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()};" dir="auto">
+                                                        <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff; padding: 0 0; vertical-align: top;">
+                                                            <p style="margin:0; color:#1d2327; line-height:1.7; font-size:15px; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()};" dir="auto">
                                                                 <%
                                                                 msg = _ctx.appRes("Notification.mail.message.JoinedSpaceByInvitationLinkPlugin","<b>" + INVITED_USER_DISPLAY_NAME + "</b>", "<b>" + SPACE_DISPLAY_NAME + "</b>");
                                                                 %>
@@ -66,13 +66,13 @@
                                                             <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" align="center" style="margin:0 0 10px; width: 100%; background-color: #ffffff; font-size: 15px; color: #1d2327;line-height: 1.7;">
                                                                 <tr>
 
-                                                                    <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" valign="top" bgcolor="#ffffff" style="vertical-align: top; background-color: #ffffff; padding: 0;">
+                                                                    <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" valign="top" bgcolor="#ffffff" style="vertical-align: top; background-color: #ffffff; padding: 0;">
                                                                         
                                                                     </td>
                                                                 </tr>
                                                             </table>
-<div dir="${io.meeds.portal.mail.EmailLayout.dir(_ctx.language)}" style="margin: 20px 0 8px 0;">
-                                                                            <%=io.meeds.portal.mail.EmailLayout.actionLink(_ctx.appRes("Notification.JoinedSpaceByInvitationLinkPlugin.viewMembers"), "$SPACE_MEMBERS_URL", true)%>
+<div dir="${io.meeds.portal.mail.util.EmailLayout.dir(_ctx.language)}" style="margin: 20px 0 8px 0;">
+                                                                            <%=io.meeds.portal.mail.util.EmailLayout.actionLink(_ctx.appRes("Notification.JoinedSpaceByInvitationLinkPlugin.viewMembers"), "$SPACE_MEMBERS_URL", true)%>
                                                                         </div>
                                                         </td>
                                                     </tr>
@@ -81,8 +81,8 @@
                                         </tr>
                                         </tbody>
                                     </table>
-                                    <p style="margin:28px 0 0 0; color: #5d676d;font-size: 13px;font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()}">
-                                        <%=io.meeds.portal.mail.EmailLayout.linkStyled(_ctx.appRes("Notification.label.footerSettings", "" + FOOTER_LINK))%>
+                                    <p style="margin:28px 0 0 0; color: #5d676d;font-size: 13px;font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()}">
+                                        <%=io.meeds.portal.mail.util.EmailLayout.linkStyled(_ctx.appRes("Notification.label.footerSettings", "" + FOOTER_LINK))%>
                                     </p>
                                 </td>
                             </tr>
