@@ -6,11 +6,11 @@
 <%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
 <%@page import="org.exoplatform.commons.utils.CommonsUtils"%>
 <%
-  Object filter = request.getAttribute("filter");
-  if (filter == null) {
+  Object filterPreference = request.getAttribute("filter");
+  String filter = filterPreference == null ? "" : ((String[]) filterPreference)[0];
+  // A filter is a word: any other stored value is ignored
+  if (filter == null || !filter.matches("[A-Za-z]*")) {
     filter = "";
-  } else {
-    filter = ((String[]) filter)[0];
   }
 
   boolean isManager = false;
