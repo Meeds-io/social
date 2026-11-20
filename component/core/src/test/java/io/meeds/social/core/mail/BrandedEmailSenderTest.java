@@ -63,6 +63,8 @@ public class BrandedEmailSenderTest {
 
   private static final String   CONTENT_FRAGMENT_PATH = "assets/account-deactivation-confirmation-email-content.html";
 
+  private static final String   TOKEN_FRAGMENT_PATH   = "assets/branded-email-test-content.html";
+
   @Mock
   private OrganizationService   organizationService;
 
@@ -150,12 +152,76 @@ public class BrandedEmailSenderTest {
   @Test
   @SneakyThrows
   public void testSendEmailReplacesCustomTokens() {
-    brandedEmailSender.sendEmail(USERNAME, "My Email Subject", CONTENT_FRAGMENT_PATH, Map.of("$SITE_NAME", "OverriddenName"));
+    brandedEmailSender.sendEmail(USERNAME, "My Email Subject", TOKEN_FRAGMENT_PATH, Map.of("$SITE_NAME", "OverriddenName"));
 
     ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
     verify(mailService).sendMessage(messageCaptor.capture());
     String body = String.valueOf(messageCaptor.getValue().getContent());
     assertTrue("Custom tokens should be replaced before the standard ones", body.contains("OverriddenName"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testCompanyNameIsShownOnceAndTheDocumentCarriesTheLanguage() {
+    brandedEmailSender.sendEmail(USERNAME, "My Email Subject", CONTENT_FRAGMENT_PATH, Map.of());
+
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    verify(mailService).sendMessage(messageCaptor.capture());
+    String body = String.valueOf(messageCaptor.getValue().getContent());
+    assertEquals("The company name is not repeated in a footer", 1, body.split("MyCompany", -1).length - 1);
+    assertTrue(body, body.contains("<html lang=\"en\""));
+    assertTrue(body, body.contains("<h1 "));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testUserNameAndSubjectAreEscaped() {
+    when(user.getDisplayName()).thenReturn("<script>alert(1)</script>");
+
+    brandedEmailSender.sendEmail(USERNAME, "Subject &amp; <b>more</b>", CONTENT_FRAGMENT_PATH, Map.of());
+
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    verify(mailService).sendMessage(messageCaptor.capture());
+    String body = String.valueOf(messageCaptor.getValue().getContent());
+    assertFalse(body, body.contains("<script>"));
+    assertTrue(body, body.contains("&lt;script&gt;alert(1)&lt;/script&gt;"));
+    assertFalse("The subject is escaped once, not twice", body.contains("&amp;amp;"));
+    assertTrue(body, body.contains("Subject &amp; &lt;b&gt;more&lt;/b&gt;"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testPrimaryColorThatIsNotAHexColorIsRefused() {
+    when(brandingService.getThemeStyle()).thenReturn(Collections.singletonMap("primaryColor", "red;background:url(x)"));
+
+    brandedEmailSender.sendEmail(USERNAME, "My Email Subject", CONTENT_FRAGMENT_PATH, Map.of());
+
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    verify(mailService).sendMessage(messageCaptor.capture());
+    String body = String.valueOf(messageCaptor.getValue().getContent());
+    assertFalse(body, body.contains("url(x)"));
+    assertTrue(body, body.contains("#476a9c"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testOneTimeCodeIsShownInThePreviewLineOfTheInbox() {
+    brandedEmailSender.sendEmail(USERNAME, "My Email Subject", CONTENT_FRAGMENT_PATH, Map.of("####", "482915"));
+
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    verify(mailService).sendMessage(messageCaptor.capture());
+    String body = String.valueOf(messageCaptor.getValue().getContent());
+    assertTrue(body, body.contains("overflow:hidden;\">482915</div>"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testNoPreviewLineWithoutACode() {
+    brandedEmailSender.sendEmail(USERNAME, "My Email Subject", CONTENT_FRAGMENT_PATH, Map.of());
+
+    ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
+    verify(mailService).sendMessage(messageCaptor.capture());
+    assertFalse(String.valueOf(messageCaptor.getValue().getContent()).contains("overflow:hidden"));
   }
 
   @Test
