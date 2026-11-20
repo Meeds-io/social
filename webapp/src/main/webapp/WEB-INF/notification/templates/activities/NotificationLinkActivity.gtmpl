@@ -3,25 +3,25 @@
   style="background-color: #ffffff; font-size: 15px; color: #1d2327; line-height: 1.7;">
   <tbody>
     <tr>
-      <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff"
+      <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff"
         style="background-color: #ffffff; padding: 15px 0;">
         <table border="0" cellpadding="0" cellspacing="0" width="100%"
           bgcolor="#ffffff" align="center"
           style="background-color: #ffffff; font-size: 15px; color: #1d2327; line-height: 1.7;">
           <tbody>
             <tr>
-              <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff; padding: 0 20px 4px; line-height: 1.7; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()}; color: #1d2327;" dir="auto">
+              <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff; padding: 0 20px 4px; line-height: 1.7; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()}; color: #1d2327;" dir="auto">
                 $ACTIVITY_TITLE
               </td>
             </tr>
             <tr>
-              <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff; line-height: 1.7; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()}; color: #1d2327; padding: 5px 0;">
+              <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" style="background-color: #ffffff; line-height: 1.7; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()}; color: #1d2327; padding: 5px 0;">
                 <hr style="border-width: 1px 0 0; border-style: solid none none; border-color: #d8d8d8 transparent transparent; margin: 6px 0; padding: 0;">
               </td>
             </tr>
             <tr>
-              <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff"
-                style="background-color: #ffffff; padding: 0 20px 1px; line-height: 1.7; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()}; color: #1d2327;">
+              <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff"
+                style="background-color: #ffffff; padding: 0 20px 1px; line-height: 1.7; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()}; color: #1d2327;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%"
                   bgcolor="#ffffff" align="center"
                   style="width: 100%; background-color: #ffffff; font-size: 15px; color: #1d2327; line-height: 1.7;">
@@ -29,19 +29,19 @@
                   <%
                     if (THUMBNAIL_URL != null && THUMBNAIL_URL.length() > 0) {
                   %>
-                    <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" valign="top" bgcolor="#ffffff" style="vertical-align: top; background-color: #ffffff; padding: ${io.meeds.portal.mail.EmailLayout.gap(_ctx.language, '15px')};">
+                    <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" valign="top" bgcolor="#ffffff" style="vertical-align: top; background-color: #ffffff; padding: ${io.meeds.portal.mail.util.EmailLayout.gap(_ctx.language, '15px')};">
                       <a href="$ACTIVITY_URL" style="display: block; position: relative; margin: 0; padding: 0; display: block; margin-top: 5px;">
                         <img style="max-width: 75px;" src="$THUMBNAIL_URL" alt="" />
                         <%
                           if (IS_EMBED_LINK) {
                         %>
-                          <a href="$ACTIVITY_URL" style="white-space: nowrap; font-size: 15px; line-height: 1.7; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()}; text-decoration: none; color: ${io.meeds.portal.mail.EmailLayout.linkColor()};" >
+                          <a href="$ACTIVITY_URL" style="white-space: nowrap; font-size: 15px; line-height: 1.7; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()}; text-decoration: none; color: ${io.meeds.portal.mail.util.EmailLayout.linkColor()};" >
                             <span style="
                               display: inline-block;
                               vertical-align: 0px;
                               border-top: 5px solid transparent;
                               border-bottom: 5px solid transparent;
-                              border-${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}: 5px solid #5073a7; margin-${io.meeds.portal.mail.EmailLayout.end(_ctx.language)}: 2px;
+                              border-${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}: 5px solid #5073a7; margin-${io.meeds.portal.mail.util.EmailLayout.end(_ctx.language)}: 2px;
                               
                             "></span>
                             <%=_ctx.appRes("LinkActivity.notification.label.WatchTheVideo")%>
@@ -52,9 +52,9 @@
                   <%
                     }
                   %>
-                    <td align="${io.meeds.portal.mail.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" width="90%"
+                    <td align="${io.meeds.portal.mail.util.EmailLayout.start(_ctx.language)}" bgcolor="#ffffff" width="90%"
                       style="width: 90%; background-color: #ffffff; padding: 0 0; vertical-align: top;" dir="auto">
-                      <a href="$LINK_URL" style="display: inline-block; color: ${io.meeds.portal.mail.EmailLayout.linkColor()}; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()}; font-size: 15px; line-height: 1.7; font-weight: bold; text-decoration: none; margin: 0 0 10px;">
+                      <a href="$LINK_URL" style="display: inline-block; color: ${io.meeds.portal.mail.util.EmailLayout.linkColor()}; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()}; font-size: 15px; line-height: 1.7; font-weight: bold; text-decoration: none; margin: 0 0 10px;">
                         $LINK_TITLE
                       </a>
                       <%
@@ -65,7 +65,7 @@
                         }
                       %>
                       <p style="margin: 0; color: #1d2327;" dir="auto">
-                        <%=_ctx.appRes("LinkActivity.notification.label.source")%>: <a style="color: ${io.meeds.portal.mail.EmailLayout.linkColor()}; font-family: ${io.meeds.portal.mail.EmailLayout.fontStack()}; font-size: 15px; line-height: 1.7; text-decoration: none; max-width: 205px; word-wrap: break-word;"
+                        <%=_ctx.appRes("LinkActivity.notification.label.source")%>: <a style="color: ${io.meeds.portal.mail.util.EmailLayout.linkColor()}; font-family: ${io.meeds.portal.mail.util.EmailLayout.fontStack()}; font-size: 15px; line-height: 1.7; text-decoration: none; max-width: 205px; word-wrap: break-word;"
                           href="$LINK_URL" target="">$LINK_URL</a>
                       </p>
                     </td>
