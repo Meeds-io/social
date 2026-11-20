@@ -43,6 +43,7 @@
     @filter-text-input-end-typing="keyword = $event"
     @filter-button-click="openPeopleAdvancedFilterDrawer"
     @filter-select-change="filterValue = $event"
+    @filter-expand="filterExpand = $event"
     @toggle-select="updateFilter($event)">
     <!-- always passed: the toolbar reads $slots.left, which is not
          reactive, so a slot removed when the count drops to 0 would leave
@@ -57,7 +58,8 @@
         {{ filterMessage }}
       </div>
     </template>
-    <template v-if="$root.canEdit" #right>
+    <!-- hidden while the filter bar is open, as in the Directory of Spaces -->
+    <template v-if="$root.canEdit && !filterExpand" #right>
       <div class="ms-2 people-list-settings-button-container">
         <!-- hidden visually only: the button stays in the tab order, and
              focusing it shows it -->
@@ -107,7 +109,8 @@ export default {
   data: () => ({
     advancedFilterCount: 0,
     keyword: null,
-    filterValue: null
+    filterValue: null,
+    filterExpand: false,
   }),
   created() {
     this.filterValue = this.filter;
