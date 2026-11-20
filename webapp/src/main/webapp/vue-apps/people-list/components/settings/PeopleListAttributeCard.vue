@@ -98,6 +98,7 @@
           <!-- the platform's Vuetify renders a chip's own close icon
                without its close-label: this button carries the name -->
           <v-btn
+            :ref="`removeValue-${value.value}`"
             :aria-label="$t('peopleList.settings.attribute.removeValue', {0: value.label})"
             :title="$t('peopleList.settings.attribute.removeValue', {0: value.label})"
             class="people-directory-value-remove ms-1 me-n1"
@@ -250,9 +251,22 @@ export default {
       });
     },
     removeValue(value) {
+      const index = this.attribute.values.indexOf(value);
       this.$emit('remove-value', value);
-      // the focus goes back to the card's value button (RGAA 12.9)
-      this.$nextTick(this.focus);
+      // the focus goes to the next value's remove button, else the previous
+      // one, never straight to the trash a second Enter would delete the
+      // attribute with (RGAA 12.9)
+      this.$nextTick(() => this.focusValue(index));
+    },
+    focusValue(index) {
+      const values = this.attribute.values;
+      const next = values.length && values[Math.min(index, values.length - 1)];
+      const button = next && this.$refs[`removeValue-${next.value}`]?.[0];
+      if (button) {
+        button.$el.focus();
+      } else {
+        this.focus();
+      }
     },
   },
 };
