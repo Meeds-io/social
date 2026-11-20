@@ -42,6 +42,7 @@
           <v-icon size="21">fa-plus</v-icon>
         </v-btn>
         <v-btn
+          ref="removeButton"
           :title="$t('peopleList.settings.attribute.remove', {0: label})"
           :aria-label="$t('peopleList.settings.attribute.remove', {0: label})"
           class="people-directory-attribute-remove"
@@ -87,16 +88,26 @@
         <v-chip
           v-for="value in attribute.values"
           :key="value.value"
-          :close-label="$t('peopleList.settings.attribute.removeValue', {0: value.label})"
-          :color="invalid ? null : 'primary'"
-          :class="invalid && 'error-color-background'"
+          :color="valuesRefused ? null : 'primary'"
+          :class="valuesRefused && 'error-color-background'"
           text-color="white"
           class="people-directory-value-chip me-2 mb-2"
           dark
-          small
-          close
-          @click:close="removeValue(value)">
+          small>
           {{ value.label }}
+          <!-- the platform's Vuetify renders a chip's own close icon
+               without its close-label: this button carries the name -->
+          <v-btn
+            :aria-label="$t('peopleList.settings.attribute.removeValue', {0: value.label})"
+            :title="$t('peopleList.settings.attribute.removeValue', {0: value.label})"
+            class="people-directory-value-remove ms-1 me-n1"
+            width="18"
+            height="18"
+            icon
+            dark
+            @click="removeValue(value)">
+            <v-icon size="12" aria-hidden="true">fa-times</v-icon>
+          </v-btn>
         </v-chip>
       </div>
     </v-card>
@@ -142,8 +153,9 @@ export default {
     maxValueLength: 150,
   }),
   computed: {
+    // an attribute the administrator hid has no value to offer
     canAddValue() {
-      return this.attribute.values.length < this.maxValues;
+      return this.attribute.available && this.attribute.values.length < this.maxValues;
     },
     valueInputId() {
       return `${this.$root.appId}AttributeValue-${this.attribute.name}`.replace(/[^\w-]/g, '_');
@@ -151,7 +163,7 @@ export default {
     warningId() {
       return `${this.$root.appId}AttributeWarning-${this.attribute.name}`.replace(/[^\w-]/g, '_');
     },
-    // the warning goes with the red chips: none left, nothing to warn about
+    // the warning goes with the card's values: none left, nothing to warn about
     showWarning() {
       return this.invalid && this.attribute.values.length > 0;
     },
@@ -159,7 +171,8 @@ export default {
     invalid() {
       return !this.attribute.available || this.valuesRefused;
     },
-    // values another writer stored beyond what the directory accepts
+    // values another writer stored beyond what the directory accepts: the
+    // only case whose chips are red, the values themselves being wrong
     valuesRefused() {
       return this.attribute.values.length > this.maxValues
         || this.attribute.values.some(v => !v.value?.trim?.() || v.value.length > this.maxValueLength);
@@ -177,8 +190,10 @@ export default {
     this.abortController?.abort?.();
   },
   methods: {
+    // the trash button when the card offers no '+': an unavailable attribute,
+    // or the values at their maximum
     focus() {
-      (this.$refs.addValueButton?.$el || this.$el)?.focus?.();
+      (this.$refs.addValueButton || this.$refs.removeButton)?.$el?.focus?.();
     },
     togglePicker() {
       this.picking = !this.picking;
