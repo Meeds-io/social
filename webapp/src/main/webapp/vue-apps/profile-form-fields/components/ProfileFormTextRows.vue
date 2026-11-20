@@ -131,11 +131,11 @@ export default {
   }),
   computed: {
     rowRules() {
-      return [this.formatRule].filter(rule => rule);
+      return [this.formatRule].filter(Boolean);
     },
     firstRowRules() {
       const requiredRule = this.requiredRule && (() => this.requiredRule(this.rows.map(row => row.value)));
-      return [requiredRule, this.formatRule, this.sizeRule].filter(rule => rule);
+      return [requiredRule, this.formatRule, this.sizeRule].filter(Boolean);
     },
   },
   created() {
@@ -147,7 +147,7 @@ export default {
       return {key: ++this.lastKey, value};
     },
     setRow(index, value) {
-      this.rows.splice(index, 1, Object.assign({}, this.rows[index], {value}));
+      this.rows.splice(index, 1, {...this.rows[index], value});
       this.emitValues();
     },
     addRow() {
