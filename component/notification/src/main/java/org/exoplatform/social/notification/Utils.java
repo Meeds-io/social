@@ -229,7 +229,7 @@ public class Utils {
     String domain = CommonsUtils.getCurrentDomain();
     while (matcher.find()) {
       String result = matcher.group(1);
-      title = title.replace(result, result + " style=\"color: " + io.meeds.portal.mail.EmailLayout.linkColor() + "; text-decoration: underline;\"");
+      title = title.replace(result, result + " style=\"color: " + io.meeds.portal.mail.util.EmailLayout.linkColor() + "; text-decoration: underline;\"");
       Matcher m = HREF_PATTERN.matcher(result);
       if (m.find()) {
         String url = m.group(1);
