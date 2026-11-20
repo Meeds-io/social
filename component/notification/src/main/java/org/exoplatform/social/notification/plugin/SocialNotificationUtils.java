@@ -26,6 +26,9 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+
 
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.ArgumentLiteral;
@@ -55,6 +58,7 @@ import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.child.DefaultActivityChildPlugin;
 
 public class SocialNotificationUtils {
+
   private static final Log                               LOG                   =
                                                              ExoLogger.getLogger(SocialNotificationUtils.class);
 
@@ -174,6 +178,27 @@ public class SocialNotificationUtils {
       startIdex = matcher.end(0);
     }
     return body;
+  }
+
+  /**
+   * A post or a comment made of files only has no text to quote: the generic
+   * attached file label is shown instead of an empty quote. It does not read
+   * the files nor wait for them.
+   *
+   * @param title the text of the post or of the comment
+   * @param activity the post or the comment
+   * @param language the language of the receiver
+   * @return the text when it has one, else the attached file label
+   */
+  public static String withAttachedFiles(String title, ExoSocialActivity activity, String language) {
+    if (activity == null
+        || StringUtils.containsIgnoreCase(title, "<img")
+        || StringUtils.isNotBlank(StringEscapeUtils.unescapeHtml4(StringUtils.defaultString(title).replaceAll("<[^>]*>", "")).trim())) {
+      return title;
+    }
+    // Only the generic label: it is built right away, without reading or waiting for the files
+    String label = TemplateUtils.getResourceBundle("Notification.label.AttachedFile", new Locale(language), "locale.social.Webui");
+    return "<i> [" + label + "] </i>";
   }
 
   public static String getImagePlaceHolder(String language) {

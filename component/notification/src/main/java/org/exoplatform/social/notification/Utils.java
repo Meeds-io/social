@@ -62,7 +62,6 @@ public class Utils {
       "(?::[\\d]{1,5})?" +                                                                        // port
       "(?:[\\/|\\?|\\#].*)?$");                                                               // path and query
   
-  private static final String styleCSS = " style=\"color: #2f5e92; text-decoration: none;\"";
 
   public static <T> T getService(Class<T> clazz) {
     return PortalContainer.getInstance().getComponentInstanceOfType(clazz);
@@ -230,7 +229,7 @@ public class Utils {
     String domain = CommonsUtils.getCurrentDomain();
     while (matcher.find()) {
       String result = matcher.group(1);
-      title = title.replace(result, result + styleCSS);
+      title = title.replace(result, result + " style=\"color: " + io.meeds.portal.mail.EmailLayout.linkColor() + "; text-decoration: underline;\"");
       Matcher m = HREF_PATTERN.matcher(result);
       if (m.find()) {
         String url = m.group(1);
