@@ -416,9 +416,9 @@ export default {
           if (!this.loading) {
             return false;
           }
-          this.validateExtensions().then(valid => {
+          this.validateExtensions().then(async valid => {
             if (valid) {
-              this.register();
+              await this.register();
             } else {
               this.loading = false;
             }
