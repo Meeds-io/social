@@ -388,6 +388,33 @@ public class PeopleDirectoryFilterServiceTest {
   }
 
   @Test
+  public void searchOfConnectionsAppliesTheViewersAdvancedFilterWithinTheDirectory() throws Exception {
+    when(userAcl.hasAccessPermission(page, identity)).thenReturn(true);
+    org.exoplatform.social.core.identity.model.Identity viewer = new org.exoplatform.social.core.identity.model.Identity("3");
+    when(identityManager.getOrCreateUserIdentity(USERNAME)).thenReturn(viewer);
+    when(relationshipManager.getConnectionsByFilter(eq(viewer), any())).thenReturn(users);
+
+    search("{\"department\":[\"HR\"]}", Map.of("team", "Eng", "department", "Finance"), true, 12);
+
+    ArgumentCaptor<ProfileFilter> filter = ArgumentCaptor.forClass(ProfileFilter.class);
+    verify(relationshipManager).getConnectionsByFilter(eq(viewer), filter.capture());
+    // the viewer's own criterion applies; the one on a directory attribute
+    // is dropped, the directory's values win
+    assertEquals(Map.of("team", "Eng"), filter.getValue().getProfileSettings());
+    assertEquals(List.of("HR"), filter.getValue().getDirectoryFilter().getAttributes().get("department"));
+  }
+
+  @Test
+  public void directoryAttributeNamesAreTheStoredAttributesOnly() {
+    assertEquals(List.of("department", "skills.lang"),
+                 peopleDirectoryService.getDirectoryAttributeNames("{\"department\":[\"HR\"],\"skills.lang\":[\"C++\"]}"));
+    assertEquals(List.of(), peopleDirectoryService.getDirectoryAttributeNames("{}"));
+    assertEquals(List.of(), peopleDirectoryService.getDirectoryAttributeNames(null));
+    // a stored filter the directory cannot read names nothing
+    assertEquals(List.of(), peopleDirectoryService.getDirectoryAttributeNames("{\"unknown\":[\"x\"]}"));
+  }
+
+  @Test
   public void searchRefusesAViewerAttributeThatIsNotSelectable() {
     when(userAcl.hasAccessPermission(page, identity)).thenReturn(true);
     settings.getFirst().setVisible(false);
@@ -518,6 +545,7 @@ public class PeopleDirectoryFilterServiceTest {
                                          SITE_KEY,
                                          WINDOW_ID,
                                          storedFilter,
+                                         null,
                                          " john d ",
                                          viewerAttributes,
                                          connectionsOnly,
