@@ -47,7 +47,7 @@
           <p class="noPeopleYetIcons">
             <v-icon aria-hidden="true">fa-users</v-icon>
           </p>
-          <template v-if="directoryEmpty">
+          <template v-if="directoryScoped">
             <p class="text-title">
               {{ $t('peopleList.label.noResults') }}
             </p>
@@ -224,8 +224,13 @@ export default {
     columnSpan() {
       return 12 / this.columnsCount;
     },
+    // a pre-filtered directory: whatever the viewer's own filters, an empty
+    // list is 'No people', with the settings link for its editors
+    directoryScoped() {
+      return !!this.usersResourceUrl && this.directoryFiltered;
+    },
     // no user matches the directory's own filter: nothing the viewer did
-    // narrows the list
+    // narrows the list, so there is nothing to reset
     directoryEmpty() {
       return !!this.usersResourceUrl
         && this.directoryFiltered
@@ -333,7 +338,23 @@ export default {
     searchPeopleNoFilters() {
       // the saved settings may list other users for the same search
       this.directoryQueryKey = null;
+      this.dropDirectoryAttributes();
       this.searchPeople();
+    },
+    // a criterion on an attribute the directory now filters on no longer
+    // applies, nor counts as the viewer's own filter
+    dropDirectoryAttributes() {
+      const directoryAttributes = this.$root.directoryAttributes || [];
+      if (!this.advancedFilterSettings || !directoryAttributes.length) {
+        return;
+      }
+      const kept = {};
+      Object.keys(this.advancedFilterSettings)
+        .filter(name => !directoryAttributes.includes(name))
+        .forEach(name => kept[name] = this.advancedFilterSettings[name]);
+      const count = Object.keys(kept).filter(name => kept[name]).length;
+      this.advancedFilterSettings = count ? kept : null;
+      this.$root.$emit('advanced-filter-count', count);
     },
     searchPeople(profileSettings) {
       this.loadingPeople = true;

@@ -73,6 +73,11 @@
         <people-list-attribute-filter
           v-model="attributes"
           :enabled.sync="attributeFilterEnabled" />
+        <people-list-group-filter
+          v-model="groups"
+          :enabled.sync="groupFilterEnabled"
+          :can-set-group-filter="canSetGroupFilter"
+          :other-groups-applied="$root.otherGroupsApplied" />
       </div>
     </template>
     <template #footer>
@@ -131,6 +136,9 @@ export default {
     maxValueLength: 150,
     // [{name, values: [{value, label}], available}]
     attributes: [],
+    groupFilterEnabled: false,
+    // the stored groups the editor can select: [{groupId, label}]
+    groups: [],
   }),
   computed: {
     headerSwitchId() {
@@ -183,6 +191,28 @@ export default {
           || this.attributes.some(attribute => attribute.values.length > this.maxValues
             || attribute.values.some(v => !v.value?.trim?.() || v.value.length > this.maxValueLength)));
     },
+    canSetGroupFilter() {
+      return !!this.$root.canSetGroupFilter;
+    },
+    // the editor's groups to store: none when the toggle is OFF; the groups
+    // the editor cannot select stay applied, whatever is posted
+    groupIdsToSave() {
+      return this.groupFilterEnabled ? this.groups.map(group => group.groupId) : [];
+    },
+    storedGroupIds() {
+      return (this.$root.groups || []).map(group => group.groupId);
+    },
+    // a stored value the directory cannot read lists nobody: any Apply
+    // rewrites it, the shown groups unchanged included
+    groupFilterChanged() {
+      return this.canSetGroupFilter
+        && (this.canonical(this.groupIdsToSave) !== this.canonical(this.storedGroupIds)
+          || (!!this.$root.unresolvableGroups && !this.groupFilterEnabled)
+          || !!this.$root.groupFilterInvalid);
+    },
+    groupsMissing() {
+      return this.canSetGroupFilter && this.groupFilterEnabled && !this.groups.length;
+    },
     attributeFilterIncomplete() {
       return this.attributeValuesMissing || this.attributeUnavailable || this.attributeFilterRefused;
     },
@@ -195,6 +225,8 @@ export default {
         return this.$t('peopleList.settings.attribute.valuesRefused');
       } else if (this.attributeValuesMissing) {
         return this.$t('peopleList.settings.attribute.valuesRequired');
+      } else if (this.groupsMissing) {
+        return this.$t('peopleList.settings.group.required');
       }
       return null;
     },
@@ -204,11 +236,18 @@ export default {
     },
     // the settings the form would store
     toSave() {
-      return {
+      const toSave = {
         headerTranslations: this.headerToSave,
         pageSize: this.pageSize,
         attributeFilter: this.attributeFilterToSave,
       };
+      // the group filter is posted only when the editor changed it: an
+      // untouched one, or an editor who may not set it, posts none and the
+      // portlet keeps the stored one, groups that no longer exist included
+      if (this.groupFilterChanged) {
+        toSave.groupIds = this.groupIdsToSave;
+      }
+      return toSave;
     },
     // nothing to apply while the form holds the stored settings
     changed() {
@@ -220,6 +259,7 @@ export default {
         && !this.headerMissing
         && !this.headerTooLong
         && !this.attributeFilterIncomplete
+        && !this.groupsMissing
         && this.validPageSize;
     },
   },
@@ -243,6 +283,10 @@ export default {
         values: (attribute.values || []).filter((v, i, values) => values.findIndex(other => other.value === v.value) === i),
       }));
       this.attributeFilterEnabled = this.attributes.length > 0;
+      this.groups = (this.$root.groups || []).map(group => ({...group}));
+      // stored groups that no longer exist list nobody: the filter shows as
+      // set, with no chip, until groups are selected or it is turned OFF
+      this.groupFilterEnabled = this.groups.length > 0 || !!this.$root.unresolvableGroups;
       this.openCount++;
       this.$refs.drawer.open();
     },
@@ -250,7 +294,7 @@ export default {
       this.$refs.drawer.close();
     },
     /**
-     * Posts the preferences (header, page size, attribute filter), then
+     * Posts the preferences (header, page size, attribute and group filters), then
      * re-reads what the portlet stored: a
      * refusal of the action (edit right lost, value rejected) is answered
      * with a 200, so the snackbar follows the stored values, never the HTTP
@@ -264,11 +308,15 @@ export default {
       }
       this.saving = true;
       const toSave = this.toSave;
-      const body = new URLSearchParams({
+      const params = new URLSearchParams({
         headerTranslations: JSON.stringify(toSave.headerTranslations),
         pageSize: String(toSave.pageSize),
         attributeFilter: JSON.stringify(toSave.attributeFilter),
-      }).toString();
+      });
+      if (toSave.groupIds) {
+        params.append('groupIds', JSON.stringify(toSave.groupIds));
+      }
+      const body = params.toString();
       return fetch(this.$root.saveSettingsUrl, {
         method: 'POST',
         credentials: 'include',
@@ -291,19 +339,30 @@ export default {
         .finally(() => this.saving = false);
     },
     isStored(toSave) {
-      // a filtered directory with no attribute to show stores a filter that
-      // is not a JSON object (PeopleDirectoryService#getEditorAttributes):
-      // it lists nobody, and Apply replaces it with what the form holds
-      if (this.$root.directoryFiltered && !this.$root.attributes?.length) {
+      // a stored attribute filter the directory cannot read lists nobody
+      // (PeopleDirectoryService#getAttributeFilter): Apply replaces it with
+      // what the form holds
+      if (this.$root.attributeFilterInvalid) {
         return false;
       }
       const storedAttributeFilter = {};
       (this.$root.attributes || []).forEach(attribute => storedAttributeFilter[attribute.name] = attribute.values.map(v => v.value));
-      return this.canonical({
+      const stored = {
         headerTranslations: this.$root.headerTranslations,
         pageSize: this.$root.pageSize,
         attributeFilter: storedAttributeFilter,
-      }) === this.canonical(toSave);
+      };
+      if (toSave.groupIds) {
+        // groups that no longer exist stay stored, unless the editor turns
+        // the group filter OFF: until that save, OFF is not the stored state;
+        // a stored value the directory cannot read is never the stored state
+        // of the groups shown, which Apply rewrites
+        if (this.$root.groupFilterInvalid || (this.$root.unresolvableGroups && !toSave.groupIds.length)) {
+          return false;
+        }
+        stored.groupIds = this.storedGroupIds;
+      }
+      return this.canonical(stored) === this.canonical(toSave);
     },
     // a key-order-independent rendering: the stored translations come back
     // from the server in another order than they were posted
