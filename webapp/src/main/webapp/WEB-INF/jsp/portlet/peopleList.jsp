@@ -10,6 +10,7 @@
 <portlet:resourceURL var="settingsResourceUrl" id="<%=PeopleListPortlet.SETTINGS_RESOURCE_ID%>" />
 <portlet:resourceURL var="usersResourceUrl" id="<%=PeopleListPortlet.USERS_RESOURCE_ID%>" />
 <portlet:resourceURL var="attributeValuesResourceUrl" id="<%=PeopleListPortlet.ATTRIBUTE_VALUES_RESOURCE_ID%>" />
+<portlet:resourceURL var="groupsResourceUrl" id="<%=PeopleListPortlet.GROUPS_RESOURCE_ID%>" />
 <%
   PortletPreferences preferences = renderRequest.getPreferences();
   JSONObject settings = new JSONObject();
@@ -17,10 +18,19 @@
   settings.put("pageSize", PeopleListPortlet.storedPageSize(preferences));
   settings.put("filter", PeopleListPortlet.storedFilter(preferences));
   settings.put("directoryFiltered", PeopleListPortlet.isDirectoryFiltered(preferences));
+  settings.put("directoryAttributes", new JSONArray(PeopleListPortlet.directoryAttributes(preferences)));
   boolean canEdit = PeopleListPortlet.canEdit(renderRequest.getRemoteUser());
   settings.put("canEdit", canEdit);
   if (canEdit) {
     settings.put("attributes", new JSONArray(PeopleListPortlet.storedAttributes(preferences, renderRequest.getLocale())));
+    settings.put("attributeFilterInvalid", PeopleListPortlet.isAttributeFilterInvalid(preferences));
+    settings.put("canSetGroupFilter", PeopleListPortlet.canSetGroupFilter(renderRequest.getRemoteUser()));
+    JSONObject groups = new JSONObject(PeopleListPortlet.storedGroups(preferences, renderRequest.getRemoteUser()));
+    settings.put("groups", groups.getJSONArray("groups"));
+    settings.put("otherGroupsApplied", groups.getBoolean("otherGroupsApplied"));
+    settings.put("otherGroupsCount", groups.getInt("otherGroupsCount"));
+    settings.put("unresolvableGroups", groups.getBoolean("unresolvableGroups"));
+    settings.put("groupFilterInvalid", groups.getBoolean("groupFilterInvalid"));
   }
 
   String portletId = (String) request.getAttribute("portletStorageId");
@@ -41,7 +51,8 @@
         saveSettingsUrl: '<%=saveSettingsUrl%>',
         settingsResourceUrl: '<%=settingsResourceUrl%>',
         usersResourceUrl: '<%=usersResourceUrl%>',
-        attributeValuesResourceUrl: '<%=attributeValuesResourceUrl%>'
+        attributeValuesResourceUrl: '<%=attributeValuesResourceUrl%>',
+        groupsResourceUrl: '<%=groupsResourceUrl%>'
       }));
     </script>
   </div>

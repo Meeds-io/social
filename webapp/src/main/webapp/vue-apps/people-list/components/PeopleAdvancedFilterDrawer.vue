@@ -37,6 +37,7 @@
             class="d-flex flex-row">
             <people-advanced-filter-input-item
               :settings-item="item"
+              :disabled="isDirectoryAttribute(item)"
               @input-value-changed="setValueToSearch" />
           </div>
         </div>
@@ -88,6 +89,11 @@ export default {
     this.getSettings();
   },
   methods: {
+    // an attribute the directory already filters on: the directory's values
+    // win, so the viewer cannot set it
+    isDirectoryAttribute(item) {
+      return (this.$root.directoryAttributes || []).includes(item?.propertyName);
+    },
     openDrawer() {
       this.$refs.peopleAdvancedFilterDrawer.open();
     },
@@ -124,7 +130,7 @@ export default {
     confirm() {
       const keyValue = {};
       this.settings.forEach((e)=>{
-        if (e && e.valueToSearch){
+        if (e && e.valueToSearch && !this.isDirectoryAttribute(e)){
           keyValue[e.propertyName] = e.valueToSearch;
         }
       });

@@ -196,6 +196,7 @@
             :aria-label="!showRightFilterButtonText && filterButtonAriaLabel || null"
             :small="!showRightFilterButtonText"
             :disabled="rightFilterButton?.disabled"
+            :aria-label="rightFilterButton?.ariaLabel || null"
             text
             @click="$emit('filter-button-click', $event)">
             <v-icon
@@ -318,6 +319,7 @@ export default {
         hide: true,
         text: null,
         displayText: null, // Force to display text even in compact mode
+        ariaLabel: null, // Accessible name, when the text alone does not say the state
       }),
     },
     filtersCount: { // Filter button: applied filter count

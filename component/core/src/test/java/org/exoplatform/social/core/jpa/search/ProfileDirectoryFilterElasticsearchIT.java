@@ -68,7 +68,8 @@ import io.meeds.social.translation.service.TranslationService;
  * evaluated by Elasticsearch itself, on documents built by
  * {@link ProfileIndexingServiceConnector}: exact matching, regexp
  * metacharacters and reserved query characters matched literally, a dotted
- * property, and owner-hidden values absent from both.
+ * property, owner-hidden values absent from both, and the group clause on the
+ * indexed membership tokens.
  * <p>
  * Opt-in, as {@link ProfileSearchConnectorElasticsearchIT}:
  * {@code mvn -pl component/core -Prun-its verify -Dtest=none -Dsurefire.failIfNoSpecifiedTests=false -Dit.test=ProfileDirectoryFilterElasticsearchIT -Dfailsafe.failIfNoSpecifiedTests=false};
@@ -113,6 +114,10 @@ public class ProfileDirectoryFilterElasticsearchIT {
   /** Holds the multi-valued value 'Paris, Berlin', which the index joins as two */
   private static final String           COMMA_MULTI_USER = "2010";
 
+  private static final String           HR_GROUP    = "/organization/hr";
+
+  private static final String           PARIS_GROUP = "/spaces/paris";
+
   private static ProfileSearchConnector searchConnector;
 
   @BeforeClass
@@ -131,6 +136,15 @@ public class ProfileDirectoryFilterElasticsearchIT {
     IdentityManager identityManager = mock(IdentityManager.class);
     UserPermissionService userPermissionService = mock(UserPermissionService.class);
     when(userPermissionService.getPermissionTokens(anyString())).thenReturn(Collections.emptyList());
+    when(userPermissionService.getMembershipTypes()).thenReturn(List.of("member", "manager"));
+    // a member of HR, a manager of its sub-group, a member through a nested
+    // link, a member of a group whose id starts with HR's, a member of Paris
+    when(userPermissionService.getPermissionTokens("directory" + HR_USER)).thenReturn(List.of("member:" + HR_GROUP));
+    when(userPermissionService.getPermissionTokens("directory" + RD_USER)).thenReturn(List.of("manager:" + HR_GROUP + "/payroll"));
+    when(userPermissionService.getPermissionTokens("directory" + DOT_USER))
+      .thenReturn(List.of(UserPermissionService.INHERITED_TOKEN_PREFIX + "member:" + HR_GROUP));
+    when(userPermissionService.getPermissionTokens("directory" + NOT_DOT_USER)).thenReturn(List.of("member:" + HR_GROUP + "x"));
+    when(userPermissionService.getPermissionTokens("directory" + CPP_USER)).thenReturn(List.of("*:" + PARIS_GROUP));
 
     Map<String, Identity> identities = new LinkedHashMap<>();
     identities.put(CPP_USER, identity(CPP_USER, "C++", List.of("a", "b"), null));
@@ -263,11 +277,40 @@ public class ProfileDirectoryFilterElasticsearchIT {
     assertListed(Map.of(LANGUAGES, List.of("erlin")));
   }
 
+  @Test
+  public void testGroupListsItsMembersTheMembersOfItsSubGroupsAndOfItsNestedGroups() {
+    // not the member of /organization/hrx
+    assertListed(Map.of(), List.of(HR_GROUP), HR_USER, RD_USER, DOT_USER);
+    assertListed(Map.of(), List.of(HR_GROUP + "/payroll"), RD_USER);
+    assertListed(Map.of(), List.of(HR_GROUP + "x"), NOT_DOT_USER);
+  }
+
+  @Test
+  public void testGroupsAreAlternatives() {
+    assertListed(Map.of(), List.of(HR_GROUP + "/payroll", PARIS_GROUP), RD_USER, CPP_USER);
+  }
+
+  @Test
+  public void testGroupsAndAttributesMustBothBeMatched() {
+    assertListed(Map.of(DEPARTMENT, List.of("HR", "C++")), List.of(HR_GROUP), HR_USER);
+  }
+
+  @Test
+  public void testNoLiveGroupListsNobody() {
+    assertListed(Map.of(), List.of());
+  }
+
   private static void assertListed(Map<String, List<String>> attributes, String... expectedIds) {
+    assertListed(attributes, null, expectedIds);
+  }
+
+  private static void assertListed(Map<String, List<String>> attributes, List<String> groups, String... expectedIds) {
     ProfileFilter filter = new ProfileFilter();
-    filter.setDirectoryFilter(new PeopleDirectoryFilter(attributes));
+    PeopleDirectoryFilter directoryFilter = new PeopleDirectoryFilter(attributes);
+    directoryFilter.setGroups(groups);
+    filter.setDirectoryFilter(directoryFilter);
     List<String> listed = searchConnector.search(null, filter, null, 0, 20);
-    assertEquals(attributes.toString(),
+    assertEquals(attributes + " " + groups,
                  List.of(expectedIds).stream().sorted().toList(),
                  listed.stream().sorted().toList());
     assertEquals(expectedIds.length, searchConnector.count(null, filter, null));

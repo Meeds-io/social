@@ -31,6 +31,7 @@
     :right-filter-button="{
       hide: hideRightFilterButton,
       text: $t('pepole.advanced.filter.button.title'),
+      ariaLabel: filterButtonAriaLabel,
     }"
     :right-select-box="{
       hide: compactDisplay || hideFilter,
@@ -117,6 +118,13 @@ export default {
     });
   },
   computed: {
+    // the viewer's own filters only, never the directory's: its state is
+    // said, not only coloured
+    filterButtonAriaLabel() {
+      return this.advancedFilterCount
+        ? this.$t('peopleList.label.filterButton.applied', {0: this.advancedFilterCount})
+        : this.$t('pepole.advanced.filter.button.title');
+    },
     headerTitle() {
       return this.$root.headerTitle;
     },
