@@ -37,7 +37,7 @@
 							</a>
             </td>
           <% } %>
-            <td align="left" bgcolor="#f9f9f9" width="90%" align="top"
+            <td align="left" bgcolor="#f9f9f9" width="90%"
               style="width: 90%; background-color: #f9f9f9; padding: 0 0; vertical-align: top;">
               <a href="$LINK_URL" style="display: inline-block; color: #2f5e92; font-family: 'HelveticaNeue Bold', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 18px; font-weight: bold; text-decoration: none; margin: 0 0 10px;">
                 $LINK_TITLE
