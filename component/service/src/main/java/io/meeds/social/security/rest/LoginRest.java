@@ -490,7 +490,7 @@ public class LoginRest {
                                                   .put(ERROR_MESSAGE_PARAM, e.getMessage())
                                                   .put(PROPERTY_NAME_PARAM, e.getPropertyName())
                                                   .toString());
-    } catch (JSONException e) {
+    } catch (JSONException _) {
       return ResponseEntity.badRequest().body(new JSONObject()
                                                   .put(ERROR_MESSAGE_PARAM, ProfileFormFieldException.INVALID_VALUE)
                                                   .toString());
@@ -714,7 +714,7 @@ public class LoginRest {
                                                     .put(ERROR_MESSAGE_PARAM, e.getMessage())
                                                     .put(PROPERTY_NAME_PARAM, e.getPropertyName())
                                                     .toString());
-      } catch (JSONException e) {
+      } catch (JSONException _) {
         return ResponseEntity.badRequest().body(new JSONObject()
                                                     .put(ERROR_MESSAGE_PARAM, ProfileFormFieldException.INVALID_VALUE)
                                                     .toString());
@@ -790,7 +790,7 @@ public class LoginRest {
   private Profile findProfile(String username) {
     try {
       return profileFormFieldService.getProfile(username);
-    } catch (ObjectNotFoundException e) {
+    } catch (ObjectNotFoundException _) {
       return null;
     }
   }

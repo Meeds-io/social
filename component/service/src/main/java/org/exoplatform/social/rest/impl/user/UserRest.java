@@ -299,7 +299,7 @@ public class UserRest implements ResourceContainer, Startable {
 
   private OtpService                      otpService;
 
-  private ProfileFormFieldService         profileFormFieldService;
+  private final ProfileFormFieldService   profileFormFieldService;
 
   private ExecutorService                 importExecutorService       = null;
 
@@ -838,7 +838,7 @@ public class UserRest implements ResourceContainer, Startable {
       Profile stored = profileFormFieldService.getProfile(username);
       profileFormFieldService.validate(values, ProfileFormKind.ACCOUNT, false, stored);
       return Response.ok().build();
-    } catch (ObjectNotFoundException e) {
+    } catch (ObjectNotFoundException _) {
       return Response.status(Status.NOT_FOUND).build();
     } catch (ProfileFormFieldException e) {
       return getFormFieldRefusal(e);
@@ -877,7 +877,7 @@ public class UserRest implements ResourceContainer, Startable {
                                                                            complete ? null : stored);
       profileFormFieldService.save(username, profileValues, getCurrentUser());
       return Response.noContent().build();
-    } catch (ObjectNotFoundException e) {
+    } catch (ObjectNotFoundException _) {
       return Response.status(Status.NOT_FOUND).build();
     } catch (ProfileFormFieldException e) {
       return getFormFieldRefusal(e);
