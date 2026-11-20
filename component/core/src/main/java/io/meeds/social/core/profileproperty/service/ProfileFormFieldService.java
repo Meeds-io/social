@@ -317,7 +317,7 @@ public class ProfileFormFieldService {
             return String.valueOf(option.getId());
           }
         }
-      } catch (NumberFormatException e) {
+      } catch (NumberFormatException _) {
         // Longer than an id: no option has it
       }
     }

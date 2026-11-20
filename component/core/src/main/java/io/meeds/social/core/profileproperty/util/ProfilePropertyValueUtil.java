@@ -244,7 +244,7 @@ public class ProfilePropertyValueUtil {
         }
       }
       return true;
-    } catch (JacksonException e) {
+    } catch (JacksonException _) {
       return false;
     }
   }
