@@ -27,7 +27,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -38,6 +40,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
@@ -229,6 +235,114 @@ public class EmailOtpPluginTest {
     assertEquals("The code of the email method goes to the address of the account only",
                  "john@example.com",
                  InternetAddress.toString(messageCaptor.getValue().getAllRecipients()));
+  }
+
+  @Test
+  public void testACodeRequestedWhileAnotherIsBeingSentIsRefused() throws Exception {
+    Map<String, String> sendLocks = mapBackedSendLocks();
+    CountDownLatch inSend = new CountDownLatch(1);
+    CountDownLatch releaseSend = new CountDownLatch(1);
+    AtomicInteger sends = new AtomicInteger();
+    doAnswer(invocation -> {
+      if (sends.incrementAndGet() == 1) {
+        inSend.countDown();
+        releaseSend.await(10, TimeUnit.SECONDS);
+      }
+      return null;
+    }).when(mailService).sendMessage(any(MimeMessage.class));
+
+    Thread first = new Thread(() -> plugin.generateOtpCode("john"));
+    first.start();
+    try {
+      assertTrue(inSend.await(10, TimeUnit.SECONDS));
+      assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
+    } finally {
+      releaseSend.countDown();
+      first.join(10000);
+    }
+    assertEquals(1, sends.get());
+    assertTrue(sendLocks.containsKey("email:john"));
+  }
+
+  @Test
+  public void testAFailedSendReleasesTheSendLock() throws Exception {
+    Map<String, String> sendLocks = mapBackedSendLocks();
+    Map<String, String> codes = mapBackedCodes();
+    doThrow(new IllegalStateException("smtp down")).when(mailService).sendMessage(any(MimeMessage.class));
+
+    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
+    assertFalse(sendLocks.containsKey("email:john"));
+    assertTrue(codes.isEmpty());
+  }
+
+  @Test
+  public void testAFailedSendKeepsTheLockAndTheCodeAnotherRequestWrote() throws Exception {
+    Map<String, String> sendLocks = mapBackedSendLocks();
+    Map<String, String> codes = mapBackedCodes();
+    doAnswer(invocation -> {
+      // another request took the lock and stored its code meanwhile
+      sendLocks.put("email:john", "another lock");
+      codes.put("email:john", "another code");
+      throw new IllegalStateException("smtp down");
+    }).when(mailService).sendMessage(any(MimeMessage.class));
+
+    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
+    assertEquals("another lock", sendLocks.get("email:john"));
+    assertEquals("another code", codes.get("email:john"));
+  }
+
+  @Test
+  public void testTheSendLockIsCheckedAndTakenInOneStep() throws Exception {
+    Map<String, String> sendLocks = new ConcurrentHashMap<>();
+    CountDownLatch firstInCheck = new CountDownLatch(1);
+    CountDownLatch secondInCheck = new CountDownLatch(1);
+    AtomicInteger checks = new AtomicInteger();
+    when(otpSendLockCache.get(anyString())).thenAnswer(invocation -> {
+      String sendLock = sendLocks.get(invocation.getArgument(0, String.class));
+      if (checks.incrementAndGet() == 1) {
+        firstInCheck.countDown();
+        // holds the first check open for up to a second
+        secondInCheck.await(1, TimeUnit.SECONDS);
+      } else {
+        secondInCheck.countDown();
+      }
+      return sendLock;
+    });
+    doAnswer(invocation -> sendLocks.put(invocation.getArgument(0, String.class),
+                                         invocation.getArgument(1, String.class))).when(otpSendLockCache)
+                                                                                    .put(anyString(), anyString());
+    AtomicInteger sends = new AtomicInteger();
+    doAnswer(invocation -> sends.incrementAndGet()).when(mailService).sendMessage(any(MimeMessage.class));
+
+    Thread first = new Thread(() -> plugin.generateOtpCode("john"));
+    first.start();
+    try {
+      assertTrue(firstInCheck.await(10, TimeUnit.SECONDS));
+      assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
+    } finally {
+      first.join(10000);
+    }
+    assertEquals(1, sends.get());
+  }
+
+  private Map<String, String> mapBackedCodes() {
+    Map<String, String> codes = new ConcurrentHashMap<>();
+    when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0, String.class)));
+    doAnswer(invocation -> codes.put(invocation.getArgument(0, String.class),
+                                     invocation.getArgument(1, String.class))).when(otpCache).put(anyString(), anyString());
+    doAnswer(invocation -> codes.remove(invocation.getArgument(0, String.class))).when(otpCache).remove(anyString());
+    return codes;
+  }
+
+  private Map<String, String> mapBackedSendLocks() {
+    Map<String, String> sendLocks = new ConcurrentHashMap<>();
+    when(otpSendLockCache.get(anyString())).thenAnswer(invocation -> sendLocks.get(invocation.getArgument(0, String.class)));
+    doAnswer(invocation -> sendLocks.put(invocation.getArgument(0, String.class),
+                                         invocation.getArgument(1, String.class))).when(otpSendLockCache)
+                                                                                    .put(anyString(), anyString());
+    doAnswer(invocation -> sendLocks.remove(invocation.getArgument(0, String.class))).when(otpSendLockCache)
+                                                                                      .remove(anyString());
+    return sendLocks;
   }
 
   @Test
