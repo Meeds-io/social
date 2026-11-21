@@ -55,7 +55,7 @@
   </v-card>
 </template>
 <script>
-import {loadShowdown, readBeginning, toPreviewHtml} from '../../js/MarkdownPreview.js';
+import {loadRenderer, readBeginning, toPreviewHtml} from '../../js/MarkdownPreview.js';
 
 export default {
   props: {
@@ -94,11 +94,11 @@ export default {
       this.loading = true;
       this.error = false;
       try {
-        const [showdown, file] = await Promise.all([
-          loadShowdown(),
+        const [renderer, file] = await Promise.all([
+          loadRenderer(),
           readBeginning(this.attachment?.downloadUrl),
         ]);
-        this.html = toPreviewHtml(file.text, showdown);
+        this.html = toPreviewHtml(file.text, renderer);
         this.truncated = file.truncated;
       } catch (e) {
         console.warn('Error while previewing a Markdown file', e); // eslint-disable-line no-console

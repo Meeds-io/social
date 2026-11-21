@@ -3024,6 +3024,14 @@
   </module>
 
   <module>
+    <name>externalResourceFilter</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/ExternalResourceFilter.js</path>
+    </script>
+  </module>
+
+  <module>
     <name>mermaid</name>
     <script>
       <minify>false</minify>
