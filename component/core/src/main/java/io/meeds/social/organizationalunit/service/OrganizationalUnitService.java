@@ -97,7 +97,7 @@ public class OrganizationalUnitService {
    * @return true if the given user can manage the memberships of the group
    */
   public boolean canManageGroupMemberships(String groupId, String userName) {
-    // the rule applies to the group as stored: any other spelling of its id is refused
+    // the rule applies to the group as stored: an id that is not the stored group's id is refused
     if (isPlatformGroup(groupId) || !isStoredGroupId(groupId)) {
       return false;
     }

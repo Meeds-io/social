@@ -229,20 +229,37 @@ public class OrganizationalUnitServiceTest {
   @Test
   public void testCanManageGroupMembershipsRefusesAnIdThatIsNotTheStoredGroupId() throws Exception {
     String unitId = "/organization/it";
-    String otherSpelling = "/platformx/analytics";
+    String givenId = "/organization/sales";
+    String storedId = "/organization/sales-team";
     Group storedGroup = mock(Group.class);
-    when(storedGroup.getId()).thenReturn("/platform/analytics");
-    lenient().when(storedGroup.getEnclosingMemberships()).thenReturn(Set.of(new NestedMembership(null,
-                                                                                                  unitId,
-                                                                                                  null,
-                                                                                                  "/platform/analytics")));
-    when(groupHandler.findGroupById(otherSpelling)).thenReturn(storedGroup);
+    when(storedGroup.getId()).thenReturn(storedId);
+    lenient().when(storedGroup.getEnclosingMemberships())
+             .thenReturn(Set.of(new NestedMembership(null, unitId, null, storedId)));
+    when(groupHandler.findGroupById(givenId)).thenReturn(storedGroup);
     mockGroupWithEnclosing(unitId, null);
     lenient().when(organizationalUnitStorage.isAnyManagedOrganizationalUnit(Set.of(unitId), "john")).thenReturn(true);
 
-    assertFalse(organizationalUnitService.canManageGroupMemberships(otherSpelling, "john"));
-    // an unknown group is refused too
-    assertFalse(organizationalUnitService.canManageGroupMemberships("/organization/unknown", "john"));
+    assertFalse(organizationalUnitService.canManageGroupMemberships(givenId, "john"));
+  }
+
+  @Test
+  public void testCanManageGroupMembershipsRefusesAnUnknownGroup() throws Exception {
+    String groupId = "/organization/unknown";
+    when(groupHandler.findGroupById(groupId)).thenReturn(null);
+    lenient().when(organizationalUnitStorage.isManagedOrganizationalUnit(groupId, "john")).thenReturn(true);
+
+    assertFalse(organizationalUnitService.canManageGroupMemberships(groupId, "john"));
+  }
+
+  @Test
+  public void testCanManageGroupMembershipsRefusesAGroupThatCouldNotBeRead() throws Exception {
+    String groupId = "/organization/finance";
+    Group group = mock(Group.class);
+    lenient().when(group.getId()).thenReturn(groupId);
+    when(groupHandler.findGroupById(groupId)).thenThrow(new IllegalStateException("store unavailable")).thenReturn(group);
+    lenient().when(organizationalUnitStorage.isManagedOrganizationalUnit(groupId, "john")).thenReturn(true);
+
+    assertFalse(organizationalUnitService.canManageGroupMemberships(groupId, "john"));
   }
 
   private void mockGroupWithEnclosing(String groupId, String enclosingGroupId) throws Exception {
