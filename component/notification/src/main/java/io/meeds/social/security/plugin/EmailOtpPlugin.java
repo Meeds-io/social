@@ -20,6 +20,7 @@ package io.meeds.social.security.plugin;
 
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,6 +100,9 @@ public class EmailOtpPlugin implements OtpPlugin {
 
   @Setter
   private ExoCache<String, String> otpSendLockCache;
+
+  /** The monitors under which a user's send lock is checked and taken */
+  private final Object[]           sendLockStripes          = IntStream.range(0, 64).mapToObj(i -> new Object()).toArray();
 
   @Override
   public String getName() {
@@ -181,53 +185,54 @@ public class EmailOtpPlugin implements OtpPlugin {
    * of the user's account. The code is stored as
    * {@link #getStoredCode(String, String)} answers, the value that
    * {@link #validateOtp(String, String)} and {@link #consumeOtp(String, String)}
-   * compare.
+   * compare. The send lock is taken before the email is sent, and released
+   * when the send fails.
    *
    * @param userName the user the code is for
    * @param recipientEmail the address to send the code to, null for the
    *          address of the user's account
    */
   protected void sendOtpCode(String userName, String recipientEmail) {
-    String cacheKey = getCacheKey(userName);
-    checkSendLock(userName, cacheKey);
-    sendCode(userName, recipientEmail, cacheKey);
-    getOtpSendLockCache().put(cacheKey, String.valueOf(expiringIn(sendInterval)));
+    String sendLock = takeSendLock(userName);
+    sendOtpCodeUnderLock(userName, recipientEmail, sendLock);
   }
 
   /**
    * Takes the send lock of the user at once, before anything is checked or
    * sent: the lock then holds for the send interval whatever the request
    * answers, a refusal included. The code is then sent by
-   * {@link #sendOtpCodeUnderLock(String, String)}.
+   * {@link #sendOtpCodeUnderLock(String, String, String)}.
    *
    * @param userName the user the code is for
+   * @return the lock taken, to pass to
+   *         {@link #sendOtpCodeUnderLock(String, String, String)}
    * @throws IllegalStateException when the lock is already held
    */
-  protected void takeSendLock(String userName) {
+  protected String takeSendLock(String userName) {
     String cacheKey = getCacheKey(userName);
-    checkSendLock(userName, cacheKey);
-    getOtpSendLockCache().put(cacheKey, String.valueOf(expiringIn(sendInterval)));
+    // checked and taken in one step: of concurrent requests on this server, one takes it
+    synchronized (sendLockStripe(cacheKey)) {
+      checkSendLock(userName, cacheKey);
+      String sendLock = String.valueOf(expiringIn(sendInterval));
+      getOtpSendLockCache().put(cacheKey, sendLock);
+      return sendLock;
+    }
   }
 
   /**
    * Sends a new code as {@link #sendOtpCode(String, String)} does, under the
    * send lock the caller took with {@link #takeSendLock(String)}. When the send
-   * fails, the lock is released and the code dropped: no code left, so the
-   * user may ask again at once.
+   * fails, that lock is released and the code it stored dropped, so the user
+   * may ask again at once; a lock or a code another request wrote since is
+   * kept.
    *
    * @param userName the user the code is for
    * @param recipientEmail the address to send the code to, null for the
    *          address of the user's account
+   * @param sendLock the lock {@link #takeSendLock(String)} returned
    */
-  protected void sendOtpCodeUnderLock(String userName, String recipientEmail) {
-    String cacheKey = getCacheKey(userName);
-    try {
-      sendCode(userName, recipientEmail, cacheKey);
-    } catch (Exception e) {
-      getOtpCache().remove(cacheKey);
-      getOtpSendLockCache().remove(cacheKey);
-      throw e;
-    }
+  protected void sendOtpCodeUnderLock(String userName, String recipientEmail, String sendLock) {
+    sendCode(userName, recipientEmail, getCacheKey(userName), sendLock);
   }
 
   private void checkSendLock(String userName, String cacheKey) {
@@ -239,17 +244,41 @@ public class EmailOtpPlugin implements OtpPlugin {
   }
 
   @SneakyThrows
-  private void sendCode(String userName, String recipientEmail, String cacheKey) {
-    String lang = brandedEmailSender.getUserLang(userName);
-    String emailSubject = resourceBundleService.getSharedString(getEmailSubjectKey(), LocaleUtils.toLocale(lang));
-    String otpCode = generateOtpCode();
-    getOtpCache().put(cacheKey, String.valueOf(expiringIn(otpTtl * 60)) + EXPIRY_SEPARATOR + getStoredCode(otpCode, recipientEmail));
-    Map<String, String> tokens = Map.of("####", otpCode, "$CODE_EXPIRATION_LABEL", getCodeExpirationLabel(lang));
-    if (recipientEmail == null) {
-      brandedEmailSender.sendEmail(userName, emailSubject, getEmailBodyPath(), tokens);
-    } else {
-      brandedEmailSender.sendEmail(userName, recipientEmail, emailSubject, getEmailBodyPath(), tokens);
+  private void sendCode(String userName, String recipientEmail, String cacheKey, String sendLock) {
+    String storedCode = null;
+    try {
+      String lang = brandedEmailSender.getUserLang(userName);
+      String emailSubject = resourceBundleService.getSharedString(getEmailSubjectKey(), LocaleUtils.toLocale(lang));
+      String otpCode = generateOtpCode();
+      storedCode = String.valueOf(expiringIn(otpTtl * 60)) + EXPIRY_SEPARATOR + getStoredCode(otpCode, recipientEmail);
+      synchronized (sendLockStripe(cacheKey)) {
+        getOtpCache().put(cacheKey, storedCode);
+      }
+      Map<String, String> tokens = Map.of("####", otpCode, "$CODE_EXPIRATION_LABEL", getCodeExpirationLabel(lang));
+      if (recipientEmail == null) {
+        brandedEmailSender.sendEmail(userName, emailSubject, getEmailBodyPath(), tokens);
+      } else {
+        brandedEmailSender.sendEmail(userName, recipientEmail, emailSubject, getEmailBodyPath(), tokens);
+      }
+    } catch (Exception e) {
+      releaseSendLock(cacheKey, sendLock, storedCode);
+      throw e;
     }
+  }
+
+  private void releaseSendLock(String cacheKey, String sendLock, String storedCode) {
+    synchronized (sendLockStripe(cacheKey)) {
+      if (storedCode != null && storedCode.equals(getOtpCache().get(cacheKey))) {
+        getOtpCache().remove(cacheKey);
+      }
+      if (sendLock.equals(getOtpSendLockCache().get(cacheKey))) {
+        getOtpSendLockCache().remove(cacheKey);
+      }
+    }
+  }
+
+  private Object sendLockStripe(String cacheKey) {
+    return sendLockStripes[Math.floorMod(cacheKey.hashCode(), sendLockStripes.length)];
   }
 
   /**

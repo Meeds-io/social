@@ -27,14 +27,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.security.SecureRandom;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
@@ -231,6 +238,62 @@ public class AccountDeactivationEmailOtpPluginTest {
     verify(otpSendLockCache).put(eq("accountDeactivationEmail:john"), lock.capture());
     long lockExpiry = Long.parseLong(lock.getValue());
     assertTrue(lockExpiry >= before + 60000 && lockExpiry <= after + 60000);
+  }
+
+  @Test
+  public void testACodeRequestedWhileAnotherIsBeingSentIsRefused() throws Exception {
+    Map<String, String> sendLocks = new ConcurrentHashMap<>();
+    when(otpSendLockCache.get(anyString())).thenAnswer(invocation -> sendLocks.get(invocation.getArgument(0, String.class)));
+    doAnswer(invocation -> sendLocks.put(invocation.getArgument(0, String.class),
+                                         invocation.getArgument(1, String.class))).when(otpSendLockCache)
+                                                                                    .put(anyString(), anyString());
+    CountDownLatch inSend = new CountDownLatch(1);
+    CountDownLatch releaseSend = new CountDownLatch(1);
+    AtomicInteger sends = new AtomicInteger();
+    doAnswer(invocation -> {
+      if (sends.incrementAndGet() == 1) {
+        inSend.countDown();
+        releaseSend.await(10, TimeUnit.SECONDS);
+      }
+      return null;
+    }).when(mailService).sendMessage(any(MimeMessage.class));
+
+    Thread first = new Thread(() -> {
+      try {
+        plugin.generateOtpCode("john");
+      } catch (Exception e) {
+        throw new IllegalStateException(e);
+      }
+    });
+    first.start();
+    try {
+      assertTrue(inSend.await(10, TimeUnit.SECONDS));
+      assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
+    } finally {
+      releaseSend.countDown();
+      first.join(10000);
+    }
+    assertEquals(1, sends.get());
+  }
+
+  @Test
+  public void testAFailedSendReleasesTheSendLock() throws Exception {
+    Map<String, String> sendLocks = backWithMap(otpSendLockCache);
+    Map<String, String> codes = backWithMap(otpCache);
+    doThrow(new IllegalStateException("smtp down")).when(mailService).sendMessage(any(MimeMessage.class));
+
+    assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john"));
+    assertTrue(sendLocks.isEmpty());
+    assertTrue(codes.isEmpty());
+  }
+
+  private static Map<String, String> backWithMap(ExoCache<String, String> cache) {
+    Map<String, String> values = new ConcurrentHashMap<>();
+    when(cache.get(anyString())).thenAnswer(invocation -> values.get(invocation.getArgument(0, String.class)));
+    doAnswer(invocation -> values.put(invocation.getArgument(0, String.class),
+                                      invocation.getArgument(1, String.class))).when(cache).put(anyString(), anyString());
+    doAnswer(invocation -> values.remove(invocation.getArgument(0, String.class))).when(cache).remove(anyString());
+    return values;
   }
 
 }

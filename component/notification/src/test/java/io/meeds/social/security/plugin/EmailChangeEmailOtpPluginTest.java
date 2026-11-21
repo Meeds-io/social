@@ -49,6 +49,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.MessagingException;
@@ -330,11 +331,16 @@ public class EmailChangeEmailOtpPluginTest {
     doAnswer(invocation -> sendLocks.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpSendLockCache)
                                                                                                  .put(anyString(), anyString());
     doAnswer(invocation -> sendLocks.remove(invocation.getArgument(0))).when(otpSendLockCache).remove(anyString());
+    Map<String, String> codes = new HashMap<>();
+    when(otpCache.get(anyString())).thenAnswer(invocation -> codes.get(invocation.getArgument(0)));
+    doAnswer(invocation -> codes.put(invocation.getArgument(0), invocation.getArgument(1))).when(otpCache)
+                                                                                         .put(anyString(), anyString());
+    doAnswer(invocation -> codes.remove(invocation.getArgument(0))).when(otpCache).remove(anyString());
     doThrow(new MessagingException("mail server down")).when(mailService).sendMessage(any(MimeMessage.class));
 
     assertThrows(Exception.class, () -> plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
     assertFalse("the lock is released", sendLocks.containsKey(CACHE_KEY));
-    verify(otpCache).remove(CACHE_KEY);
+    assertFalse("the code is dropped", codes.containsKey(CACHE_KEY));
 
     doNothing().when(mailService).sendMessage(any(MimeMessage.class));
     assertNull("a new request is accepted at once", plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
@@ -606,6 +612,42 @@ public class EmailChangeEmailOtpPluginTest {
       context.refresh();
       return context.getBean(EmailChangeEmailOtpPlugin.class);
     }
+  }
+
+  @Test
+  public void testACodeRequestedWhileAnotherIsBeingSentIsRefused() throws Exception {
+    Map<String, String> sendLocks = new ConcurrentHashMap<>();
+    when(otpSendLockCache.get(anyString())).thenAnswer(invocation -> sendLocks.get(invocation.getArgument(0, String.class)));
+    doAnswer(invocation -> sendLocks.put(invocation.getArgument(0, String.class),
+                                         invocation.getArgument(1, String.class))).when(otpSendLockCache)
+                                                                                    .put(anyString(), anyString());
+    CountDownLatch inSend = new CountDownLatch(1);
+    CountDownLatch releaseSend = new CountDownLatch(1);
+    AtomicInteger sends = new AtomicInteger();
+    doAnswer(invocation -> {
+      if (sends.incrementAndGet() == 1) {
+        inSend.countDown();
+        releaseSend.await(10, TimeUnit.SECONDS);
+      }
+      return null;
+    }).when(mailService).sendMessage(any(MimeMessage.class));
+
+    Thread first = new Thread(() -> {
+      try {
+        plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT);
+      } catch (Exception e) {
+        throw new IllegalStateException(e);
+      }
+    });
+    first.start();
+    try {
+      assertTrue(inSend.await(10, TimeUnit.SECONDS));
+      assertThrows(IllegalStateException.class, () -> plugin.generateOtpCode("john", NEW_EMAIL, ACCEPT));
+    } finally {
+      releaseSend.countDown();
+      first.join(10000);
+    }
+    assertEquals(1, sends.get());
   }
 
 }

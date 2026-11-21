@@ -104,7 +104,7 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
 
   @Override
   public <R> R generateOtpCode(String userName, String newEmail, AddressCheck<R> addressCheck) throws Exception {
-    takeSendLock(userName);
+    String sendLock = takeSendLock(userName);
     R refusal = addressCheck.check(newEmail);
     if (refusal != null) {
       return refusal;
@@ -112,7 +112,7 @@ public class EmailChangeEmailOtpPlugin extends EmailOtpPlugin implements EmailCh
     if (StringUtils.isBlank(newEmail)) {
       throw new IllegalArgumentException("The new email address is mandatory");
     }
-    sendOtpCodeUnderLock(userName, newEmail.trim());
+    sendOtpCodeUnderLock(userName, newEmail.trim(), sendLock);
     return null;
   }
 
