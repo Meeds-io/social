@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +44,7 @@ import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.web.security.security.CookieTokenService;
 
 import lombok.Setter;
 
@@ -80,6 +82,11 @@ public class AccountDeletionService {
 
   @Autowired
   private ListenerService    listenerService;
+
+  // the remember-me token service, not one of the services extending it
+  @Autowired
+  @Qualifier("org.exoplatform.web.security.security.CookieTokenService")
+  private CookieTokenService cookieTokenService;
 
   /**
    * Grace delay, in days, between the confirmed deletion request and its
@@ -202,6 +209,8 @@ public class AccountDeletionService {
     Identity identity = identityManager.getOrCreateUserIdentity(username);
     identityManager.hardDeleteIdentity(identity);
     organizationService.getUserHandler().removeUser(username, false);
+    // deletes the stored tokens of the account
+    cookieTokenService.deleteTokensOfUser(username);
     indexingService.unindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
     // hardDeleteIdentity doesn't mutate the passed object: reflect the
     // deletion on it so the event carries a really deleted identity
