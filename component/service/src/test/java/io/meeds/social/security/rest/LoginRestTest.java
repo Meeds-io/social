@@ -645,6 +645,8 @@ public class LoginRestTest {
                                                  .accept(MediaType.APPLICATION_JSON));
     response.andExpect(status().isFound())
             .andExpect(header().string("Location","/portal/login"));
+    // the link is used once: its token is deleted with the type it was created with
+    verify(remindPasswordTokenService).deleteToken("123456798", "email-validation");
   }
 
   @Test
@@ -778,6 +780,31 @@ public class LoginRestTest {
                                                  .accept(MediaType.APPLICATION_JSON));
     response.andExpect(status().isOk())
             .andExpect(content().string(new JSONObject().put("success", "emailVerificationSent").toString()));
+    // the registration goes on through the verification email's link
+    verify(remindPasswordTokenService).deleteToken("123456789", "external-registration");
+  }
+
+  @Test
+  @SneakyThrows
+  public void testRegisterAccountVerificationEmailNotSentKeepsTheLink() {
+    User john = new UserImpl();
+    john.setUserName("john");
+    when(userHandler.findUserByName(any(), any())).thenReturn(null);
+    when(userHandler.createUserInstance(any())).thenReturn(john);
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
+    when(passwordRecoveryService.verifyToken(any(),any())).thenReturn("john");
+    when(passwordRecoveryService.sendAccountVerificationEmail(any(),any(),any(),any(),any(),any(),any())).thenReturn(false);
+
+    when(captcha.isCorrect(any())).thenReturn(true);
+    HashMap<String, Object> sessionattr = new HashMap<>();
+
+    sessionattr.put("external-registration", captcha);
+    mockMvc.perform(post("/login/verifyEmail")
+                        .sessionAttrs(sessionattr)
+                        .content("email=jsmith@acme.com&username=john&password=Password1234&password2=Password1234&firstName=John&lastName=Smith&captcha=abcde&token=123456789")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .accept(MediaType.APPLICATION_JSON));
+    verify(remindPasswordTokenService, never()).deleteToken(anyString(), anyString());
   }
 
 
@@ -803,6 +830,8 @@ public class LoginRestTest {
                                                  .accept(MediaType.APPLICATION_JSON));
     response.andExpect(status().isFound())
             .andExpect(header().string("Location","/portal/login"));
+    // the link is used once: its token is deleted with the type it was created with
+    verify(remindPasswordTokenService).deleteToken("123456789", "external-registration");
   }
 
   @Test
