@@ -24,18 +24,19 @@
     v-model="showMenu"
     rounded
     offset-y>
-    <template #activator="{ attrs, on }">
+    <template #activator="{ on }">
       <v-tab
+        ref="tab"
         class="mx-auto pa-1 text-break navigation-mobile-menu-tab"
-        v-bind="attrs"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
         :rel="navigationNodeRel"
         :disabled="!hasPage && !hasChildren"
         :link="hasPage"
         :aria-label="navigation.label"
-        role="tab"
+        :aria-current="isSelected && 'page' || holdsSelectedEntry && 'true' || null"
         @click="checkLink"
+        @keydown="onTabKeydown"
         @change="updateNavigationState(navigation.uri)">
         <span
           class="text-truncate-2 pt-2">
@@ -43,18 +44,23 @@
         </span>
         <v-btn
           v-if="hasPage && hasChildren"
+          ref="chevron"
           v-on="hasChildren && on"
           class="mt-2"
           icon
+          :aria-label="$t('topBar.navigation.menu.openSubMenu', [navigation.label])"
+          :aria-expanded="String(!!showMenu)"
+          aria-haspopup="menu"
           @click.stop.prevent="openDropMenu">
-          <v-icon size="20">
+          <v-icon size="20" aria-hidden="true">
             fa-angle-up
           </v-icon>
         </v-btn>
         <v-icon
           class="pa-3 mt-2"
           v-else-if="hasChildren"
-          size="20">
+          size="20"
+          aria-hidden="true">
           fa-angle-up
         </v-icon>
       </v-tab>
@@ -66,12 +72,18 @@
       :base-site-uri="baseSiteUri"
       :show-menu="showMenu"
       :parent-navigation-uri="navigation.uri"
+      :selected-path="selectedPath"
+      @close="closeMenu"
+      @leaving-page="leavingPage = true"
       @update-navigation-state="updateNavigationState" />
   </v-menu>
 </template>
 
 <script>
+import tabLinkSemantics from '../tabLinkSemantics.js';
+
 export default {
+  mixins: [tabLinkSemantics],
   props: {
     navigation: {
       type: Object,
@@ -80,20 +92,47 @@ export default {
     baseSiteUri: {
       type: String,
       default: null
-    }
+    },
+    selectedPath: {
+      type: String,
+      default: null
+    },
   },
   data: () => ({
     showMenu: false,
+    leavingPage: false,
   }),
   created() {
     document.addEventListener('click', this.handleCloseMenu);
+    window.addEventListener('pageshow', this.onPageShow);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleCloseMenu);
+    window.removeEventListener('pageshow', this.onPageShow);
     this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
+  watch: {
+    // The bar marks the entry of the current page, or the one whose sheet holds it, as the desktop bar does: its tab
+    // is selected once rendered, a click being the only other thing that selects it
+    holdsCurrentPage: {
+      immediate: true,
+      handler: 'selectTabIfCurrent',
+    },
+    // a narrower layout lists fewer entries before More, which keeps its place in the bar's tabs by its position
+    navigation: 'selectTabIfCurrent',
+  },
   computed: {
+    holdsCurrentPage() {
+      return this.isSelected || this.holdsSelectedEntry;
+    },
+    isSelected() {
+      return this.selectedPath === this.navigationNodeUri;
+    },
+    // the entry one of whose menu pages is the current one is announced as current as well
+    holdsSelectedEntry() {
+      return !this.isSelected && !!this.navigation?.children?.some?.(child => this.holdsSelectedPath(child));
+    },
     hasChildren() {
       return this.navigation?.children?.length;
     },
@@ -111,8 +150,30 @@ export default {
     },
   },
   methods: {
+    selectTabIfCurrent() {
+      if (this.holdsCurrentPage) {
+        this.$nextTick(() => this.$emit('select-tab', this.$refs.tab));
+      }
+    },
+    holdsSelectedPath(navigation) {
+      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, navigation) === this.selectedPath
+        || !!navigation.children?.some?.(child => this.holdsSelectedPath(child));
+    },
     updateNavigationState(value) {
       this.$emit('update-navigation-state', `${this.baseSiteUri}${value}`);
+    },
+    // an entry that only opens a menu is a button: Space opens it as Enter does
+    onTabKeydown(event) {
+      if (event.key === ' ' && !this.hasPage && this.hasChildren && this.checkChildrenHasPage(this.navigation)) {
+        event.preventDefault();
+        this.openDropMenu(true, event);
+      }
+    },
+    // Escape in the sheet closes it: the focus goes back to what opened it
+    closeMenu() {
+      this.showMenu = false;
+      // once the sheet is closed: while open, it keeps the focus inside it
+      this.$nextTick(() => (this.hasPage && this.$refs.chevron?.$el || this.$refs.tab?.$el)?.focus?.());
     },
     checkLink(e) {
       if (!this.navigationNodeUri) {
@@ -146,7 +207,20 @@ export default {
         this.showMenu = false;
       }
     },
+    // The page left with the sheet open is shown again by the browser's Back: it shows it closed, the focus on what
+    // opens it
+    onPageShow(event) {
+      if (event.persisted && (this.showMenu || this.leavingPage)) {
+        this.leavingPage = false;
+        this.closeMenu();
+      }
+    },
     handleCloseMenu() {
+      if (this.leavingPage) {
+        // the click on the entry that replaces the page: any later one, the page staying, closes the sheet again
+        this.leavingPage = false;
+        return;
+      }
       if (this.showMenu) {
         setTimeout(() => {
           this.showMenu = false;

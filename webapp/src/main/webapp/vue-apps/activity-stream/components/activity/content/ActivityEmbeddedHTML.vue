@@ -13,10 +13,13 @@
       v-if="titleText"
       :href="link"
       :target="linkTarget"
-      :title="titleText"
+      :title="!titleAnnounced && titleText || null"
+      :aria-label="titleAnnounced && $t('activity.embedded.link.open') || null"
       class="pa-3 text-color z-index-one light-grey-background-color">
       <div
         v-text="titleText"
+        :title="titleAnnounced && titleText || null"
+        :aria-hidden="titleAnnounced && 'true' || null"
         class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate-2"></div>
     </a>
   </div>
@@ -34,6 +37,10 @@ export default {
       default: null,
     },
     isActivityDetail: {
+      type: Boolean,
+      default: false,
+    },
+    titleAnnounced: {
       type: Boolean,
       default: false,
     },

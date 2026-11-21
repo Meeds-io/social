@@ -22,6 +22,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <div class="searchConnectorsParent d-flex align-center mx-4 mb-2 pb-2 content-box-sizing overflow-x-auto text-no-wrap">
     <search-space-selector />
     <v-menu
+      v-model="menu"
+      role="none"
       :close-on-content-click="false"
       content-class="connectors-list"
       :attach="!$root.isMobile"
@@ -30,26 +32,43 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       offset-y>
       <template #activator="{ on, attrs }">
         <v-chip
+          ref="menuActivator"
           outlined
           :aria-label="$t('search.filter.type')"
           v-bind="attrs"
           v-on="on"
           tabindex="0"
           class="text-body text-header-color me-1 flex-shrink-0"
-          @keydown.enter="on.click">
-          <v-icon size="16" class="pe-2">
+          @keydown.enter.prevent="on.click"
+          @keydown.space.prevent="on.click">
+          <v-icon
+            size="16"
+            class="pe-2"
+            aria-hidden="true">
             fas fa-paste
           </v-icon>
           <span class="me-8">{{ $t('search.connector.label.all') }}</span>
           <i class="fas fa-chevron-down"></i>
         </v-chip>
       </template>
-      <v-list dense class="pa-0">
-        <v-list-item @click="$emit('select-all-connector')">
+      <v-list
+        ref="menuList"
+        :aria-label="$t('search.filter.type.group')"
+        role="menu"
+        dense
+        class="pa-0"
+        @keydown.native="onMenuEntriesKeydown">
+        <v-list-item
+          :aria-checked="String(allEnabled)"
+          role="menuitemcheckbox"
+          @click="$emit('select-all-connector')"
+          @keydown.space.prevent="$emit('select-all-connector')">
           <v-list-item-title class="d-flex align-center">
             <v-checkbox
               :input-value="allEnabled"
               :ripple="false"
+              tabindex="-1"
+              aria-hidden="true"
               readonly
               dense
               class="ma-0" />
@@ -60,14 +79,18 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         <v-list-item
           v-for="connector in sortedConnectors"
           :key="connector.name"
-          :aria-label="getAriaLabel(connector)"
+          :aria-checked="String(!allEnabled && connector.enabled)"
+          role="menuitemcheckbox"
           class="clickable"
           dense
-          @click="$emit('select-connector', connector)">
+          @click="$emit('select-connector', connector)"
+          @keydown.space.prevent="$emit('select-connector', connector)">
           <v-list-item-title class="d-flex align-center">
             <v-checkbox
               :input-value="!allEnabled && connector.enabled"
               :ripple="false"
+              tabindex="-1"
+              aria-hidden="true"
               dense
               class="ma-0" />
             <span>{{ connector.label }}</span>
@@ -88,13 +111,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           {{ connector.icon }}
         </v-icon>
         <span>{{ connector.label }}</span>
-        <v-icon
-          size="10"
-          class="ms-2"
-          right
+        <v-btn
+          :aria-label="$t('search.connector.option.remove.ariaLabel', {0: connector.label})"
+          class="searchConnectorRemoveButton ms-1 me-n2"
+          icon
+          x-small
           @click="$emit('select-connector', connector)">
-          fas fa-times
-        </v-icon>
+          <v-icon size="10" aria-hidden="true">fas fa-times</v-icon>
+        </v-btn>
       </v-chip>
     </div>
     <search-tag-selector @tags-changed="$emit('select-tags', $event)" />
@@ -104,7 +128,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 </template>
 
 <script>
+import menuKeyboard from '../../../common/js/MenuKeyboard.js';
+
 export default {
+  mixins: [menuKeyboard],
   props: {
     favorites: {
       type: Boolean,
@@ -123,13 +150,20 @@ export default {
       default: () => [],
     },
   },
+  data: () => ({
+    menu: false,
+  }),
+  watch: {
+    menu(opened) {
+      if (opened) {
+        this.focusFirstMenuEntry();
+      }
+    },
+  },
   methods: {
-    getAriaLabel(connector) {
-      const isSelected = this.enabledConnectors.some(
-        enabled => enabled?.name === connector?.name
-      );
-      return !this.allEnabled && isSelected && this.$t('search.connector.option.selected.type.ariaLabel', {0: connector?.label}) || this.$t('search.connector.option.type.ariaLabel', {0: connector?.label});
-    }
-  }
+    closeKeyboardMenu() {
+      this.menu = false;
+    },
+  },
 };
 </script>

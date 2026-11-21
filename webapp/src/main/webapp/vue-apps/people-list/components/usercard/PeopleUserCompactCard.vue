@@ -23,29 +23,14 @@
     <v-card
       :id="userMenuParentId"
       :class="hover && 'grey lighten-4'"
-      class="peopleCardItem d-flex mx-2"
+      class="peopleCardItem hover-reveal-parent d-flex mx-2"
       flat>
-      <div class="peopleToolbarIcons my-auto ms-auto">
-        <v-avatar
-          v-if="user.isGroupBound"
-          :title="$t('peopleList.label.groupBound')"
-          :size="28"
-          class="peopleGroupMemberBindingIcon d-flex mx-2 my-0">
-          <v-icon size="12" color="white">fa-users</v-icon>
-        </v-avatar>
-        <people-user-menu
-          :user="user"
-          :space-id="spaceId"
-          :user-navigation-extensions="userNavigationExtensions"
-          :space-members-extensions="spaceMembersExtensions"
-          :profile-action-extensions="profileActionExtensions"
-          :display-menu-button="displayCompactMenuButton || $root.isMobile || hover"
-          :bottom-menu="$root.isMobile"
-          :attach-menu="attachMenu"
-          menu-button-class="me-1" />
-      </div>
       <div class="peopleAvatar">
-        <a :href="url" :aria-label="$t('profileSettings.label.profile')">
+        <a
+          :href="url"
+          :aria-label="user.fullname"
+          tabindex="-1"
+          aria-hidden="true">
           <v-img
             :lazy-src="`${userAvatarUrl}`"
             :src="`${userAvatarUrl}`"
@@ -68,7 +53,7 @@
           <a
             :href="url"
             :title="user.fullname"
-            :class="usernameClass"
+            :class="[usernameClass, stretchedLink && 'stretched-link']"
             class="userFullname font-weight-bold text-capitalize">
             {{ user.fullname }}
             <span v-if="externalUser" class="externalFlagClass">
@@ -86,12 +71,36 @@
             }">
             <a
               :href="url"
+              tabindex="-1"
               class="grey--text text--darken-1">
               {{ primaryProperty }}
             </a>
           </v-card-subtitle>
         </div>
       </v-card-text>
+      <!-- after the name in the DOM, so that the name gets the focus first; order-first keeps it on top -->
+      <div
+        :class="stretchedLink && 'stretched-link-above'"
+        class="peopleToolbarIcons order-first my-auto ms-auto">
+        <v-avatar
+          v-if="user.isGroupBound"
+          :title="$t('peopleList.label.groupBound')"
+          :size="28"
+          class="peopleGroupMemberBindingIcon d-flex mx-2 my-0">
+          <v-icon size="12" color="white">fa-users</v-icon>
+        </v-avatar>
+        <people-user-menu
+          :user="user"
+          :space-id="spaceId"
+          :user-navigation-extensions="userNavigationExtensions"
+          :space-members-extensions="spaceMembersExtensions"
+          :profile-action-extensions="profileActionExtensions"
+          :hover-reveal="!(displayCompactMenuButton || $root.isMobile)"
+          display-menu-button
+          :bottom-menu="$root.isMobile"
+          :attach-menu="attachMenu"
+          menu-button-class="me-1" />
+      </div>
     </v-card>
   </v-hover>
 </template>
@@ -141,7 +150,12 @@ export default {
     attachMenu: {
       type: Boolean,
       default: true
-    }
+    },
+    // the person's name link covers the card, its buttons above it: the whole card is one link (search results)
+    stretchedLink: {
+      type: Boolean,
+      default: false
+    },
   },
   data: () => ({
     hover: false,

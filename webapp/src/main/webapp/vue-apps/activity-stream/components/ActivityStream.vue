@@ -10,6 +10,7 @@
       <categories-filter
         v-if="$root.allowFilteringPerCategory && !$root.selectedActivityId"
         v-show="hasActivities"
+        ref="categoriesFilter"
         v-model="$root.selectedCategoryId"
         :category-depth="$root.categoryDepth"
         :category-ids="$root.settings?.categoryIds"
@@ -83,6 +84,7 @@ export default {
     this.refreshActivityTypes();
     this.refreshActivityActions();
     this.refreshCommentActions();
+    this.$root.$on('activity-stream-focus-category-filter', this.focusCategoryFilter);
     const queryParamId = this.$utils.getQueryParam('id');
     if (queryParamId && queryParamId.includes('comment')) {
       this.$root.selectedCommentId = queryParamId;
@@ -115,8 +117,12 @@ export default {
     document.removeEventListener(`extension-${this.extensionApp}-${this.commentActionExtension}-updated`, this.refreshCommentActions);
     document.removeEventListener(`extension-${this.extensionApp}-${this.activityActionTypeExtension}-updated`, this.refreshExpandActionTypes);
     this.resizeObserver?.disconnect();
+    this.$root.$off('activity-stream-focus-category-filter', this.focusCategoryFilter);
   },
   methods: {
+    focusCategoryFilter() {
+      this.$nextTick(() => this.$refs.categoriesFilter?.focusPressedChip?.());
+    },
     displayActivityDetail(activityId, commentId) {
       this.loaded = false;
       this.$root.selectedActivityId = this.activityId = activityId;

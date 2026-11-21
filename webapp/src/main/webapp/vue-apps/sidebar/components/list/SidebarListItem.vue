@@ -20,7 +20,10 @@
 
 -->
 <template>
-  <v-divider v-if="item.type === 'SEPARATOR'" class="my-1" />
+  <v-divider
+    v-if="item.type === 'SEPARATOR'"
+    class="my-1"
+    role="separator" />
   <div v-else-if="isSitePages">
     <sidebar-list-sub-list
       :item="item" />
@@ -30,50 +33,65 @@
       :is="$root.displaySequentially ? 'v-hover' : 'div'"
       v-model="hover"
       v-if="displaySpacesList">
-      <v-list-item
-        :title="spacesTooltip"
-        :class="$root.iconCollapse && 'mx-0'"
-        class="d-flex ps-3"
-        dense
-        @click="handleSpacesClick">
-        <v-list-item-avatar class="me-2 my-auto" min-width="40">
-          <v-btn
-            v-if="displaySpacesExpandButton"
-            :title="spacesTooltip"
-            height="36"
-            width="36"
-            icon
-            @mousedown.prevent.stop="0"
-            @mouseup.prevent.stop="0"
-            @click.prevent.stop="collapsedSpaces = !collapsedSpaces">
-            <v-icon size="18">{{ spacesIcon }}</v-icon>
-          </v-btn>
-          <v-icon v-else size="18">{{ spacesIcon }}</v-icon>
-        </v-list-item-avatar>
-        <v-list-item-content v-if="$root.expand">
-          <v-list-item-title class="menu-text-color text-truncate">
-            {{ $t(item.name) }}
-          </v-list-item-title>
-        </v-list-item-content>
-        <v-list-item-action
-          v-if="toggleArrow && $root.expand"
-          class="my-auto align-center"
-          @mousedown.stop.prevent
-          @mouseup.stop.prevent>
-          <ripple-hover-button
-            :active="!drawerOpened"
-            :title="$t('menu.accessToSpacesList')"
-            class="ms-2"
-            icon
-            @ripple-hover="openSpacesList">
-            <v-icon
-              class="me-0 pa-2 icon-default-color"
-              small>
-              {{ arrowIcon }}
-            </v-icon>
-          </ripple-hover-button>
-        </v-list-item-action>
-      </v-list-item>
+      <div
+        class="position-relative"
+        @focusin="focused = true"
+        @focusout="onFocusOut">
+        <v-list-item
+          :title="spacesTooltip"
+          :aria-expanded="spacesExpanded"
+          :aria-label="$t(item.name)"
+          :class="[$root.iconCollapse && 'mx-0', showArrow && 'pe-15', hover && 'v-list-item--highlighted']"
+          role="button"
+          class="d-flex ps-3"
+          dense
+          @click="handleSpacesClick">
+          <v-list-item-avatar class="me-2 my-auto" min-width="40">
+            <v-btn
+              v-if="displaySpacesExpandButton"
+              :title="spacesTooltip"
+              height="36"
+              width="36"
+              icon
+              @mousedown.prevent.stop="0"
+              @mouseup.prevent.stop="0"
+              @click.prevent.stop="collapsedSpaces = !collapsedSpaces">
+              <v-icon size="18">{{ spacesIcon }}</v-icon>
+            </v-btn>
+            <v-icon v-else size="18">{{ spacesIcon }}</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-content v-if="$root.expand">
+            <v-list-item-title class="menu-text-color text-truncate">
+              {{ $t(item.name) }}
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <!-- The arrow follows the entry instead of sitting in it: a screen reader's browse mode reads the entry as one
+             object and activates it on Enter, whatever control inside it has the focus.
+             Kept for screen readers while hidden: their browse mode neither hovers nor focuses the entry.
+             Its hover opens the panel only while it shows: a pointer passing by the row leaves no pending open -->
+        <div
+          v-if="hasArrow"
+          :class="$vuetify.rtl && 'l-0' || 'r-0'"
+          class="HamburgerMenuItemActions position-absolute t-0 fill-height d-flex align-center pe-4 z-index-one">
+          <div :class="!showArrow && 'd-sr-only'">
+            <ripple-hover-button
+              :active="!drawerOpened && showArrow"
+              :title="arrowLabel"
+              :aria-label="arrowLabel"
+              :aria-expanded="drawerOpened ? 'true' : 'false'"
+              class="ms-2"
+              icon
+              @ripple-hover="openSpacesList">
+              <v-icon
+                class="me-0 pa-2 icon-default-color"
+                small>
+                {{ arrowIcon }}
+              </v-icon>
+            </ripple-hover-button>
+          </div>
+        </div>
+      </div>
     </component>
     <v-expand-transition v-if="displayItemsInMobile">
       <sidebar-list-sub-list
@@ -85,80 +103,92 @@
     v-else-if="item.url"
     :is="$root.displaySequentially ? 'v-hover' : 'div'"
     v-model="hover">
-    <v-list-item
-      v-bind="itemAttributes"
-      v-on="itemActions"
-      :title="tooltip"
-      :value="item.url"
-      :disabled="!item.url"
-      :class="(!$root.expand || !item.avatar) && avatar && 'ms-n2px'"
-      class="d-flex ps-3"
-      dense>
-      <v-list-item-avatar
-        v-if="icon || ($root.expand && item.avatar)"
-        class="my-auto me-2"
-        min-width="40">
-        <v-icon
-          v-if="icon"
-          class="icon-default-color"
-          size="18">
-          {{ icon || 'fa-folder' }}
-        </v-icon>
-      </v-list-item-avatar>
-      <v-list-item-avatar
-        v-if="avatar"
-        :class="($root.expand && item.avatar) && 'me-2' || 'ms-2'"
-        class="my-auto"
-        min-width="28"
-        width="28"
-        height="28"
-        tile>
-        <img
-          :src="avatar"
-          alt=""
-          class="border-radius object-fit-contain"
-          width="auto"
-          height="auto">
-      </v-list-item-avatar>
-      <v-card
-        v-if="spaceUnreadCount && $root.icon && !$root.expand"
-        :class="$vuetify.rtl && 'l-0' || 'r-0'"
-        class="hamburger-unread-badge border-radius-circle error-color-background position-absolute t-0 me-4 mt-0"
-        width="12"
-        height="12"
-        flat />
-      <v-list-item-content v-if="$root.expand">
-        <v-list-item-title class="menu-text-color text-truncate">
-          {{ item.name }}
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action
-        v-if="toggleArrow && $root.expand"
-        class="my-auto align-center z-index-one position-relative"
-        @mousedown.stop.prevent
-        @mouseup.stop.prevent>
-        <ripple-hover-button
-          :active="!drawerOpened"
-          :title="$t('menu.accessToPagesList')"
-          class="ms-2"
-          icon
-          @ripple-hover="openOrCloseDrawer()">
+    <div
+      class="position-relative"
+      @focusin="focused = true"
+      @focusout="onFocusOut">
+      <v-list-item
+        v-bind="itemAttributes"
+        v-on="itemActions"
+        :title="tooltip"
+        :value="item.url"
+        :disabled="!item.url"
+        :class="[(!$root.expand || !item.avatar) && avatar && 'ms-n2px', actionDisplayed && 'pe-15', hover && 'v-list-item--highlighted']"
+        class="d-flex ps-3"
+        dense>
+        <v-list-item-avatar
+          v-if="icon || ($root.expand && item.avatar)"
+          class="my-auto me-2"
+          min-width="40">
           <v-icon
-            class="me-0 pa-2 icon-default-color"
-            small>
-            {{ arrowIcon }}
+            v-if="icon"
+            class="icon-default-color"
+            size="18">
+            {{ icon || 'fa-folder' }}
           </v-icon>
-        </ripple-hover-button>
-      </v-list-item-action>
-      <v-list-item-action
-        v-else-if="isPage"
-        class="my-auto align-center"
-        @mousedown.stop.prevent
-        @mouseup.stop.prevent>
+        </v-list-item-avatar>
+        <v-list-item-avatar
+          v-if="avatar"
+          :class="($root.expand && item.avatar) && 'me-2' || 'ms-2'"
+          class="my-auto"
+          min-width="28"
+          width="28"
+          height="28"
+          tile>
+          <img
+            :src="avatar"
+            alt=""
+            class="border-radius object-fit-contain"
+            width="auto"
+            height="auto">
+        </v-list-item-avatar>
+        <v-card
+          v-if="spaceUnreadCount && $root.icon && !$root.expand"
+          :class="$vuetify.rtl && 'l-0' || 'r-0'"
+          class="hamburger-unread-badge border-radius-circle error-color-background position-absolute t-0 me-4 mt-0"
+          width="12"
+          height="12"
+          flat />
+        <v-list-item-content v-if="$root.expand">
+          <v-list-item-title class="menu-text-color text-truncate">
+            {{ item.name }}
+          </v-list-item-title>
+        </v-list-item-content>
+        <space-unread-badge
+          v-if="isSpace"
+          v-show="!toggleArrow"
+          :space-id="spaceId"
+          :unread-badge="spaceUnreadCount"
+          @refresh="retrieveSpace(true)" />
+      </v-list-item>
+      <!-- The arrow and the home button follow the entry instead of sitting in it: a screen reader's browse mode reads
+           the entry's link as one object and follows it on Enter, whatever control inside it has the focus.
+           The arrow is kept for screen readers while hidden; its hover opens the panel only while it shows -->
+      <div
+        v-if="hasArrow || homeButtonAllowed"
+        :class="$vuetify.rtl && 'l-0' || 'r-0'"
+        class="HamburgerMenuItemActions position-absolute t-0 fill-height d-flex align-center pe-4 z-index-one">
+        <div v-if="hasArrow" :class="!showArrow && 'd-sr-only'">
+          <ripple-hover-button
+            :active="!drawerOpened && showArrow"
+            :title="arrowLabel"
+            :aria-label="arrowLabel"
+            :aria-expanded="drawerOpened ? 'true' : 'false'"
+            class="ms-2"
+            icon
+            @ripple-hover="openOrCloseDrawer()">
+            <v-icon
+              class="me-0 pa-2 icon-default-color"
+              small>
+              {{ arrowIcon }}
+            </v-icon>
+          </ripple-hover-button>
+        </div>
         <v-btn
-          v-if="$root.expand && $root.allowUserHome && homeUri"
-          v-show="hover || isHome"
+          v-else-if="homeButtonAllowed"
+          v-show="homeButtonShown"
           :title="$t('menu.spaces.makeAsHomePage')"
+          :aria-label="$t('menu.spaces.makeAsHomePage')"
           class="ms-2"
           icon
           @click.stop.prevent="$root.$emit('update-home-link-page', item, homeUri)">
@@ -169,14 +199,8 @@
             fa-house-user
           </v-icon>
         </v-btn>
-      </v-list-item-action>
-      <space-unread-badge
-        v-if="isSpace"
-        v-show="!toggleArrow"
-        :space-id="spaceId"
-        :unread-badge="spaceUnreadCount"
-        @refresh="retrieveSpace(true)" />
-    </v-list-item>
+      </div>
+    </div>
   </component>
 </template>
 <script>
@@ -186,9 +210,14 @@ export default {
       type: Object,
       default: null,
     },
+    activeUrl: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     hover: false,
+    focused: false,
     collapsedSpaces: false,
     space: null,
   }),
@@ -285,8 +314,20 @@ export default {
     target() {
       return this.isUrl && this.item.target === 'NEW_TAB' && '_blank' || null;
     },
+    spacesExpanded() {
+      return String(this.$root.displaySequentially ? !this.collapsedSpaces : !!this.drawerOpened);
+    },
+    isCurrentPage() {
+      return !!this.activeUrl && this.activeUrl === this.item.url;
+    },
     itemAttributes() {
       const attributes = {};
+      attributes.role = this.isUrl && 'link' || 'button';
+      // its own name: the buttons inside the entry (arrow, home) must not add to it
+      attributes['aria-label'] = this.spaceUnreadCount ? this.$t('menu.entryWithUnread', {0: this.item.name, 1: this.spaceUnreadCount}) : this.item.name;
+      if (this.isCurrentPage) {
+        attributes['aria-current'] = 'page';
+      }
       if (this.isUrl) {
         attributes.href = this.url;
         attributes.target = this.target;
@@ -307,9 +348,30 @@ export default {
       }
       return actions;
     },
+    hasArrow() {
+      return this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaceCategory || this.isSpaces;
+    },
     toggleArrow() {
-      return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaceCategory || this.isSpaces)
-        && (this.hover || this.drawerOpened);
+      return this.hasArrow && (this.hover || this.focused || this.drawerOpened);
+    },
+    showArrow() {
+      return this.toggleArrow && this.$root.expand;
+    },
+    homeButtonAllowed() {
+      return this.isPage && this.$root.expand && this.$root.allowUserHome && !!this.homeUri;
+    },
+    homeButtonShown() {
+      return this.homeButtonAllowed && (this.hover || this.focused || this.isHome);
+    },
+    // the entry leaves room at its end for the button shown over it
+    actionDisplayed() {
+      return this.showArrow || this.homeButtonShown;
+    },
+    // a screen reader lists one arrow per entry: each names the entry it opens
+    arrowLabel() {
+      return (this.isSpaces || this.isSpaceTemplate || this.isSpaceCategory)
+        ? this.$t('menu.accessToEntrySpacesList', {0: this.$t(this.item.name)})
+        : this.$t('menu.accessToEntryPagesList', {0: this.item.name});
     },
     tooltip() {
       if (this.isSpace) {
@@ -390,6 +452,10 @@ export default {
     document.removeEventListener('space-settings-updated', this.handleSpaceUpdated);
   },
   methods: {
+    // the entry keeps its keyboard state while the focus moves to its own buttons
+    onFocusOut(event) {
+      this.focused = !!(event.relatedTarget && event.currentTarget?.contains?.(event.relatedTarget));
+    },
     handleSpaceUpdated(event) {
       const space = event?.detail;
       if (space && this.space?.id === space?.id) {

@@ -22,6 +22,9 @@
   <v-btn
     v-if="!$root.sticky"
     :title="$t('menu.spaces.openSidebarTooltip')"
+    :aria-label="$t('menu.spaces.openSideMenuLabel')"
+    :aria-expanded="expanded ? 'true' : 'false'"
+    aria-controls="HamburgerMenuNavigation"
     class="HamburgerNavigationMenuLink border-box-sizing rounded-0 layout-top-bar"
     height="54"
     width="69"
@@ -38,6 +41,12 @@
 </template>
 <script>
 export default {
+  props: {
+    expanded: {
+      type: Boolean,
+      default: false,
+    },
+  },
   computed: {
     showBadge() {
       return this.$root.unreadPerSpace

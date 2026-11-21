@@ -22,7 +22,7 @@
 -->
 <template>
   <v-menu
-    v-if="breadcrumb && category.categories?.length"
+    v-if="breadcrumb && category.categories?.length && !readonly"
     ref="menu"
     v-model="menu"
     :key="category.id"
@@ -45,12 +45,14 @@
         :color="selected && 'primary'"
         :small="small"
         :tabindex="tabindex"
+        :aria-pressed="toggle ? String(selected) : null"
         class="text-truncate border-box-sizing"
+        role="button"
         @focus="menu = true">
         <v-card
           :title="category.name"
           :class="[
-            selected && 'white--text' || 'primary--text',
+            selected && 'white--text font-weight-bold text-decoration-underline' || 'primary--text',
           ]"
           :max-width="maxWidth"
           color="transparent"
@@ -64,6 +66,8 @@
           :color="selected && 'white' || 'primary'"
           class="ms-2"
           size="16"
+          aria-hidden="true"
+          tabindex="-1"
           right
           @click.stop.prevent="menu = true">
           fa-chevron-down
@@ -98,14 +102,15 @@
     :class="[chipClass, small && 'text-subtitle-font-size' || '', !visible && 'invisible' || '']"
     :color="selected && 'primary'"
     :small="small"
-    :tabindex="tabindex"
+    :tabindex="readonly ? null : tabindex"
+    :aria-pressed="toggle && !readonly ? String(selected) : null"
+    :role="readonly ? null : 'button'"
     class="text-truncate border-box-sizing"
-    @click.prevent.stop="openCategory(category)"
-    @keydown.enter.stop.prevent="openCategory(category)">
+    v-on="readonly ? {} : {click: onActivate, keydown: onKeydown}">
     <v-card
       :title="category.name"
       :class="[
-        selected && 'white--text' || 'primary--text',
+        selected && 'white--text font-weight-bold text-decoration-underline' || 'primary--text',
       ]"
       :max-width="maxWidth"
       class="text-truncate"
@@ -127,11 +132,19 @@ export default {
       type: Boolean,
       default: false,
     },
+    toggle: {
+      type: Boolean,
+      default: false,
+    },
     selected: {
       type: Boolean,
       default: false,
     },
     breadcrumb: {
+      type: Boolean,
+      default: false,
+    },
+    readonly: {
       type: Boolean,
       default: false,
     },
@@ -194,6 +207,16 @@ export default {
   methods: {
     closeMenuImmediatly() {
       this.menu = false;
+    },
+    onActivate(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.openCategory(this.category);
+    },
+    onKeydown(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        this.onActivate(event);
+      }
     },
     openCategory(category) {
       this.$emit('select', category);

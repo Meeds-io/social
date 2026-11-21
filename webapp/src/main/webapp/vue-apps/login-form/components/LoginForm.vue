@@ -137,12 +137,24 @@
                 dense
                 background-color="white">
                 <template #append>
-                  <v-icon
-                    class="v-input__icon text-font-size mt-0"
-                    @click="toggleShow"
-                    :aria-label="showPassword ? $t('loginForm.hidePassword') : $t('loginForm.showPassword')">
-                    {{ showPassword ? 'fas fa-eye-slash' : 'fas fa-eye' }}
-                  </v-icon>
+                  <v-btn
+                    id="showPasswordButton"
+                    type="button"
+                    class="show-password-button mt-0"
+                    :aria-label="$t('loginForm.showPasswordButton')"
+                    :aria-pressed="showPassword ? 'true' : 'false'"
+                    icon
+                    x-small
+                    retain-focus-on-click
+                    @mousedown.stop
+                    @mouseup.stop
+                    @click.stop="toggleShow">
+                    <v-icon
+                      class="text-font-size"
+                      aria-hidden="true">
+                      {{ showPassword ? 'fas fa-eye-slash' : 'fas fa-eye' }}
+                    </v-icon>
+                  </v-btn>
                 </template>
               </v-text-field>
             </v-row>
@@ -245,6 +257,16 @@ export default {
     focus: false,
   }),
   watch: {
+    // The checkbox cancels the click on its input, so the browser restores the input's checked state
+    // after the click: the native state, which assistive technologies read, is set once the click is over
+    rememberme() {
+      window.setTimeout(() => {
+        const input = this.$el?.querySelector?.('#rememberme');
+        if (input) {
+          input.checked = !!this.rememberme;
+        }
+      });
+    },
     errorMessage: {
       immediate: true,
       handler: function() {

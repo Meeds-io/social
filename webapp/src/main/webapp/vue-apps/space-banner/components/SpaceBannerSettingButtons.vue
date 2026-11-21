@@ -19,15 +19,14 @@
 
 -->
 <template>
-  <div
-    v-show="hover"
-    class="d-flex flex-grow-1 position-absolute full-height full-width">
+  <div class="d-flex flex-grow-1 position-absolute full-height full-width">
     <div class="me-2 ms-auto my-auto mt-sm-2 mb-sm-0">
       <v-btn
-        v-show="!defaultBanner && hover"
+        v-show="!defaultBanner"
         :title="$t('UIPopupBannerUploader.title.deleteBanner')"
+        :aria-label="$t('UIPopupBannerUploader.title.deleteBanner')"
         id="spaceBannerDeleteButton"
-        class="changeBannerButton mask-color border-color"
+        class="changeBannerButton mask-color border-color hover-reveal"
         outlined
         icon
         dark
@@ -35,10 +34,10 @@
         <v-icon size="18" color="error">mdi-delete</v-icon>
       </v-btn>
       <v-btn
-        v-show="hover"
         ref="bannerInput"
         id="spaceBannerEditButton"
-        class="changeBannerButton mask-color border-color"
+        :aria-label="$t('UIPopupBannerUploader.title.ChangeBanner')"
+        class="changeBannerButton mask-color border-color hover-reveal"
         icon
         outlined
         dark
@@ -51,10 +50,6 @@
 <script>
 export default {
   props: {
-    hover: {
-      type: Boolean,
-      default: false,
-    },
     defaultBanner: {
       type: Boolean,
       default: false,

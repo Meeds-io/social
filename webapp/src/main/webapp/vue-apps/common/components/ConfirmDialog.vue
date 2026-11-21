@@ -6,20 +6,29 @@
     :width="width"
     :content-class="`uiPopup ${isBrandingLayout && 'layout-drawer' || ''}`"
     max-width="100vw">
-    <v-card class="elevation-12 transparent">
+    <v-card
+      ref="card"
+      class="elevation-12 transparent"
+      role="alertdialog"
+      aria-modal="true"
+      :aria-labelledby="titleId"
+      :aria-describedby="messageId">
       <div class="ignore-vuetify-classes popupHeader ClearFix" :class="isBrandingLayout && 'layout-drawer' || ''">
-        <a
-          class="uiIconClose pull-right"
-          aria-hidden="true"
-          @click="close"></a>
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <span class="ignore-vuetify-classes text-title" v-html="title"></span>
+        <button
+          type="button"
+          class="uiIconClose pull-right no-border pa-0 transparent clickable"
+          :aria-label="$t('label.close')"
+          @click="close"></button>
+        <span
+          :id="titleId"
+          class="ignore-vuetify-classes text-title">{{ title }}</span>
       </div>
-      <v-card-text v-sanitized-html="message" />
+      <v-card-text :id="messageId" v-sanitized-html="message" />
       <v-card-actions v-if="!hideActions">
         <v-spacer />
         <button
           v-if="okLabel"
+          ref="okButton"
           :disabled="loading"
           :loading="loading"
           class="ignore-vuetify-classes btn btn-primary me-2"
@@ -28,6 +37,7 @@
         </button>
         <button
           v-if="cancelLabel"
+          ref="cancelButton"
           :disabled="loading"
           :loading="loading"
           class="ignore-vuetify-classes btn ms-2"
@@ -99,25 +109,53 @@ export default {
   data: () => ({
     dialog: false,
     closed: false,
+    confirmed: false,
   }),
+  computed: {
+    titleId() {
+      return `confirmDialogTitle${this._uid}`;
+    },
+    messageId() {
+      return `confirmDialogMessage${this._uid}`;
+    },
+  },
+  created() {
+    // the focus contract the platform's confirmation dialogs share: see common/js/DialogFocus.js
+    this.dialogFocus = this.$dialogFocus.create({
+      content: () => this.$refs.dialog?.$refs?.content || this.$refs.card?.$el,
+      defaultButton: () => this.$refs.cancelButton || this.$refs.okButton,
+    });
+  },
+  beforeDestroy() {
+    this.dialogFocus.destroy();
+  },
   watch: {
     dialog() {
       if (this.dialog) {
+        this.dialogFocus.open();
+        this.confirmed = false;
         this.closed = false;
         this.$emit('dialog-opened');
         document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
+        this.dialogFocus.close({confirmed: this.confirmed});
         this.emitClosedEvent();
       }
     },
   },
   methods: {
+    returnFocusTo(element) {
+      // once closed, the dialog gives the focus to this element instead of its opener (e.g. a side panel the
+      // confirmation closes gives it to the panel's own opener, its control that asked being hidden)
+      this.dialogFocus.returnFocusTo(element);
+    },
     ok(event) {
       if (event) {
         event.preventDefault();
         event.stopPropagation();
       }
 
+      this.confirmed = true;
       this.$emit('ok');
       this.close(event);
     },
@@ -134,6 +172,8 @@ export default {
       });
     },
     open() {
+      // read during the click: a menu that closes on this click resets its button's aria-expanded before the dialog watcher runs
+      this.dialogFocus.capture();
       this.dialog = true;
       this.$emit('opened');
       this.$nextTick(() => this.dialog = true);
