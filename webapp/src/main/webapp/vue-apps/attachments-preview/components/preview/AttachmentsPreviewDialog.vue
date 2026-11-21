@@ -120,8 +120,30 @@ export default {
         attachment: attachment,
       };
     },
+    /**
+     * Chooses the preview of a file: the first extension whose fileType its
+     * mimetype holds, else the first whose fileExtensions holds the end of its
+     * name, compared case-insensitively, else the default one.
+     *
+     * @param {object} attachment the previewed file, with its mimetype and filename
+     * @returns {object} the preview extension to render it with
+     */
     getExtension(attachment) {
-      return this.previewExtensions.find((element) => attachment.mimetype.includes(element.fileType)) || this.previewExtensions.find((element) => element.default);
+      return this.previewExtensions.find((element) => attachment.mimetype.includes(element.fileType))
+        || this.previewExtensions.find((element) => this.hasFileExtension(attachment, element))
+        || this.previewExtensions.find((element) => element.default);
+    },
+    /**
+     * Tells whether a file's name ends with one of the extensions a preview
+     * extension declares in its optional fileExtensions list.
+     *
+     * @param {object} attachment the previewed file
+     * @param {object} element a preview extension
+     * @returns {boolean} true when the file's name ends with one of them
+     */
+    hasFileExtension(attachment, element) {
+      const filename = (attachment?.filename || attachment?.title || '').toLowerCase();
+      return !!filename && !!element.fileExtensions?.some(extension => filename.endsWith(extension.toLowerCase()));
     },
     openPreview(event) {
       const attachment = event?.detail;
