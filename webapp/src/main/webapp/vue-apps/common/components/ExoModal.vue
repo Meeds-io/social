@@ -11,8 +11,7 @@
           class="uiIconClose pull-right"
           aria-hidden="true"
           @click="close"></a>
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <span class="ignore-vuetify-classes PopupTitle popupTitle text-truncate" v-html="title"></span>
+        <span class="ignore-vuetify-classes PopupTitle popupTitle text-truncate">{{ title }}</span>
       </div>
       <slot></slot>
       <v-card-actions v-if="!hideActions">

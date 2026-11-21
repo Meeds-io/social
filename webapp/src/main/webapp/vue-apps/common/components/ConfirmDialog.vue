@@ -12,8 +12,7 @@
           class="uiIconClose pull-right"
           aria-hidden="true"
           @click="close"></a>
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <span class="ignore-vuetify-classes text-title" v-html="title"></span>
+        <span class="ignore-vuetify-classes text-title">{{ title }}</span>
       </div>
       <v-card-text v-sanitized-html="message" />
       <v-card-actions v-if="!hideActions">
