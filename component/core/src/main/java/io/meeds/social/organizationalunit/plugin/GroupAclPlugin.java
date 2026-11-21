@@ -64,8 +64,11 @@ public class GroupAclPlugin implements AclPlugin {
       return false;
     }
     switch (permissionType) {
-    case LIST_MEMBERS_PERMISSION_TYPE, MANAGE_MEMBERSHIPS_PERMISSION_TYPE -> {
+    case LIST_MEMBERS_PERMISSION_TYPE -> {
       return organizationalUnitService.canManageGroup(objectId, identity.getUserId());
+    }
+    case MANAGE_MEMBERSHIPS_PERMISSION_TYPE -> {
+      return organizationalUnitService.canManageGroupMemberships(objectId, identity.getUserId());
     }
     case EDIT_PERMISSION_TYPE, DELETE_PERMISSION_TYPE -> {
       return userACL.isAdministrator(identity);

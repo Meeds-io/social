@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
@@ -38,7 +39,9 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorage;
 @Service
 public class OrganizationalUnitService {
 
-  private static final Log          LOG = ExoLogger.getLogger(OrganizationalUnitService.class);
+  private static final Log          LOG               = ExoLogger.getLogger(OrganizationalUnitService.class);
+
+  private static final String       PLATFORM_GROUP_ID = "/platform";
 
   @Autowired
   private OrganizationalUnitStorage organizationalUnitStorage;
@@ -81,6 +84,34 @@ public class OrganizationalUnitService {
   public boolean canManageGroup(String groupId, String userName) {
     return isManagedOrganizationalUnit(groupId, userName)
            || isNestedInManagedOrganizationalUnit(groupId, userName);
+  }
+
+  /**
+   * Whether the given user can add or remove members of the given group as an
+   * Organizational Unit manager: the group is in the user's management
+   * perimeter ({@link #canManageGroup(String, String)}) and is neither a
+   * platform group nor a group nested, at any level, inside one.
+   *
+   * @param groupId group id to check
+   * @param userName user name of the potential manager
+   * @return true if the given user can manage the memberships of the group
+   */
+  public boolean canManageGroupMemberships(String groupId, String userName) {
+    if (isPlatformGroup(groupId)) {
+      return false;
+    }
+    Set<String> enclosingGroupIds = new HashSet<>();
+    collectEnclosingGroupIds(groupId, new HashSet<>(), enclosingGroupIds);
+    if (enclosingGroupIds.stream().anyMatch(OrganizationalUnitService::isPlatformGroup)) {
+      return false;
+    }
+    return isManagedOrganizationalUnit(groupId, userName)
+           || (CollectionUtils.isNotEmpty(enclosingGroupIds)
+               && organizationalUnitStorage.isAnyManagedOrganizationalUnit(enclosingGroupIds, userName));
+  }
+
+  private static boolean isPlatformGroup(String groupId) {
+    return PLATFORM_GROUP_ID.equals(groupId) || StringUtils.startsWith(groupId, PLATFORM_GROUP_ID + "/");
   }
 
   private boolean isNestedInManagedOrganizationalUnit(String groupId, String userName) {
