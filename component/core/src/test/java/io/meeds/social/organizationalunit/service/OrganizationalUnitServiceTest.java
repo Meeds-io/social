@@ -170,6 +170,7 @@ public class OrganizationalUnitServiceTest {
     String deeperGroupId = "/organization/it/admins/team";
     mockGroupWithEnclosing(unitId, null);
     Group sharedGroup = mock(Group.class);
+    lenient().when(sharedGroup.getId()).thenReturn(sharedGroupId);
     when(sharedGroup.getEnclosingMemberships()).thenReturn(Set.of(new NestedMembership(null, unitId, null, sharedGroupId),
                                                                  new NestedMembership(null,
                                                                                       "/platform/analytics",
@@ -206,6 +207,7 @@ public class OrganizationalUnitServiceTest {
     String otherUnitId = "/organization/sales";
     String sharedGroupId = "/organization/shared";
     Group sharedGroup = mock(Group.class);
+    lenient().when(sharedGroup.getId()).thenReturn(sharedGroupId);
     // the unreadable enclosing group comes first, a readable one after it
     when(sharedGroup.getEnclosingMemberships()).thenReturn(new LinkedHashSet<>(List.of(new NestedMembership(null,
                                                                                                          otherUnitId,
@@ -224,8 +226,28 @@ public class OrganizationalUnitServiceTest {
     assertFalse(organizationalUnitService.canManageGroupMemberships(sharedGroupId, "john"));
   }
 
+  @Test
+  public void testCanManageGroupMembershipsRefusesAnIdThatIsNotTheStoredGroupId() throws Exception {
+    String unitId = "/organization/it";
+    String otherSpelling = "/platformx/analytics";
+    Group storedGroup = mock(Group.class);
+    when(storedGroup.getId()).thenReturn("/platform/analytics");
+    lenient().when(storedGroup.getEnclosingMemberships()).thenReturn(Set.of(new NestedMembership(null,
+                                                                                                  unitId,
+                                                                                                  null,
+                                                                                                  "/platform/analytics")));
+    when(groupHandler.findGroupById(otherSpelling)).thenReturn(storedGroup);
+    mockGroupWithEnclosing(unitId, null);
+    lenient().when(organizationalUnitStorage.isAnyManagedOrganizationalUnit(Set.of(unitId), "john")).thenReturn(true);
+
+    assertFalse(organizationalUnitService.canManageGroupMemberships(otherSpelling, "john"));
+    // an unknown group is refused too
+    assertFalse(organizationalUnitService.canManageGroupMemberships("/organization/unknown", "john"));
+  }
+
   private void mockGroupWithEnclosing(String groupId, String enclosingGroupId) throws Exception {
     Group group = mock(Group.class);
+    lenient().when(group.getId()).thenReturn(groupId);
     if (enclosingGroupId != null) {
       when(group.getEnclosingMemberships()).thenReturn(Set.of(new NestedMembership(null, enclosingGroupId, null, groupId)));
     }

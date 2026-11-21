@@ -97,7 +97,8 @@ public class OrganizationalUnitService {
    * @return true if the given user can manage the memberships of the group
    */
   public boolean canManageGroupMemberships(String groupId, String userName) {
-    if (isPlatformGroup(groupId)) {
+    // the rule applies to the group as stored: any other spelling of its id is refused
+    if (isPlatformGroup(groupId) || !isStoredGroupId(groupId)) {
       return false;
     }
     Set<String> enclosingGroupIds = new HashSet<>();
@@ -109,6 +110,16 @@ public class OrganizationalUnitService {
     return isManagedOrganizationalUnit(groupId, userName)
            || (CollectionUtils.isNotEmpty(enclosingGroupIds)
                && organizationalUnitStorage.isAnyManagedOrganizationalUnit(enclosingGroupIds, userName));
+  }
+
+  private boolean isStoredGroupId(String groupId) {
+    try {
+      Group group = organizationService.getGroupHandler().findGroupById(groupId);
+      return group != null && StringUtils.equals(groupId, group.getId());
+    } catch (Exception e) {
+      LOG.warn("Error retrieving group {}", groupId, e);
+      return false;
+    }
   }
 
   private static boolean isPlatformGroup(String groupId) {
