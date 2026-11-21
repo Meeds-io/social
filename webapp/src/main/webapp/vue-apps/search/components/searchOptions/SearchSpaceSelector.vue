@@ -23,26 +23,45 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <v-menu
       v-if="initialized"
       v-model="menu"
+      role="none"
       :close-on-content-click="false"
       attach
       offset-y>
       <template #activator="{ on, attrs }">
         <v-chip
+          ref="menuActivator"
           outlined
-          tab-index="0"
+          :aria-label="$t('search.space.filter.label')"
+          tabindex="0"
           class="text-body text-header-color mx-1"
           v-bind="attrs"
+          aria-haspopup="dialog"
           v-on="on"
-          @keydown.enter="on.click">
-          <v-icon size="16" class="pe-2">
+          @keydown.enter.prevent="on.click"
+          @keydown.space.prevent="on.click">
+          <v-icon
+            size="16"
+            class="pe-2"
+            aria-hidden="true">
             fas fa-layer-group
           </v-icon>
           <span class="me-2">{{ $t('search.space.filter.label') }}</span>
-          <i class="fas fa-chevron-down"></i>
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </v-chip>
       </template>
-      <v-card class="d-flex flex-column border-box-sizing pa-4">
-        <v-radio-group v-model="choice" class="mt-0 pt-0 mb-1">
+      <!-- a panel of fields, not a menu: Tab moves through it, Escape or leaving it with Tab closes it -->
+      <v-card
+        ref="spaceFilterPanel"
+        :aria-label="$t('search.space.filter.label')"
+        role="dialog"
+        class="d-flex flex-column border-box-sizing pa-4"
+        @keydown.esc.stop="closeToChip"
+        @mousedown="startPressInPanel"
+        @focusout="closeWhenFocusLeaves">
+        <v-radio-group
+          v-model="choice"
+          class="mt-0 pt-0 mb-1"
+          @keydown.native="moveChoice">
           <v-radio
             value="any"
             class="mx-0">
@@ -95,7 +114,8 @@ export default {
       choice: 'any',
       space: [],
       selectedSpaces: [],
-      initialized: false
+      initialized: false,
+      pressInPanel: false,
     };
   },
   computed: {
@@ -113,6 +133,11 @@ export default {
     },
   },
   watch: {
+    choice() {
+      // a click on a radio's own input checks it, then the browser unchecks it again because Vuetify cancels
+      // that click: once the click is handled, the checked state that screen readers announce follows the choice
+      window.setTimeout(this.syncCheckedOption);
+    },
     space() {
       if (!this.space) {
         this.$nextTick(this.$refs.spacesSuggester.$refs.selectAutoComplete.deleteCurrentItem);
@@ -134,8 +159,13 @@ export default {
       this.$root.$emit('spaces-changed', selectedSpaceIds);
     },
     menu() {
+      this.endPressInPanel();
       if (this.menu && this.selectedSpaces.length) {
         this.choice = 'space';
+      }
+      if (this.menu) {
+        // Vuetify keeps the focus on the chip: it goes to the panel's checked option
+        this.$nextTick(() => window.setTimeout(this.focusCheckedOption, 100));
       }
     }
   },
@@ -166,6 +196,57 @@ export default {
     },
     closeMenu() {
       this.menu = false;
+    },
+    closeToChip() {
+      this.menu = false;
+      this.$nextTick(() => this.$refs.menuActivator?.$el?.focus());
+    },
+    startPressInPanel() {
+      this.pressInPanel = true;
+      // the press ends wherever the button is released, inside the panel or out of it
+      document.addEventListener('mouseup', this.endPressInPanel, {capture: true, once: true});
+    },
+    endPressInPanel() {
+      this.pressInPanel = false;
+      document.removeEventListener('mouseup', this.endPressInPanel, {capture: true});
+    },
+    closeWhenFocusLeaves(event) {
+      // the space suggester's list is rendered outside the panel: moving into it keeps the panel open
+      const target = event.relatedTarget;
+      const panel = this.$refs.spaceFilterPanel?.$el;
+      if (!target || !panel || panel.contains(target) || target.closest('.v-menu__content')) {
+        return;
+      }
+      if (this.pressInPanel && target.contains(panel)) {
+        // a mouse press on a part of the panel that takes no focus (a radio's label, its padding) focuses
+        // the drawer around it: the focus goes back to the panel, where Escape and Tab close it
+        this.$nextTick(() => this.focusCheckedOption());
+      } else {
+        this.menu = false;
+      }
+    },
+    syncCheckedOption() {
+      this.$refs.spaceFilterPanel?.$el?.querySelectorAll('input[type="radio"]')
+        .forEach(input => input.checked = input.value === this.choice);
+    },
+    moveChoice(event) {
+      if (event.target.type !== 'radio' || event.ctrlKey || event.altKey || event.metaKey
+          || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+        return;
+      }
+      // the browser's own arrow handling checks the next radio through a click that Vuetify cancels, so a screen
+      // reader hears it unchecked before it is checked: with two options, every arrow key checks and focuses the
+      // other one at once, before Vuetify updates the radios a tick later
+      event.preventDefault();
+      const next = [...event.currentTarget.querySelectorAll('input[type="radio"]')]
+        .find(input => input !== event.target);
+      next.checked = true;
+      next.focus();
+      this.choice = next.value;
+    },
+    focusCheckedOption() {
+      const panel = this.$refs.spaceFilterPanel?.$el;
+      (panel?.querySelector('input[type="radio"]:checked') || panel?.querySelector('input'))?.focus();
     },
   }
 };

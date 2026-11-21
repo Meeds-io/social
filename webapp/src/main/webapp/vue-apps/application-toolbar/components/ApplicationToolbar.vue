@@ -78,6 +78,7 @@
             :key="buttonToggle.value"
             :id="`applicationToolbar-${buttonToggle.value}`"
             :value="buttonToggle.value"
+            :aria-pressed="String(buttonToggle.value === toggle)"
             :class="isCompact && 'width-auto px-4'"
             text
             @click="emitToggle(buttonToggle.value)">
@@ -90,7 +91,7 @@
             <span v-if="!isCompact && buttonToggle.icon && buttonToggle.text" class="ms-2"></span>
             <span
               v-if="!isCompact && buttonToggle.text"
-              :class="buttonToggle.value === toggle && 'primary--text' || 'text-color'"
+              :class="buttonToggle.value === toggle && 'primary--text text-decoration-underline' || 'text-color'"
               class="text-truncate text-none">
               {{ buttonToggle.text }}
             </span>
@@ -109,6 +110,7 @@
           <v-btn
             v-if="expandFilter"
             id="applicationToolbarBackButton"
+            :aria-label="$t('applicationToolbar.label.back')"
             class="px-0 me-auto"
             small
             icon
@@ -176,6 +178,7 @@
             v-if="showSelectBoxFilter"
             id="applicationToolbarFilterSelect"
             v-model="select"
+            :aria-label="rightSelectBox.ariaLabel || $t('label.filter')"
             :disabled="rightSelectBox?.disabled"
             class="flex-grow-0 ignore-vuetify-classes py-2 height-auto width-auto text-truncate my-auto ms-4"
             @change="$emit('filter-select-change', select)">
@@ -190,6 +193,7 @@
             v-if="showFilterButton"
             id="applicationToolbarAdvancedFilterButton"
             :class="filterButtonClass"
+            :aria-label="!showRightFilterButtonText && filterButtonAriaLabel || null"
             :small="!showRightFilterButtonText"
             :disabled="rightFilterButton?.disabled"
             text
@@ -211,6 +215,7 @@
           <v-btn
             v-if="showConeButton"
             id="applicationToolbarConeButton"
+            :aria-label="$t('label.filter')"
             class="px-0 ms-4"
             small
             icon
@@ -385,6 +390,9 @@ export default {
     },
     showLeftContent() {
       return !this.hideLeft && !this.expandFilter && (!this.isCompact || this.hasLeftContent || (this.hasCenterContent && this.hasRightContent));
+    },
+    filterButtonAriaLabel() {
+      return `${this.rightFilterButton?.text || this.$t('label.filter')}${this.filtersCount && ` (${this.filtersCount})` || ''}`;
     },
     showRightFilterButtonText() {
       return !this.isCompact || this.rightFilterButton?.displayText;

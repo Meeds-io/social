@@ -363,6 +363,13 @@ export default {
           this.retrievedSize = activityIds.length;
           this.hasMore = activityIds.length > this.limit;
           const activityIdsToLoad = activityIds.slice(0, this.limit);
+          const focusRequest = this.$root.categoryFocusRequest;
+          if (focusRequest && !activityIdsToLoad.find(a => a?.id === focusRequest.activityId)) {
+            // the activity a category was chosen from is not shown any more:
+            // the focus goes to the Stream's category filter instead
+            this.$root.categoryFocusRequest = null;
+            this.$root.$emit('activity-stream-focus-category-filter');
+          }
           const promises = activityIdsToLoad.map((activity, index) => {
             const activityId = activity && activity.id;
             const existingActivity = this.activities.find(loadedActivity => loadedActivity.id === activityId);
@@ -424,11 +431,32 @@ export default {
       }
     },
     loadMore() {
+      const shownIds = new Set((this.activitiesToDisplay || []).map(a => a.id));
+      const firstNewIndex = shownIds.size;
       if (this.streamFilter === 'unread_spaces_stream') {
         this.activities = [];
       }
       this.limit += this.pageSize;
-      this.loadActivityIds();
+      const loadPromise = this.loadActivityIds();
+      if (loadPromise) {
+        loadPromise
+          .then(() => this.$nextTick())
+          .then(() => this.focusFirstNewActivity(shownIds, firstNewIndex));
+      }
+    },
+    focusFirstNewActivity(shownIds, firstNewIndex) {
+      let index = this.activitiesToDisplay.findIndex(a => !shownIds.has(a.id));
+      if (index < 0) {
+        index = firstNewIndex;
+      }
+      this.focusActivityAt(index);
+    },
+    focusActivityAt(index) {
+      const activity = this.activitiesToDisplay[index];
+      const element = activity && document.getElementById(`activity-detail-${activity.id}`);
+      if (element) {
+        element.focus();
+      }
     },
     loadActivities(newActivitiesCount) {
       this.limit += newActivitiesCount;

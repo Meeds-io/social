@@ -6,9 +6,18 @@
     :object-id="activityId"
     object-type="activity"
     alternate-id-field="activityId"
-    class="application-background-color application-border application-border-radius activity-detail flex flex-column"
+    class="application-background-color application-border application-border-radius activity-detail d-flex flex flex-column"
+    :role="!isActivityShared && 'article' || null"
+    :aria-label="!isActivityShared && articleLabel || null"
+    tabindex="-1"
     @read="markAsRead"
     @unread="markAsUnread">
+    <!-- the title is read first, before the author and the date; the header keeps its place before the content, so that the keyboard order follows the screen. The content hides its own copy of the title from screen readers (titleAnnounced), so that it is read once. -->
+    <div
+      v-if="titleAnnounced"
+      class="d-sr-only">
+      {{ announcedTitle }}
+    </div>
     <div v-if="displayLoading" class="d-flex">
       <v-progress-circular
         color="primary"
@@ -58,9 +67,9 @@
         :is-activity-shared="isActivityShared"
         :hide-menu="hideMenu"
         :class="isActivityShared && 'py-4 px-0' || 'py-2 ps-4 pe-1'" />
-      <v-card 
-        v-if="!loading" 
-        color="transparent" 
+      <v-card
+        v-if="!loading"
+        color="transparent"
         flat>
         <extension-registry-components
           v-if="initialized"
@@ -91,6 +100,8 @@
 </template>
 
 <script>
+const LABEL_SOURCE_MAX_LENGTH = 2000;
+
 export default {
   props: {
     activity: {
@@ -156,6 +167,35 @@ export default {
       }
       return this.activityTypes[this.activityType] || this.activityTypes['default'] || {};
     },
+    rawTitle() {
+      if (!this.activity || this.loading) {
+        return '';
+      }
+      let title = this.activityTypeExtension?.getTitle?.(this.activity) || '';
+      if (title?.key) {
+        title = this.$t(title.key, title.params || {});
+      }
+      return typeof title === 'string' && title || '';
+    },
+    announcedTitle() {
+      // Only a real title is announced before the author: a post has none, its text is read once, after the author and the date.
+      // A title holding a link (a kudos' receiver) stays readable in the content, where the keyboard reaches that link.
+      if (/<a[\s>]/i.test(this.rawTitle)) {
+        return '';
+      }
+      return this.shortenLabel(this.rawTitle);
+    },
+    titleAnnounced() {
+      // a content that draws its own header (an article's page) shows its title first itself
+      return !this.displayLoading && !this.isActivityShared && !this.extendedComponent?.overrideHeader && !!this.announcedTitle;
+    },
+    articleLabel() {
+      if (!this.activity || this.loading) {
+        return null;
+      }
+      return this.shortenLabel(this.rawTitle)
+        || this.shortenLabel(this.activityTypeExtension?.getBody?.(this.activity) || this.activity.title || '');
+    },
     sharedActivity() {
       return this.activity && this.activity.originalActivity;
     },
@@ -197,6 +237,7 @@ export default {
         activityTypes: this.activityTypes,
         loading: this.loading,
         collapsed: !this.isCollapsed,
+        titleAnnounced: this.titleAnnounced,
       };
     },
     init() {
@@ -291,6 +332,14 @@ export default {
     this.$root.$off('activity-stream-activity-createComment', this.refreshActivityLastComments);
   },
   methods: {
+    shortenLabel(label) {
+      if (typeof label === 'string' && label.length > LABEL_SOURCE_MAX_LENGTH) {
+        // 100 characters are kept: the tags are removed from the whole body, and only the start of its text is decoded
+        label = label.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').substring(0, LABEL_SOURCE_MAX_LENGTH);
+      }
+      label = typeof label === 'string' && this.$utils.htmlToText(label)?.trim() || '';
+      return label.length > 100 ? `${label.substring(0, 100)}...` : label;
+    },
     retrieveActivityProperties(activityId) {
       if (this.activityLoading || (activityId && activityId !== this.activityId)) {
         return;

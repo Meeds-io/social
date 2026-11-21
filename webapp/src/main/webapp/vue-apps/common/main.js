@@ -47,6 +47,9 @@ import * as registrationService from './js/RegistrationService';
 import * as databindService from './js/DatabindService.js';
 import * as loginService from './js/LoginService.js';
 import * as userAccountConfirmationService from './js/UserAccountConfirmationService.js';
+import * as openingKeystrokeGuard from './js/OpeningKeystrokeGuard.js';
+import * as activationOrigin from './js/ActivationOrigin.js';
+import * as dialogFocus from './js/DialogFocus.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -115,6 +118,12 @@ window.Object.defineProperty(Vue.prototype, '$socialWebSocket', {
 window.Object.defineProperty(Vue.prototype, '$utils', {
   value: utils,
 });
+// v-tree-node="<the toggle's label>", on the root element of a v-treeview label slot: describes that node
+// each time its label renders, a node opened included, with no scan of the whole tree
+Vue.directive('tree-node', {
+  inserted: (el, binding) => utils.describeTreeNode(el, binding.value),
+  componentUpdated: (el, binding) => utils.describeTreeNode(el, binding.value),
+});
 window.Object.defineProperty(Vue.prototype, '$spacesConstants', {
   value: spacesConstants,
 });
@@ -147,6 +156,16 @@ window.Object.defineProperty(Vue.prototype, '$loginService', {
 });
 window.Object.defineProperty(Vue.prototype, '$userAccountConfirmationService', {
   value: userAccountConfirmationService,
+});
+window.Object.defineProperty(Vue.prototype, '$openingKeystrokeGuard', {
+  value: openingKeystrokeGuard,
+});
+activationOrigin.install();
+window.Object.defineProperty(Vue.prototype, '$activationOrigin', {
+  value: activationOrigin,
+});
+window.Object.defineProperty(Vue.prototype, '$dialogFocus', {
+  value: dialogFocus,
 });
 
 if (eXo.env.portal.userIdentityId) {

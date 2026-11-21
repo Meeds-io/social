@@ -30,13 +30,12 @@
       dense>
       <v-list-item-action v-if="$root.expand" class="me-auto font-weight-bold">
         <v-tooltip top>
-          <template #activator="{ on, attrs }">
+          <template #activator="{ on }">
             <a
               :href="productLink"
               :aria-label="$t('menu.productName.seeProduct')"
               target="_blank"
               class="text-body font-weight-bold my-auto"
-              v-bind="attrs"
               v-on="on">
               {{ productName }}
             </a>
@@ -82,9 +81,8 @@
           </v-btn>
         </v-badge>
         <v-tooltip v-if="$root.expand" top>
-          <template #activator="{ on, attrs }">
+          <template #activator="{ on }">
             <v-btn
-              v-bind="attrs"
               v-on="on"
               :href="settingsUrl"
               :aria-label="$t('menu.settings')"
@@ -98,9 +96,8 @@
           </span>
         </v-tooltip>
         <v-tooltip v-if="$root.expand" top>
-          <template #activator="{ on, attrs }">
+          <template #activator="{ on }">
             <v-btn
-              v-bind="attrs"
               v-on="on"
               :href="logoutUrl"
               :aria-label="$t('menu.logout')"
@@ -150,7 +147,13 @@ export default {
     }
   },
   methods: {
+    // v-btn blurs itself on a click whose detail is set: after a screen reader's activation, which clicks the
+    // button where it is, not under the pointer, the button takes the focus back, so the popup returns it there
     openMenu(event) {
+      const button = event?.currentTarget;
+      if (event?.detail && button && !button.matches?.(':hover')) {
+        button.focus();
+      }
       this.$refs?.menu?.open(event.clientX, event.clientY);
     },
     changeStatusColor(statusObject) {

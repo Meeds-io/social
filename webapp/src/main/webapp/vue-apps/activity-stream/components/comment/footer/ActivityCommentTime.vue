@@ -1,7 +1,7 @@
 <template>
   <div class="text-subtitle text-truncate">
     <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+      <template #activator="{ on }">
         <v-btn
           :height="20"
           :href="commentLink"
@@ -11,8 +11,8 @@
           text
           plain
           @click="openCommentsDrawer"
-          v-bind="attrs"
           v-on="on">
+          <span class="d-sr-only text-none">{{ $t('activity.comment.time.open') }}</span>
           <relative-date-format
             v-if="isActivityEdited"
             :value="comment.updateDate"

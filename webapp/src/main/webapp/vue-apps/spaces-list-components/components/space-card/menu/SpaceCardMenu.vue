@@ -47,6 +47,7 @@
     <component
       v-if="space.canEdit || space.isMember"
       :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
+      :role="!$root.isMobile && 'none' || null"
       ref="actionMenu"
       v-model="menu"
       :attach="$root.isMobile && '#vuetify-apps' || attachMenu"
@@ -57,6 +58,7 @@
       offset-y>
       <template #activator="{attrs}">
         <space-card-button
+          ref="menuActivator"
           v-bind="attrs"
           :extension="{
             icon: 'fa-ellipsis-v',
@@ -65,12 +67,17 @@
             click: () => menu = !menu,
           }"
           :space="space"
-          icon />
+          icon
+          @keydown.native.esc="menu && closeMenuToActivator($event)" />
       </template>
       <v-list
+        ref="menuList"
         :max-width="!$root.isMobile && 300 || 'auto'"
+        :aria-label="$t('spacesList.button.options')"
+        role="menu"
         class="transparent"
-        dense>
+        dense
+        @keydown.native="onMenuEntriesKeydown($event); onMenuEntryChosen($event)">
         <space-card-menu-item
           v-if="$root.isMobile"
           :href="url"
@@ -209,7 +216,10 @@
   </div>
 </template>
 <script>
+import menuKeyboard from '../../../../common/js/MenuKeyboard.js';
+
 export default {
+  mixins: [menuKeyboard],
   props: {
     space: {
       type: Object,
@@ -247,6 +257,7 @@ export default {
     menu() {
       // Workaround to fix closing menu when clicking outside
       if (this.menu) {
+        this.focusFirstMenuEntry();
         document.addEventListener('mousedown', this.closeMenu);
         this.$root.$emit('spaces-list-menu-opened', this.id);
       } else {
@@ -265,6 +276,9 @@ export default {
     document.removeEventListener('mousedown', this.closeMenu);
   },
   methods: {
+    closeKeyboardMenu() {
+      this.menu = false;
+    },
     removeSpaceConfirm() {
       this.openConfirmDialog(
         this.$t('spacesList.title.deleteSpace'),
@@ -386,6 +400,8 @@ export default {
       } else {
         this.okMethod = null;
       }
+      // the dialog gives the focus back to the element focused when it opens: the menu's entry is hidden by then
+      this.focusMenuActivator();
       this.$refs.confirmDialog.open();
     },
     okConfirmDialog() {

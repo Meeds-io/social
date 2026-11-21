@@ -23,6 +23,7 @@
   <component
     v-if="hasActions"
     :is="bottomMenu && 'v-bottom-sheet' || 'v-menu'"
+    :role="!bottomMenu && 'none' || null"
     ref="actionMenu"
     id="peopleCompactCardBottomDrawer"
     v-model="displayActionMenu"
@@ -33,12 +34,18 @@
     content-class="peopleActionMenu position-absolute z-index-modal"
     offset-y
     top>
-    <template #activator="{ on }">
+    <template #activator="{ on, attrs }">
+      <!-- aria-expanded, from the activator's attrs, and aria-haspopup="menu" let a panel opened from an
+        entry give the focus back to this button once closed (ActivationOrigin.js) -->
       <v-btn
         v-show="displayMenuButton"
+        ref="menuActivator"
+        :aria-label="$t('peopleList.label.openUserMenu')"
+        v-bind="attrs"
+        aria-haspopup="menu"
         v-on="on"
         :title="$t('peopleList.label.openUserMenu')"
-        :class="menuButtonClass"
+        :class="[menuButtonClass, hoverReveal && !displayActionMenu && 'hover-reveal']"
         icon
         @touchstart.stop="0"
         @touchend.stop="0"
@@ -52,8 +59,12 @@
       :min-height="bottomMenu && '30vh' || 'auto'"
       :class="bottomMenu && 'border-top-left-radius border-top-right-radius overflow-hidden white' || 'transparent'">
       <v-list
+        ref="menuList"
+        :aria-label="$t('peopleList.label.openUserMenu')"
+        role="menu"
         class="pa-0 full-height white"
-        dense>
+        dense
+        @keydown.native="onMenuEntriesKeydown">
         <template v-if="filteredProfileActionExtensions.length">
           <people-user-menu-item
             v-for="(extension, i) in filteredProfileActionExtensions"
@@ -84,7 +95,10 @@
   </component>
 </template>
 <script>
+import menuKeyboard from '../../../common/js/MenuKeyboard.js';
+
 export default {
+  mixins: [menuKeyboard],
   props: {
     user: {
       type: Object,
@@ -99,6 +113,10 @@ export default {
       default: false
     },
     displayMenuButton: {
+      type: Boolean,
+      default: false
+    },
+    hoverReveal: {
       type: Boolean,
       default: false
     },
@@ -158,19 +176,21 @@ export default {
   },
   watch: {
     displayActionMenu(newVal) {
-      if (newVal) {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 3;
-      } else {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
+      // the card's wrapper exists in the people lists only, not in the search results
+      const card = document.getElementById(`peopleCardItem${this.user.id}`);
+      if (card) {
+        card.style.zIndex = newVal ? 3 : 0;
       }
       // Workaround to fix closing menu when clicking outside
       if (newVal) {
-        document.addEventListener('mousedown', this.closeMenu);
+        this.focusFirstMenuEntry();
+        // in capture: an entry that stops its own click (the call entry of web-conferencing) closes the menu too
+        document.addEventListener('click', this.closeMenu, true);
         document.addEventListener('drawerOpened', this.closeMenu);
         document.addEventListener('modalOpened', this.closeMenu);
         this.$root.$emit('spaces-list-menu-opened', this.id);
       } else {
-        document.removeEventListener('mousedown', this.closeMenu);
+        document.removeEventListener('click', this.closeMenu, true);
         document.removeEventListener('drawerOpened', this.closeMenu);
         document.removeEventListener('modalOpened', this.closeMenu);
       }
@@ -181,11 +201,14 @@ export default {
   },
   beforeDestroy() {
     this.$root.$off('spaces-list-menu-opened', this.closeMenu);
-    document.removeEventListener('mousedown', this.closeMenu);
+    document.removeEventListener('click', this.closeMenu, true);
     document.removeEventListener('drawerOpened', this.closeMenu);
     document.removeEventListener('modalOpened', this.closeMenu);
   },
   methods: {
+    closeKeyboardMenu() {
+      this.displayActionMenu = false;
+    },
     openMenu() {
       window.setTimeout(() => {
         document.querySelector('.v-overlay--active').addEventListener('click', this.close);

@@ -85,8 +85,9 @@
       <div class="ms-auto">
         <spaces-public-access-warning />
         <v-btn
-          v-if="$root.hover"
           id="spacesListSettingsButton"
+          :aria-label="$t('spacesList.settings.drawer.title')"
+          class="hover-reveal"
           small
           icon
           @click="$root.$emit('spaces-list-settings-open')">

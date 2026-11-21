@@ -1,11 +1,10 @@
 <template>
   <div v-if="!isActivityShared" class="d-inline-flex">
     <v-tooltip :disabled="!isScheduled" bottom>
-      <template #activator="{ on, attrs }">
+      <template #activator="{ on }">
         <div
           :aria-disabled="isScheduled"
           :aria-label="isScheduled && $t('activityStream.scheduledActionsDisabled') || null"
-          v-bind="attrs"
           v-on="on">
           <favorite-button
             :id="metadataObjectId"

@@ -20,10 +20,12 @@
 
 -->
 <template>
+  <!-- the extension mounts its own menu item inside -->
   <v-list-item
     v-if="extension.init"
     ref="container"
-    :class="`${extension.appClass}`" />
+    :class="`${extension.appClass}`"
+    role="none" />
   <v-list-item
     v-else
     v-bind="{
@@ -32,14 +34,18 @@
     }"
     v-on="extension?.click && {
       click: () => extension.click(user, spaceId)
-    }">
+    }"
+    role="menuitem">
     <v-list-item-title class="align-center d-flex">
       <v-card
         class="d-flex align-center justify-center transparent"
         height="25"
         width="25"
         flat>
-        <v-icon :class="extension.iconColor" size="20">
+        <v-icon
+          :class="extension.iconColor"
+          size="20"
+          aria-hidden="true">
           {{ extension.class || extension.icon }}
         </v-icon>
       </v-card>

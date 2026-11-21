@@ -21,17 +21,20 @@
 -->
 <template>
   <v-menu
+    ref="menu"
     v-model="showMenu"
     rounded
     content-class="topBar-navigation-drop-menu"
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
     :max-height="menuMaxHeight"
+    :close-on-content-click="false"
     bottom
     offset-y
     eager>
-    <template #activator="{ on, attrs }">
+    <template #activator="{ on }">
       <v-tab
+        ref="tab"
         v-if="hasPage || hasChildren && childrenHasPage"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
@@ -41,10 +44,10 @@
         :class="`mx-auto text-break ${notClickable} ${navigation.tabClass || ''}`"
         :value="navigationNodeUri"
         v-on="on"
-        v-bind="attrs"
-        role="tab"
+        :aria-current="isSelected && 'page' || holdsSelectedEntry && 'true' || null"
         @click="checkLink"
-        @change="updateNavigationState">
+        @keydown="onTabKeydown"
+        @change="onTabChange">
         <span
           class="text-truncate-3">
           {{ navigation.label }}
@@ -52,35 +55,51 @@
         <v-icon
           v-if="navigation.target === 'NEW_TAB'"
           size="12"
+          aria-hidden="true"
           class="mx-1">
           fa-external-link-alt
         </v-icon>
         <v-btn
           v-if="hasChildren && childrenHasPage"
+          ref="chevron"
           icon
-          @click.stop.prevent="openDropMenu"
+          :aria-label="$t('topBar.navigation.menu.openSubMenu', [navigation.label])"
+          :aria-hidden="hasPage ? null : 'true'"
+          :tabindex="hasPage ? null : -1"
+          :aria-expanded="String(!!showMenu)"
+          aria-haspopup="menu"
+          @click.stop.prevent="openFromChevron"
           @mouseover="showMenu = true">
-          <v-icon size="20">
+          <v-icon size="20" aria-hidden="true">
             fa-angle-down
           </v-icon>
         </v-btn>
       </v-tab>
     </template>
-    <navigation-menu-sub-item
-      v-for="children in navigation.children"
-      class="transparent"
-      :key="children.id"
-      :navigation="children"
-      :base-site-uri="baseSiteUri"
-      :parent-navigation-uri="navigation.uri"
-      :selected-path="selectedPath"
-      @update-navigation-state="updateNavigationState"
-      @select="updateNavigationState" />
+    <div
+      @keydown="onMenuKeydown"
+      @click="onMenuClick">
+      <navigation-menu-sub-item
+        v-for="children in navigation.children"
+        class="transparent"
+        :key="children.id"
+        :navigation="children"
+        :base-site-uri="baseSiteUri"
+        :parent-navigation-uri="navigation.uri"
+        :selected-path="selectedPath"
+        @update-navigation-state="updateNavigationState"
+        @select="updateNavigationState"
+        @leaving-page="leavingPage = true"
+        @close-menu="closeFromSubMenu" />
+    </div>
   </v-menu>
 </template>
 
 <script>
+import tabLinkSemantics from './tabLinkSemantics.js';
+
 export default {
+  mixins: [tabLinkSemantics],
   props: {
     navigation: {
       type: Object,
@@ -98,6 +117,7 @@ export default {
   data () {
     return {
       showMenu: false,
+      leavingPage: false,
       isOpenedOnHover: true,
       menuMaxHeight: '100vh'
     };
@@ -105,6 +125,13 @@ export default {
   computed: {
     isSelected() {
       return this.selectedPath === this.navigationNodeUri;
+    },
+    // the entry underlined because one of the pages of its menu is the current one is announced as current as well
+    holdsSelectedEntry() {
+      return !this.isSelected && !!this.navigation?.children?.some?.(child => this.holdsSelectedPath(child));
+    },
+    menuId() {
+      return `topBarNavigationMenu${this._uid}`;
     },
     notClickable() {
       return `${this.hasPage ? ' ' : ' not-clickable ' }`;
@@ -142,17 +169,143 @@ export default {
       }
     },
   },
+  mounted() {
+    this.linkMenu();
+  },
+  updated() {
+    this.linkMenu();
+  },
   created() {
     document.addEventListener('click', this.handleCloseMenu);
+    window.addEventListener('pageshow', this.onPageShow);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleCloseMenu);
+    window.removeEventListener('pageshow', this.onPageShow);
     this.$root.$off('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   methods: {
     updateNavigationState() {
       this.$emit('update-navigation-state', this.navigationNodeUri);
+    },
+    // The tabs group selects the tab clicked; an entry that only opens a menu is not the current page
+    onTabChange() {
+      if (this.hasPage) {
+        this.updateNavigationState();
+      } else {
+        this.$emit('restore-navigation-state');
+      }
+    },
+    // The menu only highlights an entry on the arrow keys: the keyboard focus is moved into it
+    onTabKeydown(event) {
+      if (!this.hasChildren || !this.childrenHasPage) {
+        return;
+      }
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        this.openDropMenu(true);
+        this.focusMenuEntry(event.key === 'ArrowUp' ? -1 : 0);
+      } else if (event.key === ' ' && !this.hasPage) {
+        // an entry that only opens a menu is a button: Space opens it as Enter does
+        event.preventDefault();
+        this.openDropMenu(true);
+        this.focusMenuEntry(0);
+      }
+    },
+    holdsSelectedPath(navigation) {
+      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, navigation) === this.selectedPath
+        || !!navigation.children?.some?.(child => this.holdsSelectedPath(child));
+    },
+    linkMenu() {
+      // the menu content is rendered at the end of the page: its button names it
+      const content = this.$refs.menu?.$refs?.content;
+      // the element that opens the menu: the entry itself, or its chevron when the entry is a page link
+      const opener = this.hasPage ? this.$refs.chevron?.$el : this.$refs.tab?.$el;
+      if (content && opener && this.hasChildren && this.childrenHasPage) {
+        content.id = this.menuId;
+        opener.setAttribute('aria-controls', this.menuId);
+      }
+    },
+    openFromChevron() {
+      const opening = !this.showMenu;
+      this.openDropMenu(true);
+      if (opening) {
+        this.focusMenuEntry(0);
+      }
+    },
+    onMenuKeydown(event) {
+      const entries = this.menuEntries();
+      const index = this.$navigationUtils.entryIndexOf(entries, document.activeElement);
+      if (index < 0) {
+        return;
+      }
+      const target = {
+        ArrowDown: (index + 1) % entries.length,
+        ArrowUp: (index - 1 + entries.length) % entries.length,
+        Home: 0,
+        End: entries.length - 1,
+      }[event.key];
+      if (typeof target === 'number') {
+        event.preventDefault();
+        event.stopPropagation();
+        this.focusEntry(entries[target]);
+      } else if (event.key === 'Escape' || event.key === 'Tab') {
+        // the menu content is rendered apart from the tabs: the focus goes back to what opens it, Tab moving on from there
+        if (event.key === 'Escape') {
+          // Vuetify's menu would give the focus back to the entry's link on its own Escape handling
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        this.showMenu = false;
+        this.focusOpener();
+      }
+    },
+    focusOpener() {
+      (this.hasPage && this.$refs.chevron?.$el || this.$refs.tab?.$el)?.focus?.();
+    },
+    // The chosen entry keeps the menu open and the focus while it replaces the page: see NavigationUtils.js
+    onMenuClick(event) {
+      const entry = event.target?.closest?.('a.v-list-item[href]');
+      if (!entry) {
+        // an entry that only groups others opens its own sub-menu
+        return;
+      }
+      if (this.$navigationUtils.replacesPage(entry, event)) {
+        this.leavingPage = true;
+        // Vuetify's list item blurs itself on a click that has a detail
+        entry.focus();
+        return;
+      }
+      this.closeFromSubMenu();
+    },
+    // an entry of a sub-menu that leaves the page in place closes this menu too
+    closeFromSubMenu() {
+      this.showMenu = false;
+      this.focusOpener();
+    },
+    // The page left with the menu open is shown again by the browser's Back: it shows it closed, the focus on what
+    // opens it, the entry that had it being hidden
+    onPageShow(event) {
+      if (event.persisted && (this.showMenu || this.leavingPage)) {
+        this.leavingPage = false;
+        this.showMenu = false;
+        this.focusOpener();
+      }
+    },
+    // The menu opens on Enter the entry it highlights: it highlights the entry that has the keyboard focus
+    focusEntry(entry) {
+      this.$navigationUtils.focusMenuEntry(this.$refs.menu, entry);
+    },
+    menuEntries() {
+      return this.$navigationUtils.menuEntries(this.$refs.menu?.$refs?.content);
+    },
+    focusMenuEntry(index) {
+      // once the menu content is displayed
+      window.setTimeout(() => {
+        const entries = this.menuEntries();
+        this.focusEntry(entries[index < 0 ? entries.length - 1 : index]);
+      }, 50);
     },
     checkLink(e) {
       if (!this.navigationNodeUri) {
@@ -166,7 +319,12 @@ export default {
           window.location.href = this.navigationNodeUri;
         }
       } else if (this.hasChildren && this.childrenHasPage) {
+        const opening = !this.showMenu;
         this.openDropMenu();
+        // however it is opened (Enter, a click, a screen reader's activation), its first entry takes the focus
+        if (opening) {
+          this.focusMenuEntry(0);
+        }
       }
     },
     openDropMenu(persist) {
@@ -183,6 +341,11 @@ export default {
       }
     },
     handleCloseMenu() {
+      if (this.leavingPage) {
+        // the click on the entry that replaces the page: any later one, the page staying, closes the menu again
+        this.leavingPage = false;
+        return;
+      }
       if (this.showMenu) {
         setTimeout(() => {
           this.showMenu = false;

@@ -1,39 +1,44 @@
 <template>
   <div class="d-flex">
-    <v-avatar
-      id="profileAvatar"
-      :class="{ 'profileHeaderAvatarHoverEdit': owner && hover }"
-      :size="size"
-      :min-width="minSize"
-      :min-height="minSize"
-      :max-width="maxSize"
-      :max-height="maxSize"
-      class="align-start flex-grow-0 border-color profileHeaderAvatar">
-      <v-img
-        :lazy-src="userAvatarUrl"
-        :src="userAvatarUrl"
+    <!-- the camera button shows, and the photo darkens behind it, on the photo's hover or the button's keyboard focus -->
+    <v-hover v-slot="{ hover: avatarHover }">
+      <v-avatar
+        id="profileAvatar"
+        :class="{ 'profileHeaderAvatarHoverEdit': owner && (avatarHover || focused) }"
+        :size="size"
         :min-width="minSize"
         :min-height="minSize"
         :max-width="maxSize"
         :max-height="maxSize"
-        id="profileAvatarImg"
-        transition="none"
-        role="presentation"
-        eager />
-      <v-btn
-        v-if="owner"
-        v-show="hover"
-        ref="avatarInput"
-        :title="$t('UIChangeAvatarContainer.label.ChangeAvatar')"
-        id="profileAvatarEditButton"
-        class="changeAvatarButton"
-        icon
-        outlined
-        dark
-        @click="$emit('edit')">
-        <v-icon size="18">fas fa-camera</v-icon>
-      </v-btn>
-    </v-avatar>
+        class="align-start flex-grow-0 border-color profileHeaderAvatar hover-reveal-parent">
+        <v-img
+          :lazy-src="userAvatarUrl"
+          :src="userAvatarUrl"
+          :min-width="minSize"
+          :min-height="minSize"
+          :max-width="maxSize"
+          :max-height="maxSize"
+          id="profileAvatarImg"
+          transition="none"
+          role="presentation"
+          eager />
+        <v-btn
+          v-if="owner"
+          ref="avatarInput"
+          :title="$t('UIChangeAvatarContainer.label.ChangeAvatar')"
+          :aria-label="$t('UIChangeAvatarContainer.label.ChangeAvatar')"
+          id="profileAvatarEditButton"
+          class="changeAvatarButton hover-reveal"
+          icon
+          outlined
+          dark
+          @click="$emit('edit')"
+          @focus="focused = true"
+          @blur="focused = false">
+          <v-icon size="18">fas fa-camera</v-icon>
+        </v-btn>
+      </v-avatar>
+    </v-hover>
     <slot></slot>
   </div>
 </template>
@@ -53,10 +58,6 @@ export default {
       type: Boolean,
       default: () => true,
     },
-    hover: {
-      type: Boolean,
-      default: () => false,
-    },
     size: {
       type: String,
       default: () => '15vw',
@@ -70,6 +71,9 @@ export default {
       default: null
     }
   },
+  data: () => ({
+    focused: false,
+  }),
   computed: {
     userAvatarUrl() {
       const dimension = `${this.maxSize}x${this.maxSize}`;
