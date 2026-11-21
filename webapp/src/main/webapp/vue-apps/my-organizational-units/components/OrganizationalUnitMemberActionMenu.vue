@@ -41,7 +41,10 @@
         </v-list-item-icon>
         <v-list-item-title>{{ $t('organizationalUnitMembers.manageMemberships') }}</v-list-item-title>
       </v-list-item>
-      <v-list-item dense @click.prevent="promoteAdmin">
+      <v-list-item
+        v-if="!platformGroup"
+        dense
+        @click.prevent="promoteAdmin">
         <v-list-item-icon class="mx-1 justify-center">
           <v-icon small>fa-user-cog</v-icon>
         </v-list-item-icon>
@@ -67,6 +70,9 @@ export default {
     managerMembershipType: 'manager',
   }),
   computed: {
+    platformGroup() {
+      return this.groupId === '/platform' || !!this.groupId?.startsWith('/platform/');
+    },
     memberUserName() {
       return this.member?.username || this.member?.userName;
     },
