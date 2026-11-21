@@ -142,6 +142,7 @@ import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
+import org.exoplatform.web.security.security.CookieTokenService;
 
 import io.meeds.social.core.identity.model.UserExportFilter;
 import io.meeds.social.core.identity.model.UserExportResult;
@@ -303,6 +304,7 @@ public class UserRest implements ResourceContainer, Startable {
   private OtpService                      otpService;
 
   private final ProfileFormFieldService   profileFormFieldService;
+  private CookieTokenService              cookieTokenService;
 
   private ExecutorService                 importExecutorService       = null;
 
@@ -321,7 +323,8 @@ public class UserRest implements ResourceContainer, Startable {
                   LocaleConfigService localeConfigService,
                   SettingService settingService,
                   OtpService otpService,
-                  ProfileFormFieldService profileFormFieldService) {
+                  ProfileFormFieldService profileFormFieldService,
+                  CookieTokenService cookieTokenService) {
     this.userACL = userACL;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
@@ -337,6 +340,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.localeConfigService = localeConfigService;
     this.otpService = otpService;
     this.profileFormFieldService = profileFormFieldService;
+    this.cookieTokenService = cookieTokenService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
     this.settingService = settingService;
 
@@ -1708,6 +1712,8 @@ public class UserRest implements ResourceContainer, Startable {
     identity.setEnable(false);
     // Deletes the user on Portal side
     userHandler.removeUser(id, false);
+    // deletes the stored tokens of the account, under its stored name
+    cookieTokenService.deleteTokensOfUser(user.getUserName());
     //
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand),
                                      uriInfo,
