@@ -139,6 +139,8 @@ public class LoginRest {
 
   public static final UserFieldValidator EMAIL_VALIDATOR = new UserFieldValidator("email", false, false);
 
+  public static final UserFieldValidator USERNAME_VALIDATOR = new UserFieldValidator("userName", true, false);
+
   public static final UserFieldValidator LASTNAME_VALIDATOR                  =
       new UserFieldValidator("lastName", false, true);
 
@@ -586,6 +588,11 @@ public class LoginRest {
     if (StringUtils.isNotBlank(errorMessage)) {
       return ResponseEntity.badRequest().body(new JSONObject()
                                                   .put(ERROR_MESSAGE_PARAM, errorMessage).toString());
+    }
+    String errorMessageUsername = USERNAME_VALIDATOR.validate(locale, username);
+    if (StringUtils.isNotBlank(errorMessageUsername)) {
+      return ResponseEntity.badRequest().body(new JSONObject()
+                                                  .put(ERROR_MESSAGE_PARAM, errorMessageUsername).toString());
     }
     if (StringUtils.isNotBlank(errorMessageName)) {
       return ResponseEntity.badRequest().body(new JSONObject()

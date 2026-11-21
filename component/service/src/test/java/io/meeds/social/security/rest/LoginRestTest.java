@@ -90,6 +90,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -837,6 +838,65 @@ public class LoginRestTest {
             .andExpect(content().string(""));
   }
 
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailRefusesNonConformingUsername() {
+    for (String username : new String[] { "First.Second", "first second", "first#second", "first/second", "first:second" }) {
+      clearInvocations(userHandler, passwordRecoveryService);
+      assertVerifyEmailRefusesUsername(username);
+    }
+  }
+
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailAcceptsValidUsername() {
+    ResultActions response = performVerifyEmail("first.second");
+    response.andExpect(status().isOk())
+            .andExpect(content().string(new JSONObject().put("success", "emailVerificationSent").toString()));
+    verify(passwordRecoveryService).sendAccountVerificationEmail(any(), eq("first.second"), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailRefusesAbsentUsername() {
+    assertVerifyEmailRefusesUsername(null);
+  }
+
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailRefusesEmptyUsername() {
+    assertVerifyEmailRefusesUsername("");
+  }
+
+  @SneakyThrows
+  private void assertVerifyEmailRefusesUsername(String username) {
+    ResultActions response = performVerifyEmail(username);
+    response.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").isNotEmpty());
+    verify(userHandler, never()).createUserInstance(any());
+    verify(passwordRecoveryService, never()).sendAccountVerificationEmail(any(), any(), any(), any(), any(), any(), any());
+  }
+
+  @SneakyThrows
+  private ResultActions performVerifyEmail(String username) {
+    User user = new UserImpl();
+    user.setUserName(username);
+    when(userHandler.findUserByName(any(), any())).thenReturn(null);
+    when(userHandler.createUserInstance(any())).thenReturn(user);
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
+    when(passwordRecoveryService.verifyToken(any(), any())).thenReturn("jsmith@acme.com");
+    when(passwordRecoveryService.sendAccountVerificationEmail(any(), any(), any(), any(), any(), any(), any())).thenReturn(true);
+    when(captcha.isCorrect(any())).thenReturn(true);
+    HashMap<String, Object> sessionattr = new HashMap<>();
+    sessionattr.put("external-registration", captcha);
+    String usernameParam = username == null ? "" : "username=" + URLEncoder.encode(username, StandardCharsets.UTF_8) + "&";
+    return mockMvc.perform(post("/login/verifyEmail")
+                               .sessionAttrs(sessionattr)
+                               .content("email=jsmith@acme.com&" + usernameParam
+                                        + "password=Password1234&password2=Password1234&firstName=John&lastName=Smith&captcha=abcde&token=123456789")
+                               .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                               .accept(MediaType.APPLICATION_JSON));
+  }
 
   @Test
   @SneakyThrows
