@@ -31,6 +31,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -182,6 +183,45 @@ public class OrganizationalUnitServiceTest {
 
     assertFalse(organizationalUnitService.canManageGroupMemberships(sharedGroupId, "john"));
     assertFalse(organizationalUnitService.canManageGroupMemberships(deeperGroupId, "john"));
+  }
+
+  @Test
+  public void testCanManageGroupMembershipsRefusesAGroupWhoseEnclosingGroupsCannotBeRead() throws Exception {
+    String unitId = "/organization/it";
+    String nestedGroupId = "/organization/it/team";
+    mockGroupWithEnclosing(nestedGroupId, unitId);
+    when(groupHandler.findGroupById(unitId)).thenThrow(new IllegalStateException("store unavailable"));
+    lenient().when(organizationalUnitStorage.isManagedOrganizationalUnit(unitId, "john")).thenReturn(true);
+    lenient().when(organizationalUnitStorage.isAnyManagedOrganizationalUnit(Set.of(unitId), "john")).thenReturn(true);
+
+    assertFalse(organizationalUnitService.canManageGroupMemberships(unitId, "john"));
+    assertFalse(organizationalUnitService.canManageGroupMemberships(nestedGroupId, "john"));
+    // listing keeps the lenient reading: the nested group stays in the perimeter
+    assertTrue(organizationalUnitService.canManageGroup(nestedGroupId, "john"));
+  }
+
+  @Test
+  public void testCanManageGroupMembershipsRefusesWhenOneOfSeveralEnclosingGroupsCannotBeRead() throws Exception {
+    String unitId = "/organization/it";
+    String otherUnitId = "/organization/sales";
+    String sharedGroupId = "/organization/shared";
+    Group sharedGroup = mock(Group.class);
+    // the unreadable enclosing group comes first, a readable one after it
+    when(sharedGroup.getEnclosingMemberships()).thenReturn(new LinkedHashSet<>(List.of(new NestedMembership(null,
+                                                                                                         otherUnitId,
+                                                                                                         null,
+                                                                                                         sharedGroupId),
+                                                                                    new NestedMembership(null,
+                                                                                                         unitId,
+                                                                                                         null,
+                                                                                                         sharedGroupId))));
+    when(groupHandler.findGroupById(sharedGroupId)).thenReturn(sharedGroup);
+    when(groupHandler.findGroupById(otherUnitId)).thenThrow(new IllegalStateException("store unavailable"));
+    mockGroupWithEnclosing(unitId, null);
+    lenient().when(organizationalUnitStorage.isAnyManagedOrganizationalUnit(Set.of(unitId, otherUnitId), "john"))
+             .thenReturn(true);
+
+    assertFalse(organizationalUnitService.canManageGroupMemberships(sharedGroupId, "john"));
   }
 
   private void mockGroupWithEnclosing(String groupId, String enclosingGroupId) throws Exception {

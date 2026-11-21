@@ -101,8 +101,9 @@ public class OrganizationalUnitService {
       return false;
     }
     Set<String> enclosingGroupIds = new HashSet<>();
-    collectEnclosingGroupIds(groupId, new HashSet<>(), enclosingGroupIds);
-    if (enclosingGroupIds.stream().anyMatch(OrganizationalUnitService::isPlatformGroup)) {
+    // a group whose enclosing groups could not all be read is refused
+    if (!collectEnclosingGroupIds(groupId, new HashSet<>(), enclosingGroupIds)
+        || enclosingGroupIds.stream().anyMatch(OrganizationalUnitService::isPlatformGroup)) {
       return false;
     }
     return isManagedOrganizationalUnit(groupId, userName)
@@ -121,20 +122,29 @@ public class OrganizationalUnitService {
            && organizationalUnitStorage.isAnyManagedOrganizationalUnit(enclosingGroupIds, userName);
   }
 
-  private void collectEnclosingGroupIds(String groupId, Set<String> visitedGroupIds, Set<String> enclosingGroupIds) {
+  /**
+   * Collects the groups enclosing the given group, at any level.
+   *
+   * @return false when the group or one of its enclosing groups could not be
+   *         read, the collected set being then incomplete
+   */
+  private boolean collectEnclosingGroupIds(String groupId, Set<String> visitedGroupIds, Set<String> enclosingGroupIds) {
     if (!visitedGroupIds.add(groupId)) {
-      return;
+      return true;
     }
     try {
       Group group = organizationService.getGroupHandler().findGroupById(groupId);
+      boolean complete = true;
       if (group != null && CollectionUtils.isNotEmpty(group.getEnclosingMemberships())) {
-        group.getEnclosingMemberships().forEach(enclosingMembership -> {
+        for (var enclosingMembership : group.getEnclosingMemberships()) {
           enclosingGroupIds.add(enclosingMembership.getGroupId());
-          collectEnclosingGroupIds(enclosingMembership.getGroupId(), visitedGroupIds, enclosingGroupIds);
-        });
+          complete = collectEnclosingGroupIds(enclosingMembership.getGroupId(), visitedGroupIds, enclosingGroupIds) && complete;
+        }
       }
+      return complete;
     } catch (Exception e) {
       LOG.warn("Error retrieving enclosing groups of group {}", groupId, e);
+      return false;
     }
   }
 
