@@ -43,14 +43,14 @@
       class="my-auto text-header">
       <span class="text-truncate">{{ configuredTitle }}</span>
     </p>
-    <div
-      class="ms-auto d-flex">
+    <div class="ms-auto d-flex">
       <div>
         <v-btn
-          v-if="hover || isMobile"
+          :class="!isMobile && 'hover-reveal'"
           class="ms-auto my-0 icon-default-color me-5"
           :loading="isPrintingPdf"
           :title="$t('organizationalChart.download.label')"
+          :aria-label="$t('organizationalChart.download.label')"
           small
           icon
           @click="downloadChart">
@@ -62,7 +62,8 @@
       </div>
       <div v-if="isAdmin">
         <v-btn
-          v-if="hover || isMobile"
+          :class="!isMobile && 'hover-reveal'"
+          :aria-label="$t('organizationalChart.settings.title')"
           class="ms-auto my-0 icon-default-color"
           small
           icon
@@ -89,10 +90,6 @@ export default {
       default: null
     },
     isAdmin: {
-      type: Boolean,
-      default: false
-    },
-    hover: {
       type: Boolean,
       default: false
     },

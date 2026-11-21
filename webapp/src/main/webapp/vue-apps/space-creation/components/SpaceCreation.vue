@@ -19,30 +19,34 @@
 
 -->
 <template>
-  <v-hover v-slot="{ hover }">
-    <v-app>
-      <div class="d-flex justify-center">
-        <v-btn
-          color="primary"
-          class="d-block"
-          elevation="0"
-          max-width="92%"
-          @click="addNewSpace">
-          <span class="full-width text-truncate"> {{ $root.label }} </span>
-          <v-icon
-            v-if="$root.isAdministrator && hover"
-            color="white"
-            size="16"
-            @click.stop="openDrawerSettings">
-            fa-cog
-          </v-icon>
-        </v-btn>
-      </div>
-      <space-creation-settings-drawer
-        @updated="spaceCreationSettingsUpdated"
-        ref="spaceCreationSettingsDrawer" />
-    </v-app>
-  </v-hover>
+  <v-app>
+    <!-- the settings cog is a button of its own beside the create button, drawn over its end -->
+    <div class="d-flex justify-center align-center hover-reveal-parent">
+      <v-btn
+        :class="$root.isAdministrator && 'pe-10'"
+        color="primary"
+        class="d-block"
+        elevation="0"
+        max-width="92%"
+        @click="addNewSpace">
+        <span class="full-width text-truncate"> {{ $root.label }} </span>
+      </v-btn>
+      <v-btn
+        v-if="$root.isAdministrator"
+        :aria-label="$t('space.creation.instantiation.settingsDrawer.title')"
+        id="spaceCreationSettingsButton"
+        class="ms-n9 hover-reveal focus-ring-on-primary"
+        icon
+        small
+        dark
+        @click="openDrawerSettings">
+        <v-icon size="16">fa-cog</v-icon>
+      </v-btn>
+    </div>
+    <space-creation-settings-drawer
+      @updated="spaceCreationSettingsUpdated"
+      ref="spaceCreationSettingsDrawer" />
+  </v-app>
 </template>
 
 <script>

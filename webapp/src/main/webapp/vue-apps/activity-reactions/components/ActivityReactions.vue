@@ -41,12 +41,13 @@
       @mouseenter="showSeeMoreOverlay = true">
       <div v-if="seeMoreLikerToDisplay" class="seeMoreReactionsContainer">
         <v-tooltip bottom>
-          <template #activator="{ on, attrs }">
-            <div
-              v-bind="attrs"
+          <template #activator="{ on }">
+            <button
+              type="button"
+              :aria-label="$t('activity.reactions.moreLikers', {0: showMoreLikersNumber})"
               v-on="on"
               :class="displayAnimation && 'mt-n1 transition-2s'"
-              class="seeMoreLikers border-white d-flex align-center justify-center clickable"
+              class="seeMoreLikers border-white d-flex align-center justify-center clickable pa-0"
               @click="openDrawer"
               @mouseover="showAvatarAnimation = true"
               @mouseleave="showAvatarAnimation = false">
@@ -54,7 +55,7 @@
                 class="position-absolute white--text font-weight-bold z-index-one text-center">
                 +{{ showMoreLikersNumber }}
               </span>
-            </div>
+            </button>
           </template>
           <span>
             {{ $t('activity.reactions.seeMore') }}

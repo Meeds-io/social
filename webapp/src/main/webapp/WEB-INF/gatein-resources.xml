@@ -120,6 +120,12 @@
 
   <portlet-skin>
     <application-name>social</application-name>
+    <portlet-name>SubspacesList</portlet-name>
+    <skin-name>Enterprise</skin-name>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social</application-name>
     <portlet-name>MembersPortlet</portlet-name>
     <skin-name>Enterprise</skin-name>
     <additional-module>PeopleList</additional-module>

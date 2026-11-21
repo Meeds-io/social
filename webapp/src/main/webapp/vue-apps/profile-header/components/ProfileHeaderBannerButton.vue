@@ -4,12 +4,13 @@
       class="d-flex"
       v-if="owner">
       <div
-        v-show="!isDefaultBanner && hover"
+        v-show="!isDefaultBanner"
         class="changeBannerButtonIcon me-2">
         <v-btn
           :title="$t('UIPopupBannerUploader.title.deleteBanner')"
+          :aria-label="$t('UIPopupBannerUploader.title.deleteBanner')"
           id="profileBannerDeleteButton"
-          class="border-color"
+          class="border-color hover-reveal"
           outlined
           icon
           dark
@@ -17,13 +18,12 @@
           <v-icon size="18">mdi-delete</v-icon>
         </v-btn>
       </div>
-      <div
-        class="changeBannerButtonIcon"
-        v-show="hover">
+      <div class="changeBannerButtonIcon">
         <v-btn
           :title="$t('UIPopupBannerUploader.title.ChangeBanner')"
+          :aria-label="$t('UIPopupBannerUploader.title.ChangeBanner')"
           id="profileBannerEditButton"
-          class="border-color"
+          class="border-color hover-reveal"
           outlined
           icon
           dark
@@ -34,12 +34,12 @@
     </div>
     <div
       v-if="isAdmin"
-      v-show="hover"
       class="changeBannerButtonIcon ms-2">
       <v-btn
         id="profileHeaderEditOptions"
         :title="$t('profileHeader.edit.tooltip')"
-        class="border-color"
+        :aria-label="$t('profileHeader.edit.tooltip')"
+        class="border-color hover-reveal"
         outlined
         icon
         dark
@@ -53,10 +53,6 @@
 <script>
 export default {
   props: {
-    hover: {
-      type: Boolean,
-      default: () => false,
-    },
     user: {
       type: Object,
       default: () => null,

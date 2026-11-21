@@ -1,18 +1,17 @@
 <template>
   <div :class="!displayLabel && 'd-inline-flex'">
     <v-tooltip :disabled="disabled" bottom>
-      <template v-if="!displayLabel" #activator="{ on, attrs }">
+      <template v-if="!displayLabel" #activator="{ on }">
         <v-btn
           :id="`FavoriteLink_${type}_${id}`"
           :style="buttonStyle"
-          :loading="loading"
-          :disabled="loading || disabled"
+          :disabled="disabled"
           :class="disabled && 'opacity-5'"
-          :aria-label="disabled ? null : favoriteTooltip"
+          :aria-label="$t('Favorite.button.label')"
+          :aria-pressed="String(isFavorite)"
           class="pa-0 mt-0"
           icon
           :small="small"
-          v-bind="attrs"
           v-on="on"
           @touchstart.stop="0"
           @touchend.stop="0"
@@ -22,6 +21,7 @@
           <div class="d-flex flex-lg-row flex-column">
             <v-icon
               :class="favoriteIconColor"
+              aria-hidden="true"
               :size="iconSize"
               class="mx-auto">
               {{ favoriteIcon }}
@@ -29,14 +29,15 @@
           </div>
         </v-btn>
       </template>
-      <template v-else #activator="{ on, attrs }">
-        <v-list-item 
-          v-bind="attrs" 
-          v-on="on" 
-          :aria-label="favoriteTooltip"
+      <template v-else #activator="{ on }">
+        <v-list-item
+          v-on="on"
+          :aria-checked="String(isFavorite)"
+          role="menuitemcheckbox"
           @click.stop.prevent="changeFavorite">
-          <v-icon 
+          <v-icon
             class="mr-3"
+            aria-hidden="true"
             :class="favoriteIconColor"
             size="16">
             {{ favoriteIcon }}
@@ -117,7 +118,8 @@ export default {
   },
   data: () => ({
     isFavorite: false,
-    loading: false,
+    storedFavorite: false,
+    saving: false,
   }),
   computed: {
     buttonStyle() {
@@ -147,7 +149,10 @@ export default {
     favorite: {
       immediate: true,
       handler(newVal) {
-        this.isFavorite = newVal;
+        this.storedFavorite = newVal;
+        if (!this.saving) {
+          this.isFavorite = newVal;
+        }
       },
     },
   },
@@ -160,56 +165,60 @@ export default {
   methods: {
     favoriteUpdated(event) {
       const metadata = event && event.detail;
-      if (metadata && metadata.objectType === this.type && metadata.objectId === this.id && metadata.favorite !== this.isFavorite) {
-        this.isFavorite = metadata.favorite;
+      if (metadata && metadata.objectType === this.type && metadata.objectId === this.id) {
+        this.storedFavorite = metadata.favorite;
+        // while a change is saved, the toggle keeps showing the user's last click
+        if (!this.saving) {
+          this.isFavorite = metadata.favorite;
+        }
       }
     },
     updateFavorite() {
       document.dispatchEvent(new CustomEvent('metadata.favorite.updated', {detail: {
         objectType: this.type,
         objectId: this.id,
-        favorite: this.isFavorite,
+        favorite: this.storedFavorite,
       }}));
     },
     changeFavorite() {
-      this.loading = true;
-      if (this.isFavorite) {
-        this.$favoriteService.removeFavorite(this.type, this.id)
-          .then(() => {
-            document.dispatchEvent(new CustomEvent('favorite-removed', {
-              detail: {
-                type: this.type,
-                typeLabel: this.typeLabel,
-                id: this.id,
-                spaceId: this.spaceId,
-                entityType: this.entityType,
-              }
-            }));
-            this.isFavorite = false;
-            this.$emit('removed');
-            this.updateFavorite();
-          })
-          .catch(() => this.$emit('remove-error'))
-          .finally(() => this.loading = false);
-      } else {
-        this.$favoriteService.addFavorite(this.type, this.id, this.parentId, this.spaceId)
-          .then(() => {
-            document.dispatchEvent(new CustomEvent('favorite-added', {
-              detail: {
-                type: this.type,
-                typeLabel: this.typeLabel,
-                id: this.id,
-                spaceId: this.spaceId,
-                entityType: this.entityType,
-              }
-            }));
-            this.isFavorite = true;
-            this.$emit('added');
-            this.updateFavorite();
-          })
-          .catch(() => this.$emit('add-error'))
-          .finally(() => this.loading = false);
+      // every click shows its new state at once, even while the previous change is saved
+      this.isFavorite = !this.isFavorite;
+      this.saveFavorite();
+    },
+    saveFavorite() {
+      // one request at a time: once it ends, one more is sent only if the state shown differs from the stored one
+      if (this.saving || this.isFavorite === this.storedFavorite) {
+        return;
       }
+      this.saving = true;
+      const adding = this.isFavorite;
+      const save = adding
+        ? this.$favoriteService.addFavorite(this.type, this.id, this.parentId, this.spaceId)
+        : this.$favoriteService.removeFavorite(this.type, this.id);
+      save
+        .then(() => {
+          this.storedFavorite = adding;
+          document.dispatchEvent(new CustomEvent(adding ? 'favorite-added' : 'favorite-removed', {
+            detail: {
+              type: this.type,
+              typeLabel: this.typeLabel,
+              id: this.id,
+              spaceId: this.spaceId,
+              entityType: this.entityType,
+            }
+          }));
+          this.$emit(adding ? 'added' : 'removed');
+          this.updateFavorite();
+        })
+        .catch(() => {
+          // a failed save shows the last stored state again
+          this.isFavorite = this.storedFavorite;
+          this.$emit(adding ? 'add-error' : 'remove-error');
+        })
+        .finally(() => {
+          this.saving = false;
+          this.saveFavorite();
+        });
     },
   },
 };

@@ -5,20 +5,26 @@
     :persistent="persistent"
     content-class="uiPopup"
     max-width="100vw">
-    <v-card class="elevation-12">
+    <v-card
+      ref="card"
+      :aria-labelledby="titleId"
+      class="elevation-12"
+      role="dialog"
+      aria-modal="true">
       <div class="ignore-vuetify-classes popupHeader ClearFix">
-        <a
-          class="uiIconClose pull-right"
-          aria-hidden="true"
-          @click="close"></a>
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <span class="ignore-vuetify-classes PopupTitle popupTitle text-truncate" v-html="title"></span>
+        <button
+          :aria-label="$t('label.close')"
+          type="button"
+          class="uiIconClose pull-right no-border pa-0 transparent clickable"
+          @click="close"></button>
+        <span :id="titleId" class="ignore-vuetify-classes PopupTitle popupTitle text-truncate">{{ title }}</span>
       </div>
       <slot></slot>
       <v-card-actions v-if="!hideActions">
         <v-spacer />
         <button
           v-if="okLabel"
+          ref="okButton"
           :disabled="loading"
           :loading="loading"
           class="ignore-vuetify-classes btn btn-primary me-2"
@@ -71,13 +77,25 @@ export default {
   },
   data: () => ({
     dialog: false,
+    opener: null,
   }),
+  computed: {
+    titleId() {
+      return `exoModalTitle${this._uid}`;
+    },
+  },
   watch: {
     dialog() {
       if (this.dialog) {
+        // the control that opened it, which a click does not always leave focused: see ActivationOrigin.js
+        this.opener = this.$activationOrigin?.element() || document.activeElement;
+        this.$openingKeystrokeGuard.ignore(this.guardOpeningKeystroke);
+        this.focusFirstControl();
         this.$emit('dialog-opened');
         document.dispatchEvent(new CustomEvent('modalOpened'));
       } else {
+        this.$openingKeystrokeGuard.stop(this.guardOpeningKeystroke);
+        this.restoreFocus();
         this.$emit('dialog-closed');
         document.dispatchEvent(new CustomEvent('modalClosed'));
       }
@@ -93,8 +111,12 @@ export default {
   },
   beforeDestroy() {
     document.removeEventListener('keydown', this.closeOnEscape);
+    this.$openingKeystrokeGuard.stop(this.guardOpeningKeystroke);
   },
   methods: {
+    guardOpeningKeystroke(event) {
+      this.$openingKeystrokeGuard.handle(event, this.guardOpeningKeystroke);
+    },
     open() {
       this.dialog = true;
     },
@@ -105,6 +127,28 @@ export default {
       if (event.key === 'Escape') {
         this.close();
       }
+    },
+    // after Vuetify has moved the focus to the dialog content
+    focusFirstControl() {
+      window.setTimeout(() => {
+        if (this.dialog) {
+          const control = this.$refs.card?.$el?.querySelector('input, select, textarea, a[href], [tabindex="0"], .v-card__actions button')
+            || this.$refs.okButton;
+          control?.focus();
+        }
+      }, 100);
+    },
+    restoreFocus() {
+      const opener = this.opener;
+      this.opener = null;
+      window.setTimeout(() => {
+        // only when the focus was not moved elsewhere meanwhile, and back to an opener still shown
+        const active = document.activeElement;
+        const focusLost = !active || active === document.body || active.closest?.('.v-dialog');
+        if (focusLost && opener && document.body.contains(opener) && opener.getClientRects().length) {
+          opener.focus();
+        }
+      }, 50);
     },
   }
 };
