@@ -155,7 +155,11 @@ public class OrganizationalUnitServiceTest {
     mockGroupWithEnclosing(unitId, null);
     when(organizationalUnitStorage.isAnyManagedOrganizationalUnit(Set.of(unitId), "john")).thenReturn(true);
     // the platform group itself, inside the perimeter, is refused its memberships
-    mockGroupWithEnclosing("/platform", unitId);
+    Group platformGroup = mock(Group.class);
+    lenient().when(platformGroup.getId()).thenReturn("/platform");
+    lenient().when(platformGroup.getEnclosingMemberships())
+             .thenReturn(Set.of(new NestedMembership(null, unitId, null, "/platform")));
+    lenient().when(groupHandler.findGroupById("/platform")).thenReturn(platformGroup);
 
     // a platform group nested in the unit stays in the perimeter, but its memberships are refused
     assertTrue(organizationalUnitService.canManageGroup(platformGroupId, "john"));
