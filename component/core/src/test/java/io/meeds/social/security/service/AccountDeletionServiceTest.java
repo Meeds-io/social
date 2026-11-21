@@ -23,6 +23,7 @@ import static io.meeds.social.security.service.AccountDeactivationService.DELETI
 import static io.meeds.social.security.service.AccountDeletionService.ACCOUNT_DELETED_EVENT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -46,6 +47,7 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
@@ -59,6 +61,7 @@ import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.web.security.security.CookieTokenService;
 
 import lombok.SneakyThrows;
 
@@ -95,6 +98,9 @@ public class AccountDeletionServiceTest {
 
   @Mock
   private ListenerService        listenerService;
+
+  @Mock
+  private CookieTokenService     cookieTokenService;
 
   @InjectMocks
   private AccountDeletionService accountDeletionService;
@@ -157,10 +163,11 @@ public class AccountDeletionServiceTest {
     stubRequestTime(System.currentTimeMillis() - 31 * DAY_IN_MS);
     accountDeletionService.processPendingDeletionRequestOf(USERNAME);
 
-    InOrder order = inOrder(settingService, identityManager, userHandler, indexingService, identity, listenerService);
+    InOrder order = inOrder(settingService, identityManager, userHandler, cookieTokenService, indexingService, identity, listenerService);
     order.verify(settingService).remove(Context.USER.id(USERNAME), DELETION_REQUEST_SCOPE, DELETION_REQUEST_SETTING_NAME);
     order.verify(identityManager).hardDeleteIdentity(identity);
     order.verify(userHandler).removeUser(USERNAME, false);
+    order.verify(cookieTokenService).deleteTokensOfUser(USERNAME);
     order.verify(indexingService).unindex(ProfileIndexingServiceConnector.TYPE, IDENTITY_ID);
     order.verify(identity).setDeleted(true);
     order.verify(listenerService).broadcast(ACCOUNT_DELETED_EVENT, USERNAME, identity);
@@ -257,6 +264,15 @@ public class AccountDeletionServiceTest {
     accountDeletionService.processPendingDeletionRequests();
     verify(identityManager, never()).hardDeleteIdentity(any());
     verify(userHandler, never()).removeUser(anyString(), anyBoolean());
+  }
+
+  @Test
+  public void testTheRememberMeTokenServiceIsInjected() throws Exception {
+    // the kernel names its components' beans after their key, and the services
+    // extending CookieTokenService are beans of the same type
+    Qualifier qualifier = AccountDeletionService.class.getDeclaredField("cookieTokenService").getAnnotation(Qualifier.class);
+    assertNotNull(qualifier);
+    assertEquals(CookieTokenService.class.getName(), qualifier.value());
   }
 
   private void stubRequestTime(long requestTime) {

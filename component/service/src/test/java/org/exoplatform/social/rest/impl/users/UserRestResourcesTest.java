@@ -31,6 +31,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.awt.image.BufferedImage;
@@ -101,6 +102,7 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
+import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.organization.UserProfile;
 import java.util.Locale;
@@ -143,6 +145,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private UserACL                      userACL;
 
   private OtpService                   otpService;
+
+  private CookieTokenService           cookieTokenService;
 
   private final AtomicBoolean          emailChangeSendLocked  = new AtomicBoolean();
 
@@ -222,6 +226,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
     settingService = getContainer().getComponentInstanceOfType(SettingService.class);
     otpService = mock(OtpService.class);
+    cookieTokenService = mock(CookieTokenService.class);
     profilePropertyServiceSpy = spy(profilePropertyService);
     // The confirmation guard is switched off for the tests of the endpoints'
     // own behaviour; the guard tests switch it back on
@@ -256,7 +261,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 passwordRecoveryService,
                                                 localeConfigService,
                                                 settingService,
-                                                otpService);
+                                                otpService,
+                                                cookieTokenService);
     registry(userRestResourcesV1);
   }
 
@@ -345,7 +351,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               passwordRecoveryService,
                                               localeConfigService,
                                               settingService,
-                                              otpService);
+                                              otpService,
+                                              cookieTokenService);
     registry(userRestResources);
 
     // when
@@ -1585,6 +1592,22 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     endSession();
   }
 
+  public void testDeleteUserDeletesItsStoredTokens() throws Exception {
+    startSessionAs("root", true);
+    User user = organizationService.getUserHandler().createUserInstance("token.owner");
+    user.setFirstName("Token");
+    user.setLastName("Owner");
+    user.setEmail("token.owner@exoplatform.com");
+    user.setPassword("Passw0rd!");
+    organizationService.getUserHandler().createUser(user, true);
+
+    ContainerResponse response = service("DELETE", getURLResource("users/token.owner"), "", null, null, "root");
+
+    assertEquals(200, response.getStatus());
+    assertNull(organizationService.getUserHandler().findUserByName("token.owner", UserStatus.ANY));
+    verify(cookieTokenService).deleteTokensOfUser("token.owner");
+  }
+
   public void testAccountWritesRequireConfirmedSession() throws Exception {
     confirmationSettings.setEnabled(true);
     startSessionAs("root", true);
@@ -2426,7 +2449,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                           recoveryService,
                           localeConfigService,
                           settingService,
-                          otpService));
+                          otpService,
+                          cookieTokenService));
   }
 
   /**
