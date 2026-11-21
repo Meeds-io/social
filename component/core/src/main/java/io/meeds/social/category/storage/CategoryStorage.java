@@ -118,8 +118,12 @@ public class CategoryStorage {
 
   @Cacheable(cacheNames = "social.category")
   public Category getCategory(long categoryId) {
+    return toCategory(getCategoryMetadata(categoryId));
+  }
+
+  private Metadata getCategoryMetadata(long categoryId) {
     Metadata metadata = metadataService.getMetadataById(categoryId);
-    return toCategory(metadata);
+    return metadata != null && METADATA_TYPE.getName().equals(metadata.getTypeName()) ? metadata : null;
   }
 
   @Cacheable(cacheNames = "social.categoryRootId")
@@ -216,6 +220,9 @@ public class CategoryStorage {
   }
 
   public List<CategoryObject> getLinkedItems(long categoryId, List<String> objectTypes, int offset, int limit) {
+    if (getCategoryMetadata(categoryId) == null) {
+      return Collections.emptyList();
+    }
     List<MetadataItem> items = metadataService.getMetadataItemsByMetadataIdAndObjectTypes(categoryId, objectTypes, offset, limit);
     return items == null ? Collections.emptyList() :
                          items.stream()
@@ -229,7 +236,10 @@ public class CategoryStorage {
 
   @SneakyThrows
   public void link(long categoryId, CategoryObject object, long userIdentityId) {
-    Metadata metadata = metadataService.getMetadataById(categoryId);
+    Metadata metadata = getCategoryMetadata(categoryId);
+    if (metadata == null) {
+      throw new IllegalArgumentException(String.format("Category with id %s doesn't exist", categoryId));
+    }
     metadataService.createMetadataItem(object, metadata.key(), userIdentityId);
     listenerService.broadcast(EVENT_SOCIAL_CATEGORY_ITEM_LINKED, object, categoryId);
   }
@@ -247,7 +257,7 @@ public class CategoryStorage {
   }
 
   public MetadataItem getMetadataItem(long categoryId, CategoryObject object) {
-    Metadata metadata = metadataService.getMetadataById(categoryId);
+    Metadata metadata = getCategoryMetadata(categoryId);
     if (metadata == null) {
       return null;
     } else {
