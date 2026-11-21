@@ -143,6 +143,7 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.security.security.CookieTokenService;
+import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 import io.meeds.social.core.identity.model.UserExportFilter;
 import io.meeds.social.core.identity.model.UserExportResult;
@@ -303,6 +304,8 @@ public class UserRest implements ResourceContainer, Startable {
   private final ProfileFormFieldService   profileFormFieldService;
   private CookieTokenService              cookieTokenService;
 
+  private RemindPasswordTokenService      remindPasswordTokenService;
+
   private ExecutorService                 importExecutorService       = null;
 
   public UserRest(UserACL userACL, // NOSONAR
@@ -321,7 +324,8 @@ public class UserRest implements ResourceContainer, Startable {
                   SettingService settingService,
                   OtpService otpService,
                   ProfileFormFieldService profileFormFieldService,
-                  CookieTokenService cookieTokenService) {
+                  CookieTokenService cookieTokenService,
+                  RemindPasswordTokenService remindPasswordTokenService) {
     this.userACL = userACL;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
@@ -338,6 +342,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.otpService = otpService;
     this.profileFormFieldService = profileFormFieldService;
     this.cookieTokenService = cookieTokenService;
+    this.remindPasswordTokenService = remindPasswordTokenService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
     this.settingService = settingService;
 
@@ -1308,6 +1313,9 @@ public class UserRest implements ResourceContainer, Startable {
       }
       String formerEmail = profile.getEmail();
       if (Profile.EMAIL.equals(fieldName)) {
+        if (isExternalStoreUser(username)) {
+          return Response.status(Status.FORBIDDEN).build();
+        }
         Response response = checkEmail(username, value, otpCode, currentOtpCode, locale);
         if (response != null) {
           return response;
@@ -1400,6 +1408,9 @@ public class UserRest implements ResourceContainer, Startable {
     String formerEmail = identity.getProfile().getEmail();
     boolean emailChange = email != null && !StringUtils.equals(email, formerEmail);
     if (emailChange) {
+      if (isExternalStoreUser(username)) {
+        return Response.status(Status.FORBIDDEN).build();
+      }
       Response response = checkEmail(username, email, otpCode, currentOtpCode, locale);
       if (response != null) {
         return response;
@@ -1562,6 +1573,7 @@ public class UserRest implements ResourceContainer, Startable {
     @ApiResponse(responseCode = "204", description = "Code sent"),
     @ApiResponse(responseCode = "400", description = "Missing or wrong code of the current address, or invalid email address"),
     @ApiResponse(responseCode = "401", description = "Not the logged in user, or the address is used by another user"),
+    @ApiResponse(responseCode = "403", description = "The account is synchronized from a directory, its email can't be changed here"),
     @ApiResponse(responseCode = "429", description = "A request was made less than the send interval ago, retry later") })
   public Response sendEmailChangeOtpCode(@Context
   HttpServletRequest request,
@@ -1576,6 +1588,9 @@ public class UserRest implements ResourceContainer, Startable {
                                          String currentOtpCode) throws Exception {
     if (!StringUtils.equals(getCurrentUser(), username)) {
       return Response.status(Status.UNAUTHORIZED).build();
+    }
+    if (isExternalStoreUser(username)) {
+      return Response.status(Status.FORBIDDEN).build();
     }
     EmailChangeOtpPlugin emailChangeOtpPlugin = getEmailChangeOtpPlugin();
     if (emailChangeOtpPlugin == null) {
@@ -2526,6 +2541,16 @@ public class UserRest implements ResourceContainer, Startable {
   }
 
   /**
+   * An account synchronized from a directory (LDAP) is not stored by the
+   * platform: its email would be set back at the next synchronization, so it
+   * is changed in the directory only
+   */
+  private boolean isExternalStoreUser(String username) throws Exception {
+    User user = organizationService.getUserHandler().findUserByName(username, UserStatus.ANY);
+    return user != null && !user.isInternalStore();
+  }
+
+  /**
    * Validates the code sent to the address of the account
    * ({@value #CURRENT_EMAIL_OTP_METHOD} method): an email change, and the send
    * of its code to a new address, need the proof that the user reads the mail
@@ -2548,14 +2573,26 @@ public class UserRest implements ResourceContainer, Startable {
    * Once the change is written: consumes both codes, so that a later request
    * with them is refused, while a refused request burns nothing. Requests that
    * validated the same codes concurrently each write their change, and the last
-   * write stands. Then tells the former address of the change when the address
-   * really changed.
+   * write stands. Deletes the password reset links and the remember-me tokens
+   * of the account, as a password reset does; each deletion that fails is
+   * logged and does not stop the other. Then tells the former address of the
+   * change when the address really changed.
    */
   private void completeEmailChange(String username,
                                    String formerEmail,
                                    String email,
                                    String otpCode,
                                    String currentOtpCode) {
+    try {
+      remindPasswordTokenService.deleteTokensByUsernameAndType(username, CookieTokenService.FORGOT_PASSWORD_TOKEN);
+    } catch (Exception e) {
+      LOG.warn("The password reset links of user {} could not be deleted after the email change", username, e);
+    }
+    try {
+      cookieTokenService.deleteTokensByUsernameAndType(username, "");
+    } catch (Exception e) {
+      LOG.warn("The remember-me tokens of user {} could not be deleted after the email change", username, e);
+    }
     if (!otpService.consumeOtp(username, EmailChangeOtpPlugin.NAME, EmailChangeOtpPlugin.bindCode(otpCode, email))) {
       LOG.warn("The email change code of user {} was consumed by another request, or replaced by a newer code, "
           + "while this change was written", username);

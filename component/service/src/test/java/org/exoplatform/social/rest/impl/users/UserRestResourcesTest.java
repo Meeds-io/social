@@ -113,6 +113,7 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.security.security.CookieTokenService;
+import org.exoplatform.web.security.security.RemindPasswordTokenService;
 import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.organization.UserProfile;
 import java.util.Locale;
@@ -158,6 +159,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private OtpService                   otpService;
 
   private CookieTokenService           cookieTokenService;
+
+  private RemindPasswordTokenService   remindPasswordTokenService;
 
   private final AtomicBoolean          emailChangeSendLocked  = new AtomicBoolean();
 
@@ -240,6 +243,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     settingService = getContainer().getComponentInstanceOfType(SettingService.class);
     otpService = mock(OtpService.class);
     cookieTokenService = mock(CookieTokenService.class);
+    remindPasswordTokenService = mock(RemindPasswordTokenService.class);
     profilePropertyServiceSpy = spy(profilePropertyService);
     profileFormFieldService = spy(new ProfileFormFieldService(getContainer().getComponentInstanceOfType(ProfileSettingStorage.class),
                                                               getContainer().getComponentInstanceOfType(IdentityStorage.class),
@@ -279,7 +283,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 settingService,
                                                 otpService,
                                                 profileFormFieldService,
-                                                cookieTokenService);
+                                                cookieTokenService,
+                                                remindPasswordTokenService);
     registry(userRestResourcesV1);
   }
 
@@ -370,7 +375,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               settingService,
                                               otpService,
                                               profileFormFieldService,
-                                              cookieTokenService);
+                                              cookieTokenService,
+                                              remindPasswordTokenService);
     registry(userRestResources);
 
     // when
@@ -2047,6 +2053,156 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   /**
+   * An email change ends the password reset links and the remember-me tokens
+   * of that account, on both endpoints that change the email, and no other
+   * account's
+   */
+  public void testEmailChangeEndsResetLinksAndRememberMeTokensOfTheAccount() throws Exception {
+    startSessionAs("john");
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=email&value=john.new@platform.com&otpCode=123&currentOtpCode=777".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    verify(remindPasswordTokenService).deleteTokensByUsernameAndType("john", CookieTokenService.FORGOT_PASSWORD_TOKEN);
+    verify(cookieTokenService).deleteTokensByUsernameAndType("john", "");
+
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.EMAIL, "john.other@platform.com");
+    response = getResponse("PATCH", "/v1/social/users/john/profile?otpCode=456&currentOtpCode=888", data.toString());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    verify(remindPasswordTokenService, times(2)).deleteTokensByUsernameAndType("john", CookieTokenService.FORGOT_PASSWORD_TOKEN);
+    verify(cookieTokenService, times(2)).deleteTokensByUsernameAndType("john", "");
+    verify(remindPasswordTokenService, never()).deleteTokensByUsernameAndType(eq("mary"), anyString());
+    verify(cookieTokenService, never()).deleteTokensByUsernameAndType(eq("mary"), anyString());
+    verifyNoMoreInteractions(remindPasswordTokenService, cookieTokenService);
+  }
+
+  /**
+   * A failure while deleting the password reset links does not skip the
+   * remember-me tokens, and the change still answers 204
+   */
+  public void testEmailChangeDeletesRememberMeTokensWhenResetLinksDeletionFails() throws Exception {
+    startSessionAs("john");
+    doThrow(new IllegalStateException("forgot-password deletion failed")).when(remindPasswordTokenService)
+                                                                         .deleteTokensByUsernameAndType("john",
+                                                                                                        CookieTokenService.FORGOT_PASSWORD_TOKEN);
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=email&value=john.new@platform.com&otpCode=123&currentOtpCode=777".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    verify(remindPasswordTokenService).deleteTokensByUsernameAndType("john", CookieTokenService.FORGOT_PASSWORD_TOKEN);
+    verify(cookieTokenService).deleteTokensByUsernameAndType("john", "");
+  }
+
+  /**
+   * A failure while deleting the remember-me tokens does not turn the change
+   * into an error: both codes are still consumed and the former address is
+   * still told of the change
+   */
+  public void testEmailChangeCompletesWhenRememberMeTokensDeletionFails() throws Exception {
+    EmailChangeOtpPlugin emailChangeOtpPlugin = mockEmailChangeOtpPlugin();
+    startSessionAs("john");
+    String formerEmail = identityManager.getOrCreateUserIdentity("john").getProfile().getEmail();
+    assertNotNull(formerEmail);
+    doThrow(new IllegalStateException("remember-me deletion failed")).when(cookieTokenService)
+                                                                     .deleteTokensByUsernameAndType("john", "");
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=email&value=john.new@platform.com&otpCode=123&currentOtpCode=777".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    verify(cookieTokenService).deleteTokensByUsernameAndType("john", "");
+    verify(otpService).consumeOtp("john", EmailChangeOtpPlugin.NAME, "123:john.new@platform.com");
+    verify(otpService).consumeOtp("john", "email", "777");
+    verify(emailChangeOtpPlugin).sendChangeNotice("john", formerEmail);
+  }
+
+  /**
+   * A refused email change, whatever the refusal, ends no token
+   */
+  public void testRefusedEmailChangeKeepsTheTokens() throws Exception {
+    startSessionAs("john");
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.EMAIL, "john.new@platform.com");
+
+    // no code
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=email&value=john.new@platform.com".getBytes());
+    assertEquals(400, response.getStatus());
+    response = getResponse("PATCH", "/v1/social/users/john/profile", data.toString());
+    assertEquals(400, response.getStatus());
+
+    // wrong codes
+    doThrow(new IllegalAccessException()).when(otpService).validateOtp(anyString(), anyString(), anyString());
+    response = service("PATCH",
+                       getURLResource("users/john"),
+                       "",
+                       formHeaders,
+                       "name=email&value=john.new@platform.com&otpCode=000&currentOtpCode=777".getBytes());
+    assertEquals(400, response.getStatus());
+    response = getResponse("PATCH", "/v1/social/users/john/profile?otpCode=000&currentOtpCode=777", data.toString());
+    assertEquals(400, response.getStatus());
+
+    verifyNoInteractions(remindPasswordTokenService, cookieTokenService);
+  }
+
+  /**
+   * An account synchronized from a directory is refused with 403 on every
+   * endpoint of the email change, before a code is checked, consumed or sent
+   */
+  public void testExternalUserCannotChangeTheEmail() throws Exception {
+    EmailChangeOtpPlugin emailChangeOtpPlugin = mockEmailChangeOtpPlugin();
+    OrganizationService externalOrganizationService = mock(OrganizationService.class);
+    UserHandler externalUserHandler = mock(UserHandler.class);
+    User externalUser = mock(User.class);
+    when(externalUser.isInternalStore()).thenReturn(false);
+    when(externalOrganizationService.getUserHandler()).thenReturn(externalUserHandler);
+    when(externalUserHandler.findUserByName(eq("john"), any(UserStatus.class))).thenReturn(externalUser);
+    registerUserRestWith(passwordRecoveryService, externalOrganizationService);
+    startSessionAs("john");
+    String formerEmail = identityManager.getOrCreateUserIdentity("john").getProfile().getEmail();
+
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=email&value=john.new@platform.com&otpCode=123&currentOtpCode=777".getBytes());
+    assertEquals(403, response.getStatus());
+
+    JSONObject data = new JSONObject();
+    data.put(ProfileEntity.EMAIL, "john.new@platform.com");
+    response = getResponse("PATCH", "/v1/social/users/john/profile?otpCode=123&currentOtpCode=777", data.toString());
+    assertEquals(403, response.getStatus());
+
+    response = sendEmailChangeCode("john", "john.new@platform.com");
+    assertEquals(403, response.getStatus());
+
+    verify(otpService, never()).validateOtp(anyString(), anyString(), anyString());
+    verify(otpService, never()).consumeOtp(anyString(), anyString(), anyString());
+    verify(emailChangeOtpPlugin, never()).generateOtpCode(anyString(), any(), any());
+    verifyNoInteractions(remindPasswordTokenService, cookieTokenService);
+    assertEquals(formerEmail, identityManager.getOrCreateUserIdentity("john").getProfile().getEmail());
+  }
+
+  /**
    * A plugin that answers as the email change method does: the send lock is
    * taken first, then the address is checked, then the code is sent when the
    * check accepts it
@@ -2717,7 +2873,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                           settingService,
                           otpService,
                           profileFormFieldService,
-                          cookieTokenService));
+                          cookieTokenService,
+                          remindPasswordTokenService));
   }
 
   private void createFormSetting(String name, Consumer<ProfilePropertySetting> configurer) throws Exception {
