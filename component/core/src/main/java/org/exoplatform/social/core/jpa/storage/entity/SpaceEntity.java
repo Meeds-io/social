@@ -56,14 +56,31 @@ import org.exoplatform.commons.utils.StringMapConverter;
             query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.prettyName = :prettyName")
 @NamedQuery(
             name = "SpaceEntity.getCommonSpacesBetweenTwoUsers",
-            query = "SELECT spaces FROM SocSpaceEntity spaces " + "WHERE spaces.id IN ( " +
-                "SELECT distinct (t1.space.id) FROM SocSpaceMember t1, SocSpaceMember t2 " + " WHERE t1.userId = :userId " +
-                " AND t2.userId = :otherUserId " + " AND t1.space.id = t2.space.id" + " )")
+            query = """
+                  SELECT spaces FROM SocSpaceEntity spaces
+                  WHERE spaces.id IN (
+                    SELECT DISTINCT t1.space.id FROM SocSpaceMember t1, SocSpaceMember t2
+                    WHERE t1.userId = :userId
+                    AND t1.status = io.meeds.social.space.constant.SpaceMembershipStatus.MEMBER
+                    AND t2.userId = :otherUserId
+                    AND t2.status = io.meeds.social.space.constant.SpaceMembershipStatus.MEMBER
+                    AND t1.space.id = t2.space.id
+                  )
+                  ORDER BY spaces.displayName ASC, spaces.id ASC
+                """)
 @NamedQuery(
             name = "SpaceEntity.countCommonSpacesBetweenTwoUsers",
-            query = "SELECT COUNT(*) FROM SocSpaceEntity spaces " + "WHERE spaces.id IN ( " +
-                "SELECT distinct (t1.space.id) FROM SocSpaceMember t1, SocSpaceMember t2 " + " WHERE t1.userId = :userId " +
-                " AND t2.userId = :otherUserId " + " AND t1.space.id = t2.space.id" + " )")
+            query = """
+                  SELECT COUNT(*) FROM SocSpaceEntity spaces
+                  WHERE spaces.id IN (
+                    SELECT DISTINCT t1.space.id FROM SocSpaceMember t1, SocSpaceMember t2
+                    WHERE t1.userId = :userId
+                    AND t1.status = io.meeds.social.space.constant.SpaceMembershipStatus.MEMBER
+                    AND t2.userId = :otherUserId
+                    AND t2.status = io.meeds.social.space.constant.SpaceMembershipStatus.MEMBER
+                    AND t1.space.id = t2.space.id
+                  )
+                """)
 @NamedQuery(
             name = "SpaceEntity.countSpacesByTemplate",
             query = """

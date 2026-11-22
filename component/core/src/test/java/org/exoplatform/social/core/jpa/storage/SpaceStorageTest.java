@@ -1814,6 +1814,51 @@ public class SpaceStorageTest extends AbstractCoreTest {
     assertEquals("my_space_test_0", spaces[3].getPrettyName());
   }
 
+  /**
+   * Common spaces are the ones both users are members of: a space one of them is
+   * only invited to, has asked to join or has ignored is neither listed nor
+   * counted, and the list comes back by display name then id, whatever the
+   * creation order.
+   */
+  public void testCommonSpacesKeepMembersOfBothSidesOnlyInStableOrder() {
+    Space beta = commonSpaceInstance(21, "Beta", "demo", "mary");
+    Space alpha = commonSpaceInstance(22, "Alpha", "demo", "mary");
+    Space alphaToo = commonSpaceInstance(23, "Alpha", "mary", "demo");
+    Space otherInvited = commonSpaceInstance(24, "OtherInvited", "demo");
+    otherInvited.setInvitedUsers(new String[] { "mary" });
+    Space otherPending = commonSpaceInstance(25, "OtherPending", "demo");
+    otherPending.setPendingUsers(new String[] { "mary" });
+    Space viewerInvited = commonSpaceInstance(26, "ViewerInvited", "mary");
+    viewerInvited.setInvitedUsers(new String[] { "demo" });
+    Space viewerPending = commonSpaceInstance(27, "ViewerPending", "mary");
+    viewerPending.setPendingUsers(new String[] { "demo" });
+    Space otherIgnored = commonSpaceInstance(28, "OtherIgnored", "demo");
+    Space viewerIgnored = commonSpaceInstance(29, "ViewerIgnored", "mary");
+    for (Space space : new Space[] { beta, alpha, alphaToo, otherInvited, otherPending, viewerInvited, viewerPending,
+        otherIgnored, viewerIgnored }) {
+      spaceStorage.saveSpace(space, true);
+    }
+    spaceStorage.ignoreSpace(otherIgnored.getId(), "mary");
+    spaceStorage.ignoreSpace(viewerIgnored.getId(), "demo");
+
+    List<Space> commonSpaces = spaceStorage.getCommonSpaces("demo", "mary", 0, 20);
+    assertEquals(3, spaceStorage.countCommonSpaces("demo", "mary"));
+    assertEquals(3, commonSpaces.size());
+    assertEquals(alpha.getId(), commonSpaces.get(0).getId());
+    assertEquals(alphaToo.getId(), commonSpaces.get(1).getId());
+    assertEquals(beta.getId(), commonSpaces.get(2).getId());
+    assertEquals(3, spaceStorage.countCommonSpaces("mary", "demo"));
+    assertEquals(alphaToo.getId(), spaceStorage.getCommonSpaces("mary", "demo", 1, 1).get(0).getId());
+  }
+
+  private Space commonSpaceInstance(int number, String displayName, String manager, String... members) {
+    Space space = getSpaceInstance(number, "public", "open", manager, members);
+    space.setDisplayName(displayName);
+    space.setPrettyName("common_space_" + number);
+    space.setUrl(space.getPrettyName());
+    return space;
+  }
+
   public void testGetCommonSpaces() throws Exception {
 
     // Get instances of 3 spaces with different members and 1 common manager
