@@ -31,12 +31,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 
-class SpaceFilterKeyTest {
+public class SpaceFilterKeyTest {
 
   /**
    * Two filters whose {@link Objects#hash} collide while they are not equal:
@@ -46,7 +46,7 @@ class SpaceFilterKeyTest {
    * silently voids the pair is visible.
    */
   @Test
-  void testCollidingFiltersGetDistinctKeys() {
+  public void testCollidingFiltersGetDistinctKeys() {
     SpaceFilter parentOnly = new SpaceFilter();
     parentOnly.setParentSpaceId(1234);
     SpaceFilter otherParentWithExclusion = new SpaceFilter();
@@ -62,7 +62,7 @@ class SpaceFilterKeyTest {
   }
 
   @Test
-  void testEqualFiltersGetEqualKeys() {
+  public void testEqualFiltersGetEqualKeys() {
     SpaceFilterKey key = new SpaceFilterKey("john", "mary", filter(), SpaceType.MEMBER);
     SpaceFilterKey sameKey = new SpaceFilterKey("john", "mary", filter(), SpaceType.MEMBER);
 
@@ -75,23 +75,33 @@ class SpaceFilterKeyTest {
   }
 
   @Test
-  void testKeyIsASnapshotOfTheFilter() {
+  public void testKeyIsASnapshotOfTheFilter() {
     SpaceFilter filter = filter();
     List<Long> excludedIds = new ArrayList<>(List.of(3L, 4L));
+    List<Long> templateIds = new ArrayList<>(List.of(1L));
+    List<String> tagNames = new ArrayList<>(List.of("tag"));
     filter.setExcludedIds(excludedIds);
+    filter.setTemplateIds(templateIds);
+    filter.setTagNames(tagNames);
     SpaceFilterKey key = new SpaceFilterKey("john", filter, SpaceType.MEMBER);
-    SpaceFilterKey keyBeforeMutation = new SpaceFilterKey("john", filter, SpaceType.MEMBER);
 
     excludedIds.add(5L);
+    templateIds.add(2L);
+    tagNames.add("other");
+
+    // Only the lists changed: the key must not follow them
+    SpaceFilter freshFilter = filter();
+    freshFilter.setExcludedIds(List.of(3L, 4L));
+    assertEquals(new SpaceFilterKey("john", freshFilter, SpaceType.MEMBER), key);
+    assertNotEquals(new SpaceFilterKey("john", filter, SpaceType.MEMBER), key);
+
     filter.setRemoteId("mary");
     filter.setParentSpaceId(99);
-
-    assertEquals(keyBeforeMutation, key);
-    assertNotEquals(new SpaceFilterKey("john", filter, SpaceType.MEMBER), key);
+    assertEquals(new SpaceFilterKey("john", freshFilter, SpaceType.MEMBER), key);
   }
 
   @Test
-  void testKeyIsSerializableWithAFilterHoldingSpaces() throws IOException, ClassNotFoundException {
+  public void testKeyIsSerializableWithAFilterHoldingSpaces() throws IOException, ClassNotFoundException {
     SpaceFilter filter = filter();
     Space space = new Space();
     space.setId("12");
