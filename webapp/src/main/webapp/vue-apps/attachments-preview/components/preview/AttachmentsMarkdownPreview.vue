@@ -42,7 +42,7 @@
       <div
         v-if="truncated"
         class="markdownPreviewTruncated d-flex flex-wrap align-center pt-4">
-        <span class="text-body me-2">{{ $t('attachment.markdown.truncated') }}</span>
+        <span class="me-2">{{ $t('attachment.markdown.truncated') }}</span>
         <v-btn
           :href="attachment.downloadUrl"
           :download="attachment.filename"
