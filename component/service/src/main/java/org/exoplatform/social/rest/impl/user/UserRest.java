@@ -71,6 +71,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.organization.*;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -182,6 +183,11 @@ public class UserRest implements ResourceContainer, Startable {
   private static final String BULK_DISABLE                 = "disable";
 
   private static final String UPLOAD_ID_PROGRESS_NOT_FOUND = "UPLOAD_ID_PROGRESS:NOT_FOUND";
+
+  /** Size of SOC_IDENTITY_PROPERTIES.VALUE, in characters */
+  private static final int MAX_STORED_PROFILE_VALUE_LENGTH = 2000;
+
+  private static final String NUL = String.valueOf((char) 0);
 
   private static final String             EMAIL_MSG_PREFIX            = "EMAIL:";
 
@@ -1489,6 +1495,13 @@ public class UserRest implements ResourceContainer, Startable {
     Profile profile = userIdentity.getProfile();
 
     for (ProfilePropertySettingEntity profileProperty : profilePropertySettingEntities) {
+      String refusal = checkStorableValue(profileProperty.getPropertyName(), getProfilePropertyValue(profileProperty));
+      if (refusal != null) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(refusal).build();
+      }
+    }
+
+    for (ProfilePropertySettingEntity profileProperty : profilePropertySettingEntities) {
 
       if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME)) {
         String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, profileProperty.getValue());
@@ -1507,27 +1520,8 @@ public class UserRest implements ResourceContainer, Startable {
         return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_MANDATORY").build();
       }
       try {
-        if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
-          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), false, currentUser);
-          updateProfilePropertyVisibility(userIdentity, profileProperty);
-        } else {
-          List<Map<String, String>> maps = new ArrayList<>();
-          profileProperty.getChildren().forEach(profilePropertySettingEntity -> {
-            if (profilePropertySettingEntity.getValue() != null && !profilePropertySettingEntity.getValue().isBlank()
-                && (profilePropertySettingEntity.getPropertyName() != null
-                    && !profilePropertySettingEntity.getPropertyName().isBlank()
-                    || profileProperty.isMultiValued())) {
-              Map<String, String> childrenMap = new HashMap<>();
-              if (profilePropertySettingEntity.getPropertyName() != null) {
-                childrenMap.put("key", profilePropertySettingEntity.getPropertyName());
-              }
-              childrenMap.put("value", profilePropertySettingEntity.getValue());
-              maps.add(childrenMap);
-            }
-          });
-          updateProfileField(profile, profileProperty.getPropertyName(), maps, false, currentUser);
-          updateProfilePropertyVisibility(userIdentity, profileProperty);
-        }
+        updateProfileField(profile, profileProperty.getPropertyName(), getProfilePropertyValue(profileProperty), false, currentUser);
+        updateProfilePropertyVisibility(userIdentity, profileProperty);
       } catch (IllegalAccessException e) {
         LOG.error("User {} is not allowed to update attributes", currentUser);
         return Response.status(Status.UNAUTHORIZED).build();
@@ -1538,6 +1532,75 @@ public class UserRest implements ResourceContainer, Startable {
     }
     identityManager.updateProfile(profile, getCurrentUser(), true);
     return Response.ok().build();
+  }
+
+  /**
+   * @param  profileProperty a property sent to the profile properties update
+   * @return                 the value the property is written with: its text,
+   *                         or, for a multi-valued property or one with
+   *                         children, the list of the non blank entries
+   *                         ({@code key} and {@code value}) the storage
+   *                         serialises
+   */
+  private Object getProfilePropertyValue(ProfilePropertySettingEntity profileProperty) {
+    if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
+      return profileProperty.getValue();
+    }
+    List<Map<String, String>> maps = new ArrayList<>();
+    profileProperty.getChildren().forEach(profilePropertySettingEntity -> {
+      if (profilePropertySettingEntity.getValue() != null && !profilePropertySettingEntity.getValue().isBlank()
+          && (profilePropertySettingEntity.getPropertyName() != null
+              && !profilePropertySettingEntity.getPropertyName().isBlank()
+              || profileProperty.isMultiValued())) {
+        Map<String, String> childrenMap = new HashMap<>();
+        if (profilePropertySettingEntity.getPropertyName() != null) {
+          childrenMap.put("key", profilePropertySettingEntity.getPropertyName());
+        }
+        childrenMap.put("value", profilePropertySettingEntity.getValue());
+        maps.add(childrenMap);
+      }
+    });
+    return maps;
+  }
+
+  /**
+   * Checks a value before anything is written: SOC_IDENTITY_PROPERTIES.VALUE
+   * holds {@value #MAX_STORED_PROFILE_VALUE_LENGTH} characters, and no text
+   * column of PostgreSQL holds U+0000. A list is stored as the org.json
+   * serialisation of its maps, whose escapes lengthen it, so its length is
+   * counted on that text, which mirrors the identity storage's array branch.
+   *
+   * @param  propertyName the property's technical name
+   * @param  value        the text or the list of maps to write
+   * @return              the 400 message naming the property, or null when the
+   *                      value can be stored
+   */
+  private String checkStorableValue(String propertyName, Object value) {
+    if (value == null) {
+      return null;
+    }
+    int storedLength;
+    if (value instanceof List<?> list) {
+      JSONArray array = new JSONArray();
+      for (Object entry : list) {
+        if (entry instanceof Map<?, ?> map) {
+          if (map.values().stream().anyMatch(v -> StringUtils.contains(String.valueOf(v), NUL))) {
+            return propertyName + ":INVALID_VALUE";
+          }
+          array.put(new JSONObject(map));
+        } else {
+          array.put(entry);
+        }
+      }
+      storedLength = array.toString().length();
+    } else {
+      String text = String.valueOf(value);
+      if (StringUtils.contains(text, NUL)) {
+        return propertyName + ":INVALID_VALUE";
+      }
+      storedLength = text.length();
+    }
+    return storedLength > MAX_STORED_PROFILE_VALUE_LENGTH ? propertyName + ":TOO_LONG" : null;
   }
 
   /**
