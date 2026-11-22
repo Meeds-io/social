@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.social.common.lifecycle.LifeCycleCompletionService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -397,5 +398,50 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     assertTrue(groups.contains(group2));
     assertTrue(groups.contains(group3));
 
+  }
+
+  @Test
+  public void testGroupsFollowProfileChangeOfDisabledAccount() throws Exception {
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setActive(true);
+    profilePropertySetting.setEditable(true);
+    profilePropertySetting.setVisible(true);
+    profilePropertySetting.setPropertyName("teamAssignment");
+    profilePropertySetting.setGroupSynchronized(true);
+    profilePropertySetting.setMultiValued(false);
+    profilePropertySetting.setParentId(0L);
+    profilePropertySetting.setOrder(0L);
+    profilePropertyService.createPropertySetting(profilePropertySetting);
+
+    String username = "paul";
+    UserHandler userHandler = organizationService.getUserHandler();
+    Profile profile = paul.getProfile();
+    profile.setProperty("teamAssignment", "sales");
+    identityManager.updateProfile(profile, true);
+    completionService.waitAllTaskFinished(2000);
+
+    Group oldGroup = organizationService.getGroupHandler().findGroupById("/profile/teamassignment/sales");
+    assertNotNull(oldGroup);
+    assertTrue(organizationService.getGroupHandler().findGroupsOfUser(username).contains(oldGroup));
+
+    try {
+      userHandler.setEnabled(username, false, true);
+      profile.setProperty("teamAssignment", "support");
+      identityManager.updateProfile(profile, true);
+      completionService.waitAllTaskFinished(2000);
+
+      Group newGroup = organizationService.getGroupHandler().findGroupById("/profile/teamassignment/support");
+      assertNotNull(newGroup);
+      Collection<Group> groups = organizationService.getGroupHandler().findGroupsOfUser(username);
+      assertTrue(groups.contains(newGroup));
+      assertFalse(groups.contains(oldGroup));
+    } finally {
+      userHandler.setEnabled(username, true, true);
+    }
+
+    Group newGroup = organizationService.getGroupHandler().findGroupById("/profile/teamassignment/support");
+    Collection<Group> groups = organizationService.getGroupHandler().findGroupsOfUser(username);
+    assertTrue(groups.contains(newGroup));
+    assertFalse(groups.contains(oldGroup));
   }
 }

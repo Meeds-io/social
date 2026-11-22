@@ -38,6 +38,7 @@ import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
@@ -109,7 +110,7 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
   private void profileUpdated(ProfileLifeCycleEvent profileLifeCycleEvent) {
     Profile profile = profileLifeCycleEvent.getProfile();
     try {
-      User user = organizationService.getUserHandler().findUserByName(profile.getIdentity().getRemoteId());
+      User user = organizationService.getUserHandler().findUserByName(profile.getIdentity().getRemoteId(), UserStatus.ANY);
       synchronizePropertyGroups(profileLifeCycleEvent.getProfile(), user);
     } catch (Exception e) {
       LOG.error("Error while synchronizing profile property of user {} to groups", profile.getIdentity().getRemoteId(), e);
@@ -298,7 +299,7 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     Collection<Membership> memberships = new ArrayList<>(memberShipHandler.findMembershipsByUser(user.getUserName()));
     LOG.debug("Find {} memberships for user {} in {} ms", memberships.size(), user.getUserName(), System.currentTimeMillis() - startTimeGetMemberships);
 
-    for (Membership membership : memberships) {
+    for (Membership membership : new ArrayList<>(memberships)) {
       if (isSameOrDescendantGroup(membership.getGroupId(), group.getId())) {
         String[] splittedMembership = membership.getGroupId().split("/");
         String groupName = splittedMembership[splittedMembership.length-1];
