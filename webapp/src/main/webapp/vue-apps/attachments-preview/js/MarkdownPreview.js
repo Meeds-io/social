@@ -21,10 +21,10 @@
  * The most bytes of a Markdown file the preview reads: a longer file shows
  * its beginning, with a note and the download link (EXO-94929). The renderer
  * runs on the page's thread and its time grows with the square of the text's
- * length: 64 KiB of tables or emphasis render in about 0.2 s, 256 KiB take
- * about 3 s, and 1 MiB can exhaust the tab's memory.
+ * length: at this cap, tables or emphasis render in 3 to 5 s, while 1 MiB
+ * takes about a minute or exhausts the tab's memory.
  */
-export const MARKDOWN_PREVIEW_MAX_BYTES = 64 * 1024;
+export const MARKDOWN_PREVIEW_MAX_BYTES = 256 * 1024;
 
 /**
  * The modules the preview renders with, loaded on demand when a Markdown
