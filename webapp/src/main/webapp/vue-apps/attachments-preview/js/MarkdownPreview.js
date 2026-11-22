@@ -69,8 +69,7 @@ let converter;
 /**
  * Loads the Markdown renderer and the outside-address filter. A failed load
  * is forgotten by RequireJS, so that the next preview tries again rather
- * than waiting forever on the module it kept (social pitfall: RequireJS
- * 2.0.1 keeps a failed module).
+ * than waiting forever on the failed module RequireJS would otherwise keep.
  *
  * @returns {Promise<{showdown: object, filter: object}>} the showdown
  *          library, and the filter exposing withoutExternalResources

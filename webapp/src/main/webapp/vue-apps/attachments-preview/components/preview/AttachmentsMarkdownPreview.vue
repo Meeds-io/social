@@ -71,13 +71,29 @@ export default {
     truncated: false,
   }),
   computed: {
+    /**
+     * Whether the screen is a phone's or a tablet's, as the other previews
+     * tell it.
+     *
+     * @returns {boolean} true on a small, extra-small or medium breakpoint
+     */
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
+    /**
+     * The preview's height, a little lower on a phone or a tablet.
+     *
+     * @returns {string} the card's height, as a viewport share
+     */
     height() {
       return this.isMobile ? '75vh' : '80vh';
     },
   },
+  /**
+   * Starts reading and rendering the file as soon as the preview is created.
+   *
+   * @returns {void}
+   */
   created() {
     this.load();
   },

@@ -48,7 +48,7 @@
   const MAY_LOAD = /<[a-z]/i;
 
   /**
-   * Removes from an answer everything that would make the browser load an
+   * Removes from rendered content everything that would make the browser load an
    * address outside the platform as it shows it: a model may write an image of
    * a web service, or any other element that loads one, which an on-premise
    * platform must never load. An image outside the platform becomes its
@@ -62,7 +62,7 @@
    * removed. A link stays a link: it
    * loads nothing until the reader clicks it.
    *
-   * @param {string} html an answer's HTML
+   * @param {string} html the rendered HTML
    * @param {string} [origin] the platform's origin, the page's by default
    * @returns {string} the HTML, loading nothing outside the platform
    */
@@ -96,7 +96,7 @@
    * (CSS_VALUE_ATTRIBUTES). An image keeps its src,
    * which the caller reads to replace the image by its alternative text.
    *
-   * @param {Element} element an element of the answer
+   * @param {Element} element an element of the rendered content
    * @param {string} platform the platform's origin
    * @returns {void}
    */
@@ -134,4 +134,4 @@
   }
 
   return {withoutExternalResources};
-})()
+})();
