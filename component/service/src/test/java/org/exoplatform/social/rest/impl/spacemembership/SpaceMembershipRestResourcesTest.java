@@ -21,6 +21,8 @@ package org.exoplatform.social.rest.impl.spacemembership;
 import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -35,6 +37,8 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
@@ -73,6 +77,15 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
 
   private SpaceInvitationLinkStorage spaceInvitationLinkStorage;
 
+  private final Map<String, String> inviterByInvitedUser = new HashMap<>();
+
+  private final SpaceLifeCycleListener inviteListener = new SpaceLifeCycleListener() {
+    @Override
+    public void addInvitedUser(SpaceLifeCycleEvent event) {
+      inviterByInvitedUser.put(event.getTarget(), event.getSpace().getEditor());
+    }
+  };
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
@@ -104,12 +117,15 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     createSpaceIfNotExist(5, "mary");
     createSpaceIfNotExist(6, "mary");
 
+    inviterByInvitedUser.clear();
+    spaceService.registerSpaceLifeCycleListener(inviteListener);
     membershipRestResources = new SpaceMembershipRest(spaceService, identityManager);
     registry(membershipRestResources);
   }
 
   @Override
   public void tearDown() throws Exception {
+    spaceService.unregisterSpaceLifeCycleListener(inviteListener);
     super.tearDown();
     removeResource(membershipRestResources.getClass());
   }
@@ -743,6 +759,85 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
        && Long.parseLong(space.getId()) == invitation.getSpaceId()
        && "demo".equals(invitation.getInvitedUserId())));
 	}
+
+  public void testManagerApprovesPendingUserAddsThatUser() throws Exception {
+    Space space = spaceService.getSpaceByPrettyName(SPACE4);
+    spaceService.addPendingUser(space, "demo");
+    startSessionAs("mary");
+    ContainerResponse response = getResponse(HttpMethod.POST,
+                                             getURLResource(SPACES_MEMBERSHIPS_URL),
+                                             getJsonStatusInput(getSpaceId(4), "demo", "approved"));
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+    space = spaceService.getSpaceByPrettyName(SPACE4);
+    assertTrue(spaceService.isMember(space, "demo"));
+    assertFalse(spaceService.isPendingUser(space, "demo"));
+    assertTrue(spaceService.isMember(space, "mary"));
+    assertTrue(spaceService.isManager(space, "mary"));
+  }
+
+  public void testManagerInvitesUserInvitesThatUser() throws Exception {
+    startSessionAs("mary");
+    ContainerResponse response = getResponse(HttpMethod.POST,
+                                             getURLResource(SPACES_MEMBERSHIPS_URL),
+                                             getJsonStatusInput(getSpaceId(4), "demo", INVITED));
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+    Space space = spaceService.getSpaceByPrettyName(SPACE4);
+    assertTrue(spaceService.isInvitedUser(space, "demo"));
+    assertFalse(spaceService.isMember(space, "demo"));
+    assertFalse(spaceService.isInvitedUser(space, "mary"));
+    assertEquals("mary", inviterByInvitedUser.get("demo"));
+  }
+
+  public void testSpacesAdministratorNotMemberApprovesOrInvitesOtherUser() throws Exception {
+    Space space = spaceService.getSpaceByPrettyName(SPACE5);
+    spaceService.addPendingUser(space, "demo");
+    startSessionAs("root");
+    assertFalse(spaceService.isMember(space, "root"));
+
+    ContainerResponse response = getResponse(HttpMethod.POST,
+                                             getURLResource(SPACES_MEMBERSHIPS_URL),
+                                             getJsonStatusInput(getSpaceId(5), "demo", "approved"));
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+    response = getResponse(HttpMethod.POST,
+                           getURLResource(SPACES_MEMBERSHIPS_URL),
+                           getJsonStatusInput(getSpaceId(5), "john", INVITED));
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+
+    space = spaceService.getSpaceByPrettyName(SPACE5);
+    assertTrue(spaceService.isMember(space, "demo"));
+    assertFalse(spaceService.isPendingUser(space, "demo"));
+    assertTrue(spaceService.isInvitedUser(space, "john"));
+    assertEquals("root", inviterByInvitedUser.get("john"));
+    assertFalse(spaceService.isMember(space, "root"));
+    assertFalse(spaceService.isInvitedUser(space, "root"));
+  }
+
+  public void testPlainMemberCannotApproveOrInviteOtherUser() throws Exception {
+    Space space = spaceService.getSpaceByPrettyName(SPACE6);
+    spaceService.addMember(space, "demo");
+    spaceService.addPendingUser(space, "john");
+    startSessionAs("demo");
+
+    ContainerResponse response = getResponse(HttpMethod.POST,
+                                             getURLResource(SPACES_MEMBERSHIPS_URL),
+                                             getJsonStatusInput(getSpaceId(6), "john", "approved"));
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+    response = getResponse(HttpMethod.POST,
+                           getURLResource(SPACES_MEMBERSHIPS_URL),
+                           getJsonStatusInput(getSpaceId(6), "john", INVITED));
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+
+    space = spaceService.getSpaceByPrettyName(SPACE6);
+    assertTrue(spaceService.isPendingUser(space, "john"));
+    assertFalse(spaceService.isMember(space, "john"));
+    assertFalse(spaceService.isInvitedUser(space, "john"));
+  }
 
   private void createSpaceIfNotExist(int index, String creator) throws Exception {
     createSpaceIfNotExist(index, creator, Space.OPEN);
