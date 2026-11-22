@@ -24,7 +24,7 @@
     class="d-flex flex-column"
     color="transparent"
     flat>
-    <div class="d-flex overflow-hidden full-width mb-2">
+    <div class="d-flex align-start overflow-hidden full-width mb-2">
       <slot
         v-if="$scopedSlots.label"
         name="label"
@@ -38,13 +38,14 @@
         {{ $t(label) }}
       </div>
       <v-btn
-        v-if="hasCategories"
-        :title="$t('categoryInput.drawer.editCategories')"
-        class="flex-grow-0 flex-shrink-0"
+        v-if="!hideAddButton && initialized"
+        :title="actionLabel"
+        :aria-label="actionLabel"
+        class="category-input-add-button flex-grow-0 flex-shrink-0 ms-2"
         small
         icon
         @click="openCategoriesDrawer">
-        <v-icon size="16">fa-edit</v-icon>
+        <v-icon size="16">{{ hasCategories && 'fa-edit' || 'fa-plus' }}</v-icon>
       </v-btn>
     </div>
     <v-progress-linear
@@ -103,20 +104,6 @@
         </v-list-item-action>
       </v-list-item>
     </v-list>
-    <v-card
-      v-else-if="!loading && !hideAddButton"
-      class="d-flex justify-center align-center mt-2 mb-4"
-      width="100%"
-      flat>
-      <v-btn
-        class="flex-grow-0 flex-shrink-0"
-        color="primary"
-        outlined
-        @click="openCategoriesDrawer">
-        <v-icon size="16" class="me-2">fa-plus</v-icon>
-        {{ $t('categoryInput.drawer.addCategories') }}
-      </v-btn>
-    </v-card>
     <category-input-drawer
       v-if="drawer"
       ref="drawer"
@@ -165,6 +152,8 @@ export default {
   data: () => ({
     drawer: false,
     loading: true,
+    initialized: false,
+    refreshIndex: 0,
     lockedIds: [],
     categoryIds: [],
     categories: [],
@@ -179,6 +168,17 @@ export default {
     },
     hasCategories() {
       return !!this.filteredCategories.length;
+    },
+    /**
+     * The title and accessible name of the label line's button: it adds
+     * categories while none is chosen, and edits them once some are.
+     *
+     * @returns {string} the translated « Add categories » or « Edit associated categories »
+     */
+    actionLabel() {
+      return this.hasCategories
+        && this.$t('categoryInput.drawer.editCategories')
+        || this.$t('categoryInput.addCategories');
     },
   },
   watch: {
@@ -208,7 +208,16 @@ export default {
       await this.$nextTick();
       this.$refs.drawer.openDrawer();
     },
+    /**
+     * Loads the categories of the current ids. Several refreshes can overlap
+     * (the immediate watcher runs on the empty default before `created` sets
+     * the stored ids), so only the latest one applies its result, ends the
+     * loading state and marks the input initialized.
+     *
+     * @returns {Promise<void>} resolved once the categories are loaded
+     */
     async refreshCategories() {
+      const refreshIndex = ++this.refreshIndex;
       this.loading = true;
       try {
         const categories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id)
@@ -230,13 +239,19 @@ export default {
             };
           })));
         await this.$nextTick();
+        if (refreshIndex !== this.refreshIndex) {
+          return;
+        }
         this.categories = categories.filter(c => c);
         if (this.filterPreselection
             && this.categories?.length !== this.categoryIds?.length) {
           this.categoryIds = this.categories.map(c => c.id);
         }
       } finally {
-        this.loading = false;
+        if (refreshIndex === this.refreshIndex) {
+          this.loading = false;
+          this.initialized = true;
+        }
       }
     },
     removeCategory(item) {
