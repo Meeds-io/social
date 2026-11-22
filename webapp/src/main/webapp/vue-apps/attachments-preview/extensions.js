@@ -26,6 +26,19 @@ extensionRegistry.registerExtension('Preview', 'previewExtensions', {
   },
 });
 
+// A Markdown file is often stored as text/plain or application/octet-stream
+// (the platform's mimetype resolver has no md entry): its name's extension
+// selects this preview too (EXO-94929)
+extensionRegistry.registerExtension('Preview', 'previewExtensions', {
+  id: 'markdown-preview',
+  fileType: 'markdown',
+  fileExtensions: ['.md', '.markdown'],
+  rank: 15,
+  componentOptions: {
+    vueComponent: Vue.options.components['attachments-markdown-preview'],
+  },
+});
+
 extensionRegistry.registerExtension('Preview', 'previewExtensions', {
   id: 'default-preview',
   rank: 20,

@@ -20,6 +20,7 @@
 import AttachmentsPreviewDialog from './components/preview/AttachmentsPreviewDialog.vue';
 import AttachmentsImagePreview from './components/preview/AttachmentsImagePreview.vue';
 import AttachmentsDefaultPreview from './components/preview/AttachmentsDefaultPreview.vue';
+import AttachmentsMarkdownPreview from './components/preview/AttachmentsMarkdownPreview.vue';
 import AttachmentPreviewActions from './components/preview/AttachmentPreviewActions.vue';
 import AttachmentsPreviewDownloadAction from './components/preview/AttachmentsPreviewDownloadAction.vue';
 import AttachmentsPreviewCloseAction from './components/preview/AttachmentsPreviewCloseAction.vue';
@@ -28,6 +29,7 @@ const components = {
   'attachments-preview-dialog': AttachmentsPreviewDialog,
   'attachments-image-preview': AttachmentsImagePreview,
   'attachments-default-preview': AttachmentsDefaultPreview,
+  'attachments-markdown-preview': AttachmentsMarkdownPreview,
   'attachment-preview-actions': AttachmentPreviewActions,
   'attachment-preview-download-action': AttachmentsPreviewDownloadAction,
   'attachment-preview-close-action': AttachmentsPreviewCloseAction,

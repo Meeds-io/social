@@ -3020,6 +3020,27 @@
   </module>
 
   <module>
+    <name>markdownShowdown</name>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/lib/showdown.min.js</include>
+        return showdown;
+        })();
+      </adapter>
+    </script>
+  </module>
+
+  <module>
+    <name>externalResourceFilter</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/ExternalResourceFilter.js</path>
+    </script>
+  </module>
+
+  <module>
     <name>mermaid</name>
     <script>
       <minify>false</minify>
