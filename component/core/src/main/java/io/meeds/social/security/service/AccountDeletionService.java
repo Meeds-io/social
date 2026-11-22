@@ -56,8 +56,8 @@ import lombok.Setter;
  * account — marker removal and deletion together — so the processing stays
  * idempotent without any cluster lock: a concurrent or replayed run finds no
  * marker once an account's transaction is committed, and the deletion itself
- * (social identity soft-deleted then IDM user removed, mirroring the users
- * administration deletion) is a no-op once the IDM user is gone.
+ * (IDM user removed, then the social identity deleted) is a no-op once the
+ * IDM user is gone.
  */
 @Service
 public class AccountDeletionService {
@@ -198,17 +198,20 @@ public class AccountDeletionService {
   }
 
   /**
-   * Deletes the account the way the users administration does: the social
-   * identity is soft-deleted first, then the IDM user is removed without
-   * broadcast — this ordering prevents any concurrent by-username resolution
-   * from resurrecting the deleted identity while the IDM user still exists.
-   * The user content (activities, comments, documents...) is preserved by
-   * design and keeps being displayed.
+   * Deletes the account: the IDM user is removed first, notifying the user
+   * deletion listeners, then the social identity is deleted. The listeners may
+   * resolve the social identity by username while the IDM user still exists,
+   * which would restore an identity deleted beforehand, so the identity is
+   * deleted after the user. The social user listener has already deleted it
+   * in its post-deletion step; deleting it again here is harmless and covers
+   * that listener's catch-and-log. The user content (activities, comments,
+   * documents...) is preserved by design and keeps being displayed.
    */
   public void deleteAccount(String username) throws Exception {
     Identity identity = identityManager.getOrCreateUserIdentity(username);
+    organizationService.getUserHandler().removeUser(username, true);
     identityManager.hardDeleteIdentity(identity);
-    organizationService.getUserHandler().removeUser(username, false);
+    // deletes the stored tokens of the account
     deleteTokens(username);
     indexingService.unindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
     // hardDeleteIdentity doesn't mutate the passed object: reflect the
