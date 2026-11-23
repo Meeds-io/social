@@ -58,8 +58,7 @@
             tabindex="0"
             required="required"
             outlined
-            dense
-            background-color="white" />
+            dense />
         </v-row>
         <v-row class="mx-0 mt-8 pa-0">
           <v-btn
