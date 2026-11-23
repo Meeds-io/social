@@ -26,7 +26,8 @@
     v-model="drawer"
     :loading="saving"
     go-back-button="true"
-    right>
+    right
+    @go-back="goBack">
     <template #title>
       {{ $t('social.admins.drawer.adminsToAdd') }}
     </template>
@@ -108,6 +109,7 @@
 export default {
   data: () => ({
     drawer: false,
+    openedFromCard: false,
     saving: false,
     goBackButton: false,
     selectedUsers: [],
@@ -172,8 +174,16 @@ export default {
     this.$root.$on('platform-settings-admins-updated', this.searchAdmins);
   },
   methods: {
-    open() {
+    // Opened from the admins card, the back arrow leads to the admins list
+    open(fromCard) {
+      this.openedFromCard = fromCard === true;
       this.$refs.drawer.open();
+    },
+    goBack() {
+      this.$refs.drawer.close();
+      if (this.openedFromCard) {
+        this.$root.$emit('admins-drawer-open');
+      }
     },
     cancel() {
       this.$refs.drawer.close();

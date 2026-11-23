@@ -19,7 +19,10 @@
 import './initComponents.js';
 
 const lang = eXo && eXo.env.portal.language || 'en';
-const url = `/social/i18n/locale.portlet.PlatformAdminsWidget?lang=${lang}`;
+const url = [
+  `/social/i18n/locale.portlet.PlatformAdminsWidget?lang=${lang}`,
+  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
+];
 const appId = 'PlatformAdminsWidget';
 
 export function init() {

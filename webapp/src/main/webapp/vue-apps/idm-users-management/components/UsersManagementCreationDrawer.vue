@@ -23,9 +23,12 @@
     ref="drawer"
     id="userCreationDrawer"
     v-model="drawer"
+    :go-back-button="goBack"
     allow-expand
     right
-    @opened="reset">
+    @opened="reset"
+    @closed="onClosed"
+    @go-back="$emit('go-back')">
     <template #title>{{ $t('UsersManagement.addUser') }}</template>
     <template #content>
       <v-stepper
@@ -133,6 +136,13 @@ const EXTENSION_TYPE = 'account-form';
 const EXTENSIONS_UPDATED_EVENT = `extension-${EXTENSION_APP}-${EXTENSION_TYPE}-updated`;
 
 export default {
+  props: {
+    // Shows a back arrow, for a page that opens the form from a list
+    goBack: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
     drawer: false,
     stepper: 0,
@@ -213,9 +223,11 @@ export default {
     this.$root.$on('addNewUser', this.open);
     this.refreshExtensions();
     document.addEventListener(EXTENSIONS_UPDATED_EVENT, this.refreshExtensions);
+    this.$root.$on('closeNewUser', this.close);
   },
   beforeDestroy() {
     this.$root.$off('addNewUser', this.open);
+    this.$root.$off('closeNewUser', this.close);
     document.removeEventListener(EXTENSIONS_UPDATED_EVENT, this.refreshExtensions);
   },
   methods: {
@@ -236,6 +248,9 @@ export default {
     },
     close() {
       this.drawer = false;
+    },
+    onClosed() {
+      this.$emit('closed');
     },
     // The drawer's content stays mounted after it closes: every field goes
     // back to its default when the drawer opens, on step 1
