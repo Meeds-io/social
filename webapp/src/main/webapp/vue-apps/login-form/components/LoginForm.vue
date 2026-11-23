@@ -194,7 +194,7 @@
         <div v-else-if="!displayForm && signinOption !== 'noform'" class="mt-4 center text-body">
           <v-btn
             color="primary"
-            class="elevation-0 white-background full-height mutliple-lines"
+            class="elevation-0 full-height mutliple-lines"
             outlined
             @click="clickDisplayForm()">
             <v-card
