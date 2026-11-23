@@ -213,6 +213,7 @@
             v-if="showConeButton"
             id="applicationToolbarConeButton"
             class="px-0 ms-4"
+            :aria-label="coneButtonAriaLabel"
             small
             icon
             @click="expandFilter = true">
@@ -328,6 +329,10 @@ export default {
     hideConeButton: { // Force hide cone button, but generally useless since it's handled
       type: Boolean,
       default: false,
+    },
+    coneButtonAriaLabel: { // Cone button accessible name, saying the hidden filters' state
+      type: String,
+      default: null,
     },
     compact: { // Force the compact display
       type: Boolean,
