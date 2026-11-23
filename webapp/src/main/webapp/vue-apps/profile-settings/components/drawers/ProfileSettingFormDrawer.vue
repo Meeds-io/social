@@ -83,13 +83,19 @@
                     :rules="[v => !!v || $t('profileSettings.message.field.required')]"
                     item-disabled="disabled"
                     name="propertyType"
-                    class="pt-3"
+                    class="propertyTypeSelect pt-3"
                     item-text="label"
                     item-value="value"
                     dense
                     outlined
                     @change="applyListingRules"
-                    @blur="$refs.propertyType.blur();" />
+                    @blur="$refs.propertyType.blur();">
+                    <template #item="{ item }">
+                      <v-list-item-content :id="`propertyTypeOption-${item.value}`">
+                        <v-list-item-title>{{ item.label }}</v-list-item-title>
+                      </v-list-item-content>
+                    </template>
+                  </v-select>
                 </div>
               </template>
               <span v-if="isDropdownList && newSetting">
@@ -438,6 +444,7 @@
           {{ $t('profileSettings.button.cancel') }}
         </v-btn>
         <v-btn
+          id="profileSettingSaveButton"
           :disabled="isSaveButtonDisabled || saving || !valid"
           :loading="saving"
           class="btn btn-primary"

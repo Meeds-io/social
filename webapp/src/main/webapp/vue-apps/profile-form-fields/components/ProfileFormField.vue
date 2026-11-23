@@ -44,7 +44,7 @@
     :placeholder="placeholder"
     :error="error"
     :rules="requiredRule ? [requiredRule] : []"
-    class="profileFormField"
+    class="profileFormField profileFormUserField"
     @input="$emit('input', $event)" />
   <v-select
     v-else-if="kind === 'select'"
@@ -64,7 +64,7 @@
     :prepend-inner-icon="icon"
     :background-color="backgroundColor"
     :class="inputClass"
-    class="profileFormField"
+    class="profileFormField profileFormSelectField"
     item-value="id"
     clearable
     outlined

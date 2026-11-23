@@ -21,7 +21,7 @@
   <v-list dense>
     <v-list-item class="px-2 text-left">
       <div
-        class="clickable mx-2"
+        class="profileSettingEditAction clickable mx-2"
         @click="edit()">
         <v-icon
           size="21"
