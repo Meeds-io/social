@@ -174,9 +174,6 @@
             <div :class="{'success--text': passwordOneNumber}" class="d-flex align-center">
               <v-icon size="12" class="me-2">fa-check</v-icon> {{ $t('UserSettings.security.passwordChange.condition.passwordOneNumber') }}
             </div>
-            <div :class="{'success--text': passwordOneSpecialCharacter}" class="d-flex align-center">
-              <v-icon size="12" class="me-2">fa-check</v-icon> {{ $t('UserSettings.security.passwordChange.condition.passwordOneSpecialCharacter') }}
-            </div>
           </div>
         </v-card>
       </v-form>
@@ -229,7 +226,6 @@ export default {
         || !this.passwordOneUppercase
         || !this.passwordOneLowercase
         || !this.passwordOneNumber
-        || !this.passwordOneSpecialCharacter
         || this.saving;
     },
     passwordMatch() {
@@ -247,9 +243,6 @@ export default {
     },
     passwordOneNumber() {
       return this.newPassword?.length && /\d+/.test(this.newPassword);
-    },
-    passwordOneSpecialCharacter() {
-      return this.newPassword?.length && /[^\da-zA-Z]/.test(this.newPassword);
     },
     currentPasswordHidden() {
       return this.currentPasswordType === 'password';
