@@ -646,7 +646,7 @@ public class LoginRestTest {
     response.andExpect(status().isFound())
             .andExpect(header().string("Location","/portal/login"));
     // the link is used once: its token is deleted with the type it was created with
-    verify(remindPasswordTokenService).deleteToken("123456798", "email-validation");
+    verify(passwordRecoveryService).deleteToken("123456798", "email-validation");
   }
 
   @Test
@@ -799,12 +799,42 @@ public class LoginRestTest {
     HashMap<String, Object> sessionattr = new HashMap<>();
 
     sessionattr.put("external-registration", captcha);
-    mockMvc.perform(post("/login/verifyEmail")
-                        .sessionAttrs(sessionattr)
-                        .content("email=jsmith@acme.com&username=john&password=Password1234&password2=Password1234&firstName=John&lastName=Smith&captcha=abcde&token=123456789")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                        .accept(MediaType.APPLICATION_JSON));
+    ResultActions response = mockMvc.perform(post("/login/verifyEmail")
+                                                 .sessionAttrs(sessionattr)
+                                                 .content("email=jsmith@acme.com&username=john&password=Password1234&password2=Password1234&firstName=John&lastName=Smith&captcha=abcde&token=123456789")
+                                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                                                 .accept(MediaType.APPLICATION_JSON));
+    response.andExpect(status().isOk())
+            .andExpect(content().string(new JSONObject().put("success", "emailVerificationSent").toString()));
     verify(remindPasswordTokenService, never()).deleteToken(anyString(), anyString());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testRegisterUsedLinkIsRefusedWithoutBody() {
+    when(passwordRecoveryService.verifyToken(any(),any())).thenReturn(null);
+
+    ResultActions response = mockMvc.perform(post("/login/register")
+                                                 .content("email=jsmith@acme.com&password=Password1234&password2=Password1234&firstName=John&lastName=Smith&captcha=abcde&token=123456789")
+                                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                                                 .accept(MediaType.APPLICATION_JSON));
+    // the registration form shows the expired link message on this status, since the answer has no body
+    response.andExpect(status().isNotFound())
+            .andExpect(content().string(""));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailUsedLinkIsRefusedWithoutBody() {
+    when(passwordRecoveryService.verifyToken(any(),any())).thenReturn(null);
+
+    ResultActions response = mockMvc.perform(post("/login/verifyEmail")
+                                                 .content("email=jsmith@acme.com&username=john&password=Password1234&password2=Password1234&firstName=John&lastName=Smith&captcha=abcde&token=123456789")
+                                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                                                 .accept(MediaType.APPLICATION_JSON));
+    // the registration form shows the expired link message on this status, since the answer has no body
+    response.andExpect(status().isNotFound())
+            .andExpect(content().string(""));
   }
 
 

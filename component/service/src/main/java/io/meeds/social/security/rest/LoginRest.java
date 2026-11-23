@@ -1071,7 +1071,7 @@ public class LoginRest {
     User user = generateUserFromCredential(username);
     username = createUser(user);
     passwordRecoveryService.sendAccountCreatedConfirmationEmail(username, locale, getUrl(request));
-    remindPasswordTokenService.deleteToken(token, tokenType);
+    passwordRecoveryService.deleteToken(token, tokenType);
     return user.getEmail();
   }
 
