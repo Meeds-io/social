@@ -143,6 +143,7 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.security.security.CookieTokenService;
+import org.exoplatform.web.security.security.OnboardingTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 import io.meeds.social.core.identity.model.UserExportFilter;
@@ -306,6 +307,8 @@ public class UserRest implements ResourceContainer, Startable {
 
   private RemindPasswordTokenService      remindPasswordTokenService;
 
+  private OnboardingTokenService          onboardingTokenService;
+
   private ExecutorService                 importExecutorService       = null;
 
   public UserRest(UserACL userACL, // NOSONAR
@@ -325,7 +328,8 @@ public class UserRest implements ResourceContainer, Startable {
                   OtpService otpService,
                   ProfileFormFieldService profileFormFieldService,
                   CookieTokenService cookieTokenService,
-                  RemindPasswordTokenService remindPasswordTokenService) {
+                  RemindPasswordTokenService remindPasswordTokenService,
+                  OnboardingTokenService onboardingTokenService) {
     this.userACL = userACL;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
@@ -343,6 +347,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.profileFormFieldService = profileFormFieldService;
     this.cookieTokenService = cookieTokenService;
     this.remindPasswordTokenService = remindPasswordTokenService;
+    this.onboardingTokenService = onboardingTokenService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
     this.settingService = settingService;
 
@@ -2573,9 +2578,9 @@ public class UserRest implements ResourceContainer, Startable {
    * Once the change is written: consumes both codes, so that a later request
    * with them is refused, while a refused request burns nothing. Requests that
    * validated the same codes concurrently each write their change, and the last
-   * write stands. Deletes the password reset links and the remember-me tokens
-   * of the account, as a password reset does; each deletion that fails is
-   * logged and does not stop the other. Then tells the former address of the
+   * write stands. Deletes the password reset links and the onboarding links of
+   * the account, and its remember-me tokens, as a password reset does; each
+   * deletion that fails is logged and does not stop the others. Then tells the former address of the
    * change when the address really changed.
    */
   private void completeEmailChange(String username,
@@ -2587,6 +2592,11 @@ public class UserRest implements ResourceContainer, Startable {
       remindPasswordTokenService.deleteTokensByUsernameAndType(username, CookieTokenService.FORGOT_PASSWORD_TOKEN);
     } catch (Exception e) {
       LOG.warn("The password reset links of user {} could not be deleted after the email change", username, e);
+    }
+    try {
+      onboardingTokenService.deleteTokensByUsernameAndType(username, CookieTokenService.ONBOARD_TOKEN);
+    } catch (Exception e) {
+      LOG.warn("The onboarding links of user {} could not be deleted after the email change", username, e);
     }
     try {
       cookieTokenService.deleteTokensByUsernameAndType(username, "");

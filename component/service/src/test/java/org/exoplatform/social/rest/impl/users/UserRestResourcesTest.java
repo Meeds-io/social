@@ -113,6 +113,7 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.security.security.CookieTokenService;
+import org.exoplatform.web.security.security.OnboardingTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.organization.UserProfile;
@@ -161,6 +162,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private CookieTokenService           cookieTokenService;
 
   private RemindPasswordTokenService   remindPasswordTokenService;
+
+  private OnboardingTokenService       onboardingTokenService;
 
   private final AtomicBoolean          emailChangeSendLocked  = new AtomicBoolean();
 
@@ -244,6 +247,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     otpService = mock(OtpService.class);
     cookieTokenService = mock(CookieTokenService.class);
     remindPasswordTokenService = mock(RemindPasswordTokenService.class);
+    onboardingTokenService = mock(OnboardingTokenService.class);
     profilePropertyServiceSpy = spy(profilePropertyService);
     profileFormFieldService = spy(new ProfileFormFieldService(getContainer().getComponentInstanceOfType(ProfileSettingStorage.class),
                                                               getContainer().getComponentInstanceOfType(IdentityStorage.class),
@@ -284,7 +288,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 otpService,
                                                 profileFormFieldService,
                                                 cookieTokenService,
-                                                remindPasswordTokenService);
+                                                remindPasswordTokenService,
+                                                onboardingTokenService);
     registry(userRestResourcesV1);
   }
 
@@ -376,7 +381,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               otpService,
                                               profileFormFieldService,
                                               cookieTokenService,
-                                              remindPasswordTokenService);
+                                              remindPasswordTokenService,
+                                              onboardingTokenService);
     registry(userRestResources);
 
     // when
@@ -2068,6 +2074,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                          "name=email&value=john.new@platform.com&otpCode=123&currentOtpCode=777".getBytes());
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
     verify(remindPasswordTokenService).deleteTokensByUsernameAndType("john", CookieTokenService.FORGOT_PASSWORD_TOKEN);
+    verify(onboardingTokenService).deleteTokensByUsernameAndType("john", CookieTokenService.ONBOARD_TOKEN);
     verify(cookieTokenService).deleteTokensByUsernameAndType("john", "");
 
     JSONObject data = new JSONObject();
@@ -2075,15 +2082,18 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     response = getResponse("PATCH", "/v1/social/users/john/profile?otpCode=456&currentOtpCode=888", data.toString());
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
     verify(remindPasswordTokenService, times(2)).deleteTokensByUsernameAndType("john", CookieTokenService.FORGOT_PASSWORD_TOKEN);
+    verify(onboardingTokenService, times(2)).deleteTokensByUsernameAndType("john", CookieTokenService.ONBOARD_TOKEN);
     verify(cookieTokenService, times(2)).deleteTokensByUsernameAndType("john", "");
     verify(remindPasswordTokenService, never()).deleteTokensByUsernameAndType(eq("mary"), anyString());
+    verify(onboardingTokenService, never()).deleteTokensByUsernameAndType(eq("mary"), anyString());
     verify(cookieTokenService, never()).deleteTokensByUsernameAndType(eq("mary"), anyString());
-    verifyNoMoreInteractions(remindPasswordTokenService, cookieTokenService);
+    verifyNoMoreInteractions(remindPasswordTokenService, onboardingTokenService, cookieTokenService);
   }
 
   /**
    * A failure while deleting the password reset links does not skip the
-   * remember-me tokens, and the change still answers 204
+   * onboarding links nor the remember-me tokens, and the change still answers
+   * 204
    */
   public void testEmailChangeDeletesRememberMeTokensWhenResetLinksDeletionFails() throws Exception {
     startSessionAs("john");
@@ -2099,6 +2109,30 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                          "name=email&value=john.new@platform.com&otpCode=123&currentOtpCode=777".getBytes());
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
     verify(remindPasswordTokenService).deleteTokensByUsernameAndType("john", CookieTokenService.FORGOT_PASSWORD_TOKEN);
+    verify(onboardingTokenService).deleteTokensByUsernameAndType("john", CookieTokenService.ONBOARD_TOKEN);
+    verify(cookieTokenService).deleteTokensByUsernameAndType("john", "");
+  }
+
+  /**
+   * A failure while deleting the onboarding links does not skip the other
+   * deletions nor the update, and the change still answers 204
+   */
+  public void testEmailChangeCompletesWhenOnboardingLinksDeletionFails() throws Exception {
+    startSessionAs("john");
+    doThrow(new IllegalStateException("onboarding deletion failed")).when(onboardingTokenService)
+                                                                    .deleteTokensByUsernameAndType("john",
+                                                                                                   CookieTokenService.ONBOARD_TOKEN);
+    MultivaluedMap<String, String> formHeaders = new MultivaluedMapImpl();
+    formHeaders.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH",
+                                         getURLResource("users/john"),
+                                         "",
+                                         formHeaders,
+                                         "name=email&value=john.new@platform.com&otpCode=123&currentOtpCode=777".getBytes());
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    assertEquals("john.new@platform.com", identityManager.getOrCreateUserIdentity("john").getProfile().getEmail());
+    verify(remindPasswordTokenService).deleteTokensByUsernameAndType("john", CookieTokenService.FORGOT_PASSWORD_TOKEN);
+    verify(onboardingTokenService).deleteTokensByUsernameAndType("john", CookieTokenService.ONBOARD_TOKEN);
     verify(cookieTokenService).deleteTokensByUsernameAndType("john", "");
   }
 
@@ -2159,7 +2193,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     response = getResponse("PATCH", "/v1/social/users/john/profile?otpCode=000&currentOtpCode=777", data.toString());
     assertEquals(400, response.getStatus());
 
-    verifyNoInteractions(remindPasswordTokenService, cookieTokenService);
+    verifyNoInteractions(remindPasswordTokenService, onboardingTokenService, cookieTokenService);
   }
 
   /**
@@ -2198,7 +2232,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     verify(otpService, never()).validateOtp(anyString(), anyString(), anyString());
     verify(otpService, never()).consumeOtp(anyString(), anyString(), anyString());
     verify(emailChangeOtpPlugin, never()).generateOtpCode(anyString(), any(), any());
-    verifyNoInteractions(remindPasswordTokenService, cookieTokenService);
+    verifyNoInteractions(remindPasswordTokenService, onboardingTokenService, cookieTokenService);
     assertEquals(formerEmail, identityManager.getOrCreateUserIdentity("john").getProfile().getEmail());
   }
 
@@ -2874,7 +2908,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                           otpService,
                           profileFormFieldService,
                           cookieTokenService,
-                          remindPasswordTokenService));
+                          remindPasswordTokenService,
+                          onboardingTokenService));
   }
 
   private void createFormSetting(String name, Consumer<ProfilePropertySetting> configurer) throws Exception {
