@@ -18,8 +18,8 @@
  */
 package org.exoplatform.social.core.storage.cache.model.key;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -124,7 +124,7 @@ public class SpaceFilterKeyTest {
   }
 
   private static void assertCollidingPairGetsDistinctKeys(SpaceFilter first, SpaceFilter second) {
-    assertEquals(Objects.hash(first), Objects.hash(second), "the pair no longer collides: pick another one");
+    assertEquals("the pair no longer collides: pick another one", Objects.hash(first), Objects.hash(second));
     assertNotEquals(first, second);
 
     SpaceFilterKey firstKey = new SpaceFilterKey(null, first, null);
