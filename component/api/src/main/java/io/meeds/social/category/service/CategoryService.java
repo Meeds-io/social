@@ -193,6 +193,20 @@ public interface CategoryService {
   Category getRootCategory(long ownerId);
 
   /**
+   * Resolves a category the platform imported from a {@code nameId} of a
+   * {@code default-categories.json} descriptor, the way an add-on finds a
+   * category it suggests (EXO-94953). The answer is the id the import stored
+   * for that {@code nameId}: an administrator may have deleted or moved that
+   * category since, which the caller checks with {@link #getCategory(long)}.
+   *
+   * @param nameId the {@code nameId} of a default category descriptor
+   * @return the id of the category imported for it, 0 when none was imported
+   *         yet (before the first import, or after a failed one) or for a
+   *         blank {@code nameId}
+   */
+  long getDefaultCategoryId(String nameId);
+
+  /**
    * @param category {@link Category}
    * @param username User name/login
    * @return true if can edit to the category based on its tree ownerId, else

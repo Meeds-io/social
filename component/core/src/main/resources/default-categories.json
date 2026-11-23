@@ -201,6 +201,99 @@
           ]
         }
       ]
+    },
+
+    {
+      "nameId": "workAreasCategory",
+      "icon": "",
+      "names":{
+        "en":"categoryManagement.category.workAreas.name"
+      },
+      "linkPermissions":[
+        "*:/platform/users"
+      ],
+      "subCategories":[
+        {
+          "nameId": "workAreaTasksAndProjectsCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.workAreas.tasksAndProjects.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "workAreaFormsAndListsCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.workAreas.formsAndLists.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "workAreaProcessesCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.workAreas.processes.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "workAreaContentAndKnowledgeCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.workAreas.contentAndKnowledge.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "workAreaPeopleAndSpacesCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.workAreas.peopleAndSpaces.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "workAreaCommunicationAndCalendarCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.workAreas.communicationAndCalendar.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "workAreaInsightsCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.workAreas.insights.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "workAreaAdministrationCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.workAreas.administration.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -39,6 +39,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
@@ -50,6 +52,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.activity.plugin.ActivityCategoryPlugin;
+import io.meeds.social.category.injection.CategoryImportService;
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryEntryItem;
 import io.meeds.social.category.model.CategoryEntryList;
@@ -92,6 +95,9 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Autowired
   private UserACL               userAcl;
+
+  @Autowired
+  private SettingService        settingService;
 
   private long                  adminGroupOwnerId;
 
@@ -246,6 +252,30 @@ public class CategoryServiceImpl implements CategoryService {
       rootCategory = categoryStorage.createCategory(rootCategory);
     }
     return rootCategory;
+  }
+
+  /**
+   * Reads the id {@link CategoryImportService} stored for the descriptor's
+   * {@code nameId}, through its public settings scope and context, so that no
+   * bean depends on the importer.
+   */
+  @Override
+  public long getDefaultCategoryId(String nameId) {
+    if (StringUtils.isBlank(nameId)) {
+      return 0L;
+    }
+    SettingValue<?> settingValue = settingService.get(CategoryImportService.CATEGORY_CONTEXT,
+                                                      CategoryImportService.CATEGORY_IMPORT_SCOPE,
+                                                      nameId);
+    if (settingValue == null || settingValue.getValue() == null) {
+      return 0L;
+    }
+    try {
+      return Math.max(Long.parseLong(settingValue.getValue().toString()), 0L);
+    } catch (NumberFormatException e) {
+      LOG.debug("The stored id of default category {} is not a number", nameId, e);
+      return 0L;
+    }
   }
 
   @Override

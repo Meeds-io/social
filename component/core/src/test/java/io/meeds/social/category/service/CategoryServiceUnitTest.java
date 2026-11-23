@@ -42,6 +42,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -49,6 +51,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.activity.plugin.ActivityCategoryPlugin;
+import io.meeds.social.category.injection.CategoryImportService;
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryEntryItem;
 import io.meeds.social.category.model.CategoryEntryList;
@@ -117,6 +120,9 @@ public class CategoryServiceUnitTest {
 
   @MockitoBean
   private CategoryPluginService categoryPluginService;
+
+  @MockitoBean
+  private SettingService        settingService;
 
   @Autowired
   private CategoryServiceImpl   categoryService;
@@ -422,6 +428,28 @@ public class CategoryServiceUnitTest {
     // Single permission keeps working
     category.setLinkPermissions(Collections.singletonList("*:" + SPACE_GROUP_ID_2));
     assertTrue(categoryService.canManageLink(category, TEST_USER));
+  }
+
+  /**
+   * EXO-94953: a default category resolves by its {@code nameId} to the id the
+   * import stored under the importer's own scope and context, and to 0 when
+   * nothing was imported for it, the value is not a number, or the
+   * {@code nameId} is blank.
+   */
+  @Test
+  public void testGetDefaultCategoryIdReadsTheIdTheImportStored() {
+    when(settingService.get(CategoryImportService.CATEGORY_CONTEXT,
+                            CategoryImportService.CATEGORY_IMPORT_SCOPE,
+                            "workAreasCategory")).thenAnswer(invocation -> SettingValue.create("42"));
+    when(settingService.get(CategoryImportService.CATEGORY_CONTEXT,
+                            CategoryImportService.CATEGORY_IMPORT_SCOPE,
+                            "brokenCategory")).thenAnswer(invocation -> SettingValue.create("not a number"));
+
+    assertEquals(42L, categoryService.getDefaultCategoryId("workAreasCategory"));
+    assertEquals(0L, categoryService.getDefaultCategoryId("neverImportedCategory"));
+    assertEquals(0L, categoryService.getDefaultCategoryId("brokenCategory"));
+    assertEquals(0L, categoryService.getDefaultCategoryId(" "));
+    assertEquals(0L, categoryService.getDefaultCategoryId(null));
   }
 
 }
