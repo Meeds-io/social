@@ -444,4 +444,58 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     assertTrue(groups.contains(newGroup));
     assertFalse(groups.contains(oldGroup));
   }
+
+  @Test
+  public void testGroupsResynchronizedWhenAccountEnabled() throws Exception {
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setActive(true);
+    profilePropertySetting.setEditable(true);
+    profilePropertySetting.setVisible(true);
+    profilePropertySetting.setPropertyName("officeLocation");
+    profilePropertySetting.setGroupSynchronized(true);
+    profilePropertySetting.setMultiValued(false);
+    profilePropertySetting.setParentId(0L);
+    profilePropertySetting.setOrder(0L);
+    profilePropertyService.createPropertySetting(profilePropertySetting);
+
+    String username = "john";
+    UserHandler userHandler = organizationService.getUserHandler();
+    Profile profile = john.getProfile();
+    profile.setProperty("officeLocation", "paris");
+    identityManager.updateProfile(profile, true);
+    completionService.waitAllTaskFinished(2000);
+
+    Group currentGroup = organizationService.getGroupHandler().findGroupById("/profile/officelocation/paris");
+    assertNotNull(currentGroup);
+    // memberships left behind by a profile that changed without being synchronized
+    Group staleGroup = organizationService.getGroupHandler().createGroupInstance();
+    staleGroup.setGroupName("tunis");
+    staleGroup.setLabel("Tunis");
+    organizationService.getGroupHandler()
+                       .addChild(organizationService.getGroupHandler().findGroupById("/profile/officelocation"), staleGroup, true);
+    staleGroup = organizationService.getGroupHandler().findGroupById("/profile/officelocation/tunis");
+    organizationService.getMembershipHandler()
+                       .removeMembership(organizationService.getMembershipHandler()
+                                                            .findMembershipByUserGroupAndType(username, currentGroup.getId(), "member")
+                                                            .getId(),
+                                         false);
+    organizationService.getMembershipHandler()
+                       .linkMembership(userHandler.findUserByName(username),
+                                       staleGroup,
+                                       organizationService.getMembershipTypeHandler().findMembershipType("member"),
+                                       true);
+
+    try {
+      userHandler.setEnabled(username, false, true);
+      Collection<Group> groups = organizationService.getGroupHandler().findGroupsOfUser(username);
+      assertTrue(groups.contains(staleGroup));
+      assertFalse(groups.contains(currentGroup));
+    } finally {
+      userHandler.setEnabled(username, true, true);
+    }
+
+    Collection<Group> groups = organizationService.getGroupHandler().findGroupsOfUser(username);
+    assertTrue(groups.contains(currentGroup));
+    assertFalse(groups.contains(staleGroup));
+  }
 }

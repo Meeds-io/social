@@ -117,6 +117,21 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     }
   }
 
+  /**
+   * Brings the groups derived from a profile in line with its current
+   * properties, for an account in any status.
+   *
+   * @param profile the profile to synchronize
+   * @param user the account owning the profile
+   */
+  public void synchronizeGroups(Profile profile, User user) {
+    try {
+      synchronizePropertyGroups(profile, user);
+    } catch (Exception e) {
+      LOG.error("Error while synchronizing profile property of user {} to groups", user.getUserName(), e);
+    }
+  }
+
   private void synchronizePropertyGroups(Profile profile, User user) {
     long startTimeUser = System.currentTimeMillis();
 
