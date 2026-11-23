@@ -209,8 +209,7 @@ public class AccountDeletionService {
     Identity identity = identityManager.getOrCreateUserIdentity(username);
     identityManager.hardDeleteIdentity(identity);
     organizationService.getUserHandler().removeUser(username, false);
-    // deletes the stored tokens of the account
-    cookieTokenService.deleteTokensOfUser(username);
+    deleteTokens(username);
     indexingService.unindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
     // hardDeleteIdentity doesn't mutate the passed object: reflect the
     // deletion on it so the event carries a really deleted identity
@@ -224,6 +223,15 @@ public class AccountDeletionService {
 
   private void removeDeletionRequest(String username) {
     settingService.remove(Context.USER.id(username), DELETION_REQUEST_SCOPE, DELETION_REQUEST_SETTING_NAME);
+  }
+
+  private void deleteTokens(String username) {
+    try {
+      // a failure must not skip the unindex nor the deletion event
+      cookieTokenService.deleteTokensOfUser(username);
+    } catch (Exception e) {
+      LOG.warn("Error deleting the stored tokens of deleted user {}", username, e);
+    }
   }
 
   private void broadcastEvent(Identity identity) {

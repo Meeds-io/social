@@ -175,6 +175,18 @@ public class AccountDeletionServiceTest {
 
   @Test
   @SneakyThrows
+  public void testTokenDeletionFailureDoesNotStopTheAccountDeletion() {
+    stubRequestTime(System.currentTimeMillis() - 31 * DAY_IN_MS);
+    doThrow(new IllegalStateException("tokens")).when(cookieTokenService).deleteTokensOfUser(USERNAME);
+    accountDeletionService.processPendingDeletionRequestOf(USERNAME);
+
+    verify(cookieTokenService).deleteTokensOfUser(USERNAME);
+    verify(indexingService).unindex(ProfileIndexingServiceConnector.TYPE, IDENTITY_ID);
+    verify(listenerService).broadcast(ACCOUNT_DELETED_EVENT, USERNAME, identity);
+  }
+
+  @Test
+  @SneakyThrows
   public void testReEnabledUserIsNeverDeletedAndRequestRevoked() {
     stubRequestTime(System.currentTimeMillis() - 31 * DAY_IN_MS);
     when(user.isEnabled()).thenReturn(true);
