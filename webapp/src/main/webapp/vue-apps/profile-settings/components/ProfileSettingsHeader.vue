@@ -20,6 +20,7 @@
 <template>
   <div id="settingsHeader" class="d-flex flex-row">
     <button
+      id="addProfileSettingButton"
       class="btn btn-primary primary px-2 py-0"
       @click="openCreateDrawer()">
       <v-icon

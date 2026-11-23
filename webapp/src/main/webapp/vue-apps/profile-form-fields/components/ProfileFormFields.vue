@@ -19,7 +19,10 @@
 
 -->
 <template>
-  <div class="profileFormFields">
+  <!-- Busy while the list, and on edition the account's values, are read -->
+  <div
+    :aria-busy="loadState === null ? 'true' : 'false'"
+    class="profileFormFields">
     <!-- @submit.prevent: inside the host's form, Enter in a field must not
          submit this one natively -->
     <!-- Disabled while the host saves: the fields' inputs and their chips

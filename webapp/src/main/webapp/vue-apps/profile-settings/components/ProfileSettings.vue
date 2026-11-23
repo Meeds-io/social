@@ -33,6 +33,7 @@
             :icon-size="22"
             @action="openUserCardSettings" />
           <profile-settings-option
+            class="profileAttributesSettingsOption"
             :option-label="$t('profileSettings.label.profile.attributes.settings')"
             :description="$t('profileSettings.label.profile.attributes.settings.info')"
             :action-icon="'fa-caret-right'"
