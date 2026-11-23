@@ -28,7 +28,7 @@
       :title="!displayText && providerButtonLabel"
       min-width="auto"
       color="primary"
-      class="text-none elevation-0 white-background"
+      class="text-none elevation-0"
       outlined
       v-on="on"
       @click="clickOnProviderButton">
