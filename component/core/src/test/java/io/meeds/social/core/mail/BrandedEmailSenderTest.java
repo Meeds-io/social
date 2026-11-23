@@ -32,9 +32,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.mail.Address;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Address;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 
 import org.junit.Before;
 import org.junit.Test;
