@@ -45,8 +45,7 @@
             required="required"
             readonly
             outlined
-            dense
-            background-color="white" />
+            dense />
           <v-text-field
             id="password"
             v-model="password"
@@ -63,8 +62,7 @@
             required="required"
             outlined
             dense
-            @click:append="toggleShow"
-            background-color="white" />
+            @click:append="toggleShow" />
           <v-text-field
             id="password2"
             v-model="confirmPassword"
@@ -79,8 +77,7 @@
             required="required"
             outlined
             dense
-            @click:append="toggleConfirmShow"
-            background-color="white" />
+            @click:append="toggleConfirmShow" />
         </v-row>
         <v-row class="mx-0 mt-8 pa-0">
           <v-btn
