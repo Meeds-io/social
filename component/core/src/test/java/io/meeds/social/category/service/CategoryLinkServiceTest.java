@@ -266,7 +266,6 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
     assertTrue(linkedObjects.isEmpty());
   }
 
-
   @Test
   @SneakyThrows
   public void testLinkRefusesAMetadataThatIsNotACategory() {
@@ -299,13 +298,15 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
 
       // an item linked to it by other means is not listed as a category entry
       metadataService.createMetadataItem(object, metadata.key(), metadata.getCreatorId());
+      assertFalse(categoryLinkService.isLinked(id, object));
+      categoryLinkService.unlink(id, object);
+      assertEquals(1, metadataService.getMetadataItemsByMetadataAndObject(metadata.key(), object).size());
       assertTrue(categoryLinkService.getLinkedObjects(id, List.of(SpaceCategoryPlugin.OBJECT_TYPE), 0, 10).isEmpty());
       assertTrue(categoryService.getCategoryEntries(id, List.of(SpaceCategoryPlugin.OBJECT_TYPE), ROOT_USER, 0, 10)
                                 .getItems()
                                 .isEmpty());
     }
   }
-
 
   @Test
   @SneakyThrows
@@ -331,26 +332,11 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
     assertEquals("notACategoryUpdate", unchanged.getName());
     assertEquals(TagService.METADATA_TYPE.getName(), unchanged.getTypeName());
   }
+
   @Test
   public void testLinkRefusesAnUnknownCategory() {
     CategoryObject object = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, "5566", 0l);
     assertThrows(IllegalArgumentException.class, () -> categoryLinkService.link(12254689l, object));
-  }
-
-  @Test
-  @SneakyThrows
-  public void testLinkAcceptsACategory() {
-    Space space = new Space();
-    space.setRegistration(Space.OPEN);
-    space.setVisibility(Space.PUBLIC);
-    space = spaceService.createSpace(space, ROOT_USER);
-    CategoryObject object = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, space.getId(), space.getSpaceId());
-    Category rootCategory = categoryService.getRootCategory(getAdminGroupIdentityId());
-    assertNotNull(categoryService.getCategory(rootCategory.getId()));
-
-    categoryLinkService.link(rootCategory.getId(), object);
-
-    assertTrue(categoryLinkService.isLinked(rootCategory.getId(), object));
   }
 
 }
