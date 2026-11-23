@@ -149,7 +149,7 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
   }
 
   @Override
-  public void applySpaceTemplate(long spaceId, SpaceTemplatePatch templatePatch) throws ObjectNotFoundException {
+  public void applySpaceTemplate(long spaceId, SpaceTemplatePatch templatePatch, String username) throws ObjectNotFoundException {
     Space space = spaceService.getSpaceById(spaceId);
     if (space == null) {
       throw new ObjectNotFoundException(String.format(SPACE_NOT_FOUND_MESSAGE, spaceId));
@@ -179,7 +179,8 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
     if (templatePatch.isUpdateCategories()) {
       spaceCategoryService.updateSpaceCategories(spaceId,
                                                  spaceTemplate.getSpaceDefaultCategoryIds(),
-                                                 templatePatch.isRemoveExistingCategories());
+                                                 templatePatch.isRemoveExistingCategories(),
+                                                 username);
     }
 
     if (templatePatch.isEditorialMode()) {
