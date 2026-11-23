@@ -31,7 +31,6 @@ import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.application.PortalRequestContext;
-import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
@@ -621,35 +620,6 @@ public class SpaceUtils {
       }
       return null;
     }).filter(Objects::nonNull).toList();
-  }
-
-  public static Set<String> getUserPermissionsIdentityIds(Identity ownerIdentity) {
-    UserACL userACL = ExoContainerContext.getService(UserACL.class);
-    Set<String> groupIds = userACL.getUserIdentity(ownerIdentity.getRemoteId()).getGroups();
-    return getUserPermissionsIdentityIds(groupIds);
-  }
-
-  public static Set<String> getUserPermissionsIdentityIds(Collection<String> groupIds) {
-    Set<String> groupIdentityIds = new HashSet<>();
-    SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
-    IdentityManager identityManager = ExoContainerContext.getService(IdentityManager.class);
-    for (String groupId : groupIds) {
-      if (groupId.startsWith("/spaces/")) {
-        Space space = spaceService.getSpaceByGroupId(groupId);
-        if (space != null) {
-          Identity identity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
-          if (identity != null) {
-            groupIdentityIds.add(identity.getId());
-          }
-        }
-      } else {
-        Identity identity = identityManager.getOrCreateGroupIdentity(groupId);
-        if (identity != null) {
-          groupIdentityIds.add(identity.getId());
-        }
-      }
-    }
-    return groupIdentityIds;
   }
 
   private static String computeSpacePermissionFromTemplate(String p, String groupId) {
