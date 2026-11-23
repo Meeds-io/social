@@ -876,7 +876,8 @@ public class LoginRestTest {
   private void assertVerifyEmailRefusesUsername(String username) {
     ResultActions response = performVerifyEmail(username);
     response.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.error").isNotEmpty());
+            .andExpect(content().string(new JSONObject().put("error", LoginRest.USERNAME_VALIDATOR.validate(Locale.ENGLISH, username))
+                                                        .toString()));
     verify(userHandler, never()).createUserInstance(any());
     verify(passwordRecoveryService, never()).sendAccountVerificationEmail(any(), any(), any(), any(), any(), any(), any());
   }
