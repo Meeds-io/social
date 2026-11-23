@@ -117,8 +117,7 @@
                 type="text"
                 required="required"
                 outlined
-                dense
-                background-color="white" />
+                dense />
             </v-row>
             <v-row class="ma-0 pa-0">
               <v-text-field
@@ -134,8 +133,7 @@
                 aria-required="true"
                 required="required"
                 outlined
-                dense
-                background-color="white">
+                dense>
                 <template #append>
                   <v-btn
                     id="showPasswordButton"
