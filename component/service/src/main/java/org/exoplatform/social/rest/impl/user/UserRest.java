@@ -2579,9 +2579,10 @@ public class UserRest implements ResourceContainer, Startable {
    * with them is refused, while a refused request burns nothing. Requests that
    * validated the same codes concurrently each write their change, and the last
    * write stands. Deletes the password reset links and the onboarding links of
-   * the account, and its remember-me tokens, as a password reset does; each
-   * deletion that fails is logged and does not stop the others. Then tells the former address of the
-   * change when the address really changed.
+   * the account, and its remember-me tokens (a password reset deletes the
+   * remember-me tokens and the links of its own type); each deletion that
+   * fails is logged and does not stop the others. Then tells the former
+   * address of the change when the address really changed.
    */
   private void completeEmailChange(String username,
                                    String formerEmail,
