@@ -31,8 +31,7 @@
           color="primary"
           outlined
           v-bind="attrs"
-          v-on="on"
-          class="white-background">
+          v-on="on">
           <v-icon size="20">fas fa-ellipsis-h</v-icon>
         </v-btn>
       </template>
