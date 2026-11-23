@@ -3160,7 +3160,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                singleValueInput("bounded-single", limit + "a"),
                                "mary");
       assertEquals(400, response.getStatus());
-      assertTrue(String.valueOf(response.getEntity()).startsWith("bounded-single:"));
+      assertEquals("bounded-single:TOO_LONG", response.getEntity());
       assertEquals(limit, getStoredProperty("bounded-single"));
     } finally {
       removeMaryProperties("bounded-single");
@@ -3185,7 +3185,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                listInput("bounded-list", escapeHeavy + "a"),
                                "mary");
       assertEquals(400, response.getStatus());
-      assertTrue(String.valueOf(response.getEntity()).startsWith("bounded-list:"));
+      assertEquals("bounded-list:TOO_LONG", response.getEntity());
       assertEquals(List.of(escapeHeavy), getStoredList("bounded-list"));
 
       // Entries that are short together, but whose serialised form is not
@@ -3195,6 +3195,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                listInput("bounded-list", half, half),
                                "mary");
       assertEquals(400, response.getStatus());
+      assertEquals("bounded-list:TOO_LONG", response.getEntity());
       assertEquals(List.of(escapeHeavy), getStoredList("bounded-list"));
     } finally {
       removeMaryProperties("bounded-list");
@@ -3209,7 +3210,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                  singleValueInput("bounded-single", "a" + (char) 0 + "b"),
                                                  "mary");
       assertEquals(400, response.getStatus());
-      assertTrue(String.valueOf(response.getEntity()).startsWith("bounded-single:"));
+      assertEquals("bounded-single:INVALID_VALUE", response.getEntity());
       assertNull(getStoredProperty("bounded-single"));
 
       response = getResponseAs("PATCH",
@@ -3217,6 +3218,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                listInput("bounded-list", "a" + (char) 0),
                                "mary");
       assertEquals(400, response.getStatus());
+      assertEquals("bounded-list:INVALID_VALUE", response.getEntity());
       assertNull(identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty("bounded-list"));
 
       JSONObject keyedChild = new JSONObject().put("propertyName", "subField").put("value", "a" + (char) 0);
@@ -3227,6 +3229,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               .toString(),
                                "mary");
       assertEquals(400, response.getStatus());
+      assertEquals("bounded-list:INVALID_VALUE", response.getEntity());
       assertNull(getStoredProperty("bounded-list"));
     } finally {
       removeMaryProperties("bounded-single", "bounded-list");
@@ -3259,7 +3262,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                  body.toString(),
                                                  "mary");
       assertEquals(400, response.getStatus());
-      assertTrue(String.valueOf(response.getEntity()).startsWith("bounded-other:"));
+      assertEquals("bounded-other:TOO_LONG", response.getEntity());
       assertNull(getStoredProperty("bounded-single"));
       assertNull(getStoredProperty("bounded-other"));
       assertEquals(hiddenBefore, profilePropertyService.getHiddenProfilePropertyIds(maryIdentityId));

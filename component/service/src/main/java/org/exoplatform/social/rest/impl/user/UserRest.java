@@ -1569,6 +1569,12 @@ public class UserRest implements ResourceContainer, Startable {
    * column of PostgreSQL holds U+0000. A list is stored as the org.json
    * serialisation of its maps, whose escapes lengthen it, so its length is
    * counted on that text, which mirrors the identity storage's array branch.
+   * The length is counted in UTF-16 units (<code>String.length()</code>), the
+   * bound that holds on every database: where the column counts code points, a
+   * value with characters outside the BMP is refused although the column would
+   * hold it, never the reverse. U+0000 is refused by the column for a single
+   * value and by rule for a list: org.json escapes it, so a list holding it
+   * would be stored.
    *
    * @param  propertyName the property's technical name
    * @param  value        the text or the list of maps to write
