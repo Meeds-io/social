@@ -204,8 +204,10 @@ public class AccountDeletionService {
    * which would restore an identity deleted beforehand, so the identity is
    * deleted after the user. The social user listener has already deleted it
    * in its post-deletion step; deleting it again here is harmless and covers
-   * that listener's catch-and-log. The user content (activities, comments,
-   * documents...) is preserved by design and keeps being displayed.
+   * that listener's catch-and-log. The user deletion listeners remove the
+   * user's personal data, including their personal documents and personal
+   * notes; the content they published to spaces and streams (activities,
+   * comments) is kept and still displayed.
    */
   public void deleteAccount(String username) throws Exception {
     Identity identity = identityManager.getOrCreateUserIdentity(username);
