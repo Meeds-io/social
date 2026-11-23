@@ -43,10 +43,13 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.register.RegisterUIParamsExtension;
@@ -139,6 +142,8 @@ public class LoginRest {
 
   public static final UserFieldValidator EMAIL_VALIDATOR = new UserFieldValidator("email", false, false);
 
+  public static final String             USERNAME_TAKEN_MESSAGE     = "UILoginForm.label.usernameAlreadyExists";
+
   public static final UserFieldValidator USERNAME_VALIDATOR = new UserFieldValidator("userName", true, false);
 
   public static final UserFieldValidator LASTNAME_VALIDATOR                  =
@@ -154,6 +159,9 @@ public class LoginRest {
 
   @Autowired
   private OrganizationService organizationService;
+
+  @Autowired
+  private IdentityStorage identityStorage;
 
   @Autowired
   private RegisterUIParamsExtension registerUIParamsExtension;
@@ -265,6 +273,10 @@ public class LoginRest {
                                                    String tokenType) {
     String username = passwordRecoveryService.verifyToken(token, tokenType);
     if (username != null) {
+      if (isUsernameTaken(StringUtils.substringBefore(username, "::"))) {
+        return ResponseEntity.badRequest().body(new JSONObject()
+                                                    .put(ERROR_MESSAGE_PARAM, USERNAME_TAKEN_MESSAGE).toString());
+      }
       try {
         String email = finishUserCreation(username, request, token, tokenType, request.getLocale());
         cleanCapcha(request.getSession(),"email-validation");
@@ -593,6 +605,10 @@ public class LoginRest {
     if (StringUtils.isNotBlank(errorMessageUsername)) {
       return ResponseEntity.badRequest().body(new JSONObject()
                                                   .put(ERROR_MESSAGE_PARAM, errorMessageUsername).toString());
+    }
+    if (isUsernameTaken(username)) {
+      return ResponseEntity.badRequest().body(new JSONObject()
+                                                  .put(ERROR_MESSAGE_PARAM, USERNAME_TAKEN_MESSAGE).toString());
     }
     if (StringUtils.isNotBlank(errorMessageName)) {
       return ResponseEntity.badRequest().body(new JSONObject()
@@ -928,6 +944,28 @@ public class LoginRest {
   private String validateEmail(String email,
                                Locale locale) {
     return EMAIL_VALIDATOR.validate(locale, email);
+  }
+
+  /**
+   * Same lookup as the identity store's duplicate guard on user creation
+   * (the user's name, any status), plus the login of a deleted account that
+   * the user pre-save listener vetoes. A failing lookup refuses the name.
+   */
+  private boolean isUsernameTaken(String username) {
+    if (StringUtils.isBlank(username)) {
+      return false;
+    }
+    try {
+      if (organizationService.getUserHandler().findUserByName(username, UserStatus.ANY) != null) {
+        return true;
+      }
+      // Same veto as the user pre-save listener: the login of a deleted account
+      Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, username);
+      return identity != null && identity.isDeleted();
+    } catch (Exception e) {
+      LOG.warn("Error while checking the registration username availability", e);
+      return true;
+    }
   }
 
   private boolean isExistsEmail(String email) {
