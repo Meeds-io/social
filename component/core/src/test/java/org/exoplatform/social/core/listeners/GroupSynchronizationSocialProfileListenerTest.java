@@ -24,11 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.social.common.lifecycle.LifeCycleCompletionService;
@@ -51,6 +53,8 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
   private ProfilePropertyService profilePropertyService;
   private LifeCycleCompletionService      completionService;
 
+  private final List<Long>              createdSettingIds = new ArrayList<>();
+
   private Identity                       paul;
   private Identity                       john;
 
@@ -64,6 +68,33 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
 
     paul = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "paul", true);
     john = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john", true);
+  }
+
+  @After
+  public void cleanUpSynchronizedProperties() throws Exception {
+    createdSettingIds.forEach(profilePropertyService::deleteProfilePropertySetting);
+    createdSettingIds.clear();
+    for (String propertyGroupId : List.of("/profile/teamassignment", "/profile/officelocation")) {
+      removeGroupTree(propertyGroupId);
+    }
+  }
+
+  private void removeGroupTree(String groupId) throws Exception {
+    Group group = organizationService.getGroupHandler().findGroupById(groupId);
+    if (group == null) {
+      return;
+    }
+    for (Group child : organizationService.getGroupHandler().findGroups(group)) {
+      removeGroupTree(child.getId());
+    }
+    for (String username : List.of("paul", "john")) {
+      for (Membership membership : new ArrayList<>(organizationService.getMembershipHandler().findMembershipsByUser(username))) {
+        if (membership.getGroupId().equals(groupId)) {
+          organizationService.getMembershipHandler().removeMembership(membership.getId(), false);
+        }
+      }
+    }
+    organizationService.getGroupHandler().removeGroup(group, false);
   }
 
   @Test
@@ -411,7 +442,7 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     profilePropertySetting.setMultiValued(false);
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
-    profilePropertyService.createPropertySetting(profilePropertySetting);
+    createdSettingIds.add(profilePropertyService.createPropertySetting(profilePropertySetting).getId());
 
     String username = "paul";
     UserHandler userHandler = organizationService.getUserHandler();
@@ -456,7 +487,7 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     profilePropertySetting.setMultiValued(false);
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
-    profilePropertyService.createPropertySetting(profilePropertySetting);
+    createdSettingIds.add(profilePropertyService.createPropertySetting(profilePropertySetting).getId());
 
     String username = "john";
     UserHandler userHandler = organizationService.getUserHandler();

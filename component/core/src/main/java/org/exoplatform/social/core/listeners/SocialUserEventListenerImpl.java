@@ -177,7 +177,7 @@ public class SocialUserEventListenerImpl extends UserEventListener {
       idm.processEnabledIdentity(user.getUserName(), user.isEnabled());
 
       if (user.isEnabled()) {
-        // an enabled account's profile groups match its current profile, whatever was stored before
+        // an enabled account's profile groups match the active synchronized properties its profile holds
         Profile profile = idm.getProfile(identity);
         if (profile != null) {
           new GroupSynchronizationSocialProfileListener(container.getComponentInstanceOfType(ProfilePropertyService.class),

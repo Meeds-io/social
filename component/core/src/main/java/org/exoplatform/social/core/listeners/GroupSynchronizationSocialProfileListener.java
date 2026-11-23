@@ -314,7 +314,7 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     Collection<Membership> memberships = new ArrayList<>(memberShipHandler.findMembershipsByUser(user.getUserName()));
     LOG.debug("Find {} memberships for user {} in {} ms", memberships.size(), user.getUserName(), System.currentTimeMillis() - startTimeGetMemberships);
 
-    for (Membership membership : new ArrayList<>(memberships)) {
+    for (Membership membership : memberships) {
       if (isSameOrDescendantGroup(membership.getGroupId(), group.getId())) {
         String[] splittedMembership = membership.getGroupId().split("/");
         String groupName = splittedMembership[splittedMembership.length-1];
