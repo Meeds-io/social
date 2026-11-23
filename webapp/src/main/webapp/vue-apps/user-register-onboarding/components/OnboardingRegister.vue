@@ -42,8 +42,7 @@
           tabindex="0"
           required="required"
           outlined
-          dense
-          background-color="white" />
+          dense />
         <span class="mt-4">{{ $t('onboarding.captchaCondition') }}</span>
         <v-card
           class="d-flex mt-4 transparent"
@@ -67,8 +66,7 @@
             type="text"
             required="required"
             outlined
-            dense
-            background-color="white" />
+            dense />
         </v-card>
       </v-row>
       <v-row class="mx-0 mt-4 pa-0">
