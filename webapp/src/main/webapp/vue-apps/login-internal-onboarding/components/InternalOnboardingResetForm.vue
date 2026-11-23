@@ -55,8 +55,7 @@
               required="required"
               readonly
               outlined
-              dense
-              background-color="white" />
+              dense />
           </v-card>
           <v-card
             width="350"
@@ -78,8 +77,7 @@
               required="required"
               outlined
               dense
-              @click:append="toggleShow"
-              background-color="white" />
+              @click:append="toggleShow" />
           </v-card>
           <span class="text-subtitle">{{ $t('onboarding.passwordCondition') }}</span>
           <v-card
@@ -100,8 +98,7 @@
               required="required"
               outlined
               dense
-              @click:append="toggleConfirmShow"
-              background-color="white" />
+              @click:append="toggleConfirmShow" />
           </v-card>
           <span class="mt-4 text-body">{{ $t('onboarding.captchaCondition') }}</span>
           <v-card
@@ -126,8 +123,7 @@
               type="text"
               required="required"
               outlined
-              dense
-              background-color="white" />
+              dense />
           </v-card>
         </v-row>
         <v-row class="mx-0 my-8 pa-0">
