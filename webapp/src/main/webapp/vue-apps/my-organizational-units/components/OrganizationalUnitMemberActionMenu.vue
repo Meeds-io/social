@@ -71,7 +71,7 @@ export default {
   }),
   computed: {
     platformGroup() {
-      return this.groupId === '/platform' || !!this.groupId?.startsWith('/platform/');
+      return this.$organizationalUnitMembersService.isPlatformGroupId(this.groupId);
     },
     memberUserName() {
       return this.member?.username || this.member?.userName;

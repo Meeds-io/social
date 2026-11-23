@@ -154,8 +154,7 @@ export default {
       this.$refs.drawer.close();
     },
     isPlatformGroup(membership) {
-      const groupId = membership?.groupId;
-      return groupId === '/platform' || !!groupId?.startsWith('/platform/');
+      return this.$organizationalUnitMembersService.isPlatformGroupId(membership?.groupId);
     },
     roleLabel(name) {
       return this.rolesToDisplay.find(role => role.name === name)?.label || name;
