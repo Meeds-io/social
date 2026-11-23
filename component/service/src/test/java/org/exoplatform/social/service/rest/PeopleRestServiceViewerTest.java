@@ -23,6 +23,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -52,14 +54,18 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
+import org.exoplatform.social.core.activity.model.ActivityStream;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.service.rest.api.models.IdentityNameList;
 import org.exoplatform.social.service.rest.api.models.IdentityNameList.Option;
 
@@ -87,6 +93,12 @@ public class PeopleRestServiceViewerTest {
   @Mock
   private ListAccess<Identity>   searchedUsers;
 
+  @Mock
+  private ActivityManager       activityManager;
+
+  @Mock
+  private IdentityStorage        identityStorage;
+
   private MockedStatic<Util>     utilStatic;
 
   private MockedStatic<RestUtils> restUtilsStatic;
@@ -108,6 +120,9 @@ public class PeopleRestServiceViewerTest {
     setField("relationshipManager", relationshipManager);
     setField("spaceService", spaceService);
     setField("identityManager", identityManager);
+    setField("activityManager", activityManager);
+    when(identityManager.getIdentityStorage()).thenReturn(identityStorage);
+    when(identityStorage.getIdentitiesForMentions(any(), any(), any(), anyLong(), anyLong(), anyBoolean())).thenReturn(List.of());
     // Real Util methods run, but those reading the container: Mockito invokes a
     // static method while stubbing it, and a container lookup boots a RootContainer
     utilStatic = mockStatic(Util.class,
@@ -271,6 +286,58 @@ public class PeopleRestServiceViewerTest {
 
     peopleRestService.suggestUsernames(mock(UriInfo.class), request, "m", "root", "share_document", null, null, null, "json");
     assertEquals(demoIdentity, viewerAtSearch[0]);
+  }
+
+  @Test
+  public void testTheIncomingAndConfirmedSuggestionsAreThoseOfTheAuthenticatedUser() throws Exception {
+    @SuppressWarnings("unchecked")
+    ListAccess<Identity> relations = mock(ListAccess.class);
+    when(relations.load(anyInt(), anyInt())).thenReturn(new Identity[0]);
+    when(relationshipManager.getIncomingByFilter(any(), any())).thenReturn(relations);
+    when(relationshipManager.getConnectionsByFilter(any(), any())).thenReturn(relations);
+
+    assertEquals(Response.Status.OK.getStatusCode(), suggest("root", "incoming").getStatus());
+    verify(relationshipManager).getIncomingByFilter(eq(demoIdentity), any());
+
+    assertEquals(Response.Status.OK.getStatusCode(), suggest("root", "confirmed").getStatus());
+    verify(relationshipManager).getConnectionsByFilter(eq(demoIdentity), any());
+  }
+
+  @Test
+  public void testTheMentionSuggestionsListTheConnectionsOfTheAuthenticatedUser() throws Exception {
+    suggest("", "mention_activity_stream");
+    verify(relationshipManager, times(1)).getConnectionsByFilter(eq(demoIdentity), any());
+
+    suggest("root", "mention_activity_stream");
+    verify(relationshipManager, times(2)).getConnectionsByFilter(eq(demoIdentity), any());
+  }
+
+  @Test
+  public void testTheCommentMentionSuggestionsListTheConnectionsOfTheAuthenticatedUser() throws Exception {
+    ExoSocialActivity activity = mock(ExoSocialActivity.class);
+    ActivityStream stream = mock(ActivityStream.class);
+    when(stream.getType()).thenReturn(ActivityStream.Type.USER);
+    when(activity.getActivityStream()).thenReturn(stream);
+    when(activity.getCommentedIds()).thenReturn(new String[0]);
+    when(activity.getMentionedIds()).thenReturn(new String[0]);
+    when(activity.getLikeIdentityIds()).thenReturn(new String[0]);
+    when(activityManager.getActivity("a1")).thenReturn(activity);
+
+    suggest("", "mention_comment", "a1");
+    verify(relationshipManager, times(1)).getConnectionsByFilter(eq(demoIdentity), any());
+
+    suggest("root", "mention_comment", "a1");
+    verify(relationshipManager, times(2)).getConnectionsByFilter(eq(demoIdentity), any());
+  }
+
+  private Response suggest(String currentUser, String typeOfRelation) throws Exception {
+    return suggest(currentUser, typeOfRelation, null);
+  }
+
+  private Response suggest(String currentUser, String typeOfRelation, String activityId) throws Exception {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getLocale()).thenReturn(Locale.ENGLISH);
+    return peopleRestService.suggestUsernames(mock(UriInfo.class), request, "m", currentUser, typeOfRelation, activityId, null, null, "json");
   }
 
   private Identity member(String username) {
