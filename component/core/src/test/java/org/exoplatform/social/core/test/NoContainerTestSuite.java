@@ -79,6 +79,7 @@ import io.meeds.social.core.plugin.SiteAttachmentPluginTest;
 import io.meeds.social.databind.service.DatabindServiceTest;
 import io.meeds.social.search.SpaceSearchConnectorTest;
 import io.meeds.social.space.administration.service.SpaceAdministrationServiceTest;
+import io.meeds.social.space.category.service.SpaceCategoryServiceTest;
 import io.meeds.social.space.service.SpaceDirectoryServiceTest;
 import io.meeds.social.space.storage.SpaceDirectoryStorageTest;
 import io.meeds.social.space.template.plugin.attachment.SpaceTemplateBannerAttachmentPluginTest;
@@ -143,6 +144,7 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     SpaceNavigationIconUpgradePluginTest.class,
     AuthorizationManagerTest.class,
     SpaceAdministrationServiceTest.class,
+    SpaceCategoryServiceTest.class,
     SpaceSearchConnectorTest.class,
     SpaceTemplateBannerAttachmentPluginTest.class,
     SpaceTemplateTranslationPluginTest.class,
