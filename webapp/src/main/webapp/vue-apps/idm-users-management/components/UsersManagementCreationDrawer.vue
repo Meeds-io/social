@@ -222,11 +222,17 @@ export default {
   methods: {
     // The onboarding email goes back to blank before the content is rendered,
     // so the stepper never shows the previous session's message; the rest of
-    // the state is reset once the drawer has opened
+    // the state is reset once the drawer has opened.
+    // The stepper is created when the drawer opens, on step 1: a step active
+    // at its creation takes its content's natural height, where one activated
+    // afterwards can keep the pixel height of its opening, which clips the
+    // first step's fields that appear later (a customized username, the
+    // fields an extension loads)
     open() {
       this.sendOnboardingEmail = false;
       this.message = '';
       this.messageValid = true;
+      this.stepper = 1;
       this.drawer = true;
     },
     close() {
