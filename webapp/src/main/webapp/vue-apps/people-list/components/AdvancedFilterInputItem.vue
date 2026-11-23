@@ -62,8 +62,9 @@ export default {
       default: false,
     },
   },
-  data: () => ({
-    inputValueItem: '',
+  // a value restored from a shared URL shows in its input
+  data: vm => ({
+    inputValueItem: vm.settingsItem?.valueToSearch || '',
   }),
   created() {
     this.$root.$on('reset-advanced-filter', () => this.inputValueItem = '');
