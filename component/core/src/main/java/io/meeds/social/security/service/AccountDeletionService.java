@@ -213,7 +213,6 @@ public class AccountDeletionService {
     Identity identity = identityManager.getOrCreateUserIdentity(username);
     organizationService.getUserHandler().removeUser(username, true);
     identityManager.hardDeleteIdentity(identity);
-    // deletes the stored tokens of the account
     deleteTokens(username);
     indexingService.unindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
     // hardDeleteIdentity doesn't mutate the passed object: reflect the
