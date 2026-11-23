@@ -80,8 +80,7 @@
               type="email"
               required="required"
               outlined
-              dense
-              background-color="white" />
+              dense />
             <v-text-field
               id="firstName"
               ref="firstName"
@@ -98,8 +97,7 @@
               minlength="1"
               maxlength="255"
               outlined
-              dense
-              background-color="white" />
+              dense />
             <v-text-field
               id="lastName"
               ref="lastName"
@@ -114,8 +112,7 @@
               minlength="1"
               maxlength="255"
               outlined
-              dense
-              background-color="white" />
+              dense />
             <div id="externalOnboardingAdditionalFields">
               <component
                 :is="extension.vueComponent"
@@ -149,7 +146,6 @@
               required="required"
               outlined
               dense
-              background-color="white"
               @click:append="toggleShow" />
           </v-card>
           <span class="text-subtitle">{{ $t('onboarding.passwordCondition') }}</span>
@@ -172,7 +168,6 @@
               required="required"
               outlined
               dense
-              background-color="white"
               @click:append="toggleConfirmShow" />
           </v-card>
           <span class="mt-4 text-body">{{ $t('onboarding.captchaCondition') }}</span>
@@ -199,7 +194,6 @@
               type="text"
               required="required"
               outlined
-              background-color="white"
               dense />
           </v-card>
         </v-row>
