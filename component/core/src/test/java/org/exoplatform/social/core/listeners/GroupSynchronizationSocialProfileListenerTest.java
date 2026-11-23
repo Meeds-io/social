@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -70,11 +69,24 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     john = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john", true);
   }
 
-  @After
-  public void cleanUpSynchronizedProperties() throws Exception {
+  @Override
+  protected void tearDown() throws Exception {
+    try {
+      cleanUpSynchronizedProperties();
+    } finally {
+      super.tearDown();
+    }
+  }
+
+  private void cleanUpSynchronizedProperties() throws Exception {
     createdSettingIds.forEach(profilePropertyService::deleteProfilePropertySetting);
     createdSettingIds.clear();
-    for (String propertyGroupId : List.of("/profile/teamassignment", "/profile/officelocation")) {
+    for (String propertyGroupId : List.of("/profile/postalcode",
+                                          "/profile/street",
+                                          "/profile/propertytest",
+                                          "/profile/multivaluedproperty",
+                                          "/profile/teamassignment",
+                                          "/profile/officelocation")) {
       removeGroupTree(propertyGroupId);
     }
   }
@@ -108,9 +120,9 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     profilePropertySetting.setMultiValued(false);
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
-    profilePropertyService.createPropertySetting(profilePropertySetting);
+    createdSettingIds.add(profilePropertyService.createPropertySetting(profilePropertySetting).getId());
     profilePropertySetting.setPropertyName("street");
-    profilePropertyService.createPropertySetting(profilePropertySetting);
+    createdSettingIds.add(profilePropertyService.createPropertySetting(profilePropertySetting).getId());
 
     String paulRemoteId = "paul";
     Profile profile = paul.getProfile();
@@ -130,7 +142,7 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     //
     String propertyName = "propertytest";
     profilePropertySetting.setPropertyName(propertyName);
-    profilePropertyService.createPropertySetting(profilePropertySetting);
+    createdSettingIds.add(profilePropertyService.createPropertySetting(profilePropertySetting).getId());
     String groupLabel = "Test'propertytest";
     String expectedGroupName = "test_propertytest";
     StringBuilder expectedGroupId = new StringBuilder();
@@ -383,7 +395,7 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     profilePropertySetting.setMultiValued(true);
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
-    profilePropertyService.createPropertySetting(profilePropertySetting);
+    createdSettingIds.add(profilePropertyService.createPropertySetting(profilePropertySetting).getId());
 
     Profile profile = john.getProfile();
     List<Map<String,String>> values = new ArrayList<>();

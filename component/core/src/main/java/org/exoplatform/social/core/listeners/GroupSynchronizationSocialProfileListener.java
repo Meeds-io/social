@@ -118,8 +118,8 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
   }
 
   /**
-   * Brings the groups derived from a profile in line with its current
-   * properties, for an account in any status.
+   * Brings the groups derived from a profile in line with the active
+   * synchronized properties its profile holds, for an account in any status.
    *
    * @param profile the profile to synchronize
    * @param user the account owning the profile
