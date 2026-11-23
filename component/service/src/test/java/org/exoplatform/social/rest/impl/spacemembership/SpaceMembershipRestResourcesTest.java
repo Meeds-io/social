@@ -790,6 +790,21 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     assertEquals("mary", inviterByInvitedUser.get("demo"));
   }
 
+  public void testManagerInvitesPendingUserMakesThatUserMember() throws Exception {
+    Space space = spaceService.getSpaceByPrettyName(SPACE4);
+    spaceService.addPendingUser(space, "demo");
+    startSessionAs("mary");
+    ContainerResponse response = getResponse(HttpMethod.POST,
+                                             getURLResource(SPACES_MEMBERSHIPS_URL),
+                                             getJsonStatusInput(getSpaceId(4), "demo", INVITED));
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+    space = spaceService.getSpaceByPrettyName(SPACE4);
+    assertTrue(spaceService.isMember(space, "demo"));
+    assertFalse(spaceService.isPendingUser(space, "demo"));
+    assertEquals("mary", inviterByInvitedUser.get("demo"));
+  }
+
   public void testSpacesAdministratorNotMemberApprovesOrInvitesOtherUser() throws Exception {
     Space space = spaceService.getSpaceByPrettyName(SPACE5);
     spaceService.addPendingUser(space, "demo");
