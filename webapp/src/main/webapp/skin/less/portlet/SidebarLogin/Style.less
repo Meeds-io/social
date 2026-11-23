@@ -21,20 +21,28 @@
 @import "../../variables.less";
 
 // The login related pages (login, password reset, registration, external registration, onboarding,
-// account deactivated, document download) all host this portlet: their page background is white
-// when Branding and Theme sets none, where other pages fall back to light grey.
-// It is a default only: the Branding page background is written inline on body, which wins over this rule,
-// and a page background set in the page editor is painted by the page itself or written inline on body.
+// account deactivated, document download) all host this portlet: in light, their page background is white
+// when Branding and Theme sets no page background color, or keeps its built-in default #F0F0F0, which its page stores
+// whenever its page styling is applied or reset without choosing a color and no default is configured; other pages show
+// light grey then. Portal marks body with default-page-background-color in both cases (UIPortalApplication.gtmpl).
+// Any other page background color of Branding and Theme shows on these pages, inline on body or from the theme stylesheet.
+// The default is written inline on body as the variable when the theme stylesheet is not in use, which this important
+// declaration overrides. It stays a variable, not the background color of body: a page background set in the page editor
+// is written inline on body with the important priority (layout ApplicationUtils), and wins over this rule.
 // The class is matched on the portlet's outer wrapper in sidebarLogin.jsp: the Vue app replaces its mount element.
-body:has(.sidebarLogin) {
-  --allPagesBackgroundColor: @white;
-}
-
-// The Branding and Theme page stores its built-in default page background color, #F0F0F0, whenever its page styling is applied
-// or reset without choosing a color and no default is configured: portal marks body with default-page-background-color then, and these pages
-// keep white over that default. The default is written inline on body as the variable, which this important declaration overrides.
-// It stays a variable, not the background color of body: a page background set in the page editor is written inline on body
-// with the important priority (layout ApplicationUtils), and wins over this rule.
 body.default-page-background-color:has(.sidebarLogin) {
   --allPagesBackgroundColor: @white !important; // NOSONAR the Branding default is an inline style on body, which no selector outranks
+}
+
+// White is the light default of these pages. In dark, the page background is the dark one the theme stylesheet declares
+// on the root element: body takes it back, over the rule above. A page background set in the page editor, written
+// inline on body with the important priority, still wins.
+:root[data-display-mode="dark"] body.default-page-background-color:has(.sidebarLogin) {
+  --allPagesBackgroundColor: inherit !important; // NOSONAR outranks the important white default above
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-display-mode="auto"] body.default-page-background-color:has(.sidebarLogin) {
+    --allPagesBackgroundColor: inherit !important; // NOSONAR outranks the important white default above
+  }
 }
