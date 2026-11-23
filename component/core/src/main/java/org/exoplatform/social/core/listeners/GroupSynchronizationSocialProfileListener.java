@@ -203,7 +203,8 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
 
   /**
    * A value becomes a group only when its cleaned name is not empty, its label
-   * holds no NUL character and its group id fits the stored limit. Checked
+   * holds no NUL character and its group id fits the stored limit. The
+   * attribute name is expected to have passed {@link #canBecomeGroup(String)}. Checked
    * before any group creation.
    */
   private boolean canBecomeGroup(String propertyName, String value) {
@@ -211,7 +212,7 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
       return false;
     }
     String cleanedValue = Utils.cleanString(value);
-    if (StringUtils.isBlank(cleanedValue) || !canBecomeGroup(propertyName)) {
+    if (StringUtils.isBlank(cleanedValue)) {
       return false;
     }
     String groupId = "/" + PROFILE_GROUP_NAME + "/" + Utils.cleanString(propertyName).toLowerCase() + "/" + cleanedValue.toLowerCase();
@@ -298,10 +299,7 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     LOG.debug("Find {} memberships for user {} in {} ms", memberships.size(), user.getUserName(), System.currentTimeMillis() - startTimeGetMemberships);
 
     for (Membership membership : memberships) {
-      if (membership.getGroupId().startsWith(group.getId())) {
-        if (!isSameOrDescendantGroup(membership.getGroupId(), group.getId())) {
-          continue;
-        }
+      if (isSameOrDescendantGroup(membership.getGroupId(), group.getId())) {
         String[] splittedMembership = membership.getGroupId().split("/");
         String groupName = splittedMembership[splittedMembership.length-1];
         if (!newCleanedPropertyValues.contains(groupName)) {

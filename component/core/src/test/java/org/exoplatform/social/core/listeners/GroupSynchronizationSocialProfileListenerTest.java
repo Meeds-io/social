@@ -273,6 +273,28 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     assertTrue(isMember("john", group));
   }
 
+  @Test
+  public void testDropdownAttributeKeepsRawValueLabelForTextOrUnmatchedDigitsLeftBeforeTheSwitch() throws Exception {
+    ProfilePropertySetting setting = createSynchronizedSetting("sync-job-title", true);
+    long unmatchedId = setting.getPropertyOptions().stream().mapToLong(ProfilePropertyOption::getId).max().orElse(0) + 1000L;
+
+    Profile profile = new Profile(john);
+    profile.setProperty("sync-job-title", "Legacytext");
+    synchronize(profile);
+    Group textGroup = organizationService.getGroupHandler().findGroupById("/profile/sync_job_title/legacytext");
+    assertNotNull(textGroup);
+    assertEquals("Legacytext", textGroup.getLabel());
+    assertTrue(isMember("john", textGroup));
+
+    profile.setProperty("sync-job-title", String.valueOf(unmatchedId));
+    synchronize(profile);
+    Group digitsGroup = organizationService.getGroupHandler().findGroupById("/profile/sync_job_title/" + unmatchedId);
+    assertNotNull(digitsGroup);
+    assertEquals(String.valueOf(unmatchedId), digitsGroup.getLabel());
+    assertTrue(isMember("john", digitsGroup));
+    assertFalse(isMember("john", textGroup));
+  }
+
   private ProfilePropertySetting createSynchronizedSetting(String name, boolean dropdown) throws Exception {
     ProfilePropertySetting existing = profilePropertyService.getProfileSettingByName(name);
     if (existing != null) {
