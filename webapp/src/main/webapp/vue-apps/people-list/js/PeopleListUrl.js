@@ -54,7 +54,8 @@ export function readUrlFilters() {
  *
  * @param {string} keyword the search text
  * @param {Object<string, string>} attributes the advanced filter values
- * @param {string[]} ownAttributes the attributes the directory can filter on
+ * @param {string[]} ownAttributes the attributes the directory can filter on,
+ *          or could since the page loaded
  * @returns {void}
  */
 export function writeUrlFilters(keyword, attributes, ownAttributes) {

@@ -63,20 +63,24 @@ export default {
       default: null,
     },
   },
-  data: () => ({
-    // the search and advanced filter, written to the page URL so that it
-    // can be shared, and read from it on load
-    keyword: readUrlFilters().keyword,
-    advancedFilter: null,
-    filtersRestored: !Object.keys(readUrlFilters().attributes).length,
-    // the attributes this directory can filter on: the only ones it writes
-    ownAttributes: [],
-    peopleCount: 0,
-    // the live region's text: emptied when a search starts and filled when
-    // it ends, so that a search giving the same number is announced too
-    resultsStatus: '',
-    loadedOnce: false,
-  }),
+  data: () => {
+    const urlFilters = readUrlFilters();
+    return {
+      // the search and advanced filter, written to the page URL so that it
+      // can be shared, and read from it on load
+      keyword: urlFilters.keyword,
+      advancedFilter: null,
+      filtersRestored: !Object.keys(urlFilters.attributes).length,
+      // the attributes this directory can filter on, or could since the page
+      // loaded: the only ones it writes, and removes once it no longer can
+      ownAttributes: [],
+      peopleCount: 0,
+      // the live region's text: emptied when a search starts and filled when
+      // it ends, so that a search giving the same number is announced too
+      resultsStatus: '',
+      loadedOnce: false,
+    };
+  },
   watch: {
     keyword() {
       this.updateUrl();
@@ -91,8 +95,10 @@ export default {
     this.$root.$off('advanced-filter-restored', this.restoreAdvancedFilter);
   },
   methods: {
+    // an attribute the saved settings turned into a directory attribute stays
+    // in the list, so that the next write removes its value from the URL
     setOwnAttributes(ownAttributes) {
-      this.ownAttributes = ownAttributes || [];
+      this.ownAttributes = [...new Set([...this.ownAttributes, ...(ownAttributes || [])])];
     },
     // the URL is not rewritten on load, unless the search changed while the
     // filter was being restored: its write was held until now
