@@ -158,6 +158,12 @@ export default {
       type: Boolean,
       default: false,
     },
+    // the advanced filter the first search applies, restored from a shared
+    // URL
+    initialAdvancedFilter: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     profileExtensions: [],
@@ -290,8 +296,14 @@ export default {
     filter() {
       this.searchPeople();
     },
+    advancedFilterSettings() {
+      this.$emit('advanced-filter-changed', this.advancedFilterSettings);
+    },
   },
   created() {
+    if (Object.keys(this.initialAdvancedFilter || {}).length) {
+      this.advancedFilterSettings = this.initialAdvancedFilter;
+    }
     this.applyItemsPerPage();
 
     // To refresh menu when a new extension is ready to be used
