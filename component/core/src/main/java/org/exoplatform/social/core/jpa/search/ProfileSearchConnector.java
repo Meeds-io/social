@@ -424,6 +424,9 @@ public class ProfileSearchConnector {
       }
     }
     filterClauses.addAll(buildDirectoryClauses(filter.getDirectoryFilter()));
+    if (filter.getGuestIdentityId() != null) {
+      filterClauses.add(buildGuestRestrictionClause(filter.getViewerSpaceGroupIds(), filter.getGuestIdentityId()));
+    }
 
     if (CollectionUtils.isNotEmpty(mustClauses)) {
       if(appendCommar) {
@@ -799,6 +802,39 @@ public class ProfileSearchConnector {
         should.addObject().putObject("prefix").put(PERMISSIONS_FIELD, UserPermissionService.INHERITED_TOKEN_PREFIX + token + "/");
       }
     }
+    bool.put("minimum_should_match", 1);
+    return root.toString();
+  }
+
+  /**
+   * The guest restriction, the query form of the {@code VIEW} rule of
+   * {@code UserAclPlugin} for a guest viewer: a user who is a member of one of
+   * the guest's space groups, through any membership type, directly or through
+   * a nested-group link; a confirmed connection of the guest; or the guest
+   * themself. One {@code bool.should}, ANDed with the other filters and never
+   * merged into the directory's group filter, whose terms are an OR. With no
+   * space group, it matches the guest's connections and the guest only.
+   */
+  String buildGuestRestrictionClause(List<String> spaceGroupIds, long guestIdentityId) {
+    ObjectNode root = JSON_MAPPER.createObjectNode();
+    ObjectNode bool = root.putObject("bool");
+    ArrayNode should = bool.putArray("should");
+    List<String> groups = spaceGroupIds == null ? Collections.emptyList()
+                                                : spaceGroupIds.stream().filter(StringUtils::isNotBlank).distinct().toList();
+    if (!groups.isEmpty()) {
+      Set<String> membershipTypes = new LinkedHashSet<>(userPermissionService.getMembershipTypes());
+      membershipTypes.add(UserPermissionService.ANY_MEMBERSHIP_TYPE);
+      ArrayNode tokens = should.addObject().putObject("terms").putArray(PERMISSIONS_FIELD);
+      for (String groupId : groups) {
+        for (String membershipType : membershipTypes) {
+          String token = membershipType + ":" + groupId;
+          tokens.add(token);
+          tokens.add(UserPermissionService.INHERITED_TOKEN_PREFIX + token);
+        }
+      }
+    }
+    should.addObject().putObject("term").put("connections", guestIdentityId);
+    should.addObject().putObject("ids").putArray("values").add(String.valueOf(guestIdentityId));
     bool.put("minimum_should_match", 1);
     return root.toString();
   }

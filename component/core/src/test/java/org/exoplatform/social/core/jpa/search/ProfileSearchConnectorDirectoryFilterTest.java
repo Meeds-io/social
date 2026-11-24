@@ -416,6 +416,97 @@ public class ProfileSearchConnectorDirectoryFilterTest {
     assertEquals("member:" + groupId + "/", should.get(1).get("prefix").get("permissions").asString());
   }
 
+  @Test
+  public void testGuestRestrictionMatchesSpaceMembersConnectionsAndSelf() {
+    when(userPermissionService.getMembershipTypes()).thenReturn(List.of("member", "manager"));
+
+    JsonNode clauses = searchAsGuest(null, List.of("/spaces/paris", "/spaces/paris"), 42L);
+
+    assertEquals(1, clauses.size());
+    JsonNode bool = clauses.get(0).get("bool");
+    assertEquals(1, bool.get("minimum_should_match").asInt());
+    JsonNode should = bool.get("should");
+    assertEquals(3, should.size());
+    List<String> terms = new ArrayList<>();
+    should.get(0).get("terms").get("permissions").forEach(token -> terms.add(token.asString()));
+    // one space, three membership types (the star always), direct and inherited
+    assertEquals(List.of("member:/spaces/paris",
+                         "inherited:member:/spaces/paris",
+                         "manager:/spaces/paris",
+                         "inherited:manager:/spaces/paris",
+                         "*:/spaces/paris",
+                         "inherited:*:/spaces/paris"),
+                 terms);
+    assertEquals(42L, should.get(1).get("term").get("connections").asLong());
+    assertEquals("42", should.get(2).get("ids").get("values").get(0).asString());
+    // members of the space only, never of its sub-groups
+    assertFalse(clauses.toString(), clauses.toString().contains("prefix"));
+  }
+
+  @Test
+  public void testGuestInNoSpaceMatchesConnectionsAndSelfOnly() {
+    JsonNode clauses = searchAsGuest(null, List.of(), 42L);
+
+    assertEquals(1, clauses.size());
+    JsonNode should = clauses.get(0).get("bool").get("should");
+    assertEquals(2, should.size());
+    assertTrue(should.get(0).has("term"));
+    assertTrue(should.get(1).has("ids"));
+    assertFalse(clauses.toString(), clauses.toString().contains("permissions"));
+    assertFalse(clauses.toString(), clauses.toString().contains("match_none"));
+    verify(userPermissionService, never()).getMembershipTypes();
+  }
+
+  @Test
+  public void testGuestRestrictionIsANDedWithTheGroupFilterNeverMerged() {
+    when(userPermissionService.getMembershipTypes()).thenReturn(List.of("member"));
+
+    JsonNode clauses = searchAsGuest(List.of("/organization/hr"), List.of("/spaces/paris"), 42L);
+
+    assertEquals(2, clauses.size());
+    String groupClause = clauses.get(0).toString();
+    String guestClause = clauses.get(1).toString();
+    assertTrue(groupClause, groupClause.contains("member:/organization/hr"));
+    assertFalse(groupClause, groupClause.contains("/spaces/paris"));
+    assertTrue(guestClause, guestClause.contains("member:/spaces/paris"));
+    assertFalse(guestClause, guestClause.contains("/organization/hr"));
+  }
+
+  @Test
+  public void testNoGuestAddsNoGuestRestriction() {
+    JsonNode clauses = searchWithDirectory(Map.of("department", List.of("HR")), null);
+
+    assertFalse(clauses.toString(), clauses.toString().contains("connections"));
+    assertFalse(clauses.toString(), clauses.toString().contains("\"ids\""));
+  }
+
+  @Test
+  public void testGuestRestrictionAloneMakesTheFilterNonEmpty() {
+    ProfileFilter filter = new ProfileFilter();
+    assertTrue(filter.isEmpty());
+    filter.setGuestIdentityId(42L);
+    filter.setViewerSpaceGroupIds(List.of());
+    // an empty filter is served from the database, which applies no guest
+    // restriction
+    assertFalse(filter.isEmpty());
+  }
+
+  private JsonNode searchAsGuest(List<String> directoryGroups, List<String> spaceGroups, long guestIdentityId) {
+    when(client.sendRequest(anyString(), anyString())).thenReturn(NO_HITS);
+    ProfileFilter filter = new ProfileFilter();
+    if (directoryGroups != null) {
+      PeopleDirectoryFilter directoryFilter = new PeopleDirectoryFilter(Map.of());
+      directoryFilter.setGroups(directoryGroups);
+      filter.setDirectoryFilter(directoryFilter);
+    }
+    filter.setViewerSpaceGroupIds(spaceGroups);
+    filter.setGuestIdentityId(guestIdentityId);
+
+    connector.search(null, filter, null, 0, 10);
+
+    return capturedQuery().get("query").get("constant_score").get("filter").get("bool").get("filter");
+  }
+
   private JsonNode searchWithDirectory(Map<String, List<String>> attributes, List<String> groups) {
     lenient().when(profilePropertyService.getPropertySettings()).thenReturn(settings);
     when(client.sendRequest(anyString(), anyString())).thenReturn(NO_HITS);

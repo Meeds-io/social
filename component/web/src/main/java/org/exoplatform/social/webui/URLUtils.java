@@ -18,21 +18,21 @@
  */
 package org.exoplatform.social.webui;
 
-import java.util.Arrays;
-import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.web.application.RequestContext;
+
+import io.meeds.portal.plugin.AclPlugin;
+import io.meeds.social.user.plugin.UserAclPlugin;
 
 /**
  * Processes url and returns the some type of result base on url.
@@ -78,7 +78,9 @@ public class URLUtils {
   }
 
   /**
-   * @return current user name base on analysis of current url
+   * @return the user carried by the current page URL, or null when the URL
+   *         carries none, or when the viewer is a guest who may not view that
+   *         user's profile under the {@link UserAclPlugin} {@code VIEW} rule
    */
   public static String getCurrentUser() {
     PortalRequestContext pcontext = getPortalRequestContext();
@@ -89,36 +91,27 @@ public class URLUtils {
     }
 
     String currentUserName = route.localArgs.get("streamOwnerId");
-    org.exoplatform.social.core.identity.model.Identity viewerIdentity = Utils.getViewerIdentity();
-    if (viewerIdentity.isExternal() && !isProfileAccessible(currentUserName, pcontext.getRemoteUser())) {
+    if (currentUserName == null || !isProfileAccessible(currentUserName, pcontext.getRemoteUser())) {
       return null;
     }
-    if (currentUserName != null) {
-      IdentityManager identityManager = ExoContainerContext.getService(IdentityManager.class);
-      Identity identity = identityManager.getOrCreateUserIdentity(currentUserName);
-      if (identity != null) {
-        return identity.getRemoteId();
-      }
-    }
-    return null;
+    IdentityManager identityManager = ExoContainerContext.getService(IdentityManager.class);
+    Identity identity = identityManager.getOrCreateUserIdentity(currentUserName);
+    return identity == null ? null : identity.getRemoteId();
   }
 
-  private static boolean isProfileAccessible(String currentUserName, String externalUserId) {
-    try {
-      List<Identity> viewerFriends = Utils.getViewerFriends();
-      // check if target user in viewer Friends
-      boolean isFriend = viewerFriends.stream().anyMatch(value -> value.getRemoteId().equals(currentUserName));
-      // Gets a list access containing all spaces witch a viewer is member
-      SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
-      ListAccess<Space> memberSpacesListAccess = spaceService.getMemberSpaces(externalUserId);
-      Space[] spaces = memberSpacesListAccess.load(0, memberSpacesListAccess.getSize());
-      // check if target user is member of these spaces
-      boolean isMemberSpaces = Arrays.stream(spaces).anyMatch(space -> Utils.getSpaceService().isMember(space, currentUserName));
-      return isFriend || isMemberSpaces;
-    } catch (Exception e) {
-      throw new IllegalStateException("Error checking whether profile " + currentUserName + " is accessible for " + externalUserId
-          + " or not", e);
+  /**
+   * A guest viewer, decided by the same membership test as the rule
+   * ({@link UserAclPlugin#isGuest}), opens a profile only when the rule grants
+   * it; any other viewer opens every profile, as before.
+   */
+  private static boolean isProfileAccessible(String currentUserName, String viewerUserName) {
+    if (StringUtils.isBlank(viewerUserName)) {
+      return true;
     }
+    UserACL userAcl = ExoContainerContext.getService(UserACL.class);
+    org.exoplatform.services.security.Identity viewerAclIdentity = userAcl.getUserIdentity(viewerUserName);
+    return !UserAclPlugin.isGuest(viewerAclIdentity)
+        || userAcl.hasPermission(UserAclPlugin.OBJECT_TYPE, currentUserName, AclPlugin.VIEW_PERMISSION_TYPE, viewerAclIdentity);
   }
 
   private static PortalRequestContext getPortalRequestContext() {

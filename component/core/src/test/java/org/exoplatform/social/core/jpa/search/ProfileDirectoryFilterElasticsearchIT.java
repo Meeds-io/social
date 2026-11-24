@@ -58,6 +58,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import org.exoplatform.social.core.relationship.model.Relationship;
 
 import io.meeds.social.identity.permission.service.UserPermissionService;
 import io.meeds.social.people.model.PeopleDirectoryFilter;
@@ -114,9 +115,34 @@ public class ProfileDirectoryFilterElasticsearchIT {
   /** Holds the multi-valued value 'Paris, Berlin', which the index joins as two */
   private static final String           COMMA_MULTI_USER = "2010";
 
+  /** A guest, member of {@link #LAB_SPACE} */
+  private static final String           GUEST_USER  = "2020";
+
+  /** A manager of the guest's space */
+  private static final String           SPACE_MATE_USER = "2021";
+
+  /** A confirmed connection of the guest, sharing no group with them */
+  private static final String           CONNECTED_USER = "2022";
+
+  /** Holds only a pending connection request with the guest */
+  private static final String           PENDING_USER = "2023";
+
+  /** A member of the guest's space through a nested-group link */
+  private static final String           NESTED_MATE_USER = "2024";
+
+  /** Shares only an organizational unit with the guest */
+  private static final String           ORG_MATE_USER = "2025";
+
+  /** A member of a sub-group of the guest's space only */
+  private static final String           SUB_MATE_USER = "2026";
+
   private static final String           HR_GROUP    = "/organization/hr";
 
   private static final String           PARIS_GROUP = "/spaces/paris";
+
+  private static final String           LAB_SPACE   = "/spaces/lab";
+
+  private static final String           LAB_UNIT    = "/organization/lab";
 
   private static ProfileSearchConnector searchConnector;
 
@@ -145,6 +171,25 @@ public class ProfileDirectoryFilterElasticsearchIT {
       .thenReturn(List.of(UserPermissionService.INHERITED_TOKEN_PREFIX + "member:" + HR_GROUP));
     when(userPermissionService.getPermissionTokens("directory" + NOT_DOT_USER)).thenReturn(List.of("member:" + HR_GROUP + "x"));
     when(userPermissionService.getPermissionTokens("directory" + CPP_USER)).thenReturn(List.of("*:" + PARIS_GROUP));
+    // the guest restriction's population
+    when(userPermissionService.getPermissionTokens("directory" + GUEST_USER)).thenReturn(List.of("member:/platform/externals",
+                                                                                                 "member:" + LAB_SPACE,
+                                                                                                 "member:" + LAB_UNIT));
+    when(userPermissionService.getPermissionTokens("directory" + SPACE_MATE_USER)).thenReturn(List.of("manager:" + LAB_SPACE));
+    when(userPermissionService.getPermissionTokens("directory" + NESTED_MATE_USER))
+      .thenReturn(List.of(UserPermissionService.INHERITED_TOKEN_PREFIX + "member:" + LAB_SPACE));
+    when(userPermissionService.getPermissionTokens("directory" + CONNECTED_USER)).thenReturn(List.of("member:/platform/users"));
+    when(userPermissionService.getPermissionTokens("directory" + PENDING_USER)).thenReturn(List.of("member:/platform/users"));
+    when(userPermissionService.getPermissionTokens("directory" + ORG_MATE_USER)).thenReturn(List.of("member:" + LAB_UNIT));
+    when(userPermissionService.getPermissionTokens("directory" + SUB_MATE_USER)).thenReturn(List.of("member:" + LAB_SPACE + "/sub"));
+    // the connections the index stores on each side: a confirmed one with the
+    // guest, and a pending one, which the index does not store
+    ConnectionDAO connectionDAO = mock(ConnectionDAO.class);
+    long guestId = Long.parseLong(GUEST_USER);
+    when(connectionDAO.getSenderIds(guestId, Relationship.Type.CONFIRMED, 0, 200)).thenReturn(List.of(Long.parseLong(CONNECTED_USER)));
+    when(connectionDAO.getReceiverIds(Long.parseLong(CONNECTED_USER), Relationship.Type.CONFIRMED, 0, 200)).thenReturn(List.of(guestId));
+    when(connectionDAO.getSenderIds(guestId, Relationship.Type.PENDING, 0, 200)).thenReturn(List.of(Long.parseLong(PENDING_USER)));
+    when(connectionDAO.getReceiverIds(Long.parseLong(PENDING_USER), Relationship.Type.PENDING, 0, 200)).thenReturn(List.of(guestId));
 
     Map<String, Identity> identities = new LinkedHashMap<>();
     identities.put(CPP_USER, identity(CPP_USER, "C++", List.of("a", "b"), null));
@@ -159,6 +204,15 @@ public class ProfileDirectoryFilterElasticsearchIT {
     plainMulti.getProfile().setProperty(LANGUAGES, "Développement");
     identities.put(PLAIN_MULTI_USER, plainMulti);
     identities.put(COMMA_MULTI_USER, identity(COMMA_MULTI_USER, "Sales", List.of("Paris, Berlin"), null));
+    for (String id : List.of(GUEST_USER,
+                             SPACE_MATE_USER,
+                             CONNECTED_USER,
+                             PENDING_USER,
+                             NESTED_MATE_USER,
+                             ORG_MATE_USER,
+                             SUB_MATE_USER)) {
+      identities.put(id, identity(id, "Sales", List.of(), null));
+    }
     identities.forEach((id, identity) -> when(identityManager.getIdentity(id)).thenReturn(identity));
 
     InitParams indexingParams = new InitParams();
@@ -170,7 +224,7 @@ public class ProfileDirectoryFilterElasticsearchIT {
     ProfileIndexingServiceConnector indexingConnector = new ProfileIndexingServiceConnector(indexingParams,
                                                                                             identityManager,
                                                                                             mock(IdentityDAO.class),
-                                                                                            mock(ConnectionDAO.class),
+                                                                                            connectionDAO,
                                                                                             profilePropertyService,
                                                                                             mock(TranslationService.class),
                                                                                             mock(UserACL.class),
@@ -298,6 +352,57 @@ public class ProfileDirectoryFilterElasticsearchIT {
   @Test
   public void testNoLiveGroupListsNobody() {
     assertListed(Map.of(), List.of());
+  }
+
+  /**
+   * A guest sees themself, their confirmed connections and the members of
+   * their spaces through any membership type, directly or through a
+   * nested-group link; never a pending connection, a user sharing only an
+   * organizational unit, nor a member of a sub-group of their space only.
+   */
+  @Test
+  public void testGuestSeesThemselfTheirConnectionsAndTheirSpacesMembers() {
+    assertListedToGuest(null, List.of(LAB_SPACE), GUEST_USER, SPACE_MATE_USER, NESTED_MATE_USER, CONNECTED_USER);
+  }
+
+  @Test
+  public void testGuestSeesTheMembersOfTheirSpaceUnderAnyMembershipType() {
+    // CPP_USER holds the star membership of Paris
+    assertListedToGuest(null, List.of(PARIS_GROUP), GUEST_USER, CONNECTED_USER, CPP_USER);
+  }
+
+  @Test
+  public void testGuestInNoSpaceSeesThemselfAndTheirConnectionsOnly() {
+    assertListedToGuest(null, List.of(), GUEST_USER, CONNECTED_USER);
+  }
+
+  /**
+   * The restriction is ANDed with the directory's group filter, whose
+   * sub-groups it never widens.
+   */
+  @Test
+  public void testGuestRestrictionIsANDedWithTheDirectoryGroupFilter() {
+    // the directory lists the space and its sub-group; the guest only the
+    // space's members
+    assertListedToGuest(List.of(LAB_SPACE), List.of(LAB_SPACE), GUEST_USER, SPACE_MATE_USER, NESTED_MATE_USER);
+    // Paris's member is no member of the guest's space
+    assertListedToGuest(List.of(PARIS_GROUP), List.of(LAB_SPACE));
+  }
+
+  private static void assertListedToGuest(List<String> directoryGroups, List<String> spaceGroups, String... expectedIds) {
+    ProfileFilter filter = new ProfileFilter();
+    if (directoryGroups != null) {
+      PeopleDirectoryFilter directoryFilter = new PeopleDirectoryFilter(Map.of());
+      directoryFilter.setGroups(directoryGroups);
+      filter.setDirectoryFilter(directoryFilter);
+    }
+    filter.setViewerSpaceGroupIds(spaceGroups);
+    filter.setGuestIdentityId(Long.parseLong(GUEST_USER));
+    List<String> listed = searchConnector.search(null, filter, null, 0, 20);
+    assertEquals(directoryGroups + " " + spaceGroups,
+                 List.of(expectedIds).stream().sorted().toList(),
+                 listed.stream().sorted().toList());
+    assertEquals(expectedIds.length, searchConnector.count(null, filter, null));
   }
 
   private static void assertListed(Map<String, List<String>> attributes, String... expectedIds) {

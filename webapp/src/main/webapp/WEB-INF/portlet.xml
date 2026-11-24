@@ -783,6 +783,10 @@
         <value>12</value>
       </preference>
       <preference>
+        <name>guestsSpaceMembersOnly</name>
+        <value>true</value>
+      </preference>
+      <preference>
         <name>attributeFilter</name>
         <value>{}</value>
       </preference>
