@@ -21,8 +21,14 @@ package org.exoplatform.social.webui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,12 +38,17 @@ import org.mockito.MockedStatic;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.web.ControllerContext;
 import org.exoplatform.web.application.RequestContext;
+
+import io.meeds.portal.plugin.AclPlugin;
+import io.meeds.social.user.plugin.UserAclPlugin;
 
 /**
  * The profile-mode discriminator of the User Spaces List widget (EXO-89465):
@@ -129,5 +140,52 @@ class URLUtilsTest {
     when(pcontext.getSiteType()).thenReturn(SiteType.GROUP);
     when(pcontext.getRemoteUser()).thenReturn(VIEWER);
     assertNull(URLUtils.getStreamOwnerId());
+  }
+
+  @Test
+  void guestOpensAProfileTheRuleGrants() {
+    org.exoplatform.services.security.Identity guest = aclIdentity(SpaceUtils.PLATFORM_EXTERNALS_GROUP);
+    UserACL userAcl = mock(UserACL.class);
+    when(userAcl.getUserIdentity(VIEWER)).thenReturn(guest);
+    when(userAcl.hasPermission(UserAclPlugin.OBJECT_TYPE, "john", AclPlugin.VIEW_PERMISSION_TYPE, guest)).thenReturn(true);
+    assertEquals("john", currentUserOnJohnsProfile(userAcl));
+  }
+
+  @Test
+  void guestIsRefusedAProfileTheRuleDenies() {
+    org.exoplatform.services.security.Identity guest = aclIdentity(SpaceUtils.PLATFORM_EXTERNALS_GROUP);
+    UserACL userAcl = mock(UserACL.class);
+    when(userAcl.getUserIdentity(VIEWER)).thenReturn(guest);
+    when(userAcl.hasPermission(UserAclPlugin.OBJECT_TYPE, "john", AclPlugin.VIEW_PERMISSION_TYPE, guest)).thenReturn(false);
+    assertNull(currentUserOnJohnsProfile(userAcl));
+  }
+
+  @Test
+  void internalViewerOpensAnyProfileWithoutAskingTheRule() {
+    org.exoplatform.services.security.Identity internal = aclIdentity(SpaceUtils.PLATFORM_USERS_GROUP);
+    UserACL userAcl = mock(UserACL.class);
+    when(userAcl.getUserIdentity(VIEWER)).thenReturn(internal);
+    assertEquals("john", currentUserOnJohnsProfile(userAcl));
+    verify(userAcl, never()).hasPermission(anyString(), anyString(), anyString(), any(org.exoplatform.services.security.Identity.class));
+  }
+
+  private String currentUserOnJohnsProfile(UserACL userAcl) {
+    givenRequestPath("profile/john");
+    when(pcontext.getRemoteUser()).thenReturn(VIEWER);
+    Identity identity = mock(Identity.class);
+    when(identity.getRemoteId()).thenReturn("john");
+    IdentityManager identityManager = mock(IdentityManager.class);
+    when(identityManager.getOrCreateUserIdentity("john")).thenReturn(identity);
+    try (MockedStatic<ExoContainerContext> containerContext = mockStatic(ExoContainerContext.class)) {
+      containerContext.when(() -> ExoContainerContext.getService(IdentityManager.class)).thenReturn(identityManager);
+      containerContext.when(() -> ExoContainerContext.getService(UserACL.class)).thenReturn(userAcl);
+      return URLUtils.getCurrentUser();
+    }
+  }
+
+  private static org.exoplatform.services.security.Identity aclIdentity(String group) {
+    org.exoplatform.services.security.Identity aclIdentity = mock(org.exoplatform.services.security.Identity.class);
+    when(aclIdentity.getGroups()).thenReturn(Set.of(group));
+    return aclIdentity;
   }
 }

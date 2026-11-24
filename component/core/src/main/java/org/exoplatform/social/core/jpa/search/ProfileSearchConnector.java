@@ -26,6 +26,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import io.meeds.social.identity.permission.service.UserPermissionService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -423,7 +425,13 @@ public class ProfileSearchConnector {
         filterClauses.add(expEsForAdvancedFilter);
       }
     }
-    filterClauses.addAll(buildDirectoryClauses(filter.getDirectoryFilter()));
+    Supplier<Set<String>> membershipTypes = lazyMembershipTypes();
+    filterClauses.addAll(buildDirectoryClauses(filter.getDirectoryFilter(), membershipTypes));
+    if (filter.getGuestIdentityId() != null) {
+      filterClauses.add(buildGuestRestrictionClause(filter.getViewerSpaceGroupIds(),
+                                                    filter.getGuestIdentityId(),
+                                                    membershipTypes));
+    }
 
     if (CollectionUtils.isNotEmpty(mustClauses)) {
       if(appendCommar) {
@@ -726,13 +734,13 @@ public class ProfileSearchConnector {
    * Known limit: a multi-valued value holding a comma is read as several
    * values, so {@code Paris} also matches a user holding {@code Paris, France}.
    */
-  private List<String> buildDirectoryClauses(PeopleDirectoryFilter directoryFilter) {
+  private List<String> buildDirectoryClauses(PeopleDirectoryFilter directoryFilter, Supplier<Set<String>> membershipTypes) {
     if (directoryFilter == null) {
       return Collections.emptyList();
     }
     List<String> clauses = new ArrayList<>();
     if (directoryFilter.getGroups() != null) {
-      clauses.add(buildDirectoryGroupsClause(directoryFilter.getGroups()));
+      clauses.add(buildDirectoryGroupsClause(directoryFilter.getGroups(), membershipTypes));
     }
     if (MapUtils.isEmpty(directoryFilter.getAttributes())) {
       return clauses;
@@ -779,13 +787,12 @@ public class ProfileSearchConnector {
    * matches {@code member:/organization/hr/payroll}), so neither the group
    * tree nor a member list is loaded. No group matches nobody.
    */
-  String buildDirectoryGroupsClause(List<String> groupIds) {
+  String buildDirectoryGroupsClause(List<String> groupIds, Supplier<Set<String>> membershipTypesSupplier) {
     List<String> groups = groupIds.stream().filter(StringUtils::isNotBlank).distinct().toList();
     if (groups.isEmpty()) {
       return MATCH_NONE_CLAUSE;
     }
-    Set<String> membershipTypes = new LinkedHashSet<>(userPermissionService.getMembershipTypes());
-    membershipTypes.add(UserPermissionService.ANY_MEMBERSHIP_TYPE);
+    Set<String> membershipTypes = membershipTypesSupplier.get();
     ObjectNode root = JSON_MAPPER.createObjectNode();
     ObjectNode bool = root.putObject("bool");
     ArrayNode should = bool.putArray("should");
@@ -799,6 +806,56 @@ public class ProfileSearchConnector {
         should.addObject().putObject("prefix").put(PERMISSIONS_FIELD, UserPermissionService.INHERITED_TOKEN_PREFIX + token + "/");
       }
     }
+    bool.put("minimum_should_match", 1);
+    return root.toString();
+  }
+
+  /**
+   * The membership types a group clause matches, the star included, read from
+   * {@link UserPermissionService#getMembershipTypes()}, which is not cached, at
+   * most once per query statement and only when a clause needs them.
+   */
+  private Supplier<Set<String>> lazyMembershipTypes() {
+    AtomicReference<Set<String>> membershipTypes = new AtomicReference<>();
+    return () -> membershipTypes.updateAndGet(types -> types == null ? readMembershipTypes() : types);
+  }
+
+  private Set<String> readMembershipTypes() {
+    Set<String> membershipTypes = new LinkedHashSet<>(userPermissionService.getMembershipTypes());
+    membershipTypes.add(UserPermissionService.ANY_MEMBERSHIP_TYPE);
+    return membershipTypes;
+  }
+
+  /**
+   * The guest restriction, the query form of the {@code VIEW} rule of
+   * {@code UserAclPlugin} for a guest viewer: a user who is a member of one of
+   * the guest's space groups, through any membership type, directly or through
+   * a nested-group link; a confirmed connection of the guest; or the guest
+   * themself. One {@code bool.should}, ANDed with the other filters and never
+   * merged into the directory's group filter, whose terms are an OR. With no
+   * space group, it matches the guest's connections and the guest only.
+   */
+  String buildGuestRestrictionClause(List<String> spaceGroupIds,
+                                     long guestIdentityId,
+                                     Supplier<Set<String>> membershipTypesSupplier) {
+    ObjectNode root = JSON_MAPPER.createObjectNode();
+    ObjectNode bool = root.putObject("bool");
+    ArrayNode should = bool.putArray("should");
+    List<String> groups = spaceGroupIds == null ? Collections.emptyList()
+                                                : spaceGroupIds.stream().filter(StringUtils::isNotBlank).distinct().toList();
+    if (!groups.isEmpty()) {
+      Set<String> membershipTypes = membershipTypesSupplier.get();
+      ArrayNode tokens = should.addObject().putObject("terms").putArray(PERMISSIONS_FIELD);
+      for (String groupId : groups) {
+        for (String membershipType : membershipTypes) {
+          String token = membershipType + ":" + groupId;
+          tokens.add(token);
+          tokens.add(UserPermissionService.INHERITED_TOKEN_PREFIX + token);
+        }
+      }
+    }
+    should.addObject().putObject("term").put("connections", guestIdentityId);
+    should.addObject().putObject("ids").putArray("values").add(String.valueOf(guestIdentityId));
     bool.put("minimum_should_match", 1);
     return root.toString();
   }

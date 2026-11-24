@@ -70,6 +70,18 @@
             @valid="pageSizeTyped = $event" />
         </div>
         <div class="mt-8 mb-4 text-header">{{ $t('peopleList.settings.filterOptions') }}</div>
+        <div class="d-flex align-center text-start mb-4">
+          <div class="text-subtitle-1 text-color">
+            {{ $t('peopleList.settings.guestsSpaceMembersOnly') }}
+          </div>
+          <v-spacer />
+          <v-switch
+            :id="guestsSwitchId"
+            v-model="guestsSpaceMembersOnly"
+            :aria-label="$t('peopleList.settings.guestsSpaceMembersOnly')"
+            class="people-list-guests-switch ma-0 ms-4 width-fit-content"
+            hide-details />
+        </div>
         <people-list-attribute-filter
           v-model="attributes"
           :enabled.sync="attributeFilterEnabled" />
@@ -128,6 +140,9 @@ export default {
     // whether the typed text is within the bounds: <number-input> emits the
     // clamped value for an out-of-range text, so its value alone cannot tell
     pageSizeTyped: true,
+    // ON: guests see only themselves, their connections and the members of
+    // their spaces
+    guestsSpaceMembersOnly: true,
     attributeFilterEnabled: false,
     // PeopleDirectoryService MAX_ATTRIBUTES, MAX_VALUES_PER_ATTRIBUTE and
     // MAX_VALUE_LENGTH: the portlet refuses more
@@ -143,6 +158,9 @@ export default {
   computed: {
     headerSwitchId() {
       return `${this.$root.appId}HeaderSwitch`;
+    },
+    guestsSwitchId() {
+      return `${this.$root.appId}GuestsSwitch`;
     },
     // the header labels to store: none when the header is OFF, blank ones dropped
     headerToSave() {
@@ -239,6 +257,7 @@ export default {
       const toSave = {
         headerTranslations: this.headerToSave,
         pageSize: this.pageSize,
+        guestsSpaceMembersOnly: this.guestsSpaceMembersOnly,
         attributeFilter: this.attributeFilterToSave,
       };
       // the group filter is posted only when the editor changed it: an
@@ -277,6 +296,7 @@ export default {
       this.headerTranslations = headerTranslations;
       this.pageSize = this.$root.pageSize;
       this.pageSizeTyped = true;
+      this.guestsSpaceMembersOnly = this.$root.guestsSpaceMembersOnly !== false;
       // a value stored twice is stored once by the portlet
       this.attributes = (this.$root.attributes || []).map(attribute => ({
         ...attribute,
@@ -294,7 +314,8 @@ export default {
       this.$refs.drawer.close();
     },
     /**
-     * Posts the preferences (header, page size, attribute and group filters), then
+     * Posts the preferences (header, page size, guest restriction, attribute
+     * and group filters), then
      * re-reads what the portlet stored: a
      * refusal of the action (edit right lost, value rejected) is answered
      * with a 200, so the snackbar follows the stored values, never the HTTP
@@ -311,6 +332,7 @@ export default {
       const params = new URLSearchParams({
         headerTranslations: JSON.stringify(toSave.headerTranslations),
         pageSize: String(toSave.pageSize),
+        guestsSpaceMembersOnly: String(toSave.guestsSpaceMembersOnly),
         attributeFilter: JSON.stringify(toSave.attributeFilter),
       });
       if (toSave.groupIds) {
@@ -350,6 +372,7 @@ export default {
       const stored = {
         headerTranslations: this.$root.headerTranslations,
         pageSize: this.$root.pageSize,
+        guestsSpaceMembersOnly: this.$root.guestsSpaceMembersOnly !== false,
         attributeFilter: storedAttributeFilter,
       };
       if (toSave.groupIds) {
