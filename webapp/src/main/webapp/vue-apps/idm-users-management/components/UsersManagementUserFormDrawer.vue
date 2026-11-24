@@ -311,9 +311,8 @@ export default {
       }
     },
     // A stored name or email the rule refuses says so from the opening rather
-    // than through a disabled button. The rule reads every character, while the
-    // server skips a name's last one: a stored name whose last character the
-    // rule refuses is corrected here before the account is updated
+    // than through a disabled button, so that it is corrected before the
+    // account is updated
     checkStoredFields() {
       ['firstName', 'lastName', 'email'].forEach(field => this.checkField(field));
     },
