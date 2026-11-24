@@ -174,7 +174,8 @@ public class PeopleRestService implements ResourceContainer{
     // A blank currentUser leaves the viewer off the profile filter, so the
     // member search can return the authenticated user; a relationship lookup
     // still sets it (ConnectionFilterListAccess)
-    identityFilter.setViewerIdentity(StringUtils.isBlank(currentUser) ? null : currentIdentity);
+    Identity searchViewer = StringUtils.isBlank(currentUser) ? null : currentIdentity;
+    identityFilter.setViewerIdentity(searchViewer);
 
     Identity authenticatedUserIdentity = RestUtils.getCurrentIdentity();
 
@@ -264,7 +265,7 @@ public class PeopleRestService implements ResourceContainer{
         identityFilter.setExcludedIdentityList(excludedIdentityList);
         // The connections lookup sets the viewer on the filter: a blank
         // currentUser keeps it unset for this search too
-        identityFilter.setViewerIdentity(StringUtils.isBlank(currentUser) ? null : currentIdentity);
+        identityFilter.setViewerIdentity(searchViewer);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
         List<Identity> identities = Arrays.stream(listAccess.load(0, (int) remain))
                                           .filter(identity -> identity.isEnable() && !identity.isDeleted())
@@ -367,7 +368,7 @@ public class PeopleRestService implements ResourceContainer{
         identityFilter.setExcludedIdentityList(excludedIdentityList);
         // The connections lookup sets the viewer on the filter: a blank
         // currentUser keeps it unset for this search too
-        identityFilter.setViewerIdentity(StringUtils.isBlank(currentUser) ? null : currentIdentity);
+        identityFilter.setViewerIdentity(searchViewer);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
         for (Identity id : identities) {
