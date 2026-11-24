@@ -257,9 +257,11 @@ public class PeopleRestServiceViewerTest {
 
     peopleRestService.suggestUsernames(mock(UriInfo.class), request, "m", "", "user_to_invite", null, null, null, "json");
     assertNull(viewerAtSearch[0]);
+    verify(relationshipManager, times(1)).getConnectionsByFilter(eq(demoIdentity), any());
 
     peopleRestService.suggestUsernames(mock(UriInfo.class), request, "m", "root", "user_to_invite", null, null, null, "json");
     assertEquals(demoIdentity, viewerAtSearch[0]);
+    verify(relationshipManager, times(2)).getConnectionsByFilter(eq(demoIdentity), any());
   }
 
   @Test
