@@ -216,11 +216,13 @@ public class PeopleDirectoryService {
    * window held by neither, such as a catalogue instance previewed in the
    * portlet editor, has no editable settings.
    * <p>
-   * On a page, the edit right is the portal's, or a membership matching the
-   * page's edit permission: on a space site the portal grants editing to the
-   * space layout managers only, whatever the page's edit permission names,
-   * while a user that permission names, such as a space publisher, is an
-   * editor of the page for its settings. On a site layout, it is the
+   * The edit right is the portal's. On a space page, a membership matching
+   * the page's edit permission grants it too: there the portal grants editing
+   * to the space layout managers only, whatever the page's edit permission
+   * names, while a user that permission names, such as a space publisher, is
+   * an editor of the page for its settings. On any other page the portal
+   * already applies the page's edit permission, or deliberately ignores it
+   * (templates, drafts, user sites). On a site layout, the right is the
    * portal's only: a space site's edit permission is the space template's
    * list of layout permissions, not a membership expression.
    *
@@ -235,7 +237,7 @@ public class PeopleDirectoryService {
     ModelObject holder = identity == null ? null : getWindowHolder(pageKey, siteKey, windowId);
     return switch (holder) {
     case Page page -> userAcl.hasEditPermission(page, identity)
-        || userAcl.isMemberOf(identity, page.getEditPermission());
+        || (isSpacePage(page) && userAcl.isMemberOf(identity, page.getEditPermission()));
     case PortalConfig site -> userAcl.hasEditPermission(site, identity);
     case null, default -> false;
     };
@@ -1211,6 +1213,11 @@ public class PeopleDirectoryService {
       return userPortalConfigService.getMetaPortalConfig();
     }
     return site;
+  }
+
+  private boolean isSpacePage(Page page) {
+    return PortalConfig.GROUP_TYPE.equals(page.getOwnerType())
+           && StringUtils.startsWith(page.getOwnerId(), SPACE_GROUP_PREFIX);
   }
 
   private boolean holdsWindow(ModelObject modelObject, String windowId) {
