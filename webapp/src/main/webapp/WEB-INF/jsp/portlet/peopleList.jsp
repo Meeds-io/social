@@ -22,6 +22,7 @@
   boolean canEdit = PeopleListPortlet.canEdit(renderRequest.getRemoteUser());
   settings.put("canEdit", canEdit);
   if (canEdit) {
+    settings.put("guestsSpaceMembersOnly", PeopleListPortlet.storedGuestRestriction(preferences));
     settings.put("attributes", new JSONArray(PeopleListPortlet.storedAttributes(preferences, renderRequest.getLocale())));
     settings.put("attributeFilterInvalid", PeopleListPortlet.isAttributeFilterInvalid(preferences));
     settings.put("canSetGroupFilter", PeopleListPortlet.canSetGroupFilter(renderRequest.getRemoteUser()));

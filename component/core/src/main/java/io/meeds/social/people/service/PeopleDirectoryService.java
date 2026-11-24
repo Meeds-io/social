@@ -79,6 +79,7 @@ import io.meeds.social.people.model.PeopleDirectoryFilter;
 import io.meeds.social.people.model.PeopleDirectoryGroup;
 import io.meeds.social.people.model.PeopleDirectoryPage;
 import io.meeds.social.translation.service.TranslationService;
+import io.meeds.social.user.plugin.UserAclPlugin;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -351,6 +352,11 @@ public class PeopleDirectoryService {
    * @param windowId the storage id of the window
    * @param storedAttributeFilter the window's stored attribute filter
    * @param storedGroupFilter the window's stored group filter
+   * @param storedGuestRestriction the window's stored "Guests see only
+   *          connections and space members" setting: any value but
+   *          {@code false}, a missing one included, restricts a guest viewer
+   *          to the users whose profile they can open
+   *          ({@link #isGuestRestriction})
    * @param query the viewer's name search, may be blank
    * @param viewerAttributes the viewer's advanced filter, one text per
    *          attribute, may be null
@@ -371,6 +377,7 @@ public class PeopleDirectoryService {
                                     String windowId,
                                     String storedAttributeFilter,
                                     String storedGroupFilter,
+                                    String storedGuestRestriction,
                                     String query,
                                     Map<String, String> viewerAttributes,
                                     boolean connectionsOnly,
@@ -402,6 +409,9 @@ public class PeopleDirectoryService {
       PeopleDirectoryFilter directoryFilter = new PeopleDirectoryFilter(toIndexedValues(settings, attributeFilter));
       directoryFilter.setGroups(groupFilter);
       filter.setDirectoryFilter(directoryFilter);
+    }
+    if (isGuestRestriction(storedGuestRestriction) && !restrictGuest(filter, username)) {
+      return new PeopleDirectoryPage(Collections.emptyList(), 0);
     }
     ListAccess<org.exoplatform.social.core.identity.model.Identity> users;
     if (connectionsOnly) {
@@ -750,6 +760,29 @@ public class PeopleDirectoryService {
   }
 
   /**
+   * Whether the stored "Guests see only connections and space members" setting
+   * restricts guest viewers. It fails closed: any value but the literal
+   * {@code false}, a missing or unreadable one included, is ON.
+   *
+   * @param storedValue the stored preference value, may be null
+   * @return true unless the setting is OFF
+   */
+  public boolean isGuestRestriction(String storedValue) {
+    return !Boolean.FALSE.toString().equals(StringUtils.trim(storedValue));
+  }
+
+  /**
+   * Validates a posted "Guests see only connections and space members"
+   * setting, stored as {@code true} or {@code false}.
+   *
+   * @param value the posted value
+   * @return {@code false} for a posted {@code false}, {@code true} otherwise
+   */
+  public String normalizeGuestRestriction(String value) {
+    return String.valueOf(isGuestRestriction(value));
+  }
+
+  /**
    * The stored number of items per page as the directory uses it. A value
    * stored by another writer of the window's preferences (the layout editor
    * stores any value) is brought back within the bounds; a missing or
@@ -776,6 +809,30 @@ public class PeopleDirectoryService {
     } catch (IllegalArgumentException e) {
       return EMPTY_HEADER_TRANSLATIONS;
     }
+  }
+
+  /**
+   * Restricts the filter to the users a guest viewer can see under the
+   * {@link UserAclPlugin} {@code VIEW} rule: themself, their confirmed
+   * connections and the members of their spaces. The viewer is a guest when
+   * their {@link UserACL} identity holds a membership of
+   * {@code /platform/externals}; any other viewer is left unrestricted.
+   *
+   * @return false when the viewer is a guest whose social identity cannot be
+   *         resolved, who then sees nobody
+   */
+  private boolean restrictGuest(ProfileFilter filter, String username) {
+    Identity aclIdentity = userAcl.getUserIdentity(username);
+    if (!UserAclPlugin.isGuest(aclIdentity)) {
+      return true;
+    }
+    org.exoplatform.social.core.identity.model.Identity guest = identityManager.getOrCreateUserIdentity(username);
+    if (guest == null || StringUtils.isBlank(guest.getId())) {
+      return false;
+    }
+    filter.setViewerSpaceGroupIds(UserAclPlugin.getGuestVisibleGroupIds(aclIdentity));
+    filter.setGuestIdentityId(Long.parseLong(guest.getId()));
+    return true;
   }
 
   private boolean isAdministrator(String username) {
