@@ -19,14 +19,19 @@
 package io.meeds.social.core.identity.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -303,6 +308,54 @@ public class UserImportServiceTest {
                         URL);
 
     verify(identityManager, atLeastOnce()).updateProfile(any(Profile.class), eq(TEST_USER_2), eq(true));
+  }
+
+  /**
+   * An existing account's stored name that the personal-name rule refuses
+   * passes while the file holds it unchanged; a changed name meets the rule,
+   * and a new account's name is always checked
+   */
+  @Test
+  public void testImportUsersChecksOnlyAChangedNameOfAnExistingUser() throws Exception {
+    File f = csv("storedNames.csv",
+                 HEADER_LINE_1,
+                 "john,Secret123,true,john@ex.com,J0hn,D0e",
+                 "mary,Secret123,true,mary@ex.com,M4ry,Sm1th",
+                 "paul,Secret123,true,paul@ex.com,P5ul,J0nes",
+                 "neo,Secret123,true,neo@ex.com,N3o,Anderson");
+    User john = storedUser("J0hn", "D0e");
+    User mary = storedUser("M4ry", "Sm2th");
+    User paul = storedUser("P4ul", "J0nes");
+    when(userHandler.findUserByName("john", UserStatus.ANY)).thenReturn(john);
+    when(userHandler.findUserByName("mary", UserStatus.ANY)).thenReturn(mary);
+    when(userHandler.findUserByName("paul", UserStatus.ANY)).thenReturn(paul);
+    when(userHandler.findUserByName("neo", UserStatus.ANY)).thenReturn(null);
+    when(profilePropertyService.getProfileSettingByName(anyString())).thenReturn(null);
+    ListAccess<User> none = mock(ListAccess.class);
+    when(none.getSize()).thenReturn(0);
+    when(userHandler.findUsersByQuery(any(Query.class), eq(UserStatus.ANY))).thenReturn(none);
+
+    UserImportResult r = new UserImportResult();
+    service.importUsers(f.getAbsolutePath(), r, TEST_USER_2, Locale.ENGLISH, URL);
+
+    assertEquals(4, r.getProcessedCount());
+    assertFalse(r.getErrorMessages().containsKey("john"));
+    assertTrue(r.getErrorMessages().containsKey("mary"));
+    assertTrue(r.getErrorMessages().containsKey("paul"));
+    assertTrue(r.getErrorMessages().containsKey("neo"));
+    verify(userHandler).saveUser(argThat(u -> "john".equals(u.getUserName())), eq(true));
+    verify(userHandler, never()).saveUser(argThat(u -> !"john".equals(u.getUserName())), anyBoolean());
+  }
+
+  private User storedUser(String firstName, String lastName) {
+    User stored = mock(User.class);
+    Date now = Calendar.getInstance().getTime();
+    when(stored.getFirstName()).thenReturn(firstName);
+    when(stored.getLastName()).thenReturn(lastName);
+    when(stored.isEnabled()).thenReturn(true);
+    when(stored.getCreatedDate()).thenReturn(now);
+    when(stored.getLastLoginTime()).thenReturn(now);
+    return stored;
   }
 
   @Test
