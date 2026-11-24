@@ -115,7 +115,7 @@
         fa-info-circle
       </v-icon>
       <span class="caption text-sub-title">
-        {{ $t('peopleList.settings.group.otherGroupsApplied') }}
+        {{ $t('peopleList.settings.group.unmanagedGroupsApplied') }}
       </span>
     </div>
   </div>
