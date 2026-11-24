@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -470,6 +471,8 @@ public class ProfileSearchConnectorDirectoryFilterTest {
     assertFalse(groupClause, groupClause.contains("/spaces/paris"));
     assertTrue(guestClause, guestClause.contains("member:/spaces/paris"));
     assertFalse(guestClause, guestClause.contains("/organization/hr"));
+    // both clauses share one read of the membership types, which is not cached
+    verify(userPermissionService, times(1)).getMembershipTypes();
   }
 
   @Test

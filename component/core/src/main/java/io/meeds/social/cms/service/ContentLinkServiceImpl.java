@@ -86,8 +86,8 @@ public class ContentLinkServiceImpl implements ContentLinkService {
                                                      contentObject.getObjectId()));
     }
     return getLinkIdentifiers(contentObject).stream()
-                                            .filter(linkIdentifier -> canView(linkIdentifier, username))
                                             .filter(this::hasLinkPlugin)
+                                            .filter(linkIdentifier -> canView(linkIdentifier, username))
                                             .map(this::getLink)
                                             .filter(Objects::nonNull)
                                             .toList();
@@ -196,8 +196,12 @@ public class ContentLinkServiceImpl implements ContentLinkService {
 
   /**
    * A stored link whose object type has no {@link ContentLinkPlugin}, such as a
-   * link to a user, which any tag can store, cannot be rendered: it is left out
-   * of the host's links instead of failing the whole read.
+   * link to a user, which any tag can store, or a link left by an uninstalled
+   * add-on, cannot be rendered: it is left out of the host's links instead of
+   * failing the whole read. It is checked before the viewer's access, so that a
+   * type with no {@link io.meeds.portal.plugin.AclPlugin} either, whose access
+   * check throws, is left out too, and no access is checked for a link that is
+   * dropped anyway.
    */
   private boolean hasLinkPlugin(ContentLinkIdentifier linkIdentifier) {
     if (!contentLinkPluginService.hasPlugin(linkIdentifier.getObjectType())) {

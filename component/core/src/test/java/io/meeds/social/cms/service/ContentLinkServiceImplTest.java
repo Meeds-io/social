@@ -21,6 +21,9 @@ package io.meeds.social.cms.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -90,8 +93,8 @@ public class ContentLinkServiceImplTest {
 
   /**
    * A host holding a link to a user, a type that has no content link plugin,
-   * reads without error for a viewer who may see that user, and that link is
-   * left out.
+   * reads without error, and that link is left out before the viewer's access
+   * to it is checked.
    */
   @Test
   public void getLinksLeavesOutALinkWhoseTypeHasNoPlugin() throws Exception {
@@ -99,7 +102,6 @@ public class ContentLinkServiceImplTest {
     ContentLinkIdentifier userLink = new ContentLinkIdentifier("user", "mary", Locale.ENGLISH);
     ContentLinkIdentifier taskLink = new ContentLinkIdentifier("task", "5", Locale.ENGLISH);
     when(userAcl.hasAccessPermission(HOST_TYPE, HOST_ID, USERNAME)).thenReturn(true);
-    when(userAcl.hasAccessPermission("user", "mary", USERNAME)).thenReturn(true);
     when(userAcl.hasAccessPermission("task", "5", USERNAME)).thenReturn(true);
     when(contentLinkStorage.getLinkIdentifiers(host)).thenReturn(List.of(userLink, taskLink));
     when(taskPlugin.getContentTitle("5", Locale.ENGLISH)).thenReturn("Task 5");
@@ -111,6 +113,31 @@ public class ContentLinkServiceImplTest {
     assertEquals("task", links.get(0).getObjectType());
     assertEquals("5", links.get(0).getObjectId());
     assertEquals("Task 5", links.get(0).getTitle());
+    verify(userAcl, never()).hasAccessPermission(eq("user"), nullable(String.class), nullable(String.class));
+  }
+
+  /**
+   * A link left by an uninstalled add-on has neither a content link plugin nor
+   * an ACL plugin, whose access check throws: the host's other links still
+   * read.
+   */
+  @Test
+  public void getLinksLeavesOutALinkWhoseTypeHasNoAclPluginEither() throws Exception {
+    ContentObject host = new ContentObject(HOST_TYPE, HOST_ID);
+    ContentLinkIdentifier orphanLink = new ContentLinkIdentifier("uninstalled", "7", Locale.ENGLISH);
+    ContentLinkIdentifier taskLink = new ContentLinkIdentifier("task", "5", Locale.ENGLISH);
+    when(userAcl.hasAccessPermission(HOST_TYPE, HOST_ID, USERNAME)).thenReturn(true);
+    lenient().when(userAcl.hasAccessPermission("uninstalled", "7", USERNAME))
+             .thenThrow(new IllegalArgumentException("ACL Plugin of type 'uninstalled' doesn't exist"));
+    when(userAcl.hasAccessPermission("task", "5", USERNAME)).thenReturn(true);
+    when(contentLinkStorage.getLinkIdentifiers(host)).thenReturn(List.of(orphanLink, taskLink));
+    when(taskPlugin.getContentTitle("5", Locale.ENGLISH)).thenReturn("Task 5");
+    when(taskPlugin.getExtension()).thenReturn(new ContentLinkExtension());
+
+    List<ContentLink> links = contentLinkService.getLinks(host, Locale.ENGLISH, USERNAME);
+
+    assertEquals(1, links.size());
+    assertEquals("task", links.get(0).getObjectType());
   }
 
   @Test
