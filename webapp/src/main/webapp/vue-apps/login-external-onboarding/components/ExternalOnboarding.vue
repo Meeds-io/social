@@ -30,8 +30,8 @@
       <portal-external-onboarding-expired
         v-else-if="action === 'refused'"
         :message="refusalMessage"
-        :back-label="$t('onboarding.backToRegistration')"
-        :back-href="registerLink" />
+        :back-label="registerEnabled ? $t('onboarding.backToRegistration') : null"
+        :back-href="registerEnabled ? registerLink : undefined" />
       <portal-external-onboarding-expired
         v-else-if="action === 'expired'" />
       <portal-external-onboarding-create-user-form
@@ -44,6 +44,12 @@
 </template>
 <script>
 export default {
+  props: {
+    registerEnabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
     email: '',
     action: '',
@@ -96,7 +102,8 @@ export default {
   },
   computed: {
     refusalMessage() {
-      return this.$te(this.error) ? this.$t(this.error) : this.error;
+      const message = this.$te(this.error) ? this.$t(this.error) : this.error;
+      return this.registerEnabled ? message : `${message} ${this.$t('onboarding.requestNewInvitation')}`;
     },
     registerLink() {
       return this.initialUri ? `/portal/register?initialURI=${this.initialUri}` : '/portal/register';

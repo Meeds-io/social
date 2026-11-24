@@ -37,11 +37,14 @@ const urls = [
   `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
 ];
 
-export function init(id) {
+export function init(id, params) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
-      template: `<portal-external-onboarding id="${id}" />`,
+      data: {
+        registerEnabled: !!params?.registerEnabled,
+      },
+      template: `<portal-external-onboarding id="${id}" :register-enabled="registerEnabled" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n
     }, `#${id}`, 'External Onboarding');
