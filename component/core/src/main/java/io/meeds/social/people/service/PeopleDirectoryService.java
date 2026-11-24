@@ -352,6 +352,9 @@ public class PeopleDirectoryService {
    * @param windowId the storage id of the window
    * @param storedAttributeFilter the window's stored attribute filter
    * @param storedGroupFilter the window's stored group filter
+   * @param storedGroupsToSet the window's stored marker of a directory whose
+   *          groups must be set again ({@link #isGroupsToSet}): it then lists
+   *          nobody
    * @param storedGuestRestriction the window's stored "Guests see only
    *          connections and space members" setting: any value but
    *          {@code false}, a missing one included, restricts a guest viewer
@@ -377,6 +380,7 @@ public class PeopleDirectoryService {
                                     String windowId,
                                     String storedAttributeFilter,
                                     String storedGroupFilter,
+                                    String storedGroupsToSet,
                                     String storedGuestRestriction,
                                     String query,
                                     Map<String, String> viewerAttributes,
@@ -404,7 +408,7 @@ public class PeopleDirectoryService {
     if (!viewerSettings.isEmpty()) {
       filter.setProfileSettings(viewerSettings);
     }
-    List<String> groupFilter = getGroupFilter(storedGroupFilter);
+    List<String> groupFilter = getGroupFilter(storedGroupFilter, storedGroupsToSet);
     if (!attributeFilter.isEmpty() || groupFilter != null) {
       PeopleDirectoryFilter directoryFilter = new PeopleDirectoryFilter(toIndexedValues(settings, attributeFilter));
       directoryFilter.setGroups(groupFilter);
@@ -550,14 +554,22 @@ public class PeopleDirectoryService {
    * The stored group filter as the directory applies it: the ids of the
    * stored groups that still exist. A stored group that no longer exists, or
    * a space's group whose space was deleted, matches nobody, and a value that
-   * is not a stored group filter lists nobody.
+   * is not a stored group filter lists nobody. A window carrying the marker
+   * of a directory whose groups must be set again ({@link #isGroupsToSet}), a
+   * directory made from a template, lists nobody until a user who may set
+   * groups saves its group filter.
    *
-   * @param storedValue the stored preference value, may be null
+   * @param storedValue the stored group filter, may be null
+   * @param storedGroupsToSet the stored marker, may be null
    * @return null when the directory is not filtered by group, the ids of the
    *         groups a listed user must belong to one of otherwise, empty when
    *         it lists nobody
    */
-  public List<String> getGroupFilter(String storedValue) {
+  public List<String> getGroupFilter(String storedValue, String storedGroupsToSet) {
+    if (isGroupsToSet(storedGroupsToSet)) {
+      LOG.debug("The directory's groups must be set again, it lists nobody");
+      return Collections.emptyList();
+    }
     List<DirectoryGroup> groups = readStoredGroups(storedValue, true);
     if (groups == null) {
       LOG.debug("The stored group filter '{}' is not valid, the directory lists nobody", storedValue);
@@ -583,13 +595,16 @@ public class PeopleDirectoryService {
    * which count against {@link #MAX_GROUPS}, and whether
    * stored groups no longer exist or the stored value cannot be read, so that
    * the filter shows as set although no chip remains, and turning it OFF
-   * clears it.
+   * clears it. The marker of a directory whose groups must be set again
+   * ({@link #isGroupsToSet}) shows to an editor who may set groups as stored
+   * groups that no longer exist.
    *
-   * @param storedValue the stored preference value, may be null
+   * @param storedValue the stored group filter, may be null
+   * @param storedGroupsToSet the stored marker, may be null
    * @param username the editor
    * @return the editor's groups
    */
-  public PeopleDirectoryEditorGroups getEditorGroups(String storedValue, String username) {
+  public PeopleDirectoryEditorGroups getEditorGroups(String storedValue, String storedGroupsToSet, String username) {
     List<DirectoryGroup> stored = readStoredGroups(storedValue, false);
     boolean canSetGroupFilter = canSetGroupFilter(username);
     boolean administrator = canSetGroupFilter && isAdministrator(username);
@@ -599,7 +614,7 @@ public class PeopleDirectoryService {
     int otherGroupsCount = 0;
     // a value the directory cannot read lists nobody (getGroupFilter)
     boolean groupFilterInvalid = canSetGroupFilter && readStoredGroups(storedValue, true) == null;
-    boolean unresolvableGroups = groupFilterInvalid;
+    boolean unresolvableGroups = groupFilterInvalid || (canSetGroupFilter && isGroupsToSet(storedGroupsToSet));
     for (DirectoryGroup group : stored) {
       if (!isResolvable(group)) {
         unresolvableGroups = canSetGroupFilter;
@@ -619,6 +634,32 @@ public class PeopleDirectoryService {
                                            canSetGroupFilter ? otherGroupsCount : 0,
                                            unresolvableGroups,
                                            groupFilterInvalid);
+  }
+
+  /**
+   * @param storedValue the stored marker of a directory whose groups must be
+   *          set again, may be null
+   * @return whether the marker is set: a directory made from a template
+   *         carries it, since a template does not keep the groups of its
+   *         directories
+   */
+  public boolean isGroupsToSet(String storedValue) {
+    return Boolean.TRUE.toString().equals(StringUtils.trim(storedValue));
+  }
+
+  /**
+   * Whether a save clears the marker of a directory whose groups must be set
+   * again: only a save by an editor who may set groups that posts a group
+   * filter, groups or the filter OFF, clears it; any other save keeps it, so
+   * that the directory keeps listing nobody.
+   *
+   * @param postedGroupFilter the posted group filter, null when none is
+   *          posted
+   * @param username the editor saving
+   * @return true when the marker is to be removed
+   */
+  public boolean clearsGroupsToSet(String postedGroupFilter, String username) {
+    return postedGroupFilter != null && canSetGroupFilter(username);
   }
 
   /**

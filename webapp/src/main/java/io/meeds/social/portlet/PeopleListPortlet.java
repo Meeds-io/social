@@ -90,6 +90,16 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
 
   public static final String        GROUP_FILTER_PREFERENCE        = "groupIds";
 
+  /**
+   * The marker of a directory whose groups must be set again, which a
+   * directory made from a template carries instead of its source's groups. It
+   * is written by layout's preference plugin and never posted: among this
+   * portlet's writers, only {@link #processAction} removes it. A layout write
+   * of the window's preferences can drop it too, and the directory then lists
+   * what its attribute filter allows, no group being involved.
+   */
+  public static final String        GROUPS_TO_SET_PREFERENCE       = "groupsToSet";
+
   public static final String        SETTINGS_RESOURCE_ID           = "settings";
 
   public static final String        USERS_RESOURCE_ID              = "users";
@@ -172,7 +182,8 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
                                               peopleDirectoryService.getAttributeFilter(preferences.getValue(ATTRIBUTE_FILTER_PREFERENCE,
                                                                                                              null));
     return attributeFilter == null || !attributeFilter.isEmpty()
-        || peopleDirectoryService.getGroupFilter(preferences.getValue(GROUP_FILTER_PREFERENCE, null)) != null;
+        || peopleDirectoryService.getGroupFilter(preferences.getValue(GROUP_FILTER_PREFERENCE, null),
+                                                 preferences.getValue(GROUPS_TO_SET_PREFERENCE, null)) != null;
   }
 
   /**
@@ -209,6 +220,8 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
   public static String storedGroups(PortletPreferences preferences, String username) {
     PeopleDirectoryEditorGroups editorGroups =
                                              getPeopleDirectoryService().getEditorGroups(preferences.getValue(GROUP_FILTER_PREFERENCE,
+                                                                                                              null),
+                                                                                         preferences.getValue(GROUPS_TO_SET_PREFERENCE,
                                                                                                               null),
                                                                                          username);
     return new JSONObject().put(GROUPS_KEY, toGroupsJson(editorGroups.groups()))
@@ -285,6 +298,10 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
     PeopleDirectoryService peopleDirectoryService = getPeopleDirectoryService();
     PortletPreferences preferences = request.getPreferences();
     try {
+      if (preferences.getValue(GROUPS_TO_SET_PREFERENCE, null) != null
+          && peopleDirectoryService.clearsGroupsToSet(request.getParameter(GROUP_FILTER_PREFERENCE), request.getRemoteUser())) {
+        preferences.reset(GROUPS_TO_SET_PREFERENCE);
+      }
       for (String name : STORED_PREFERENCES) {
         String value = request.getParameter(name);
         if (value != null) {
@@ -391,6 +408,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
                                                                   request.getPreferences()
                                                                          .getValue(ATTRIBUTE_FILTER_PREFERENCE, null),
                                                                   request.getPreferences().getValue(GROUP_FILTER_PREFERENCE, null),
+                                                                  request.getPreferences().getValue(GROUPS_TO_SET_PREFERENCE, null),
                                                                   request.getPreferences().getValue(GUEST_RESTRICTION_PREFERENCE, null),
                                                                   request.getParameter("q"),
                                                                   viewerAttributes,
