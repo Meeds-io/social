@@ -43,6 +43,19 @@ public interface ContentLinkPluginService {
   ContentLinkPlugin getPlugin(String objectType);
 
   /**
+   * @param objectType object type (notes, activity, space ...)
+   * @return true when a {@link ContentLinkPlugin} handles the type; unlike
+   *         {@link #getPlugin(String)}, never throws for an unknown type
+   */
+  default boolean hasPlugin(String objectType) {
+    try {
+      return getPlugin(objectType) != null;
+    } catch (IllegalStateException e) {
+      return false;
+    }
+  }
+
+  /**
    * @param link {@link ContentLinkIdentifier}
    * @return Computed {@link ContentLink} with title and uri if found, else,
    *         null
