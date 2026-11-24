@@ -31,6 +31,7 @@ import nl.captcha.text.producer.DefaultTextProducer;
 import nl.captcha.text.renderer.DefaultWordRenderer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -42,12 +43,20 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.profilelabel.ProfileLabelService;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.register.RegisterUIParamsExtension;
 import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,11 +71,21 @@ import javax.ws.rs.core.MediaType;
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
+
+import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
+import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
+import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
+import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
+import io.meeds.social.security.rest.model.OnboardingFieldsEntity;
+import io.meeds.social.security.rest.model.RegistrationFieldEntity;
 
 @RestController
 @RequestMapping("/login")
@@ -97,6 +116,24 @@ public class LoginRest {
 
   public static final String             LOCATION_HEADER            = "Location";
 
+  /** The registration's parameter carrying the additional profile fields */
+  public static final String             PROFILE_PROPERTIES_PARAM   = "profileProperties";
+
+  /** The attribute a refused additional field names, beside the error code */
+  public static final String             PROPERTY_NAME_PARAM        = "propertyName";
+
+  /**
+   * The login page's error code telling a registrant whose account was
+   * created that its additional fields were not saved
+   */
+  public static final String             ADDITIONAL_FIELDS_NOT_SAVED = "additionalFieldsNotSaved";
+
+  /**
+   * The login page's error code telling an invited user whose password was set
+   * that the additional fields were not saved
+   */
+  public static final String             ONBOARDING_FIELDS_NOT_SAVED = "onboardingFieldsNotSaved";
+
   public static final UserFieldValidator PASSWORD_VALIDATOR =
       new UserFieldValidator("password", false, false, 8, 255);
 
@@ -125,6 +162,12 @@ public class LoginRest {
   @Autowired
   private RemindPasswordTokenService remindPasswordTokenService;
 
+  @Autowired
+  private ProfileFormFieldService profileFormFieldService;
+
+  @Autowired
+  private ProfileLabelService profileLabelService;
+
   @GetMapping(path = "/verify")
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(summary = "Verify user token", method = "GET")
@@ -150,6 +193,59 @@ public class LoginRest {
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+
+  @GetMapping(path = "/registrationFields", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "The additional fields of the registration form",
+             description = "The profile attributes listed for registration, read from the store, for the holder of a registration token: each attribute's definition only, never a value",
+             method = "GET")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "404", description = "The registration token is unknown or expired"),
+  })
+  public ResponseEntity<List<RegistrationFieldEntity>> getRegistrationFields(HttpServletRequest request,
+                                                                             @Parameter(description = "Registration token")
+                                                                             @RequestParam("token")
+                                                                             String token) {
+    if (passwordRecoveryService.verifyToken(token, CookieTokenService.EXTERNAL_REGISTRATION_TOKEN) == null) {
+      return ResponseEntity.notFound().cacheControl(CacheControl.noStore()).build();
+    }
+    Locale locale = request.getLocale();
+    List<RegistrationFieldEntity> fields = profileFormFieldService.getSettings(ProfileFormKind.REGISTRATION)
+                                                                  .stream()
+                                                                  .map(setting -> toRegistrationField(setting, locale))
+                                                                  .toList();
+    return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(fields);
+  }
+
+  @GetMapping(path = "/onboardingFields", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "The additional fields of the onboarding page",
+             description = "For the holder of an onboarding token: the profile attributes listed for registration, read from the store, and the values the token's account holds for them. Served only while the token sets a password its holder can sign in with and the account has never signed in; otherwise no field and no value",
+             method = "GET")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "404", description = "The onboarding token is unknown or expired; no body"),
+  })
+  public ResponseEntity<OnboardingFieldsEntity> getOnboardingFields(HttpServletRequest request,
+                                                                    @Parameter(description = "Onboarding token")
+                                                                    @RequestParam("token")
+                                                                    String token) {
+    String username = passwordRecoveryService.verifyToken(token, CookieTokenService.ONBOARD_TOKEN);
+    if (username == null) {
+      return ResponseEntity.notFound().cacheControl(CacheControl.noStore()).build();
+    }
+    Profile profile = findProfile(username);
+    if (!isOnboardingServed(username, profile)) {
+      return ResponseEntity.ok()
+                           .cacheControl(CacheControl.noStore())
+                           .body(new OnboardingFieldsEntity(Collections.emptyList(), Collections.emptyMap()));
+    }
+    Locale locale = request.getLocale();
+    List<ProfilePropertySetting> settings = profileFormFieldService.getSettings(ProfileFormKind.REGISTRATION);
+    List<RegistrationFieldEntity> fields = settings.stream().map(setting -> toRegistrationField(setting, locale)).toList();
+    return ResponseEntity.ok()
+                         .cacheControl(CacheControl.noStore())
+                         .body(new OnboardingFieldsEntity(fields, profileFormFieldService.getStoredValues(settings, profile)));
   }
 
   @PostMapping(path = "/finishRegistration")
@@ -314,7 +410,10 @@ public class LoginRest {
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(summary = "Register a new account", method = "POST")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "302", description = "Registered, or the token's account already exists: redirect to the login page, with error=additionalFieldsNotSaved when the account was created but its additional fields were not saved; a signed-in caller is redirected to /portal"),
+      @ApiResponse(responseCode = "400", description = "A refused field: {error} with its code; for a refused additional field, {error, propertyName}; additional fields that are not a JSON array of {propertyName, value} or {propertyName, values} answer profile.formField.invalidValue with no propertyName"),
+      @ApiResponse(responseCode = "404", description = "The registration token is unknown, expired, or already used"),
+      @ApiResponse(responseCode = "500", description = "The registration failed: {error: external.registration.fail.create.user}; the account may exist when the failure followed its creation"),
   })
   public ResponseEntity<String> register(HttpServletRequest request,
                                          @Parameter(description = "Email")
@@ -337,7 +436,10 @@ public class LoginRest {
                                          String captcha,
                                          @Parameter(description = "token")
                                          @RequestParam("token")
-                                         String token) {
+                                         String token,
+                                         @Parameter(description = "The additional profile fields: a JSON array of {propertyName, value} or {propertyName, values}")
+                                         @RequestParam(name = PROFILE_PROPERTIES_PARAM, required = false)
+                                         String profileProperties) {
 
     if (request.getRemoteUser() != null) {
       return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, "/portal").build();
@@ -375,18 +477,51 @@ public class LoginRest {
                                                   .put(ERROR_MESSAGE_PARAM, errorMessageName).toString());
     }
 
+    // The additional fields are checked, Required ones included, before the
+    // account exists: a refused value creates nothing
+    Map<String, Object> profileValues;
+    try {
+      profileValues = profileFormFieldService.validate(parseProfileProperties(profileProperties),
+                                                       ProfileFormKind.REGISTRATION,
+                                                       true,
+                                                       null);
+    } catch (ProfileFormFieldException e) {
+      return ResponseEntity.badRequest().body(new JSONObject()
+                                                  .put(ERROR_MESSAGE_PARAM, e.getMessage())
+                                                  .put(PROPERTY_NAME_PARAM, e.getPropertyName())
+                                                  .toString());
+    } catch (JSONException _) {
+      return ResponseEntity.badRequest().body(new JSONObject()
+                                                  .put(ERROR_MESSAGE_PARAM, ProfileFormFieldException.INVALID_VALUE)
+                                                  .toString());
+    }
 
+    String username;
     try {
       HttpSession session = request.getSession();
-      String username = createUser(email, firsname, lastname, password);
+      username = createUser(email, firsname, lastname, password);
       passwordRecoveryService.sendAccountCreatedConfirmationEmail(username, locale, getUrl(request));
-      remindPasswordTokenService.deleteToken(token);      cleanCapcha(session, "external-registration");
-      return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH).build();
+      // The token was created with its type, which its deletion names
+      remindPasswordTokenService.deleteToken(token, CookieTokenService.EXTERNAL_REGISTRATION_TOKEN);
+      cleanCapcha(session, "external-registration");
     } catch (Exception e) {
       LOG.warn("Error while registering external user", e);
       return ResponseEntity.internalServerError().body(new JSONObject()
                                                   .put(ERROR_MESSAGE_PARAM, "external.registration.fail.create.user").toString());
     }
+    if (!profileValues.isEmpty()) {
+      // The account exists: a failed write of its additional fields leaves it
+      // as it is, and the registrant is told to fill them from the profile
+      try {
+        profileFormFieldService.save(username, profileValues, username);
+      } catch (Exception e) {
+        LOG.warn("Additional profile fields of registered user {} not saved", username, e);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                             .header(LOCATION_HEADER, LOGIN_PATH + "?" + ERROR_MESSAGE_PARAM + "=" + ADDITIONAL_FIELDS_NOT_SAVED)
+                             .build();
+      }
+    }
+    return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH).build();
   }
 
   @PostMapping(path = "/verifyEmail")
@@ -521,7 +656,9 @@ public class LoginRest {
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(summary = "Set password", method = "POST")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "302", description = "The password is set: redirect to the login page, with error=onboardingFieldsNotSaved when the additional fields were not saved"),
+      @ApiResponse(responseCode = "400", description = "A refused field, or the password not set: {error} with its code; for a refused additional field, {error, propertyName}, and the password is not set; additional fields that are not a JSON array of {propertyName, value} or {propertyName, values} answer profile.formField.invalidValue with no propertyName"),
+      @ApiResponse(responseCode = "404", description = "The onboarding token is unknown or expired; no body"),
   })
   public ResponseEntity<String> setPassword(HttpServletRequest request,
                                             @Parameter(description = "Username")
@@ -538,9 +675,12 @@ public class LoginRest {
                                             String token,
                                             @Parameter(description = "captcha")
                                             @RequestParam("captcha")
-                                            String captcha) {
+                                            String captcha,
+                                            @Parameter(description = "The additional profile fields the user changed: a JSON array of {propertyName, value} or {propertyName, values}")
+                                            @RequestParam(name = PROFILE_PROPERTIES_PARAM, required = false)
+                                            String profileProperties) {
 
-    String usernameToken = passwordRecoveryService.verifyToken(token, "onboard");
+    String usernameToken = passwordRecoveryService.verifyToken(token, CookieTokenService.ONBOARD_TOKEN);
 
     if (usernameToken == null) {
       return ResponseEntity.notFound().build();
@@ -553,18 +693,123 @@ public class LoginRest {
 
     Locale locale = request.getLocale();
     String errorMessage = validateUserAndPassword(usernameToken, username, password, password2, locale);
-    if (errorMessage == null) {
-      if (passwordRecoveryService.changePass(token, "onboard", username, password)) {
-        return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH).build();
-      } else {
-        return ResponseEntity.badRequest().body(new JSONObject()
-                                                    .put(ERROR_MESSAGE_PARAM, "gatein.forgotPassword.resetPasswordFailure").toString());
-      }
-    } else {
+    if (errorMessage != null) {
       return ResponseEntity.badRequest().body(new JSONObject()
                                                   .put(ERROR_MESSAGE_PARAM, errorMessage).toString());
     }
 
+    // The additional fields are checked, Required ones against the stored
+    // profile, before the password is set: a refused value sets nothing. An
+    // account the link does not serve them to is answered as without them
+    Map<String, Object> profileValues = Collections.emptyMap();
+    Profile profile = findProfile(usernameToken);
+    if (isOnboardingServed(usernameToken, profile)) {
+      try {
+        profileValues = profileFormFieldService.validate(parseProfileProperties(profileProperties),
+                                                         ProfileFormKind.REGISTRATION,
+                                                         true,
+                                                         profile);
+      } catch (ProfileFormFieldException e) {
+        return ResponseEntity.badRequest().body(new JSONObject()
+                                                    .put(ERROR_MESSAGE_PARAM, e.getMessage())
+                                                    .put(PROPERTY_NAME_PARAM, e.getPropertyName())
+                                                    .toString());
+      } catch (JSONException _) {
+        return ResponseEntity.badRequest().body(new JSONObject()
+                                                    .put(ERROR_MESSAGE_PARAM, ProfileFormFieldException.INVALID_VALUE)
+                                                    .toString());
+      }
+    }
+
+    if (!passwordRecoveryService.changePass(token, CookieTokenService.ONBOARD_TOKEN, usernameToken, password)) {
+      return ResponseEntity.badRequest().body(new JSONObject()
+                                                  .put(ERROR_MESSAGE_PARAM, "gatein.forgotPassword.resetPasswordFailure").toString());
+    }
+    if (!profileValues.isEmpty()) {
+      // The password is set: a failed write of the additional fields leaves it
+      // set, and the user is told to fill them from the profile
+      try {
+        profileFormFieldService.save(usernameToken, profileValues, usernameToken);
+      } catch (Exception e) {
+        LOG.warn("Additional profile fields of onboarded user {} not saved", usernameToken, e);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                             .header(LOCATION_HEADER, LOGIN_PATH + "?" + ERROR_MESSAGE_PARAM + "=" + ONBOARDING_FIELDS_NOT_SAVED)
+                             .build();
+      }
+    }
+    return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH).build();
+  }
+
+  /**
+   * The additional fields a registration sends: a JSON array of objects, each
+   * naming its attribute and carrying a text value or a list of text values
+   *
+   * @throws JSONException when the text is not such an array
+   */
+  private List<ProfilePropertyValue> parseProfileProperties(String profileProperties) {
+    if (StringUtils.isBlank(profileProperties)) {
+      return Collections.emptyList();
+    }
+    JSONArray items = new JSONArray(profileProperties);
+    List<ProfilePropertyValue> values = new ArrayList<>();
+    for (int i = 0; i < items.length(); i++) {
+      JSONObject item = items.getJSONObject(i);
+      List<String> entries = null;
+      if (!item.isNull("values")) {
+        JSONArray texts = item.getJSONArray("values");
+        entries = new ArrayList<>();
+        for (int j = 0; j < texts.length(); j++) {
+          // A null entry is kept for the validation, which drops it
+          entries.add(texts.isNull(j) ? null : texts.getString(j));
+        }
+      }
+      values.add(new ProfilePropertyValue(item.getString(PROPERTY_NAME_PARAM),
+                                          item.isNull("value") ? null : item.getString("value"),
+                                          entries));
+    }
+    return values;
+  }
+
+  private RegistrationFieldEntity toRegistrationField(ProfilePropertySetting setting, Locale locale) {
+    return new RegistrationFieldEntity(setting.getId(),
+                                       setting.getPropertyName(),
+                                       setting.getPropertyType(),
+                                       setting.isDropdownList(),
+                                       setting.isMultiValued(),
+                                       setting.isRequired(),
+                                       setting.getOrder(),
+                                       profileLabelService.findLabelByObjectTypeAndObjectId(ProfilePropertyService.LABELS_OBJECT_TYPE,
+                                                                                            String.valueOf(setting.getId())),
+                                       EntityBuilder.toProfilePropertyOptionEntities(setting.getPropertyOptions(), locale));
+  }
+
+  /**
+   * The stored profile of an account, read with no identity created; null when
+   * the account has no identity, and then holds no value
+   */
+  private Profile findProfile(String username) {
+    try {
+      return profileFormFieldService.getProfile(username);
+    } catch (ObjectNotFoundException _) {
+      return null;
+    }
+  }
+
+  /**
+   * Whether an onboarding link serves its account's additional fields, their
+   * values and their write: only while the link sets a password its holder
+   * can sign in with, and the account has never signed in
+   */
+  private boolean isOnboardingServed(String username, Profile profile) {
+    if (profile != null && profile.getProperty(Profile.LAST_LOGIN_TIME) != null) {
+      return false;
+    }
+    try {
+      return passwordRecoveryService.allowChangePassword(username);
+    } catch (Exception e) {
+      LOG.debug("Password change of user {} not checked", username, e);
+      return false;
+    }
   }
 
   /**

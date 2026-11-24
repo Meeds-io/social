@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.DynamicUpdate;
 
 import io.meeds.common.persistence.PortableSequence;
 
@@ -50,7 +51,15 @@ import lombok.ToString;
 @NamedQuery(name = "SocProfileSettingEntity.findSynchronizedSettings", query = "SELECT c FROM SocProfileSettingEntity c WHERE c.isGroupSynchronized = true")
 @NamedQuery(name = "SocProfileSettingEntity.findOrderedSettings", query = "SELECT c FROM SocProfileSettingEntity c order by c.order")
 @NamedQuery(name = "SocProfileSettingEntity.countChildProperties", query = "SELECT COUNT(c) FROM SocProfileSettingEntity c WHERE c.parentId = :id")
+@NamedQuery(name = "SocProfileSettingEntity.findListedOnAccountForm", query = "SELECT c FROM SocProfileSettingEntity c WHERE c.listedOnAccountForm = true ORDER BY c.order")
+@NamedQuery(name = "SocProfileSettingEntity.findListedOnRegistration", query = "SELECT c FROM SocProfileSettingEntity c WHERE c.listedOnRegistration = true ORDER BY c.order")
 
+/*
+ * A setting has two writers with no @Version: an administrator's save of the
+ * setting and the listing cascade switching off its parent's flags. The UPDATE
+ * names only the changed columns, so neither overwrites the other's columns.
+ */
+@DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -113,6 +122,12 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name = "UPDATED_DATE", nullable = false)
   private Date                              updatedDate = new Date();
 
+  @Column(name = "LISTED_ON_ACCOUNT_FORM", nullable = false)
+  private boolean                           listedOnAccountForm;
+
+  @Column(name = "LISTED_ON_REGISTRATION", nullable = false)
+  private boolean                           listedOnRegistration;
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder(getId().toString());
@@ -129,6 +144,8 @@ public class ProfilePropertySettingEntity implements Serializable {
     builder.append(":").append(isIndexInAnalytics());
     builder.append(":").append(getPropertyType());
     builder.append(":").append(getParentId());
+    builder.append(":").append(isListedOnAccountForm());
+    builder.append(":").append(isListedOnRegistration());
     return builder.toString();
   }
 

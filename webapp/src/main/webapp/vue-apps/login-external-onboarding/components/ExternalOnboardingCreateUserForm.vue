@@ -116,6 +116,14 @@
               outlined
               dense
               background-color="white" />
+            <div id="externalOnboardingAdditionalFields">
+              <component
+                :is="extension.vueComponent"
+                v-for="extension in extensions"
+                :key="extension.id"
+                :context="extensionContexts[extension.id]"
+                @update:data="setExtensionData(extension.id, $event)" />
+            </div>
           </v-card>
         </v-row>
         <v-card-title class="px-0 text-break text-header">
@@ -214,6 +222,9 @@
   </v-card>
 </template>
 <script>
+const EXTENSION_APP = 'ExternalOnboarding';
+const EXTENSION_TYPE = 'register-form';
+
 export default {
   props: {
     identifier: {
@@ -244,8 +255,16 @@ export default {
     error: null,
     errorField: null,
     success: false,
+    extensions: [],
+    // The context each extension's component receives, by extension id
+    extensionContexts: {},
   }),
   computed: {
+    // A token naming an e-mail registers the account; one naming a username
+    // goes through the e-mail verification, which sends no additional field
+    branch() {
+      return this.identifier && !this.identifier.includes('@') ? 'verifyEmail' : 'register';
+    },
     passwordType() {
       return this.showPassword ? 'text' :'password';
     },
@@ -277,7 +296,18 @@ export default {
           element.setCustomValidity('');
         };
       }
-    }
+    },
+    // The extensions' fields are disabled while the registration is sent
+    loading(loading) {
+      Object.values(this.extensionContexts).forEach(context => context.saving = loading);
+    },
+  },
+  created() {
+    this.refreshExtensions();
+    document.addEventListener(`extension-${EXTENSION_APP}-${EXTENSION_TYPE}-updated`, this.refreshExtensions);
+  },
+  beforeDestroy() {
+    document.removeEventListener(`extension-${EXTENSION_APP}-${EXTENSION_TYPE}-updated`, this.refreshExtensions);
   },
   mounted() {
     if (this.identifier && this.identifier.includes('@')) {
@@ -293,35 +323,106 @@ export default {
     toggleConfirmShow() {
       this.showConfirmPassword = !this.showConfirmPassword;
     },
+    refreshExtensions() {
+      this.extensions = (extensionRegistry.loadExtensions(EXTENSION_APP, EXTENSION_TYPE) || [])
+        .filter(extension => extension?.id && extension.vueComponent);
+      const contexts = {...this.extensionContexts};
+      this.extensions
+        .filter(extension => !contexts[extension.id])
+        .forEach(extension => contexts[extension.id] = {
+          mode: 'register',
+          token: this.tokenParam,
+          branch: this.branch,
+          data: null,
+          saving: this.loading,
+        });
+      this.extensionContexts = contexts;
+    },
+    setExtensionData(extensionId, data) {
+      const context = this.extensionContexts[extensionId];
+      if (context) {
+        context.data = data;
+      }
+    },
+    // Every extension's check; false when one refuses or fails
+    validateExtensions() {
+      return Promise.all(this.extensions.map(extension => {
+        if (!extension.validate) {
+          return Promise.resolve(true);
+        }
+        // Called inside the chain, so that a check throwing at once refuses
+        return Promise.resolve()
+          .then(() => extension.validate(this.extensionContexts[extension.id]))
+          .then(result => result !== false, () => false);
+      })).then(results => results.every(Boolean));
+    },
+    // The values each extension sends with the registration, under its own
+    // request parameter
+    getExtensionParameters() {
+      const parameters = {};
+      this.extensions
+        .filter(extension => extension.requestParameter)
+        .forEach(extension => parameters[extension.requestParameter] = JSON.stringify(this.extensionContexts[extension.id]?.data || []));
+      return parameters;
+    },
+    async register() {
+      try {
+        const resp = await this.$loginService.registerWithFields({
+          email: this.email,
+          firstName: this.firstName,
+          lastName: this.lastName,
+          password: this.password,
+          confirmPassword: this.confirmPassword,
+          token: this.tokenParam,
+          captcha: this.captcha,
+          additionalParameters: this.getExtensionParameters(),
+        });
+        if (resp?.ok) {
+          if (resp.redirected) {
+            sessionStorage.setItem('email',this.email);
+
+            const redirectUrl = new URL(resp.url, window.location.origin);
+            if (this.initialUri) {
+              redirectUrl.searchParams.set('initialURI', this.initialUri);
+            }
+            window.location.href = redirectUrl.toString();
+          } else {
+            this.success = true;
+          }
+          this.loading=false;
+          return;
+        }
+        // A used or expired token answers with no body
+        const data = await resp.json()
+          .catch(() => ({error: resp.status === 404 ? 'onboarding.linkExpired' : 'UILoginForm.label.unknownError'}));
+        this.error = data.error;
+        this.errorField = data.errorField;
+        if (!this.errorField) {
+          this.$root.$emit('alert-message', this.$t(this.error), 'error');
+        }
+        this.loading = false;
+      } catch {
+        // No answer at all: the registration may be sent again
+        this.$root.$emit('alert-message', this.$t('UILoginForm.label.unknownError'), 'error');
+        this.loading = false;
+      }
+    },
     validateForm() {
       this.loading = this.$refs.form.reportValidity();
       if (!this.disabled) {
         if (!this.username) {
-          this.$loginService.register(this.email, this.firstName, this.lastName, this.password, this.confirmPassword, this.tokenParam, this.captcha).then((resp) => {
-            if (!resp || !resp.ok) {
-              resp.json().then((data) => {
-                this.error = data.error;
-                this.errorField = data.errorField;
-                if (!this.errorField) {
-                  this.$root.$emit('alert-message', this.$t(this.error), 'error');
-                }
-                this.loading = false;
-              });
+          // The form's own constraints, then every extension's, before the
+          // one request that checks them all and creates the account
+          if (!this.loading) {
+            return false;
+          }
+          this.validateExtensions().then(async valid => {
+            if (valid) {
+              await this.register();
             } else {
-              if (resp.redirected) {
-                sessionStorage.setItem('email',this.email);
-
-                const redirectUrl = new URL(resp.url, window.location.origin);
-                if (this.initialUri) {
-                  redirectUrl.searchParams.set('initialURI', this.initialUri);
-                }
-                window.location.href = redirectUrl.toString();
-              } else {
-                this.success = true;
-              }
-              this.loading=false;
+              this.loading = false;
             }
-          });
+          }).catch(() => this.loading = false);
         } else {
           this.$loginService.sendEmailVerificationEmail(this.email, this.firstName, this.lastName, this.password, this.confirmPassword, this.tokenParam, this.captcha, this.username).then((resp) => {
             if (!resp || !resp.ok) {

@@ -509,6 +509,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>ProfileFormFields</module>
+      </depends>
     </module>
   </portlet>
 
@@ -541,6 +544,9 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>ProfileFormFields</module>
       </depends>
     </module>
   </portlet>
@@ -765,6 +771,9 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>ProfileFormFields</module>
       </depends>
     </module>
   </portlet>
@@ -3611,6 +3620,32 @@
     <depends>
       <module>applicationToolbarComponent</module>
     </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+  <!-- The additional fields of the account forms, of the registration form
+       and of the onboarding page, registered on their extension points
+       before the hosts' apps start -->
+  <module>
+    <name>ProfileFormFields</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/profileFormFields.bundle.js</path>
+    </script>
     <depends>
       <module>commonVueComponents</module>
     </depends>

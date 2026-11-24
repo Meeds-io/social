@@ -26,12 +26,13 @@
     :loading="loading"
     :locale="lang"
     :sort-by.sync="sortBy"
+    :item-class="rowClass"
     hide-default-footer
     disable-pagination
     disable-filtering
     class="settings-table data-table-light-border py-6 transparent">
     <template slot="item.propertyName" slot-scope="{ item }">
-      {{ getResolvedName(item) }}
+      <span class="profileSettingName">{{ getResolvedName(item) }}</span>
     </template>
     <template slot="item.actions" slot-scope="{ item }">
       <profile-settings-actions-cell :setting="item" :settings="settings" />
@@ -104,6 +105,10 @@ export default {
     },
   },
   methods: {
+    // Each row is an attribute of the list, whatever its values
+    rowClass() {
+      return 'profileSettingRow';
+    },
     getResolvedName(item){
       const lang = eXo && eXo.env.portal.language || 'en';
       const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);

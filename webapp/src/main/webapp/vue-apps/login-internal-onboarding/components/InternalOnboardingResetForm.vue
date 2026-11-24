@@ -34,14 +34,11 @@
       class="d-flex ma-0 flex-column"
       @submit.prevent="submitForm()">
       <div>
-        <v-card-title class="px-0 mt-4 text-break text-header">
-          {{ $t('onboarding.yourPasswordTitle') }}
-        </v-card-title>
         <v-row class="ma-0 pa-0">
           <v-card
             width="350"
             flat
-            class="transparent">
+            class="transparent mt-4">
             <v-text-field
               id="username"
               :value="accountIdentifier"
@@ -62,6 +59,19 @@
             width="350"
             flat
             class="transparent">
+            <div id="internalOnboardingAdditionalFields">
+              <component
+                :is="extension.vueComponent"
+                v-for="extension in extensions"
+                :key="extension.id"
+                :context="extensionContexts[extension.id]"
+                @update:data="setExtensionData(extension.id, $event)" />
+            </div>
+          </v-card>
+          <v-card
+            width="350"
+            flat
+            class="transparent">
             <v-text-field
               id="password"
               v-model="password"
@@ -73,7 +83,6 @@
               class="login-password border-box-sizing"
               name="password"
               autocomplete="new-password"
-              autofocus="autofocus"
               tabindex="0"
               required="required"
               outlined
@@ -133,7 +142,8 @@
         <v-row class="mx-0 my-8 pa-0">
           <v-btn
             :aria-label="$t('onboarding.save')"
-            :disabled="!usernameParam || !password || !confirmPassword"
+            :disabled="!usernameParam || !password || !confirmPassword || loading"
+            :loading="loading"
             width="222"
             max-width="100%"
             color="primary"
@@ -148,6 +158,9 @@
   </v-card>
 </template>
 <script>
+const EXTENSION_APP = 'InternalOnboarding';
+const EXTENSION_TYPE = 'onboarding-form';
+
 export default {
   props: {
     usernameParam: {
@@ -169,6 +182,10 @@ export default {
     captcha: '',
     showPassword: false,
     showConfirmPassword: false,
+    loading: false,
+    extensions: [],
+    // The context each extension's component receives, by extension id
+    extensionContexts: {},
   }),
   computed: {
     // The account is shown by its email, which signs in as well
@@ -188,6 +205,19 @@ export default {
       return this.showConfirmPassword ? 'text' :'password';
     },
   },
+  watch: {
+    // The extensions' fields are disabled while the password is sent
+    loading(loading) {
+      Object.values(this.extensionContexts).forEach(context => context.saving = loading);
+    },
+  },
+  created() {
+    this.refreshExtensions();
+    document.addEventListener(`extension-${EXTENSION_APP}-${EXTENSION_TYPE}-updated`, this.refreshExtensions);
+  },
+  beforeDestroy() {
+    document.removeEventListener(`extension-${EXTENSION_APP}-${EXTENSION_TYPE}-updated`, this.refreshExtensions);
+  },
   methods: {
     toggleShow() {
       this.showPassword = !this.showPassword;
@@ -195,26 +225,86 @@ export default {
     toggleConfirmShow() {
       this.showConfirmPassword = !this.showConfirmPassword;
     },
+    refreshExtensions() {
+      this.extensions = (extensionRegistry.loadExtensions(EXTENSION_APP, EXTENSION_TYPE) || [])
+        .filter(extension => extension?.id && extension.vueComponent);
+      const contexts = {...this.extensionContexts};
+      this.extensions
+        .filter(extension => !contexts[extension.id])
+        .forEach(extension => contexts[extension.id] = {
+          mode: 'onboard',
+          token: this.tokenParam,
+          data: null,
+          saving: this.loading,
+        });
+      this.extensionContexts = contexts;
+    },
+    setExtensionData(extensionId, data) {
+      const context = this.extensionContexts[extensionId];
+      if (context) {
+        context.data = data;
+      }
+    },
+    // Every extension's check; false when one refuses or fails
+    validateExtensions() {
+      return Promise.all(this.extensions.map(extension => {
+        if (!extension.validate) {
+          return Promise.resolve(true);
+        }
+        // Called inside the chain, so that a check throwing at once refuses
+        return Promise.resolve()
+          .then(() => extension.validate(this.extensionContexts[extension.id]))
+          .then(result => result !== false, () => false);
+      })).then(results => results.every(Boolean));
+    },
+    // The values each extension sends with the password, under its own
+    // request parameter
+    getExtensionParameters() {
+      const parameters = {};
+      this.extensions
+        .filter(extension => extension.requestParameter)
+        .forEach(extension => parameters[extension.requestParameter] = JSON.stringify(this.extensionContexts[extension.id]?.data || []));
+      return parameters;
+    },
+    // The form's own constraints are the browser's, checked before submit;
+    // then every extension's, before the one request that checks them all and
+    // sets the password
     submitForm() {
-      this.$loginService.setPassword(this.usernameParam, this.password, this.confirmPassword, this.tokenParam, this.captcha).then((resp) => {
-        if (!resp || !resp.ok) {
-          if (resp.status === '404') {
-            //token expired
-            window.reload();
-          } else {
-            resp.json().then((data) => {
-              if (data.error) {
-                this.$root.$emit('alert-message', this.$t(data.error), 'error');
-              }
-            });
+      if (this.loading) {
+        return;
+      }
+      this.loading = true;
+      this.validateExtensions()
+        .then(valid => {
+          if (valid) {
+            return this.setPassword();
           }
-        } else {
+          this.loading = false;
+        })
+        .catch(() => this.loading = false);
+    },
+    async setPassword() {
+      try {
+        const resp = await this.$loginService.setPassword(this.usernameParam, this.password, this.confirmPassword, this.tokenParam, this.captcha, this.getExtensionParameters());
+        if (resp.ok) {
           if (resp.redirected) {
             sessionStorage.setItem('email', this.accountIdentifier);
             window.location.href = resp.url;
+          } else {
+            this.loading = false;
           }
+          return;
         }
-      });
+        // A used or expired link answers with no body
+        const data = await resp.json()
+          .catch(() => ({error: resp.status === 404 ? 'onboarding.linkExpired' : 'UILoginForm.label.unknownError'}));
+        this.$root.$emit('alert-message', this.$t(data?.error || 'UILoginForm.label.unknownError'), 'error');
+        this.loading = false;
+      } catch {
+        // No answer at all: the password may be sent again
+        this.$root.$emit('alert-message', this.$t('UILoginForm.label.unknownError'), 'error');
+        this.loading = false;
+      }
     },
   }
 };

@@ -41,7 +41,7 @@
           v-model="propertylabel.label"
           :placeholder="$t('profileSettings.placeholder.label')"
           type="text"
-          class="flex-grow-1 pa-3 ms-1"
+          class="profileSettingLabelInput flex-grow-1 pa-3 ms-1"
           maxlength="2000"
           outlined
           dense

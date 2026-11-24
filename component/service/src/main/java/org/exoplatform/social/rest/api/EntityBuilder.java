@@ -2203,14 +2203,34 @@ public class EntityBuilder {
                                                                                                 String.valueOf(profilePropertySetting.getId())));
     profilePropertySettingEntity.setPropertyOptions(toProfilePropertyOptionEntities(profilePropertySetting.getPropertyOptions()));
     profilePropertySettingEntity.setDefault(profilePropertyService.isDefaultProperties(profilePropertySetting));
+    profilePropertySettingEntity.setListedOnAccountForm(profilePropertySetting.isListedOnAccountForm());
+    profilePropertySettingEntity.setListedOnRegistration(profilePropertySetting.isListedOnRegistration());
     return profilePropertySettingEntity;
   }
 
   public static List<ProfilePropertyOptionEntity> toProfilePropertyOptionEntities(List<ProfilePropertyOption> profilePropertyOptions) {
+    if (profilePropertyOptions == null || profilePropertyOptions.isEmpty()) {
+      return new ArrayList<>();
+    }
+    return toProfilePropertyOptionEntities(profilePropertyOptions, LocaleContextInfoUtils.getUserLocale(getCurrentUserName()));
+  }
+
+  /**
+   * Builds the REST options of a profile attribute with their translated value
+   * resolved in the given locale, for a caller whose language is not the
+   * current user's, an anonymous one included
+   *
+   * @param  profilePropertyOptions the attribute's options
+   * @param  locale                 the locale the translated values are
+   *                                  resolved in
+   * @return                        the REST options, empty when there are none
+   */
+  public static List<ProfilePropertyOptionEntity> toProfilePropertyOptionEntities(List<ProfilePropertyOption> profilePropertyOptions,
+                                                                                  Locale locale) {
     if (profilePropertyOptions == null) {
       return new ArrayList<>();
     }
-    return profilePropertyOptions.stream().map(EntityBuilder::toProfilePropertyOptionEntity).toList();
+    return profilePropertyOptions.stream().map(option -> toProfilePropertyOptionEntity(option, locale)).toList();
   }
 
   /**
@@ -2283,6 +2303,21 @@ public class EntityBuilder {
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
     profilePropertySetting.setPropertyOptions(toProfilePropertyOptions(profilePropertySettingEntity.getPropertyOptions()));
     profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdated());
+    // A listing flag the client did not send keeps its stored value
+    ProfilePropertySetting storedSetting = null;
+    if (profilePropertySettingEntity.getId() != null
+        && (profilePropertySettingEntity.getListedOnAccountForm() == null
+            || profilePropertySettingEntity.getListedOnRegistration() == null)) {
+      storedSetting = profilePropertyService.getProfileSettingById(profilePropertySettingEntity.getId());
+    }
+    profilePropertySetting.setListedOnAccountForm(profilePropertySettingEntity.getListedOnAccountForm() != null ?
+                                                                                                             profilePropertySettingEntity.getListedOnAccountForm() :
+                                                                                                             storedSetting != null
+                                                                                                                 && storedSetting.isListedOnAccountForm());
+    profilePropertySetting.setListedOnRegistration(profilePropertySettingEntity.getListedOnRegistration() != null ?
+                                                                                                               profilePropertySettingEntity.getListedOnRegistration() :
+                                                                                                               storedSetting != null
+                                                                                                                   && storedSetting.isListedOnRegistration());
     return profilePropertySetting;
   }
 
@@ -2709,7 +2744,8 @@ public class EntityBuilder {
     return Arrays.stream(users).collect(Collectors.toSet()).size();
   }
 
-  private static ProfilePropertyOptionEntity toProfilePropertyOptionEntity(ProfilePropertyOption profilePropertyOption) {
+  private static ProfilePropertyOptionEntity toProfilePropertyOptionEntity(ProfilePropertyOption profilePropertyOption,
+                                                                           Locale locale) {
     if (profilePropertyOption == null) {
       return null;
     }
@@ -2717,7 +2753,7 @@ public class EntityBuilder {
                            getTranslationService().getTranslationLabelOrDefault(PROFILE_PROPERTY_OBJECT_TYPE,
                                                                                 profilePropertyOption.getId(),
                                                                                 PROFILE_PROPERTY_FIELD_NAME,
-                                                                                LocaleContextInfoUtils.getUserLocale(getCurrentUserName()));
+                                                                                locale);
     return new ProfilePropertyOptionEntity(profilePropertyOption.getId(),
                                            profilePropertyOption.getValue(),
                                            translatedValue,

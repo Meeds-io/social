@@ -25,8 +25,7 @@
     v-model="drawer"
     allow-expand
     right
-    @opened="reset"
-    @closed="stepper = 0">
+    @opened="reset">
     <template #title>{{ $t('UsersManagement.addUser') }}</template>
     <template #content>
       <v-stepper
@@ -52,6 +51,9 @@
             :field-errors="fieldErrors"
             :languages="languages"
             :saving="saving"
+            :extensions="extensions"
+            :extension-contexts="extensionContexts"
+            @update-extension-data="setExtensionData"
             @update-field="setField"
             @check-field="checkField"
             @next="next" />
@@ -125,6 +127,11 @@
 </template>
 
 <script>
+// The extension point where other applications add fields to the account
+const EXTENSION_APP = 'UsersManagement';
+const EXTENSION_TYPE = 'account-form';
+const EXTENSIONS_UPDATED_EVENT = `extension-${EXTENSION_APP}-${EXTENSION_TYPE}-updated`;
+
 export default {
   data: () => ({
     drawer: false,
@@ -143,6 +150,10 @@ export default {
     fieldErrors: {},
     languages: [],
     defaultLanguage: null,
+    extensions: [],
+    // The context each extension's component receives, by extension id, new
+    // at each open
+    extensionContexts: {},
   }),
   computed: {
     fullName() {
@@ -192,21 +203,35 @@ export default {
     confirmPassword() {
       this.clearError('confirmPassword');
     },
+    // The extensions' fields are disabled while the account is saved, like
+    // the drawer's own: what is written is what they held at the submit
+    saving(saving) {
+      Object.values(this.extensionContexts).forEach(context => context.saving = saving);
+    },
   },
   created() {
     this.$root.$on('addNewUser', this.open);
+    this.refreshExtensions();
+    document.addEventListener(EXTENSIONS_UPDATED_EVENT, this.refreshExtensions);
   },
   beforeDestroy() {
     this.$root.$off('addNewUser', this.open);
+    document.removeEventListener(EXTENSIONS_UPDATED_EVENT, this.refreshExtensions);
   },
   methods: {
     // The onboarding email goes back to blank before the content is rendered,
     // so the stepper never shows the previous session's message; the rest of
-    // the state is reset once the drawer has opened
+    // the state is reset once the drawer has opened.
+    // The stepper is created when the drawer opens, on step 1: a step active
+    // at its creation takes its content's natural height, where one activated
+    // afterwards can keep the pixel height of its opening, which clips the
+    // first step's fields that appear later (a customized username, the
+    // fields an extension loads)
     open() {
       this.sendOnboardingEmail = false;
       this.message = '';
       this.messageValid = true;
+      this.stepper = 1;
       this.drawer = true;
     },
     close() {
@@ -224,6 +249,7 @@ export default {
       this.messageValid = true;
       this.confirmPassword = '';
       this.fieldErrors = {};
+      this.extensionContexts = this.newExtensionContexts();
       this.user = {
         userName: null,
         firstName: '',
@@ -278,18 +304,25 @@ export default {
         this.stepper++;
       }
     },
-    create() {
+    async create() {
       if (!this.currentStepValid || this.saving) {
         return;
       }
       this.saving = true;
+      // What each extension holds is taken now: what is written once the
+      // account exists is what the administrator submitted
       const request = {
         sequence: ++this.creationSequence,
         sendOnboardingEmail: this.sendOnboardingEmail,
         message: this.message,
         fullName: this.fullName,
+        extensions: this.extensions.map(extension => ({
+          extension,
+          context: this.extensionContexts[extension.id],
+          data: this.extensionContexts[extension.id]?.data || null,
+        })),
       };
-      return this.$userCreationService.createAccount({
+      const account = {
         userName: this.customizeUsername ? this.user.userName?.trim() : null,
         firstName: this.user.firstName.trim(),
         lastName: this.user.lastName.trim(),
@@ -298,18 +331,91 @@ export default {
         language: this.user.language,
         role: this.user.role,
         enabled: true,
-      }).then(outcome => this.$refs.outcomes.handle(outcome, request)).catch(error => {
+      };
+      // The extensions' checks come before the account call: a refused field
+      // takes the administrator back to the step showing it, and nothing is
+      // created
+      try {
+        const valid = await this.validateExtensions(request);
+        if (!this.current(request)) {
+          return null;
+        } else if (!valid) {
+          this.stepper = 1;
+          return null;
+        }
+        const outcome = await this.$userCreationService.createAccount(account);
+        await this.executeExtensions(outcome, request);
+        return await this.$refs.outcomes.handle(outcome, request);
+      } catch (error) {
         // A rejection is either the administrator's cancel, an outcome the
         // outcomes component named, or a transport failure shown as the
         // generic error
         if (!this.$userAccountConfirmationService.isCancelled(error)) {
           this.$root.$emit('alert-message', error?.translated && error.message || this.$t('IDMManagement.error.UnknownServerError'), 'error');
         }
-      }).finally(() => {
+        return null;
+      } finally {
         if (this.current(request)) {
           this.saving = false;
         }
-      });
+      }
+    },
+    refreshExtensions() {
+      this.extensions = (extensionRegistry.loadExtensions(EXTENSION_APP, EXTENSION_TYPE) || [])
+        .filter(extension => extension?.id && extension.vueComponent);
+      const contexts = {...this.extensionContexts};
+      this.extensions
+        .filter(extension => !contexts[extension.id])
+        .forEach(extension => contexts[extension.id] = this.newExtensionContext());
+      this.extensionContexts = contexts;
+    },
+    newExtensionContexts() {
+      const contexts = {};
+      this.extensions.forEach(extension => contexts[extension.id] = this.newExtensionContext());
+      return contexts;
+    },
+    newExtensionContext() {
+      return {mode: 'create', data: null, saving: this.saving};
+    },
+    setExtensionData(extensionId, data) {
+      const context = this.extensionContexts[extensionId];
+      if (context) {
+        context.data = data;
+      }
+    },
+    // Each extension's check, one after the other, since each may ask for the
+    // session confirmation; false as soon as one refuses
+    validateExtensions(request) {
+      return request.extensions.reduce(async (previous, {extension, context}) => {
+        const valid = await previous;
+        if (!valid || !extension.validate) {
+          return valid;
+        }
+        return await extension.validate(context) !== false;
+      }, Promise.resolve(true));
+    },
+    // Once the account exists, created or created without all its parts,
+    // each extension writes, with the data its context held at the submit,
+    // and decides whether it has anything to write. A write that fails is
+    // reported with the creation's outcome, the account being created all
+    // the same. Once the drawer has opened another session, no write runs,
+    // and an extension that held data is reported as not saved
+    executeExtensions(outcome, request) {
+      const userName = outcome?.userName || this.$userCreationService.parseIncomplete(outcome?.code)?.userName;
+      const entries = request.extensions.filter(({extension}) => extension.execute);
+      if (!userName || !entries.length) {
+        return Promise.resolve();
+      } else if (request.sequence !== this.creationSequence) {
+        request.extensionsNotSaved = entries.some(({data}) => (Array.isArray(data) ? data.length > 0 : data != null));
+        return Promise.resolve();
+      }
+      return Promise.all(entries.map(({extension, context, data}) =>
+        Promise.resolve()
+          .then(() => {
+            context.data = data;
+            return extension.execute(context, {userName});
+          })
+          .catch(() => request.extensionsNotSaved = true)));
     },
     // Whether the drawer still shows the session that sent a request: not
     // once it has been closed, or opened again on a new account
