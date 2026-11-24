@@ -650,6 +650,7 @@ public class PeopleDirectoryFilterServiceTest {
                                          WINDOW_ID,
                                          storedFilter,
                                          null,
+                                         null,
                                          storedGuestRestriction,
                                          " john d ",
                                          viewerAttributes,
