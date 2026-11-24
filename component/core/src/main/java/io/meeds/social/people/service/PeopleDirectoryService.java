@@ -215,6 +215,14 @@ public class PeopleDirectoryService {
    * site's when the site is displayed), whose edit right then applies. A
    * window held by neither, such as a catalogue instance previewed in the
    * portlet editor, has no editable settings.
+   * <p>
+   * On a page, the edit right is the portal's, or a membership matching the
+   * page's edit permission: on a space site the portal grants editing to the
+   * space layout managers only, whatever the page's edit permission names,
+   * while a user that permission names, such as a space publisher, is an
+   * editor of the page for its settings. On a site layout, it is the
+   * portal's only: a space site's edit permission is the space template's
+   * list of layout permissions, not a membership expression.
    *
    * @param pageKey the page resolved from the portal context, may be null
    * @param siteKey the rendering site, may be null
@@ -226,7 +234,8 @@ public class PeopleDirectoryService {
     Identity identity = StringUtils.isBlank(username) ? null : userAcl.getUserIdentity(username);
     ModelObject holder = identity == null ? null : getWindowHolder(pageKey, siteKey, windowId);
     return switch (holder) {
-    case Page page -> userAcl.hasEditPermission(page, identity);
+    case Page page -> userAcl.hasEditPermission(page, identity)
+        || userAcl.isMemberOf(identity, page.getEditPermission());
     case PortalConfig site -> userAcl.hasEditPermission(site, identity);
     case null, default -> false;
     };

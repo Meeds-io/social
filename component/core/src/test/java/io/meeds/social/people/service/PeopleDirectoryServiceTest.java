@@ -71,6 +71,8 @@ public class PeopleDirectoryServiceTest {
 
   private static final PageKey    PAGE_KEY  = new PageKey(SITE_KEY, "people");
 
+  private static final String     SPACE_PUBLISHERS = "publisher:/spaces/team";
+
   @Mock
   private UserACL                 userAcl;
 
@@ -145,6 +147,33 @@ public class PeopleDirectoryServiceTest {
     PortalConfig site = siteHolding(WINDOW_ID);
     when(layoutService.getPortalConfig(SITE_KEY)).thenReturn(site);
     when(userAcl.hasEditPermission(site, identity)).thenReturn(false);
+
+    assertFalse(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
+  }
+
+  /**
+   * On a space site the portal's page edit right is the space layout right,
+   * whatever the page's edit permission names: a user that permission names,
+   * here a space publisher, still edits the window's settings.
+   */
+  @Test
+  public void canEditSettingsWhenNamedByThePageEditPermissionWithoutThePortalEditRight() {
+    Page page = pageHolding(WINDOW_ID);
+    page.setEditPermission(SPACE_PUBLISHERS);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    when(userAcl.hasEditPermission(page, identity)).thenReturn(false);
+    when(userAcl.isMemberOf(identity, SPACE_PUBLISHERS)).thenReturn(true);
+
+    assertTrue(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
+  }
+
+  @Test
+  public void cannotEditSettingsWhenNotNamedByThePageEditPermission() {
+    Page page = pageHolding(WINDOW_ID);
+    page.setEditPermission(SPACE_PUBLISHERS);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    when(userAcl.hasEditPermission(page, identity)).thenReturn(false);
+    when(userAcl.isMemberOf(identity, SPACE_PUBLISHERS)).thenReturn(false);
 
     assertFalse(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
   }
