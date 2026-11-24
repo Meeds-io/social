@@ -25,8 +25,7 @@
     v-model="drawer"
     allow-expand
     right
-    @opened="reset"
-    @closed="stepper = 0">
+    @opened="reset">
     <template #title>{{ $t('UsersManagement.addUser') }}</template>
     <template #content>
       <v-stepper
