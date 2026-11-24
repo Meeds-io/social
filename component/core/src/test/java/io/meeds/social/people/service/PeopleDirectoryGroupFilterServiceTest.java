@@ -249,7 +249,7 @@ public class PeopleDirectoryGroupFilterServiceTest {
     assertEquals(1, groups.length());
     assertEquals(PARIS, groups.getJSONObject(0).getString("groupId"));
     assertEquals("3", groups.getJSONObject(0).getString("spaceId"));
-    assertEquals(List.of(PARIS), peopleDirectoryService.getGroupFilter(groups.toString()));
+    assertEquals(List.of(PARIS), peopleDirectoryService.getGroupFilter(groups.toString(), null));
   }
 
   @Test
@@ -323,66 +323,66 @@ public class PeopleDirectoryGroupFilterServiceTest {
 
   @Test
   public void groupFilterReadsTheLiveGroupsAndFailsClosed() {
-    assertNull(peopleDirectoryService.getGroupFilter(null));
-    assertNull(peopleDirectoryService.getGroupFilter("[]"));
-    assertEquals(List.of(), peopleDirectoryService.getGroupFilter("not json"));
-    assertEquals(List.of(), peopleDirectoryService.getGroupFilter("{\"groupId\":\"" + HR + "\"}"));
-    assertEquals(List.of(), peopleDirectoryService.getGroupFilter("[\"" + HR + "\"]"));
-    assertEquals(List.of(), peopleDirectoryService.getGroupFilter(stored(GONE, null)));
+    assertNull(peopleDirectoryService.getGroupFilter(null, null));
+    assertNull(peopleDirectoryService.getGroupFilter("[]", null));
+    assertEquals(List.of(), peopleDirectoryService.getGroupFilter("not json", null));
+    assertEquals(List.of(), peopleDirectoryService.getGroupFilter("{\"groupId\":\"" + HR + "\"}", null));
+    assertEquals(List.of(), peopleDirectoryService.getGroupFilter("[\"" + HR + "\"]", null));
+    assertEquals(List.of(), peopleDirectoryService.getGroupFilter(stored(GONE, null), null));
     // a space deleted then re-created under the same name: a new space id
-    assertEquals(List.of(), peopleDirectoryService.getGroupFilter(stored(PARIS, "99")));
-    assertEquals(List.of(), peopleDirectoryService.getGroupFilter(stored(PARIS, null)));
+    assertEquals(List.of(), peopleDirectoryService.getGroupFilter(stored(PARIS, "99"), null));
+    assertEquals(List.of(), peopleDirectoryService.getGroupFilter(stored(PARIS, null), null));
     assertEquals(List.of(HR, PARIS),
                  peopleDirectoryService.getGroupFilter("[" + entry(HR, null) + "," + entry(GONE, null) + "," + entry(PARIS, "3")
-                     + "]"));
+                     + "]", null));
   }
 
   @Test
   public void editorGroupsShowTheSelectableGroupsAndOnlyFlagTheOthers() {
     String stored = "[" + entry(ADMIN_GROUP, null) + "," + entry(PARIS, "3") + "," + entry(GONE, null) + "]";
 
-    PeopleDirectoryEditorGroups manager = peopleDirectoryService.getEditorGroups(stored, MANAGER);
+    PeopleDirectoryEditorGroups manager = peopleDirectoryService.getEditorGroups(stored, null, MANAGER);
     assertEquals(List.of(new PeopleDirectoryGroup(PARIS, "Paris office")), manager.groups());
     assertTrue(manager.otherGroupsApplied());
     assertEquals(1, manager.otherGroupsCount());
     assertTrue(manager.unresolvableGroups());
 
-    PeopleDirectoryEditorGroups editor = peopleDirectoryService.getEditorGroups(stored, EDITOR);
+    PeopleDirectoryEditorGroups editor = peopleDirectoryService.getEditorGroups(stored, null, EDITOR);
     assertEquals(List.of(), editor.groups());
     assertTrue(editor.otherGroupsApplied());
     // an editor who may not set the filter gets no count, nor the vanished groups
     assertEquals(0, editor.otherGroupsCount());
     assertFalse(editor.unresolvableGroups());
-    assertFalse(peopleDirectoryService.getEditorGroups(stored(HR, null), MANAGER).unresolvableGroups());
+    assertFalse(peopleDirectoryService.getEditorGroups(stored(HR, null), null, MANAGER).unresolvableGroups());
 
-    PeopleDirectoryEditorGroups admin = peopleDirectoryService.getEditorGroups(stored, ADMIN);
+    PeopleDirectoryEditorGroups admin = peopleDirectoryService.getEditorGroups(stored, null, ADMIN);
     assertEquals(List.of(new PeopleDirectoryGroup(ADMIN_GROUP, "Board"), new PeopleDirectoryGroup(PARIS, "Paris office")),
                  admin.groups());
     assertFalse(admin.otherGroupsApplied());
     assertEquals(0, admin.otherGroupsCount());
 
     // a vanished group is neither shown nor applied
-    assertFalse(peopleDirectoryService.getEditorGroups(stored(GONE, null), EDITOR).otherGroupsApplied());
-    assertFalse(peopleDirectoryService.getEditorGroups("[]", EDITOR).otherGroupsApplied());
+    assertFalse(peopleDirectoryService.getEditorGroups(stored(GONE, null), null, EDITOR).otherGroupsApplied());
+    assertFalse(peopleDirectoryService.getEditorGroups("[]", null, EDITOR).otherGroupsApplied());
   }
 
   @Test
   public void editorGroupsFlagAStoredValueTheDirectoryCannotReadSoThatTurningItOffClearsIt() {
     for (String invalid : List.of("not json", "{}", "[\"" + HR + "\"]")) {
       // the directory lists nobody: the drawer must show the filter as set
-      assertEquals(invalid, List.of(), peopleDirectoryService.getGroupFilter(invalid));
-      assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, MANAGER).unresolvableGroups());
-      assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, ADMIN).unresolvableGroups());
-      assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, MANAGER).groupFilterInvalid());
+      assertEquals(invalid, List.of(), peopleDirectoryService.getGroupFilter(invalid, null));
+      assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, null, MANAGER).unresolvableGroups());
+      assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, null, ADMIN).unresolvableGroups());
+      assertTrue(invalid, peopleDirectoryService.getEditorGroups(invalid, null, MANAGER).groupFilterInvalid());
       // an editor who may not set the filter cannot clear it either
-      assertFalse(invalid, peopleDirectoryService.getEditorGroups(invalid, EDITOR).unresolvableGroups());
-      assertFalse(invalid, peopleDirectoryService.getEditorGroups(invalid, EDITOR).groupFilterInvalid());
+      assertFalse(invalid, peopleDirectoryService.getEditorGroups(invalid, null, EDITOR).unresolvableGroups());
+      assertFalse(invalid, peopleDirectoryService.getEditorGroups(invalid, null, EDITOR).groupFilterInvalid());
       // turning it OFF stores no group
       assertEquals(invalid, "[]", peopleDirectoryService.normalizeGroupFilter("[]", invalid, MANAGER));
     }
     // an array holding one invalid entry is not read either, its live groups still shown
     String mixed = "[" + entry(PARIS, "3") + ",1]";
-    PeopleDirectoryEditorGroups manager = peopleDirectoryService.getEditorGroups(mixed, MANAGER);
+    PeopleDirectoryEditorGroups manager = peopleDirectoryService.getEditorGroups(mixed, null, MANAGER);
     assertTrue(manager.unresolvableGroups());
     // so that Apply rewrites it with the shown groups unchanged
     assertTrue(manager.groupFilterInvalid());
@@ -390,15 +390,15 @@ public class PeopleDirectoryGroupFilterServiceTest {
     JSONArray rewritten = new JSONArray(peopleDirectoryService.normalizeGroupFilter("[\"" + PARIS + "\"]", mixed, MANAGER));
     assertEquals(1, rewritten.length());
     assertEquals(PARIS, rewritten.getJSONObject(0).getString("groupId"));
-    assertEquals(List.of(PARIS), peopleDirectoryService.getGroupFilter(rewritten.toString()));
+    assertEquals(List.of(PARIS), peopleDirectoryService.getGroupFilter(rewritten.toString(), null));
     // a readable value is not flagged
-    assertFalse(peopleDirectoryService.getEditorGroups(null, MANAGER).unresolvableGroups());
-    assertFalse(peopleDirectoryService.getEditorGroups("[]", MANAGER).unresolvableGroups());
-    assertFalse(peopleDirectoryService.getEditorGroups(stored(PARIS, "3"), MANAGER).unresolvableGroups());
-    assertFalse(peopleDirectoryService.getEditorGroups(stored(PARIS, "3"), MANAGER).groupFilterInvalid());
+    assertFalse(peopleDirectoryService.getEditorGroups(null, null, MANAGER).unresolvableGroups());
+    assertFalse(peopleDirectoryService.getEditorGroups("[]", null, MANAGER).unresolvableGroups());
+    assertFalse(peopleDirectoryService.getEditorGroups(stored(PARIS, "3"), null, MANAGER).unresolvableGroups());
+    assertFalse(peopleDirectoryService.getEditorGroups(stored(PARIS, "3"), null, MANAGER).groupFilterInvalid());
     // a vanished group is unresolvable, not invalid
-    assertTrue(peopleDirectoryService.getEditorGroups(stored(GONE, null), MANAGER).unresolvableGroups());
-    assertFalse(peopleDirectoryService.getEditorGroups(stored(GONE, null), MANAGER).groupFilterInvalid());
+    assertTrue(peopleDirectoryService.getEditorGroups(stored(GONE, null), null, MANAGER).unresolvableGroups());
+    assertFalse(peopleDirectoryService.getEditorGroups(stored(GONE, null), null, MANAGER).groupFilterInvalid());
   }
 
   @Test
@@ -486,6 +486,7 @@ public class PeopleDirectoryGroupFilterServiceTest {
                                   "{}",
                                   "[" + entry(HR, null) + "," + entry(GONE, null) + "]",
                                   null,
+                                  null,
                                   "",
                                   Map.of(),
                                   false,
@@ -505,11 +506,62 @@ public class PeopleDirectoryGroupFilterServiceTest {
     when(userAcl.hasAccessPermission(page, identities.get(EDITOR))).thenReturn(true);
     when(identityManager.getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), any(), eq(true))).thenReturn(users);
 
-    peopleDirectoryService.search(PAGE_KEY, SITE_KEY, WINDOW_ID, "{}", stored(GONE, null), null, "", Map.of(), false, EDITOR, 0, 12);
+    peopleDirectoryService.search(PAGE_KEY, SITE_KEY, WINDOW_ID, "{}", stored(GONE, null), null, null, "", Map.of(), false, EDITOR, 0, 12);
 
     ArgumentCaptor<ProfileFilter> filter = ArgumentCaptor.forClass(ProfileFilter.class);
     verify(identityManager).getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), filter.capture(), eq(true));
     assertEquals(List.of(), filter.getValue().getDirectoryFilter().getGroups());
+  }
+
+  @Test
+  public void groupsToSetMarkerListsNobodyWhateverTheStoredGroups() {
+    assertEquals(List.of(), peopleDirectoryService.getGroupFilter(null, "true"));
+    assertEquals(List.of(), peopleDirectoryService.getGroupFilter("[]", " true "));
+    assertEquals(List.of(), peopleDirectoryService.getGroupFilter(stored(HR, null), "true"));
+    // no marker, or any other value: the stored groups apply
+    assertNull(peopleDirectoryService.getGroupFilter(null, null));
+    assertNull(peopleDirectoryService.getGroupFilter("[]", "false"));
+    assertNull(peopleDirectoryService.getGroupFilter(null, "yes"));
+    assertEquals(List.of(HR), peopleDirectoryService.getGroupFilter(stored(HR, null), null));
+    assertTrue(peopleDirectoryService.isGroupsToSet("true"));
+    assertFalse(peopleDirectoryService.isGroupsToSet(null));
+    assertFalse(peopleDirectoryService.isGroupsToSet("false"));
+  }
+
+  @Test
+  public void searchOfADirectoryMadeFromATemplateListsNobodyUntilItsGroupsAreSet() throws Exception {
+    when(userAcl.hasAccessPermission(page, identities.get(EDITOR))).thenReturn(true);
+    when(identityManager.getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), any(), eq(true))).thenReturn(users);
+
+    peopleDirectoryService.search(PAGE_KEY, SITE_KEY, WINDOW_ID, "{}", null, "true", null, "", Map.of(), false, EDITOR, 0, 12);
+
+    ArgumentCaptor<ProfileFilter> filter = ArgumentCaptor.forClass(ProfileFilter.class);
+    verify(identityManager).getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), filter.capture(), eq(true));
+    assertEquals(List.of(), filter.getValue().getDirectoryFilter().getGroups());
+  }
+
+  @Test
+  public void editorGroupsShowTheGroupsToSetMarkerAsAFilterWithNoChipToWhoMaySetGroups() {
+    for (String username : List.of(MANAGER, ADMIN)) {
+      PeopleDirectoryEditorGroups editorGroups = peopleDirectoryService.getEditorGroups(null, "true", username);
+      assertTrue(username, editorGroups.unresolvableGroups());
+      assertFalse(username, editorGroups.groupFilterInvalid());
+      assertEquals(username, List.of(), editorGroups.groups());
+      assertFalse(username, peopleDirectoryService.getEditorGroups(null, null, username).unresolvableGroups());
+    }
+    // an editor who may not set groups gets nothing of the group filter
+    assertFalse(peopleDirectoryService.getEditorGroups(null, "true", EDITOR).unresolvableGroups());
+  }
+
+  @Test
+  public void onlyASaveOfTheGroupFilterByWhoMaySetGroupsClearsTheGroupsToSetMarker() {
+    // groups set, or the group filter turned OFF, by who may set groups
+    assertTrue(peopleDirectoryService.clearsGroupsToSet("[\"" + PARIS + "\"]", MANAGER));
+    assertTrue(peopleDirectoryService.clearsGroupsToSet("[]", ADMIN));
+    // a save that posts no group filter, or one by an editor who may not set groups
+    assertFalse(peopleDirectoryService.clearsGroupsToSet(null, ADMIN));
+    assertFalse(peopleDirectoryService.clearsGroupsToSet("[]", EDITOR));
+    assertFalse(peopleDirectoryService.clearsGroupsToSet("[\"" + PARIS + "\"]", EDITOR));
   }
 
   private void group(String groupId, String name, String label) throws Exception {
