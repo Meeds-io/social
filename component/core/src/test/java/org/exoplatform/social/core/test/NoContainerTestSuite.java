@@ -20,6 +20,7 @@ package org.exoplatform.social.core.test;
 
 import io.meeds.social.cms.listener.PageContentBlockIndexingListenerTest;
 import io.meeds.social.cms.listener.PageRemovedIndexingListenerTest;
+import io.meeds.social.cms.service.ContentLinkServiceImplTest;
 import io.meeds.social.cms.service.PageContentBlockPluginServiceImplTest;
 import io.meeds.social.cms.service.PageUrlResolverServiceImplTest;
 import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnectorTest;
@@ -179,6 +180,7 @@ import io.meeds.social.space.security.service.SpaceSecurityServiceTemplateAdmini
     UserExportServiceTest.class,
     UserImportServiceTest.class,
     UserAclPluginTest.class,
+    ContentLinkServiceImplTest.class,
     RemoveProfilePropertyUpgradePlugin.class,
     SpaceInvitationLinkLinkJoinListenerTest.class,
     NavigationConfigurationStorageTest.class,

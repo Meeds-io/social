@@ -32,6 +32,9 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
         filter: settings?.filter || 'all',
         headerTranslations: settings?.headerTranslations || {},
         pageSize: settings?.pageSize || 12,
+        // whether guests see only their connections and the members of their
+        // spaces: an editor's only, ON unless stored OFF
+        guestsSpaceMembersOnly: settings?.guestsSpaceMembersOnly !== false,
         // the attribute filter as the settings drawer shows it: an editor's only
         attributes: settings?.attributes || [],
         attributeFilterInvalid: !!settings?.attributeFilterInvalid,
@@ -89,6 +92,7 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
           }).then(stored => {
             this.headerTranslations = stored?.headerTranslations || {};
             this.pageSize = stored?.pageSize || 12;
+            this.guestsSpaceMembersOnly = stored?.guestsSpaceMembersOnly !== false;
             this.attributes = stored?.attributes || [];
             this.attributeFilterInvalid = !!stored?.attributeFilterInvalid;
             this.canSetGroupFilter = !!stored?.canSetGroupFilter;

@@ -75,6 +75,8 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
 
   public static final String        PAGE_SIZE_PREFERENCE           = "pageSize";
 
+  public static final String        GUEST_RESTRICTION_PREFERENCE   = "guestsSpaceMembersOnly";
+
   public static final String        FILTER_PREFERENCE              = "filter";
 
   public static final String        DEFAULT_FILTER                 = "all";
@@ -120,6 +122,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
    */
   private static final List<String> STORED_PREFERENCES             = List.of(HEADER_TRANSLATIONS_PREFERENCE,
                                                                              PAGE_SIZE_PREFERENCE,
+                                                                             GUEST_RESTRICTION_PREFERENCE,
                                                                              ATTRIBUTE_FILTER_PREFERENCE,
                                                                              GROUP_FILTER_PREFERENCE);
 
@@ -249,6 +252,15 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
   }
 
   /**
+   * @param preferences the window's preferences
+   * @return whether the window restricts guest viewers, ON unless the stored
+   *         value is {@code false}
+   */
+  public static boolean storedGuestRestriction(PortletPreferences preferences) {
+    return getPeopleDirectoryService().isGuestRestriction(preferences.getValue(GUEST_RESTRICTION_PREFERENCE, null));
+  }
+
+  /**
    * @param preferences the window preferences
    * @return the header labels per language, {@code {}} when the header is OFF
    */
@@ -278,6 +290,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
         if (value != null) {
           preferences.setValue(name, switch (name) {
           case PAGE_SIZE_PREFERENCE -> peopleDirectoryService.normalizePageSize(value);
+          case GUEST_RESTRICTION_PREFERENCE -> peopleDirectoryService.normalizeGuestRestriction(value);
           case ATTRIBUTE_FILTER_PREFERENCE -> peopleDirectoryService.normalizeAttributeFilter(value);
           case GROUP_FILTER_PREFERENCE -> peopleDirectoryService.normalizeGroupFilter(value,
                                                                                       preferences.getValue(name, null),
@@ -344,6 +357,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
     settings.put("directoryFiltered", isDirectoryFiltered(preferences));
     settings.put("directoryAttributes", new JSONArray(directoryAttributes(preferences)));
     if (canEdit(username)) {
+      settings.put(GUEST_RESTRICTION_PREFERENCE, storedGuestRestriction(preferences));
       settings.put("attributes", new JSONArray(storedAttributes(preferences, request.getLocale())));
       settings.put("attributeFilterInvalid", isAttributeFilterInvalid(preferences));
       settings.put("canSetGroupFilter", canSetGroupFilter(username));
@@ -377,6 +391,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
                                                                   request.getPreferences()
                                                                          .getValue(ATTRIBUTE_FILTER_PREFERENCE, null),
                                                                   request.getPreferences().getValue(GROUP_FILTER_PREFERENCE, null),
+                                                                  request.getPreferences().getValue(GUEST_RESTRICTION_PREFERENCE, null),
                                                                   request.getParameter("q"),
                                                                   viewerAttributes,
                                                                   StringUtils.equals(request.getParameter(FILTER_PARAMETER),

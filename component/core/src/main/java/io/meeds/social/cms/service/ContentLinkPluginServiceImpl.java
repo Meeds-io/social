@@ -65,6 +65,11 @@ public class ContentLinkPluginServiceImpl implements ContentLinkPluginService {
   }
 
   @Override
+  public boolean hasPlugin(String objectType) {
+    return plugins.containsKey(objectType);
+  }
+
+  @Override
   public List<ContentLinkExtension> getExtensions() {
     return plugins.values()
                   .stream()

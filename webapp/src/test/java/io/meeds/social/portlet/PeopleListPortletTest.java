@@ -22,6 +22,7 @@ import static io.meeds.social.portlet.PeopleListPortlet.ATTRIBUTE_FILTER_PREFERE
 import static io.meeds.social.portlet.PeopleListPortlet.ATTRIBUTE_VALUES_RESOURCE_ID;
 import static io.meeds.social.portlet.PeopleListPortlet.GROUPS_RESOURCE_ID;
 import static io.meeds.social.portlet.PeopleListPortlet.GROUP_FILTER_PREFERENCE;
+import static io.meeds.social.portlet.PeopleListPortlet.GUEST_RESTRICTION_PREFERENCE;
 import static io.meeds.social.portlet.PeopleListPortlet.HEADER_TRANSLATIONS_PREFERENCE;
 import static io.meeds.social.portlet.PeopleListPortlet.PAGE_SIZE_PREFERENCE;
 import static io.meeds.social.portlet.PeopleListPortlet.SETTINGS_RESOURCE_ID;
@@ -223,6 +224,18 @@ class PeopleListPortletTest {
     verify(preferences, never()).setValue(eq(HEADER_TRANSLATIONS_PREFERENCE), nullable(String.class));
   }
 
+  @Test
+  void processActionStoresTheNormalizedGuestRestriction() throws Exception {
+    when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
+    when(peopleDirectoryService.normalizeGuestRestriction("false")).thenReturn("false");
+    parameters.put(GUEST_RESTRICTION_PREFERENCE, "false");
+
+    portlet.processAction(request, response);
+
+    verify(preferences).setValue(GUEST_RESTRICTION_PREFERENCE, "false");
+    verify(preferences).store();
+  }
+
   @ParameterizedTest
   @CsvSource(delimiter = '|', value = {
     "pageSize|0|peopleDirectory.pageSize.outOfRange",
@@ -273,6 +286,7 @@ class PeopleListPortletTest {
     assertFalse(settings.has("unresolvableGroups"));
     assertFalse(settings.has("groupFilterInvalid"));
     assertFalse(settings.has("otherGroupsCount"));
+    assertFalse(settings.has(GUEST_RESTRICTION_PREFERENCE));
     verify(peopleDirectoryService, never()).getEditorGroups(nullable(String.class), any());
     verify(resourceResponse).setProperty("Cache-Control", "private, no-store");
   }
@@ -291,10 +305,12 @@ class PeopleListPortletTest {
     when(peopleDirectoryService.getEditorGroups(null, USERNAME))
       .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/paris", "Paris office")), true, 3, true, true));
     when(peopleDirectoryService.canSetGroupFilter(USERNAME)).thenReturn(true);
+    when(peopleDirectoryService.isGuestRestriction(null)).thenReturn(true);
 
     portlet.serveResource(resourceRequest, resourceResponse);
 
     JSONObject settings = new JSONObject(body.toString());
+    assertTrue(settings.getBoolean(GUEST_RESTRICTION_PREFERENCE));
     assertTrue(settings.getBoolean("canSetGroupFilter"));
     assertTrue(settings.getBoolean("otherGroupsApplied"));
     assertTrue(settings.getBoolean("unresolvableGroups"));
@@ -316,7 +332,7 @@ class PeopleListPortletTest {
     ResourceRequest resourceRequest = resourceRequest(resourceId);
     when(resourceRequest.getRemoteUser()).thenReturn(null);
     lenient().when(resourceRequest.getParameterMap()).thenReturn(Map.of());
-    lenient().when(peopleDirectoryService.search(any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt()))
+    lenient().when(peopleDirectoryService.search(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt()))
              .thenReturn(new PeopleDirectoryPage(List.of(), 0));
     ResourceResponse resourceResponse = resourceResponse(new StringWriter());
 
@@ -325,7 +341,7 @@ class PeopleListPortletTest {
     verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "403");
     verify(resourceResponse).setProperty("Cache-Control", "private, no-store");
     verify(resourceResponse, never()).getWriter();
-    verify(peopleDirectoryService, never()).search(any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt());
+    verify(peopleDirectoryService, never()).search(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt());
     verify(peopleDirectoryService, never()).getAttributeValues(any(), any(), any(), any(), any(), any(), any());
     verify(peopleDirectoryService, never()).getSelectableGroups(any(), any(), any(), any(), any(), any());
   }
@@ -338,6 +354,7 @@ class PeopleListPortletTest {
     when(preferences.getValue(eq(ATTRIBUTE_FILTER_PREFERENCE), nullable(String.class))).thenReturn("{\"department\":[\"HR\"]}");
     when(preferences.getValue(eq(GROUP_FILTER_PREFERENCE), nullable(String.class)))
       .thenReturn("[{\"groupId\":\"/platform/users\",\"spaceId\":null}]");
+    when(preferences.getValue(eq(GUEST_RESTRICTION_PREFERENCE), nullable(String.class))).thenReturn("false");
     when(resourceRequest.getParameter("q")).thenReturn("john");
     when(resourceRequest.getParameter("filter")).thenReturn("connections");
     when(resourceRequest.getParameter("offset")).thenReturn("12");
@@ -353,6 +370,7 @@ class PeopleListPortletTest {
                                        WINDOW_ID,
                                        "{\"department\":[\"HR\"]}",
                                        "[{\"groupId\":\"/platform/users\",\"spaceId\":null}]",
+                                       "false",
                                        "john",
                                        Map.of("city", "Tunis"),
                                        true,
@@ -374,7 +392,7 @@ class PeopleListPortletTest {
     ResourceRequest resourceRequest = resourceRequest(USERS_RESOURCE_ID);
     ResourceResponse resourceResponse = mock(ResourceResponse.class);
     when(resourceRequest.getParameterMap()).thenReturn(Map.of());
-    when(peopleDirectoryService.search(any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt()))
+    when(peopleDirectoryService.search(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt()))
       .thenThrow(new IllegalAccessException("refused"));
 
     portlet.serveResource(resourceRequest, resourceResponse);
@@ -394,7 +412,7 @@ class PeopleListPortletTest {
 
     verify(resourceResponse).setProperty(ResourceResponse.HTTP_STATUS_CODE, "400");
     assertEquals(PeopleDirectoryService.INVALID_RANGE_MESSAGE, body.toString());
-    verify(peopleDirectoryService, never()).search(any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt());
+    verify(peopleDirectoryService, never()).search(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), anyInt(), anyInt());
   }
 
   @Test
