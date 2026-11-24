@@ -311,9 +311,9 @@ public class UserImportServiceTest {
   }
 
   /**
-   * An existing account's stored name that the personal-name rule refuses
-   * passes while the file holds it unchanged; a changed name meets the rule,
-   * and a new account's name is always checked
+   * An existing account's stored name that a name rule refuses passes while
+   * the file holds it unchanged; a changed name meets the rules, a new
+   * account's names are always checked, and so is an existing account's email
    */
   @Test
   public void testImportUsersChecksOnlyAChangedNameOfAnExistingUser() throws Exception {
@@ -322,13 +322,16 @@ public class UserImportServiceTest {
                  "john,Secret123,true,john@ex.com,J0hn,D0e",
                  "mary,Secret123,true,mary@ex.com,M4ry,Sm1th",
                  "paul,Secret123,true,paul@ex.com,P5ul,J0nes",
-                 "neo,Secret123,true,neo@ex.com,N3o,Anderson");
+                 "neo,Secret123,true,neo@ex.com,N3o,Anderson",
+                 "rita,Secret123,true,example,R1ta,F0x");
     User john = storedUser("J0hn", "D0e");
     User mary = storedUser("M4ry", "Sm2th");
     User paul = storedUser("P4ul", "J0nes");
+    User rita = storedUser("R1ta", "F0x");
     when(userHandler.findUserByName("john", UserStatus.ANY)).thenReturn(john);
     when(userHandler.findUserByName("mary", UserStatus.ANY)).thenReturn(mary);
     when(userHandler.findUserByName("paul", UserStatus.ANY)).thenReturn(paul);
+    when(userHandler.findUserByName("rita", UserStatus.ANY)).thenReturn(rita);
     when(userHandler.findUserByName("neo", UserStatus.ANY)).thenReturn(null);
     when(profilePropertyService.getProfileSettingByName(anyString())).thenReturn(null);
     ListAccess<User> none = mock(ListAccess.class);
@@ -338,11 +341,12 @@ public class UserImportServiceTest {
     UserImportResult r = new UserImportResult();
     service.importUsers(f.getAbsolutePath(), r, TEST_USER_2, Locale.ENGLISH, URL);
 
-    assertEquals(4, r.getProcessedCount());
+    assertEquals(5, r.getProcessedCount());
     assertFalse(r.getErrorMessages().containsKey("john"));
     assertTrue(r.getErrorMessages().containsKey("mary"));
     assertTrue(r.getErrorMessages().containsKey("paul"));
     assertTrue(r.getErrorMessages().containsKey("neo"));
+    assertTrue(r.getErrorMessages().containsKey("rita"));
     verify(userHandler).saveUser(argThat(u -> "john".equals(u.getUserName())), eq(true));
     verify(userHandler, never()).saveUser(argThat(u -> !"john".equals(u.getUserName())), anyBoolean());
   }

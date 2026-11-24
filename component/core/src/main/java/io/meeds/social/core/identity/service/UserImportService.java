@@ -675,8 +675,9 @@ public class UserImportService {
   }
 
   /**
-   * A name an existing account already holds is not checked again: an account
-   * whose name predates the rule stays importable until that name is changed
+   * A first or last name an existing account already holds is not checked
+   * against any name rule again: an account whose name predates a rule stays
+   * importable until that name is changed
    */
   private boolean isStoredName(User existingUser, String fieldName, String fieldValue) {
     if (existingUser == null) {
