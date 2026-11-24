@@ -29,10 +29,6 @@
   <description>Meeds Social Service Component</description>
   <properties>
     <exo.test.coverage.ratio>0.52</exo.test.coverage.ratio>
-
-    <rest.api.doc.title>Social Rest Api</rest.api.doc.title>
-    <rest.api.doc.version>1.0</rest.api.doc.version>
-    <rest.api.doc.description>All used social rest endpoints</rest.api.doc.description>
   </properties>
   <dependencies>
     <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
@@ -83,27 +79,6 @@
             <include>**/InitContainerTestSuite.java</include>
             <include>**/NoContainerTestSuite.java</include>
           </includes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>io.openapitools.swagger</groupId>
-        <artifactId>swagger-maven-plugin</artifactId>
-        <configuration>
-          <useResourcePackagesChildren>true</useResourcePackagesChildren>
-          <resourcePackages>
-            <locations>io.meeds.social.rest.impl</locations>
-          </resourcePackages>
-          <swaggerConfig>
-            <info>
-              <title>${rest.api.doc.title}</title>
-              <version>${rest.api.doc.version}</version>
-              <description>${rest.api.doc.description}</description>
-              <license>
-                <url>https://www.gnu.org/licenses/lgpl-3.0.en.html</url>
-                <name>LGPL</name>
-              </license>
-            </info>
-          </swaggerConfig>
         </configuration>
       </plugin>
     </plugins>
