@@ -485,6 +485,7 @@ public class PeopleDirectoryGroupFilterServiceTest {
                                   WINDOW_ID,
                                   "{}",
                                   "[" + entry(HR, null) + "," + entry(GONE, null) + "]",
+                                  null,
                                   "",
                                   Map.of(),
                                   false,
@@ -504,7 +505,7 @@ public class PeopleDirectoryGroupFilterServiceTest {
     when(userAcl.hasAccessPermission(page, identities.get(EDITOR))).thenReturn(true);
     when(identityManager.getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), any(), eq(true))).thenReturn(users);
 
-    peopleDirectoryService.search(PAGE_KEY, SITE_KEY, WINDOW_ID, "{}", stored(GONE, null), "", Map.of(), false, EDITOR, 0, 12);
+    peopleDirectoryService.search(PAGE_KEY, SITE_KEY, WINDOW_ID, "{}", stored(GONE, null), null, "", Map.of(), false, EDITOR, 0, 12);
 
     ArgumentCaptor<ProfileFilter> filter = ArgumentCaptor.forClass(ProfileFilter.class);
     verify(identityManager).getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), filter.capture(), eq(true));

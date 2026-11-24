@@ -37,15 +37,18 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -405,6 +408,99 @@ public class PeopleDirectoryFilterServiceTest {
   }
 
   @Test
+  public void searchRestrictsAGuestToTheirSpacesConnectionsAndThemselfByDefault() throws Exception {
+    when(userAcl.hasAccessPermission(page, identity)).thenReturn(true);
+    when(identity.getGroups()).thenReturn(Set.of("/platform/externals", "/platform/users", "/organization/hr", "/spaces/paris"));
+    when(identityManager.getOrCreateUserIdentity(USERNAME)).thenReturn(new org.exoplatform.social.core.identity.model.Identity("3"));
+    when(identityManager.getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), any(), eq(true))).thenReturn(users);
+
+    for (String stored : Arrays.asList(null, "true", "", "yes")) {
+      search("{}", stored, Map.of(), false, 12);
+    }
+
+    ArgumentCaptor<ProfileFilter> filter = ArgumentCaptor.forClass(ProfileFilter.class);
+    verify(identityManager, times(4)).getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), filter.capture(), eq(true));
+    for (ProfileFilter captured : filter.getAllValues()) {
+      assertEquals(Long.valueOf(3), captured.getGuestIdentityId());
+      assertEquals(List.of("/spaces/paris"), captured.getViewerSpaceGroupIds());
+      assertFalse(captured.isEmpty());
+    }
+  }
+
+  @Test
+  public void searchRestrictsAGuestsConnectionsToo() throws Exception {
+    when(userAcl.hasAccessPermission(page, identity)).thenReturn(true);
+    when(identity.getGroups()).thenReturn(Set.of("/platform/externals"));
+    org.exoplatform.social.core.identity.model.Identity viewer = new org.exoplatform.social.core.identity.model.Identity("3");
+    when(identityManager.getOrCreateUserIdentity(USERNAME)).thenReturn(viewer);
+    when(relationshipManager.getConnectionsByFilter(eq(viewer), any())).thenReturn(users);
+
+    search("{}", null, Map.of(), true, 12);
+
+    ArgumentCaptor<ProfileFilter> filter = ArgumentCaptor.forClass(ProfileFilter.class);
+    verify(relationshipManager).getConnectionsByFilter(eq(viewer), filter.capture());
+    assertEquals(Long.valueOf(3), filter.getValue().getGuestIdentityId());
+    assertEquals(List.of(), filter.getValue().getViewerSpaceGroupIds());
+  }
+
+  @Test
+  public void searchLeavesAGuestUnrestrictedWhenTheSettingIsOff() throws Exception {
+    when(userAcl.hasAccessPermission(page, identity)).thenReturn(true);
+    lenient().when(identity.getGroups()).thenReturn(Set.of("/platform/externals", "/spaces/paris"));
+    when(identityManager.getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), any(), eq(true))).thenReturn(users);
+
+    search("{}", " false ", Map.of(), false, 12);
+
+    ArgumentCaptor<ProfileFilter> filter = ArgumentCaptor.forClass(ProfileFilter.class);
+    verify(identityManager).getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), filter.capture(), eq(true));
+    assertNull(filter.getValue().getGuestIdentityId());
+    assertNull(filter.getValue().getViewerSpaceGroupIds());
+  }
+
+  @Test
+  public void searchLeavesAnInternalViewerUnrestricted() throws Exception {
+    when(userAcl.hasAccessPermission(page, identity)).thenReturn(true);
+    when(identity.getGroups()).thenReturn(Set.of("/platform/users", "/spaces/paris"));
+    when(identityManager.getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), any(), eq(true))).thenReturn(users);
+
+    search("{}", null, Map.of(), false, 12);
+
+    ArgumentCaptor<ProfileFilter> filter = ArgumentCaptor.forClass(ProfileFilter.class);
+    verify(identityManager).getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), filter.capture(), eq(true));
+    assertNull(filter.getValue().getGuestIdentityId());
+    assertNull(filter.getValue().getViewerSpaceGroupIds());
+    verify(identityManager, never()).getOrCreateUserIdentity(anyString());
+  }
+
+  @Test
+  public void searchListsNobodyToAGuestWithoutSocialIdentity() throws Exception {
+    when(userAcl.hasAccessPermission(page, identity)).thenReturn(true);
+    when(identity.getGroups()).thenReturn(Set.of("/platform/externals", "/spaces/paris"));
+    // a reachable listing, so that a guest let through fails on the
+    // assertions below, not on a missing list
+    lenient().when(identityManager.getIdentitiesByProfileFilter(eq(OrganizationIdentityProvider.NAME), any(), eq(true)))
+             .thenReturn(users);
+    lenient().when(users.getSize()).thenReturn(7);
+
+    PeopleDirectoryPage result = search("{}", null, Map.of(), false, 12);
+
+    assertEquals(0, result.size());
+    verify(identityManager, never()).getIdentitiesByProfileFilter(anyString(), any(), anyBoolean());
+  }
+
+  @Test
+  public void guestRestrictionFailsClosed() {
+    assertTrue(peopleDirectoryService.isGuestRestriction(null));
+    assertTrue(peopleDirectoryService.isGuestRestriction("true"));
+    assertTrue(peopleDirectoryService.isGuestRestriction("FALSE"));
+    assertTrue(peopleDirectoryService.isGuestRestriction("0"));
+    assertFalse(peopleDirectoryService.isGuestRestriction("false"));
+    assertEquals("false", peopleDirectoryService.normalizeGuestRestriction("false"));
+    assertEquals("true", peopleDirectoryService.normalizeGuestRestriction("anything"));
+    assertEquals("true", peopleDirectoryService.normalizeGuestRestriction(null));
+  }
+
+  @Test
   public void directoryAttributeNamesAreTheStoredAttributesOnly() {
     assertEquals(List.of("department", "skills.lang"),
                  peopleDirectoryService.getDirectoryAttributeNames("{\"department\":[\"HR\"],\"skills.lang\":[\"C++\"]}"));
@@ -541,11 +637,20 @@ public class PeopleDirectoryFilterServiceTest {
                                      Map<String, String> viewerAttributes,
                                      boolean connectionsOnly,
                                      int limit) throws IllegalAccessException {
+    return search(storedFilter, null, viewerAttributes, connectionsOnly, limit);
+  }
+
+  private PeopleDirectoryPage search(String storedFilter,
+                                     String storedGuestRestriction,
+                                     Map<String, String> viewerAttributes,
+                                     boolean connectionsOnly,
+                                     int limit) throws IllegalAccessException {
     return peopleDirectoryService.search(PAGE_KEY,
                                          SITE_KEY,
                                          WINDOW_ID,
                                          storedFilter,
                                          null,
+                                         storedGuestRestriction,
                                          " john d ",
                                          viewerAttributes,
                                          connectionsOnly,
