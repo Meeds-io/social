@@ -61,9 +61,14 @@ export default {
       this.closeDisplayedDrawer();
     },
     closeDisplayedDrawer(event) {
-      if (this.openedDrawers && (!event || event.key === 'Escape')) {
+      if (this.openedDrawers && (!event || (event.key === 'Escape' && !this.isInActiveDialog(event.target)))) {
         this.closeDisplayedDrawerEffectively();
       }
+    },
+    isInActiveDialog(element) {
+      // an Escape pressed in a dialog closes that dialog only, not the drawer it was opened from; a drawer opened above
+      // a dialog holds the focus, so its Escape still closes it
+      return !!element?.closest?.('.v-dialog__content--active');
     },
     closeDisplayedDrawerEffectively() {
       document.dispatchEvent(new CustomEvent('closeDisplayedDrawer'));
