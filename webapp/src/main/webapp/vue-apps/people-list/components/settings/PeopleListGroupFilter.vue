@@ -29,7 +29,7 @@
         <v-switch
           :id="switchId"
           :input-value="enabled"
-          :disabled="!enabled && !value.length && !canAddGroup"
+          :disabled="(otherGroupsApplied && !$root.unresolvableGroups) || (!enabled && !value.length && !canAddGroup)"
           :aria-label="$t('peopleList.settings.groupFilter')"
           class="people-list-group-filter-switch ma-0 width-fit-content"
           hide-details
@@ -115,7 +115,7 @@
         fa-info-circle
       </v-icon>
       <span class="caption text-sub-title">
-        {{ $t('peopleList.settings.group.otherGroupsApplied') }}
+        {{ $t('peopleList.settings.group.unmanagedGroupsApplied') }}
       </span>
     </div>
   </div>

@@ -228,8 +228,13 @@ export default {
           || (!!this.$root.unresolvableGroups && !this.groupFilterEnabled)
           || !!this.$root.groupFilterInvalid);
     },
+    // with groups the editor cannot select applied, the filter is set
+    // without any group of the editor's
     groupsMissing() {
-      return this.canSetGroupFilter && this.groupFilterEnabled && !this.groups.length;
+      return this.canSetGroupFilter
+        && this.groupFilterEnabled
+        && !this.groups.length
+        && !this.$root.otherGroupsApplied;
     },
     attributeFilterIncomplete() {
       return this.attributeValuesMissing || this.attributeUnavailable || this.attributeFilterRefused;
@@ -305,8 +310,13 @@ export default {
       this.attributeFilterEnabled = this.attributes.length > 0;
       this.groups = (this.$root.groups || []).map(group => ({...group}));
       // stored groups that no longer exist list nobody: the filter shows as
-      // set, with no chip, until groups are selected or it is turned OFF
-      this.groupFilterEnabled = this.groups.length > 0 || !!this.$root.unresolvableGroups;
+      // set, with no chip, until groups are selected or it is turned OFF,
+      // which drops them; groups the editor cannot select apply whatever is
+      // posted, so the filter shows as set too, locked ON unless groups that
+      // no longer exist remain to drop
+      this.groupFilterEnabled = this.groups.length > 0
+        || !!this.$root.unresolvableGroups
+        || (this.canSetGroupFilter && !!this.$root.otherGroupsApplied);
       this.openCount++;
       this.$refs.drawer.open();
     },
