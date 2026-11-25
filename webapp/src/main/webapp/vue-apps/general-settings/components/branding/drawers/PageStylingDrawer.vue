@@ -147,6 +147,7 @@
             v-model="applicationStyling.container"
             class="mt-4"
             :icon-placeholder="versionIconColor('appIconColor')"
+            :color-placeholders="versionTextColors('app')"
             custom-icon>
             <template #title-background-image>
               <portal-general-settings-background-image-attachment
