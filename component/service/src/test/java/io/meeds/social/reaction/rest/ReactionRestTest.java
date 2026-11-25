@@ -18,6 +18,7 @@
  */
 package io.meeds.social.reaction.rest;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -101,7 +102,7 @@ public class ReactionRestTest {
            .andExpect(jsonPath("$.reactorProfiles").doesNotExist())
            .andExpect(jsonPath("$.userReactionId").value("like"));
 
-    verify(identityManager, never()).getIdentity("7");
+    verify(identityManager, never()).getIdentity(7L);
   }
 
   @Test
@@ -167,12 +168,12 @@ public class ReactionRestTest {
     verify(reactionService).setReaction("activity", "1", "love", "john");
     verify(reactionService).deleteReaction("activity", "1", "john");
 
-    org.mockito.Mockito.doThrow(new ObjectNotFoundException("x")).when(reactionService).setReaction("activity", "404", "love", "john");
-    org.mockito.Mockito.doThrow(new IllegalAccessException("x")).when(reactionService).setReaction("activity", "403", "love", "john");
-    org.mockito.Mockito.doThrow(new IllegalArgumentException("x")).when(reactionService).setReaction("other", "1", "love", "john");
-    org.mockito.Mockito.doThrow(new ObjectNotFoundException("x")).when(reactionService).deleteReaction("activity", "404", "john");
-    org.mockito.Mockito.doThrow(new IllegalAccessException("x")).when(reactionService).deleteReaction("activity", "403", "john");
-    org.mockito.Mockito.doThrow(new IllegalArgumentException("x")).when(reactionService).deleteReaction("other", "1", "john");
+    doThrow(new ObjectNotFoundException("x")).when(reactionService).setReaction("activity", "404", "love", "john");
+    doThrow(new IllegalAccessException("x")).when(reactionService).setReaction("activity", "403", "love", "john");
+    doThrow(new IllegalArgumentException("x")).when(reactionService).setReaction("other", "1", "love", "john");
+    doThrow(new ObjectNotFoundException("x")).when(reactionService).deleteReaction("activity", "404", "john");
+    doThrow(new IllegalAccessException("x")).when(reactionService).deleteReaction("activity", "403", "john");
+    doThrow(new IllegalArgumentException("x")).when(reactionService).deleteReaction("other", "1", "john");
 
     for (String path : List.of("activity/404", "activity/403", "other/1")) {
       int expected = path.endsWith("404") ? 404 : path.endsWith("403") ? 403 : 400;

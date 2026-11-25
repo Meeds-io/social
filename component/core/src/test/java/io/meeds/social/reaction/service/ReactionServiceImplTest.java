@@ -524,7 +524,7 @@ public class ReactionServiceImplTest {
   }
 
   @Test
-  public void testMissingPluginObjectIsNotFound() throws Exception {
+  public void testMissingPluginObjectIsNotFound() {
     registerPlugin(true, false);
 
     assertThrows(ObjectNotFoundException.class, () -> reactionService.setReaction(PLUGIN_TYPE, PLUGIN_ID, "love", USERNAME));
@@ -543,7 +543,7 @@ public class ReactionServiceImplTest {
   }
 
   @Test
-  public void testDeleteMissingReactionOnPluginObjectIsNotFound() throws Exception {
+  public void testDeleteMissingReactionOnPluginObjectIsNotFound() {
     registerPlugin(true, true);
 
     assertThrows(ObjectNotFoundException.class, () -> reactionService.deleteReaction(PLUGIN_TYPE, PLUGIN_ID, USERNAME));
