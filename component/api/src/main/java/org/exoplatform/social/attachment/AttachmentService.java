@@ -101,6 +101,10 @@ public interface AttachmentService {
    *          information.
    * @param userAclIdentity The identity acl of the user creating the attachment.
    * @return {@link ObjectAttachmentDetail}
+   * @throws IllegalAccessException when the user cannot edit the object:
+   *           viewing it is not enough to attach a file to it
+   * @throws ObjectNotFoundException when the object type's plugin reports the
+   *           object missing
    */
   ObjectAttachmentDetail createAttachment(String objectType,
                         String objectId,
