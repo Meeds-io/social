@@ -30,8 +30,8 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 public interface ReactionObjectPlugin {
 
   /**
-   * @return the object type, as used in the reactions REST path and in
-   *         {@link MetadataObject#getType()}
+   * @return the object type, as used in the reactions REST path and as the
+   *         type of the {@link MetadataObject} of its objects
    */
   String getObjectType();
 
