@@ -61,6 +61,7 @@ import org.exoplatform.social.websocket.listener.SpaceWebNotificationWebSocketSe
   io.meeds.social.reminder.rest.ChangesReminderRestTest.class,
   io.meeds.social.navigation.rest.NavigationConfigurationRestTest.class,
   io.meeds.social.organizationalchart.rest.OrganizationalChartSettingRestTest.class,
+  io.meeds.social.logging.rest.LoggingLevelRestTest.class,
   io.meeds.social.usercard.rest.UserCardSettingRestTest.class,
   VersionResourcesTest.class,
   RestCheckerTest.class,
