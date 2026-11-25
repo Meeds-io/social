@@ -1,8 +1,9 @@
 <template>
   <v-app>
+    <!-- the portlet draws no card of its own: Display Mode and Language are two cards, apart as two applications -->
     <div class="application-body">
-      <v-list two-line>
-        <user-setting-display-mode />
+      <user-setting-display-mode />
+      <v-list two-line class="application-layout-style">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="text-title">
