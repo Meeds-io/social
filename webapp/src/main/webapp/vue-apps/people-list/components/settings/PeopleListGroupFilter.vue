@@ -53,6 +53,7 @@
           :search-input.sync="query"
           :placeholder="$t('peopleList.settings.groupSearch')"
           :no-data-text="$t('peopleList.settings.groupSearch.noData')"
+          :aria-describedby="groupsMissing && groupsMissingId || null"
           item-text="label"
           item-value="groupId"
           class="people-list-group-search mt-2 mb-0 mx-0 pa-0 elevation-0 no-border"
@@ -69,6 +70,13 @@
             </v-list-item-content>
           </template>
         </v-autocomplete>
+        <!-- why Apply is disabled, read with the field; text, not color -->
+        <div
+          v-if="groupsMissing"
+          :id="groupsMissingId"
+          class="people-list-groups-missing caption error-color mt-1">
+          {{ $t('peopleList.settings.group.required') }}
+        </div>
         <div
           v-if="value.length"
           class="d-flex flex-wrap mt-2"
@@ -161,6 +169,14 @@ export default {
     },
     groupSearchId() {
       return `${this.$root.appId}GroupSearch`;
+    },
+    groupsMissingId() {
+      return `${this.$root.appId}GroupsMissing`;
+    },
+    // ON with no group, and none the editor cannot select applied: Apply is
+    // disabled (the drawer's groupsMissing)
+    groupsMissing() {
+      return this.enabled && !this.value.length && !this.otherGroupsApplied;
     },
     // the groups applied that the editor cannot select count too: with no
     // room left and no group of the editor's, the switch cannot be turned ON

@@ -22,7 +22,7 @@
   <div class="people-directory-attribute">
     <v-card
       :aria-label="label"
-      :aria-describedby="showWarning && warningId || null"
+      :aria-describedby="cardDescribedBy"
       class="people-directory-attribute-card pa-3"
       role="group"
       outlined
@@ -69,6 +69,7 @@
         :search-input.sync="query"
         :placeholder="$t('peopleList.settings.attribute.valueSearch')"
         :no-data-text="$t('peopleList.settings.attribute.noValue')"
+        :aria-describedby="valuesMissing && valuesMissingId || null"
         item-text="label"
         item-value="value"
         class="people-directory-attribute-value-input mt-2 mb-0 mx-0 pa-0 elevation-0 no-border"
@@ -84,6 +85,13 @@
           </v-list-item-content>
         </template>
       </v-autocomplete>
+      <!-- why Apply is disabled, read with the field; text, not color -->
+      <div
+        v-if="valuesMissing"
+        :id="valuesMissingId"
+        class="people-directory-attribute-values-missing caption error-color mt-1">
+        {{ $t('peopleList.settings.attribute.valuesRequired') }}
+      </div>
       <div v-if="attribute.values.length" class="d-flex flex-wrap mt-2">
         <v-chip
           v-for="value in attribute.values"
@@ -164,6 +172,21 @@ export default {
     warningId() {
       return `${this.$root.appId}AttributeWarning-${this.attribute.name}`.replace(/[^\w-]/g, '_');
     },
+    valuesMissingId() {
+      return `${this.$root.appId}AttributeValuesMissing-${this.attribute.name}`.replace(/[^\w-]/g, '_');
+    },
+    // an available attribute with no value: Apply is disabled; an
+    // unavailable one offers no value to add
+    valuesMissing() {
+      return this.attribute.available && !this.attribute.values.length;
+    },
+    // the value message describes the field while it shows, the card once
+    // it is closed: read once either way
+    cardDescribedBy() {
+      return [this.showWarning && this.warningId, this.valuesMissing && !this.picking && this.valuesMissingId]
+        .filter(Boolean)
+        .join(' ') || null;
+    },
     // the warning goes with the card's values: none left, nothing to warn about
     showWarning() {
       return this.invalid && this.attribute.values.length > 0;
@@ -186,6 +209,13 @@ export default {
       this.searchTimeout = window.setTimeout(this.searchValues, 300);
     },
   },
+  created() {
+    // a card with no value shows its value field open, the focus staying
+    // where it is
+    if (this.valuesMissing && this.canAddValue) {
+      this.openPicker();
+    }
+  },
   beforeDestroy() {
     window.clearTimeout(this.searchTimeout);
     this.abortController?.abort?.();
@@ -197,11 +227,16 @@ export default {
       (this.$refs.addValueButton || this.$refs.removeButton)?.$el?.focus?.();
     },
     togglePicker() {
-      this.picking = !this.picking;
       if (this.picking) {
-        this.searchValues();
+        this.picking = false;
+      } else {
+        this.openPicker();
         this.$nextTick(() => this.$refs.valueInput?.focus?.());
       }
+    },
+    openPicker() {
+      this.picking = true;
+      this.searchValues();
     },
     // the values users already have for the attribute, as the server lists
     // them to an editor: the directory matches them exactly
@@ -252,7 +287,12 @@ export default {
     },
     removeValue(value) {
       const index = this.attribute.values.indexOf(value);
+      const last = this.attribute.values.length === 1;
       this.$emit('remove-value', value);
+      // no value left: the value field shows open, as on a new card
+      if (last && !this.picking && this.canAddValue) {
+        this.openPicker();
+      }
       // the focus goes to the next value's remove button, else the previous
       // one, never straight to the trash a second Enter would delete the
       // attribute with (RGAA 12.9)

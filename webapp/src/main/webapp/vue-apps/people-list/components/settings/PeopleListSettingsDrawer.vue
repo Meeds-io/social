@@ -65,7 +65,7 @@
         <div
           v-if="headerMissing"
           :id="headerMessageId"
-          class="people-list-header-message caption text-sub-title mt-1">
+          class="people-list-header-message caption error-color mt-1">
           {{ $t('peopleList.settings.header.required') }}
         </div>
         <div class="d-flex align-center text-start mt-4">
@@ -259,17 +259,14 @@ export default {
     attributeFilterIncomplete() {
       return this.attributeValuesMissing || this.attributeUnavailable || this.attributeFilterRefused;
     },
-    // a missing header only disables Apply: its message shows under the
-    // field, a tooltip on a disabled button reaches no keyboard user
+    // a missing header, attribute, value or group only disables Apply: its
+    // message shows under its field, a tooltip on a disabled button reaches
+    // no keyboard user
     applyTooltip() {
       if (this.attributeUnavailable) {
         return this.$t('peopleList.settings.attribute.unavailable');
       } else if (this.attributeFilterRefused) {
         return this.$t('peopleList.settings.attribute.valuesRefused');
-      } else if (this.attributeValuesMissing) {
-        return this.$t('peopleList.settings.attribute.valuesRequired');
-      } else if (this.groupsMissing) {
-        return this.$t('peopleList.settings.group.required');
       }
       return null;
     },
