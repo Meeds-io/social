@@ -17,8 +17,12 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <!-- the row is followed by a separator: the Language row comes next in the same card -->
-  <div v-if="displayed">
+  <!-- a card of its own above the Language card, as far from it as two applications of the page are -->
+  <v-list
+    v-if="displayed"
+    :style="cardStyle"
+    class="application-layout-style"
+    two-line>
     <v-list-item class="userSettingDisplayMode">
       <v-list-item-content>
         <v-list-item-title
@@ -51,12 +55,24 @@
         </div>
       </v-list-item-action>
     </v-list-item>
-    <v-divider class="mx-4" />
-  </div>
+  </v-list>
 </template>
 <script>
+// the space the page puts between two applications of a column: the gap, and the margins the theme or the page give
+// them beyond the default 20px
+const APPLICATIONS_SPACE = 'calc(var(--grid-layout-gap, 20px) + var(--appMarginBottom, var(--allPagesAppMarginBottom, 20px)) + var(--appMarginTop, var(--allPagesAppMarginTop, 20px)) - 40px)';
+// the height the page gives the application sizes the Language card only
+const CARD_STYLE = {
+  'marginBottom': APPLICATIONS_SPACE,
+  '--appHeight': 'initial',
+  '--appMinHeight': 'initial',
+  '--appMaxHeight': 'initial',
+  '--appHeightScroll': 'initial',
+};
+
 export default {
   data: () => ({
+    cardStyle: CARD_STYLE,
     titleId: `displayModeTitle${parseInt(Math.random() * 10000)}`,
     mode: null,
     // the last mode the server stored: the one a refused save goes back to
