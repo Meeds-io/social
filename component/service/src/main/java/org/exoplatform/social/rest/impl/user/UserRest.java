@@ -71,7 +71,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.organization.*;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -153,6 +152,7 @@ import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
 import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
 import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
 import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
+import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.social.security.plugin.EmailChangeOtpPlugin;
 import io.meeds.social.space.constant.UserSpacesScope;
@@ -183,9 +183,6 @@ public class UserRest implements ResourceContainer, Startable {
   private static final String BULK_DISABLE                 = "disable";
 
   private static final String UPLOAD_ID_PROGRESS_NOT_FOUND = "UPLOAD_ID_PROGRESS:NOT_FOUND";
-
-  /** Size of SOC_IDENTITY_PROPERTIES.VALUE, in characters */
-  private static final int MAX_STORED_PROFILE_VALUE_LENGTH = 2000;
 
   private static final String NUL = String.valueOf((char) 0);
 
@@ -1565,14 +1562,10 @@ public class UserRest implements ResourceContainer, Startable {
 
   /**
    * Checks a value before anything is written: SOC_IDENTITY_PROPERTIES.VALUE
-   * holds {@value #MAX_STORED_PROFILE_VALUE_LENGTH} characters, and no text
-   * column of PostgreSQL holds U+0000. A list is stored as the org.json
-   * serialisation of its maps, whose escapes lengthen it, so its length is
-   * counted on that text, which mirrors the identity storage's array branch.
-   * The length is counted in UTF-16 units (<code>String.length()</code>), the
-   * bound that holds on every database: where the column counts code points, a
-   * value with characters outside the BMP is refused although the column would
-   * hold it, never the reverse. U+0000 is refused by the column for a single
+   * holds {@value ProfilePropertyValueUtil#MAX_STORED_VALUE_LENGTH} characters,
+   * counted on the stored form by
+   * {@link ProfilePropertyValueUtil#storedLength(Object)}, and no text column
+   * of PostgreSQL holds U+0000. U+0000 is refused by the column for a single
    * value and by rule for a list: org.json escapes it, so a list holding it
    * would be stored.
    *
@@ -1585,28 +1578,16 @@ public class UserRest implements ResourceContainer, Startable {
     if (value == null) {
       return null;
     }
-    int storedLength;
-    if (value instanceof List<?> list) {
-      JSONArray array = new JSONArray();
-      for (Object entry : list) {
-        if (entry instanceof Map<?, ?> map) {
-          if (map.values().stream().anyMatch(v -> StringUtils.contains(String.valueOf(v), NUL))) {
-            return propertyName + ":INVALID_VALUE";
-          }
-          array.put(new JSONObject(map));
-        } else {
-          array.put(entry);
-        }
-      }
-      storedLength = array.toString().length();
-    } else {
-      String text = String.valueOf(value);
-      if (StringUtils.contains(text, NUL)) {
-        return propertyName + ":INVALID_VALUE";
-      }
-      storedLength = text.length();
+    boolean holdsNul = value instanceof List<?> list ? list.stream()
+                                                          .filter(Map.class::isInstance)
+                                                          .flatMap(entry -> ((Map<?, ?>) entry).values().stream())
+                                                          .anyMatch(v -> StringUtils.contains(String.valueOf(v), NUL))
+                                                     : StringUtils.contains(String.valueOf(value), NUL);
+    if (holdsNul) {
+      return propertyName + ":INVALID_VALUE";
     }
-    return storedLength > MAX_STORED_PROFILE_VALUE_LENGTH ? propertyName + ":TOO_LONG" : null;
+    return ProfilePropertyValueUtil.storedLength(value) > ProfilePropertyValueUtil.MAX_STORED_VALUE_LENGTH ? propertyName
+        + ":TOO_LONG" : null;
   }
 
   /**
