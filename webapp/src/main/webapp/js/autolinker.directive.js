@@ -51,22 +51,12 @@ Vue.directive('autolinker', (el, binding) => {
   let html = autolinker.link(binding.value);
 
   if (isPhone) {
-    html = html.replaceAll(/([*#+]?\d[\d\s().-]{0,20}#?)/g, match => {
-      if (
-        html.includes(`href="tel:${match}`) ||
-          /<\/?a\b[^>]*>/i.test(match) ||
-          /^(?:https?:\/\/|www\.)[^\s]+$|^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$/i.test(match)
-      ) {
-        return match;
-      }
-
-      const safeNumber = match
-        .replaceAll(/&/g, '&amp;')
-        .replaceAll(/</g, '&lt;')
-        .replaceAll(/>/g, '&gt;');
-
-      return `<a href="tel:${safeNumber}">${safeNumber}</a>`;
-    });
+    // Links the numbers Autolinker left as text, never inside one of its anchors.
+    // A match holds only digits, separators and +*#: nothing to escape.
+    html = html.split(/(<a\b[^>]*>[\s\S]*?<\/a>)/gi)
+      .map(part => (/^<a\b/i.test(part) ? part : part.replaceAll(/([*#+]?\d[\d\s().-]{0,20}#?)/g,
+        match => `<a href="tel:${Vue.prototype.$utils.normalizePhone(match)}">${match}</a>`)))
+      .join('');
   }
 
   el.innerHTML = html;

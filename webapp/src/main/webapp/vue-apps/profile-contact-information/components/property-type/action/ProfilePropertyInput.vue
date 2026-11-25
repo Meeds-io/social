@@ -95,6 +95,10 @@ export default {
     },
     rulesInput() {
       const rules = [];
+      if (this.disabled) {
+        // A value the user cannot change never blocks the save of the other fields
+        return rules;
+      }
       if (this.isRequired) {
         rules.push(v => !!v
             || this.$t('profileContactInformation.message.field.required'));

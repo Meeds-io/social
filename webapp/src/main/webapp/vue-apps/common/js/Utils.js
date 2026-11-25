@@ -1,5 +1,7 @@
 
 const PHONE_REGEX = /^([+*#]?\d{1,20}#?)$/;
+// Visual separators a phone number may be written with: spaces, dots, dashes, parentheses
+const PHONE_SEPARATORS_REGEX = /[\s().-]/g;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 const TEXTAREA = document.createElement('textarea');
@@ -188,8 +190,13 @@ export function isMacOs() {
   return detectOS() === 'Mac';
 }
 
+// The number without its visual separators, as a tel: URI dials it
+export function normalizePhone(value) {
+  return String(value || '').replace(PHONE_SEPARATORS_REGEX, '');
+}
+
 export function isValidPhone(value) {
-  return !!value && PHONE_REGEX.test(value);
+  return !!value && PHONE_REGEX.test(normalizePhone(value));
 }
 
 export function isValidEmail(value) {
