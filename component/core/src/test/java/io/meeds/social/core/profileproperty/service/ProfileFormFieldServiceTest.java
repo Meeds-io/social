@@ -30,6 +30,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,6 +59,7 @@ import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
 import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
 import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
@@ -88,13 +90,16 @@ public class ProfileFormFieldServiceTest {
   @Mock
   private IdentityManager              identityManager;
 
+  @Mock
+  private AccountKindService           accountKindService;
+
   private ProfileFormFieldService      service;
 
   private long                         lastId;
 
   @Before
   public void setUp() {
-    service = new ProfileFormFieldService(profileSettingStorage, identityStorage, identityManager);
+    service = new ProfileFormFieldService(profileSettingStorage, identityStorage, identityManager, accountKindService);
   }
 
   @Test
@@ -558,6 +563,28 @@ public class ProfileFormFieldServiceTest {
     assertEquals(listOf("1"), profile.getProperty("phones"));
     assertEquals(List.of(Profile.UpdateType.CONTACT), profile.getListUpdateTypes());
     verify(identityManager, times(1)).updateProfile(profile, MODIFIER, false);
+    verify(accountKindService).checkPropertyUpdate(profile, "team", MODIFIER);
+    verify(accountKindService).checkPropertyUpdate(profile, "phones", MODIFIER);
+  }
+
+  /**
+   * A form write is a profile write: an attribute the account's kind keeps for
+   * administrators is refused to anyone else, as UserRest refuses it, whichever
+   * caller saves (the onboarding and registration pages, the form-fields
+   * endpoint), and nothing of the request is written.
+   */
+  @Test
+  public void testSaveRefusesAnAttributeTheAccountKindKeepsForAdministratorsAndWritesNothing() throws Exception {
+    Profile profile = givenIdentity(false, true, Map.of("team", "Sales"));
+    doThrow(new IllegalAccessException("admin only")).when(accountKindService).checkPropertyUpdate(profile, "manager", MODIFIER);
+
+    assertRefused(NOT_ALLOWED,
+                  "manager",
+                  () -> service.save(USERNAME, Map.of("team", "Support", "manager", "john"), MODIFIER));
+
+    assertEquals("Sales", profile.getProperty("team"));
+    assertEquals(null, profile.getProperty("manager"));
+    verify(identityManager, never()).updateProfile(nullable(Profile.class), nullable(String.class), anyBoolean());
   }
 
   @Test

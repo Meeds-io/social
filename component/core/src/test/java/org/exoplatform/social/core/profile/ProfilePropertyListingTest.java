@@ -42,6 +42,7 @@ import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
 import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
 import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
@@ -457,7 +458,10 @@ public class ProfilePropertyListingTest extends AbstractCoreTest {
 
   /** The Spring test base scans no io.meeds.social.core package */
   private ProfileFormFieldService newProfileFormFieldService() {
-    return new ProfileFormFieldService(profileSettingStorage, getService(IdentityStorage.class), identityManager);
+    return new ProfileFormFieldService(profileSettingStorage,
+                                       getService(IdentityStorage.class),
+                                       identityManager,
+                                       getService(AccountKindService.class));
   }
 
   private void warmCaches(ProfilePropertySetting... settings) {

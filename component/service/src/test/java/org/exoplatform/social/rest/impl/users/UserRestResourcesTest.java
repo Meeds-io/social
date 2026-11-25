@@ -244,7 +244,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     profilePropertyServiceSpy = spy(profilePropertyService);
     profileFormFieldService = spy(new ProfileFormFieldService(getContainer().getComponentInstanceOfType(ProfileSettingStorage.class),
                                                               getContainer().getComponentInstanceOfType(IdentityStorage.class),
-                                                              identityManager));
+                                                              identityManager,
+                                                              getContainer().getComponentInstanceOfType(AccountKindService.class)));
     // The confirmation guard is switched off for the tests of the endpoints'
     // own behaviour; the guard tests switch it back on
     InitParams confirmationParams = new InitParams();

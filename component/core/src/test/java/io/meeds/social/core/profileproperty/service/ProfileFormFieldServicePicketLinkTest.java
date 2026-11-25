@@ -51,6 +51,7 @@ import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
 import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
 import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
@@ -92,7 +93,8 @@ public class ProfileFormFieldServicePicketLinkTest {
     completionService = container.getComponentInstanceOfType(LifeCycleCompletionService.class);
     formFieldService = new ProfileFormFieldService(container.getComponentInstanceOfType(ProfileSettingStorage.class),
                                                    container.getComponentInstanceOfType(IdentityStorage.class),
-                                                   identityManager);
+                                                   identityManager,
+                                                   container.getComponentInstanceOfType(AccountKindService.class));
     RequestLifeCycle.begin(container);
   }
 
