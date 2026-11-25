@@ -33,7 +33,8 @@
           :aria-label="$t('peopleList.settings.groupFilter')"
           class="people-list-group-filter-switch ma-0 width-fit-content"
           hide-details
-          @change="$emit('update:enabled', $event)" />
+          @change="$emit('update:enabled', $event)"
+          @keydown.native.enter.exact.prevent="$event.repeat || $emit('update:enabled', !enabled)" />
       </div>
       <template v-if="enabled">
         <label

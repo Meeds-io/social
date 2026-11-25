@@ -31,7 +31,8 @@
         :aria-label="$t('peopleList.settings.attributeFilter')"
         class="people-list-attribute-filter-switch ma-0 width-fit-content"
         hide-details
-        @change="$emit('update:enabled', $event)" />
+        @change="$emit('update:enabled', $event)"
+        @keydown.native.enter.exact.prevent="$event.repeat || $emit('update:enabled', !enabled)" />
     </div>
     <template v-if="enabled">
       <!-- the field's label for assistive technologies; the design shows
