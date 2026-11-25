@@ -50,6 +50,7 @@
         :id="id"
         :name="id"
         :placeholder="placeholder"
+        :aria-describedby="ariaDescribedby"
         :rules="rules || []"
         :value="$t(defaultLanguageValue)"
         :autofocus="autofocus"
@@ -79,6 +80,7 @@
         :placeholder="placeholder"
         :required="required || null"
         :aria-required="required"
+        :aria-describedby="ariaDescribedby"
         :autofocus="autofocus"
         :maxlength="maxlength"
         :rules="rules || []"
@@ -175,6 +177,12 @@ export default {
     required: {
       type: Boolean,
       default: false,
+    },
+    // the id(s) of the text describing the field (a message shown under
+    // it), set on the input for assistive technologies
+    ariaDescribedby: {
+      type: String,
+      default: null,
     },
     richEditor: {
       type: Boolean,
