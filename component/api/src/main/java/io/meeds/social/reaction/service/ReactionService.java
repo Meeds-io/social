@@ -25,6 +25,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
+import io.meeds.social.reaction.plugin.ReactionObjectPlugin;
 
 /**
  * Reactions framework: a reaction is a like decorated with a typed option. The
@@ -35,6 +36,8 @@ import io.meeds.social.reaction.model.ReactionOption;
  */
 public interface ReactionService {
 
+  String ACTIVITY_OBJECT_TYPE         = "activity";
+
   String LIKE_REACTION_ID             = "like";
 
   String METADATA_TYPE_NAME           = "reactions";
@@ -44,6 +47,15 @@ public interface ReactionService {
   String REACTION_UPDATED_EVENT_NAME  = "social.reaction.updated";
 
   String REACTION_DELETED_EVENT_NAME  = "social.reaction.deleted";
+
+  /**
+   * Makes an object type reactable, in addition to the native 'activity' type.
+   * A later registration of the same object type replaces the previous one.
+   *
+   * @param reactionObjectPlugin {@link ReactionObjectPlugin} of the object
+   *          type
+   */
+  void addObjectPlugin(ReactionObjectPlugin reactionObjectPlugin);
 
   /**
    * @return every registered {@link ReactionOption} sorted by rank
@@ -62,8 +74,8 @@ public interface ReactionService {
    * a reaction likes the object as well; changing an existing reaction only
    * switches the stored type without re-firing the like lifecycle.
    *
-   * @param objectType Object type, 'activity' being the only bound type for
-   *          now (comments are activities)
+   * @param objectType Object type, 'activity' (comments are activities) or
+   *          the one of a registered {@link ReactionObjectPlugin}
    * @param objectId Object technical identifier
    * @param reactionId One of the registered {@link ReactionOption} ids
    * @param username User name (login identifier) of the reactor
@@ -116,6 +128,28 @@ public interface ReactionService {
                               long offset,
                               long limit,
                               String username) throws ObjectNotFoundException, IllegalAccessException;
+
+  /**
+   * @param objectType Object type
+   * @param objectId Object technical identifier
+   * @param username User name (login identifier) used for the view ACL check
+   * @return the reaction option id of the user on the object, 'like' for a
+   *         plain like, or null when the user hasn't reacted
+   * @throws ObjectNotFoundException when the target object doesn't exist
+   * @throws IllegalAccessException when the user can't view the target object
+   */
+  String getUserReactionId(String objectType, String objectId, String username) throws ObjectNotFoundException,
+                                                                                IllegalAccessException;
+
+  /**
+   * Deletes every reaction of an object handled by a
+   * {@link ReactionObjectPlugin}, once the object has been deleted. Internal
+   * cleanup path (no ACL). No-op for the 'activity' type and for unknown ones.
+   *
+   * @param objectType Object type
+   * @param objectId Object technical identifier
+   */
+  void deleteObjectReactions(String objectType, String objectId);
 
   /**
    * Deletes the typed reaction item of a reactor on an object without

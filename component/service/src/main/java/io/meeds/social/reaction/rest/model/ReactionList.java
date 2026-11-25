@@ -40,4 +40,14 @@ public class ReactionList {
 
   private List<ProfileEntity> reactorProfiles;
 
+  /**
+   * Reaction option id of the current user on the object, 'like' for a plain
+   * like, null when the user hasn't reacted
+   */
+  private String              userReactionId;
+
+  public ReactionList(Map<String, Long> counts, List<Reaction> reactions, List<ProfileEntity> reactorProfiles) {
+    this(counts, reactions, reactorProfiles, null);
+  }
+
 }

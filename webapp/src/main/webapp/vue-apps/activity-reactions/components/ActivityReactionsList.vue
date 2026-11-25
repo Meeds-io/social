@@ -68,6 +68,12 @@ export default {
     parentId: {
       type: String,
       default: () => ''
+    },
+    // 'activity' for posts and comments, else the type of a registered reactable object:
+    // such objects have no likers list, their reactors are all read from the reactions
+    objectType: {
+      type: String,
+      default: () => 'activity'
     }
   },
   data () {
@@ -134,7 +140,7 @@ export default {
   },
   created() {
     this.$root.$on('activity-liked', this.handleActivityLikesUpdate);
-    this.$reactionService.getReactionOptions('activity')
+    this.$reactionService.getReactionOptions(this.objectType)
       .then(options => this.reactionOptions = options);
     this.retrieveReactors();
     document.addEventListener('check-reactions', this.handleCheckReactions);
@@ -174,12 +180,12 @@ export default {
       }
     },
     retrieveReactors(append) {
-      return this.selectedReactionId ? this.retrieveFilteredReactors(append) : this.retrieveAllReactors(append);
+      return this.selectedReactionId || this.objectType !== 'activity' ? this.retrieveFilteredReactors(append) : this.retrieveAllReactors(append);
     },
     fetchReactionPages(reactionId, offset, limit) {
       const requests = [];
       for (let pageOffset = offset; pageOffset < offset + limit; pageOffset += 100) {
-        requests.push(this.$reactionService.getReactions('activity',
+        requests.push(this.$reactionService.getReactions(this.objectType,
           this.activityId,
           reactionId,
           pageOffset,

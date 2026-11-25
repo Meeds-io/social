@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,13 +48,12 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
+import io.meeds.social.reaction.plugin.ReactionObjectPlugin;
 import io.meeds.social.reaction.plugin.ReactionOptionPlugin;
 import io.meeds.social.reaction.storage.ReactionStorage;
 
 @Service
 public class ReactionServiceImpl implements ReactionService {
-
-  public static final String         ACTIVITY_OBJECT_TYPE       = "activity";
 
   private static final int           CUSTOM_REACTION_MAX_LENGTH = 16;
 
@@ -88,6 +88,20 @@ public class ReactionServiceImpl implements ReactionService {
     }
   }
 
+  private final Map<String, ReactionObjectPlugin> reactionObjectPlugins = new ConcurrentHashMap<>();
+
+  @Autowired(required = false)
+  public void setReactionObjectPlugins(List<ReactionObjectPlugin> plugins) {
+    if (plugins != null) {
+      plugins.forEach(this::addObjectPlugin);
+    }
+  }
+
+  @Override
+  public void addObjectPlugin(ReactionObjectPlugin reactionObjectPlugin) {
+    reactionObjectPlugins.put(reactionObjectPlugin.getObjectType(), reactionObjectPlugin);
+  }
+
   /**
    * Allows registering options from another Spring context (cross-addon), in
    * addition to same-context collection injection. A later registration
@@ -110,6 +124,10 @@ public class ReactionServiceImpl implements ReactionService {
   @Override
   public void setReaction(String objectType, String objectId, String reactionId, String username) throws ObjectNotFoundException,
                                                                                                   IllegalAccessException {
+    if (isPluginObjectType(objectType)) {
+      setPluginObjectReaction(objectType, objectId, reactionId, username);
+      return;
+    }
     ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
     if (activity.getPublicationStartTime() != null) {
       throw new IllegalAccessException(String.format("User %s can't react to the not yet published activity %s",
@@ -153,6 +171,10 @@ public class ReactionServiceImpl implements ReactionService {
   @Override
   public void deleteReaction(String objectType, String objectId, String username) throws ObjectNotFoundException,
                                                                                   IllegalAccessException {
+    if (isPluginObjectType(objectType)) {
+      deletePluginObjectReaction(objectType, objectId, username);
+      return;
+    }
     ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
     Identity userIdentity = identityManager.getOrCreateUserIdentity(username);
     long identityId = Long.parseLong(userIdentity.getId());
@@ -180,6 +202,9 @@ public class ReactionServiceImpl implements ReactionService {
   @Override
   public Map<String, Long> countReactionsByOption(String objectType, String objectId, String username) throws ObjectNotFoundException,
                                                                                                        IllegalAccessException {
+    if (isPluginObjectType(objectType)) {
+      return orderCounts(reactionStorage.countReactionsByOption(getPluginObjectWithCheck(objectType, objectId, username)));
+    }
     ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
     Map<String, Long> countsByOption = reactionStorage.countReactionsByOption(activity.getMetadataObject());
     long likersCount = activity.getLikeIdentityIds() == null ? 0 : activity.getLikeIdentityIds().length;
@@ -207,6 +232,9 @@ public class ReactionServiceImpl implements ReactionService {
                                      long offset,
                                      long limit,
                                      String username) throws ObjectNotFoundException, IllegalAccessException {
+    if (isPluginObjectType(objectType)) {
+      return getPluginObjectReactions(objectType, objectId, reactionId, offset, limit, username);
+    }
     ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
     MetadataObject object = activity.getMetadataObject();
     if (reactionId != null && !LIKE_REACTION_ID.equals(reactionId)) {
@@ -245,6 +273,128 @@ public class ReactionServiceImpl implements ReactionService {
                                                      objectType,
                                                      objectId))
                         .toList();
+  }
+
+  @Override
+  public String getUserReactionId(String objectType, String objectId, String username) throws ObjectNotFoundException,
+                                                                                       IllegalAccessException {
+    long identityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
+    if (isPluginObjectType(objectType)) {
+      MetadataItem item = reactionStorage.getUserReactionItem(getPluginObjectWithCheck(objectType, objectId, username),
+                                                              identityId);
+      return item == null ? null : ReactionStorage.decodeReactionId(item.getMetadata().getName());
+    }
+    ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
+    MetadataItem item = reactionStorage.getUserReactionItem(activity.getMetadataObject(), identityId);
+    if (item != null) {
+      return ReactionStorage.decodeReactionId(item.getMetadata().getName());
+    }
+    return ArrayUtils.contains(activity.getLikeIdentityIds(), String.valueOf(identityId)) ? LIKE_REACTION_ID : null;
+  }
+
+  @Override
+  public void deleteObjectReactions(String objectType, String objectId) {
+    if (isPluginObjectType(objectType)) {
+      reactionStorage.deleteReactions(new MetadataObject(objectType, objectId));
+    }
+  }
+
+  private boolean isPluginObjectType(String objectType) {
+    return objectType != null && reactionObjectPlugins.containsKey(objectType);
+  }
+
+  private MetadataObject getPluginObjectWithCheck(String objectType, String objectId, String username) throws ObjectNotFoundException,
+                                                                                                       IllegalAccessException {
+    ReactionObjectPlugin plugin = reactionObjectPlugins.get(objectType);
+    MetadataObject object = plugin.getMetadataObject(objectId);
+    if (object == null) {
+      throw new ObjectNotFoundException(String.format("Object %s/%s wasn't found", objectType, objectId));
+    }
+    org.exoplatform.services.security.Identity viewer = identityRegistry.getIdentity(username);
+    if (viewer == null || !plugin.hasViewPermission(objectId, viewer)) {
+      throw new IllegalAccessException(String.format("User %s isn't allowed to view object %s/%s", username, objectType, objectId));
+    }
+    return object;
+  }
+
+  private void setPluginObjectReaction(String objectType,
+                                       String objectId,
+                                       String reactionId,
+                                       String username) throws ObjectNotFoundException, IllegalAccessException {
+    MetadataObject object = getPluginObjectWithCheck(objectType, objectId, username);
+    ReactionOption option = getReactionOptionsById().get(reactionId);
+    if ((option == null || !option.supports(objectType)) && !isCustomEmojiReaction(reactionId)) {
+      throw new IllegalArgumentException("reaction.unknownReactionId");
+    }
+    long identityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
+    MetadataItem existingItem = reactionStorage.getUserReactionItem(object, identityId);
+    if (existingItem != null) {
+      if (StringUtils.equals(ReactionStorage.decodeReactionId(existingItem.getMetadata().getName()), reactionId)) {
+        return;
+      }
+      reactionStorage.deleteReaction(existingItem.getId(), identityId);
+    }
+    try {
+      reactionStorage.createReaction(object, reactionId, identityId);
+    } catch (ObjectAlreadyExistsException e) {
+      LOG.debug("Reaction {} already exists for user {} on object {}/{}", reactionId, username, objectType, objectId, e);
+    }
+    broadcastEvent(existingItem == null ? REACTION_CREATED_EVENT_NAME : REACTION_UPDATED_EVENT_NAME,
+                   new Reaction(identityId, reactionId, objectType, objectId),
+                   username);
+  }
+
+  private void deletePluginObjectReaction(String objectType, String objectId, String username) throws ObjectNotFoundException,
+                                                                                               IllegalAccessException {
+    MetadataObject object = getPluginObjectWithCheck(objectType, objectId, username);
+    long identityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
+    MetadataItem existingItem = reactionStorage.getUserReactionItem(object, identityId);
+    if (existingItem == null) {
+      throw new ObjectNotFoundException(String.format("User %s hasn't reacted to object %s/%s", username, objectType, objectId));
+    }
+    reactionStorage.deleteReaction(existingItem.getId(), identityId);
+    broadcastEvent(REACTION_DELETED_EVENT_NAME,
+                   new Reaction(identityId,
+                                ReactionStorage.decodeReactionId(existingItem.getMetadata().getName()),
+                                objectType,
+                                objectId),
+                   username);
+  }
+
+  private List<Reaction> getPluginObjectReactions(String objectType,
+                                                  String objectId,
+                                                  String reactionId,
+                                                  long offset,
+                                                  long limit,
+                                                  String username) throws ObjectNotFoundException, IllegalAccessException {
+    MetadataObject object = getPluginObjectWithCheck(objectType, objectId, username);
+    List<MetadataItem> items = StringUtils.isBlank(reactionId) ? reactionStorage.getTypedReactionItems(object)
+                                                               : reactionStorage.getReactionItemsByOption(reactionId,
+                                                                                                          object,
+                                                                                                          offset,
+                                                                                                          limit);
+    return items.stream()
+                .skip(StringUtils.isBlank(reactionId) ? Math.max(offset, 0) : 0)
+                .limit(limit > 0 ? limit : Long.MAX_VALUE)
+                .map(item -> new Reaction(item.getCreatorId(),
+                                          ReactionStorage.decodeReactionId(item.getMetadata().getName()),
+                                          objectType,
+                                          objectId))
+                .toList();
+  }
+
+  private Map<String, Long> orderCounts(Map<String, Long> countsByOption) {
+    Map<String, Long> counts = new LinkedHashMap<>();
+    getReactionOptionsById().keySet()
+                            .stream()
+                            .filter(countsByOption::containsKey)
+                            .forEach(optionId -> counts.put(optionId, countsByOption.get(optionId)));
+    countsByOption.entrySet()
+                  .stream()
+                  .filter(entry -> !counts.containsKey(entry.getKey()))
+                  .sorted(Map.Entry.comparingByKey())
+                  .forEach(entry -> counts.put(entry.getKey(), entry.getValue()));
+    return counts;
   }
 
   @Override

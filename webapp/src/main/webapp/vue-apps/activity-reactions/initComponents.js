@@ -6,8 +6,12 @@ import ActivityReactionsMobile from './components/ActivityReactionsMobile.vue';
 import ActivityLikerItem from './components/ActivityLikerItem.vue';
 import ActivityReactionsList from './components/ActivityReactionsList.vue';
 import ReactionChooser from './components/ReactionChooser.vue';
+import ObjectReactions from './components/ObjectReactions.vue';
+import ObjectReactionsDrawer from './components/ObjectReactionsDrawer.vue';
 const components = {
   'reaction-chooser': ReactionChooser,
+  'object-reactions': ObjectReactions,
+  'object-reactions-drawer': ObjectReactionsDrawer,
   'activity-reactions-list': ActivityReactionsList,
   'activity-reactions-app': ActivityReactionsApp,
   'activity-reactions': ActivityReactions,

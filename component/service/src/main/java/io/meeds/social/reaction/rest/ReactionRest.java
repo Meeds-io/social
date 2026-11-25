@@ -131,7 +131,13 @@ public class ReactionRest {
                                                               offset,
                                                               limit,
                                                               request.getRemoteUser());
-      return new ReactionList(counts, reactions, reactionId == null ? null : buildReactorProfiles(reactions));
+      // The activities drawer lists the unfiltered reactors from the activity likers: the profiles are only
+      // needed for a filtered list, or for any list of another object type, which has no likers endpoint
+      boolean withProfiles = reactionId != null || !ReactionService.ACTIVITY_OBJECT_TYPE.equals(objectType);
+      return new ReactionList(counts,
+                              reactions,
+                              withProfiles ? buildReactorProfiles(reactions) : null,
+                              reactionService.getUserReactionId(objectType, objectId, request.getRemoteUser()));
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
     } catch (ObjectNotFoundException e) {

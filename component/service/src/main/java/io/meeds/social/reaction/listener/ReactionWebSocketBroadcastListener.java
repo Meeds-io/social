@@ -67,6 +67,9 @@ public class ReactionWebSocketBroadcastListener extends Listener<Reaction, Strin
   @Override
   public void onEvent(Event<Reaction, String> event) throws Exception {
     Reaction reaction = event.getSource();
+    if (!ReactionService.ACTIVITY_OBJECT_TYPE.equals(reaction.getObjectType())) {
+      return;
+    }
     ExoSocialActivity activity = activityManager.getActivity(reaction.getObjectId());
     if (activity == null || activity.isHidden()) {
       return;
