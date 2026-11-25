@@ -1216,7 +1216,7 @@ public class PeopleDirectoryService {
   }
 
   private boolean isSpacePage(Page page) {
-    return PortalConfig.GROUP_TYPE.equals(page.getOwnerType())
+    return PortalConfig.GROUP_TYPE.equalsIgnoreCase(page.getOwnerType())
            && StringUtils.startsWith(page.getOwnerId(), SPACE_GROUP_PREFIX);
   }
 

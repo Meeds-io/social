@@ -195,6 +195,40 @@ public class PeopleDirectoryServiceTest {
   }
 
   /**
+   * A group page outside the spaces keeps the portal's right: the owner type
+   * alone does not make a space page.
+   */
+  @Test
+  public void cannotEditSettingsOfANonSpaceGroupPageNamedByItsEditPermission() {
+    Page page = pageHolding(WINDOW_ID);
+    page.setOwnerType(PortalConfig.GROUP_TYPE);
+    page.setOwnerId("/platform/users");
+    page.setEditPermission(SPACE_PUBLISHERS);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    when(userAcl.hasEditPermission(page, identity)).thenReturn(false);
+    lenient().when(userAcl.isMemberOf(identity, SPACE_PUBLISHERS)).thenReturn(true);
+
+    assertFalse(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
+  }
+
+  /**
+   * A page of another type whose owner id is under the spaces keeps the
+   * portal's right: the owner id alone does not make a space page.
+   */
+  @Test
+  public void cannotEditSettingsOfANonGroupPageOwnedUnderTheSpaces() {
+    Page page = pageHolding(WINDOW_ID);
+    page.setOwnerType(PortalConfig.PORTAL_TYPE);
+    page.setOwnerId("/spaces/marketing");
+    page.setEditPermission(SPACE_PUBLISHERS);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    when(userAcl.hasEditPermission(page, identity)).thenReturn(false);
+    lenient().when(userAcl.isMemberOf(identity, SPACE_PUBLISHERS)).thenReturn(true);
+
+    assertFalse(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
+  }
+
+  /**
    * A space site's edit permission is the template's layout permission list,
    * not a membership expression: the site layout keeps the portal's right.
    */

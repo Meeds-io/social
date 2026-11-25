@@ -29,7 +29,7 @@
         <v-switch
           :id="switchId"
           :input-value="enabled"
-          :disabled="otherGroupsApplied || (!enabled && !value.length && !canAddGroup)"
+          :disabled="(otherGroupsApplied && !$root.unresolvableGroups) || (!enabled && !value.length && !canAddGroup)"
           :aria-label="$t('peopleList.settings.groupFilter')"
           class="people-list-group-filter-switch ma-0 width-fit-content"
           hide-details

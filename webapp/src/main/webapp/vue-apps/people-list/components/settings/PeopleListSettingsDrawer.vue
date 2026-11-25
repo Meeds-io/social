@@ -310,9 +310,10 @@ export default {
       this.attributeFilterEnabled = this.attributes.length > 0;
       this.groups = (this.$root.groups || []).map(group => ({...group}));
       // stored groups that no longer exist list nobody: the filter shows as
-      // set, with no chip, until groups are selected or it is turned OFF;
-      // groups the editor cannot select apply whatever is posted, so the
-      // filter shows as set too, with no chip of theirs
+      // set, with no chip, until groups are selected or it is turned OFF,
+      // which drops them; groups the editor cannot select apply whatever is
+      // posted, so the filter shows as set too, locked ON unless groups that
+      // no longer exist remain to drop
       this.groupFilterEnabled = this.groups.length > 0
         || !!this.$root.unresolvableGroups
         || (this.canSetGroupFilter && !!this.$root.otherGroupsApplied);
