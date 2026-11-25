@@ -154,7 +154,7 @@ public class HiddenApplicationServiceImpl implements HiddenApplicationService {
           removed = true;
         }
       }
-    } while (contexts.size() == CLEAR_PAGE_SIZE && contexts.size() > 0 && removedUsers.size() < 1000);
+    } while (removed && contexts.size() == CLEAR_PAGE_SIZE);
   }
 
   @Override
