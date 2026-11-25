@@ -28,36 +28,30 @@
         :working="working"
         :stored="view && view.themes || []" />
     </v-col>
+    <!-- Cancel and Apply close the settings column, at its bottom: beside the preview, the column is at least as high as
+         it, and a row of their own would sit under the preview -->
     <v-col
-      v-if="working"
       cols="12"
       lg="4"
-      class="pa-0 ps-lg-6 border-box-sizing">
-      <portal-general-settings-branding-identity
-        :company-name="working.companyName"
-        @edit="$refs.brandingDrawer.open()" />
-      <portal-general-settings-themes-list
-        :themes="working.themes"
-        :theme-in-use-key="working.themeInUseKey"
-        @select="working.themeInUseKey = $event"
-        @add="$refs.themeAddDrawer.open()"
-        @edit="$refs.themeEditionDrawer.open($event, false)"
-        @restore="restoreTheme"
-        @delete="deleteTheme" />
-      <portal-general-settings-modes-offered v-model="working.modesOffered" />
-    </v-col>
-    <v-col
-      v-if="customStylesheetEnabled"
-      cols="12"
-      class="pa-0">
+      class="d-flex flex-column pa-0 ps-lg-6 border-box-sizing">
+      <template v-if="working">
+        <portal-general-settings-branding-identity
+          :company-name="working.companyName"
+          @edit="$refs.brandingDrawer.open()" />
+        <portal-general-settings-themes-list
+          :themes="working.themes"
+          :theme-in-use-key="working.themeInUseKey"
+          @select="working.themeInUseKey = $event"
+          @add="$refs.themeAddDrawer.open()"
+          @edit="$refs.themeEditionDrawer.open($event, false)"
+          @restore="restoreTheme"
+          @delete="deleteTheme" />
+        <portal-general-settings-modes-offered v-model="working.modesOffered" />
+      </template>
       <portal-general-settings-custom-style-input
-        v-model="customCss"
-        class="mt-8" />
-    </v-col>
-    <v-col
-      cols="12"
-      class="pa-0">
-      <div class="d-flex justify-end mt-4 pb-2">
+        v-if="customStylesheetEnabled"
+        v-model="customCss" />
+      <div class="d-flex justify-end mt-auto pt-4">
         <v-btn
           :aria-label="$t('generalSettings.cancel')"
           :disabled="loading"

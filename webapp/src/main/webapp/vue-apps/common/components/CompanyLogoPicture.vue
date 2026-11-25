@@ -17,7 +17,9 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <picture class="companyLogoPicture" style="display: contents;">
+  <!-- no box of its own, and the sizes inherited through it: a container that sizes its image with inherit (an avatar's
+       height) reaches the image as if it were its direct child -->
+  <picture class="companyLogoPicture" style="display: contents; height: inherit; width: inherit; border-radius: inherit;">
     <source
       v-if="darkSource"
       :srcset="darkSource"
