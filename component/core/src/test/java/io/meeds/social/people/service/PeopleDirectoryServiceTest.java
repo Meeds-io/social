@@ -71,6 +71,8 @@ public class PeopleDirectoryServiceTest {
 
   private static final PageKey    PAGE_KEY  = new PageKey(SITE_KEY, "people");
 
+  private static final String     SPACE_PUBLISHERS = "publisher:/spaces/team";
+
   @Mock
   private UserACL                 userAcl;
 
@@ -145,6 +147,99 @@ public class PeopleDirectoryServiceTest {
     PortalConfig site = siteHolding(WINDOW_ID);
     when(layoutService.getPortalConfig(SITE_KEY)).thenReturn(site);
     when(userAcl.hasEditPermission(site, identity)).thenReturn(false);
+
+    assertFalse(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
+  }
+
+  /**
+   * On a space site the portal's page edit right is the space layout right,
+   * whatever the page's edit permission names: a user that permission names,
+   * here a space publisher, still edits the window's settings.
+   */
+  @Test
+  public void canEditSettingsWhenNamedBySpacePageEditPermissionWithoutThePortalEditRight() {
+    Page page = spacePageHolding(WINDOW_ID);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    when(userAcl.hasEditPermission(page, identity)).thenReturn(false);
+    when(userAcl.isMemberOf(identity, SPACE_PUBLISHERS)).thenReturn(true);
+
+    assertTrue(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
+  }
+
+  @Test
+  public void cannotEditSettingsWhenNotNamedBySpacePageEditPermission() {
+    Page page = spacePageHolding(WINDOW_ID);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    when(userAcl.hasEditPermission(page, identity)).thenReturn(false);
+    when(userAcl.isMemberOf(identity, SPACE_PUBLISHERS)).thenReturn(false);
+
+    assertFalse(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
+  }
+
+  /**
+   * Outside a space the portal's page edit right already reads the page's
+   * edit permission, or deliberately ignores it (template, draft, user site):
+   * being named by it does not grant the settings.
+   */
+  @Test
+  public void cannotEditSettingsOfANonSpacePageNamedByItsEditPermission() {
+    Page page = pageHolding(WINDOW_ID);
+    page.setOwnerType(PortalConfig.USER_TYPE);
+    page.setOwnerId("mary");
+    page.setEditPermission(SPACE_PUBLISHERS);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    when(userAcl.hasEditPermission(page, identity)).thenReturn(false);
+    lenient().when(userAcl.isMemberOf(identity, SPACE_PUBLISHERS)).thenReturn(true);
+
+    assertFalse(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
+  }
+
+  /**
+   * A group page outside the spaces keeps the portal's right: the owner type
+   * alone does not make a space page.
+   */
+  @Test
+  public void cannotEditSettingsOfANonSpaceGroupPageNamedByItsEditPermission() {
+    Page page = pageHolding(WINDOW_ID);
+    page.setOwnerType(PortalConfig.GROUP_TYPE);
+    page.setOwnerId("/platform/users");
+    page.setEditPermission(SPACE_PUBLISHERS);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    when(userAcl.hasEditPermission(page, identity)).thenReturn(false);
+    lenient().when(userAcl.isMemberOf(identity, SPACE_PUBLISHERS)).thenReturn(true);
+
+    assertFalse(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
+  }
+
+  /**
+   * A page of another type whose owner id is under the spaces keeps the
+   * portal's right: the owner id alone does not make a space page.
+   */
+  @Test
+  public void cannotEditSettingsOfANonGroupPageOwnedUnderTheSpaces() {
+    Page page = pageHolding(WINDOW_ID);
+    page.setOwnerType(PortalConfig.PORTAL_TYPE);
+    page.setOwnerId("/spaces/marketing");
+    page.setEditPermission(SPACE_PUBLISHERS);
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(page);
+    when(userAcl.hasEditPermission(page, identity)).thenReturn(false);
+    lenient().when(userAcl.isMemberOf(identity, SPACE_PUBLISHERS)).thenReturn(true);
+
+    assertFalse(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
+  }
+
+  /**
+   * A space site's edit permission is the template's layout permission list,
+   * not a membership expression: the site layout keeps the portal's right.
+   */
+  @Test
+  public void cannotEditSettingsOfASiteLayoutNamedByItsEditPermission() {
+    when(layoutService.getPage(PAGE_KEY)).thenReturn(null);
+    PortalConfig site = siteHolding(WINDOW_ID);
+    site.setEditPermission(SPACE_PUBLISHERS);
+    when(layoutService.getPortalConfig(SITE_KEY)).thenReturn(site);
+    when(userAcl.hasEditPermission(site, identity)).thenReturn(false);
+    lenient().when(userAcl.isMemberOf(identity, SPACE_PUBLISHERS)).thenReturn(true);
 
     assertFalse(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME));
   }
@@ -264,6 +359,14 @@ public class PeopleDirectoryServiceTest {
   private Page pageHolding(String windowId) {
     Page page = new Page();
     page.setChildren(new ArrayList<ModelObject>(List.of(containerHolding(windowId))));
+    return page;
+  }
+
+  private Page spacePageHolding(String windowId) {
+    Page page = pageHolding(windowId);
+    page.setOwnerType(PortalConfig.GROUP_TYPE);
+    page.setOwnerId("/spaces/team");
+    page.setEditPermission(SPACE_PUBLISHERS);
     return page;
   }
 
