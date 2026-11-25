@@ -65,6 +65,7 @@
           :custom-sub-title="true"
           :custom-title="false"
           :icon-placeholder="versionIconColor('sideBarIconColor')"
+          :color-placeholders="versionTextColors('sideBar')"
           custom-icon />
         <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
       </v-card>
