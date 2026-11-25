@@ -81,6 +81,17 @@ export default {
       loadedOnce: false,
     };
   },
+  computed: {
+    // the empty result's announcement carries what the visible empty state
+    // tells the page's editors of a pre-filtered directory (RGAA 7.5)
+    noResultsStatus() {
+      const noResults = this.$t('peopleList.label.noResults');
+      if (this.$root.canEdit && this.$root.usersResourceUrl && this.$root.directoryFiltered) {
+        return `${noResults}. ${this.$t('peopleList.label.reviewSettings', {0: this.$t('peopleList.label.reviewSettings.link')})}`;
+      }
+      return noResults;
+    },
+  },
   watch: {
     keyword() {
       this.updateUrl();
@@ -140,7 +151,7 @@ export default {
       // the page's first list is not a search result to announce
       if (this.loadedOnce) {
         this.resultsStatus = peopleCount ? this.$t('peopleList.label.peopleCount', {0: peopleCount})
-          : this.$t('peopleList.label.noResults');
+          : this.noResultsStatus;
       }
       this.loadedOnce = true;
     },
