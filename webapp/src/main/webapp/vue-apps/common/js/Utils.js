@@ -203,6 +203,11 @@ export function isValidPhone(value) {
   return !!value && PHONE_REGEX.test(normalizePhone(value));
 }
 
+// The tel: link of a phone number: normalized when the profile accepts it, as stored otherwise
+export function toPhoneHref(value) {
+  return `tel:${isValidPhone(value) ? normalizePhone(value) : value}`;
+}
+
 export function isValidEmail(value) {
   return !!value && EMAIL_REGEX.test(value);
 }
