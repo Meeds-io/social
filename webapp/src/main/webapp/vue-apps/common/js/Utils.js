@@ -2,6 +2,8 @@
 const PHONE_REGEX = /^([+*#]?\d{1,20}#?)$/;
 // Visual separators a phone number may be written with: spaces, dots, dashes, parentheses
 const PHONE_SEPARATORS_REGEX = /[\s().-]/g;
+// A national trunk prefix written after the country code, as in +33 (0)4 72 56 13 17
+const PHONE_TRUNK_PREFIX_REGEX = /^(\s*\+\d{1,3})\s*\(0\)/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 const TEXTAREA = document.createElement('textarea');
@@ -190,9 +192,11 @@ export function isMacOs() {
   return detectOS() === 'Mac';
 }
 
-// The number without its visual separators, as a tel: URI dials it
+// The number as a tel: URI dials it: no visual separator, no trunk prefix after the country code
 export function normalizePhone(value) {
-  return String(value || '').replace(PHONE_SEPARATORS_REGEX, '');
+  return String(value || '')
+    .replace(PHONE_TRUNK_PREFIX_REGEX, '$1')
+    .replace(PHONE_SEPARATORS_REGEX, '');
 }
 
 export function isValidPhone(value) {

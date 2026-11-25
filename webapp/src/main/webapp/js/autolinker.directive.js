@@ -50,12 +50,15 @@ Vue.directive('autolinker', (el, binding) => {
 
   let html = autolinker.link(binding.value);
 
-  if (isPhone) {
-    // Links the numbers Autolinker left as text, never inside one of its anchors.
-    // A match holds only digits, separators and +*#: nothing to escape.
+  // $utils comes with commonVueComponents: without it, numbers Autolinker left as text stay text
+  const utils = Vue.prototype.$utils;
+  if (isPhone && utils) {
+    // Links the numbers Autolinker left as text, never inside one of its anchors, and only
+    // a run the profile accepts as a phone number. A run holds only digits, separators and
+    // +*#: nothing to escape.
     html = html.split(/(<a\b[^>]*>[\s\S]*?<\/a>)/gi)
-      .map(part => (/^<a\b/i.test(part) ? part : part.replaceAll(/([*#+]?\d[\d\s().-]{0,20}#?)/g,
-        match => `<a href="tel:${Vue.prototype.$utils.normalizePhone(match)}">${match}</a>`)))
+      .map(part => (/^<a\b/i.test(part) ? part : part.replaceAll(/[*#+]?\d(?:[\d\s().-]*\d)?#?/g,
+        match => (utils.isValidPhone(match) ? `<a href="tel:${utils.normalizePhone(match)}">${match}</a>` : match))))
       .join('');
   }
 
