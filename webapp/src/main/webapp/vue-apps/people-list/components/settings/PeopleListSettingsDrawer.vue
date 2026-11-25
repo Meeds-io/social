@@ -32,29 +32,42 @@
       <div :key="openCount" class="pa-5">
         <div class="mb-4 text-header">{{ $t('peopleList.settings.displayOptions') }}</div>
         <div class="d-flex align-center text-start">
-          <div class="text-subtitle-1 text-color">
+          <!-- labels the header field, which shows only while the switch
+               is ON; the switch carries its own aria-label -->
+          <label
+            :for="headerInputId"
+            class="text-subtitle-1 text-color">
             {{ $t('peopleList.settings.header') }}
-          </div>
+          </label>
           <v-spacer />
           <v-switch
             :id="headerSwitchId"
             v-model="headerEnabled"
             :aria-label="$t('peopleList.settings.header')"
             class="people-list-header-switch ma-0 width-fit-content"
-            hide-details />
+            hide-details
+            @keydown.native.enter.exact.prevent="$event.repeat || (headerEnabled = !headerEnabled)" />
         </div>
         <translation-text-field
           v-if="headerEnabled"
-          :id="`${$root.appId}HeaderInput`"
+          :id="headerInputId"
           v-model="headerTranslations"
           :default-language="defaultLanguage"
           :placeholder="$t('peopleList.settings.header.placeholder')"
           :maxlength="maxHeaderLength"
-          :required="false"
+          :aria-describedby="headerMissing && headerMessageId || null"
           drawer-title="peopleList.settings.header"
           class="people-list-header-field width-auto flex-grow-1 mt-2"
           back-icon
+          required
           autofocus />
+        <!-- why Apply is disabled, read with the field; text, not color -->
+        <div
+          v-if="headerMissing"
+          :id="headerMessageId"
+          class="people-list-header-message caption text-sub-title mt-1">
+          {{ $t('peopleList.settings.header.required') }}
+        </div>
         <div class="d-flex align-center text-start mt-4">
           <div class="text-subtitle-1 text-color">{{ $t('peopleList.settings.pageSize') }}</div>
           <v-spacer />
@@ -80,7 +93,8 @@
             v-model="guestsSpaceMembersOnly"
             :aria-label="$t('peopleList.settings.guestsSpaceMembersOnly')"
             class="people-list-guests-switch ma-0 ms-4 width-fit-content"
-            hide-details />
+            hide-details
+            @keydown.native.enter.exact.prevent="$event.repeat || (guestsSpaceMembersOnly = !guestsSpaceMembersOnly)" />
         </div>
         <people-list-attribute-filter
           v-model="attributes"
@@ -158,6 +172,12 @@ export default {
   computed: {
     headerSwitchId() {
       return `${this.$root.appId}HeaderSwitch`;
+    },
+    headerInputId() {
+      return `${this.$root.appId}HeaderInput`;
+    },
+    headerMessageId() {
+      return `${this.$root.appId}HeaderMessage`;
     },
     guestsSwitchId() {
       return `${this.$root.appId}GuestsSwitch`;
@@ -239,8 +259,8 @@ export default {
     attributeFilterIncomplete() {
       return this.attributeValuesMissing || this.attributeUnavailable || this.attributeFilterRefused;
     },
-    // a missing header only disables Apply: its required state belongs on
-    // the field, a tooltip on a disabled button reaches no keyboard user
+    // a missing header only disables Apply: its message shows under the
+    // field, a tooltip on a disabled button reaches no keyboard user
     applyTooltip() {
       if (this.attributeUnavailable) {
         return this.$t('peopleList.settings.attribute.unavailable');
