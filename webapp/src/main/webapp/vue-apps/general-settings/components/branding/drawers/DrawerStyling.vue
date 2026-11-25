@@ -61,6 +61,7 @@
           class="mt-2 pe-3"
           no-toggle
           :icon-placeholder="versionIconColor('drawerIconColor')"
+          :color-placeholders="versionTextColors('drawer')"
           custom-icon />
         <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
       </v-card>

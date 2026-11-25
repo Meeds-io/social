@@ -64,6 +64,7 @@
         class="ms-0 my-auto">
         <styling-color-picker
           v-model="textTitleColor"
+          :placeholder="textPlaceholders.title"
           min-text-width="78"
           class="my-auto" />
       </v-list-item-action>
@@ -108,6 +109,7 @@
         class="ms-0 my-auto">
         <styling-color-picker
           v-model="textHeaderColor"
+          :placeholder="textPlaceholders.header"
           min-text-width="78"
           class="my-auto" />
       </v-list-item-action>
@@ -152,6 +154,7 @@
         class="ms-0 my-auto">
         <styling-color-picker
           v-model="textColor"
+          :placeholder="textPlaceholders.text"
           min-text-width="78"
           class="my-auto" />
       </v-list-item-action>
@@ -187,6 +190,7 @@
         class="ms-0 my-auto">
         <styling-color-picker
           v-model="textSubtitleColor"
+          :placeholder="textPlaceholders.subtitle"
           min-text-width="78"
           class="my-auto" />
       </v-list-item-action>
@@ -252,6 +256,12 @@ export default {
       type: String,
       default: null,
     },
+    // Colours the Title, Header, Text and Subtitle rows show while nothing is set at this level, keyed title, header,
+    // text and subtitle; a row the caller gives none shows an empty picker
+    colorPlaceholders: {
+      type: Object,
+      default: null,
+    },
     // Title and Header text backgrounds (the only two that exist); off for areas that have none (Branding Topbar, Sidebars, Drawers)
     textBackground: {
       type: Boolean,
@@ -292,6 +302,15 @@ export default {
     // The inherited colour handed to the picker: the caller's when the picker can parse it, else the built-in grey
     effectiveIconPlaceholder() {
       return this.pickerColor(this.iconPlaceholder) || this.pickerColor(this.defaultIconColor) || '#707070';
+    },
+    // The caller's colours for the text rows, each kept only when the picker can parse it
+    textPlaceholders() {
+      return {
+        title: this.pickerColor(this.colorPlaceholders?.title),
+        header: this.pickerColor(this.colorPlaceholders?.header),
+        text: this.pickerColor(this.colorPlaceholders?.text),
+        subtitle: this.pickerColor(this.colorPlaceholders?.subtitle),
+      };
     },
   },
   watch: {
