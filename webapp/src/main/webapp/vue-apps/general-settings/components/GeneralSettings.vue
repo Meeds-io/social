@@ -64,7 +64,10 @@
               </v-list-item-content>
             </v-list-item>
           </v-expand-transition>
-          <v-expand-transition>
+          <!-- the page's layout is final once it has opened, the transition holding its height until then. The hook is
+               named as Vuetify names its own, so that the two are merged: after-enter would be replaced by Vuetify's
+               afterEnter, and the event never emitted -->
+          <v-expand-transition @afterEnter="$root.$emit('general-settings-page-shown')">
             <portal-general-settings-branding-site-window
               v-if="$root.selectedTab === 'branding'"
               ref="brandingSettings"
