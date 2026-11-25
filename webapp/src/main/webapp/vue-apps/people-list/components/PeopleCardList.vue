@@ -44,7 +44,6 @@
       </div>
       <div
         v-else-if="!displayLoading"
-        role="status"
         class="d-flex text-center noPeopleYetBlock">
         <div class="ma-auto noPeopleYet">
           <p class="noPeopleYetIcons">
