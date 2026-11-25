@@ -17,38 +17,42 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-list-item v-if="displayed" class="userSettingDisplayMode">
-    <v-list-item-content>
-      <v-list-item-title
-        :id="titleId"
-        class="text-title">
-        {{ $t('UserSettings.displayMode') }}
-      </v-list-item-title>
-    </v-list-item-content>
-    <v-list-item-action class="flex-row align-center my-0">
-      <div
-        role="radiogroup"
-        :aria-labelledby="titleId"
-        class="d-flex align-center">
-        <v-btn
-          v-for="option in options"
-          :key="option.mode"
-          :class="option.mode === mode && 'primary--text light-grey-background-color displayModeSelected'"
-          :aria-label="$t(option.label)"
-          :title="$t(option.label)"
-          :aria-checked="String(option.mode === mode)"
-          :id="`displayMode${option.mode}`"
-          role="radio"
-          class="ms-1"
-          small
-          icon
-          tile
-          @click="select(option.mode)">
-          <v-icon size="18" :class="option.mode !== mode && 'icon-default-color'">{{ option.icon }}</v-icon>
-        </v-btn>
-      </div>
-    </v-list-item-action>
-  </v-list-item>
+  <!-- the row is followed by a separator: the Language row comes next in the same card -->
+  <div v-if="displayed">
+    <v-list-item class="userSettingDisplayMode">
+      <v-list-item-content>
+        <v-list-item-title
+          :id="titleId"
+          class="text-title">
+          {{ $t('UserSettings.displayMode') }}
+        </v-list-item-title>
+      </v-list-item-content>
+      <v-list-item-action class="flex-row align-center my-0">
+        <div
+          role="radiogroup"
+          :aria-labelledby="titleId"
+          class="d-flex align-center">
+          <v-btn
+            v-for="option in options"
+            :key="option.mode"
+            :class="option.mode === mode && 'primary--text light-grey-background-color displayModeSelected'"
+            :aria-label="$t(option.label)"
+            :title="$t(option.label)"
+            :aria-checked="String(option.mode === mode)"
+            :id="`displayMode${option.mode}`"
+            role="radio"
+            class="ms-1"
+            small
+            icon
+            tile
+            @click="select(option.mode)">
+            <v-icon size="18" :class="option.mode !== mode && 'icon-default-color'">{{ option.icon }}</v-icon>
+          </v-btn>
+        </div>
+      </v-list-item-action>
+    </v-list-item>
+    <v-divider class="mx-4" />
+  </div>
 </template>
 <script>
 export default {
