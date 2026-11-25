@@ -70,6 +70,22 @@ export default {
       }
       return version === 'dark' ? '#9BA3A8' : '#6B6B6B';
     },
+    // the colors the area's unset text rows show in the edited version, keyed as the text input's rows: the server's
+    // resolved value of each key; the application body text has no value of its own in the template, which derives it
+    // from the platform's text color
+    versionTextColors(area) {
+      return {
+        title: this.versionColor(`${area}TextTitleColor`),
+        header: this.versionColor(`${area}TextHeaderColor`),
+        text: this.versionColor(`${area}TextColor`) || (area === 'app' && this.versionColor('textColor')) || null,
+        subtitle: this.versionColor(`${area}TextSubtitleColor`),
+      };
+    },
+    versionColor(key) {
+      const version = this.themeEditSession?.version || 'light';
+      const resolved = this.themeEditSession?.resolved?.[version]?.[key];
+      return resolved && resolved !== 'initial' ? resolved : null;
+    },
     // a row of the open drawer is about to reload the session: the drawer's unapplied edits go first
     commitOpenEdits() {
       if (this.drawer) {
