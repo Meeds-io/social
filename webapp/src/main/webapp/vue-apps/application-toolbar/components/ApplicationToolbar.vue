@@ -361,6 +361,7 @@ export default {
     toggle: null,
     select: null,
     term: null,
+    searchedTerm: null,
     typing: false,
     startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
@@ -522,9 +523,15 @@ export default {
     term()  {
       this.$emit('filter-text-input', this.term);
       if (!this.term?.length) {
+        this.searchedTerm = null;
         this.$emit('filter-text-input-end-typing', this.term);
         return;
       } else if (!this.isTermValid) {
+        // A term shortened below the minimum shows the full list again, as an empty search does
+        if (this.searchedTerm?.length) {
+          this.searchedTerm = null;
+          this.$emit('filter-text-input-end-typing', '');
+        }
         return;
       }
       this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
@@ -601,7 +608,11 @@ export default {
       window.setTimeout(() => {
         if (Date.now() > this.startTypingKeywordTimeout) {
           this.typing = false;
-          this.$emit('filter-text-input-end-typing', this.term);
+          // an empty or too-short term was already handled by the term watcher
+          if (this.term?.length && this.isTermValid) {
+            this.searchedTerm = this.term;
+            this.$emit('filter-text-input-end-typing', this.term);
+          }
         } else {
           this.waitForEndTyping();
         }
