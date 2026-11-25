@@ -434,8 +434,8 @@ export default {
     },
     isTermValid() {
       return !this.term?.length
-          || !this.rightTextFilter.minCharcters
-          || this.term.length >= this.rightTextFilter.minCharcters;
+          || !this.rightTextFilter.minCharacters
+          || this.term.length >= this.rightTextFilter.minCharacters;
     },
     showTextTooltip() {
       return this.rightTextFilter?.tooltip && !this.isTermValid;
