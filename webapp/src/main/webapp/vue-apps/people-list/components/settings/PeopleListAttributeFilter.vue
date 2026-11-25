@@ -51,6 +51,7 @@
         :items="selectableSettings"
         :placeholder="$t('peopleList.settings.attributeSearch')"
         :no-data-text="$t('peopleList.settings.attributeSearch.noData')"
+        :aria-describedby="attributesMissing && attributesMissingId || null"
         item-value="propertyName"
         item-text="label"
         class="people-list-attribute-search mt-2 mb-0 mx-0 pa-0 elevation-0 no-border"
@@ -65,6 +66,13 @@
           </v-list-item-content>
         </template>
       </v-autocomplete>
+      <!-- why Apply is disabled, read with the field; text, not color -->
+      <div
+        v-if="attributesMissing"
+        :id="attributesMissingId"
+        class="people-list-attributes-missing caption error-color mt-1">
+        {{ $t('peopleList.settings.attribute.required') }}
+      </div>
       <people-list-attribute-card
         v-for="(attribute, index) in value"
         :key="attribute.name"
@@ -103,8 +111,15 @@ export default {
     attributeSearchId() {
       return `${this.$root.appId}AttributeSearch`;
     },
+    attributesMissingId() {
+      return `${this.$root.appId}AttributesMissing`;
+    },
     canAddAttribute() {
       return this.value.length < this.maxAttributes;
+    },
+    // ON with no attribute: Apply is disabled
+    attributesMissing() {
+      return this.enabled && !this.value.length;
     },
     // the attributes viewers can filter on in the advanced filter, but email,
     // which the directory does not filter on, and those already selected
