@@ -48,6 +48,9 @@ export default {
     document.addEventListener('drawerClosed', this.hideOverlay);
     document.addEventListener('modalOpened', this.modalOpened);
     document.addEventListener('modalClosed', this.modalClosed);
+    // Whether an Escape comes from a dialog is decided while the event descends, when that dialog is still active:
+    // Vuetify closes the dialog on its own wrapper, so the class is gone by the time the event bubbles to the document
+    document.addEventListener('keydown', this.noteEscapeFromDialog, true);
     document.onkeydown = this.closeDisplayedDrawer;
     document.querySelector('#drawers-overlay').onclick = this.closeDisplayedDrawerNoEvent;
     this.uiPortalApplicationElement = document.querySelector('#UIPortalApplication');
@@ -61,8 +64,13 @@ export default {
       this.closeDisplayedDrawer();
     },
     closeDisplayedDrawer(event) {
-      if (this.openedDrawers && (!event || (event.key === 'Escape' && !this.isInDialogKeepingDrawerOpen(event.target)))) {
+      if (this.openedDrawers && (!event || (event.key === 'Escape' && this.escapeFromDialog !== event))) {
         this.closeDisplayedDrawerEffectively();
+      }
+    },
+    noteEscapeFromDialog(event) {
+      if (event.key === 'Escape') {
+        this.escapeFromDialog = this.isInDialogKeepingDrawerOpen(event.target) ? event : null;
       }
     },
     isInDialogKeepingDrawerOpen(element) {
