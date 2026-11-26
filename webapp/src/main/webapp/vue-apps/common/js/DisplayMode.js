@@ -72,11 +72,12 @@ export function applyMode(mode) {
 }
 
 // The favicon links the page wrote (portal UIPortalApplication.gtmpl) carry both paths: the main one shows the
-// version of the mode, the dark one is chosen by the device in Automatic only
+// version the page shows, the device's in Automatic, which the server cannot know when it writes it; the dark one,
+// for a browser without JavaScript, is chosen by the device in Automatic only
 function applyFavicon(attribute) {
   const favicon = document.getElementById('brandingFavicon');
   if (favicon?.dataset?.lightHref) {
-    favicon.href = attribute === 'dark' ? favicon.dataset.darkHref : favicon.dataset.lightHref;
+    favicon.href = getVersion(document) === 'dark' ? favicon.dataset.darkHref : favicon.dataset.lightHref;
   }
   const darkFavicon = document.getElementById('brandingDarkFavicon');
   if (darkFavicon) {
@@ -94,7 +95,7 @@ export function dispatchChange(doc) {
 
 /**
  * While the page is in Automatic, a change of the device's mode changes the version shown: it is signalled like a
- * click. Registered once per page.
+ * click, and the favicon follows. Registered once per page, when the favicon takes the version the page shows.
  *
  * @returns {void}
  */
@@ -102,8 +103,10 @@ export function listenToDevice() {
   if (window.displayModeDeviceListener || !window.matchMedia) {
     return;
   }
+  applyFavicon(getPageMode(document));
   window.displayModeDeviceListener = () => {
     if (getPageMode(document) === 'auto') {
+      applyFavicon('auto');
       dispatchChange(document);
     }
   };
