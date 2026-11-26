@@ -61,14 +61,16 @@ export default {
       this.closeDisplayedDrawer();
     },
     closeDisplayedDrawer(event) {
-      if (this.openedDrawers && (!event || (event.key === 'Escape' && !this.isInActiveDialog(event.target)))) {
+      if (this.openedDrawers && (!event || (event.key === 'Escape' && !this.isInEscapeClosedDialog(event.target)))) {
         this.closeDisplayedDrawerEffectively();
       }
     },
-    isInActiveDialog(element) {
-      // an Escape pressed in a dialog closes that dialog only, not the drawer it was opened from; a drawer opened above
-      // a dialog holds the focus, so its Escape still closes it
-      return !!element?.closest?.('.v-dialog__content--active');
+    isInEscapeClosedDialog(element) {
+      // An Escape pressed in a dialog that Escape closes closes that dialog only, not the drawer it was opened from.
+      // A persistent dialog ignores Escape, so the drawer keeps handling it there: a drawer's close confirmation is
+      // dismissed by ExoDrawer#close. A drawer opened above a dialog holds the focus, so its Escape still closes it
+      const dialog = element?.closest?.('.v-dialog__content--active .v-dialog');
+      return !!dialog && !dialog.classList.contains('v-dialog--persistent');
     },
     closeDisplayedDrawerEffectively() {
       document.dispatchEvent(new CustomEvent('closeDisplayedDrawer'));
