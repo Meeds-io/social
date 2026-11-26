@@ -436,7 +436,7 @@ export default {
                 this.error = data.error;
                 this.errorField = data.errorField;
                 if (!this.errorField) {
-                  this.$root.$emit('alert-message', this.error, 'error');
+                  this.$root.$emit('alert-message', this.$te(this.error) ? this.$t(this.error) : this.error, 'error');
                 }
                 this.loading = false;
               }).catch(() => {
