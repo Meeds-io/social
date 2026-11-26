@@ -109,6 +109,7 @@ import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
 import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 import io.meeds.social.analytics.CollaborativeActivityDeclarationTest;
 import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
+import org.exoplatform.social.core.storage.cache.model.key.SpaceFilterKeyTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -197,7 +198,8 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     PortableSequenceChangelogCoverageTest.class,
     CollaborativeActivityDeclarationTest.class,
     CachedProfileSettingStorageClusterTest.class,
-    ProfileFormFieldServiceTest.class
+    ProfileFormFieldServiceTest.class,
+    SpaceFilterKeyTest.class
 })
 public class NoContainerTestSuite {
 
