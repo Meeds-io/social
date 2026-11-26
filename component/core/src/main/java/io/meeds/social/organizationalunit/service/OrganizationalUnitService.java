@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
@@ -38,7 +39,9 @@ import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorage;
 @Service
 public class OrganizationalUnitService {
 
-  private static final Log          LOG = ExoLogger.getLogger(OrganizationalUnitService.class);
+  private static final Log          LOG               = ExoLogger.getLogger(OrganizationalUnitService.class);
+
+  private static final String       PLATFORM_GROUP_ID = "/platform";
 
   @Autowired
   private OrganizationalUnitStorage organizationalUnitStorage;
@@ -83,6 +86,46 @@ public class OrganizationalUnitService {
            || isNestedInManagedOrganizationalUnit(groupId, userName);
   }
 
+  /**
+   * Whether the given user can add or remove members of the given group as an
+   * Organizational Unit manager: the group is in the user's management
+   * perimeter ({@link #canManageGroup(String, String)}) and is neither a
+   * platform group nor a group nested, at any level, inside one.
+   *
+   * @param groupId group id to check
+   * @param userName user name of the potential manager
+   * @return true if the given user can manage the memberships of the group
+   */
+  public boolean canManageGroupMemberships(String groupId, String userName) {
+    // the rule applies to the group as stored: an id that is not the stored group's id is refused
+    if (isPlatformGroup(groupId) || !isStoredGroupId(groupId)) {
+      return false;
+    }
+    Set<String> enclosingGroupIds = new HashSet<>();
+    // a group whose enclosing groups could not all be read is refused
+    if (!collectEnclosingGroupIds(groupId, new HashSet<>(), enclosingGroupIds)
+        || enclosingGroupIds.stream().anyMatch(OrganizationalUnitService::isPlatformGroup)) {
+      return false;
+    }
+    return isManagedOrganizationalUnit(groupId, userName)
+           || (CollectionUtils.isNotEmpty(enclosingGroupIds)
+               && organizationalUnitStorage.isAnyManagedOrganizationalUnit(enclosingGroupIds, userName));
+  }
+
+  private boolean isStoredGroupId(String groupId) {
+    try {
+      Group group = organizationService.getGroupHandler().findGroupById(groupId);
+      return group != null && StringUtils.equals(groupId, group.getId());
+    } catch (Exception e) {
+      LOG.warn("Error retrieving group {}", groupId, e);
+      return false;
+    }
+  }
+
+  private static boolean isPlatformGroup(String groupId) {
+    return PLATFORM_GROUP_ID.equals(groupId) || StringUtils.startsWith(groupId, PLATFORM_GROUP_ID + "/");
+  }
+
   private boolean isNestedInManagedOrganizationalUnit(String groupId, String userName) {
     Set<String> enclosingGroupIds = new HashSet<>();
     collectEnclosingGroupIds(groupId, new HashSet<>(), enclosingGroupIds);
@@ -90,20 +133,29 @@ public class OrganizationalUnitService {
            && organizationalUnitStorage.isAnyManagedOrganizationalUnit(enclosingGroupIds, userName);
   }
 
-  private void collectEnclosingGroupIds(String groupId, Set<String> visitedGroupIds, Set<String> enclosingGroupIds) {
+  /**
+   * Collects the groups enclosing the given group, at any level.
+   *
+   * @return false when the group or one of its enclosing groups could not be
+   *         read, the collected set being then incomplete
+   */
+  private boolean collectEnclosingGroupIds(String groupId, Set<String> visitedGroupIds, Set<String> enclosingGroupIds) {
     if (!visitedGroupIds.add(groupId)) {
-      return;
+      return true;
     }
     try {
       Group group = organizationService.getGroupHandler().findGroupById(groupId);
+      boolean complete = true;
       if (group != null && CollectionUtils.isNotEmpty(group.getEnclosingMemberships())) {
-        group.getEnclosingMemberships().forEach(enclosingMembership -> {
+        for (var enclosingMembership : group.getEnclosingMemberships()) {
           enclosingGroupIds.add(enclosingMembership.getGroupId());
-          collectEnclosingGroupIds(enclosingMembership.getGroupId(), visitedGroupIds, enclosingGroupIds);
-        });
+          complete = collectEnclosingGroupIds(enclosingMembership.getGroupId(), visitedGroupIds, enclosingGroupIds) && complete;
+        }
       }
+      return complete;
     } catch (Exception e) {
       LOG.warn("Error retrieving enclosing groups of group {}", groupId, e);
+      return false;
     }
   }
 

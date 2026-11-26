@@ -42,3 +42,7 @@ export function getOrganizationalUnitMembers(groupId, keyword, offset, limit) {
     return response.json();
   });
 }
+
+export function isPlatformGroupId(groupId) {
+  return groupId === '/platform' || !!groupId?.startsWith('/platform/');
+}
