@@ -426,12 +426,21 @@ export default {
         } else {
           this.$loginService.sendEmailVerificationEmail(this.email, this.firstName, this.lastName, this.password, this.confirmPassword, this.tokenParam, this.captcha, this.username).then((resp) => {
             if (!resp || !resp.ok) {
+              if (resp?.status === 404) {
+                // an expired or already used link: the answer has no body
+                this.$root.$emit('alert-message', this.$t('onboarding.linkExpired'), 'error');
+                this.loading = false;
+                return;
+              }
               resp.json().then((data) => {
                 this.error = data.error;
                 this.errorField = data.errorField;
                 if (!this.errorField) {
                   this.$root.$emit('alert-message', this.error, 'error');
                 }
+                this.loading = false;
+              }).catch(() => {
+                this.$root.$emit('alert-message', this.$t('UILoginForm.label.unknownError'), 'error');
                 this.loading = false;
               });
             } else {
