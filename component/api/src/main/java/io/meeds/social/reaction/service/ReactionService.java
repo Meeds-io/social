@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
+import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
 import io.meeds.social.reaction.plugin.ReactionObjectPlugin;
@@ -140,6 +141,45 @@ public interface ReactionService {
    */
   String getUserReactionId(String objectType, String objectId, String username) throws ObjectNotFoundException,
                                                                                 IllegalAccessException;
+
+  /**
+   * Retrieves in one call what the reactions of an object display: the
+   * reactors count per option, a page of reactors and the reaction of the
+   * user. For an object handled by a {@link ReactionObjectPlugin}, the object
+   * is resolved and its view right checked once for the three of them.
+   *
+   * @param objectType Object type
+   * @param objectId Object technical identifier
+   * @param reactionId Optional reaction option id to filter the reactors on,
+   *          null for all
+   * @param offset Query offset
+   * @param limit Query limit
+   * @param username User name (login identifier) used for the view ACL check
+   * @return {@link ObjectReactions} of the object
+   * @throws ObjectNotFoundException when the target object doesn't exist, or
+   *           when the user can't view it and it is handled by a
+   *           {@link ReactionObjectPlugin}
+   * @throws IllegalAccessException when the user can't view the activity
+   */
+  ObjectReactions getObjectReactions(String objectType,
+                                     String objectId,
+                                     String reactionId,
+                                     long offset,
+                                     long limit,
+                                     String username) throws ObjectNotFoundException, IllegalAccessException;
+
+  /**
+   * Deletes the reactions of every object of a type that lives under a parent
+   * object, once the parent has been deleted (the comments of a deleted task
+   * for example). Internal cleanup path (no ACL). No-op for the 'activity'
+   * type and for the ones that aren't handled by a
+   * {@link ReactionObjectPlugin}. Every metadata item of those objects goes,
+   * so use it only for a parent that no longer exists.
+   *
+   * @param objectType Object type
+   * @param parentId Technical identifier of the deleted parent object
+   */
+  void deleteObjectReactionsByParent(String objectType, String parentId);
 
   /**
    * Deletes every reaction of an object handled by a

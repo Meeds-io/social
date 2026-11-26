@@ -21,12 +21,10 @@
   <div class="objectReactions d-inline-flex align-center flex-wrap">
     <reaction-chooser
       :current-reaction-id="userReactionId"
-      :disabled="loading"
-      :object-type="reactionOptionsType"
+      :object-type="objectType"
       @reaction-select="selectReaction">
       <v-btn
         :id="`objectReactionLike-${objectType}-${objectId}`"
-        :loading="loading"
         :class="userReactionId && 'primary--text'"
         :aria-pressed="!!userReactionId"
         class="px-1 width-auto"
@@ -74,13 +72,9 @@ export default {
     userReactionId: null,
     options: [],
     optionsLoaded: false,
-    loading: false,
+    saving: false,
   }),
   computed: {
-    // The options are the ones of the activities, whatever the object type
-    reactionOptionsType() {
-      return 'activity';
-    },
     totalCount() {
       return Object.values(this.counts).reduce((sum, count) => sum + count, 0);
     },
@@ -117,7 +111,7 @@ export default {
     },
   },
   created() {
-    this.$reactionService.getReactionOptions(this.reactionOptionsType)
+    this.$reactionService.getReactionOptions(this.objectType)
       .then(options => this.options = options)
       .catch(() => this.options = [])
       .finally(() => this.optionsLoaded = true);
@@ -135,31 +129,60 @@ export default {
       if (!this.objectId) {
         return Promise.resolve();
       }
-      return this.$reactionService.getReactions(this.objectType, this.objectId, null, 0, 1)
+      const objectId = this.objectId;
+      return this.$reactionService.getReactions(this.objectType, objectId, null, 0, 1)
         .then(result => {
-          this.counts = result?.counts || {};
-          this.userReactionId = result?.userReactionId || null;
+          // The component is reused for another object: the answer of the previous one is dropped
+          if (objectId === this.objectId) {
+            this.counts = result?.counts || {};
+            this.userReactionId = result?.userReactionId || null;
+          }
         })
-        .catch(() => this.counts = {});
+        .catch(() => {
+          if (objectId === this.objectId) {
+            this.counts = {};
+          }
+        });
     },
     toggleReaction() {
       return this.userReactionId ? this.removeReaction() : this.selectReaction({id: 'like'});
     },
     selectReaction(option) {
-      if (this.loading || !option?.id || option.id === this.userReactionId) {
+      if (this.saving || !option?.id || option.id === this.userReactionId) {
         return Promise.resolve();
       }
-      return this.apply(() => this.$reactionService.setReaction(this.objectType, this.objectId, option.id));
+      return this.save(option.id, () => this.$reactionService.setReaction(this.objectType, this.objectId, option.id));
     },
     removeReaction() {
-      return this.apply(() => this.$reactionService.deleteReaction(this.objectType, this.objectId));
+      return this.save(null, () => this.$reactionService.deleteReaction(this.objectType, this.objectId));
     },
-    apply(request) {
-      this.loading = true;
+    save(newReactionId, request) {
+      this.saving = true;
+      const objectId = this.objectId;
+      const previous = {counts: this.counts, userReactionId: this.userReactionId};
+      // The new state shows at once, and comes back to the previous one when the save fails
+      this.counts = this.countsWith(newReactionId);
+      this.userReactionId = newReactionId;
       return request()
         .then(() => this.refresh())
-        .catch(() => this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error'))
-        .finally(() => this.loading = false);
+        .catch(() => {
+          if (objectId === this.objectId) {
+            this.counts = previous.counts;
+            this.userReactionId = previous.userReactionId;
+          }
+          this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error');
+        })
+        .finally(() => this.saving = false);
+    },
+    countsWith(newReactionId) {
+      const counts = Object.assign({}, this.counts);
+      if (this.userReactionId && counts[this.userReactionId]) {
+        counts[this.userReactionId] -= 1;
+      }
+      if (newReactionId) {
+        counts[newReactionId] = (counts[newReactionId] || 0) + 1;
+      }
+      return counts;
     },
   },
 };

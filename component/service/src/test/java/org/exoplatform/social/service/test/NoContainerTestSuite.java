@@ -39,6 +39,8 @@ import org.exoplatform.social.rest.impl.complementaryfilter.ComplementaryFilterR
 import org.exoplatform.social.websocket.ActivityStreamWebSocketServiceTest;
 import org.exoplatform.social.websocket.SpaceWebNotificationWebSocketServiceTest;
 
+import io.meeds.social.reaction.listener.ReactionWebSocketBroadcastListenerTest;
+import io.meeds.social.reaction.rest.ReactionRestTest;
 import io.meeds.social.report.listener.ReportWebSocketBroadcastListenerTest;
 import io.meeds.social.report.rest.ActivityReportRestTest;
 
@@ -50,6 +52,8 @@ import io.meeds.social.report.rest.ActivityReportRestTest;
   EntityBuilderReactionsTest.class,
   EntityBuilderReportsTest.class,
   SpaceEntityTest.class,
+  ReactionRestTest.class,
+  ReactionWebSocketBroadcastListenerTest.class,
   ReportWebSocketBroadcastListenerTest.class,
   SpaceWebNotificationWebSocketServiceTest.class,
   ActivityStreamWebSocketServiceTest.class,

@@ -1,7 +1,7 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -51,6 +51,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 
+import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
 import io.meeds.social.reaction.service.ReactionService;
@@ -79,9 +80,18 @@ public class ReactionRestTest {
   @Before
   public void setUp() throws Exception {
     mockMvc = MockMvcBuilders.standaloneSetup(rest).build();
-    when(reactionService.countReactionsByOption("activity", "1", "john")).thenReturn(Map.of("like", 2L));
-    when(reactionService.getReactions("activity", "1", null, 0, 20, "john")).thenReturn(List.of(new Reaction(7, "like", "activity", "1")));
-    when(reactionService.getUserReactionId("activity", "1", "john")).thenReturn("like");
+    stub("activity", "1", null, Map.of("like", 2L), List.of(new Reaction(7, "like", "activity", "1")), "like");
+  }
+
+  private void stub(String objectType,
+                    String objectId,
+                    String reactionId,
+                    Map<String, Long> counts,
+                    List<Reaction> reactions,
+                    String userReactionId) throws Exception {
+    when(reactionService.getObjectReactions(objectType, objectId, reactionId, 0, 20, "john")).thenReturn(new ObjectReactions(counts,
+                                                                                                                              reactions,
+                                                                                                                              userReactionId));
   }
 
   @Test
@@ -113,10 +123,8 @@ public class ReactionRestTest {
     ProfileEntity profileEntity = new ProfileEntity();
     profileEntity.setId("7");
     profileEntity.setFullname("John Doe");
-    when(reactionService.getReactions("activity", "1", "like", 0, 20, "john")).thenReturn(List.of(new Reaction(7, "like", "activity", "1")));
-    when(reactionService.countReactionsByOption("taskComment", "5", "john")).thenReturn(Map.of("love", 1L));
-    when(reactionService.getReactions("taskComment", "5", null, 0, 20, "john")).thenReturn(List.of(new Reaction(7, "love", "taskComment", "5")));
-    when(reactionService.getUserReactionId("taskComment", "5", "john")).thenReturn(null);
+    stub("activity", "1", "like", Map.of("like", 2L), List.of(new Reaction(7, "like", "activity", "1")), "like");
+    stub("taskComment", "5", null, Map.of("love", 1L), List.of(new Reaction(7, "love", "taskComment", "5")), null);
 
     try (MockedStatic<EntityBuilder> builder = mockStatic(EntityBuilder.class)) {
       builder.when(() -> EntityBuilder.buildEntityProfile(identity.getProfile(), null)).thenReturn(profileEntity);
@@ -133,8 +141,8 @@ public class ReactionRestTest {
 
   @Test
   public void aReactorWithoutIdentityIsLeftOut() throws Exception {
-    when(reactionService.getReactions("activity", "1", "like", 0, 20, "john")).thenReturn(List.of(new Reaction(7, "like", "activity", "1")));
-    when(reactionService.getReactions("activity", "1", "love", 0, 20, "john")).thenReturn(List.of(new Reaction(8, "love", "activity", "1")));
+    stub("activity", "1", "like", Map.of("like", 2L), List.of(new Reaction(7, "like", "activity", "1")), "like");
+    stub("activity", "1", "love", Map.of("like", 2L), List.of(new Reaction(8, "love", "activity", "1")), "like");
 
     mockMvc.perform(get("/reactions/activity/1?reactionId=like").with(JOHN)).andExpect(jsonPath("$.reactorProfiles").isEmpty());
     mockMvc.perform(get("/reactions/activity/1?reactionId=love").with(JOHN)).andExpect(jsonPath("$.reactorProfiles").isEmpty());
@@ -142,18 +150,21 @@ public class ReactionRestTest {
 
   @Test
   public void theLimitDefaultsAndIsCapped() throws Exception {
+    when(reactionService.getObjectReactions("activity", "1", null, 4, 100, "john")).thenReturn(new ObjectReactions(Map.of(),
+                                                                                                                  List.of(),
+                                                                                                                  null));
     mockMvc.perform(get("/reactions/activity/1?limit=-3").with(JOHN)).andExpect(status().isOk());
     mockMvc.perform(get("/reactions/activity/1?limit=5000&offset=4").with(JOHN)).andExpect(status().isOk());
 
-    verify(reactionService).getReactions("activity", "1", null, 0, 20, "john");
-    verify(reactionService).getReactions("activity", "1", null, 4, 100, "john");
+    verify(reactionService).getObjectReactions("activity", "1", null, 0, 20, "john");
+    verify(reactionService).getObjectReactions("activity", "1", null, 4, 100, "john");
   }
 
   @Test
   public void listErrorsAreMapped() throws Exception {
-    when(reactionService.countReactionsByOption("activity", "404", "john")).thenThrow(new ObjectNotFoundException("x"));
-    when(reactionService.countReactionsByOption("activity", "403", "john")).thenThrow(new IllegalAccessException("x"));
-    when(reactionService.countReactionsByOption("other", "1", "john")).thenThrow(new IllegalArgumentException("x"));
+    when(reactionService.getObjectReactions("activity", "404", null, 0, 20, "john")).thenThrow(new ObjectNotFoundException("x"));
+    when(reactionService.getObjectReactions("activity", "403", null, 0, 20, "john")).thenThrow(new IllegalAccessException("x"));
+    when(reactionService.getObjectReactions("other", "1", null, 0, 20, "john")).thenThrow(new IllegalArgumentException("x"));
 
     mockMvc.perform(get("/reactions/activity/404").with(JOHN)).andExpect(status().isNotFound());
     mockMvc.perform(get("/reactions/activity/403").with(JOHN)).andExpect(status().isForbidden());

@@ -40,6 +40,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 
+import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
 import io.meeds.social.reaction.rest.model.ReactionInput;
@@ -124,20 +125,20 @@ public class ReactionRest {
       } else if (limit > MAX_LIMIT) {
         limit = MAX_LIMIT;
       }
-      Map<String, Long> counts = reactionService.countReactionsByOption(objectType, objectId, request.getRemoteUser());
-      List<Reaction> reactions = reactionService.getReactions(objectType,
-                                                              objectId,
-                                                              reactionId,
-                                                              offset,
-                                                              limit,
-                                                              request.getRemoteUser());
+      ObjectReactions objectReactions = reactionService.getObjectReactions(objectType,
+                                                                           objectId,
+                                                                           reactionId,
+                                                                           offset,
+                                                                           limit,
+                                                                           request.getRemoteUser());
+      List<Reaction> reactions = objectReactions.reactions();
       // The activities drawer lists the unfiltered reactors from the activity likers: the profiles are only
       // needed for a filtered list, or for any list of another object type, which has no likers endpoint
       boolean withProfiles = reactionId != null || !ReactionService.ACTIVITY_OBJECT_TYPE.equals(objectType);
-      return new ReactionList(counts,
+      return new ReactionList(objectReactions.counts(),
                               reactions,
                               withProfiles ? buildReactorProfiles(reactions) : null,
-                              reactionService.getUserReactionId(objectType, objectId, request.getRemoteUser()));
+                              objectReactions.userReactionId());
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
     } catch (ObjectNotFoundException e) {

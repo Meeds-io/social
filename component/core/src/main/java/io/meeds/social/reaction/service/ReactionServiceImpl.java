@@ -19,6 +19,7 @@
 package io.meeds.social.reaction.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
 
+import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
 import io.meeds.social.reaction.plugin.ReactionObjectPlugin;
@@ -99,7 +101,17 @@ public class ReactionServiceImpl implements ReactionService {
 
   @Override
   public void addObjectPlugin(ReactionObjectPlugin reactionObjectPlugin) {
-    reactionObjectPlugins.put(reactionObjectPlugin.getObjectType(), reactionObjectPlugin);
+    String objectType = reactionObjectPlugin.getObjectType();
+    if (StringUtils.isBlank(objectType) || ACTIVITY_OBJECT_TYPE.equals(objectType)) {
+      throw new IllegalArgumentException(String.format("A reaction object plugin can't handle the object type '%s'", objectType));
+    }
+    ReactionObjectPlugin replaced = reactionObjectPlugins.put(objectType, reactionObjectPlugin);
+    if (replaced != null && replaced != reactionObjectPlugin) {
+      LOG.warn("The reaction object plugin {} of the object type {} replaces the plugin {}",
+               reactionObjectPlugin.getClass().getName(),
+               objectType,
+               replaced.getClass().getName());
+    }
   }
 
   /**
@@ -293,6 +305,34 @@ public class ReactionServiceImpl implements ReactionService {
   }
 
   @Override
+  public ObjectReactions getObjectReactions(String objectType,
+                                            String objectId,
+                                            String reactionId,
+                                            long offset,
+                                            long limit,
+                                            String username) throws ObjectNotFoundException, IllegalAccessException {
+    if (!isPluginObjectType(objectType)) {
+      return new ObjectReactions(countReactionsByOption(objectType, objectId, username),
+                                 getReactions(objectType, objectId, reactionId, offset, limit, username),
+                                 getUserReactionId(objectType, objectId, username));
+    }
+    // The object is resolved and its view right checked once for the whole answer
+    MetadataObject object = getPluginObjectWithCheck(objectType, objectId, username);
+    long identityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
+    MetadataItem userItem = reactionStorage.getUserReactionItem(object, identityId);
+    return new ObjectReactions(orderCounts(reactionStorage.countReactionsByOption(object)),
+                               toPluginReactions(objectType, objectId, reactionId, offset, limit, object),
+                               userItem == null ? null : ReactionStorage.decodeReactionId(userItem.getMetadata().getName()));
+  }
+
+  @Override
+  public void deleteObjectReactionsByParent(String objectType, String parentId) {
+    if (isPluginObjectType(objectType)) {
+      reactionStorage.deleteReactionsByParent(objectType, parentId);
+    }
+  }
+
+  @Override
   public void deleteObjectReactions(String objectType, String objectId) {
     if (isPluginObjectType(objectType)) {
       reactionStorage.deleteReactions(new MetadataObject(objectType, objectId));
@@ -312,7 +352,8 @@ public class ReactionServiceImpl implements ReactionService {
     }
     org.exoplatform.services.security.Identity viewer = identityRegistry.getIdentity(username);
     if (viewer == null || !plugin.hasViewPermission(objectId, viewer)) {
-      throw new IllegalAccessException(String.format("User %s isn't allowed to view object %s/%s", username, objectType, objectId));
+      // Same answer as a missing object: the caller can't probe the identifiers of the objects he can't see
+      throw new ObjectNotFoundException(String.format("Object %s/%s wasn't found", objectType, objectId));
     }
     return object;
   }
@@ -328,16 +369,18 @@ public class ReactionServiceImpl implements ReactionService {
     }
     long identityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
     MetadataItem existingItem = reactionStorage.getUserReactionItem(object, identityId);
-    if (existingItem != null) {
-      if (StringUtils.equals(ReactionStorage.decodeReactionId(existingItem.getMetadata().getName()), reactionId)) {
-        return;
-      }
-      reactionStorage.deleteReaction(existingItem.getId(), identityId);
+    if (existingItem != null
+        && StringUtils.equals(ReactionStorage.decodeReactionId(existingItem.getMetadata().getName()), reactionId)) {
+      return;
     }
+    // Create before deleting the previous one: when the creation fails, the user keeps his previous reaction
     try {
       reactionStorage.createReaction(object, reactionId, identityId);
     } catch (ObjectAlreadyExistsException e) {
       LOG.debug("Reaction {} already exists for user {} on object {}/{}", reactionId, username, objectType, objectId, e);
+    }
+    if (existingItem != null) {
+      reactionStorage.deleteReaction(existingItem.getId(), identityId);
     }
     broadcastEvent(existingItem == null ? REACTION_CREATED_EVENT_NAME : REACTION_UPDATED_EVENT_NAME,
                    new Reaction(identityId, reactionId, objectType, objectId),
@@ -367,12 +410,31 @@ public class ReactionServiceImpl implements ReactionService {
                                                   long offset,
                                                   long limit,
                                                   String username) throws ObjectNotFoundException, IllegalAccessException {
-    MetadataObject object = getPluginObjectWithCheck(objectType, objectId, username);
-    List<MetadataItem> items = StringUtils.isBlank(reactionId) ? reactionStorage.getTypedReactionItems(object)
-                                                               : reactionStorage.getReactionItemsByOption(reactionId,
-                                                                                                          object,
-                                                                                                          offset,
-                                                                                                          limit);
+    return toPluginReactions(objectType,
+                             objectId,
+                             reactionId,
+                             offset,
+                             limit,
+                             getPluginObjectWithCheck(objectType, objectId, username));
+  }
+
+  private List<Reaction> toPluginReactions(String objectType,
+                                           String objectId,
+                                           String reactionId,
+                                           long offset,
+                                           long limit,
+                                           MetadataObject object) {
+    // The metadata service has no paged query of every reaction of an object: the whole list, bounded by the
+    // reactions count of one object, is sorted by identifier (the reaction order) and paged here
+    List<MetadataItem> items = StringUtils.isBlank(reactionId) ?
+                                                               reactionStorage.getTypedReactionItems(object)
+                                                                              .stream()
+                                                                              .sorted(Comparator.comparingLong(MetadataItem::getId))
+                                                                              .toList() :
+                                                               reactionStorage.getReactionItemsByOption(reactionId,
+                                                                                                        object,
+                                                                                                        offset,
+                                                                                                        limit);
     return items.stream()
                 .skip(StringUtils.isBlank(reactionId) ? Math.max(offset, 0) : 0)
                 .limit(limit > 0 ? limit : Long.MAX_VALUE)

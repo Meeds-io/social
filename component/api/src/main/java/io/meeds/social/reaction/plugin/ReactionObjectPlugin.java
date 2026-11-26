@@ -25,7 +25,8 @@ import org.exoplatform.social.metadata.model.MetadataObject;
  * Makes an object type, other than the 'activity' one handled natively,
  * reactable with the Reactions framework. The plugin only tells how to
  * identify an object and who can see it; the reaction options, storage, REST
- * endpoints and UI are the ones of the activities.
+ * endpoints and UI are the ones of the activities. The registration of a
+ * plugin for a blank type, or for the 'activity' type, is refused.
  */
 public interface ReactionObjectPlugin {
 

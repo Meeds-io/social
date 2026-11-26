@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -37,6 +38,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -52,6 +54,7 @@ import org.exoplatform.social.metadata.model.Metadata;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
 
+import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
 import io.meeds.social.reaction.plugin.DefaultReactionOptionsPlugin;
@@ -431,6 +434,8 @@ public class ReactionServiceImplTest {
 
   private static final String PLUGIN_ID   = "9";
 
+  private int pluginLookups;
+
   private MetadataObject registerPlugin(boolean viewable, boolean exists) {
     MetadataObject object = new MetadataObject(PLUGIN_TYPE, PLUGIN_ID);
     reactionService.addObjectPlugin(new ReactionObjectPlugin() {
@@ -441,6 +446,7 @@ public class ReactionServiceImplTest {
 
       @Override
       public MetadataObject getMetadataObject(String objectId) {
+        pluginLookups++;
         return exists && PLUGIN_ID.equals(objectId) ? object : null;
       }
 
@@ -518,9 +524,104 @@ public class ReactionServiceImplTest {
   public void testPluginObjectWithoutViewPermissionIsRefused() throws Exception {
     registerPlugin(false, true);
 
-    assertThrows(IllegalAccessException.class, () -> reactionService.setReaction(PLUGIN_TYPE, PLUGIN_ID, "love", USERNAME));
-    assertThrows(IllegalAccessException.class, () -> reactionService.getReactions(PLUGIN_TYPE, PLUGIN_ID, null, 0, 10, USERNAME));
+    // Answered like a missing object: the caller can't tell the identifiers of the objects he can't see
+    assertThrows(ObjectNotFoundException.class, () -> reactionService.setReaction(PLUGIN_TYPE, PLUGIN_ID, "love", USERNAME));
+    assertThrows(ObjectNotFoundException.class, () -> reactionService.getReactions(PLUGIN_TYPE, PLUGIN_ID, null, 0, 10, USERNAME));
     verify(reactionStorage, never()).createReaction(any(), any(), anyLong());
+  }
+
+  @Test
+  public void testChangeReactionOnPluginObjectKeepsThePreviousOneWhenTheCreationFails() throws Exception {
+    MetadataObject object = registerPlugin(true, true);
+    MetadataItem item = metadataItem(77l, "love");
+    when(reactionStorage.getUserReactionItem(object, 123l)).thenReturn(item);
+    doThrow(new IllegalStateException("db down")).when(reactionStorage).createReaction(object, "funny", 123l);
+
+    assertThrows(IllegalStateException.class, () -> reactionService.setReaction(PLUGIN_TYPE, PLUGIN_ID, "funny", USERNAME));
+
+    verify(reactionStorage, never()).deleteReaction(anyLong(), anyLong());
+  }
+
+  @Test
+  public void testChangeReactionOnPluginObjectCreatesBeforeDeleting() throws Exception {
+    MetadataObject object = registerPlugin(true, true);
+    MetadataItem item = metadataItem(77l, "love");
+    when(reactionStorage.getUserReactionItem(object, 123l)).thenReturn(item);
+
+    reactionService.setReaction(PLUGIN_TYPE, PLUGIN_ID, "funny", USERNAME);
+
+    InOrder order = inOrder(reactionStorage);
+    order.verify(reactionStorage).createReaction(object, "funny", 123l);
+    order.verify(reactionStorage).deleteReaction(77l, 123l);
+  }
+
+  @Test
+  public void testPluginOfTheActivityTypeOrOfNoTypeIsRefused() {
+    for (String type : new String[] { ReactionService.ACTIVITY_OBJECT_TYPE, "", null }) {
+      ReactionObjectPlugin plugin = mock(ReactionObjectPlugin.class);
+      when(plugin.getObjectType()).thenReturn(type);
+      assertThrows(IllegalArgumentException.class, () -> reactionService.addObjectPlugin(plugin));
+    }
+  }
+
+  @Test
+  public void testPluginRegisteredTwiceForATypeIsReplaced() throws Exception {
+    registerPlugin(false, true);
+    MetadataObject object = registerPlugin(true, true);
+
+    reactionService.setReaction(PLUGIN_TYPE, PLUGIN_ID, "love", USERNAME);
+
+    verify(reactionStorage).createReaction(object, "love", 123l);
+  }
+
+  @Test
+  public void testGetObjectReactionsOfPluginObjectResolvesTheObjectOnce() throws Exception {
+    MetadataObject object = registerPlugin(true, true);
+    when(reactionStorage.countReactionsByOption(object)).thenReturn(Map.of("love", 2l));
+    MetadataItem second = metadataItem(2l, "love", 6l);
+    MetadataItem first = metadataItem(1l, "love", 5l);
+    MetadataItem userItem = metadataItem(77l, "love");
+    when(reactionStorage.getTypedReactionItems(object)).thenReturn(List.of(second, first));
+    when(reactionStorage.getUserReactionItem(object, 123l)).thenReturn(userItem);
+
+    ObjectReactions result = reactionService.getObjectReactions(PLUGIN_TYPE, PLUGIN_ID, null, 0, 10, USERNAME);
+
+    assertEquals(1, pluginLookups);
+    assertEquals(Map.of("love", 2l), result.counts());
+    assertEquals(List.of(5l, 6l), result.reactions().stream().map(Reaction::getReactorIdentityId).toList());
+    assertEquals("love", result.userReactionId());
+  }
+
+  @Test
+  public void testGetObjectReactionsOfPluginObjectIsRefusedWithoutViewPermission() {
+    registerPlugin(false, true);
+
+    assertThrows(ObjectNotFoundException.class,
+                 () -> reactionService.getObjectReactions(PLUGIN_TYPE, PLUGIN_ID, null, 0, 10, USERNAME));
+  }
+
+  @Test
+  public void testGetObjectReactionsOfActivityGathersTheThreeReads() throws Exception {
+    when(activity.getLikeIdentityIds()).thenReturn(new String[] { IDENTITY_ID });
+
+    ObjectReactions result = reactionService.getObjectReactions(OBJECT_TYPE, OBJECT_ID, null, 0, 10, USERNAME);
+
+    assertEquals(1l, result.counts().get("like").longValue());
+    assertEquals(1, result.reactions().size());
+    assertEquals("like", result.userReactionId());
+  }
+
+  @Test
+  public void testDeleteObjectReactionsByParentOnlyForPluginTypes() {
+    registerPlugin(true, true);
+
+    reactionService.deleteObjectReactionsByParent(PLUGIN_TYPE, "5");
+    reactionService.deleteObjectReactionsByParent(OBJECT_TYPE, "5");
+    reactionService.deleteObjectReactionsByParent("other", "5");
+
+    verify(reactionStorage).deleteReactionsByParent(PLUGIN_TYPE, "5");
+    verify(reactionStorage, never()).deleteReactionsByParent(OBJECT_TYPE, "5");
+    verify(reactionStorage, never()).deleteReactionsByParent("other", "5");
   }
 
   @Test

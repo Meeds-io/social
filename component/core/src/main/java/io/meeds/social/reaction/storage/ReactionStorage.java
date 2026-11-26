@@ -127,6 +127,10 @@ public class ReactionStorage {
     metadataService.deleteMetadataItemsByMetadataTypeAndObject(METADATA_TYPE_NAME, object);
   }
 
+  public void deleteReactionsByParent(String objectType, String parentId) {
+    metadataService.deleteMetadataItemsByParentObject(new MetadataObject(objectType, null, parentId));
+  }
+
   public void deleteReaction(long itemId, long identityId) throws ObjectNotFoundException {
     metadataService.deleteMetadataItem(itemId, identityId);
   }
