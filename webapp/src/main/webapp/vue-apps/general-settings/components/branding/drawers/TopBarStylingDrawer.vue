@@ -48,15 +48,20 @@
           v-if="initialized"
           v-model="backgroundProperties"
           :image-path="backgroundImagePath"
+          :restore-label="restoreLabel('topBarBackgroundColor', backgroundProperties.backgroundColor)"
           class="mt-2 pe-3"
           no-gradient
-          sticky-option />
+          sticky-option
+          @restore="restoreColor('topBarBackgroundColor')" />
         <div class="mt-2 pe-4 d-flex">
           <span class="text-title">
             {{ $t('generalSettings.text.label') }}
           </span>
           <portal-general-settings-theme-shared-marker class="ms-2 my-auto" />
         </div>
+        <p class="themeContrastHelp text-subtitle mt-1 mb-0">
+          {{ $t('generalSettings.contrast.help') }}
+        </p>
         <styling-text-input
           :text-background="false"
           v-model="topBarTextProperties"
@@ -68,8 +73,12 @@
           :custom-title="false"
           :icon-placeholder="versionIconColor('topBarIconColor')"
           :color-placeholders="versionTextColors('topBar')"
-          custom-icon />
-        <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
+          :contrast-background="contrastBackground('topBar', backgroundProperties && backgroundProperties.backgroundColor)"
+          :contrast-warning="$t('generalSettings.contrast.low')"
+          :auto-colors="autoTextColors('topBar', topBarTextProperties, backgroundProperties && backgroundProperties.backgroundColor)"
+          :restore-labels="textRestoreLabels('topBar', topBarTextProperties)"
+          custom-icon
+          @restore="restoreTextRow('topBar', $event)" />
       </v-card>
     </template>
     <template #footer>
@@ -95,7 +104,6 @@ import ThemeAreaDrawerMixin from '../../../js/ThemeAreaDrawerMixin.js';
 export default {
   mixins: [ThemeAreaDrawerMixin],
   data: () => ({
-    themeAreaKeys: ['topBarBackgroundColor', 'topBarTextColor', 'topBarIconColor'],
     drawer: false,
     backgroundProperties: null,
     topBarTextProperties: null,

@@ -48,13 +48,18 @@
           v-if="initialized"
           v-model="backgroundProperties"
           :image-path="backgroundImagePath"
-          class="mt-2 pe-3" />
+          :restore-label="restoreLabel('sideBarBackgroundColor', backgroundProperties.backgroundColor)"
+          class="mt-2 pe-3"
+          @restore="restoreColor('sideBarBackgroundColor')" />
         <div class="mt-2 pe-4 d-flex">
           <span class="text-title">
             {{ $t('generalSettings.text.label') }}
           </span>
           <portal-general-settings-theme-shared-marker class="ms-2 my-auto" />
         </div>
+        <p class="themeContrastHelp text-subtitle mt-1 mb-0">
+          {{ $t('generalSettings.contrast.help') }}
+        </p>
         <styling-text-input
           :text-background="false"
           v-model="sideBarTextProperties"
@@ -66,8 +71,12 @@
           :custom-title="false"
           :icon-placeholder="versionIconColor('sideBarIconColor')"
           :color-placeholders="versionTextColors('sideBar')"
-          custom-icon />
-        <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
+          :contrast-background="contrastBackground('sideBar', backgroundProperties && backgroundProperties.backgroundColor)"
+          :contrast-warning="$t('generalSettings.contrast.low')"
+          :auto-colors="autoTextColors('sideBar', sideBarTextProperties, backgroundProperties && backgroundProperties.backgroundColor)"
+          :restore-labels="textRestoreLabels('sideBar', sideBarTextProperties)"
+          custom-icon
+          @restore="restoreTextRow('sideBar', $event)" />
       </v-card>
     </template>
     <template #footer>
@@ -93,7 +102,6 @@ import ThemeAreaDrawerMixin from '../../../js/ThemeAreaDrawerMixin.js';
 export default {
   mixins: [ThemeAreaDrawerMixin],
   data: () => ({
-    themeAreaKeys: ['sideBarBackgroundColor', 'sideBarTextColor', 'sideBarTextSubtitleColor', 'sideBarIconColor'],
     drawer: false,
     backgroundProperties: null,
     sideBarTextProperties: null,
