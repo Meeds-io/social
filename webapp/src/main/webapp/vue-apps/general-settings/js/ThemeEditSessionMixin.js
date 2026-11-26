@@ -64,6 +64,8 @@ export default {
       // the configured values of a theme bound to the configuration: a configured dark value is no Automatic one
       configSettings: null,
       resolved: null,
+      // the values the area drawers start from: a value a drawer keeps is no edit, as the draft reads it (fromEditorResult)
+      baseline: null,
       modesOffered: null,
       // the draft (settings and pending images) differs from the one the open area drawer started from
       draftChanged: false,
@@ -142,6 +144,7 @@ export default {
     reloadStyling() {
       const version = this.session.version;
       this.branding = toEditorBranding(this.draft, this.$root.defaultBrandingThemeStyle, version, this.session.resolved?.[version]);
+      this.session.baseline = this.branding.themeStyle;
       this.initStyling();
       this.refreshDraftChanged();
       // the drawers read their props, which the render after this change updates
@@ -167,7 +170,8 @@ export default {
         .then(resolved => token === this.resolveToken && (this.session.resolved = resolved))
         .catch(() => token === this.resolveToken && (this.session.resolved = null));
     },
-    // the contrast ratios follow the edits, without restarting the drawers
+    // the resolved values (the Auto colors and the restore state of the rows) follow the edits, without restarting the
+    // drawers
     styleChanged() {
       this.syncDraft();
       window.clearTimeout(this.resolveTimer);
