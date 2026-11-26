@@ -667,7 +667,7 @@ public class ReactionServiceImplTest {
   }
 
   @Test
-  public void testReactionSummariesOfPluginObjectsLeaveOutWhatTheUserCannotSee() throws Exception {
+  public void testReactionSummariesOfPluginObjectsLeaveOutWhatTheUserCannotSee() {
     MetadataObject object = registerPlugin(true, true);
     MetadataItem userItem = metadataItem(77l, "love");
     when(reactionStorage.countReactionsByOption(object)).thenReturn(Map.of("love", 2l));
@@ -733,7 +733,8 @@ public class ReactionServiceImplTest {
 
   @Test
   public void testReactionSummariesOfAnUnsupportedTypeAreRefused() {
-    assertThrows(IllegalArgumentException.class, () -> reactionService.getReactionSummaries("other", List.of("1"), USERNAME));
+    List<String> objectIds = List.of("1");
+    assertThrows(IllegalArgumentException.class, () -> reactionService.getReactionSummaries("other", objectIds, USERNAME));
   }
 
   @Test

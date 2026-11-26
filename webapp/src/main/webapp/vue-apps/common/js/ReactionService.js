@@ -80,7 +80,10 @@ export function getReactionSummary(objectType, objectId) {
       pending = pendingSummaries[objectType] = {callbacks: {}};
       setTimeout(() => sendSummaries(objectType), 0);
     }
-    (pending.callbacks[id] = pending.callbacks[id] || []).push({resolve, reject});
+    if (!pending.callbacks[id]) {
+      pending.callbacks[id] = [];
+    }
+    pending.callbacks[id].push({resolve, reject});
   });
 }
 
