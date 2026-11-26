@@ -80,7 +80,7 @@
               :title="arrowLabel"
               :aria-label="arrowLabel"
               :aria-expanded="drawerOpened ? 'true' : 'false'"
-              class="hamburgerMenuSpacesArrow ms-2"
+              class="hamburgerMenuItemArrow ms-2"
               icon
               @ripple-hover="openSpacesList">
               <v-icon
@@ -174,7 +174,7 @@
             :title="arrowLabel"
             :aria-label="arrowLabel"
             :aria-expanded="drawerOpened ? 'true' : 'false'"
-            class="ms-2"
+            class="hamburgerMenuItemArrow ms-2"
             icon
             @ripple-hover="openOrCloseDrawer()">
             <v-icon

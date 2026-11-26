@@ -4,7 +4,7 @@
     v-model="dialog"
     :persistent="persistent"
     :width="width"
-    :content-class="`uiPopup ${isBrandingLayout && 'layout-drawer' || ''}`"
+    :content-class="`uiPopup ${isBrandingLayout && 'layout-drawer' || ''} ${contentClass || ''}`"
     max-width="100vw">
     <v-card
       ref="card"
@@ -53,6 +53,10 @@
 <script>
 export default {
   props: {
+    contentClass: {
+      type: String,
+      default: null,
+    },
     loading: {
       type: Boolean,
       default: function() {
