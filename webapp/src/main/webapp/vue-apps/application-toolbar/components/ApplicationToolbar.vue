@@ -528,7 +528,7 @@ export default {
         return;
       } else if (!this.isTermValid) {
         // A term shortened below the minimum shows the full list again, as an empty search does
-        if (this.searchedTerm?.length) {
+        if (this.searchedTerm?.length && this.term !== this.searchedTerm) {
           this.searchedTerm = null;
           this.$emit('filter-text-input-end-typing', '');
         }
@@ -593,6 +593,8 @@ export default {
       return true;
     },
     setTerm(value) {
+      // the page filters on the term it sets: it counts as searched
+      this.searchedTerm = value || null;
       this.term = value;
     },
     selectToggle(value) {
