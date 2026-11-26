@@ -41,7 +41,7 @@
       </v-btn>
     </v-btn-toggle>
     <div v-if="session.version === 'dark'" class="themeVersionHelp text-subtitle mt-2">
-      {{ $t('generalSettings.version.dark.help') }}
+      {{ $t('generalSettings.version.dark.calculated') }}
     </div>
     <div v-if="!offered" class="themeVersionNotOffered text-subtitle mt-2">
       <v-icon size="14" class="me-1">fa-info-circle</v-icon>

@@ -59,8 +59,8 @@ export default {
     areaSaved: false,
   }),
   computed: {
-    // a row (Customize, Back to automatic) or the other version's edit changed the session since the drawer opened:
-    // Save keeps it even when the drawer's own model did not change
+    // a restore action or the other version's edit changed the session since the drawer opened: Save keeps it even
+    // when the drawer's own model did not change
     draftChanged() {
       return !!this.themeEditSession?.draftChanged;
     },
