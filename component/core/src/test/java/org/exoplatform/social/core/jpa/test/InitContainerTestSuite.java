@@ -49,6 +49,7 @@ import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAOTest;
 import org.exoplatform.social.core.listeners.ActivityMetadataListenerTest;
 import org.exoplatform.social.core.listeners.ActivityTagMetadataListenerTest;
+import org.exoplatform.social.core.listeners.GroupSynchronizationSocialProfileListenerTest;
 import org.exoplatform.social.core.listeners.ManagerPropertySettingUpdatedListenerTest;
 import org.exoplatform.social.core.listeners.ProfilePropertySettingOptionTranslationListenerTest;
 import org.exoplatform.social.core.manager.ActivityManagerTest;
@@ -148,6 +149,7 @@ import io.meeds.social.translation.storage.cache.CachedTranslationStorageCacheTe
   ManagerPropertySettingUpdatedListenerTest.class,
   ProfilePropertySettingOptionTranslationTest.class,
   ProfilePropertySettingOptionTranslationListenerTest.class,
+  GroupSynchronizationSocialProfileListenerTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

@@ -64,6 +64,12 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
 
   private static final String          MEMBER             = "member";
 
+  /**
+   * Maximum length of a group id stored in SOC_USER_PERMISSION.GROUP_ID
+   * (NVARCHAR(200)). It also bounds the IDM group name and group type.
+   */
+  private static final int             MAX_GROUP_ID_LENGTH = 200;
+
   private final ProfilePropertyService profilePropertyService;
 
   private final OrganizationService    organizationService;
@@ -144,13 +150,27 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     } else {
       ((List<HashMap<String,String>>) property.getValue()).stream().forEach(val -> val.entrySet().stream().filter(entry -> entry.getKey().equals("value")).forEach(entry -> propertyValues.add(entry.getValue())));
     }
+    if (!canBecomeGroup(propertyName)) {
+      LOG.warn("Profile property {} of user {} cannot become a group and is skipped", propertyName, user.getUserName());
+      return;
+    }
+    List<String> usableValues = new ArrayList<>();
+    for (String propertyValue : propertyValues) {
+      if (canBecomeGroup(propertyName, propertyValue)) {
+        usableValues.add(propertyValue);
+      } else {
+        LOG.warn("A value of profile property {} of user {} cannot become a group and is skipped",
+                 propertyName,
+                 user.getUserName());
+      }
+    }
     try {
       Group newPropertyNameGroup = getOrCreateGroup(propertyName, profileGroup);
       long startTimeRemoveUserFromGroups = System.currentTimeMillis();
       removeUserFromExistingPropertyGroup(newPropertyNameGroup, user, propertyValues);
       LOG.debug("User {} check-remove from groups ({}) in {} ms", user.getUserName(), newPropertyNameGroup.getId(), System.currentTimeMillis() - startTimeRemoveUserFromGroups);
 
-      for (String propValueName : propertyValues) {
+      for (String propValueName : usableValues) {
         try {
           Group newPropertyValueGroup = getOrCreateGroup(propValueName, newPropertyNameGroup);
           long startTimeAddUserInGroups = System.currentTimeMillis();
@@ -169,6 +189,34 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
                 profileGroup != null ? profileGroup.getId() : "/",
                 e);
     }
+  }
+
+  /**
+   * An attribute becomes a group only when its cleaned name is not empty and
+   * its group id fits the stored limit. Checked before any group creation.
+   */
+  private boolean canBecomeGroup(String propertyName) {
+    String cleanedPropertyName = Utils.cleanString(propertyName);
+    return !StringUtils.isBlank(cleanedPropertyName)
+           && ("/" + PROFILE_GROUP_NAME + "/" + cleanedPropertyName.toLowerCase()).length() <= MAX_GROUP_ID_LENGTH;
+  }
+
+  /**
+   * A value becomes a group only when its cleaned name is not empty, its label
+   * holds no NUL character and its group id fits the stored limit. The
+   * attribute name is expected to have passed {@link #canBecomeGroup(String)}. Checked
+   * before any group creation.
+   */
+  private boolean canBecomeGroup(String propertyName, String value) {
+    if (value == null || value.indexOf('\u0000') >= 0) {
+      return false;
+    }
+    String cleanedValue = Utils.cleanString(value);
+    if (StringUtils.isBlank(cleanedValue)) {
+      return false;
+    }
+    String groupId = "/" + PROFILE_GROUP_NAME + "/" + Utils.cleanString(propertyName).toLowerCase() + "/" + cleanedValue.toLowerCase();
+    return groupId.length() <= MAX_GROUP_ID_LENGTH;
   }
 
   private Group getGroup(String groupId) throws Exception {
@@ -205,7 +253,7 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
         String propertyName = (String) parentGroup.getGroupName();
         ProfilePropertySetting profileSetting = profilePropertyService.getPropertySettings()
                                                                       .stream()
-                                                                      .filter(setting -> setting.getPropertyName().equalsIgnoreCase(propertyName))
+                                                                      .filter(setting -> Utils.cleanString(setting.getPropertyName()).equalsIgnoreCase(propertyName))
                                                                       .findFirst()
                                                                       .orElse(null);
         if (profileSetting != null && profileSetting.isDropdownList()) {
@@ -247,11 +295,11 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     newCleanedPropertyValues = newCleanedPropertyValues.stream().map(Utils::cleanString).toList();
     MembershipHandler memberShipHandler = organizationService.getMembershipHandler();
     long startTimeGetMemberships = System.currentTimeMillis();
-    Collection<Membership> memberships = memberShipHandler.findMembershipsByUser(user.getUserName());
+    Collection<Membership> memberships = new ArrayList<>(memberShipHandler.findMembershipsByUser(user.getUserName()));
     LOG.debug("Find {} memberships for user {} in {} ms", memberships.size(), user.getUserName(), System.currentTimeMillis() - startTimeGetMemberships);
 
     for (Membership membership : memberships) {
-      if (membership.getGroupId().startsWith(group.getId())) {
+      if (isSameOrDescendantGroup(membership.getGroupId(), group.getId())) {
         String[] splittedMembership = membership.getGroupId().split("/");
         String groupName = splittedMembership[splittedMembership.length-1];
         if (!newCleanedPropertyValues.contains(groupName)) {
@@ -268,6 +316,12 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
 
     }
   }
+
+  /** A group belongs to another one when its id equals it or continues it with a path separator */
+  private boolean isSameOrDescendantGroup(String groupId, String parentGroupId) {
+    return groupId.equals(parentGroupId) || groupId.startsWith(parentGroupId + "/");
+  }
+
   private String buildGroupId(Group parentGroup, String groupName) {
     if (parentGroup == null) {
       return "/" + groupName.toLowerCase();

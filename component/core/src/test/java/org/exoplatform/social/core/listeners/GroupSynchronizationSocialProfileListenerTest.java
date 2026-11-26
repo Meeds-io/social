@@ -27,6 +27,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.common.lifecycle.LifeCycleCompletionService;
@@ -34,7 +35,9 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
@@ -89,6 +92,7 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     assertNotNull(group);
     Collection<Group> groups = organizationService.getGroupHandler().findGroupsOfUser(paulRemoteId);
     assertTrue(groups.contains(group));
+    int groupsCount = groups.size();
     Group group1 = organizationService.getGroupHandler().findGroupById("/profile/street");
     assertNull(group1);
     //
@@ -113,13 +117,227 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     assertEquals(group2.getGroupName(), expectedGroupName);
     groups = organizationService.getGroupHandler().findGroupsOfUser(paulRemoteId);
     assertTrue(groups.contains(group2));
-    assertEquals(3, groups.size());
+    assertEquals(groupsCount + 1, groups.size());
     //
     identityManager.updateProfile(profile);
     groups = organizationService.getGroupHandler().findGroupsOfUser(paulRemoteId);
-    assertEquals(3, groups.size());
+    assertEquals(groupsCount + 1, groups.size());
 
 
+  }
+
+  @Test
+  public void testSynchronizingAnAttributeKeepsGroupsOfAttributeWithSamePrefix() throws Exception {
+    createSynchronizedSetting("syncteam", false);
+    createSynchronizedSetting("syncteams", false);
+
+    Profile profile = new Profile(john);
+    profile.setProperty("syncteams", "Alpha");
+    synchronize(profile);
+    Group alphaGroup = organizationService.getGroupHandler().findGroupById("/profile/syncteams/alpha");
+    assertNotNull(alphaGroup);
+    assertTrue(isMember("john", alphaGroup));
+
+    profile = new Profile(john);
+    profile.setProperty("syncteam", "Blue");
+    synchronize(profile);
+
+    Group blueGroup = organizationService.getGroupHandler().findGroupById("/profile/syncteam/blue");
+    assertNotNull(blueGroup);
+    assertTrue(isMember("john", blueGroup));
+    assertTrue(isMember("john", alphaGroup));
+
+    profile = new Profile(john);
+    profile.setProperty("syncteam", "Green");
+    synchronize(profile);
+    assertFalse(isMember("john", blueGroup));
+    assertTrue(isMember("john", organizationService.getGroupHandler().findGroupById("/profile/syncteam/green")));
+    assertTrue(isMember("john", alphaGroup));
+  }
+
+  @Test
+  public void testValueTooLongForAGroupIdIsSkippedAndOtherValuesAreSynchronized() throws Exception {
+    createSynchronizedSetting("syncdivision", false);
+    createSynchronizedSetting("syncremarks", false);
+
+    Profile profile = new Profile(john);
+    profile.setProperty("syncremarks", "a".repeat(220));
+    profile.setProperty("syncdivision", "Sales");
+    synchronize(profile);
+
+    Group salesGroup = organizationService.getGroupHandler().findGroupById("/profile/syncdivision/sales");
+    assertNotNull(salesGroup);
+    assertTrue(isMember("john", salesGroup));
+    assertNull(organizationService.getGroupHandler().findGroupById("/profile/syncremarks/" + "a".repeat(220)));
+    assertTrue(organizationService.getGroupHandler()
+                                  .findGroupsOfUser("john")
+                                  .stream()
+                                  .noneMatch(g -> g.getId().startsWith("/profile/syncremarks/")));
+  }
+
+  @Test
+  public void testMembershipInGroupOfRefusedValueIsKept() throws Exception {
+    createSynchronizedSetting("syncretained", false);
+    Profile profile = new Profile(john);
+    profile.setProperty("syncretained", "Seed");
+    synchronize(profile);
+    Group attributeGroup = organizationService.getGroupHandler().findGroupById("/profile/syncretained");
+    assertNotNull(attributeGroup);
+
+    String longName = "a".repeat(220);
+    Group legacyGroup = organizationService.getGroupHandler().createGroupInstance();
+    legacyGroup.setGroupName(longName);
+    legacyGroup.setLabel("Legacy");
+    organizationService.getGroupHandler().addChild(attributeGroup, legacyGroup, true);
+    legacyGroup = organizationService.getGroupHandler().findGroupById("/profile/syncretained/" + longName);
+    assertNotNull(legacyGroup);
+    organizationService.getMembershipHandler()
+                       .linkMembership(organizationService.getUserHandler().findUserByName("john"),
+                                       legacyGroup,
+                                       organizationService.getMembershipTypeHandler().findMembershipType("member"),
+                                       true);
+    assertTrue(isMember("john", legacyGroup));
+
+    profile = new Profile(john);
+    profile.setProperty("syncretained", longName);
+    synchronize(profile);
+
+    assertTrue(isMember("john", legacyGroup));
+  }
+
+  @Test
+  public void testMembershipInAttributeGroupItselfIsRemoved() throws Exception {
+    createSynchronizedSetting("syncitself", false);
+    Profile profile = new Profile(john);
+    profile.setProperty("syncitself", "One");
+    synchronize(profile);
+    Group attributeGroup = organizationService.getGroupHandler().findGroupById("/profile/syncitself");
+    assertNotNull(attributeGroup);
+    organizationService.getMembershipHandler()
+                       .linkMembership(organizationService.getUserHandler().findUserByName("john"),
+                                       attributeGroup,
+                                       organizationService.getMembershipTypeHandler().findMembershipType("member"),
+                                       true);
+    assertTrue(isMember("john", attributeGroup));
+
+    synchronize(profile);
+
+    assertFalse(isMember("john", attributeGroup));
+    assertTrue(isMember("john", organizationService.getGroupHandler().findGroupById("/profile/syncitself/one")));
+  }
+
+  @Test
+  public void testAttributeNameTooLongForAGroupIsSkippedAndOtherAttributesAreSynchronized() throws Exception {
+    String wideAttribute = "syncwide" + "w".repeat(185);
+    createSynchronizedSetting("syncdivision", false);
+    createSynchronizedSetting(wideAttribute, false);
+
+    Profile profile = new Profile(john);
+    profile.setProperty(wideAttribute, "Value");
+    profile.setProperty("syncdivision", "Legal");
+    synchronize(profile);
+
+    assertTrue(isMember("john", organizationService.getGroupHandler().findGroupById("/profile/syncdivision/legal")));
+    assertNull(organizationService.getGroupHandler().findGroupById("/profile/" + wideAttribute));
+  }
+
+  @Test
+  public void testValueWithoutAnyUsableCharacterIsSkippedAndOtherValuesAreSynchronized() throws Exception {
+    createSynchronizedSetting("syncdivision", false);
+    createSynchronizedSetting("syncalias", false);
+
+    Profile profile = new Profile(john);
+    profile.setProperty("syncalias", "  ");
+    profile.setProperty("syncdivision", "Finance");
+    synchronize(profile);
+
+    assertTrue(isMember("john", organizationService.getGroupHandler().findGroupById("/profile/syncdivision/finance")));
+    assertTrue(organizationService.getGroupHandler()
+                                  .findGroupsOfUser("john")
+                                  .stream()
+                                  .noneMatch(g -> g.getId().startsWith("/profile/syncalias")));
+  }
+
+  @Test
+  public void testDropdownAttributeWithHyphenLabelsOptionGroupsWithOptionText() throws Exception {
+    ProfilePropertySetting setting = createSynchronizedSetting("sync-job-title", true);
+    ProfilePropertyOption option = setting.getPropertyOptions().get(0);
+
+    Profile profile = new Profile(john);
+    profile.setProperty("sync-job-title", String.valueOf(option.getId()));
+    synchronize(profile);
+
+    Group group = organizationService.getGroupHandler().findGroupById("/profile/sync_job_title/" + option.getId());
+    assertNotNull(group);
+    assertEquals(option.getValue(), group.getLabel());
+    assertTrue(isMember("john", group));
+  }
+
+  @Test
+  public void testDropdownAttributeKeepsRawValueLabelForTextOrUnmatchedDigitsLeftBeforeTheSwitch() throws Exception {
+    ProfilePropertySetting setting = createSynchronizedSetting("sync-job-title", true);
+    long unmatchedId = setting.getPropertyOptions().stream().mapToLong(ProfilePropertyOption::getId).max().orElse(0) + 1000L;
+
+    Profile profile = new Profile(john);
+    profile.setProperty("sync-job-title", "Legacytext");
+    synchronize(profile);
+    Group textGroup = organizationService.getGroupHandler().findGroupById("/profile/sync_job_title/legacytext");
+    assertNotNull(textGroup);
+    assertEquals("Legacytext", textGroup.getLabel());
+    assertTrue(isMember("john", textGroup));
+
+    profile.setProperty("sync-job-title", String.valueOf(unmatchedId));
+    synchronize(profile);
+    Group digitsGroup = organizationService.getGroupHandler().findGroupById("/profile/sync_job_title/" + unmatchedId);
+    assertNotNull(digitsGroup);
+    assertEquals(String.valueOf(unmatchedId), digitsGroup.getLabel());
+    assertTrue(isMember("john", digitsGroup));
+    assertFalse(isMember("john", textGroup));
+  }
+
+  private ProfilePropertySetting createSynchronizedSetting(String name, boolean dropdown) throws Exception {
+    ProfilePropertySetting existing = profilePropertyService.getProfileSettingByName(name);
+    if (existing != null) {
+      return existing;
+    }
+    ProfilePropertySetting setting = new ProfilePropertySetting();
+    setting.setActive(true);
+    setting.setEditable(true);
+    setting.setVisible(true);
+    setting.setPropertyName(name);
+    setting.setPropertyType("text");
+    setting.setGroupSynchronized(true);
+    setting.setMultiValued(false);
+    setting.setParentId(0L);
+    setting.setOrder(0L);
+    if (dropdown) {
+      setting.setDropdownList(true);
+      List<ProfilePropertyOption> options = new ArrayList<>();
+      options.add(newOption("Engineering"));
+      options.add(newOption("Marketing"));
+      setting.setPropertyOptions(options);
+    }
+    return profilePropertyService.createPropertySetting(setting);
+  }
+
+  private ProfilePropertyOption newOption(String value) {
+    ProfilePropertyOption option = new ProfilePropertyOption(null, value, null);
+    option.setTranslations(new HashMap<>());
+    return option;
+  }
+
+  private void synchronize(Profile profile) {
+    RequestLifeCycle.begin(getContainer());
+    try {
+      new GroupSynchronizationSocialProfileListener(profilePropertyService, organizationService)
+          .createProfile(new ProfileLifeCycleEvent(ProfileLifeCycleEvent.Type.CREATED, profile.getIdentity().getRemoteId(), profile));
+    } finally {
+      RequestLifeCycle.end();
+    }
+  }
+
+  private boolean isMember(String username, Group group) throws Exception {
+    return group != null && organizationService.getGroupHandler().findGroupsOfUser(username).stream().anyMatch(g -> g.getId().equals(group.getId()));
   }
 
   @Test
