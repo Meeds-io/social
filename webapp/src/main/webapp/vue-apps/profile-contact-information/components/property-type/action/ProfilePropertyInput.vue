@@ -73,9 +73,14 @@ export default {
   data() {
     return {
       localValue: this.property?.value || '',
+      storedValue: this.property?.value || '',
     };
   },
   watch: {
+    property(newProperty) {
+      // The drawer passes a new copy of the stored properties at each opening
+      this.storedValue = newProperty?.value || '';
+    },
     'property.value'(newVal) {
       this.localValue = newVal;
     }
@@ -106,7 +111,9 @@ export default {
       switch (this.property?.propertyType) {
       case 'call':
       case 'messaging':
-        rules.push(v => !v || this.$utils.isValidPhone(v)
+        // The phone rule checks a value the user entered, never the stored value
+        // left as it is, which a directory or an import may have stored unchecked
+        rules.push(v => !v || v === this.storedValue || this.$utils.isValidPhone(v)
             || this.$t('profileContactInformation.message.field.call.invalid'));
         break;
       case 'email':
