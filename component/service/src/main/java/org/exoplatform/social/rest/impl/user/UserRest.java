@@ -152,6 +152,7 @@ import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
 import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
 import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
 import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
+import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.social.security.plugin.EmailChangeOtpPlugin;
 import io.meeds.social.space.constant.UserSpacesScope;
@@ -182,6 +183,8 @@ public class UserRest implements ResourceContainer, Startable {
   private static final String BULK_DISABLE                 = "disable";
 
   private static final String UPLOAD_ID_PROGRESS_NOT_FOUND = "UPLOAD_ID_PROGRESS:NOT_FOUND";
+
+  private static final String NUL = String.valueOf((char) 0);
 
   private static final String             EMAIL_MSG_PREFIX            = "EMAIL:";
 
@@ -1489,6 +1492,13 @@ public class UserRest implements ResourceContainer, Startable {
     Profile profile = userIdentity.getProfile();
 
     for (ProfilePropertySettingEntity profileProperty : profilePropertySettingEntities) {
+      String refusal = checkStorableValue(profileProperty.getPropertyName(), getProfilePropertyValue(profileProperty));
+      if (refusal != null) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(refusal).build();
+      }
+    }
+
+    for (ProfilePropertySettingEntity profileProperty : profilePropertySettingEntities) {
 
       if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME)) {
         String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, profileProperty.getValue());
@@ -1507,27 +1517,8 @@ public class UserRest implements ResourceContainer, Startable {
         return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_MANDATORY").build();
       }
       try {
-        if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
-          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), false, currentUser);
-          updateProfilePropertyVisibility(userIdentity, profileProperty);
-        } else {
-          List<Map<String, String>> maps = new ArrayList<>();
-          profileProperty.getChildren().forEach(profilePropertySettingEntity -> {
-            if (profilePropertySettingEntity.getValue() != null && !profilePropertySettingEntity.getValue().isBlank()
-                && (profilePropertySettingEntity.getPropertyName() != null
-                    && !profilePropertySettingEntity.getPropertyName().isBlank()
-                    || profileProperty.isMultiValued())) {
-              Map<String, String> childrenMap = new HashMap<>();
-              if (profilePropertySettingEntity.getPropertyName() != null) {
-                childrenMap.put("key", profilePropertySettingEntity.getPropertyName());
-              }
-              childrenMap.put("value", profilePropertySettingEntity.getValue());
-              maps.add(childrenMap);
-            }
-          });
-          updateProfileField(profile, profileProperty.getPropertyName(), maps, false, currentUser);
-          updateProfilePropertyVisibility(userIdentity, profileProperty);
-        }
+        updateProfileField(profile, profileProperty.getPropertyName(), getProfilePropertyValue(profileProperty), false, currentUser);
+        updateProfilePropertyVisibility(userIdentity, profileProperty);
       } catch (IllegalAccessException e) {
         LOG.error("User {} is not allowed to update attributes", currentUser);
         return Response.status(Status.UNAUTHORIZED).build();
@@ -1538,6 +1529,65 @@ public class UserRest implements ResourceContainer, Startable {
     }
     identityManager.updateProfile(profile, getCurrentUser(), true);
     return Response.ok().build();
+  }
+
+  /**
+   * @param  profileProperty a property sent to the profile properties update
+   * @return                 the value the property is written with: its text,
+   *                         or, for a multi-valued property or one with
+   *                         children, the list of the non blank entries
+   *                         ({@code key} and {@code value}) the storage
+   *                         serialises
+   */
+  private Object getProfilePropertyValue(ProfilePropertySettingEntity profileProperty) {
+    if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
+      return profileProperty.getValue();
+    }
+    List<Map<String, String>> maps = new ArrayList<>();
+    profileProperty.getChildren().forEach(profilePropertySettingEntity -> {
+      if (profilePropertySettingEntity.getValue() != null && !profilePropertySettingEntity.getValue().isBlank()
+          && (profilePropertySettingEntity.getPropertyName() != null
+              && !profilePropertySettingEntity.getPropertyName().isBlank()
+              || profileProperty.isMultiValued())) {
+        Map<String, String> childrenMap = new HashMap<>();
+        if (profilePropertySettingEntity.getPropertyName() != null) {
+          childrenMap.put("key", profilePropertySettingEntity.getPropertyName());
+        }
+        childrenMap.put("value", profilePropertySettingEntity.getValue());
+        maps.add(childrenMap);
+      }
+    });
+    return maps;
+  }
+
+  /**
+   * Checks a value before anything is written: SOC_IDENTITY_PROPERTIES.VALUE
+   * holds {@value ProfilePropertyValueUtil#MAX_STORED_VALUE_LENGTH} characters,
+   * counted on the stored form by
+   * {@link ProfilePropertyValueUtil#storedLength(Object)}, and no text column
+   * of PostgreSQL holds U+0000. U+0000 is refused by the column for a single
+   * value and by rule for a list: org.json escapes it, so a list holding it
+   * would be stored.
+   *
+   * @param  propertyName the property's technical name
+   * @param  value        the text or the list of maps to write
+   * @return              the 400 message naming the property, or null when the
+   *                      value can be stored
+   */
+  private String checkStorableValue(String propertyName, Object value) {
+    if (value == null) {
+      return null;
+    }
+    boolean holdsNul = value instanceof List<?> list ? list.stream()
+                                                          .filter(Map.class::isInstance)
+                                                          .flatMap(entry -> ((Map<?, ?>) entry).values().stream())
+                                                          .anyMatch(v -> StringUtils.contains(String.valueOf(v), NUL))
+                                                     : StringUtils.contains(String.valueOf(value), NUL);
+    if (holdsNul) {
+      return propertyName + ":INVALID_VALUE";
+    }
+    return ProfilePropertyValueUtil.storedLength(value) > ProfilePropertyValueUtil.MAX_STORED_VALUE_LENGTH ? propertyName
+        + ":TOO_LONG" : null;
   }
 
   /**

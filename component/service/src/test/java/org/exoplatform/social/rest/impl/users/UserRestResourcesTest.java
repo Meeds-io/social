@@ -3141,6 +3141,168 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     }
   }
 
+  /** SOC_IDENTITY_PROPERTIES.VALUE holds 2000 characters */
+  private static final int STORED_LIMIT = 2000;
+
+  public void testSingleValueBoundIsTheColumnLength() throws Exception {
+    startSessionAs("mary");
+    try {
+      String limit = "a".repeat(STORED_LIMIT);
+      ContainerResponse response = getResponseAs("PATCH",
+                                                 "/v1/social/users/mary/profile/properties",
+                                                 singleValueInput("bounded-single", limit),
+                                                 "mary");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(limit, getStoredProperty("bounded-single"));
+
+      response = getResponseAs("PATCH",
+                               "/v1/social/users/mary/profile/properties",
+                               singleValueInput("bounded-single", limit + "a"),
+                               "mary");
+      assertEquals(400, response.getStatus());
+      assertEquals("bounded-single:TOO_LONG", response.getEntity());
+      assertEquals(limit, getStoredProperty("bounded-single"));
+    } finally {
+      removeMaryProperties("bounded-single");
+    }
+  }
+
+  public void testListBoundIsTheSerialisedLengthNotTheEntriesLength() throws Exception {
+    startSessionAs("mary");
+    try {
+      // org.json writes U+20AC as a 6 characters escape (U+2028 would be blank): the list below is 331
+      // characters long and 2000 once stored, as [{"value":"…"}]
+      String escapeHeavy = "\u20ac".repeat(331);
+      ContainerResponse response = getResponseAs("PATCH",
+                                                 "/v1/social/users/mary/profile/properties",
+                                                 listInput("bounded-list", escapeHeavy),
+                                                 "mary");
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertEquals(List.of(escapeHeavy), getStoredList("bounded-list"));
+
+      response = getResponseAs("PATCH",
+                               "/v1/social/users/mary/profile/properties",
+                               listInput("bounded-list", escapeHeavy + "a"),
+                               "mary");
+      assertEquals(400, response.getStatus());
+      assertEquals("bounded-list:TOO_LONG", response.getEntity());
+      assertEquals(List.of(escapeHeavy), getStoredList("bounded-list"));
+
+      // Entries that are short together, but whose serialised form is not
+      String half = "\u20ac".repeat(200);
+      response = getResponseAs("PATCH",
+                               "/v1/social/users/mary/profile/properties",
+                               listInput("bounded-list", half, half),
+                               "mary");
+      assertEquals(400, response.getStatus());
+      assertEquals("bounded-list:TOO_LONG", response.getEntity());
+      assertEquals(List.of(escapeHeavy), getStoredList("bounded-list"));
+    } finally {
+      removeMaryProperties("bounded-list");
+    }
+  }
+
+  public void testValueWithNulIsRefused() throws Exception {
+    startSessionAs("mary");
+    try {
+      ContainerResponse response = getResponseAs("PATCH",
+                                                 "/v1/social/users/mary/profile/properties",
+                                                 singleValueInput("bounded-single", "a" + (char) 0 + "b"),
+                                                 "mary");
+      assertEquals(400, response.getStatus());
+      assertEquals("bounded-single:INVALID_VALUE", response.getEntity());
+      assertNull(getStoredProperty("bounded-single"));
+
+      response = getResponseAs("PATCH",
+                               "/v1/social/users/mary/profile/properties",
+                               listInput("bounded-list", "a" + (char) 0),
+                               "mary");
+      assertEquals(400, response.getStatus());
+      assertEquals("bounded-list:INVALID_VALUE", response.getEntity());
+      assertNull(identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty("bounded-list"));
+
+      JSONObject keyedChild = new JSONObject().put("propertyName", "subField").put("value", "a" + (char) 0);
+      response = getResponseAs("PATCH",
+                               "/v1/social/users/mary/profile/properties",
+                               new JSONArray().put(new JSONObject().put("propertyName", "bounded-list")
+                                                                   .put("children", new JSONArray().put(keyedChild)))
+                                              .toString(),
+                               "mary");
+      assertEquals(400, response.getStatus());
+      assertEquals("bounded-list:INVALID_VALUE", response.getEntity());
+      assertNull(getStoredProperty("bounded-list"));
+    } finally {
+      removeMaryProperties("bounded-single", "bounded-list");
+    }
+  }
+
+  public void testNothingIsWrittenWhenOneValueOfTheRequestIsRefused() throws Exception {
+    startSessionAs("mary");
+    ProfilePropertySetting setting = new ProfilePropertySetting();
+    setting.setPropertyName("bounded-single");
+    setting.setPropertyType("text");
+    setting.setMultiValued(false);
+    setting.setEditable(true);
+    setting.setActive(true);
+    setting.setHiddenbale(true);
+    setting = profilePropertyService.createPropertySetting(setting);
+    tearDownProfilePropertyList.add(setting);
+    long maryIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity("mary").getId());
+    List<Long> hiddenBefore = new ArrayList<>(profilePropertyService.getHiddenProfilePropertyIds(maryIdentityId));
+    assertFalse(hiddenBefore.contains(setting.getId()));
+    try {
+      JSONArray body = new JSONArray();
+      body.put(new JSONObject().put("id", setting.getId())
+                               .put("propertyName", "bounded-single")
+                               .put("value", "fits")
+                               .put("toHide", true));
+      body.put(new JSONObject().put("propertyName", "bounded-other").put("value", "a".repeat(STORED_LIMIT + 1)));
+      ContainerResponse response = getResponseAs("PATCH",
+                                                 "/v1/social/users/mary/profile/properties",
+                                                 body.toString(),
+                                                 "mary");
+      assertEquals(400, response.getStatus());
+      assertEquals("bounded-other:TOO_LONG", response.getEntity());
+      assertNull(getStoredProperty("bounded-single"));
+      assertNull(getStoredProperty("bounded-other"));
+      assertEquals(hiddenBefore, profilePropertyService.getHiddenProfilePropertyIds(maryIdentityId));
+    } finally {
+      profilePropertyService.showPropertySetting(maryIdentityId, setting.getId());
+      removeMaryProperties("bounded-single", "bounded-other");
+    }
+  }
+
+  private String singleValueInput(String name, String value) {
+    return new JSONArray(List.of(new JSONObject().put("propertyName", name).put("value", value))).toString();
+  }
+
+  private String listInput(String name, String... values) {
+    JSONArray children = new JSONArray();
+    for (String value : values) {
+      children.put(new JSONObject().put("value", value));
+    }
+    return new JSONArray(List.of(new JSONObject().put("propertyName", name)
+                                                 .put("multiValued", true)
+                                                 .put("children", children))).toString();
+  }
+
+  private Object getStoredProperty(String name) {
+    return identityManager.getOrCreateUserIdentity("mary").getProfile().getProperty(name);
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<String> getStoredList(String name) {
+    return ((List<Map<String, String>>) getStoredProperty(name)).stream().map(entry -> entry.get("value")).toList();
+  }
+
+  private void removeMaryProperties(String... names) {
+    Profile profile = identityManager.getOrCreateUserIdentity("mary").getProfile();
+    for (String name : names) {
+      profile.removeProperty(name);
+    }
+    identityManager.updateProfile(profile);
+  }
+
   private ProfilePropertySetting createChildSetting(ProfilePropertySetting parent,
                                                     String name,
                                                     boolean editable) throws ObjectAlreadyExistsException {
