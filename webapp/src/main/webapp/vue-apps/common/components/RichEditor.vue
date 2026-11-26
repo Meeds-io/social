@@ -760,17 +760,25 @@ export default {
         content = content.replace(/<oembed>\n* *(.*)\n*<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
       }
       if (content.includes('<a') && content.includes('</a>')) {
-        const tempdiv = document.createElement('div');
-        tempdiv.innerHTML = content;
+        const tempdiv = this.parseInert(content);
         const links = tempdiv.getElementsByTagName('a');
         for (const link of links) {
-          if (link.href.indexOf(window.location.origin) === -1) {
+          const rawHref = link.getAttribute('href');
+          let href = '';
+          if (rawHref !== null) {
+            try {
+              href = new URL(rawHref, window.location.href).href;
+            } catch (e) {
+              href = rawHref;
+            }
+          }
+          if (href.indexOf(window.location.origin) === -1) {
             link.setAttribute('target', '_blank');
             link.setAttribute('rel', 'nofollow noopener noreferrer');
           }
           if (link.text.length > 75) {
-            link.setAttribute('title', link.href);
-            link.setAttribute('Aria-label', link.href);
+            link.setAttribute('title', href);
+            link.setAttribute('Aria-label', href);
             link.text = `${link.text.substring(0,75)  }...`;
           }
         }
@@ -818,20 +826,58 @@ export default {
         this.oembedParams = null;
       }
     },
+    /**
+     * Parses editor content in a document of its own, where nothing it holds is loaded or run.
+     * @param {string} html - the editor content
+     * @returns {HTMLElement} the body of that document
+     */
+    parseInert(html) {
+      return new DOMParser().parseFromString(`<!DOCTYPE html><body>${html || ''}`, 'text/html').body;
+    },
+    /**
+     * Builds a mention element with DOM calls on the document of the given node, the displayed name being a text node.
+     * @param {HTMLElement} owner - a node of the inert document
+     * @param {string} name - the displayed name
+     * @param {string} value - the mentioned value
+     * @param {string} iconClass - the class of the icon shown before the name, none for a user mention
+     * @returns {HTMLElement} the mention element, not inserted yet
+     */
+    createInertMention(owner, name, value, iconClass) {
+      const doc = owner.ownerDocument;
+      const create = (tag, attributes) => {
+        const element = doc.createElement(tag);
+        Object.keys(attributes).forEach(key => element.setAttribute(key, attributes[key]));
+        return element;
+      };
+      const mention = create('span', {
+        'class': 'atwho-inserted',
+        'data-atwho-at-query': '@',
+        'data-atwho-at-value': value,
+        'contenteditable': 'false',
+      });
+      const inner = create('span', iconClass ? {'class': 'exo-mention'} : {'class': 'exo-mention', 'contenteditable': 'false'});
+      if (iconClass) {
+        inner.append(create('i', {
+          'aria-hidden': 'true',
+          'class': `v-icon fa ${iconClass}`,
+          'style': 'font-size: 16px;',
+        }));
+      }
+      const closeLink = create('a', {'data-cke-survive': '', 'href': '#', 'class': 'remove'});
+      closeLink.append(create('i', {'data-cke-survive': '', 'class': 'uiIconClose uiIconLightGray'}));
+      inner.append(doc.createTextNode(name), closeLink);
+      mention.append(inner);
+      return mention;
+    },
     replaceWithSuggesterClass(message) {
       message = message.replace(/&nbsp;|&#160;/g, ' ');
       message = message.replace(/\u00A0/g, ' ');
-      const tempdiv = $('<div class=\'temp\'/>').html(message || '');
+      const tempdiv = $(this.parseInert(message));
+      const createInertMention = this.createInertMention;
       tempdiv.find('a[href*="/profile"]')
         .each(function() {
-          $(this).replaceWith(function() {
-            return $('<span/>', {
-              class: 'atwho-inserted',
-              html: `<span class="exo-mention" contenteditable="false">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
-            }).attr('data-atwho-at-query', '@')
-              .attr('data-atwho-at-value', $(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
-              .attr('contenteditable', 'false');
-          });
+          const href = this.getAttribute('href');
+          this.replaceWith(createInertMention(this, this.textContent, href.substring(href.lastIndexOf('/')+1)));
         });
       tempdiv.find('a.group-role-mention')
         .each(function() {
@@ -848,16 +894,9 @@ export default {
             icon = 'fa-paper-plane';
           }
 
-          $(this).replaceWith(function() {
-            return $('<span/>', {
-              class: 'atwho-inserted',
-              html: `<span class="exo-mention"><i aria-hidden="true" class="v-icon fa ${icon}" style="font-size: 16px;"></i>${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
-            }).attr('data-atwho-at-query', '@')
-              .attr('data-atwho-at-value',`${role}:${identityId}`)
-              .attr('contenteditable','false');
-          });
+          this.replaceWith(createInertMention(this, this.textContent, `${role}:${identityId}`, icon || 'undefined'));
         });
-      return tempdiv.html();
+      return tempdiv[0].innerHTML;
     },
     replaceValidSuggestedUser(message, profile, pattern) {
       return message.replace(new RegExp(pattern, 'g'), ExtendedDomPurify.purify(`
@@ -927,7 +966,7 @@ export default {
         });
     },
     replaceSuggesterHtmlToText(message) {
-      const tempdiv = $('<div class=\'temp\'/>').html(message || '');
+      const tempdiv = $(this.parseInert(message));
       tempdiv.find('[data-atwho-at-value]')
         .each(function() {
           const value = $(this).attr('data-atwho-at-value');
