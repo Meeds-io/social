@@ -21,24 +21,42 @@
 <template>
   <v-card flat class="transparent">
     <v-card-title class="text-body px-0">
-      <span class="mx-auto text-center">{{ $t('onboarding.linkExpired') }}</span>
+      <span class="mx-auto text-center">{{ message || $t('onboarding.linkExpired') }}</span>
     </v-card-title>
     <div class="d-flex ma-0 flex-column">
       <div class="pa-0">
         <v-row class="mx-0 mt-8 pa-0">
           <v-btn
-            :aria-label="$t('forgotpassword.backToLogin')"
-            href="/portal/login"
+            :aria-label="backLabel || $t('forgotpassword.backToLogin')"
+            :href="backHref"
             color="primary"
             width="222"
             max-width="100%"
             tabindex="0"
             class="mx-auto login-button text-none"
             elevation="0">
-            {{ $t('forgotpassword.backToLogin') }}
+            {{ backLabel || $t('forgotpassword.backToLogin') }}
           </v-btn>
         </v-row>
       </div>
     </div>
   </v-card>
 </template>
+<script>
+export default {
+  props: {
+    message: {
+      type: String,
+      default: null,
+    },
+    backLabel: {
+      type: String,
+      default: null,
+    },
+    backHref: {
+      type: String,
+      default: '/portal/login',
+    },
+  },
+};
+</script>

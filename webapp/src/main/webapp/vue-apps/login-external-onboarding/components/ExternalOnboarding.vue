@@ -28,6 +28,11 @@
       <portal-external-onboarding-already-authenticated
         v-if="authenticated" />
       <portal-external-onboarding-expired
+        v-else-if="action === 'refused'"
+        :message="refusalMessage"
+        :back-label="registerEnabled ? $t('onboarding.backToRegistration') : null"
+        :back-href="registerEnabled ? registerLink : undefined" />
+      <portal-external-onboarding-expired
         v-else-if="action === 'expired'" />
       <portal-external-onboarding-create-user-form
         v-else-if="action === 'createUser'"
@@ -39,11 +44,18 @@
 </template>
 <script>
 export default {
+  props: {
+    registerEnabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
     email: '',
     action: '',
     token: '',
-    initialUri: null
+    initialUri: null,
+    error: null
   }),
   created() {
     const searchParams = new URLSearchParams(window.location.search);
@@ -53,7 +65,15 @@ export default {
     if (this.token) {
       if (this.action === 'validateEmail') {
         this.$loginService.finishRegistration(this.token, 'email-validation').then((resp) => {
-          if (!resp || !resp.ok) {
+          if (resp?.status === 400) {
+            // the username can no longer be created: say so and offer the way back to registration
+            resp.json().then((data) => {
+              this.error = data.error;
+              this.action = 'refused';
+            }).catch(() => {
+              this.action = 'expired';
+            });
+          } else if (!resp || !resp.ok) {
             this.action = 'expired';
           } else if (resp.redirected) {
             window.location.href = resp.url;
@@ -81,6 +101,13 @@ export default {
     }
   },
   computed: {
+    refusalMessage() {
+      const message = this.$te(this.error) ? this.$t(this.error) : this.error;
+      return this.registerEnabled ? message : `${message} ${this.$t('onboarding.requestNewInvitation')}`;
+    },
+    registerLink() {
+      return this.initialUri ? `/portal/register?initialURI=${this.initialUri}` : '/portal/register';
+    },
     authenticated() {
       return eXo.env.portal.userName && eXo.env.portal.userName !== '';
     },

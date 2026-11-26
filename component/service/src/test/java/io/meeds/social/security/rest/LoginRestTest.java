@@ -49,6 +49,7 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureWebMvc;
@@ -90,6 +91,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -128,6 +130,9 @@ public class LoginRestTest {
 
   @MockitoBean
   private UserDAOImpl userHandler;
+
+  @MockitoBean
+  private IdentityStorage identityStorage;
 
   @MockitoBean
   private RegisterUIParamsExtension registerUIParamsExtension;
@@ -837,6 +842,132 @@ public class LoginRestTest {
             .andExpect(content().string(""));
   }
 
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailRefusesNonConformingUsername() {
+    for (String username : new String[] { "First.Second", "first second", "first#second", "first/second", "first:second" }) {
+      clearInvocations(userHandler, passwordRecoveryService);
+      assertVerifyEmailRefusesUsername(username);
+    }
+  }
+
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailAcceptsValidUsername() {
+    ResultActions response = performVerifyEmail("first.second");
+    response.andExpect(status().isOk())
+            .andExpect(content().string(new JSONObject().put("success", "emailVerificationSent").toString()));
+    verify(passwordRecoveryService).sendAccountVerificationEmail(any(), eq("first.second"), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailRefusesAbsentUsername() {
+    assertVerifyEmailRefusesUsername(null);
+  }
+
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailRefusesEmptyUsername() {
+    assertVerifyEmailRefusesUsername("");
+  }
+
+  @SneakyThrows
+  private void assertVerifyEmailRefusesUsername(String username) {
+    ResultActions response = performVerifyEmail(username);
+    response.andExpect(status().isBadRequest())
+            .andExpect(content().string(new JSONObject().put("error", LoginRest.USERNAME_VALIDATOR.validate(Locale.ENGLISH, username))
+                                                        .toString()));
+    verify(userHandler, never()).createUserInstance(any());
+    verify(passwordRecoveryService, never()).sendAccountVerificationEmail(any(), any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailRefusesTakenUsername() {
+    User existing = new UserImpl();
+    existing.setUserName("first.second");
+    ResultActions response = performVerifyEmail("first.second", existing);
+    response.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value(LoginRest.USERNAME_TAKEN_MESSAGE));
+    verify(passwordRecoveryService, never()).sendAccountVerificationEmail(any(), any(), any(), any(), any(), any(), any());
+    verify(remindPasswordTokenService, never()).deleteToken(anyString(), anyString());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testVerifyEmailRefusesUsernameOfDeletedAccount() {
+    Identity deleted = new Identity(OrganizationIdentityProvider.NAME, "first.second");
+    deleted.setDeleted(true);
+    when(identityStorage.findIdentity(OrganizationIdentityProvider.NAME, "first.second")).thenReturn(deleted);
+    ResultActions response = performVerifyEmail("first.second");
+    response.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value(LoginRest.USERNAME_TAKEN_MESSAGE));
+    verify(passwordRecoveryService, never()).sendAccountVerificationEmail(any(), any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testFinishRegistrationRefusesUsernameOfDeletedAccount() {
+    Identity deleted = new Identity(OrganizationIdentityProvider.NAME, "john");
+    deleted.setDeleted(true);
+    when(identityStorage.findIdentity(OrganizationIdentityProvider.NAME, "john")).thenReturn(deleted);
+    when(passwordRecoveryService.verifyToken(any(), any())).thenReturn("john::John::Smith::jsmith@acme.com::Password1234");
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
+    ResultActions response = mockMvc.perform(post("/login/finishRegistration")
+                                                 .content("token=123456798&tokenType=email-validation")
+                                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                                                 .accept(MediaType.APPLICATION_JSON));
+    response.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value(LoginRest.USERNAME_TAKEN_MESSAGE));
+    verify(userHandler, never()).createUser(any(), anyBoolean());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testFinishRegistrationRefusesUsernameTakenInBetween() {
+    User existing = new UserImpl();
+    existing.setUserName("john");
+    when(userHandler.findUserByName(eq("john"), any())).thenReturn(existing);
+    when(passwordRecoveryService.verifyToken(any(), any())).thenReturn("john::John::Smith::jsmith@acme.com::Password1234");
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
+    ResultActions response = mockMvc.perform(post("/login/finishRegistration")
+                                                 .content("token=123456798&tokenType=email-validation")
+                                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                                                 .accept(MediaType.APPLICATION_JSON));
+    response.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value(LoginRest.USERNAME_TAKEN_MESSAGE));
+    verify(userHandler, never()).createUser(any(), anyBoolean());
+    verify(remindPasswordTokenService, never()).deleteToken(anyString(), anyString());
+  }
+
+  private ResultActions performVerifyEmail(String username) {
+    return performVerifyEmail(username, null);
+  }
+
+  @SneakyThrows
+  private ResultActions performVerifyEmail(String username, User takenUser) {
+    User user = new UserImpl();
+    user.setUserName(username);
+    when(userHandler.findUserByName(any(), any())).thenReturn(null);
+    if (takenUser != null) {
+      when(userHandler.findUserByName(eq(takenUser.getUserName()), any())).thenReturn(takenUser);
+    }
+    when(userHandler.createUserInstance(any())).thenReturn(user);
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
+    when(passwordRecoveryService.verifyToken(any(), any())).thenReturn("jsmith@acme.com");
+    when(passwordRecoveryService.sendAccountVerificationEmail(any(), any(), any(), any(), any(), any(), any())).thenReturn(true);
+    when(captcha.isCorrect(any())).thenReturn(true);
+    HashMap<String, Object> sessionattr = new HashMap<>();
+    sessionattr.put("external-registration", captcha);
+    String usernameParam = username == null ? "" : "username=" + URLEncoder.encode(username, StandardCharsets.UTF_8) + "&";
+    return mockMvc.perform(post("/login/verifyEmail")
+                               .sessionAttrs(sessionattr)
+                               .content("email=jsmith@acme.com&" + usernameParam
+                                        + "password=Password1234&password2=Password1234&firstName=John&lastName=Smith&captcha=abcde&token=123456789")
+                               .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                               .accept(MediaType.APPLICATION_JSON));
+  }
 
   @Test
   @SneakyThrows
