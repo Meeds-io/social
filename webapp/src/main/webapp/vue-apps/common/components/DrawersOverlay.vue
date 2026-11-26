@@ -68,8 +68,8 @@ export default {
     isInEscapeClosedDialog(element) {
       // An Escape pressed in a dialog that Escape closes closes that dialog only, not the drawer it was opened from.
       // A persistent dialog ignores Escape, so the drawer keeps handling it there: a drawer's close confirmation is
-      // dismissed by ExoDrawer#close. A drawer opened above a dialog holds the focus, so its Escape still closes it
-      // the focus may be on the dialog's wrapper, which Vuetify focuses when the dialog opens, not inside the dialog
+      // dismissed by ExoDrawer#close. A drawer opened above a dialog holds the focus, so its Escape still closes it.
+      // The focus may be on the dialog's wrapper, which Vuetify focuses when the dialog opens, not inside the dialog.
       const dialog = element?.closest?.('.v-dialog__content--active')?.querySelector?.('.v-dialog');
       return !!dialog && !dialog.classList.contains('v-dialog--persistent');
     },

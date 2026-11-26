@@ -42,7 +42,7 @@
       </v-btn>
     </div>
     <div
-      v-if="!$root.reducedWidth && !seeMoreShown"
+      v-if="!$root.reducedWidth && !showSeeMoreOverlay"
       class="activityLikersAndKudosDrawer d-none d-lg-inline ml-n5"
       @mouseenter="showSeeMoreOverlay = true">
       <div v-if="seeMoreLikerToDisplay" class="seeMoreReactionsContainer">
