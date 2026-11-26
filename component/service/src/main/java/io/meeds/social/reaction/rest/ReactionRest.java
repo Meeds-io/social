@@ -43,6 +43,7 @@ import org.exoplatform.social.rest.entity.ProfileEntity;
 import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
+import io.meeds.social.reaction.model.ReactionSummary;
 import io.meeds.social.reaction.rest.model.ReactionInput;
 import io.meeds.social.reaction.rest.model.ReactionList;
 import io.meeds.social.reaction.service.ReactionService;
@@ -63,6 +64,8 @@ public class ReactionRest {
   private static final long DEFAULT_LIMIT = 20;
 
   private static final long MAX_LIMIT     = 100;
+
+  private static final int  MAX_SUMMARY_OBJECTS = 100;
 
   @Autowired
   private ReactionService   reactionService;
@@ -90,6 +93,32 @@ public class ReactionRest {
                                                  @RequestParam(name = "objectType", required = false)
                                                  String objectType) {
     return objectType == null ? reactionService.getReactionOptions() : reactionService.getReactionOptions(objectType);
+  }
+
+  @GetMapping("{objectType}/summary")
+  @Secured("users")
+  @Operation(summary = "Retrieves the reactions summary of several objects", method = "GET",
+             description = "Retrieves, for each requested object the caller can view, the reactors count per reaction option and the caller's reaction. Objects that don't exist or that the caller can't view are left out")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Bad request"),
+  })
+  public Map<String, ReactionSummary> getReactionSummaries(
+                                                           HttpServletRequest request,
+                                                           @Parameter(description = "Object type: activity for posts and comments", required = true)
+                                                           @PathVariable("objectType")
+                                                           String objectType,
+                                                           @Parameter(description = "Objects technical identifiers, at most 100", required = true)
+                                                           @RequestParam("objectIds")
+                                                           List<String> objectIds) {
+    if (objectIds.size() > MAX_SUMMARY_OBJECTS) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "reaction.tooManyObjects");
+    }
+    try {
+      return reactionService.getReactionSummaries(objectType, objectIds, request.getRemoteUser());
+    } catch (IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
   }
 
   @GetMapping("{objectType}/{objectId}")

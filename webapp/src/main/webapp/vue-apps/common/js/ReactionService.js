@@ -59,6 +59,51 @@ export function getReactions(objectType, objectId, reactionId, offset, limit) {
   });
 }
 
+const SUMMARY_BATCH_SIZE = 100;
+const pendingSummaries = {};
+
+/**
+ * Retrieves the counts and the reaction of the current user on an object. The
+ * requests made in the same tick, by the reactions of every item of a list for
+ * example, are sent as one request per object type.
+ *
+ * @param {String} objectType object type
+ * @param {String|Number} objectId object identifier
+ * @return {Promise} resolved with {counts, userReactionId}, or with null when the
+ *         object doesn't exist or can't be viewed
+ */
+export function getReactionSummary(objectType, objectId) {
+  const id = String(objectId);
+  return new Promise((resolve, reject) => {
+    let pending = pendingSummaries[objectType];
+    if (!pending) {
+      pending = pendingSummaries[objectType] = {callbacks: {}};
+      setTimeout(() => sendSummaries(objectType), 0);
+    }
+    (pending.callbacks[id] = pending.callbacks[id] || []).push({resolve, reject});
+  });
+}
+
+function sendSummaries(objectType) {
+  const pending = pendingSummaries[objectType];
+  delete pendingSummaries[objectType];
+  const ids = Object.keys(pending.callbacks);
+  for (let from = 0; from < ids.length; from += SUMMARY_BATCH_SIZE) {
+    const batch = ids.slice(from, from + SUMMARY_BATCH_SIZE);
+    const objectIds = batch.map(encodeURIComponent).join(',');
+    fetch(`/social/rest/reactions/${encodeURIComponent(objectType)}/summary?objectIds=${objectIds}`, {
+      method: 'GET',
+      credentials: 'include',
+    }).then(resp => {
+      if (!resp?.ok) {
+        throw new Error('Error while retrieving reactions summaries');
+      }
+      return resp.json();
+    }).then(summaries => batch.forEach(id => pending.callbacks[id].forEach(callback => callback.resolve(summaries[id] || null))))
+      .catch(error => batch.forEach(id => pending.callbacks[id].forEach(callback => callback.reject(error))));
+  }
+}
+
 export function setReaction(objectType, objectId, reactionId) {
   return fetch(`/social/rest/reactions/${encodeURIComponent(objectType)}/${encodeURIComponent(objectId)}`, {
     method: 'PUT',

@@ -20,6 +20,7 @@ package io.meeds.social.reaction.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -56,6 +57,7 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 
 import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
+import io.meeds.social.reaction.model.ReactionSummary;
 import io.meeds.social.reaction.model.ReactionOption;
 import io.meeds.social.reaction.plugin.DefaultReactionOptionsPlugin;
 import io.meeds.social.reaction.plugin.ReactionObjectPlugin;
@@ -661,6 +663,46 @@ public class ReactionServiceImplTest {
     assertEquals(1l, result.counts().get("like").longValue());
     assertEquals(1, result.reactions().size());
     assertEquals("like", result.userReactionId());
+  }
+
+  @Test
+  public void testReactionSummariesOfPluginObjectsLeaveOutWhatTheUserCannotSee() throws Exception {
+    MetadataObject object = registerPlugin(true, true);
+    MetadataItem userItem = metadataItem(77l, "love");
+    when(reactionStorage.countReactionsByOption(object)).thenReturn(Map.of("love", 2l));
+    when(reactionStorage.getUserReactionItem(object, 123l)).thenReturn(userItem);
+
+    Map<String, ReactionSummary> summaries = reactionService.getReactionSummaries(PLUGIN_TYPE,
+                                                                                  List.of(PLUGIN_ID, "404"),
+                                                                                  USERNAME);
+
+    // "404" doesn't exist: it is left out, with no failure for the others
+    assertEquals(List.of(PLUGIN_ID), List.copyOf(summaries.keySet()));
+    assertEquals(Map.of("love", 2l), summaries.get(PLUGIN_ID).counts());
+    assertEquals("love", summaries.get(PLUGIN_ID).userReactionId());
+    assertEquals(2, pluginLookups);
+  }
+
+  @Test
+  public void testReactionSummariesOfPluginObjectsTheUserCannotViewAreEmpty() {
+    registerPlugin(false, true);
+
+    assertTrue(reactionService.getReactionSummaries(PLUGIN_TYPE, List.of(PLUGIN_ID), USERNAME).isEmpty());
+  }
+
+  @Test
+  public void testReactionSummariesOfActivities() {
+    when(activity.getLikeIdentityIds()).thenReturn(new String[] { IDENTITY_ID });
+
+    Map<String, ReactionSummary> summaries = reactionService.getReactionSummaries(OBJECT_TYPE, List.of(OBJECT_ID), USERNAME);
+
+    assertEquals(1l, summaries.get(OBJECT_ID).counts().get("like").longValue());
+    assertEquals("like", summaries.get(OBJECT_ID).userReactionId());
+  }
+
+  @Test
+  public void testReactionSummariesOfAnUnsupportedTypeAreRefused() {
+    assertThrows(IllegalArgumentException.class, () -> reactionService.getReactionSummaries("other", List.of("1"), USERNAME));
   }
 
   @Test

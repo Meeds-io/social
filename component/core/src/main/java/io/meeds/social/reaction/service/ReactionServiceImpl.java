@@ -19,6 +19,7 @@
 package io.meeds.social.reaction.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -51,6 +52,7 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
+import io.meeds.social.reaction.model.ReactionSummary;
 import io.meeds.social.reaction.plugin.ReactionObjectPlugin;
 import io.meeds.social.reaction.plugin.ReactionOptionPlugin;
 import io.meeds.social.reaction.storage.ReactionStorage;
@@ -324,6 +326,34 @@ public class ReactionServiceImpl implements ReactionService {
     return new ObjectReactions(orderCounts(reactionStorage.countReactionsByOption(object)),
                                toPluginReactions(objectType, objectId, reactionId, offset, limit, object),
                                userItem == null ? null : ReactionStorage.decodeReactionId(userItem.getMetadata().getName()));
+  }
+
+  @Override
+  public Map<String, ReactionSummary> getReactionSummaries(String objectType, Collection<String> objectIds, String username) {
+    if (!isPluginObjectType(objectType) && !StringUtils.equals(objectType, ACTIVITY_OBJECT_TYPE)) {
+      throw new IllegalArgumentException("reaction.unsupportedObjectType");
+    }
+    Map<String, ReactionSummary> summaries = new LinkedHashMap<>();
+    for (String objectId : objectIds) {
+      try {
+        if (isPluginObjectType(objectType)) {
+          MetadataObject object = getPluginObjectWithCheck(objectType, objectId, username);
+          long identityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
+          MetadataItem userItem = reactionStorage.getUserReactionItem(object, identityId);
+          summaries.put(objectId,
+                        new ReactionSummary(orderCounts(reactionStorage.countReactionsByOption(object)),
+                                            userItem == null ? null :
+                                                             ReactionStorage.decodeReactionId(userItem.getMetadata().getName())));
+        } else {
+          summaries.put(objectId,
+                        new ReactionSummary(countReactionsByOption(objectType, objectId, username),
+                                            getUserReactionId(objectType, objectId, username)));
+        }
+      } catch (ObjectNotFoundException | IllegalAccessException e) {
+        LOG.debug("No reactions summary of {}/{} for user {}: {}", objectType, objectId, username, e.getMessage());
+      }
+    }
+    return summaries;
   }
 
   @Override

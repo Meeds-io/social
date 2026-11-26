@@ -18,6 +18,7 @@
  */
 package io.meeds.social.reaction.service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
+import io.meeds.social.reaction.model.ReactionSummary;
 import io.meeds.social.reaction.plugin.ReactionObjectPlugin;
 
 /**
@@ -181,6 +183,23 @@ public interface ReactionService {
                                      long offset,
                                      long limit,
                                      String username) throws ObjectNotFoundException, IllegalAccessException;
+
+  /**
+   * Retrieves the reactions summary of several objects of a type in one call,
+   * for a list that displays the reactions of each of its items. An object that
+   * doesn't exist, or that the user can't view, is left out of the result, so
+   * the identifiers of the objects the user can't see can't be probed.
+   *
+   * @param objectType Object type
+   * @param objectIds Objects technical identifiers
+   * @param username User name (login identifier) used for the view ACL check
+   * @return the {@link ReactionSummary} of each object the user can view, by
+   *         object identifier
+   * @throws IllegalArgumentException when the object type isn't supported
+   */
+  Map<String, ReactionSummary> getReactionSummaries(String objectType,
+                                                    Collection<String> objectIds,
+                                                    String username);
 
   /**
    * Deletes the reactions of every object of a type that lives under a parent
