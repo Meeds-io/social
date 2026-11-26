@@ -41,7 +41,7 @@
                     <exo-space-avatar
                       :space="streamSpace"
                       :size="22"
-                      class="text-truncate"
+                      class="searchActivitySpace text-truncate"
                       link-style
                       popover />
                   </template>

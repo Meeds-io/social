@@ -4,7 +4,7 @@
     v-model="dialog"
     :persistent="persistent"
     :width="width"
-    :content-class="`uiPopup ${isBrandingLayout && 'layout-drawer' || ''}`"
+    :content-class="`uiPopup ${isBrandingLayout && 'layout-drawer' || ''} ${contentClass || ''}`"
     max-width="100vw">
     <v-card
       ref="card"
@@ -31,7 +31,7 @@
           ref="okButton"
           :disabled="loading"
           :loading="loading"
-          class="ignore-vuetify-classes btn btn-primary me-2"
+          class="confirmDialogOkButton ignore-vuetify-classes btn btn-primary me-2"
           @click="ok">
           {{ okLabel }}
         </button>
@@ -40,7 +40,7 @@
           ref="cancelButton"
           :disabled="loading"
           :loading="loading"
-          class="ignore-vuetify-classes btn ms-2"
+          class="confirmDialogCancelButton ignore-vuetify-classes btn ms-2"
           @click="close">
           {{ cancelLabel }}
         </button>
@@ -53,6 +53,10 @@
 <script>
 export default {
   props: {
+    contentClass: {
+      type: String,
+      default: null,
+    },
     loading: {
       type: Boolean,
       default: function() {

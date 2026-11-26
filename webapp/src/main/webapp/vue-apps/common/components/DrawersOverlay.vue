@@ -61,9 +61,17 @@ export default {
       this.closeDisplayedDrawer();
     },
     closeDisplayedDrawer(event) {
-      if (this.openedDrawers && (!event || event.key === 'Escape')) {
+      if (this.openedDrawers && (!event || (event.key === 'Escape' && !this.isInDialogKeepingDrawerOpen(event.target)))) {
         this.closeDisplayedDrawerEffectively();
       }
+    },
+    isInDialogKeepingDrawerOpen(element) {
+      // An Escape pressed in a dialog never closes the drawer it was opened from: the dialog closes itself, or ignores
+      // Escape when it is persistent. The drawer's own close confirmation is the exception, dismissed by
+      // ExoDrawer#close. A drawer opened above a dialog holds the focus, so its Escape still closes it.
+      // The focus may be on the dialog's wrapper, which Vuetify focuses when the dialog opens, not inside the dialog.
+      const dialogContent = element?.closest?.('.v-dialog__content--active');
+      return !!dialogContent && !dialogContent.querySelector('.drawerCloseConfirmDialog');
     },
     closeDisplayedDrawerEffectively() {
       document.dispatchEvent(new CustomEvent('closeDisplayedDrawer'));

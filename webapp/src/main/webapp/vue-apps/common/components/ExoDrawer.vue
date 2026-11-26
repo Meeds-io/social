@@ -220,6 +220,7 @@
           :message="confirmCloseLabels.message"
           :ok-label="confirmCloseLabels.ok"
           :cancel-label="confirmCloseLabels.cancel"
+          content-class="drawerCloseConfirmDialog"
           persistent
           @ok="confirmCloseDrawer" />
       </v-layout>

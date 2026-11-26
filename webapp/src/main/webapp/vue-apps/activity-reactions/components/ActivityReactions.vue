@@ -9,7 +9,7 @@
       class="reactionsUsersAvatar position-relative d-none d-lg-inline"
       @mouseenter="showSeeMoreOverlay = true"
       @mouseleave="resetHoverState">
-      <div v-if="!showSeeMoreOverlay || !likersNumber" class="d-flex flex-nowrap">
+      <div v-if="!seeMoreShown || !likersNumber" class="d-flex flex-nowrap">
         <exo-user-avatar
           v-for="(liker, index) in likersToDisplay"
           :key="liker.id"
@@ -23,14 +23,20 @@
           compact
           extra-class="me-1 transition-2s" />
       </div>
+      <!-- Kept in the page for keyboard users: screen-reader-only until it is hovered or focused from the keyboard,
+           when it replaces the avatars, so the likers list opens from the keyboard whatever the number of likers -->
       <v-btn
-        v-else
+        v-if="likersNumber"
         v-ripple="false"
         :min-width="seeMoreWidth"
         :min-height="avatarSize"
         :height="avatarSize"
-        class="caption white--text grey-lighten1-background px-1 ms-n1"
+        :aria-label="$t('activity.reactions.seeAllLikers')"
+        :class="!seeMoreShown && 'd-sr-only'"
+        class="activityLikersButton caption white--text grey-lighten1-background px-1 ms-n1"
         text
+        @focus.native="onSeeMoreFocus"
+        @blur.native="seeMoreFocused = false"
         @click.prevent.stop="openDrawer">
         <span class="text-body white--text text-center text-no-wrap">{{ $t('activity.reactions.seeMore') }}</span>
       </v-btn>
@@ -109,9 +115,13 @@ export default {
   data: () => ({
     maxLikersToShow: 4,
     showAvatarAnimation: false,
-    showSeeMoreOverlay: false
+    showSeeMoreOverlay: false,
+    seeMoreFocused: false
   }),
   computed: {
+    seeMoreShown() {
+      return this.showSeeMoreOverlay || this.seeMoreFocused;
+    },
     seeMoreLikerToDisplay () {
       return this.likersNumber >= this.maxLikersToShow && this.likers[this.maxLikersToShow - 1] || null;
     },
@@ -136,6 +146,15 @@ export default {
     }
   },
   methods: {
+    onSeeMoreFocus(event) {
+      // only a keyboard focus reveals the button: the focus a closed drawer gives back to its opener after a mouse
+      // click leaves the avatars displayed
+      try {
+        this.seeMoreFocused = event.target.matches(':focus-visible');
+      } catch (e) {
+        this.seeMoreFocused = true;
+      }
+    },
     resetHoverState() {
       this.showSeeMoreOverlay = false;
       this.showAvatarAnimation = false;

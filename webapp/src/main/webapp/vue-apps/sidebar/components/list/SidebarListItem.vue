@@ -80,7 +80,7 @@
               :title="arrowLabel"
               :aria-label="arrowLabel"
               :aria-expanded="drawerOpened ? 'true' : 'false'"
-              class="ms-2"
+              class="hamburgerMenuItemArrow ms-2"
               icon
               @ripple-hover="openSpacesList">
               <v-icon
@@ -174,7 +174,7 @@
             :title="arrowLabel"
             :aria-label="arrowLabel"
             :aria-expanded="drawerOpened ? 'true' : 'false'"
-            class="ms-2"
+            class="hamburgerMenuItemArrow ms-2"
             icon
             @ripple-hover="openOrCloseDrawer()">
             <v-icon
@@ -189,7 +189,7 @@
           v-show="homeButtonShown"
           :title="$t('menu.spaces.makeAsHomePage')"
           :aria-label="$t('menu.spaces.makeAsHomePage')"
-          class="ms-2"
+          class="hamburgerMenuHomeButton ms-2"
           icon
           @click.stop.prevent="$root.$emit('update-home-link-page', item, homeUri)">
           <v-icon
