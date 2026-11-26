@@ -97,8 +97,9 @@ public interface ReactionService {
    * @param objectType Object type
    * @param objectId Object technical identifier
    * @param username User name (login identifier) of the reactor
-   * @throws ObjectNotFoundException when the target object doesn't exist or
-   *           the user hasn't reacted to it
+   * @throws ObjectNotFoundException when the target object doesn't exist, when
+   *           the user hasn't reacted to it, or when it is handled by a
+   *           {@link ReactionObjectPlugin} and the user can't view it
    * @throws IllegalAccessException when the user can't view the target
    *           activity
    */

@@ -380,31 +380,30 @@ public class ReactionServiceImpl implements ReactionService {
     } catch (ObjectAlreadyExistsException e) {
       LOG.debug("Reaction {} already exists for user {} on object {}/{}", reactionId, username, objectType, objectId, e);
     }
-    if (existingItem != null) {
-      deleteOtherReactionsOfUser(object, reactionId, identityId);
-    }
+    keepNewestReactionOfUser(object, identityId);
     broadcastEvent(existingItem == null ? REACTION_CREATED_EVENT_NAME : REACTION_UPDATED_EVENT_NAME,
                    new Reaction(identityId, reactionId, objectType, objectId),
                    username);
   }
 
   /**
-   * Deletes every reaction of the user on the object but the given one. The
-   * items are read again after the creation, so two switches of the same user
-   * made at once (two tabs) leave one reaction, and a reaction the other
-   * switch already deleted is ignored.
+   * Keeps the newest reaction of the user on the object (the highest item
+   * identifier) and deletes the others. The items are read again after the
+   * creation, and every concurrent request keeps the same one, so two switches
+   * or two first reactions made at once converge on one reaction, whichever
+   * the order of their writes, and an item the other request already deleted
+   * is ignored.
    */
-  private void deleteOtherReactionsOfUser(MetadataObject object, String keptReactionId, long identityId) {
-    reactionStorage.getReactionItemsByCreators(object, Collections.singletonList(identityId))
-                   .stream()
-                   .filter(item -> !StringUtils.equals(ReactionStorage.decodeReactionId(item.getMetadata().getName()), keptReactionId))
-                   .forEach(item -> {
-                     try {
-                       reactionStorage.deleteReaction(item.getId(), identityId);
-                     } catch (ObjectNotFoundException e) {
-                       LOG.debug("Reaction item {} of user {} already deleted", item.getId(), identityId, e);
-                     }
-                   });
+  private void keepNewestReactionOfUser(MetadataObject object, long identityId) {
+    List<MetadataItem> items = reactionStorage.getReactionItemsByCreators(object, Collections.singletonList(identityId));
+    long newestId = items.stream().mapToLong(MetadataItem::getId).max().orElse(0);
+    items.stream().filter(item -> item.getId() != newestId).forEach(item -> {
+      try {
+        reactionStorage.deleteReaction(item.getId(), identityId);
+      } catch (ObjectNotFoundException e) {
+        LOG.debug("Reaction item {} of user {} already deleted", item.getId(), identityId, e);
+      }
+    });
   }
 
   private void deletePluginObjectReaction(String objectType, String objectId, String username) throws ObjectNotFoundException,

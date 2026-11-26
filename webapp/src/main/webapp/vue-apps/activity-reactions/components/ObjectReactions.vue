@@ -175,6 +175,8 @@ export default {
           if (objectId === this.objectId) {
             this.counts = previous.counts;
             this.userReactionId = previous.userReactionId;
+            // The previous state may never have been read (a click before the first answer): read it
+            this.refresh();
           }
           this.$root.$emit('alert-message', this.$t('UIActivity.reaction.error'), 'error');
         })
