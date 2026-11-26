@@ -30,33 +30,51 @@
       <v-card class="pa-4" flat>
         <portal-general-settings-theme-version-bar @change="changeVersion" />
         <p>
-          {{ $t('generalSettings.themeColors.description') }}
-        </p>
-        <p class="ma-0">
-          {{ $t('generalSettings.themeColors.help2') }}
-        </p>
-        <p class="ma-0">
-          {{ $t('generalSettings.themeColors.help3') }}
-        </p>
-        <p>
           {{ $t('generalSettings.themeColors.help5') }}
         </p>
         <div class="text-header mt-4">
           {{ $t('generalSettings.themeColors.drawer.content.header.title') }}
         </div>
-        <div class="d-flex flex-column justify-space-between mt-4">
-          <div class="pt-2">
+        <v-list-item
+          class="themeColorRow themeColorRow-primaryColor pa-0 mt-4"
+          dense>
+          <v-list-item-content class="my-auto">
+            <v-list-item-title class="text-body">
+              {{ $t('generalSettings.primaryColor.label') }}
+            </v-list-item-title>
+            <v-list-item-subtitle class="text-subtitle text-wrap">
+              {{ $t('generalSettings.themeColors.primary.help') }}
+            </v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-action class="my-auto ms-2">
             <styling-color-picker
               v-model="primaryColor"
-              :label="`${$t('generalSettings.primaryColor.label')} ${$t('generalSettings.color.label')}`" />
-          </div>
-          <div class="pt-2">
+              :aria-label="$t('generalSettings.primaryColor.label')"
+              :restore-label="restoreLabel('primaryColor', primaryColor)"
+              min-text-width="78"
+              @restore="restoreColor('primaryColor')" />
+          </v-list-item-action>
+        </v-list-item>
+        <v-list-item
+          class="themeColorRow themeColorRow-secondaryColor pa-0 mt-2"
+          dense>
+          <v-list-item-content class="my-auto">
+            <v-list-item-title class="text-body">
+              {{ $t('generalSettings.secondaryColor.label') }}
+            </v-list-item-title>
+            <v-list-item-subtitle class="text-subtitle text-wrap">
+              {{ $t('generalSettings.themeColors.secondary.help') }}
+            </v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-action class="my-auto ms-2">
             <styling-color-picker
               v-model="secondaryColor"
-              :label="`${$t('generalSettings.secondaryColor.label')} ${$t('generalSettings.color.label')}`" />
-          </div>
-        </div>
-        <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
+              :aria-label="$t('generalSettings.secondaryColor.label')"
+              :restore-label="restoreLabel('secondaryColor', secondaryColor)"
+              min-text-width="78"
+              @restore="restoreColor('secondaryColor')" />
+          </v-list-item-action>
+        </v-list-item>
       </v-card>
     </template>
     <template #footer>
@@ -82,7 +100,6 @@ import ThemeAreaDrawerMixin from '../../../js/ThemeAreaDrawerMixin.js';
 export default {
   mixins: [ThemeAreaDrawerMixin],
   data: () => ({
-    themeAreaKeys: ['primaryColor', 'secondaryColor'],
     drawer: false,
     primaryColor: null,
     secondaryColor: null,
