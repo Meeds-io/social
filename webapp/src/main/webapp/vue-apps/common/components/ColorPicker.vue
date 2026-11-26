@@ -57,6 +57,25 @@
             {{ displayedColor }}
           </v-card>
         </v-list-item-content>
+        <v-list-item-action
+          v-if="restoreLabel"
+          class="my-0 ms-1">
+          <v-tooltip bottom>
+            <template #activator="{ on: tooltipOn, attrs: tooltipAttrs }">
+              <v-btn
+                v-bind="tooltipAttrs"
+                v-on="tooltipOn"
+                :aria-label="restoreLabel"
+                :disabled="disabled"
+                class="color-picker-restore"
+                icon
+                @click="$emit('restore')">
+                <v-icon size="16" class="icon-default-color">fa-redo</v-icon>
+              </v-btn>
+            </template>
+            {{ restoreLabel }}
+          </v-tooltip>
+        </v-list-item-action>
       </v-list-item>
     </template>
     <v-color-picker
@@ -137,6 +156,11 @@ export default {
         ['#ffa500', '#bed67e', '#0E100F'],
         ['#ffaacc', '#0000AA', '#000055'],
       ],
+    },
+    // Shows an inline action, labelled with it, which emits restore: the parent decides what the color goes back to
+    restoreLabel: {
+      type: String,
+      default: null,
     },
     // Adds a 'Reset to default' action, which emits an empty value
     resettable: {

@@ -34,10 +34,17 @@
     </div>
     <v-list-item
       v-if="rowsShown && customTitle"
+      :class="contrastBackground && 'flex-wrap'"
       class="pa-0"
       dense>
-      <v-list-item-content class="my-auto text-body font-weight-bold">
+      <v-list-item-content
+        :style="contrastBackground && 'flex: 1 0 auto'"
+        class="my-auto text-body font-weight-bold">
         {{ $t('layout.textColorTitle') }}
+        <styling-contrast-ratio
+          v-if="contrastBackground"
+          :color="shownColors.title || textPlaceholders.title"
+          :background="contrastBackground" />
       </v-list-item-content>
       <v-list-item-action
         v-if="textTitleStyle"
@@ -61,13 +68,23 @@
           :step="1" />
       </v-list-item-action>
       <v-list-item-action
-        class="ms-0 my-auto">
+        :class="contrastBackground && 'ms-auto' || 'ms-0'"
+        class="my-auto">
         <styling-color-picker
-          v-model="textTitleColor"
+          :value="shownColors.title"
           :placeholder="textPlaceholders.title"
+          :restore-label="restoreLabels && restoreLabels.title"
           min-text-width="78"
-          class="my-auto" />
+          class="my-auto"
+          @input="textTitleColor = $event"
+          @restore="$emit('restore', 'title')" />
       </v-list-item-action>
+      <styling-contrast-ratio
+        v-if="contrastBackground"
+        :color="shownColors.title || textPlaceholders.title"
+        :background="contrastBackground"
+        :warning="contrastWarning"
+        warning-only />
     </v-list-item>
     <styling-text-background-input
       v-if="rowsShown && customTitle && textBackground"
@@ -80,10 +97,17 @@
     </styling-text-background-input>
     <v-list-item
       v-if="rowsShown && customHeader"
+      :class="contrastBackground && 'flex-wrap'"
       class="pa-0"
       dense>
-      <v-list-item-content class="my-auto text-body font-weight-bold">
+      <v-list-item-content
+        :style="contrastBackground && 'flex: 1 0 auto'"
+        class="my-auto text-body font-weight-bold">
         {{ $t('layout.textColorHeader') }}
+        <styling-contrast-ratio
+          v-if="contrastBackground"
+          :color="shownColors.header || textPlaceholders.header"
+          :background="contrastBackground" />
       </v-list-item-content>
       <v-list-item-action
         class="me-0 my-auto ms-auto">
@@ -106,13 +130,23 @@
           :step="1" />
       </v-list-item-action>
       <v-list-item-action
-        class="ms-0 my-auto">
+        :class="contrastBackground && 'ms-auto' || 'ms-0'"
+        class="my-auto">
         <styling-color-picker
-          v-model="textHeaderColor"
+          :value="shownColors.header"
           :placeholder="textPlaceholders.header"
+          :restore-label="restoreLabels && restoreLabels.header"
           min-text-width="78"
-          class="my-auto" />
+          class="my-auto"
+          @input="textHeaderColor = $event"
+          @restore="$emit('restore', 'header')" />
       </v-list-item-action>
+      <styling-contrast-ratio
+        v-if="contrastBackground"
+        :color="shownColors.header || textPlaceholders.header"
+        :background="contrastBackground"
+        :warning="contrastWarning"
+        warning-only />
     </v-list-item>
     <styling-text-background-input
       v-if="rowsShown && customHeader && textBackground"
@@ -125,10 +159,17 @@
     </styling-text-background-input>
     <v-list-item
       v-if="rowsShown && customText"
+      :class="contrastBackground && 'flex-wrap'"
       class="pa-0"
       dense>
-      <v-list-item-content class="my-auto text-body font-weight-bold">
+      <v-list-item-content
+        :style="contrastBackground && 'flex: 1 0 auto'"
+        class="my-auto text-body font-weight-bold">
         {{ $t('layout.textColorBody') }}
+        <styling-contrast-ratio
+          v-if="contrastBackground"
+          :color="shownColors.text || textPlaceholders.text"
+          :background="contrastBackground" />
       </v-list-item-content>
       <v-list-item-action
         class="me-0 my-auto ms-auto">
@@ -151,20 +192,37 @@
           :step="1" />
       </v-list-item-action>
       <v-list-item-action
-        class="ms-0 my-auto">
+        :class="contrastBackground && 'ms-auto' || 'ms-0'"
+        class="my-auto">
         <styling-color-picker
-          v-model="textColor"
+          :value="shownColors.text"
           :placeholder="textPlaceholders.text"
+          :restore-label="restoreLabels && restoreLabels.text"
           min-text-width="78"
-          class="my-auto" />
+          class="my-auto"
+          @input="textColor = $event"
+          @restore="$emit('restore', 'text')" />
       </v-list-item-action>
+      <styling-contrast-ratio
+        v-if="contrastBackground"
+        :color="shownColors.text || textPlaceholders.text"
+        :background="contrastBackground"
+        :warning="contrastWarning"
+        warning-only />
     </v-list-item>
     <v-list-item
       v-if="rowsShown && customSubTitle"
+      :class="contrastBackground && 'flex-wrap'"
       class="pa-0"
       dense>
-      <v-list-item-content class="my-auto text-body font-weight-bold">
+      <v-list-item-content
+        :style="contrastBackground && 'flex: 1 0 auto'"
+        class="my-auto text-body font-weight-bold">
         {{ $t('layout.textColorSubtitle') }}
+        <styling-contrast-ratio
+          v-if="contrastBackground"
+          :color="shownColors.subtitle || textPlaceholders.subtitle"
+          :background="contrastBackground" />
       </v-list-item-content>
       <v-list-item-action
         class="me-0 my-auto ms-auto">
@@ -187,29 +245,56 @@
           :step="1" />
       </v-list-item-action>
       <v-list-item-action
-        class="ms-0 my-auto">
+        :class="contrastBackground && 'ms-auto' || 'ms-0'"
+        class="my-auto">
         <styling-color-picker
-          v-model="textSubtitleColor"
+          :value="shownColors.subtitle"
           :placeholder="textPlaceholders.subtitle"
+          :restore-label="restoreLabels && restoreLabels.subtitle"
           min-text-width="78"
-          class="my-auto" />
+          class="my-auto"
+          @input="textSubtitleColor = $event"
+          @restore="$emit('restore', 'subtitle')" />
       </v-list-item-action>
+      <styling-contrast-ratio
+        v-if="contrastBackground"
+        :color="shownColors.subtitle || textPlaceholders.subtitle"
+        :background="contrastBackground"
+        :warning="contrastWarning"
+        warning-only />
     </v-list-item>
     <v-list-item
       v-if="rowsShown && customIcon"
+      :class="contrastBackground && 'flex-wrap'"
       class="pa-0"
       dense>
-      <v-list-item-content class="my-auto text-body font-weight-bold">
+      <v-list-item-content
+        :style="contrastBackground && 'flex: 1 0 auto'"
+        class="my-auto text-body font-weight-bold">
         {{ $t('layout.textColorIcon') }}
+        <styling-contrast-ratio
+          v-if="contrastBackground"
+          :color="shownColors.icon || effectiveIconPlaceholder"
+          :background="contrastBackground" />
       </v-list-item-content>
       <v-list-item-action
-        class="ms-0 my-auto">
+        :class="contrastBackground && 'ms-auto' || 'ms-0'"
+        class="my-auto">
         <styling-color-picker
-          v-model="iconColor"
+          :value="shownColors.icon"
           :placeholder="effectiveIconPlaceholder"
+          :restore-label="restoreLabels && restoreLabels.icon"
           min-text-width="78"
-          class="my-auto" />
+          class="my-auto"
+          @input="iconColor = $event"
+          @restore="$emit('restore', 'icon')" />
       </v-list-item-action>
+      <styling-contrast-ratio
+        v-if="contrastBackground"
+        :color="shownColors.icon || effectiveIconPlaceholder"
+        :background="contrastBackground"
+        :warning="contrastWarning"
+        warning-only />
     </v-list-item>
   </div>
 </template>
@@ -272,6 +357,29 @@ export default {
       type: Boolean,
       default: false,
     },
+    // The background the rows' colors are read on: each row then shows its contrast ratio, recalculated as its color
+    // changes
+    contrastBackground: {
+      type: String,
+      default: null,
+    },
+    // Shown under a contrast ratio below 4.5:1
+    contrastWarning: {
+      type: String,
+      default: null,
+    },
+    // Colors of the rows left on Auto on the background shown, keyed title, header, text, subtitle and icon: a row
+    // given one shows it, and stores nothing until a color is picked
+    autoColors: {
+      type: Object,
+      default: null,
+    },
+    // Labels of an inline restore action, keyed title, header, text, subtitle and icon: a row given one shows it, and
+    // its click emits restore with the row's key
+    restoreLabels: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     // Shapes the colour picker parses as written: #RGB(A), #RRGGBB(AA) and transparent; anything else it re-emits as garbage
@@ -302,6 +410,16 @@ export default {
     // The inherited colour handed to the picker: the caller's when the picker can parse it, else the built-in grey
     effectiveIconPlaceholder() {
       return this.pickerColor(this.iconPlaceholder) || this.pickerColor(this.defaultIconColor) || '#707070';
+    },
+    // The colour each row shows: its Auto colour when the caller gives one, else its own
+    shownColors() {
+      return {
+        title: this.autoColors?.title || this.textTitleColor,
+        header: this.autoColors?.header || this.textHeaderColor,
+        text: this.autoColors?.text || this.textColor,
+        subtitle: this.autoColors?.subtitle || this.textSubtitleColor,
+        icon: this.autoColors?.icon || this.iconColor,
+      };
     },
     // The caller's colours for the text rows, each kept only when the picker can parse it
     textPlaceholders() {

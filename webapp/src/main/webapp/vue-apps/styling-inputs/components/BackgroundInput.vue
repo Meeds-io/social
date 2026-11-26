@@ -135,12 +135,16 @@
         <styling-color-picker
           v-if="choice === 'color' && !scrollColor"
           v-model="container.backgroundColor"
-          class="my-auto" />
+          :restore-label="restoreLabel"
+          class="my-auto"
+          @restore="$emit('restore')" />
         <div v-else-if="choice === 'color' && scrollColor">
           <styling-color-picker
             v-model="backgroundScrollTop"
             :label="$t('layout.scrollTopColor')"
-            class="my-auto" />
+            :restore-label="restoreLabel"
+            class="my-auto"
+            @restore="$emit('restore')" />
           <styling-color-picker
             v-model="backgroundScrollMiddle"
             :label="$t('layout.scrollMiddleColor')"
@@ -380,6 +384,11 @@ export default {
     noLayerOptions: {
       type: Boolean,
       default: false,
+    },
+    // Label of an inline restore action next to the color: given, it is shown, and its click emits restore
+    restoreLabel: {
+      type: String,
+      default: null,
     },
   },
   data: () => ({
