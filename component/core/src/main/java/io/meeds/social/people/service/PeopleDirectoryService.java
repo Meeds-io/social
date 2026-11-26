@@ -515,9 +515,9 @@ public class PeopleDirectoryService {
    * the editor saving it. The filter of an editor who may not set it is kept
    * as stored, whatever is posted. For an editor who may, the stored groups
    * the editor cannot select stay applied, and the posted ones replace the
-   * others; an empty post turns the editor's part of the filter OFF and drops
-   * the stored groups that no longer exist. A space's group is stored with
-   * its space's id, resolved here, never posted.
+   * others; an empty post turns the editor's part of the filter OFF. Either
+   * way the stored groups that no longer exist are dropped. A space's group
+   * is stored with its space's id, resolved here, never posted.
    *
    * @param posted the posted value: a JSON array of group ids, {@code []}
    *          when the editor's group filter is OFF
@@ -529,6 +529,9 @@ public class PeopleDirectoryService {
    *           {@link #GROUP_NOT_SELECTABLE_MESSAGE} when a posted group is
    *           not one the editor can select, or {@link #TOO_MANY_GROUPS_MESSAGE}
    *           beyond {@link #MAX_GROUPS} existing groups
+   * @throws IllegalStateException when a stored group the editor cannot
+   *           select cannot be looked up, never for an administrator: it is
+   *           kept by refusing the save
    */
   public String normalizeGroupFilter(String posted, String stored, String username) {
     if (!canSetGroupFilter(username)) {
@@ -538,24 +541,34 @@ public class PeopleDirectoryService {
     boolean administrator = isAdministrator(username);
     Set<String> managedGroupIds = administrator ? Collections.emptySet() : getManagedGroupIds(username);
     List<DirectoryGroup> groups = new ArrayList<>();
-    for (DirectoryGroup group : readStoredGroups(stored, false)) {
-      boolean resolvable = isResolvable(group);
-      if (!(resolvable && isSelectable(group.groupId(), administrator, managedGroupIds))
-          && (resolvable || !postedIds.isEmpty())) {
-        groups.add(group);
+    // the live groups the editor cannot select stay applied; the stored
+    // groups that no longer resolve are dropped, so that the directory no
+    // longer counts as missing groups once the editor saved its filter.
+    //
+    // An administrator selects every live group, so keeps none of the stored
+    // ones, and the groups the editor manages are the posted ones.
+    if (!administrator) {
+      for (DirectoryGroup group : readStoredGroups(stored, false)) {
+        // one lookup decides whether a group the editor cannot select stays:
+        // a failed one is no proof that the group is gone, and dropping it
+        // would widen the directory, so the save is refused
+        if (!managedGroupIds.contains(group.groupId())
+            && findGroupOrFail(group.groupId()) != null
+            && designatesStoredSpace(group)) {
+          groups.add(group);
+        }
       }
     }
     for (String groupId : postedIds) {
       if (!isSelectable(groupId, administrator, managedGroupIds)) {
         throw new IllegalArgumentException(GROUP_NOT_SELECTABLE_MESSAGE);
       }
-      // a posted group replaces the stored entry of the same id, which can
-      // only be one that no longer resolves here: a space re-created under
-      // the same name gets its new id
-      groups.removeIf(group -> group.groupId().equals(groupId));
+      // a space re-created under the same name gets its new id
       groups.add(new DirectoryGroup(groupId, getSpaceId(groupId)));
     }
-    if (groups.stream().filter(this::isResolvable).count() > MAX_GROUPS) {
+    // the kept groups are live, and a posted group is one the editor can
+    // select, so every one of them counts
+    if (groups.size() > MAX_GROUPS) {
       throw new IllegalArgumentException(TOO_MANY_GROUPS_MESSAGE);
     }
     return toGroupsJson(groups);
@@ -608,12 +621,15 @@ public class PeopleDirectoryService {
    * the filter shows as set although no chip remains, and turning it OFF
    * clears it. The marker of a directory whose groups must be set again
    * ({@link #isGroupsToSet}) shows to an editor who may set groups as stored
-   * groups that no longer exist.
+   * groups that no longer exist. Every editor, whether or not they may set
+   * groups, is told when the directory misses groups, never which.
    *
    * @param storedValue the stored group filter, may be null
    * @param storedGroupsToSet the stored marker, may be null
    * @param username the editor
    * @return the editor's groups
+   * @throws IllegalStateException when a stored group cannot be looked up:
+   *           the drawer then gets no group filter to post
    */
   public PeopleDirectoryEditorGroups getEditorGroups(String storedValue, String storedGroupsToSet, String username) {
     List<DirectoryGroup> stored = readStoredGroups(storedValue, false);
@@ -624,15 +640,18 @@ public class PeopleDirectoryService {
     List<PeopleDirectoryGroup> groups = new ArrayList<>();
     int otherGroupsCount = 0;
     // a value the directory cannot read lists nobody (getGroupFilter)
-    boolean groupFilterInvalid = canSetGroupFilter && readStoredGroups(storedValue, true) == null;
-    boolean unresolvableGroups = groupFilterInvalid || (canSetGroupFilter && isGroupsToSet(storedGroupsToSet));
+    boolean unreadable = readStoredGroups(storedValue, true) == null;
+    boolean missingGroups = unreadable || isGroupsToSet(storedGroupsToSet);
     for (DirectoryGroup group : stored) {
-      if (!isResolvable(group)) {
-        unresolvableGroups = canSetGroupFilter;
+      // one lookup decides, and a failed one throws: a live group shown as
+      // missing gets no chip, and the editor's next Apply would drop it
+      Group found = findGroupOrFail(group.groupId());
+      if (found == null || !designatesStoredSpace(group)) {
+        missingGroups = true;
         continue;
       }
-      if (canSetGroupFilter && isSelectable(group.groupId(), administrator, managedGroupIds)) {
-        PeopleDirectoryGroup directoryGroup = toDirectoryGroup(findGroup(group.groupId()));
+      if (canSetGroupFilter && (administrator || managedGroupIds.contains(group.groupId()))) {
+        PeopleDirectoryGroup directoryGroup = toDirectoryGroup(found);
         if (directoryGroup != null) {
           groups.add(directoryGroup);
         }
@@ -643,8 +662,9 @@ public class PeopleDirectoryService {
     return new PeopleDirectoryEditorGroups(groups,
                                            otherGroupsCount > 0,
                                            canSetGroupFilter ? otherGroupsCount : 0,
-                                           unresolvableGroups,
-                                           groupFilterInvalid);
+                                           canSetGroupFilter && missingGroups,
+                                           canSetGroupFilter && unreadable,
+                                           missingGroups);
   }
 
   /**
@@ -902,9 +922,16 @@ public class PeopleDirectoryService {
    *         one stored
    */
   private boolean isResolvable(DirectoryGroup group) {
-    if (findGroup(group.groupId()) == null) {
-      return false;
-    } else if (!StringUtils.startsWith(group.groupId(), SPACE_GROUP_PREFIX)) {
+    return findGroup(group.groupId()) != null && designatesStoredSpace(group);
+  }
+
+  /**
+   * @return whether a stored group, when it is a space's group, still belongs
+   *         to the space stored with it: a space re-created under the same
+   *         name gets a new id
+   */
+  private boolean designatesStoredSpace(DirectoryGroup group) {
+    if (!StringUtils.startsWith(group.groupId(), SPACE_GROUP_PREFIX)) {
       return true;
     }
     return group.spaceId() != null && StringUtils.equals(group.spaceId(), getSpaceId(group.groupId()));
@@ -927,6 +954,22 @@ public class PeopleDirectoryService {
     } catch (Exception e) {
       LOG.warn("Error while reading the group {}", groupId, e);
       return null;
+    }
+  }
+
+  /**
+   * @param groupId a stored group id
+   * @return the group, null when the store answers that it does not exist
+   * @throws IllegalStateException when the store cannot be read
+   */
+  private Group findGroupOrFail(String groupId) {
+    if (StringUtils.isBlank(groupId) || !groupId.startsWith("/")) {
+      return null;
+    }
+    try {
+      return organizationService.getGroupHandler().findGroupById(groupId);
+    } catch (Exception e) {
+      throw new IllegalStateException("Error while reading the group " + groupId, e);
     }
   }
 
