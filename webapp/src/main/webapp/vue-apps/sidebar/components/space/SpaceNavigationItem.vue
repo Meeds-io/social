@@ -104,6 +104,7 @@
             :title="$t('menu.accessToEntryPagesList', {0: spaceDisplayName})"
             :aria-label="$t('menu.accessToEntryPagesList', {0: spaceDisplayName})"
             :aria-expanded="drawerOpened ? 'true' : 'false'"
+            class="hamburgerMenuItemArrow"
             icon
             @ripple-hover="openOrCloseDrawer()">
             <v-icon
