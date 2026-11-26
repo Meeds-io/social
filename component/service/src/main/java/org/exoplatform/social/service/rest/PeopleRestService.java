@@ -133,7 +133,7 @@ public class PeopleRestService implements ResourceContainer{
   public Response suggestUsernames(@Context UriInfo uriInfo,
                                    @Context HttpServletRequest request,
                     @QueryParam("nameToSearch") String name,
-                    @QueryParam("currentUser") String currentUser,
+                    @QueryParam("currentUser") String requestedCurrentUser,
                     @QueryParam("typeOfRelation") String typeOfRelation,
                     @QueryParam("activityId") String activityId,
                     @QueryParam("spaceURL") String spaceUrl,
@@ -141,6 +141,14 @@ public class PeopleRestService implements ResourceContainer{
                     @PathParam("format") String format) throws Exception {
     String[] mediaTypes = new String[] { "json", "xml" };
     MediaType mediaType = Util.getMediaType(format, mediaTypes);
+
+    // Every lookup runs as the authenticated user: a non-blank currentUser
+    // stands for that user, whatever name it carries.
+    String authenticatedUser = RestUtils.getCurrentUsername();
+    if (StringUtils.isBlank(authenticatedUser) || IdentityConstants.ANONIM.equals(authenticatedUser)) {
+      return noStore(Response.status(Response.Status.UNAUTHORIZED).build());
+    }
+    String currentUser = StringUtils.isBlank(requestedCurrentUser) ? requestedCurrentUser : authenticatedUser;
 
     ProfileFilter identityFilter = new ProfileFilter();
 
@@ -155,15 +163,19 @@ public class PeopleRestService implements ResourceContainer{
     Space currentSpace = getSpaceService().getSpaceByPrettyName(spacePrettyName);
     IdentityNameList nameList = new IdentityNameList();
     if (currentSpace == null && StringUtils.isNotBlank(spacePrettyName)) {
-      return Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK);
+      return noStore(Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK));
     }
 
     List<Identity> excludedIdentityList = identityFilter.getExcludedIdentityList();
     if (excludedIdentityList == null) {
       excludedIdentityList = new ArrayList<>();
     }
-    Identity currentIdentity = Util.getViewerIdentity(currentUser);
-    identityFilter.setViewerIdentity(currentIdentity);
+    Identity currentIdentity = Util.getViewerIdentity(authenticatedUser);
+    // A blank currentUser leaves the viewer off the profile filter, so the
+    // member search can return the authenticated user; a relationship lookup
+    // still sets it (ConnectionFilterListAccess)
+    Identity searchViewer = StringUtils.isBlank(currentUser) ? null : currentIdentity;
+    identityFilter.setViewerIdentity(searchViewer);
 
     Identity authenticatedUserIdentity = RestUtils.getCurrentIdentity();
 
@@ -229,7 +241,7 @@ public class PeopleRestService implements ResourceContainer{
           nameList.addOption(opt);
         }
 
-        return Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK);
+        return noStore(Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK));
       }
 
       // Search in connections first
@@ -251,6 +263,9 @@ public class PeopleRestService implements ResourceContainer{
       long remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
       if (remain > 0) {
         identityFilter.setExcludedIdentityList(excludedIdentityList);
+        // The connections lookup sets the viewer on the filter: a blank
+        // currentUser keeps it unset for this search too
+        identityFilter.setViewerIdentity(searchViewer);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
         List<Identity> identities = Arrays.stream(listAccess.load(0, (int) remain))
                                           .filter(identity -> identity.isEnable() && !identity.isDeleted())
@@ -294,7 +309,7 @@ public class PeopleRestService implements ResourceContainer{
           nameList.addOption(opt);
         }
 
-        return Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK);
+        return noStore(Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK));
       }
       // Search in member of space first
       if (currentSpace != null) {
@@ -351,6 +366,9 @@ public class PeopleRestService implements ResourceContainer{
       long remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
       if (remain > 0 && !Util.isExternal(authenticatedUserIdentity.getId())) {
         identityFilter.setExcludedIdentityList(excludedIdentityList);
+        // The connections lookup sets the viewer on the filter: a blank
+        // currentUser keeps it unset for this search too
+        identityFilter.setViewerIdentity(searchViewer);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
         for (Identity id : identities) {
@@ -375,7 +393,7 @@ public class PeopleRestService implements ResourceContainer{
       if (remain > 0) {
         SpaceFilter spaceFilter = new SpaceFilter();
         spaceFilter.setSpaceNameSearchCondition(name);
-        ListAccess<Space> list = getSpaceService().getMemberSpacesByFilter(currentUser, spaceFilter);
+        ListAccess<Space> list = getSpaceService().getMemberSpacesByFilter(authenticatedUser, spaceFilter);
         Space[] spaces = list.load(0, (int) remain);
         for (Space s : spaces) {
           Option opt = new Option();
@@ -408,7 +426,7 @@ public class PeopleRestService implements ResourceContainer{
           userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain, request.getLocale());
         }
       }
-      return Util.getResponse(userInfos, uriInfo, mediaType, Response.Status.OK);
+      return noStore(Util.getResponse(userInfos, uriInfo, mediaType, Response.Status.OK));
 
     } else if (MENTION_COMMENT.equals(typeOfRelation)) {
       LinkedHashSet<UserInfo> userInfos = new LinkedHashSet<UserInfo>();
@@ -461,14 +479,22 @@ public class PeopleRestService implements ResourceContainer{
           userInfos = addOtherUsers(identityFilter, excludedIdentityList, userInfos, currentUser, remain, request.getLocale());
         }
       }
-      return Util.getResponse(userInfos, uriInfo, mediaType, Response.Status.OK);
+      return noStore(Util.getResponse(userInfos, uriInfo, mediaType, Response.Status.OK));
 
     } else { // Identities that match the keywords.
       result = getIdentityManager().getIdentityStorage().getIdentitiesForMentions(OrganizationIdentityProvider.NAME, identityFilter, null, 0L, SUGGEST_LIMIT, false).toArray(new Identity[0]);
       nameList.addToNameList(request.getLocale(), result);
     }
 
-    return Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK);
+    return noStore(Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK));
+  }
+
+  private static Response noStore(Response response) {
+    // The answer depends on the authenticated user, never on the URL alone
+    CacheControl cacheControl = new CacheControl();
+    cacheControl.setPrivate(true);
+    cacheControl.setNoStore(true);
+    return Response.fromResponse(response).cacheControl(cacheControl).build();
   }
 
   private LinkedHashSet<UserInfo> addUsersToUserInfosList(Identity[] identities, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUserId,  boolean filterByName, Locale locale) {
