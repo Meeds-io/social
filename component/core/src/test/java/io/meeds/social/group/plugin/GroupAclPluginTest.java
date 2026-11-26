@@ -85,14 +85,17 @@ public class GroupAclPluginTest {
   public void testHasPermissionDelegatesToServiceForListMembersAndManageMembershipsPermissions() {
     when(identity.getUserId()).thenReturn(USER_NAME);
     when(organizationalUnitService.canManageGroup(GROUP_ID, USER_NAME)).thenReturn(true);
+    when(organizationalUnitService.canManageGroupMemberships(GROUP_ID, USER_NAME)).thenReturn(false);
 
+    // listing the members follows the perimeter, adding or removing them its narrower check
     assertTrue(plugin.hasPermission(GROUP_ID, GroupAclPlugin.LIST_MEMBERS_PERMISSION_TYPE, identity));
-    assertTrue(plugin.hasPermission(GROUP_ID, GroupAclPlugin.MANAGE_MEMBERSHIPS_PERMISSION_TYPE, identity));
+    assertFalse(plugin.hasPermission(GROUP_ID, GroupAclPlugin.MANAGE_MEMBERSHIPS_PERMISSION_TYPE, identity));
 
     when(organizationalUnitService.canManageGroup(GROUP_ID, USER_NAME)).thenReturn(false);
+    when(organizationalUnitService.canManageGroupMemberships(GROUP_ID, USER_NAME)).thenReturn(true);
 
     assertFalse(plugin.hasPermission(GROUP_ID, GroupAclPlugin.LIST_MEMBERS_PERMISSION_TYPE, identity));
-    assertFalse(plugin.hasPermission(GROUP_ID, GroupAclPlugin.MANAGE_MEMBERSHIPS_PERMISSION_TYPE, identity));
+    assertTrue(plugin.hasPermission(GROUP_ID, GroupAclPlugin.MANAGE_MEMBERSHIPS_PERMISSION_TYPE, identity));
   }
 
   @Test

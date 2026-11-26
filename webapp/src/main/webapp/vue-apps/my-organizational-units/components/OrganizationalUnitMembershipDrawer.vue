@@ -39,7 +39,13 @@
           class="pa-1 pb-1"
           dense>
           <v-list-item-action class="pa-0 ma-0">
+            <span
+              v-if="isPlatformGroup(membership)"
+              class="px-1">
+              {{ roleLabel(membership.membershipType) }}
+            </span>
             <select
+              v-else
               v-model="membership.membershipType"
               aria-label="hidden"
               class="ignore-vuetify-classes width-auto pa-0 ma-0"
@@ -65,6 +71,7 @@
           </v-list-item-content>
           <v-list-item-action class="pa-0 my-auto">
             <v-btn
+              v-if="!isPlatformGroup(membership)"
               icon
               @click.stop.prevent="removeMembership(membership)">
               <v-icon color="error" small>fa-trash</v-icon>
@@ -145,6 +152,12 @@ export default {
     },
     close() {
       this.$refs.drawer.close();
+    },
+    isPlatformGroup(membership) {
+      return this.$organizationalUnitMembersService.isPlatformGroupId(membership?.groupId);
+    },
+    roleLabel(name) {
+      return this.rolesToDisplay.find(role => role.name === name)?.label || name;
     },
     removeMembership(membership) {
       this.memberships = this.memberships.filter(m => m.id !== membership.id);
