@@ -273,7 +273,7 @@ class PeopleListPortletTest {
     when(peopleDirectoryService.getDirectoryAttributeNames("{\"department\":[\"HR\"]}")).thenReturn(List.of("department"));
     // what an editor would get: a viewer must get none of it
     lenient().when(peopleDirectoryService.getEditorGroups(nullable(String.class), nullable(String.class), any()))
-             .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/hidden", "Hidden")), true, 3, true, true));
+             .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/hidden", "Hidden")), true, 3, true, true, true));
     lenient().when(peopleDirectoryService.getEditorAttributes(nullable(String.class), any())).thenReturn(List.of());
 
     portlet.serveResource(resourceRequest, resourceResponse);
@@ -292,6 +292,7 @@ class PeopleListPortletTest {
     assertFalse(settings.has("otherGroupsApplied"));
     assertFalse(settings.has("unresolvableGroups"));
     assertFalse(settings.has("groupFilterInvalid"));
+    assertFalse(settings.has("missingGroups"));
     assertFalse(settings.has("otherGroupsCount"));
     assertFalse(settings.has(GUEST_RESTRICTION_PREFERENCE));
     verify(peopleDirectoryService, never()).getEditorGroups(nullable(String.class), nullable(String.class), any());
@@ -310,7 +311,7 @@ class PeopleListPortletTest {
                                                         List.of(new PeopleDirectoryAttributeValue("HR", "HR")),
                                                         false)));
     when(peopleDirectoryService.getEditorGroups(null, null, USERNAME))
-      .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/paris", "Paris office")), true, 3, true, true));
+      .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/paris", "Paris office")), true, 3, true, true, true));
     when(peopleDirectoryService.canSetGroupFilter(USERNAME)).thenReturn(true);
     when(peopleDirectoryService.isGuestRestriction(null)).thenReturn(true);
 
@@ -322,6 +323,7 @@ class PeopleListPortletTest {
     assertTrue(settings.getBoolean("otherGroupsApplied"));
     assertTrue(settings.getBoolean("unresolvableGroups"));
     assertTrue(settings.getBoolean("groupFilterInvalid"));
+    assertTrue(settings.getBoolean("missingGroups"));
     assertEquals(3, settings.getInt("otherGroupsCount"));
     assertEquals(1, settings.getJSONArray("groups").length());
     assertEquals("/spaces/paris", settings.getJSONArray("groups").getJSONObject(0).getString("groupId"));
@@ -330,6 +332,26 @@ class PeopleListPortletTest {
     assertEquals("department", attribute.getString("name"));
     assertEquals("HR", attribute.getJSONArray("values").getJSONObject(0).getString("value"));
     assertFalse(attribute.getBoolean("available"));
+  }
+
+  @Test
+  void settingsResourceGivesNoGroupFilterToPostWhileTheGroupStoreCannotBeRead() throws Exception {
+    ResourceRequest resourceRequest = resourceRequest(SETTINGS_RESOURCE_ID);
+    StringWriter body = new StringWriter();
+    ResourceResponse resourceResponse = resourceResponse(body);
+    when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
+    lenient().when(peopleDirectoryService.getEditorAttributes(nullable(String.class), any())).thenReturn(List.of());
+    when(peopleDirectoryService.getEditorGroups(null, null, USERNAME)).thenThrow(new IllegalStateException("store down"));
+    lenient().when(peopleDirectoryService.canSetGroupFilter(USERNAME)).thenReturn(true);
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    // a live group would otherwise show as missing, and an Apply drop it
+    JSONObject settings = new JSONObject(body.toString());
+    assertFalse(settings.getBoolean("canSetGroupFilter"));
+    assertEquals(0, settings.getJSONArray("groups").length());
+    assertFalse(settings.getBoolean("unresolvableGroups"));
+    assertFalse(settings.getBoolean("missingGroups"));
   }
 
   @ParameterizedTest
@@ -483,6 +505,17 @@ class PeopleListPortletTest {
   }
 
   @Test
+  void processActionRefusesTheSaveWhenTheGroupStoreCannotBeRead() throws Exception {
+    when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
+    parameters.put(GROUP_FILTER_PREFERENCE, "[]");
+    when(peopleDirectoryService.normalizeGroupFilter(eq("[]"), nullable(String.class), eq(USERNAME)))
+      .thenThrow(new IllegalStateException("store down"));
+
+    assertThrows(PortletException.class, () -> portlet.processAction(request, response));
+    verify(preferences, never()).store();
+  }
+
+  @Test
   void processActionStoresTheGroupFilterMergedForTheEditor() throws Exception {
     when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
     String stored = "[{\"groupId\":\"/platform/x\",\"spaceId\":null}]";
@@ -517,11 +550,13 @@ class PeopleListPortletTest {
     lenient().when(preferences.getValue(eq(ATTRIBUTE_FILTER_PREFERENCE), nullable(String.class))).thenReturn(null);
     when(preferences.getValue(eq(GROUPS_TO_SET_PREFERENCE), nullable(String.class))).thenReturn("true");
     when(peopleDirectoryService.getEditorGroups(null, "true", USERNAME))
-      .thenReturn(new PeopleDirectoryEditorGroups(List.of(), false, 0, true, false));
+      .thenReturn(new PeopleDirectoryEditorGroups(List.of(), false, 0, true, false, true));
     when(peopleDirectoryService.getAttributeFilter(null)).thenReturn(Map.of());
     when(peopleDirectoryService.getGroupFilter(null, "true")).thenReturn(List.of());
 
-    assertTrue(new JSONObject(PeopleListPortlet.storedGroups(preferences, USERNAME)).getBoolean("unresolvableGroups"));
+    JSONObject storedGroups = new JSONObject(PeopleListPortlet.storedGroups(preferences, USERNAME));
+    assertTrue(storedGroups.getBoolean("unresolvableGroups"));
+    assertTrue(storedGroups.getBoolean("missingGroups"));
     assertTrue(PeopleListPortlet.isDirectoryFiltered(preferences));
   }
 

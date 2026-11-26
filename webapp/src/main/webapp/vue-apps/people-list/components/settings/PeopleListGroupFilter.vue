@@ -31,6 +31,7 @@
           :input-value="enabled"
           :disabled="(otherGroupsApplied && !$root.unresolvableGroups) || (!enabled && !value.length && !canAddGroup)"
           :aria-label="$t('peopleList.settings.groupFilter')"
+          :aria-describedby="$root.missingGroups && groupsUnavailableId || null"
           class="people-list-group-filter-switch ma-0 width-fit-content"
           hide-details
           @change="$emit('update:enabled', $event)"
@@ -113,7 +114,37 @@
           </v-chip>
         </div>
       </template>
+      <!-- the stored filter's state, placed as the note on the groups the
+           editor does not manage: shown until an Apply by an editor who may
+           set groups -->
+      <div
+        v-if="$root.missingGroups"
+        :id="groupsUnavailableId"
+        class="people-list-groups-unavailable d-flex align-start mt-2">
+        <v-icon
+          size="14"
+          class="icon-default-color me-2 mt-1"
+          aria-hidden="true">
+          fa-exclamation-triangle
+        </v-icon>
+        <span class="caption text-sub-title">
+          {{ $t('peopleList.settings.group.unavailable') }}
+        </span>
+      </div>
     </template>
+    <div
+      v-else-if="$root.missingGroups"
+      class="people-list-groups-unavailable d-flex align-start mt-2">
+      <v-icon
+        size="14"
+        class="icon-default-color me-2 mt-1"
+        aria-hidden="true">
+        fa-exclamation-triangle
+      </v-icon>
+      <span class="caption text-sub-title">
+        {{ $t('peopleList.settings.group.unavailableNoRight') }}
+      </span>
+    </div>
     <div
       v-if="otherGroupsApplied"
       class="people-list-other-groups-applied d-flex align-start mt-2">
@@ -169,6 +200,9 @@ export default {
     },
     groupSearchId() {
       return `${this.$root.appId}GroupSearch`;
+    },
+    groupsUnavailableId() {
+      return `${this.$root.appId}GroupsUnavailable`;
     },
     groupsMissingId() {
       return `${this.$root.appId}GroupsMissing`;
