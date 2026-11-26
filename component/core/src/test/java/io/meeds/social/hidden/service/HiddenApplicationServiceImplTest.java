@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.LinkedHashMap;
@@ -316,6 +318,43 @@ public class HiddenApplicationServiceImplTest {
                                                                              anyString(),
                                                                              eq(0),
                                                                              eq(100));
+  }
+
+  @Test
+  public void copyHiddenChoicesHidesTheCopyForEveryUserWhoHidTheSourcePageAfterPage() {
+    String copyName = "copy";
+    String copyKey = TYPE + ":" + copyName;
+    List<Context> firstPage = IntStream.range(0, 100).mapToObj(i -> Context.USER.id("user" + i)).toList();
+    List<Context> secondPage = List.of(Context.USER.id("last"));
+    when(settingService.getContextsByTypeAndScopeAndSettingName(Context.USER.getName(),
+                                                                HIDDEN_APPLICATIONS_SCOPE.getName(),
+                                                                HIDDEN_APPLICATIONS_SCOPE.getId(),
+                                                                KEY,
+                                                                0,
+                                                                100)).thenReturn(firstPage);
+    when(settingService.getContextsByTypeAndScopeAndSettingName(Context.USER.getName(),
+                                                                HIDDEN_APPLICATIONS_SCOPE.getName(),
+                                                                HIDDEN_APPLICATIONS_SCOPE.getId(),
+                                                                KEY,
+                                                                100,
+                                                                100)).thenReturn(secondPage);
+    SettingValue<?> hiddenAt = SettingValue.create("123");
+    doReturn(hiddenAt).when(settingService).get(any(Context.class), eq(HIDDEN_APPLICATIONS_SCOPE), eq(KEY));
+
+    hiddenApplicationService.copyHiddenChoices(TYPE, NAME, copyName);
+
+    verify(settingService).set(Context.USER.id("user0"), HIDDEN_APPLICATIONS_SCOPE, copyKey, hiddenAt);
+    verify(settingService).set(Context.USER.id("last"), HIDDEN_APPLICATIONS_SCOPE, copyKey, hiddenAt);
+    verify(settingService, times(101)).set(any(Context.class), eq(HIDDEN_APPLICATIONS_SCOPE), eq(copyKey), any());
+    verify(settingService, never()).remove(any(Context.class), any(), anyString());
+  }
+
+  @Test
+  public void copyHiddenChoicesOntoTheSameWindowChangesNothing() {
+    hiddenApplicationService.copyHiddenChoices(TYPE, NAME, NAME);
+    hiddenApplicationService.copyHiddenChoices(TYPE, NAME, " ");
+
+    verifyNoInteractions(settingService);
   }
 
   @Test

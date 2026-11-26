@@ -85,6 +85,17 @@ public interface HiddenApplicationService {
   void clearHiddenChoices(String type, String name);
 
   /**
+   * Hides a window for every user who hid another one, keeping the order they
+   * hid it in: called when a window's settings are copied under a new name
+   * that the window will carry, so that its users' choices follow it
+   *
+   * @param type application type
+   * @param fromName name of the window the users hid
+   * @param toName name of the window to hide for them
+   */
+  void copyHiddenChoices(String type, String fromName, String toName);
+
+  /**
    * Stores whether a window allows each user to hide it, for an application
    * type that keeps no such option of its own. Turning it off shows the window
    * again to every user who hid it. The caller checks that the user may edit

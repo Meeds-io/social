@@ -158,6 +158,35 @@ public class HiddenApplicationServiceImpl implements HiddenApplicationService {
   }
 
   @Override
+  public void copyHiddenChoices(String type, String fromName, String toName) {
+    String fromKey = toKey(type, fromName);
+    String toKey = toKey(type, toName);
+    if (StringUtils.isBlank(fromName) || StringUtils.isBlank(toName) || fromKey.equals(toKey)) {
+      return;
+    }
+    int offset = 0;
+    List<Context> contexts;
+    do {
+      // Reading only: the choices of the source stay, so the pages are read
+      // one after the other
+      contexts = settingService.getContextsByTypeAndScopeAndSettingName(Context.USER.getName(),
+                                                                        HIDDEN_APPLICATIONS_SCOPE.getName(),
+                                                                        HIDDEN_APPLICATIONS_SCOPE.getId(),
+                                                                        fromKey,
+                                                                        offset,
+                                                                        CLEAR_PAGE_SIZE);
+      for (Context context : contexts) {
+        Context userContext = Context.USER.id(context.getId());
+        SettingValue<?> hiddenAt = settingService.get(userContext, HIDDEN_APPLICATIONS_SCOPE, fromKey);
+        if (hiddenAt != null) {
+          settingService.set(userContext, HIDDEN_APPLICATIONS_SCOPE, toKey, hiddenAt);
+        }
+      }
+      offset += contexts.size();
+    } while (contexts.size() == CLEAR_PAGE_SIZE);
+  }
+
+  @Override
   public void setHideAllowed(String type, String name, boolean allowed) {
     String key = toKey(type, name);
     if (allowed) {
