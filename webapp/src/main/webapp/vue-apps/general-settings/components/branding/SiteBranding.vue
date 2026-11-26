@@ -20,13 +20,17 @@
 -->
 <template>
   <v-row class="ma-0">
+    <!-- the page fills the window: the row takes the height the window leaves it (fitHeight), the settings column
+         stretches to the row and the preview fills its own column. That column is hidden below lg with the preview it
+         holds: on a line of its own, it would share the row's height with the settings column -->
     <v-col
       cols="12"
       lg="8"
-      class="pa-0">
+      class="d-none d-lg-flex flex-column pa-0">
       <portal-general-settings-branding-site-preview
         :working="working"
-        :stored="view && view.themes || []" />
+        :stored="view && view.themes || []"
+        class="flex-grow-1" />
     </v-col>
     <!-- Cancel and Apply close the settings column, at its bottom: beside the preview, the column is at least as high as
          it, and a row of their own would sit under the preview -->
@@ -145,9 +149,41 @@ export default {
     },
   },
   created() {
+    this.fitFrame = null;
+    this.$root.$on('general-settings-page-shown', this.scheduleFit);
     this.init();
   },
+  mounted() {
+    this.scheduleFit();
+    window.addEventListener('resize', this.scheduleFit);
+  },
+  beforeDestroy() {
+    this.$root.$off('general-settings-page-shown', this.scheduleFit);
+    window.removeEventListener('resize', this.scheduleFit);
+    window.cancelAnimationFrame(this.fitFrame);
+  },
   methods: {
+    scheduleFit() {
+      window.cancelAnimationFrame(this.fitFrame);
+      this.fitFrame = window.requestAnimationFrame(this.fitHeight);
+    },
+    // the row takes the height the window leaves it, so that the page fills the window without scrolling, Cancel and
+    // Apply at its bottom: set higher than the height the page scrolls in (the window below the top bar) and than its
+    // content, the row makes the page overflow by what surrounds it, and that height less that part is the row's least
+    // height. A column taller than that makes the row taller, and the page scrolls
+    fitHeight() {
+      const row = this.$el;
+      // the page scrolls in its site body (BodyScrollListener), else in the document
+      const page = row?.closest?.('.site-scroll-parent') || document.scrollingElement;
+      if (!row?.style || !page) {
+        return;
+      }
+      const probe = page.clientHeight + row.offsetHeight;
+      row.style.minHeight = `${probe}px`;
+      const around = Math.max(page.scrollHeight - probe, 0);
+      // written on the element only: a bound value, unchanged at a refit, would not render again over the probe
+      row.style.minHeight = `${Math.max(page.clientHeight - around, 0)}px`;
+    },
     init() {
       this.$root.loading = true;
       return this.$themeService.getThemes()
