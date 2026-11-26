@@ -65,14 +65,14 @@ import jakarta.servlet.http.HttpServletResponse;
  * Opening a space through /portal/s/{spaceId} lands on the space home. When
  * the page of the space home node is a link the user can access, the handler
  * redirects to that link, trimmed and with its characters above ~
- * percent-encoded: when it starts with / or a scheme, and with http:// in
- * front when it starts with a host name. Once trimmed, for a link holding a
- * control character, a link whose scheme runs a script or reads local content,
- * any other link, a link back to this space entry and a link to the root when
- * the user's default path is this space entry, and for any sub-path, it
- * redirects to the space page as before. Every home link the tests expect a
- * redirect to is checked with Tomcat's own header encoding, which drops a
- * Location it can't encode.
+ * percent-encoded: when it starts with / or a scheme, and with // in front,
+ * so that the browser keeps the page's own scheme, when it starts with a host
+ * name. Once trimmed, for a link holding a control character, a link whose
+ * scheme runs a script or reads local content, any other link, a link back to
+ * this space entry and a link to the root when the user's default path is this
+ * space entry, and for any sub-path, it redirects to the space page as before.
+ * Every home link the tests expect a redirect to is checked with Tomcat's own
+ * header encoding, which drops a Location it can't encode.
  */
 @ExtendWith(MockitoExtension.class)
 class SpacePermanentLinkHandlerTest {
@@ -305,13 +305,13 @@ class SpacePermanentLinkHandlerTest {
   }
 
   @Test
-  void testRedirectsSpaceHomeToALinkWithoutSchemeWithHttp() throws Exception {
-    assertHomeLinkRedirectsTo("www.example.org/target", "http://www.example.org/target");
+  void testRedirectsSpaceHomeToALinkWithoutSchemeWithThePageScheme() throws Exception {
+    assertHomeLinkRedirectsTo("www.example.org/target", "//www.example.org/target");
   }
 
   @Test
   void testRedirectsSpaceHomeToALinkWithoutSchemeWithAPort() throws Exception {
-    assertHomeLinkRedirectsTo(" intranet.example.org:8443/x?y=1 ", "http://intranet.example.org:8443/x?y=1");
+    assertHomeLinkRedirectsTo(" intranet.example.org:8443/x?y=1 ", "//intranet.example.org:8443/x?y=1");
   }
 
   @Test
@@ -353,7 +353,7 @@ class SpacePermanentLinkHandlerTest {
 
   @Test
   void testRedirectsSpaceHomeToALinkWithoutSchemeWithCharactersPercentEncoded() throws Exception {
-    assertHomeLinkRedirectsTo("www.example.org/café", "http://www.example.org/caf%C3%A9");
+    assertHomeLinkRedirectsTo("www.example.org/café", "//www.example.org/caf%C3%A9");
   }
 
   @Test

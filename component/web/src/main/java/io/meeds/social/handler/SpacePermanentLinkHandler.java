@@ -261,11 +261,13 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
    * this request if it were sent as is. The link, trimmed and with its
    * characters above {@code ~} percent-encoded, is redirected to when it
    * starts with {@code /} (a path of this site or a protocol-relative link) or
-   * with a scheme, and with {@code http://} in front when it starts with a host
-   * name, the scheme Autolinker gives a link it recognises in the menus (social
-   * NavigationUtils.js, getLinkNodeUri). Once trimmed, a link holding a control
-   * character, a link whose scheme runs a script or reads local content, and
-   * any other link are not redirected to.
+   * with a scheme, and with {@code //} in front when it starts with a host
+   * name, so that the browser opens it with the page's own scheme: the
+   * {@code http://} Autolinker gives the ones it recognises in the menus
+   * (social NavigationUtils.js, getLinkNodeUri) would open them over http on
+   * an https platform. Once trimmed, a link holding a control character, a
+   * link whose scheme runs a script or reads local content, and any other link
+   * are not redirected to.
    *
    * @param link the link stored on the page
    * @return the URI to redirect to, or null when the link is not one
@@ -281,7 +283,7 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     if (scheme.find()) {
       return REFUSED_SCHEMES.contains(scheme.group(1).toLowerCase(Locale.ROOT)) ? null : encodeNonAscii(uri);
     } else if (HOST_PREFIX_PATTERN.matcher(uri).find()) {
-      return "http://" + encodeNonAscii(uri);
+      return "//" + encodeNonAscii(uri);
     } else {
       return null;
     }
