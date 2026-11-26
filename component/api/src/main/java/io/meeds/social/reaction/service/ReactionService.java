@@ -188,7 +188,9 @@ public interface ReactionService {
    * Retrieves the reactions summary of several objects of a type in one call,
    * for a list that displays the reactions of each of its items. An object that
    * doesn't exist, or that the user can't view, is left out of the result, so
-   * the identifiers of the objects the user can't see can't be probed.
+   * the identifiers of the objects the user can't see can't be probed. An
+   * object whose summary fails is logged and left out too, the others keep
+   * theirs. The identifiers must not contain a comma (the REST list separator).
    *
    * @param objectType Object type
    * @param objectIds Objects technical identifiers

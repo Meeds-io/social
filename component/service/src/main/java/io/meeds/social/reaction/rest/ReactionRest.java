@@ -108,7 +108,7 @@ public class ReactionRest {
                                                            @Parameter(description = "Object type: activity for posts and comments", required = true)
                                                            @PathVariable("objectType")
                                                            String objectType,
-                                                           @Parameter(description = "Objects technical identifiers, at most 100", required = true)
+                                                           @Parameter(description = "Objects technical identifiers, comma separated (an identifier can't contain a comma), at most 100", required = true)
                                                            @RequestParam("objectIds")
                                                            List<String> objectIds) {
     if (objectIds.size() > MAX_SUMMARY_OBJECTS) {

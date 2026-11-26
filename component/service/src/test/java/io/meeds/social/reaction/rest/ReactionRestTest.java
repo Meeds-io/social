@@ -162,6 +162,11 @@ public class ReactionRestTest {
   }
 
   @Test
+  public void summariesNeedTheObjectIdsParameter() throws Exception {
+    mockMvc.perform(get("/reactions/taskComment/summary").with(JOHN)).andExpect(status().isBadRequest());
+  }
+
+  @Test
   public void aReactorWithoutIdentityIsLeftOut() throws Exception {
     stub("activity", "1", "like", Map.of("like", 2L), List.of(new Reaction(7, "like", "activity", "1")), "like");
     stub("activity", "1", "love", Map.of("like", 2L), List.of(new Reaction(8, "love", "activity", "1")), "like");

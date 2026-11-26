@@ -30,6 +30,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -698,6 +699,36 @@ public class ReactionServiceImplTest {
 
     assertEquals(1l, summaries.get(OBJECT_ID).counts().get("like").longValue());
     assertEquals("like", summaries.get(OBJECT_ID).userReactionId());
+  }
+
+  @Test
+  public void testReactionSummariesOfActivitiesLeaveOutTheMissingAndTheNotViewableOnes() {
+    lenient().when(activityManager.getActivity("404")).thenReturn(null);
+    ExoSocialActivity hidden = mock(ExoSocialActivity.class);
+    lenient().when(activityManager.getActivity("403")).thenReturn(hidden);
+    lenient().when(activityManager.isActivityViewable(eq(hidden), any())).thenReturn(false);
+    when(activity.getLikeIdentityIds()).thenReturn(new String[0]);
+
+    Map<String, ReactionSummary> summaries = reactionService.getReactionSummaries(OBJECT_TYPE,
+                                                                                  List.of("404", "403", OBJECT_ID),
+                                                                                  USERNAME);
+
+    assertEquals(List.of(OBJECT_ID), List.copyOf(summaries.keySet()));
+    // The view check and the reads of an activity are done once for its summary
+    verify(activityManager, times(1)).getActivity(OBJECT_ID);
+  }
+
+  @Test
+  public void testReactionSummariesKeepTheOthersWhenOneObjectFails() {
+    lenient().when(activityManager.getActivity("2")).thenReturn(activity);
+    when(activity.getLikeIdentityIds()).thenReturn(new String[0]);
+    when(reactionStorage.countReactionsByOption(metadataObject)).thenThrow(new IllegalStateException("db")).thenReturn(Map.of());
+
+    Map<String, ReactionSummary> summaries = reactionService.getReactionSummaries(OBJECT_TYPE,
+                                                                                  List.of(OBJECT_ID, "2"),
+                                                                                  USERNAME);
+
+    assertEquals(List.of("2"), List.copyOf(summaries.keySet()));
   }
 
   @Test
