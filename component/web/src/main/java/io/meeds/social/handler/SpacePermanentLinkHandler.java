@@ -182,10 +182,13 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
   /**
    * This space's own {@code /s/{spaceId}} entry, with no query or an empty
    * one, reaches this handler again for the same space home: redirecting to it
-   * would loop. The entry is recognised as a path, or as a URL whose host, an
-   * IPv6 literal included, is this request's host, whatever its scheme, port
-   * and user. The fragment stays in the browser, so it is not part of the
-   * request.
+   * would loop. The entry is recognised as the product spells it in its own
+   * links: a path, or a URL whose host is spelled as this request's server
+   * name in any letter case, whatever its scheme, port and user, with or
+   * without a trailing slash, an empty query or a fragment. The fragment stays
+   * in the browser, so it is not part of the request. Any other spelling the
+   * browser normalises into the entry (a dot segment, a backslash, another
+   * spelling of an IPv6 literal) is not recognised.
    *
    * @param uri the URI to redirect to, possibly null
    * @param request the current request
