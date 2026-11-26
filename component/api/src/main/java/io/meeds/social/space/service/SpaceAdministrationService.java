@@ -70,8 +70,10 @@ public interface SpaceAdministrationService {
   /**
    * @param spaceId {@link Space} technical id
    * @param templatePatch SpaceTemplate properties to apply
+   * @param username acting user name/login, as whom the space categories are
+   *          linked
    * @throws ObjectNotFoundException when the space doesn't exist
    */
-  void applySpaceTemplate(long spaceId, SpaceTemplatePatch templatePatch) throws ObjectNotFoundException;
+  void applySpaceTemplate(long spaceId, SpaceTemplatePatch templatePatch, String username) throws ObjectNotFoundException;
 
 }

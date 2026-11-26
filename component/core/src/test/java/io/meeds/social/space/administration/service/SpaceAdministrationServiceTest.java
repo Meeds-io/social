@@ -23,6 +23,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -35,6 +36,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
+import io.meeds.social.space.category.service.SpaceCategoryService;
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.model.SpacePermissions;
@@ -65,6 +67,9 @@ public class SpaceAdministrationServiceTest {
   SpaceTemplateService           spaceTemplateService;
 
   @Mock
+  SpaceCategoryService           spaceCategoryService;
+
+  @Mock
   Space                          space;
 
   @Mock
@@ -81,6 +86,7 @@ public class SpaceAdministrationServiceTest {
     spaceAdministrationService.setSpaceService(spaceService);
     spaceAdministrationService.setSpaceLayoutService(spaceLayoutService);
     spaceAdministrationService.setSpaceTemplateService(spaceTemplateService);
+    spaceAdministrationService.setSpaceCategoryService(spaceCategoryService);
   }
 
   @Test
@@ -209,7 +215,7 @@ public class SpaceAdministrationServiceTest {
     when(templatePatch.isEditorialMode()).thenReturn(true);
     when(templatePatch.isUpdateSite()).thenReturn(true);
 
-    spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch);
+    spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch, "root");
 
     verify(spaceService).updateSpace(space);
     verify(spaceLayoutService).updateSpaceSite(space);
@@ -221,7 +227,7 @@ public class SpaceAdministrationServiceTest {
   @Test
   public void testApplySpaceTemplateWhenSpaceNotFound() {
     when(spaceService.getSpaceById(spaceId)).thenReturn(null);
-    assertThrows(ObjectNotFoundException.class, () -> spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch));
+    assertThrows(ObjectNotFoundException.class, () -> spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch, "root"));
   }
 
   @Test
@@ -230,7 +236,7 @@ public class SpaceAdministrationServiceTest {
     when(templatePatch.getTemplateId()).thenReturn(templateId);
     when(spaceTemplateService.getSpaceTemplate(templateId)).thenReturn(null);
 
-    assertThrows(ObjectNotFoundException.class, () -> spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch));
+    assertThrows(ObjectNotFoundException.class, () -> spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch, "root"));
   }
 
   @Test
@@ -240,7 +246,7 @@ public class SpaceAdministrationServiceTest {
     when(spaceTemplateService.getSpaceTemplate(templateId)).thenReturn(spaceTemplate);
     when(spaceTemplate.isDeleted()).thenReturn(true);
 
-    assertThrows(ObjectNotFoundException.class, () -> spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch));
+    assertThrows(ObjectNotFoundException.class, () -> spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch, "root"));
   }
 
   @Test
@@ -250,7 +256,7 @@ public class SpaceAdministrationServiceTest {
     when(spaceTemplateService.getSpaceTemplate(templateId)).thenReturn(spaceTemplate);
     when(spaceTemplate.isEnabled()).thenReturn(false);
 
-    assertThrows(ObjectNotFoundException.class, () -> spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch));
+    assertThrows(ObjectNotFoundException.class, () -> spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch, "root"));
   }
 
   @Test
@@ -267,7 +273,7 @@ public class SpaceAdministrationServiceTest {
     when(templatePatch.isEditorialMode()).thenReturn(true);
     when(templatePatch.getTemplateId()).thenReturn(templateId);
 
-    spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch);
+    spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch, "root");
 
     verify(spaceService).addRedactor(any(), any());
   }
@@ -285,9 +291,27 @@ public class SpaceAdministrationServiceTest {
     when(templatePatch.isEditorialMode()).thenReturn(true);
     when(templatePatch.getTemplateId()).thenReturn(templateId);
 
-    spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch);
+    spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch, "root");
 
     verify(spaceService).removeRedactor(any(), any());
+  }
+
+  @Test
+  public void testApplySpaceTemplateLinksCategoriesAsTheActingUser() throws ObjectNotFoundException {
+    when(spaceService.getSpaceById(spaceId)).thenReturn(space);
+    when(spaceTemplateService.getSpaceTemplate(templateId)).thenReturn(spaceTemplate);
+    when(spaceTemplate.isDeleted()).thenReturn(false);
+    when(spaceTemplate.isEnabled()).thenReturn(true);
+    when(spaceTemplate.getSpaceDefaultCategoryIds()).thenReturn(List.of(5l, 6l));
+
+    when(templatePatch.getTemplateId()).thenReturn(templateId);
+    when(templatePatch.isUpdateCategories()).thenReturn(true);
+    when(templatePatch.isRemoveExistingCategories()).thenReturn(true);
+
+    spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch, "root");
+
+    verify(spaceCategoryService).updateSpaceCategories(spaceId, List.of(5l, 6l), true, "root");
+    verify(spaceCategoryService, never()).updateSpaceCategories(anyLong(), any(), anyBoolean());
   }
 
 }

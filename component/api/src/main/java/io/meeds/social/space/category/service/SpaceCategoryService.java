@@ -45,6 +45,18 @@ public interface SpaceCategoryService {
   void updateSpaceCategories(long spaceId, List<Long> categoryIds, boolean removeExisting);
 
   /**
+   * Updates the list of Space Categories on behalf of a user: each link added
+   * or removed is made as that user, so a category the user isn't allowed to
+   * link, or an identifier that isn't a category, is skipped
+   *
+   * @param spaceId {@link Space} identifier
+   * @param categoryIds {@link List} of category identifiers to link
+   * @param removeExisting whether to remove existing or just add new ones
+   * @param username acting user name/login
+   */
+  void updateSpaceCategories(long spaceId, List<Long> categoryIds, boolean removeExisting, String username);
+
+  /**
    * @param spaceId {@link Space} identifier
    * @return {@link List} of linked category identifiers
    */
