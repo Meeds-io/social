@@ -27,20 +27,24 @@
       key="admins"
       extra-class="application-body">
       <template #action>
-        <div class="position-relative">
-          <exo-user-avatars-list
-            :users="admins"
-            :default-length="adminsCount"
-            :margin-left="admins.length > 1 && 'ml-n5' || ''"
-            :icon-size="33"
-            :max="3"
-            :class="$vuetify.rtl && 'l-0' || 'r-0'"
-            class="absolute-vertical-center"
-            compact
-            clickable
-            @open-detail="$root.$emit('admins-drawer-open')" />
-        </div>
+        <v-btn
+          id="adminsWidgetAddButton"
+          :title="$t('social.admins.drawer.adminsToAdd')"
+          :aria-label="$t('social.admins.drawer.adminsToAdd')"
+          small
+          icon
+          @click="$root.$emit('admins-add-drawer-open', true)">
+          <v-icon size="18">fa-plus</v-icon>
+        </v-btn>
       </template>
+      <div v-if="admins?.length" class="d-flex justify-start mt-2">
+        <platform-avatars-see-all
+          id="adminsWidgetAvatarsButton"
+          :users="admins"
+          :count="adminsCount"
+          :label="$t('social.admins.button.seeAdmins')"
+          @open="$root.$emit('admins-drawer-open')" />
+      </div>
     </widget-wrapper>
     <admins-drawer />
   </v-app>

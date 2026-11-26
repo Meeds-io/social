@@ -20,12 +20,14 @@ import Admins from './components/Admins.vue';
 import AdminsDrawer from './components/AdminsDrawer.vue';
 import AddAdminDrawer from './components/AddAdminDrawer.vue';
 import AdminCard from './components/AdminCard.vue';
+import AvatarsSeeAll from './components/AvatarsSeeAll.vue';
 
 const components = {
   'admins': Admins,
   'admins-drawer': AdminsDrawer,
   'add-admin-drawer': AddAdminDrawer,
-  'admin-card': AdminCard
+  'admin-card': AdminCard,
+  'platform-avatars-see-all': AvatarsSeeAll,
 
 };
 
