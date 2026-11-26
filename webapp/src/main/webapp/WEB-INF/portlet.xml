@@ -1063,6 +1063,27 @@
   </portlet>
 
   <portlet>
+    <portlet-name>LoggingLevels</portlet-name>
+    <display-name>Logging levels</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/loggingLevels.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Portlets</resource-bundle>
+    <portlet-info>
+      <title>Logging levels</title>
+      <keywords>Logging levels</keywords>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
     <portlet-name>PlatformAdminsWidget</portlet-name>
     <display-name>Platform Admins Widget</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>

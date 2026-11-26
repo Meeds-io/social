@@ -100,6 +100,7 @@ let config = {
     organizationalChart: './src/main/webapp/vue-apps/organizational-chart/main.js',
     organizationalChartExtension: './src/main/webapp/vue-apps/organizational-chart/extensions/main.js',
     simpleStorage: './src/main/webapp/vue-apps/simple-storage/main.js',
+    loggingLevels: './src/main/webapp/vue-apps/logging-levels/main.js',
     admins: './src/main/webapp/vue-apps/platformAdminsWidget/main.js',
     myOrganizationalUnits: './src/main/webapp/vue-apps/my-organizational-units/main.js',
     platformAccess: './src/main/webapp/vue-apps/platform-access/main.js',
