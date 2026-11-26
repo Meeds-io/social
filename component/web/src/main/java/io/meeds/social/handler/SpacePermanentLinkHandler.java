@@ -133,7 +133,10 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
       String pageNotFoundUrl = "/portal/" + getPageNotFoundSite(username) + "/page-not-found";
       controllerContext.getResponse().sendRedirect(pageNotFoundUrl);
     } else {
-      String uri = StringUtils.isBlank(path) ? getSpaceHomeLink(space, username) : null;
+      String uri = StringUtils.isBlank(path) ? getSpaceHomeLink(space,
+                                                                username,
+                                                                controllerContext.getRequest().getContextPath()) :
+                                             null;
       if (uri == null) {
         uri = permanentLinkService.getLink(getPermanentLinkObject(spaceId, path));
       }
@@ -146,14 +149,16 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
    * The portal renders a page of type {@link PageType#LINK} as an empty page:
    * only the menus listing its node replace the node's URL with the page's
    * link. The space home is the node the space URL names, so when its page is
-   * a link the user can access, the space home redirects to that link.
+   * a link the user can access, the space home redirects to that link, unless
+   * the link leads back to this space home entry.
    *
    * @param space the requested space
    * @param username the current user, null when anonymous
+   * @param contextPath the context path of this request
    * @return the URI of the space home page's link, or null when that page is
    *         not an accessible link or its link can't be redirected to
    */
-  private String getSpaceHomeLink(Space space, String username) {
+  private String getSpaceHomeLink(Space space, String username, String contextPath) {
     if (StringUtils.isBlank(space.getUrl())) {
       return null;
     }
@@ -161,10 +166,30 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     PageKey pageRef = homeNode == null || homeNode.getState() == null ? null : homeNode.getState().getPageRef();
     PageContext page = pageRef == null ? null : portalConfigService.getPage(pageRef, username);
     if (page != null && PageType.LINK.name().equals(page.getState().getType())) {
-      return toRedirectUri(page.getState().getLink());
+      String uri = toRedirectUri(page.getState().getLink());
+      return isSpaceHomeEntry(uri, contextPath, space.getId()) ? null : uri;
     } else {
       return null;
     }
+  }
+
+  /**
+   * A path to this space's own {@code /s/{spaceId}} entry, with no query,
+   * reaches this handler again for the same space home: redirecting to it
+   * would loop. The fragment stays in the browser, so it is not part of the
+   * request.
+   *
+   * @param uri the URI to redirect to, possibly null
+   * @param contextPath the context path of this request
+   * @param spaceId the requested space id
+   * @return true when the URI is this space home entry
+   */
+  private static boolean isSpaceHomeEntry(String uri, String contextPath, String spaceId) {
+    if (uri == null) {
+      return false;
+    }
+    String uriWithoutFragment = StringUtils.substringBefore(uri, "#");
+    return StringUtils.removeEnd(uriWithoutFragment, "/").equals(contextPath + "/s/" + spaceId);
   }
 
   /**
@@ -187,16 +212,40 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     if (uri == null || CONTROL_CHARACTER_PATTERN.matcher(uri).find()) {
       return null;
     } else if (uri.startsWith("/")) {
-      return uri;
+      return encodeNonAscii(uri);
     }
     Matcher scheme = SCHEME_PATTERN.matcher(uri);
     if (scheme.find()) {
-      return REFUSED_SCHEMES.contains(scheme.group(1).toLowerCase(Locale.ROOT)) ? null : uri;
+      return REFUSED_SCHEMES.contains(scheme.group(1).toLowerCase(Locale.ROOT)) ? null : encodeNonAscii(uri);
     } else if (HOST_PREFIX_PATTERN.matcher(uri).find()) {
-      return "http://" + uri;
+      return "http://" + encodeNonAscii(uri);
     } else {
       return null;
     }
+  }
+
+  /**
+   * Tomcat writes a header in ISO-8859-1 and drops a header holding a
+   * character it can't encode, so a Location with such a character would
+   * leave a redirect with no target. Every character above {@code ~} is
+   * percent-encoded as UTF-8, as a browser encodes the same link in a menu's
+   * href; ASCII, percent-escapes included, is kept as is.
+   *
+   * @param uri the URI to redirect to
+   * @return the URI with only ASCII characters
+   */
+  private static String encodeNonAscii(String uri) {
+    StringBuilder encoded = new StringBuilder(uri.length());
+    uri.codePoints().forEach(codePoint -> {
+      if (codePoint > '~') {
+        for (byte b : Character.toString(codePoint).getBytes(StandardCharsets.UTF_8)) {
+          encoded.append('%').append(String.format("%02X", b & 0xFF));
+        }
+      } else {
+        encoded.appendCodePoint(codePoint);
+      }
+    });
+    return encoded.toString();
   }
 
   private String getPageNotFoundSite(String username) {

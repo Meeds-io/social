@@ -23,8 +23,8 @@ import static io.meeds.social.handler.SpacePermanentLinkHandler.REQUEST_SPACE_ID
 import static io.meeds.social.space.plugin.SpacePermanentLinkPlugin.APPLICATION_URI;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -116,7 +116,9 @@ class SpacePermanentLinkHandlerTest {
     lenient().when(controllerContext.getResponse()).thenReturn(response);
     lenient().when(controllerContext.getParameter(REQUEST_SPACE_ID)).thenReturn(SPACE_ID);
     lenient().when(request.getRemoteUser()).thenReturn(USERNAME);
+    lenient().when(request.getContextPath()).thenReturn("/portal");
     lenient().when(spaceService.getSpaceById(SPACE_ID)).thenReturn(space);
+    lenient().when(space.getId()).thenReturn(SPACE_ID);
     lenient().when(space.getGroupId()).thenReturn(GROUP_ID);
     lenient().when(space.getUrl()).thenReturn(SPACE_URL);
     lenient().when(space.getPublicSiteId()).thenReturn(0L);
@@ -145,6 +147,31 @@ class SpacePermanentLinkHandlerTest {
     assertTrue(handler.execute(controllerContext));
 
     verify(response).sendRedirect(HOME_LINK);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntry() throws Exception {
+    assertHomeLinkRedirectsTo("/portal/s/12", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntryWithASlash() throws Exception {
+    assertHomeLinkRedirectsTo("/portal/s/12/", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntryWithAFragment() throws Exception {
+    assertHomeLinkRedirectsTo("/portal/s/12#top", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToThisSpaceEntryWithAQuery() throws Exception {
+    assertHomeLinkRedirectsTo("/portal/s/12?tab=1", "/portal/s/12?tab=1");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToAnotherSpaceEntry() throws Exception {
+    assertHomeLinkRedirectsTo("/portal/s/120", "/portal/s/120");
   }
 
   @Test
@@ -197,6 +224,32 @@ class SpacePermanentLinkHandlerTest {
   void testRedirectsSpaceHomeToALinkWithQuotesDollarsAndSpacesAsStored() throws Exception {
     assertHomeLinkRedirectsTo("https://www.example.org/odata/Items?$filter=x eq 'y'",
                               "https://www.example.org/odata/Items?$filter=x eq 'y'");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkWithCharactersOutsideLatin1PercentEncoded() throws Exception {
+    assertHomeLinkRedirectsTo("https://www.example.org/cœur/l’équipe?q=%20x",
+                              "https://www.example.org/c%C5%93ur/l%E2%80%99%C3%A9quipe?q=%20x");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkWithLatin1CharactersPercentEncoded() throws Exception {
+    assertHomeLinkRedirectsTo("https://www.example.org/café", "https://www.example.org/caf%C3%A9");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToAPathWithCharactersPercentEncoded() throws Exception {
+    assertHomeLinkRedirectsTo("/portal/dw/cœur", "/portal/dw/c%C5%93ur");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkWithoutSchemeWithCharactersPercentEncoded() throws Exception {
+    assertHomeLinkRedirectsTo("www.example.org/café", "http://www.example.org/caf%C3%A9");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkWithAnEmojiPercentEncoded() throws Exception {
+    assertHomeLinkRedirectsTo("https://www.example.org/😀", "https://www.example.org/%F0%9F%98%80");
   }
 
   @Test
@@ -269,7 +322,7 @@ class SpacePermanentLinkHandlerTest {
     assertTrue(handler.execute(controllerContext));
 
     verify(response).sendRedirect(SPACE_PAGE_URI);
-    verify(portalConfigService, never()).getPage(any(PageKey.class), anyString());
+    verify(portalConfigService, never()).getPage(nullable(PageKey.class), nullable(String.class));
   }
 
   @Test
@@ -283,7 +336,7 @@ class SpacePermanentLinkHandlerTest {
     verify(response, never()).sendRedirect(HOME_LINK);
     verify(permanentLinkService).getLink(argThat((PermanentLinkObject object) -> "members".equals(object.getParameters()
                                                                                                          .get(APPLICATION_URI))));
-    verify(navigationService, never()).loadNode(any(SiteKey.class), anyString());
+    verify(navigationService, never()).loadNode(nullable(SiteKey.class), nullable(String.class));
   }
 
   @Test
@@ -296,7 +349,7 @@ class SpacePermanentLinkHandlerTest {
 
     verify(response).sendRedirect(SPACE_PAGE_URI);
     verify(response, never()).sendRedirect(HOME_LINK);
-    verify(navigationService, never()).loadNode(any(SiteKey.class), anyString());
+    verify(navigationService, never()).loadNode(nullable(SiteKey.class), nullable(String.class));
   }
 
   private void assertHomeLinkRedirectsTo(String link, String expectedUri) throws Exception {
