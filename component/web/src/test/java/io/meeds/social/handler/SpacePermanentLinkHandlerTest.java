@@ -69,8 +69,9 @@ import jakarta.servlet.http.HttpServletResponse;
  * front when it starts with a host name. Once trimmed, for a link holding a
  * control character, a link whose scheme runs a script or reads local content,
  * any other link and a link back to this space entry, and for any sub-path, it
- * redirects to the space page as before. Every URI redirected to is checked
- * with Tomcat's own header encoding, which drops a Location it can't encode.
+ * redirects to the space page as before. Every home link the tests expect a
+ * redirect to is checked with Tomcat's own header encoding, which drops a
+ * Location it can't encode.
  */
 @ExtendWith(MockitoExtension.class)
 class SpacePermanentLinkHandlerTest {
@@ -144,6 +145,7 @@ class SpacePermanentLinkHandlerTest {
 
     verify(response).sendRedirect(HOME_LINK);
     verify(permanentLinkService, never()).getLink(any());
+    assertTomcatWritesLocation(HOME_LINK);
   }
 
   @Test
@@ -154,6 +156,7 @@ class SpacePermanentLinkHandlerTest {
     assertTrue(handler.execute(controllerContext));
 
     verify(response).sendRedirect(HOME_LINK);
+    assertTomcatWritesLocation(HOME_LINK);
   }
 
   @Test
@@ -189,6 +192,23 @@ class SpacePermanentLinkHandlerTest {
   @Test
   void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntryWithoutScheme() throws Exception {
     assertHomeLinkRedirectsTo("my.server.org/portal/s/12", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntryWithAnEmptyQuery() throws Exception {
+    assertHomeLinkRedirectsTo("https://my.server.org/portal/s/12/?#top", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntryOnAnIpv6Host() throws Exception {
+    when(request.getServerName()).thenReturn("[::1]");
+    assertHomeLinkRedirectsTo("http://[::1]:8080/portal/s/12", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToTheSameEntryOnAnotherIpv6Host() throws Exception {
+    when(request.getServerName()).thenReturn("[::1]");
+    assertHomeLinkRedirectsTo("http://[::2]:8080/portal/s/12", "http://[::2]:8080/portal/s/12");
   }
 
   @Test

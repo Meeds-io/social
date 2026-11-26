@@ -180,11 +180,12 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
   }
 
   /**
-   * This space's own {@code /s/{spaceId}} entry, with no query, reaches this
-   * handler again for the same space home: redirecting to it would loop. The
-   * entry is recognised as a path, or as a URL whose host is this request's
-   * host, whatever its scheme and port. The fragment stays in the browser, so
-   * it is not part of the request.
+   * This space's own {@code /s/{spaceId}} entry, with no query or an empty
+   * one, reaches this handler again for the same space home: redirecting to it
+   * would loop. The entry is recognised as a path, or as a URL whose host, an
+   * IPv6 literal included, is this request's host, whatever its scheme, port
+   * and user. The fragment stays in the browser, so it is not part of the
+   * request.
    *
    * @param uri the URI to redirect to, possibly null
    * @param request the current request
@@ -200,13 +201,15 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     if (authority.matches()) {
       String hostAndPort = StringUtils.contains(authority.group(1), '@') ? StringUtils.substringAfterLast(authority.group(1), "@") :
                                                                           authority.group(1);
-      if (!StringUtils.equalsIgnoreCase(StringUtils.substringBefore(hostAndPort, ":"), request.getServerName())) {
+      String host = hostAndPort.startsWith("[") ? StringUtils.substringBefore(hostAndPort, "]") + "]" :
+                                                StringUtils.substringBefore(hostAndPort, ":");
+      if (!StringUtils.equalsIgnoreCase(host, request.getServerName())) {
         return false;
       }
       uriPath = authority.group(2);
     }
-    String uriPathWithoutFragment = StringUtils.substringBefore(uriPath, "#");
-    return StringUtils.removeEnd(uriPathWithoutFragment, "/").equals(request.getContextPath() + "/s/" + spaceId);
+    String requestedPath = StringUtils.removeEnd(StringUtils.substringBefore(uriPath, "#"), "?");
+    return StringUtils.removeEnd(requestedPath, "/").equals(request.getContextPath() + "/s/" + spaceId);
   }
 
   /**
