@@ -60,8 +60,11 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Opening a space through /portal/s/{spaceId} lands on the space home. When
  * the page of the space home node is a link the user can access, the handler
- * redirects to that link, as the menus listing the node do; otherwise, and for
- * any sub-path, it redirects to the space page as before.
+ * redirects to that link, trimmed: as is when it starts with / or a scheme,
+ * with http:// in front when it starts with a host name. Once trimmed, for a
+ * link holding a control character, a link whose scheme runs a script or
+ * reads local content, and any other link, and for any sub-path, it redirects
+ * to the space page as before.
  */
 @ExtendWith(MockitoExtension.class)
 class SpacePermanentLinkHandlerTest {
@@ -166,6 +169,87 @@ class SpacePermanentLinkHandlerTest {
   }
 
   @Test
+  void testRedirectsSpaceHomeToALinkWithoutSchemeWithHttp() throws Exception {
+    assertHomeLinkRedirectsTo("www.example.org/target", "http://www.example.org/target");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkWithoutSchemeWithAPort() throws Exception {
+    assertHomeLinkRedirectsTo(" intranet.example.org:8443/x?y=1 ", "http://intranet.example.org:8443/x?y=1");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToAPathOfThisSite() throws Exception {
+    assertHomeLinkRedirectsTo("/portal/dw/stream", "/portal/dw/stream");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToAProtocolRelativeLinkAsStored() throws Exception {
+    assertHomeLinkRedirectsTo("//www.example.org/x", "//www.example.org/x");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToAnHttpLink() throws Exception {
+    assertHomeLinkRedirectsTo("http://www.example.org", "http://www.example.org");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkWithQuotesDollarsAndSpacesAsStored() throws Exception {
+    assertHomeLinkRedirectsTo("https://www.example.org/odata/Items?$filter=x eq 'y'",
+                              "https://www.example.org/odata/Items?$filter=x eq 'y'");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkOfAnotherSchemeAsStored() throws Exception {
+    assertHomeLinkRedirectsTo("ftp://files.example.org/a", "ftp://files.example.org/a");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToAMailLinkAsStored() throws Exception {
+    assertHomeLinkRedirectsTo("mailto:someone@example.org", "mailto:someone@example.org");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForAJavascriptLinkInAnyCase() throws Exception {
+    assertHomeLinkRedirectsTo("JavaScript:alert(1)", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForAVbscriptLink() throws Exception {
+    assertHomeLinkRedirectsTo("vbscript:msgbox(1)", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForADataLink() throws Exception {
+    assertHomeLinkRedirectsTo("data:text/html,x", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForAFileLink() throws Exception {
+    assertHomeLinkRedirectsTo("file:///etc/hosts", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithALineBreak() throws Exception {
+    assertHomeLinkRedirectsTo("https://www.example.org/\r\nSet-Cookie:a=b", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeWithALineBreak() throws Exception {
+    assertHomeLinkRedirectsTo("www.example.org/\r\nSet-Cookie:a=b", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForAPathWithALineBreak() throws Exception {
+    assertHomeLinkRedirectsTo("/portal/dw\r\nSet-Cookie:a=b", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeOrHostName() throws Exception {
+    assertHomeLinkRedirectsTo("_private/page", SPACE_PAGE_URI);
+  }
+
+  @Test
   void testRedirectsSpaceHomeToSpacePageWhenTheUserCannotAccessTheLinkPage() throws Exception {
     when(controllerContext.getParameter(REQUEST_PATH)).thenReturn("");
     mockHomeNode();
@@ -213,6 +297,15 @@ class SpacePermanentLinkHandlerTest {
     verify(response).sendRedirect(SPACE_PAGE_URI);
     verify(response, never()).sendRedirect(HOME_LINK);
     verify(navigationService, never()).loadNode(any(SiteKey.class), anyString());
+  }
+
+  private void assertHomeLinkRedirectsTo(String link, String expectedUri) throws Exception {
+    when(controllerContext.getParameter(REQUEST_PATH)).thenReturn("");
+    mockHomePage(PageType.LINK, link);
+
+    assertTrue(handler.execute(controllerContext));
+
+    verify(response).sendRedirect(expectedUri);
   }
 
   /**

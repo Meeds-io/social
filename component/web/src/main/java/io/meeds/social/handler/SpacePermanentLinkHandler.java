@@ -24,6 +24,10 @@ import static io.meeds.social.space.plugin.SpacePermanentLinkPlugin.OBJECT_TYPE;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Locale;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -56,6 +60,30 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
   public static final QualifiedName INVITATION_ID    = QualifiedName.create("invitation_id");
 
   public static final QualifiedName REQUEST_PATH     = QualifiedName.create("path");
+
+  /**
+   * The scheme a link starts with, captured, a port excluded (social
+   * NavigationUtils.js, getNavigationNodeHomeUri)
+   */
+  private static final Pattern      SCHEME_PATTERN            = Pattern.compile("^([a-z][a-z0-9+.-]*):(?!\\d)",
+                                                                                Pattern.CASE_INSENSITIVE);
+
+  /**
+   * A host name whose last label starts with a letter, an optional port, then a
+   * path, a query, a fragment or nothing (social NavigationUtils.js)
+   */
+  private static final Pattern      HOST_PREFIX_PATTERN       =
+                                                        Pattern.compile("^([a-z0-9]([a-z0-9-]*[a-z0-9])?\\.)*[a-z]([a-z0-9-]*[a-z0-9])?(:\\d+)?([/?#]|$)",
+                                                                        Pattern.CASE_INSENSITIVE);
+
+  /**
+   * A control character, a line break included, which a Location header can't
+   * carry
+   */
+  private static final Pattern      CONTROL_CHARACTER_PATTERN = Pattern.compile("\\p{Cntrl}");
+
+  /** The schemes that run a script or read local content */
+  private static final Set<String>  REFUSED_SCHEMES           = Set.of("javascript", "vbscript", "data", "file");
 
   private SpaceService              spaceService;
 
@@ -118,12 +146,12 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
    * The portal renders a page of type {@link PageType#LINK} as an empty page:
    * only the menus listing its node replace the node's URL with the page's
    * link. The space home is the node the space URL names, so when its page is
-   * a link the user can access, the space home is that link.
+   * a link the user can access, the space home redirects to that link.
    *
    * @param space the requested space
    * @param username the current user, null when anonymous
-   * @return the link of the space home page, or null when that page is not an
-   *         accessible link
+   * @return the URI of the space home page's link, or null when that page is
+   *         not an accessible link or its link can't be redirected to
    */
   private String getSpaceHomeLink(Space space, String username) {
     if (StringUtils.isBlank(space.getUrl())) {
@@ -133,7 +161,39 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     PageKey pageRef = homeNode == null || homeNode.getState() == null ? null : homeNode.getState().getPageRef();
     PageContext page = pageRef == null ? null : portalConfigService.getPage(pageRef, username);
     if (page != null && PageType.LINK.name().equals(page.getState().getType())) {
-      return StringUtils.trimToNull(page.getState().getLink());
+      return toRedirectUri(page.getState().getLink());
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * A link page stores its link as typed, and the node editor accepts a link
+   * without a scheme, which the browser would resolve as a path relative to
+   * this request if it were sent as is. The link, trimmed, is redirected to as
+   * is when it starts with {@code /} (a path of this site or a
+   * protocol-relative link) or with a scheme, and with {@code http://} in
+   * front when it starts with a host name, the scheme Autolinker gives a link
+   * it recognises in the menus (social NavigationUtils.js, getLinkNodeUri).
+   * Once trimmed, a link holding a control character, a link whose scheme runs
+   * a script or reads local content, and any other link are not redirected
+   * to.
+   *
+   * @param link the link stored on the page
+   * @return the URI to redirect to, or null when the link is not one
+   */
+  private static String toRedirectUri(String link) {
+    String uri = StringUtils.trimToNull(link);
+    if (uri == null || CONTROL_CHARACTER_PATTERN.matcher(uri).find()) {
+      return null;
+    } else if (uri.startsWith("/")) {
+      return uri;
+    }
+    Matcher scheme = SCHEME_PATTERN.matcher(uri);
+    if (scheme.find()) {
+      return REFUSED_SCHEMES.contains(scheme.group(1).toLowerCase(Locale.ROOT)) ? null : uri;
+    } else if (HOST_PREFIX_PATTERN.matcher(uri).find()) {
+      return "http://" + uri;
     } else {
       return null;
     }
