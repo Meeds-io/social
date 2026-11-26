@@ -100,8 +100,10 @@
             v-model="backgroundProperties"
             :default-background-color="versionPageBackground"
             :image-path="pageBackgroundPath"
+            :restore-label="restoreLabel('pageBackgroundColor', backgroundProperties.backgroundColor)"
             class="mt-2 pe-3"
-            scrolling />
+            scrolling
+            @restore="restoreColor('pageBackgroundColor')" />
         </div>
         <div class="mt-2 d-flex flex-column">
           <span class="text-title">
@@ -121,7 +123,9 @@
           <styling-border-input
             v-if="initialized"
             v-model="applicationStyling.container"
-            class="mt-4" />
+            :restore-label="restoreLabel('appBorderColor', applicationStyling.container.borderColor)"
+            class="mt-4"
+            @restore="restoreColor('appBorderColor')" />
           <portal-general-settings-theme-shared-marker class="mt-4" />
           <styling-border-radius-input
             v-if="initialized"
@@ -131,8 +135,10 @@
             v-if="initialized"
             v-model="applicationStyling.container"
             :default-background-color="defaultApplicationBackground"
+            :restore-label="restoreLabel('appBackgroundColor', applicationStyling.container.backgroundColor)"
             class="mt-4"
-            no-layer-options>
+            no-layer-options
+            @restore="restoreColor('appBackgroundColor')">
             <template #image>
               <portal-general-settings-background-image-attachment
                 v-model="appBackgroundUploadId"
@@ -142,13 +148,21 @@
                 @reset="resetApplicationImage('appBackground', 'backgroundImage')" />
             </template>
           </styling-background-input>
+          <p class="themeContrastHelp text-subtitle mt-4 mb-0">
+            {{ $t('generalSettings.contrast.help') }}
+          </p>
           <styling-text-input
             v-if="initialized"
             v-model="applicationStyling.container"
             class="mt-4"
             :icon-placeholder="versionIconColor('appIconColor')"
             :color-placeholders="versionTextColors('app')"
-            custom-icon>
+            :contrast-background="contrastBackground('app', applicationStyling.container.backgroundColor)"
+            :contrast-warning="$t('generalSettings.contrast.low')"
+            :auto-colors="autoTextColors('app', applicationStyling.container, applicationStyling.container.backgroundColor)"
+            :restore-labels="textRestoreLabels('app', applicationStyling.container)"
+            custom-icon
+            @restore="restoreTextRow('app', $event)">
             <template #title-background-image>
               <portal-general-settings-background-image-attachment
                 v-model="appTextTitleBackgroundUploadId"
@@ -167,7 +181,6 @@
             </template>
           </styling-text-input>
         </div>
-        <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
       </v-card>
     </template>
     <template #footer>
@@ -199,7 +212,6 @@ import ThemeAreaDrawerMixin from '../../../js/ThemeAreaDrawerMixin.js';
 export default {
   mixins: [ThemeAreaDrawerMixin],
   data: () => ({
-    themeAreaKeys: ['pageBackgroundColor', 'appBackgroundColor', 'appBorderColor', 'appTextTitleColor', 'appTextHeaderColor', 'appTextColor', 'appTextSubtitleColor', 'appIconColor'],
     drawer: false,
     backgroundProperties: null,
     defaultCustomPageWidth: '1320',

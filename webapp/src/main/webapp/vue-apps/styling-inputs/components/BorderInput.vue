@@ -39,7 +39,9 @@
       <v-list-item-action class="my-auto me-0 ms-auto">
         <styling-color-picker
           v-model="borderColor"
-          class="my-auto" />
+          :restore-label="restoreLabel"
+          class="my-auto"
+          @restore="$emit('restore')" />
       </v-list-item-action>
     </v-list-item>
     <v-list-item
@@ -81,6 +83,11 @@ export default {
     pageStyle: {
       type: Boolean,
       default: false,
+    },
+    // Label of an inline restore action next to the color: given, it is shown, and its click emits restore
+    restoreLabel: {
+      type: String,
+      default: null,
     },
   },
   data: () => ({
