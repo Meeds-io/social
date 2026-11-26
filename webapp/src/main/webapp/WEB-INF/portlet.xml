@@ -1238,6 +1238,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/platformName.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-background-color no-layout-background-image no-layout-border no-layout-border-radius no-layout-box-shadow</value>
+    </init-param>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
@@ -1257,6 +1261,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/platformLogo.jsp</value>
+    </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-background-color no-layout-background-image no-layout-border no-layout-border-radius no-layout-box-shadow</value>
     </init-param>
     <init-param>
       <name>layout-content-editable</name>
@@ -1313,6 +1321,10 @@
       <value>/WEB-INF/jsp/portlet/loginForm.jsp</value>
     </init-param>
     <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-background-color no-layout-background-image no-layout-border no-layout-border-radius no-layout-box-shadow</value>
+    </init-param>
+    <init-param>
       <name>content-type</name>
       <value>loginFormTranslations</value>
     </init-param>
@@ -1340,6 +1352,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/externalOnboarding.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-background-color no-layout-background-image no-layout-border no-layout-border-radius no-layout-box-shadow</value>
+    </init-param>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
@@ -1359,6 +1375,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/forgotPassword.jsp</value>
+    </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-background-color no-layout-background-image no-layout-border no-layout-border-radius no-layout-box-shadow</value>
     </init-param>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -1380,6 +1400,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/accountDeactivated.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-background-color no-layout-background-image no-layout-border no-layout-border-radius no-layout-box-shadow</value>
+    </init-param>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
@@ -1399,6 +1423,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/internalOnboarding.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-background-color no-layout-background-image no-layout-border no-layout-border-radius no-layout-box-shadow</value>
+    </init-param>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
@@ -1417,6 +1445,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/registerForm.jsp</value>
+    </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-background-color no-layout-background-image no-layout-border no-layout-border-radius no-layout-box-shadow</value>
     </init-param>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
