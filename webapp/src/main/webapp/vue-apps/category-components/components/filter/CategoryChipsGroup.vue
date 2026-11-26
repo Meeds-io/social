@@ -22,7 +22,7 @@
 -->
 <template>
   <div
-    :class="[(!isMobile || scrollable) && 'specific-scrollbar overflow-x-auto overflow-y-hidden', scrollable && 'category-chips-thin-scrollbar']"
+    :class="(!isMobile || scrollable) && 'specific-scrollbar overflow-x-auto overflow-y-hidden'"
     class="d-flex align-center position-relative d-inline text-no-wrap">
     <component
       v-if="initialized"
@@ -35,7 +35,7 @@
         :ref="`category${index}`"
         :key="category.id"
         :category="category"
-        :parent-width="parentWidth"
+        :parent-width="scrollable ? 0 : parentWidth"
         :selected-id="selectedId"
         chip-class="flex-shrink-0 me-2"
         breadcrumb
@@ -176,20 +176,3 @@ export default {
   },
 };
 </script>
-<style lang="scss">
-/* A thin, subtle horizontal scrollbar for the scrollable (mobile-like) chips row,
-   used in narrow containers such as side drawers. */
-.category-chips-thin-scrollbar {
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    height: 3px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.16);
-    border-radius: 3px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-}
-</style>
