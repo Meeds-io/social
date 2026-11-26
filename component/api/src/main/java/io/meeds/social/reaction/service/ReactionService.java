@@ -80,8 +80,11 @@ public interface ReactionService {
    * @param objectId Object technical identifier
    * @param reactionId One of the registered {@link ReactionOption} ids
    * @param username User name (login identifier) of the reactor
-   * @throws ObjectNotFoundException when the target object doesn't exist
-   * @throws IllegalAccessException when the user can't view the target object
+   * @throws ObjectNotFoundException when the target object doesn't exist, or
+   *           when it is handled by a {@link ReactionObjectPlugin} and the user
+   *           can't view it
+   * @throws IllegalAccessException when the user can't view the target
+   *           activity
    * @throws IllegalArgumentException when the reaction id isn't registered or
    *           the object type isn't supported
    */
@@ -96,7 +99,8 @@ public interface ReactionService {
    * @param username User name (login identifier) of the reactor
    * @throws ObjectNotFoundException when the target object doesn't exist or
    *           the user hasn't reacted to it
-   * @throws IllegalAccessException when the user can't view the target object
+   * @throws IllegalAccessException when the user can't view the target
+   *           activity
    */
   void deleteReaction(String objectType, String objectId, String username) throws ObjectNotFoundException,
                                                                            IllegalAccessException;
@@ -106,8 +110,11 @@ public interface ReactionService {
    * @param objectId Object technical identifier
    * @param username User name (login identifier) used for the view ACL check
    * @return reactors count per reaction option id, 'like' included
-   * @throws ObjectNotFoundException when the target object doesn't exist
-   * @throws IllegalAccessException when the user can't view the target object
+   * @throws ObjectNotFoundException when the target object doesn't exist, or
+   *           when it is handled by a {@link ReactionObjectPlugin} and the user
+   *           can't view it
+   * @throws IllegalAccessException when the user can't view the target
+   *           activity
    */
   Map<String, Long> countReactionsByOption(String objectType, String objectId, String username) throws ObjectNotFoundException,
                                                                                                  IllegalAccessException;
@@ -120,8 +127,11 @@ public interface ReactionService {
    * @param limit Query limit
    * @param username User name (login identifier) used for the view ACL check
    * @return paged {@link Reaction} list of the object reactors
-   * @throws ObjectNotFoundException when the target object doesn't exist
-   * @throws IllegalAccessException when the user can't view the target object
+   * @throws ObjectNotFoundException when the target object doesn't exist, or
+   *           when it is handled by a {@link ReactionObjectPlugin} and the user
+   *           can't view it
+   * @throws IllegalAccessException when the user can't view the target
+   *           activity
    */
   List<Reaction> getReactions(String objectType,
                               String objectId,
@@ -136,8 +146,11 @@ public interface ReactionService {
    * @param username User name (login identifier) used for the view ACL check
    * @return the reaction option id of the user on the object, 'like' for a
    *         plain like, or null when the user hasn't reacted
-   * @throws ObjectNotFoundException when the target object doesn't exist
-   * @throws IllegalAccessException when the user can't view the target object
+   * @throws ObjectNotFoundException when the target object doesn't exist, or
+   *           when it is handled by a {@link ReactionObjectPlugin} and the user
+   *           can't view it
+   * @throws IllegalAccessException when the user can't view the target
+   *           activity
    */
   String getUserReactionId(String objectType, String objectId, String username) throws ObjectNotFoundException,
                                                                                 IllegalAccessException;

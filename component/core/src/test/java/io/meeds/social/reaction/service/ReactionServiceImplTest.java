@@ -482,11 +482,14 @@ public class ReactionServiceImplTest {
   public void testChangeReactionOnPluginObjectBroadcastsAnUpdate() throws Exception {
     MetadataObject object = registerPlugin(true, true);
     MetadataItem item = metadataItem(77l, "love");
+    MetadataItem created = metadataItem(78l, "funny");
     when(reactionStorage.getUserReactionItem(object, 123l)).thenReturn(item);
+    when(reactionStorage.getReactionItemsByCreators(object, List.of(123l))).thenReturn(List.of(item, created));
 
     reactionService.setReaction(PLUGIN_TYPE, PLUGIN_ID, "funny", USERNAME);
 
     verify(reactionStorage).deleteReaction(77l, 123l);
+    verify(reactionStorage, never()).deleteReaction(eq(78l), anyLong());
     verify(reactionStorage).createReaction(object, "funny", 123l);
     verify(listenerService).broadcast(eq(ReactionService.REACTION_UPDATED_EVENT_NAME), any(Reaction.class), eq(USERNAME));
   }
@@ -543,10 +546,44 @@ public class ReactionServiceImplTest {
   }
 
   @Test
+  public void testChangeReactionOnPluginObjectLeavesOneReactionWhenTwoSwitchesRace() throws Exception {
+    MetadataObject object = registerPlugin(true, true);
+    MetadataItem previous = metadataItem(77l, "love");
+    MetadataItem otherSwitch = metadataItem(79l, "angry");
+    MetadataItem created = metadataItem(78l, "funny");
+    when(reactionStorage.getUserReactionItem(object, 123l)).thenReturn(previous);
+    // The other switch committed its own creation, and has already deleted the previous reaction
+    when(reactionStorage.getReactionItemsByCreators(object, List.of(123l))).thenReturn(List.of(previous, otherSwitch, created));
+    doThrow(new ObjectNotFoundException("already deleted")).when(reactionStorage).deleteReaction(77l, 123l);
+
+    reactionService.setReaction(PLUGIN_TYPE, PLUGIN_ID, "funny", USERNAME);
+
+    verify(reactionStorage).deleteReaction(79l, 123l);
+    verify(reactionStorage, never()).deleteReaction(eq(78l), anyLong());
+    verify(listenerService).broadcast(eq(ReactionService.REACTION_UPDATED_EVENT_NAME), any(Reaction.class), eq(USERNAME));
+  }
+
+  @Test
+  public void testEveryEntryPointOfPluginObjectWithoutViewPermissionIsRefused() throws Exception {
+    MetadataObject object = registerPlugin(false, true);
+    MetadataItem item = metadataItem(77l, "love");
+    when(reactionStorage.getUserReactionItem(object, 123l)).thenReturn(item);
+
+    assertThrows(ObjectNotFoundException.class, () -> reactionService.deleteReaction(PLUGIN_TYPE, PLUGIN_ID, USERNAME));
+    assertThrows(ObjectNotFoundException.class, () -> reactionService.countReactionsByOption(PLUGIN_TYPE, PLUGIN_ID, USERNAME));
+    assertThrows(ObjectNotFoundException.class, () -> reactionService.getUserReactionId(PLUGIN_TYPE, PLUGIN_ID, USERNAME));
+
+    verify(reactionStorage, never()).deleteReaction(anyLong(), anyLong());
+    verify(reactionStorage, never()).countReactionsByOption(object);
+    verify(reactionStorage, never()).getUserReactionItem(any(), anyLong());
+  }
+
+  @Test
   public void testChangeReactionOnPluginObjectCreatesBeforeDeleting() throws Exception {
     MetadataObject object = registerPlugin(true, true);
     MetadataItem item = metadataItem(77l, "love");
     when(reactionStorage.getUserReactionItem(object, 123l)).thenReturn(item);
+    when(reactionStorage.getReactionItemsByCreators(object, List.of(123l))).thenReturn(List.of(item));
 
     reactionService.setReaction(PLUGIN_TYPE, PLUGIN_ID, "funny", USERNAME);
 

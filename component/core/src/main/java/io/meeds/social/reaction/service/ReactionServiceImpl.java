@@ -19,6 +19,7 @@
 package io.meeds.social.reaction.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -380,11 +381,30 @@ public class ReactionServiceImpl implements ReactionService {
       LOG.debug("Reaction {} already exists for user {} on object {}/{}", reactionId, username, objectType, objectId, e);
     }
     if (existingItem != null) {
-      reactionStorage.deleteReaction(existingItem.getId(), identityId);
+      deleteOtherReactionsOfUser(object, reactionId, identityId);
     }
     broadcastEvent(existingItem == null ? REACTION_CREATED_EVENT_NAME : REACTION_UPDATED_EVENT_NAME,
                    new Reaction(identityId, reactionId, objectType, objectId),
                    username);
+  }
+
+  /**
+   * Deletes every reaction of the user on the object but the given one. The
+   * items are read again after the creation, so two switches of the same user
+   * made at once (two tabs) leave one reaction, and a reaction the other
+   * switch already deleted is ignored.
+   */
+  private void deleteOtherReactionsOfUser(MetadataObject object, String keptReactionId, long identityId) {
+    reactionStorage.getReactionItemsByCreators(object, Collections.singletonList(identityId))
+                   .stream()
+                   .filter(item -> !StringUtils.equals(ReactionStorage.decodeReactionId(item.getMetadata().getName()), keptReactionId))
+                   .forEach(item -> {
+                     try {
+                       reactionStorage.deleteReaction(item.getId(), identityId);
+                     } catch (ObjectNotFoundException e) {
+                       LOG.debug("Reaction item {} of user {} already deleted", item.getId(), identityId, e);
+                     }
+                   });
   }
 
   private void deletePluginObjectReaction(String objectType, String objectId, String username) throws ObjectNotFoundException,

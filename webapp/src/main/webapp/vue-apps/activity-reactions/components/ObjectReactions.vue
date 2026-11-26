@@ -29,7 +29,7 @@
         :aria-pressed="!!userReactionId"
         class="px-1 width-auto"
         text
-        small
+        x-small
         @click="toggleReaction">
         {{ likeLabel }}
       </v-btn>
@@ -73,6 +73,7 @@ export default {
     options: [],
     optionsLoaded: false,
     saving: false,
+    requestId: 0,
   }),
   computed: {
     totalCount() {
@@ -106,6 +107,8 @@ export default {
     objectId: {
       immediate: true,
       handler() {
+        this.counts = {};
+        this.userReactionId = null;
         this.refresh();
       },
     },
@@ -124,22 +127,21 @@ export default {
       });
     },
     refresh() {
-      this.counts = {};
-      this.userReactionId = null;
+      // Only the answer of the last request counts: the one of another object, or of a state
+      // the user has changed since, is dropped
+      const requestId = ++this.requestId;
       if (!this.objectId) {
         return Promise.resolve();
       }
-      const objectId = this.objectId;
-      return this.$reactionService.getReactions(this.objectType, objectId, null, 0, 1)
+      return this.$reactionService.getReactions(this.objectType, this.objectId, null, 0, 1)
         .then(result => {
-          // The component is reused for another object: the answer of the previous one is dropped
-          if (objectId === this.objectId) {
+          if (requestId === this.requestId) {
             this.counts = result?.counts || {};
             this.userReactionId = result?.userReactionId || null;
           }
         })
         .catch(() => {
-          if (objectId === this.objectId) {
+          if (requestId === this.requestId) {
             this.counts = {};
           }
         });
@@ -157,8 +159,12 @@ export default {
       return this.save(null, () => this.$reactionService.deleteReaction(this.objectType, this.objectId));
     },
     save(newReactionId, request) {
+      if (this.saving) {
+        return Promise.resolve();
+      }
       this.saving = true;
       const objectId = this.objectId;
+      this.requestId++;
       const previous = {counts: this.counts, userReactionId: this.userReactionId};
       // The new state shows at once, and comes back to the previous one when the save fails
       this.counts = this.countsWith(newReactionId);
