@@ -28,6 +28,10 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 export function init(filter) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
+      data: {
+        // Bound by name: a value is never compiled as template source
+        filter: filter || 'all',
+      },
       computed: {
         isMobile() {
           return this.$vuetify.breakpoint.mobile;
@@ -36,7 +40,7 @@ export function init(filter) {
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<people-list id="${appId}" filter="${filter || 'all'}"></people-list>`,
+      template: `<people-list id="${appId}" :filter="filter"></people-list>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, `#${appId}`, 'People List');

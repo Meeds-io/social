@@ -42,11 +42,15 @@ const appId = 'spaceMembersApplication';
 export function init(filter, isManager, isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
-      if (!filter?.length && window.location.hash.replace('#', '').length) {
-        filter = window.location.hash.replace('#', '');
+      const hashFilter = window.location.hash.replace('#', '');
+      // A filter is a word: any other value of the address is ignored
+      if (!filter?.length && /^[A-Za-z]+$/.test(hashFilter)) {
+        filter = hashFilter;
       }
       Vue.createApp({
         data: {
+          // Bound by name: a value is never compiled as template source
+          filter: filter || 'member',
           isExternalFeatureEnabled,
           spaceId: eXo.env.portal.spaceId,
           space: null,
@@ -100,7 +104,7 @@ export function init(filter, isManager, isExternalFeatureEnabled) {
                     id="${appId}"
                     :is-manager="${isManager}"
                     :is-external-feature-enabled="${isExternalFeatureEnabled}"
-                    filter="${filter || 'member'}" />`,
+                    :filter="filter" />`,
         i18n,
         vuetify: Vue.prototype.vuetifyOptions,
       }, `#${appId}`, 'Space Members');
