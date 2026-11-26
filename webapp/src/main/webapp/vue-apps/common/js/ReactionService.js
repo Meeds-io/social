@@ -99,7 +99,7 @@ function sendSummaries(objectType) {
         throw new Error('Error while retrieving reactions summaries');
       }
       return resp.json();
-    }).then(summaries => batch.forEach(id => pending.callbacks[id].forEach(callback => callback.resolve(summaries[id] || null))))
+    }).then(summaries => batch.forEach(id => pending.callbacks[id].forEach(callback => callback.resolve(Object.hasOwn(summaries, id) ? summaries[id] : null))))
       .catch(error => batch.forEach(id => pending.callbacks[id].forEach(callback => callback.reject(error))));
   }
 }

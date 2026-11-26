@@ -348,7 +348,8 @@ public class ReactionServiceImpl implements ReactionService {
         LOG.debug("No reactions summary of {}/{} for user {}: {}", objectType, objectId, username, e.getMessage());
       } catch (RuntimeException e) {
         // One failing object doesn't fail the summaries of the others
-        LOG.warn("Unable to get the reactions summary of {}/{} for user {}", objectType, objectId, username, e);
+        LOG.warn("Unable to get the reactions summary of {}/{} for user {}: {}", objectType, objectId, username, e.getMessage());
+        LOG.debug("Reactions summary failure of {}/{}", objectType, objectId, e);
       }
     }
     return summaries;
