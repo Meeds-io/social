@@ -155,8 +155,7 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
    * only the menus listing its node replace the node's URL with the page's
    * link. The space home is the node the space URL names, so when its page is
    * a link the user can access, the space home redirects to that link, unless
-   * the link leads back to this space home entry, as a path or as a URL of
-   * this request's host.
+   * the link leads back to this space home entry.
    *
    * @param space the requested space
    * @param username the current user, null when anonymous
@@ -173,31 +172,67 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     PageContext page = pageRef == null ? null : portalConfigService.getPage(pageRef, username);
     if (page != null && PageType.LINK.name().equals(page.getState().getType())) {
       String uri = toRedirectUri(page.getState().getLink());
-      return isSpaceHomeEntry(uri, request, space.getId()) ? null : uri;
+      return leadsBackToSpaceHome(uri, username, request, space.getId()) ? null : uri;
     } else {
       return null;
     }
   }
 
   /**
-   * This space's own {@code /s/{spaceId}} entry, with no query or an empty
-   * one, reaches this handler again for the same space home: redirecting to it
-   * would loop. The entry is recognised as the product spells it in its own
-   * links: a path, or a URL whose host is spelled as this request's server
-   * name in any letter case, whatever its scheme, port and user, with or
-   * without a trailing slash, an empty query or a fragment. The fragment stays
-   * in the browser, so it is not part of the request. Any other spelling the
-   * browser normalises into the entry (a dot segment, a backslash, another
-   * spelling of an IPv6 literal) is not recognised.
+   * A redirect to this space's own {@code /s/{spaceId}} entry reaches this
+   * handler again for the same space home, and so does a redirect to the root
+   * of this host or of this context when the portal sends that root to the
+   * user's default path and that path is this space's entry (a user who made
+   * this space their home page): either would loop.
    *
    * @param uri the URI to redirect to, possibly null
+   * @param username the current user, null when anonymous
+   * @param request the current request
+   * @param spaceId the requested space id
+   * @return true when redirecting to the URI would lead back to this space
+   *         home
+   */
+  private boolean leadsBackToSpaceHome(String uri, String username, HttpServletRequest request, String spaceId) {
+    String path = getRequestedPath(uri, request);
+    if (path == null) {
+      return false;
+    } else if (path.isEmpty() || path.equals(request.getContextPath())) {
+      return isSpaceHomeEntry(portalConfigService.getDefaultPath(username), request, spaceId);
+    } else {
+      return isSpaceHomeEntry(uri, request, spaceId);
+    }
+  }
+
+  /**
+   * This space's own {@code /s/{spaceId}} entry, with no query or an empty
+   * one, reaches this handler again for the same space home.
+   *
+   * @param uri a URI, possibly null
    * @param request the current request
    * @param spaceId the requested space id
    * @return true when the URI is this space home entry
    */
   private static boolean isSpaceHomeEntry(String uri, HttpServletRequest request, String spaceId) {
+    return (request.getContextPath() + "/s/" + spaceId).equals(getRequestedPath(uri, request));
+  }
+
+  /**
+   * The path a URI requests from this host, as the product spells its own
+   * links: a path, or a URL whose host is spelled as this request's server
+   * name in any letter case, whatever its scheme, port and user, read without
+   * its fragment, which stays in the browser, an empty query and a trailing
+   * slash. Any other spelling the browser normalises into a path of this host
+   * (a dot segment, a backslash, another spelling of an IPv6 literal) is not
+   * recognised.
+   *
+   * @param uri a URI, possibly null
+   * @param request the current request
+   * @return the path, empty for the root of the host, or null when the URI is
+   *         null, a URL of another host or neither a path nor a URL with a host
+   */
+  private static String getRequestedPath(String uri, HttpServletRequest request) {
     if (uri == null) {
-      return false;
+      return null;
     }
     String uriPath = uri;
     Matcher authority = AUTHORITY_PATTERN.matcher(uri);
@@ -207,12 +242,14 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
       String host = hostAndPort.startsWith("[") ? StringUtils.substringBefore(hostAndPort, "]") + "]" :
                                                 StringUtils.substringBefore(hostAndPort, ":");
       if (!StringUtils.equalsIgnoreCase(host, request.getServerName())) {
-        return false;
+        return null;
       }
       uriPath = authority.group(2);
+    } else if (!uri.startsWith("/")) {
+      return null;
     }
     String requestedPath = StringUtils.removeEnd(StringUtils.substringBefore(uriPath, "#"), "?");
-    return StringUtils.removeEnd(requestedPath, "/").equals(request.getContextPath() + "/s/" + spaceId);
+    return StringUtils.removeEnd(requestedPath, "/");
   }
 
   /**

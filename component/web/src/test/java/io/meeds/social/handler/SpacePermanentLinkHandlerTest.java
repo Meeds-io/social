@@ -68,7 +68,8 @@ import jakarta.servlet.http.HttpServletResponse;
  * percent-encoded: when it starts with / or a scheme, and with http:// in
  * front when it starts with a host name. Once trimmed, for a link holding a
  * control character, a link whose scheme runs a script or reads local content,
- * any other link and a link back to this space entry, and for any sub-path, it
+ * any other link, a link back to this space entry and a link to the root when
+ * the user's default path is this space entry, and for any sub-path, it
  * redirects to the space page as before. Every home link the tests expect a
  * redirect to is checked with Tomcat's own header encoding, which drops a
  * Location it can't encode.
@@ -209,6 +210,50 @@ class SpacePermanentLinkHandlerTest {
   void testRedirectsSpaceHomeToTheSameEntryOnAnotherIpv6Host() throws Exception {
     when(request.getServerName()).thenReturn("[::1]");
     assertHomeLinkRedirectsTo("http://[::2]:8080/portal/s/12", "http://[::2]:8080/portal/s/12");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsTheContextRootAndTheUserHomeIsThisSpace() throws Exception {
+    when(portalConfigService.getDefaultPath(USERNAME)).thenReturn("/portal/s/12");
+    assertHomeLinkRedirectsTo("/portal/", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsTheContextRootUrlAndTheUserHomeIsThisSpace() throws Exception {
+    when(portalConfigService.getDefaultPath(USERNAME)).thenReturn("/portal/s/12/");
+    assertHomeLinkRedirectsTo("https://my.server.org/portal", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsTheHostRootAndTheUserHomeIsThisSpace() throws Exception {
+    when(portalConfigService.getDefaultPath(USERNAME)).thenReturn("https://my.server.org/portal/s/12");
+    assertHomeLinkRedirectsTo("https://my.server.org/", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToTheContextRootWhenTheUserHomeIsElsewhere() throws Exception {
+    when(portalConfigService.getDefaultPath(USERNAME)).thenReturn("/portal/dw/stream");
+    assertHomeLinkRedirectsTo("/portal/", "/portal/");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToTheContextRootWhenTheUserHasNoDefaultPath() throws Exception {
+    when(portalConfigService.getDefaultPath(USERNAME)).thenReturn(null);
+    assertHomeLinkRedirectsTo("/portal", "/portal");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToAPageOfThisSiteWithoutReadingTheUserHome() throws Exception {
+    lenient().when(portalConfigService.getDefaultPath(USERNAME)).thenReturn("/portal/s/12");
+    assertHomeLinkRedirectsTo("/portal/dw/stream", "/portal/dw/stream");
+    verify(portalConfigService, never()).getDefaultPath(nullable(String.class));
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToTheRootOfAnotherHostWithoutReadingTheUserHome() throws Exception {
+    lenient().when(portalConfigService.getDefaultPath(USERNAME)).thenReturn("/portal/s/12");
+    assertHomeLinkRedirectsTo("https://other.server.org/", "https://other.server.org/");
+    verify(portalConfigService, never()).getDefaultPath(nullable(String.class));
   }
 
   @Test
