@@ -29,10 +29,12 @@
         v-if="!singleMode"
         v-model="selectedMode" />
     </div>
+    <!-- the frame fills the column the page sizes to the window, never under 300px; the iframe, out of the flow, sizes
+         from the frame and not the other way around -->
     <div
       ref="iframeParent"
-      class="mt-4 position-relative border-color full-width aspect-ratio-1 overflow-hidden border-radius"
-      :style="`height: ${iframeParentHeight}`">
+      class="mt-4 position-relative border-color full-width overflow-hidden border-radius flex-grow-1"
+      style="min-height: 300px;">
       <iframe
         v-if="initialized && parentWidth"
         id="previewIframe"
@@ -42,7 +44,7 @@
         :height="`${iframeHeightPercentage}%`"
         :style="`transform: scale(${zoom}); transform-origin: 0 0;`"
         name="pageHomeLink"
-        class="no-border"
+        class="no-border position-absolute t-0 l-0"
         @load="applyPreview">
       </iframe>
     </div>
@@ -53,9 +55,6 @@ import {buildPreviewStyle} from '../../../js/ThemePreviewStyle.js';
 import {toResolvePayload} from '../../../js/ThemeSettingsMapper.js';
 
 const STYLE_ID = 'brandingPreviewStyle';
-// the height of the preview's frame: the full one when the window has room for it, never less than the minimum
-const PREVIEW_MAX_HEIGHT = 600;
-const PREVIEW_MIN_HEIGHT = 300;
 
 export default {
   props: {
@@ -74,7 +73,6 @@ export default {
     sites: null,
     parentWidth: 0,
     zoom: 0.5,
-    iframeParentHeight: `${PREVIEW_MAX_HEIGHT}px`,
     // AUTOMATIC, LIGHT or DARK: the preview's own choice, never the admin's display mode
     selectedMode: 'AUTOMATIC',
     deviceDark: false,
@@ -121,14 +119,6 @@ export default {
         this.resolveInUse();
       },
     },
-    // the settings column beside the preview sets the page's height when it is the taller, and changes with the working
-    // copy: its loading, a theme added, deleted, renamed or restored, the company name
-    working: {
-      deep: true,
-      handler() {
-        this.scheduleFit();
-      },
-    },
     'working.companyName'() {
       this.schedulePreview();
     },
@@ -144,10 +134,8 @@ export default {
   },
   created() {
     this.inUseTimer = null;
-    this.fitFrame = null;
     this.resolveToken = 0;
     this.$root.$on('refresh-iframe', this.reloadURL);
-    this.$root.$on('general-settings-page-shown', this.scheduleFit);
     this.$root.$on('refresh-company-name', this.refreshCompanyName);
     this.$root.$on('refresh-body-class', this.setBodyClass);
     this.$root.$on('theme-edit-resolved', this.setEditing);
@@ -159,19 +147,14 @@ export default {
   },
   mounted() {
     this.computeWidth();
-    this.scheduleFit();
-    window.addEventListener('resize', this.scheduleFit);
   },
   beforeDestroy() {
     this.$root.$off('refresh-iframe', this.reloadURL);
-    this.$root.$off('general-settings-page-shown', this.scheduleFit);
     this.$root.$off('refresh-company-name', this.refreshCompanyName);
     this.$root.$off('refresh-body-class', this.setBodyClass);
     this.$root.$off('theme-edit-resolved', this.setEditing);
     this.$root.$off('theme-edit-closed', this.stopEditing);
     this.deviceQuery?.removeEventListener?.('change', this.deviceChanged);
-    window.removeEventListener('resize', this.scheduleFit);
-    window.cancelAnimationFrame(this.fitFrame);
     window.clearTimeout(this.timer);
     window.clearTimeout(this.inUseTimer);
   },
@@ -186,7 +169,6 @@ export default {
           .catch(() => this.selectedMode = 'AUTOMATIC'),
       ]).then(() => {
         this.computeWidth();
-        this.scheduleFit();
       })
         .finally(() => this.initialized = true);
     },
@@ -194,31 +176,6 @@ export default {
       if (this.$refs.iframeParent) {
         this.parentWidth = this.$refs.iframeParent.clientWidth;
       }
-    },
-    scheduleFit() {
-      window.cancelAnimationFrame(this.fitFrame);
-      this.fitFrame = window.requestAnimationFrame(this.fitHeight);
-    },
-    // the frame gives up the height that makes the page scroll, so Cancel and Apply stay in the window: measured at
-    // its full height, then shortened by the overflow, it keeps what did not shorten the page (an overflow another
-    // part of the page makes)
-    fitHeight() {
-      const parent = this.$refs.iframeParent;
-      // the page scrolls in its site body (BodyScrollListener), else in the document
-      const page = this.$el.closest?.('.site-scroll-parent') || document.scrollingElement;
-      if (!parent || !page) {
-        return;
-      }
-      const overflow = () => Math.max(page.scrollHeight - page.clientHeight, 0);
-      parent.style.height = `${PREVIEW_MAX_HEIGHT}px`;
-      const fullOverflow = overflow();
-      let height = PREVIEW_MAX_HEIGHT;
-      if (fullOverflow) {
-        parent.style.height = `${Math.max(PREVIEW_MAX_HEIGHT - fullOverflow, PREVIEW_MIN_HEIGHT)}px`;
-        height = Math.max(PREVIEW_MAX_HEIGHT - (fullOverflow - overflow()), PREVIEW_MIN_HEIGHT);
-      }
-      this.iframeParentHeight = `${height}px`;
-      parent.style.height = this.iframeParentHeight;
     },
     deviceChanged(event) {
       this.deviceDark = event.matches;
