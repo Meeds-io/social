@@ -9,7 +9,7 @@
 <%@ page import="io.meeds.portal.navigation.service.NavigationConfigurationService"%>
 <%@ page import="org.exoplatform.services.security.IdentityConstants"%>
 <%@ page import="java.net.URLEncoder"%>
-<%@ page import="org.apache.commons.text.StringEscapeUtils"%>
+<%@ page import="org.exoplatform.social.webui.Utils"%>
 <%@ page import="org.apache.commons.lang3.StringUtils"%>
 <%@ page import="org.exoplatform.commons.api.notification.model.UserSetting"%>
 <%@ page import="org.exoplatform.commons.api.notification.service.setting.UserSettingService"%>
@@ -32,6 +32,13 @@
 <%@ page import="org.exoplatform.social.core.manager.IdentityManager" %>
 <%@ page import="org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider" %>
 <%@ page import="java.util.Optional" %>
+<%!
+  // a value printed into the script below as a string literal, quotes included,
+  // a missing value as an empty string
+  private static String js(Object value) {
+    return Utils.toScriptString(value == null ? "" : value);
+  }
+%>
 <%
 String spaceId = null;
   String portalPath = null;
@@ -137,35 +144,35 @@ String spaceId = null;
         window.topbarLogoManagers = new Array();
         <% for (int i =0 ; i < managers.size(); i++) { %>
         window.topbarLogoManagers.push({
-          id: `<%=managers.get(i).getId()%>`,
-          userName: `<%=managers.get(i).getIdentity().getRemoteId()%>`,
-          fullName: `<%=managers.get(i).getFullName()%>`,
-          avatar: `<%=managers.get(i).getAvatarUrl()%>`,
+          id: <%=js(managers.get(i).getId())%>,
+          userName: <%=js(managers.get(i).getIdentity().getRemoteId())%>,
+          fullName: <%=js(managers.get(i).getFullName())%>,
+          avatar: <%=js(managers.get(i).getAvatarUrl())%>,
         });
         <% } %>
         require(["PORTLET/social/TopBarLogo"], app => app.init({
-          id: `<%=spaceId == null ? "" : spaceId%>`,
-          isFavorite: `<%=isFavorite%>`,
-          muted: `<%=muted%>`,
-          isMember: `<%=isMember%>`,
-          portalPath: '<%=StringEscapeUtils.escapeEcmaScript(portalPath)%>',
-          logoPath: `<%=logoPath%>`,
-          logoTitle: `<%=URLEncoder.encode(logoTitle.replace(" ", "._.")).replace("._.", " ")%>`,
-          spacePortalPath: `<%=spacePortalPath == null ? "": spacePortalPath%>`,
-          spaceLogoPath: `<%=spaceLogoPath == null ? "": spaceLogoPath%>`,
-          spaceLogoTitle: `<%=spaceLogoTitle == null ? "" : URLEncoder.encode(spaceLogoTitle.replace(" ", "._.")).replace("._.", " ")%>`,
-          membersNumber: `<%=membersNumber%>`,
-          spaceDescription: `<%=URLEncoder.encode(spaceDescription.replace(" ", "._.")).replace("._.", " ")%>`,
+          id: <%=js(spaceId)%>,
+          isFavorite: '<%=isFavorite%>',
+          muted: '<%=muted%>',
+          isMember: '<%=isMember%>',
+          portalPath: <%=js(portalPath)%>,
+          logoPath: <%=js(logoPath)%>,
+          logoTitle: <%=js(URLEncoder.encode(logoTitle.replace(" ", "._.")).replace("._.", " "))%>,
+          spacePortalPath: <%=js(spacePortalPath)%>,
+          spaceLogoPath: <%=js(spaceLogoPath)%>,
+          spaceLogoTitle: <%=js(spaceLogoTitle == null ? null : URLEncoder.encode(spaceLogoTitle.replace(" ", "._.")).replace("._.", " "))%>,
+          membersNumber: '<%=membersNumber%>',
+          spaceDescription: <%=js(URLEncoder.encode(spaceDescription.replace(" ", "._.")).replace("._.", " "))%>,
           managers: window.topbarLogoManagers,
           canRedactOnSpace: <%=canRedactOnSpace%>,
           displayMobileCompanyLogo: <%=displayMobileCompanyLogo%>,
           displayCompanyName: <%=displayCompanyName%>,
           displaySiteName: <%=displaySiteName%>,
-          sidebarMode: '<%=sidebarMode%>',
-          siteTitle: '<%=sidebarItem == null ? "" : sidebarItem.getName()%>',
+          sidebarMode: <%=js(sidebarMode)%>,
+          siteTitle: <%=js(sidebarItem == null ? null : sidebarItem.getName())%>,
           isSitePage: <%=isSitePage%>,
-          siteHomePath: '<%=sidebarItem == null ? "" : sidebarItem.getUrl()%>',
-          siteIcon: '<%=sidebarItem == null || sidebarItem.getIcon() == null ? "" : sidebarItem.getIcon()%>',
+          siteHomePath: <%=js(sidebarItem == null ? null : sidebarItem.getUrl())%>,
+          siteIcon: <%=js(sidebarItem == null ? null : sidebarItem.getIcon())%>,
         }));
       </script>
     </div>
