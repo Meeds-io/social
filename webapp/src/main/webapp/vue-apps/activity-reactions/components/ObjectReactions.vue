@@ -183,7 +183,7 @@ export default {
         .finally(() => this.saving = false);
     },
     countsWith(newReactionId) {
-      const counts = Object.assign({}, this.counts);
+      const counts = {...this.counts};
       if (this.userReactionId && counts[this.userReactionId]) {
         counts[this.userReactionId] -= 1;
       }

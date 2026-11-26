@@ -344,8 +344,7 @@ public class ReactionServiceImpl implements ReactionService {
     return objectType != null && reactionObjectPlugins.containsKey(objectType);
   }
 
-  private MetadataObject getPluginObjectWithCheck(String objectType, String objectId, String username) throws ObjectNotFoundException,
-                                                                                                       IllegalAccessException {
+  private MetadataObject getPluginObjectWithCheck(String objectType, String objectId, String username) throws ObjectNotFoundException {
     ReactionObjectPlugin plugin = reactionObjectPlugins.get(objectType);
     MetadataObject object = plugin.getMetadataObject(objectId);
     if (object == null) {
@@ -362,7 +361,7 @@ public class ReactionServiceImpl implements ReactionService {
   private void setPluginObjectReaction(String objectType,
                                        String objectId,
                                        String reactionId,
-                                       String username) throws ObjectNotFoundException, IllegalAccessException {
+                                       String username) throws ObjectNotFoundException {
     MetadataObject object = getPluginObjectWithCheck(objectType, objectId, username);
     ReactionOption option = getReactionOptionsById().get(reactionId);
     if ((option == null || !option.supports(objectType)) && !isCustomEmojiReaction(reactionId)) {
@@ -406,8 +405,7 @@ public class ReactionServiceImpl implements ReactionService {
     });
   }
 
-  private void deletePluginObjectReaction(String objectType, String objectId, String username) throws ObjectNotFoundException,
-                                                                                               IllegalAccessException {
+  private void deletePluginObjectReaction(String objectType, String objectId, String username) throws ObjectNotFoundException {
     MetadataObject object = getPluginObjectWithCheck(objectType, objectId, username);
     long identityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
     MetadataItem existingItem = reactionStorage.getUserReactionItem(object, identityId);
@@ -428,7 +426,7 @@ public class ReactionServiceImpl implements ReactionService {
                                                   String reactionId,
                                                   long offset,
                                                   long limit,
-                                                  String username) throws ObjectNotFoundException, IllegalAccessException {
+                                                  String username) throws ObjectNotFoundException {
     return toPluginReactions(objectType,
                              objectId,
                              reactionId,
