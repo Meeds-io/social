@@ -79,7 +79,6 @@ export default {
       this.$root.$on(event, this.restoreHandlers[event]);
     });
     this.$root.$on('theme-edit-version', this.changeEditedVersion);
-    this.$root.$on('theme-edit-customize', this.customize);
     this.$root.$on('theme-edit-revert', this.revert);
     this.$root.$on('theme-edit-area-opened', this.snapshotDraft);
     this.$root.$on('theme-edit-area-cancelled', this.restoreSnapshot);
@@ -88,7 +87,6 @@ export default {
     STYLE_UPDATES.forEach(event => this.$root.$off(event, this.styleChanged));
     Object.keys(this.restoreHandlers).forEach(event => this.$root.$off(event, this.restoreHandlers[event]));
     this.$root.$off('theme-edit-version', this.changeEditedVersion);
-    this.$root.$off('theme-edit-customize', this.customize);
     this.$root.$off('theme-edit-revert', this.revert);
     this.$root.$off('theme-edit-area-opened', this.snapshotDraft);
     this.$root.$off('theme-edit-area-cancelled', this.restoreSnapshot);
@@ -180,14 +178,6 @@ export default {
     changeEditedVersion(version) {
       this.syncDraft();
       this.session.version = version;
-      return this.resolveNow().then(() => this.reloadStyling());
-    },
-    customize(key) {
-      this.syncDraft();
-      const value = this.session.resolved?.[this.session.version]?.[key];
-      if (value) {
-        this.draft.settings[this.session.version][key] = value;
-      }
       return this.resolveNow().then(() => this.reloadStyling());
     },
     revert(key) {

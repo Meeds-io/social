@@ -68,7 +68,6 @@ import ThemesListItem from './components/branding/themes/ThemesListItem.vue';
 import ThemeAddDrawer from './components/branding/themes/ThemeAddDrawer.vue';
 import ThemeEditionDrawer from './components/branding/themes/ThemeEditionDrawer.vue';
 import ThemeVersionBar from './components/branding/themes/ThemeVersionBar.vue';
-import ThemeAutomaticRows from './components/branding/themes/ThemeAutomaticRows.vue';
 import ThemeSharedMarker from './components/branding/themes/ThemeSharedMarker.vue';
 import ModesOffered from './components/branding/themes/ModesOffered.vue';
 
@@ -95,7 +94,6 @@ const components = {
   'portal-general-settings-theme-add-drawer': ThemeAddDrawer,
   'portal-general-settings-theme-edition-drawer': ThemeEditionDrawer,
   'portal-general-settings-theme-version-bar': ThemeVersionBar,
-  'portal-general-settings-theme-automatic-rows': ThemeAutomaticRows,
   'portal-general-settings-theme-shared-marker': ThemeSharedMarker,
   'portal-general-settings-modes-offered': ModesOffered,
   'portal-general-settings-background-image-attachment': BackgroundImageAttachment,
