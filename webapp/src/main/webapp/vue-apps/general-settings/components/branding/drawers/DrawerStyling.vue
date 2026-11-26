@@ -48,13 +48,18 @@
           v-if="initialized"
           v-model="backgroundProperties"
           :image-path="backgroundImagePath"
-          class="mt-2 pe-3" />
+          :restore-label="restoreLabel('drawerBackgroundColor', backgroundProperties.backgroundColor)"
+          class="mt-2 pe-3"
+          @restore="restoreColor('drawerBackgroundColor')" />
         <div class="mt-2 pe-4 d-flex">
           <span class="text-title">
             {{ $t('generalSettings.text.label') }}
           </span>
           <portal-general-settings-theme-shared-marker class="ms-2 my-auto" />
         </div>
+        <p class="themeContrastHelp text-subtitle mt-1 mb-0">
+          {{ $t('generalSettings.contrast.help') }}
+        </p>
         <styling-text-input
           :text-background="false"
           v-model="drawerTextProperties"
@@ -62,8 +67,12 @@
           no-toggle
           :icon-placeholder="versionIconColor('drawerIconColor')"
           :color-placeholders="versionTextColors('drawer')"
-          custom-icon />
-        <portal-general-settings-theme-automatic-rows :keys="themeAreaKeys" />
+          :contrast-background="contrastBackground('drawer', backgroundProperties && backgroundProperties.backgroundColor)"
+          :contrast-warning="$t('generalSettings.contrast.low')"
+          :auto-colors="autoTextColors('drawer', drawerTextProperties, backgroundProperties && backgroundProperties.backgroundColor)"
+          :restore-labels="textRestoreLabels('drawer', drawerTextProperties)"
+          custom-icon
+          @restore="restoreTextRow('drawer', $event)" />
       </v-card>
     </template>
     <template #footer>
@@ -89,7 +98,6 @@ import ThemeAreaDrawerMixin from '../../../js/ThemeAreaDrawerMixin.js';
 export default {
   mixins: [ThemeAreaDrawerMixin],
   data: () => ({
-    themeAreaKeys: ['drawerBackgroundColor', 'drawerTextTitleColor', 'drawerTextHeaderColor', 'drawerTextColor', 'drawerTextSubtitleColor', 'drawerIconColor'],
     drawer: false,
     backgroundProperties: null,
     drawerTextProperties: null,

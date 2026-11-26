@@ -24,6 +24,7 @@ import BackgroundRadiusInput from './components/BackgroundRadiusInput.vue';
 import BorderInput from './components/BorderInput.vue';
 import BorderRadiusInput from './components/BorderRadiusInput.vue';
 import BorderRadiusSelector from './components/BorderRadiusSelector.vue';
+import ContrastRatio from './components/ContrastRatio.vue';
 import MarginInput from './components/MarginInput.vue';
 import SectionMarginInput from './components/SectionMarginInput.vue';
 import TextBackgroundInput from './components/TextBackgroundInput.vue';
@@ -43,6 +44,7 @@ const components = {
   'styling-section-margin-input': SectionMarginInput,
   'styling-border-input': BorderInput,
   'styling-border-radius-input': BorderRadiusInput,
+  'styling-contrast-ratio': ContrastRatio,
 };
 
 for (const key in components) {

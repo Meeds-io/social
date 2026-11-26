@@ -26,8 +26,10 @@
     :scroll-color="stickyOption && !!branding.sticky"
     :no-gradient="noGradient"
     :hide-switch="hideSwitch"
+    :restore-label="restoreLabel"
     hide-title
-    no-layer-options>
+    no-layer-options
+    @restore="$emit('restore')">
     <template v-if="stickyOption" #after-color>
       <v-list-item
         class="pa-0"
@@ -71,6 +73,11 @@ export default {
     defaultBackgroundColor: {
       type: String,
       default: () => '#FFFFFFFF',
+    },
+    // Label of an inline restore action next to the color: given, it is shown, and its click emits restore
+    restoreLabel: {
+      type: String,
+      default: null,
     },
     // Page background only: the image attachment option (Scrolling) is persisted
     scrolling: {
