@@ -61,6 +61,14 @@ public class SpaceCategoryServiceImpl implements SpaceCategoryService {
   public void updateSpaceCategories(long spaceId, // NOSONAR
                                     List<Long> categoryIds,
                                     boolean removeExisting) {
+    updateSpaceCategories(spaceId, categoryIds, removeExisting, null);
+  }
+
+  @Override
+  public void updateSpaceCategories(long spaceId, // NOSONAR
+                                    List<Long> categoryIds,
+                                    boolean removeExisting,
+                                    String username) {
     Space space = spaceService.getSpaceById(spaceId);
     List<Long> oldCategoryIds = space.getCategoryIds() == null ? Collections.emptyList() : space.getCategoryIds();
     List<Long> newCategoryIds = categoryIds == null ? Collections.emptyList() : categoryIds;
@@ -69,10 +77,14 @@ public class SpaceCategoryServiceImpl implements SpaceCategoryService {
                     .filter(id -> !newCategoryIds.contains(id))
                     .forEach(id -> {
                       try {
-                        categoryLinkService.unlink(id,
-                                                   new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE,
-                                                                      space.getId(),
-                                                                      space.getSpaceId()));
+                        CategoryObject object = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE,
+                                                                   space.getId(),
+                                                                   space.getSpaceId());
+                        if (username == null) {
+                          categoryLinkService.unlink(id, object);
+                        } else {
+                          categoryLinkService.unlink(id, object, username);
+                        }
                       } catch (Exception e) {
                         if (LOG.isDebugEnabled()) {
                           LOG.warn("Error while deleting category with id {} from space with id {}", id, space.getId(), e);
@@ -87,10 +99,14 @@ public class SpaceCategoryServiceImpl implements SpaceCategoryService {
                     .filter(id -> !oldCategoryIds.contains(id))
                     .forEach(id -> {
                       try {
-                        categoryLinkService.link(id,
-                                                 new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE,
-                                                                    space.getId(),
-                                                                    space.getSpaceId()));
+                        CategoryObject object = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE,
+                                                                   space.getId(),
+                                                                   space.getSpaceId());
+                        if (username == null) {
+                          categoryLinkService.link(id, object);
+                        } else {
+                          categoryLinkService.link(id, object, username);
+                        }
                       } catch (Exception e) {
                         if (LOG.isDebugEnabled()) {
                           LOG.warn("Error while updating link of category with id {} from space with id {}",

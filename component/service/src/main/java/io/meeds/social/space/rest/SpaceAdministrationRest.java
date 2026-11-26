@@ -46,6 +46,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/space/administration")
 @Tag(name = "/social/rest/space/administration", description = "Managing spaces by platform administrators")
@@ -137,14 +139,14 @@ public class SpaceAdministrationRest {
     @ApiResponse(responseCode = "204", description = "Request fulfilled"),
     @ApiResponse(responseCode = "404", description = "Not found"),
   })
-  public void applySpaceTemplate(
+  public void applySpaceTemplate(HttpServletRequest request,
                                  @Parameter(description = "Space  identifier")
                                  @PathVariable("spaceId")
                                  long spaceId,
                                  @RequestBody(required = true)
                                  SpaceTemplatePatch templatePatch) {
     try {
-      spacesAdministrationService.applySpaceTemplate(spaceId, templatePatch);
+      spacesAdministrationService.applySpaceTemplate(spaceId, templatePatch, request.getRemoteUser());
     } catch (ObjectNotFoundException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

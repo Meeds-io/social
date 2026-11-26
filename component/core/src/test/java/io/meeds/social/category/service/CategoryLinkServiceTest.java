@@ -19,12 +19,14 @@
 package io.meeds.social.category.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,6 +37,11 @@ import org.junit.Test;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.model.Metadata;
+import org.exoplatform.social.metadata.model.MetadataType;
+import org.exoplatform.social.metadata.tag.TagService;
 
 import io.meeds.social.category.AbstractCategoryConfigurationTest;
 import io.meeds.social.category.model.Category;
@@ -121,6 +128,7 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
     categoryLinkService.link(rootCategory.getId(), object);
 
     assertTrue(categoryLinkService.isLinked(rootCategory.getId(), object));
+    assertEquals(1, categoryLinkService.getLinkedObjects(rootCategory.getId(), List.of(SpaceCategoryPlugin.OBJECT_TYPE), 0, 10).size());
   }
 
   @Test
@@ -256,6 +264,79 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
                                                          0,
                                                          10);
     assertTrue(linkedObjects.isEmpty());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testLinkRefusesAMetadataThatIsNotACategory() {
+    MetadataService metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
+    Space space = new Space();
+    space.setRegistration(Space.OPEN);
+    space.setVisibility(Space.PUBLIC);
+    space = spaceService.createSpace(space, ROOT_USER);
+    CategoryObject object = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, space.getId(), space.getSpaceId());
+
+    List<MetadataType> otherTypes = List.of(TagService.METADATA_TYPE, FavoriteService.METADATA_TYPE);
+    for (MetadataType type : otherTypes) {
+      Metadata metadata = metadataService.createMetadata(new Metadata(0l,
+                                                                      type,
+                                                                      "notACategory" + type.getName(),
+                                                                      0l,
+                                                                      Long.parseLong(identityManager.getOrCreateUserIdentity(ROOT_USER)
+                                                                                                    .getId()),
+                                                                      System.currentTimeMillis(),
+                                                                      new HashMap<>()));
+      long id = metadata.getId();
+      assertThrows(IllegalArgumentException.class, () -> categoryLinkService.link(id, object));
+      assertThrows(ObjectNotFoundException.class, () -> categoryLinkService.link(id, object, ROOT_USER));
+      assertThrows(ObjectNotFoundException.class, () -> categoryLinkService.unlink(id, object, ROOT_USER));
+      assertFalse(categoryLinkService.isLinked(id, object));
+      assertTrue(CollectionUtils.isEmpty(metadataService.getMetadataItemsByMetadataAndObject(metadata.key(), object)));
+      assertNull(categoryService.getCategory(id));
+      assertThrows(ObjectNotFoundException.class, () -> categoryService.deleteCategory(id, ROOT_USER));
+      assertNotNull(metadataService.getMetadataById(id));
+
+      // an item linked to it by other means is not listed as a category entry
+      metadataService.createMetadataItem(object, metadata.key(), metadata.getCreatorId());
+      assertFalse(categoryLinkService.isLinked(id, object));
+      categoryLinkService.unlink(id, object);
+      assertEquals(1, metadataService.getMetadataItemsByMetadataAndObject(metadata.key(), object).size());
+      assertTrue(categoryLinkService.getLinkedObjects(id, List.of(SpaceCategoryPlugin.OBJECT_TYPE), 0, 10).isEmpty());
+      assertTrue(categoryService.getCategoryEntries(id, List.of(SpaceCategoryPlugin.OBJECT_TYPE), ROOT_USER, 0, 10)
+                                .getItems()
+                                .isEmpty());
+    }
+  }
+
+  @Test
+  @SneakyThrows
+  public void testUpdateRefusesAMetadataThatIsNotACategory() {
+    MetadataService metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
+    Category rootCategory = categoryService.getRootCategory(getAdminGroupIdentityId());
+    Metadata metadata = metadataService.createMetadata(new Metadata(0l,
+                                                                    TagService.METADATA_TYPE,
+                                                                    "notACategoryUpdate",
+                                                                    getAdminGroupIdentityId(),
+                                                                    getAdminGroupIdentityId(),
+                                                                    System.currentTimeMillis(),
+                                                                    new HashMap<>()));
+    Category update = new Category();
+    update.setId(metadata.getId());
+    update.setOwnerId(getAdminGroupIdentityId());
+    update.setParentId(rootCategory.getId());
+    update.setIcon("test-icon");
+
+    assertThrows(ObjectNotFoundException.class, () -> categoryService.updateCategory(update, ROOT_USER));
+
+    Metadata unchanged = metadataService.getMetadataById(metadata.getId());
+    assertEquals("notACategoryUpdate", unchanged.getName());
+    assertEquals(TagService.METADATA_TYPE.getName(), unchanged.getTypeName());
+  }
+
+  @Test
+  public void testLinkRefusesAnUnknownCategory() {
+    CategoryObject object = new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, "5566", 0l);
+    assertThrows(IllegalArgumentException.class, () -> categoryLinkService.link(12254689l, object));
   }
 
 }
