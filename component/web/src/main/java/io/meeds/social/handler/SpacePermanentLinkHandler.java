@@ -30,6 +30,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.mop.PageType;
+import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.navigation.NodeContext;
+import org.exoplatform.portal.mop.page.PageContext;
+import org.exoplatform.portal.mop.page.PageKey;
+import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.web.ControllerContext;
@@ -57,6 +63,8 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
 
   private PermanentLinkService      permanentLinkService;
 
+  private NavigationService         navigationService;
+
   @Override
   public void onInit(WebAppController controller, ServletConfig sConfig) throws Exception {
     super.onInit(controller, sConfig);
@@ -65,6 +73,7 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     this.spaceService = container.getComponentInstanceOfType(SpaceService.class);
     this.portalConfigService = container.getComponentInstanceOfType(UserPortalConfigService.class);
     this.permanentLinkService = container.getComponentInstanceOfType(PermanentLinkService.class);
+    this.navigationService = container.getComponentInstanceOfType(NavigationService.class);
   }
 
   @Override
@@ -96,10 +105,38 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
       String pageNotFoundUrl = "/portal/" + getPageNotFoundSite(username) + "/page-not-found";
       controllerContext.getResponse().sendRedirect(pageNotFoundUrl);
     } else {
-      String uri = permanentLinkService.getLink(getPermanentLinkObject(spaceId, path));
+      String uri = StringUtils.isBlank(path) ? getSpaceHomeLink(space, username) : null;
+      if (uri == null) {
+        uri = permanentLinkService.getLink(getPermanentLinkObject(spaceId, path));
+      }
       controllerContext.getResponse().sendRedirect(uri);
     }
     return true;
+  }
+
+  /**
+   * The portal renders a page of type {@link PageType#LINK} as an empty page:
+   * only the menus listing its node replace the node's URL with the page's
+   * link. The space home is the node the space URL names, so when its page is
+   * a link the user can access, the space home is that link.
+   *
+   * @param space the requested space
+   * @param username the current user, null when anonymous
+   * @return the link of the space home page, or null when that page is not an
+   *         accessible link
+   */
+  private String getSpaceHomeLink(Space space, String username) {
+    if (StringUtils.isBlank(space.getUrl())) {
+      return null;
+    }
+    NodeContext<NodeContext<Object>> homeNode = navigationService.loadNode(SiteKey.group(space.getGroupId()), space.getUrl());
+    PageKey pageRef = homeNode == null || homeNode.getState() == null ? null : homeNode.getState().getPageRef();
+    PageContext page = pageRef == null ? null : portalConfigService.getPage(pageRef, username);
+    if (page != null && PageType.LINK.name().equals(page.getState().getType())) {
+      return StringUtils.trimToNull(page.getState().getLink());
+    } else {
+      return null;
+    }
   }
 
   private String getPageNotFoundSite(String username) {
