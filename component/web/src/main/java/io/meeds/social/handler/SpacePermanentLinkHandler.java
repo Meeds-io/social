@@ -52,6 +52,7 @@ import io.meeds.portal.permlink.model.PermanentLinkObject;
 import io.meeds.portal.permlink.service.PermanentLinkService;
 
 import jakarta.servlet.ServletConfig;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class SpacePermanentLinkHandler extends WebRequestHandler {
 
@@ -84,6 +85,13 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
 
   /** The schemes that run a script or read local content */
   private static final Set<String>  REFUSED_SCHEMES           = Set.of("javascript", "vbscript", "data", "file");
+
+  /**
+   * A URI with an authority, with or without a scheme: the authority and what
+   * follows it, captured
+   */
+  private static final Pattern      AUTHORITY_PATTERN         = Pattern.compile("^(?:[a-z][a-z0-9+.-]*:)?//([^/?#]*)(.*)$",
+                                                                                Pattern.CASE_INSENSITIVE);
 
   private SpaceService              spaceService;
 
@@ -133,10 +141,7 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
       String pageNotFoundUrl = "/portal/" + getPageNotFoundSite(username) + "/page-not-found";
       controllerContext.getResponse().sendRedirect(pageNotFoundUrl);
     } else {
-      String uri = StringUtils.isBlank(path) ? getSpaceHomeLink(space,
-                                                                username,
-                                                                controllerContext.getRequest().getContextPath()) :
-                                             null;
+      String uri = StringUtils.isBlank(path) ? getSpaceHomeLink(space, username, controllerContext.getRequest()) : null;
       if (uri == null) {
         uri = permanentLinkService.getLink(getPermanentLinkObject(spaceId, path));
       }
@@ -150,15 +155,16 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
    * only the menus listing its node replace the node's URL with the page's
    * link. The space home is the node the space URL names, so when its page is
    * a link the user can access, the space home redirects to that link, unless
-   * the link leads back to this space home entry.
+   * the link leads back to this space home entry, as a path or as a URL of
+   * this request's host.
    *
    * @param space the requested space
    * @param username the current user, null when anonymous
-   * @param contextPath the context path of this request
+   * @param request the current request
    * @return the URI of the space home page's link, or null when that page is
    *         not an accessible link or its link can't be redirected to
    */
-  private String getSpaceHomeLink(Space space, String username, String contextPath) {
+  private String getSpaceHomeLink(Space space, String username, HttpServletRequest request) {
     if (StringUtils.isBlank(space.getUrl())) {
       return null;
     }
@@ -167,42 +173,53 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     PageContext page = pageRef == null ? null : portalConfigService.getPage(pageRef, username);
     if (page != null && PageType.LINK.name().equals(page.getState().getType())) {
       String uri = toRedirectUri(page.getState().getLink());
-      return isSpaceHomeEntry(uri, contextPath, space.getId()) ? null : uri;
+      return isSpaceHomeEntry(uri, request, space.getId()) ? null : uri;
     } else {
       return null;
     }
   }
 
   /**
-   * A path to this space's own {@code /s/{spaceId}} entry, with no query,
-   * reaches this handler again for the same space home: redirecting to it
-   * would loop. The fragment stays in the browser, so it is not part of the
-   * request.
+   * This space's own {@code /s/{spaceId}} entry, with no query, reaches this
+   * handler again for the same space home: redirecting to it would loop. The
+   * entry is recognised as a path, or as a URL whose host is this request's
+   * host, whatever its scheme and port. The fragment stays in the browser, so
+   * it is not part of the request.
    *
    * @param uri the URI to redirect to, possibly null
-   * @param contextPath the context path of this request
+   * @param request the current request
    * @param spaceId the requested space id
    * @return true when the URI is this space home entry
    */
-  private static boolean isSpaceHomeEntry(String uri, String contextPath, String spaceId) {
+  private static boolean isSpaceHomeEntry(String uri, HttpServletRequest request, String spaceId) {
     if (uri == null) {
       return false;
     }
-    String uriWithoutFragment = StringUtils.substringBefore(uri, "#");
-    return StringUtils.removeEnd(uriWithoutFragment, "/").equals(contextPath + "/s/" + spaceId);
+    String uriPath = uri;
+    Matcher authority = AUTHORITY_PATTERN.matcher(uri);
+    if (authority.matches()) {
+      String hostAndPort = StringUtils.contains(authority.group(1), '@') ? StringUtils.substringAfterLast(authority.group(1), "@") :
+                                                                          authority.group(1);
+      if (!StringUtils.equalsIgnoreCase(StringUtils.substringBefore(hostAndPort, ":"), request.getServerName())) {
+        return false;
+      }
+      uriPath = authority.group(2);
+    }
+    String uriPathWithoutFragment = StringUtils.substringBefore(uriPath, "#");
+    return StringUtils.removeEnd(uriPathWithoutFragment, "/").equals(request.getContextPath() + "/s/" + spaceId);
   }
 
   /**
    * A link page stores its link as typed, and the node editor accepts a link
    * without a scheme, which the browser would resolve as a path relative to
-   * this request if it were sent as is. The link, trimmed, is redirected to as
-   * is when it starts with {@code /} (a path of this site or a
-   * protocol-relative link) or with a scheme, and with {@code http://} in
-   * front when it starts with a host name, the scheme Autolinker gives a link
-   * it recognises in the menus (social NavigationUtils.js, getLinkNodeUri).
-   * Once trimmed, a link holding a control character, a link whose scheme runs
-   * a script or reads local content, and any other link are not redirected
-   * to.
+   * this request if it were sent as is. The link, trimmed and with its
+   * characters above {@code ~} percent-encoded, is redirected to when it
+   * starts with {@code /} (a path of this site or a protocol-relative link) or
+   * with a scheme, and with {@code http://} in front when it starts with a host
+   * name, the scheme Autolinker gives a link it recognises in the menus (social
+   * NavigationUtils.js, getLinkNodeUri). Once trimmed, a link holding a control
+   * character, a link whose scheme runs a script or reads local content, and
+   * any other link are not redirected to.
    *
    * @param link the link stored on the page
    * @return the URI to redirect to, or null when the link is not one

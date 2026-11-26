@@ -21,6 +21,8 @@ package io.meeds.social.handler;
 import static io.meeds.social.handler.SpacePermanentLinkHandler.REQUEST_PATH;
 import static io.meeds.social.handler.SpacePermanentLinkHandler.REQUEST_SPACE_ID;
 import static io.meeds.social.space.plugin.SpacePermanentLinkPlugin.APPLICATION_URI;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -37,6 +39,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import org.apache.tomcat.util.buf.MessageBytes;
 
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.mop.PageType;
@@ -60,11 +64,13 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Opening a space through /portal/s/{spaceId} lands on the space home. When
  * the page of the space home node is a link the user can access, the handler
- * redirects to that link, trimmed: as is when it starts with / or a scheme,
- * with http:// in front when it starts with a host name. Once trimmed, for a
- * link holding a control character, a link whose scheme runs a script or
- * reads local content, and any other link, and for any sub-path, it redirects
- * to the space page as before.
+ * redirects to that link, trimmed and with its characters above ~
+ * percent-encoded: when it starts with / or a scheme, and with http:// in
+ * front when it starts with a host name. Once trimmed, for a link holding a
+ * control character, a link whose scheme runs a script or reads local content,
+ * any other link and a link back to this space entry, and for any sub-path, it
+ * redirects to the space page as before. Every URI redirected to is checked
+ * with Tomcat's own header encoding, which drops a Location it can't encode.
  */
 @ExtendWith(MockitoExtension.class)
 class SpacePermanentLinkHandlerTest {
@@ -117,6 +123,7 @@ class SpacePermanentLinkHandlerTest {
     lenient().when(controllerContext.getParameter(REQUEST_SPACE_ID)).thenReturn(SPACE_ID);
     lenient().when(request.getRemoteUser()).thenReturn(USERNAME);
     lenient().when(request.getContextPath()).thenReturn("/portal");
+    lenient().when(request.getServerName()).thenReturn("my.server.org");
     lenient().when(spaceService.getSpaceById(SPACE_ID)).thenReturn(space);
     lenient().when(space.getId()).thenReturn(SPACE_ID);
     lenient().when(space.getGroupId()).thenReturn(GROUP_ID);
@@ -162,6 +169,31 @@ class SpacePermanentLinkHandlerTest {
   @Test
   void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntryWithAFragment() throws Exception {
     assertHomeLinkRedirectsTo("/portal/s/12#top", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntryUrl() throws Exception {
+    assertHomeLinkRedirectsTo("https://my.server.org/portal/s/12", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntryUrlWithUserPortAndFragment() throws Exception {
+    assertHomeLinkRedirectsTo("http://john@My.Server.org:8080/portal/s/12/#top", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntryProtocolRelativeUrl() throws Exception {
+    assertHomeLinkRedirectsTo("//my.server.org/portal/s/12", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsThisSpaceEntryWithoutScheme() throws Exception {
+    assertHomeLinkRedirectsTo("my.server.org/portal/s/12", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToTheSameEntryOnAnotherHost() throws Exception {
+    assertHomeLinkRedirectsTo("https://other.server.org/portal/s/12", "https://other.server.org/portal/s/12");
   }
 
   @Test
@@ -359,6 +391,24 @@ class SpacePermanentLinkHandlerTest {
     assertTrue(handler.execute(controllerContext));
 
     verify(response).sendRedirect(expectedUri);
+    assertTomcatWritesLocation(expectedUri);
+  }
+
+  /**
+   * Tomcat encodes a header value with {@link MessageBytes#toBytes()} when it
+   * writes the response, and removes the header when that throws.
+   */
+  private static void assertTomcatWritesLocation(String uri) {
+    MessageBytes location = MessageBytes.newInstance();
+    location.setString(uri);
+    assertDoesNotThrow(location::toBytes, () -> "Tomcat would drop the Location " + uri);
+  }
+
+  @Test
+  void testTomcatDropsALocationWithACharacterOutsideLatin1() {
+    MessageBytes location = MessageBytes.newInstance();
+    location.setString("https://www.example.org/cœur");
+    assertThrows(IllegalArgumentException.class, location::toBytes);
   }
 
   /**
