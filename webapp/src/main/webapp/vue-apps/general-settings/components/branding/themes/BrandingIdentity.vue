@@ -40,18 +40,5 @@
         {{ $t('generalSettings.edit.button.tooltip') }}
       </v-tooltip>
     </div>
-    <div class="brandingCompanyName text-subtitle mt-2">
-      {{ companyName }}
-    </div>
   </div>
 </template>
-<script>
-export default {
-  props: {
-    companyName: {
-      type: String,
-      default: null,
-    },
-  },
-};
-</script>
