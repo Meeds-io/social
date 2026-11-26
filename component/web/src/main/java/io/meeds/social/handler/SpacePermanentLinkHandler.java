@@ -23,6 +23,7 @@ import static io.meeds.social.space.plugin.SpacePermanentLinkPlugin.OBJECT_TYPE;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
@@ -70,14 +71,6 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
                                                                                 Pattern.CASE_INSENSITIVE);
 
   /**
-   * A host name whose last label starts with a letter, an optional port, then a
-   * path, a query, a fragment or nothing (social NavigationUtils.js)
-   */
-  private static final Pattern      HOST_PREFIX_PATTERN       =
-                                                        Pattern.compile("^([a-z0-9]([a-z0-9-]*[a-z0-9])?\\.)*[a-z]([a-z0-9-]*[a-z0-9])?(:\\d+)?([/?#]|$)",
-                                                                        Pattern.CASE_INSENSITIVE);
-
-  /**
    * A control character, a line break included, which a Location header can't
    * carry
    */
@@ -88,9 +81,10 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
 
   /**
    * A URI with an authority, with or without a scheme: the authority and what
-   * follows it, captured
+   * follows it, captured. The quantifiers are possessive, as nothing they take
+   * can end the part that follows, so a long link is read in linear time.
    */
-  private static final Pattern      AUTHORITY_PATTERN         = Pattern.compile("^(?:[a-z][a-z0-9+.-]*:)?//([^/?#]*)(.*)$",
+  private static final Pattern      AUTHORITY_PATTERN         = Pattern.compile("^(?:[a-z][a-z0-9+.-]*+:)?//([^/?#]*+)(.*)$",
                                                                                 Pattern.CASE_INSENSITIVE);
 
   private SpaceService              spaceService;
@@ -282,11 +276,54 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     Matcher scheme = SCHEME_PATTERN.matcher(uri);
     if (scheme.find()) {
       return REFUSED_SCHEMES.contains(scheme.group(1).toLowerCase(Locale.ROOT)) ? null : encodeNonAscii(uri);
-    } else if (HOST_PREFIX_PATTERN.matcher(uri).find()) {
+    } else if (startsWithHostName(uri)) {
       return "//" + encodeNonAscii(uri);
     } else {
       return null;
     }
+  }
+
+  /**
+   * The rule of social NavigationUtils.js HOST_PREFIX_PATTERN: a host name
+   * whose labels hold ASCII letters, digits and inner hyphens, the last one
+   * starting with a letter, then an optional port, then a path, a query, a
+   * fragment or nothing. It is checked label by label: a repeated group in a
+   * regular expression recurses once per label and overflows the stack on a
+   * long link.
+   *
+   * @param uri a URI without a scheme
+   * @return true when the URI starts with a host name
+   */
+  private static boolean startsWithHostName(String uri) {
+    int hostAndPortEnd = StringUtils.indexOfAny(uri, "/?#");
+    String hostAndPort = hostAndPortEnd < 0 ? uri : uri.substring(0, hostAndPortEnd);
+    String host = StringUtils.substringBefore(hostAndPort, ":");
+    if (hostAndPort.length() > host.length() && !isPort(hostAndPort.substring(host.length() + 1))) {
+      return false;
+    }
+    String[] labels = StringUtils.splitPreserveAllTokens(host, '.');
+    return labels.length > 0
+           && Arrays.stream(labels).allMatch(SpacePermanentLinkHandler::isHostLabel)
+           && isAsciiLetter(labels[labels.length - 1].charAt(0));
+  }
+
+  private static boolean isHostLabel(String label) {
+    return !label.isEmpty()
+           && label.charAt(0) != '-'
+           && label.charAt(label.length() - 1) != '-'
+           && label.chars().allMatch(c -> isAsciiLetter(c) || isAsciiDigit(c) || c == '-');
+  }
+
+  private static boolean isPort(String port) {
+    return !port.isEmpty() && port.chars().allMatch(SpacePermanentLinkHandler::isAsciiDigit);
+  }
+
+  private static boolean isAsciiLetter(int c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+  }
+
+  private static boolean isAsciiDigit(int c) {
+    return c >= '0' && c <= '9';
   }
 
   /**

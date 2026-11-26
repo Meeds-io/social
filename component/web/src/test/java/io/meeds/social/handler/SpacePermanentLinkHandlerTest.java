@@ -407,6 +407,73 @@ class SpacePermanentLinkHandlerTest {
   }
 
   @Test
+  void testRedirectsSpaceHomeToALinkWithoutSchemeOfManyLabels() throws Exception {
+    String host = "a.".repeat(100000) + "org";
+    assertHomeLinkRedirectsTo(host + "/x", "//" + host + "/x");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkOfManyLabelsBackToThisSpaceEntryAsStored() throws Exception {
+    String link = "https://" + "a.".repeat(100000) + "org/portal/s/12";
+    assertHomeLinkRedirectsTo(link, link);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeWithANonNumericPort() throws Exception {
+    assertHomeLinkRedirectsTo("intranet.example.org:8a/x", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeWithAnEmptyPort() throws Exception {
+    assertHomeLinkRedirectsTo("1a.example.org:/x", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeWithAnEmptyLabel() throws Exception {
+    assertHomeLinkRedirectsTo("www..example.org/x", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeWithALabelEndingWithAHyphen() throws Exception {
+    assertHomeLinkRedirectsTo("www-.example.org/x", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeWithALabelStartingWithAHyphen() throws Exception {
+    assertHomeLinkRedirectsTo("www.-example.org/x", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeWithANonAsciiLabel() throws Exception {
+    assertHomeLinkRedirectsTo("www.exämple.org/x", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeEndingWithADigitLabel() throws Exception {
+    assertHomeLinkRedirectsTo("192.168.0.1/x", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkWithoutSchemeWhoseFirstLabelStartsWithADigit() throws Exception {
+    assertHomeLinkRedirectsTo("1password.com/x", "//1password.com/x");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkWithoutSchemeWhoseLastLabelEndsWithADigit() throws Exception {
+    assertHomeLinkRedirectsTo("intranet2:8080/x", "//intranet2:8080/x");
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeWithAnEmptyHost() throws Exception {
+    assertHomeLinkRedirectsTo("#top", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToALinkWithoutSchemeOfOneLabelAndAPort() throws Exception {
+    assertHomeLinkRedirectsTo("Intranet:8080", "//Intranet:8080");
+  }
+
+  @Test
   void testRedirectsSpaceHomeToSpacePageForALinkWithoutSchemeOrHostName() throws Exception {
     assertHomeLinkRedirectsTo("_private/page", SPACE_PAGE_URI);
   }
