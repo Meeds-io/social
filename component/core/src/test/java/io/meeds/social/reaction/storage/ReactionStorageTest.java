@@ -184,6 +184,16 @@ public class ReactionStorageTest {
   }
 
   @Test
+  public void testDeleteReactionsByParentDeletesTheItemsOfTheObjectTypeUnderTheParent() {
+    reactionStorage.deleteReactionsByParent("taskComment", "5");
+
+    ArgumentCaptor<MetadataObject> captor = ArgumentCaptor.forClass(MetadataObject.class);
+    verify(metadataService).deleteMetadataItemsByParentObject(captor.capture());
+    assertEquals("taskComment", captor.getValue().getType());
+    assertEquals("5", captor.getValue().getParentId());
+  }
+
+  @Test
   public void testNoUnexpectedInteraction() {
     verify(metadataService, times(0)).getMetadataItemsByObject(any());
   }
