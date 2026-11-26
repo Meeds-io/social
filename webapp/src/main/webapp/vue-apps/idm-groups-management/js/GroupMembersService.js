@@ -26,7 +26,7 @@ export function getGroupMembers(groupId, keyword, filter, offset, limit) {
   })
     .then(resp => {
       if (!resp || !resp.ok) {
-        throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+        throw new Error('IDMManagement.error.UnknownServerError');
       } else {
         return resp.json();
       }
