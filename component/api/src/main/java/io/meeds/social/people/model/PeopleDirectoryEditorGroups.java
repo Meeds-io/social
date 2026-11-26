@@ -39,10 +39,15 @@ import java.util.List;
  *          the stored value cannot be read: the directory lists nobody, and
  *          any save of the group filter, the shown groups unchanged included,
  *          rewrites it
+ * @param missingGroups whether, for any editor, the directory misses groups:
+ *          stored groups no longer exist, the stored value cannot be read, or
+ *          the directory was made from a template and its groups were not
+ *          set again; the drawer says so without naming them
  */
 public record PeopleDirectoryEditorGroups(List<PeopleDirectoryGroup> groups,
                                           boolean otherGroupsApplied,
                                           int otherGroupsCount,
                                           boolean unresolvableGroups,
-                                          boolean groupFilterInvalid) {
+                                          boolean groupFilterInvalid,
+                                          boolean missingGroups) {
 }

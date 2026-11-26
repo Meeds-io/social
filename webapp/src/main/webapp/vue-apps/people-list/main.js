@@ -47,6 +47,8 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
         otherGroupsCount: settings?.otherGroupsCount || 0,
         unresolvableGroups: !!settings?.unresolvableGroups,
         groupFilterInvalid: !!settings?.groupFilterInvalid,
+        // for any editor: the directory misses groups, never named
+        missingGroups: !!settings?.missingGroups,
         directoryFiltered: !!settings?.directoryFiltered,
         // the names of the attributes the directory filters on, for every
         // viewer: the advanced filter shows them greyed out
@@ -101,6 +103,7 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
             this.otherGroupsCount = stored?.otherGroupsCount || 0;
             this.unresolvableGroups = !!stored?.unresolvableGroups;
             this.groupFilterInvalid = !!stored?.groupFilterInvalid;
+            this.missingGroups = !!stored?.missingGroups;
             this.directoryFiltered = !!stored?.directoryFiltered;
             this.directoryAttributes = stored?.directoryAttributes || [];
           });

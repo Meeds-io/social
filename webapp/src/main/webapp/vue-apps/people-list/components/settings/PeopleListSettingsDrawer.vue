@@ -240,12 +240,13 @@ export default {
     storedGroupIds() {
       return (this.$root.groups || []).map(group => group.groupId);
     },
-    // a stored value the directory cannot read lists nobody: any Apply
-    // rewrites it, the shown groups unchanged included
+    // a stored value the directory cannot read lists nobody, and stored
+    // groups that no longer exist are flagged: any Apply rewrites the
+    // filter, the shown groups unchanged included, which drops them
     groupFilterChanged() {
       return this.canSetGroupFilter
         && (this.canonical(this.groupIdsToSave) !== this.canonical(this.storedGroupIds)
-          || (!!this.$root.unresolvableGroups && !this.groupFilterEnabled)
+          || !!this.$root.unresolvableGroups
           || !!this.$root.groupFilterInvalid);
     },
     // with groups the editor cannot select applied, the filter is set
@@ -282,9 +283,10 @@ export default {
         guestsSpaceMembersOnly: this.guestsSpaceMembersOnly,
         attributeFilter: this.attributeFilterToSave,
       };
-      // the group filter is posted only when the editor changed it: an
-      // untouched one, or an editor who may not set it, posts none and the
-      // portlet keeps the stored one, groups that no longer exist included
+      // the group filter is posted when the editor changed it, or when its
+      // stored value is unreadable or holds groups that no longer exist,
+      // which any Apply drops; otherwise, and for an editor who may not set
+      // it, none is posted and the portlet keeps the stored one
       if (this.groupFilterChanged) {
         toSave.groupIds = this.groupIdsToSave;
       }
@@ -403,11 +405,12 @@ export default {
         attributeFilter: storedAttributeFilter,
       };
       if (toSave.groupIds) {
-        // groups that no longer exist stay stored, unless the editor turns
-        // the group filter OFF: until that save, OFF is not the stored state;
-        // a stored value the directory cannot read is never the stored state
-        // of the groups shown, which Apply rewrites
-        if (this.$root.groupFilterInvalid || (this.$root.unresolvableGroups && !toSave.groupIds.length)) {
+        // groups that no longer exist stay stored, and a stored value the
+        // directory cannot read is never the stored state of the groups
+        // shown, until the editor saves the group filter, which Apply does;
+        // settings read back without the group filter, as while the group
+        // store cannot be read, never show it stored
+        if (!this.$root.canSetGroupFilter || this.$root.groupFilterInvalid || this.$root.unresolvableGroups) {
           return false;
         }
         stored.groupIds = this.storedGroupIds;
