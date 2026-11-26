@@ -54,6 +54,7 @@ import org.exoplatform.social.rest.entity.ProfileEntity;
 import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
+import io.meeds.social.reaction.model.ReactionSummary;
 import io.meeds.social.reaction.service.ReactionService;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
@@ -137,6 +138,32 @@ public class ReactionRestTest {
              .andExpect(jsonPath("$.reactorProfiles.length()").value(1))
              .andExpect(jsonPath("$.userReactionId").doesNotExist());
     }
+  }
+
+  @Test
+  public void summariesOfSeveralObjectsAreRetrievedInOneCall() throws Exception {
+    when(reactionService.getReactionSummaries("taskComment", List.of("5", "6"), "john"))
+      .thenReturn(Map.of("5", new ReactionSummary(Map.of("love", 1L), "love")));
+
+    mockMvc.perform(get("/reactions/taskComment/summary?objectIds=5,6").with(JOHN))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.5.counts.love").value(1))
+           .andExpect(jsonPath("$.5.userReactionId").value("love"))
+           .andExpect(jsonPath("$.6").doesNotExist());
+  }
+
+  @Test
+  public void summariesAreRefusedForTooManyObjectsAndForAnUnsupportedType() throws Exception {
+    String tooMany = String.join(",", java.util.Collections.nCopies(101, "1"));
+    when(reactionService.getReactionSummaries("other", List.of("1"), "john")).thenThrow(new IllegalArgumentException("x"));
+
+    mockMvc.perform(get("/reactions/taskComment/summary?objectIds=" + tooMany).with(JOHN)).andExpect(status().isBadRequest());
+    mockMvc.perform(get("/reactions/other/summary?objectIds=1").with(JOHN)).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void summariesNeedTheObjectIdsParameter() throws Exception {
+    mockMvc.perform(get("/reactions/taskComment/summary").with(JOHN)).andExpect(status().isBadRequest());
   }
 
   @Test

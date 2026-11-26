@@ -19,6 +19,7 @@
 package io.meeds.social.reaction.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -51,6 +52,7 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 import io.meeds.social.reaction.model.ObjectReactions;
 import io.meeds.social.reaction.model.Reaction;
 import io.meeds.social.reaction.model.ReactionOption;
+import io.meeds.social.reaction.model.ReactionSummary;
 import io.meeds.social.reaction.plugin.ReactionObjectPlugin;
 import io.meeds.social.reaction.plugin.ReactionOptionPlugin;
 import io.meeds.social.reaction.storage.ReactionStorage;
@@ -218,7 +220,10 @@ public class ReactionServiceImpl implements ReactionService {
     if (isPluginObjectType(objectType)) {
       return orderCounts(reactionStorage.countReactionsByOption(getPluginObjectWithCheck(objectType, objectId, username)));
     }
-    ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
+    return countActivityReactions(getActivityWithCheck(objectType, objectId, username));
+  }
+
+  private Map<String, Long> countActivityReactions(ExoSocialActivity activity) {
     Map<String, Long> countsByOption = reactionStorage.countReactionsByOption(activity.getMetadataObject());
     long likersCount = activity.getLikeIdentityIds() == null ? 0 : activity.getLikeIdentityIds().length;
     long typedCount = countsByOption.values().stream().mapToLong(Long::longValue).sum();
@@ -297,7 +302,10 @@ public class ReactionServiceImpl implements ReactionService {
                                                               identityId);
       return item == null ? null : ReactionStorage.decodeReactionId(item.getMetadata().getName());
     }
-    ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
+    return getActivityUserReactionId(getActivityWithCheck(objectType, objectId, username), identityId);
+  }
+
+  private String getActivityUserReactionId(ExoSocialActivity activity, long identityId) {
     MetadataItem item = reactionStorage.getUserReactionItem(activity.getMetadataObject(), identityId);
     if (item != null) {
       return ReactionStorage.decodeReactionId(item.getMetadata().getName());
@@ -324,6 +332,41 @@ public class ReactionServiceImpl implements ReactionService {
     return new ObjectReactions(orderCounts(reactionStorage.countReactionsByOption(object)),
                                toPluginReactions(objectType, objectId, reactionId, offset, limit, object),
                                userItem == null ? null : ReactionStorage.decodeReactionId(userItem.getMetadata().getName()));
+  }
+
+  @Override
+  public Map<String, ReactionSummary> getReactionSummaries(String objectType, Collection<String> objectIds, String username) {
+    if (!isPluginObjectType(objectType) && !StringUtils.equals(objectType, ACTIVITY_OBJECT_TYPE)) {
+      throw new IllegalArgumentException("reaction.unsupportedObjectType");
+    }
+    long identityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
+    Map<String, ReactionSummary> summaries = new LinkedHashMap<>();
+    for (String objectId : objectIds) {
+      try {
+        summaries.put(objectId, getReactionSummary(objectType, objectId, username, identityId));
+      } catch (ObjectNotFoundException | IllegalAccessException e) {
+        LOG.debug("No reactions summary of {}/{} for user {}: {}", objectType, objectId, username, e.getMessage());
+      } catch (RuntimeException e) {
+        // One failing object doesn't fail the summaries of the others
+        LOG.warn("Unable to get the reactions summary of {}/{} for user {}: {}", objectType, objectId, username, e.getMessage());
+        LOG.debug("Reactions summary failure of {}/{}", objectType, objectId, e);
+      }
+    }
+    return summaries;
+  }
+
+  private ReactionSummary getReactionSummary(String objectType,
+                                             String objectId,
+                                             String username,
+                                             long identityId) throws ObjectNotFoundException, IllegalAccessException {
+    if (isPluginObjectType(objectType)) {
+      MetadataObject object = getPluginObjectWithCheck(objectType, objectId, username);
+      MetadataItem userItem = reactionStorage.getUserReactionItem(object, identityId);
+      return new ReactionSummary(orderCounts(reactionStorage.countReactionsByOption(object)),
+                                 userItem == null ? null : ReactionStorage.decodeReactionId(userItem.getMetadata().getName()));
+    }
+    ExoSocialActivity activity = getActivityWithCheck(objectType, objectId, username);
+    return new ReactionSummary(countActivityReactions(activity), getActivityUserReactionId(activity, identityId));
   }
 
   @Override

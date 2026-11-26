@@ -133,7 +133,7 @@ export default {
       if (!this.objectId) {
         return Promise.resolve();
       }
-      return this.$reactionService.getReactions(this.objectType, this.objectId, null, 0, 1)
+      return this.$reactionService.getReactionSummary(this.objectType, this.objectId)
         .then(result => {
           if (requestId === this.requestId) {
             this.counts = result?.counts || {};
