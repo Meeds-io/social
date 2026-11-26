@@ -125,6 +125,8 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
 
   private static final String       GROUPS_KEY                     = "groups";
 
+  private static final String       GROUP_STORE_UNAVAILABLE_KEY    = "groupStoreUnavailable";
+
   /**
    * The only preference names {@link #processAction} stores. Any other posted
    * parameter is ignored: a blanket copy would let an editor store arbitrary
@@ -215,21 +217,42 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
    * @param username the editor
    * @return a JSON object {@code {groups: [{groupId, label}],
    *         otherGroupsApplied, otherGroupsCount, unresolvableGroups,
-   *         groupFilterInvalid}}
+   *         groupFilterInvalid, missingGroups, groupStoreUnavailable}}; when
+   *         the group store cannot be read, no group and
+   *         {@code groupStoreUnavailable}, so that the drawer gets no group
+   *         filter to post and an Apply drops none of the stored groups
    */
   public static String storedGroups(PortletPreferences preferences, String username) {
-    PeopleDirectoryEditorGroups editorGroups =
-                                             getPeopleDirectoryService().getEditorGroups(preferences.getValue(GROUP_FILTER_PREFERENCE,
-                                                                                                              null),
-                                                                                         preferences.getValue(GROUPS_TO_SET_PREFERENCE,
-                                                                                                              null),
-                                                                                         username);
+    PeopleDirectoryEditorGroups editorGroups;
+    try {
+      editorGroups = getPeopleDirectoryService().getEditorGroups(preferences.getValue(GROUP_FILTER_PREFERENCE, null),
+                                                                 preferences.getValue(GROUPS_TO_SET_PREFERENCE, null),
+                                                                 username);
+    } catch (IllegalStateException e) {
+      LOG.warn("The group filter of a People Directory cannot be read: its settings are shown without it", e);
+      PeopleDirectoryEditorGroups none = new PeopleDirectoryEditorGroups(List.of(), false, 0, false, false, false);
+      return toGroupsSettings(none).put(GROUP_STORE_UNAVAILABLE_KEY, true).toString();
+    }
+    return toGroupsSettings(editorGroups).put(GROUP_STORE_UNAVAILABLE_KEY, false).toString();
+  }
+
+  /**
+   * @param username the editor
+   * @param groups the result of {@link #storedGroups}, as a JSON object
+   * @return whether the editor may set the group filter in this drawer: never
+   *         while the group store cannot be read
+   */
+  public static boolean canSetGroupFilter(String username, JSONObject groups) {
+    return canSetGroupFilter(username) && !groups.optBoolean(GROUP_STORE_UNAVAILABLE_KEY);
+  }
+
+  private static JSONObject toGroupsSettings(PeopleDirectoryEditorGroups editorGroups) {
     return new JSONObject().put(GROUPS_KEY, toGroupsJson(editorGroups.groups()))
                            .put("otherGroupsApplied", editorGroups.otherGroupsApplied())
                            .put("otherGroupsCount", editorGroups.otherGroupsCount())
                            .put("unresolvableGroups", editorGroups.unresolvableGroups())
                            .put("groupFilterInvalid", editorGroups.groupFilterInvalid())
-                           .toString();
+                           .put("missingGroups", editorGroups.missingGroups());
   }
 
   /**
@@ -316,7 +339,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
           });
         }
       }
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       throw new PortletException(e.getMessage(), e);
     }
     preferences.store();
@@ -377,13 +400,14 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
       settings.put(GUEST_RESTRICTION_PREFERENCE, storedGuestRestriction(preferences));
       settings.put("attributes", new JSONArray(storedAttributes(preferences, request.getLocale())));
       settings.put("attributeFilterInvalid", isAttributeFilterInvalid(preferences));
-      settings.put("canSetGroupFilter", canSetGroupFilter(username));
       JSONObject groups = new JSONObject(storedGroups(preferences, username));
+      settings.put("canSetGroupFilter", canSetGroupFilter(username, groups));
       settings.put(GROUPS_KEY, groups.getJSONArray(GROUPS_KEY));
       settings.put("otherGroupsApplied", groups.getBoolean("otherGroupsApplied"));
       settings.put("otherGroupsCount", groups.getInt("otherGroupsCount"));
       settings.put("unresolvableGroups", groups.getBoolean("unresolvableGroups"));
       settings.put("groupFilterInvalid", groups.getBoolean("groupFilterInvalid"));
+      settings.put("missingGroups", groups.getBoolean("missingGroups"));
     }
     return settings.toString();
   }
