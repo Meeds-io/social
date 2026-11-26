@@ -37,7 +37,7 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
         document.dispatchEvent(new CustomEvent('refresh-notifications'));
         document.dispatchEvent(new CustomEvent('alert-message', {detail: {
           alertMessageKey: 'Notification.alert.successfullyMuted',
-          type: 'success',
+          alertType: 'success',
         }}));
         document.dispatchEvent(new CustomEvent('space-muted', {detail: {
           name: 'spaceLeftNavigationAction',
@@ -48,7 +48,7 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
       .catch(() => {
         document.dispatchEvent(new CustomEvent('alert-message', {detail: {
           alertMessageKey: 'Notification.alert.errorChangingSpaceMutingStatus',
-          type: 'error',
+          alertType: 'error',
         }}));
       });
   },
@@ -65,7 +65,7 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
         document.dispatchEvent(new CustomEvent('refresh-notifications'));
         document.dispatchEvent(new CustomEvent('alert-message', {detail: {
           alertMessageKey: 'Notification.alert.successfullyUnmuted',
-          type: 'success'
+          alertType: 'success'
         }}));
         document.dispatchEvent(new CustomEvent('space-unmuted', {detail: {
           name: 'spaceLeftNavigationAction',
@@ -76,7 +76,7 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
       .catch(() => {
         document.dispatchEvent(new CustomEvent('alert-message', {detail: {
           alertMessageKey: 'Notification.alert.errorChangingSpaceMutingStatus',
-          type: 'error',
+          alertType: 'error',
         }}));
       });
   },
