@@ -39,9 +39,7 @@
       lg="4"
       class="d-flex flex-column pa-0 ps-lg-6 border-box-sizing">
       <template v-if="working">
-        <portal-general-settings-branding-identity
-          :company-name="working.companyName"
-          @edit="$refs.brandingDrawer.open()" />
+        <portal-general-settings-branding-identity @edit="$refs.brandingDrawer.open()" />
         <portal-general-settings-themes-list
           :themes="working.themes"
           :theme-in-use-key="working.themeInUseKey"
