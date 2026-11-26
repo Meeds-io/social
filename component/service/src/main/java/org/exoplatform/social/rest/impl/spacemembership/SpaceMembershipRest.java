@@ -288,7 +288,7 @@ public class SpaceMembershipRest implements ResourceContainer {
       } else if (spaceService.isInvitedUser(space, user) && selfMembership) {
         spaceService.addMember(space, authenticatedUser);
       } else if (spaceService.isPendingUser(space, user) && canManageSpace) {
-        spaceService.addMember(space, authenticatedUser);
+        spaceService.addMember(space, user);
       } else {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
@@ -314,10 +314,9 @@ public class SpaceMembershipRest implements ResourceContainer {
       } else if (spaceService.isMember(space, user)
                  || spaceService.isInvitedUser(space, user)) {
         throw new WebApplicationException(Response.Status.CONFLICT);
-      } else if (spaceService.isInvitedUser(space, user)) {
-        spaceService.addMember(space, authenticatedUser);
       } else {
-        spaceService.addInvitedUser(space, authenticatedUser);
+        space.setEditor(authenticatedUser);
+        spaceService.addInvitedUser(space, user);
       }
     } else if (StringUtils.isNotBlank(status)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("Status is not managed").build();
