@@ -23,14 +23,19 @@
           compact
           extra-class="me-1 transition-2s" />
       </div>
+      <!-- Kept in the page for keyboard users: screen-reader-only until it is hovered or focused, when it replaces the
+           avatars, so the likers list opens from the keyboard whatever the number of likers -->
       <v-btn
-        v-else
+        v-if="likersNumber"
         v-ripple="false"
         :min-width="seeMoreWidth"
         :min-height="avatarSize"
         :height="avatarSize"
-        class="caption white--text grey-lighten1-background px-1 ms-n1"
+        :class="!showSeeMoreOverlay && 'd-sr-only'"
+        class="activityLikersButton caption white--text grey-lighten1-background px-1 ms-n1"
         text
+        @focus.native="showSeeMoreOverlay = true"
+        @blur.native="resetHoverState"
         @click.prevent.stop="openDrawer">
         <span class="text-body white--text text-center text-no-wrap">{{ $t('activity.reactions.seeMore') }}</span>
       </v-btn>

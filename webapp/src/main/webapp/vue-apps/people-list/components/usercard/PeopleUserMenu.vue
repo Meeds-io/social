@@ -39,6 +39,7 @@
         entry give the focus back to this button once closed (ActivationOrigin.js) -->
       <v-btn
         v-show="displayMenuButton"
+        :id="`peopleCardMenuButton-${user.id}`"
         ref="menuActivator"
         :aria-label="$t('peopleList.label.openUserMenu')"
         v-bind="attrs"

@@ -32,6 +32,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       offset-y>
       <template #activator="{ on, attrs }">
         <v-chip
+          id="searchConnectorsMenuButton"
           ref="menuActivator"
           outlined
           :aria-label="$t('search.filter.type')"
@@ -59,6 +60,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         class="pa-0"
         @keydown.native="onMenuEntriesKeydown">
         <v-list-item
+          id="searchConnectorOptionAll"
           :aria-checked="String(allEnabled)"
           role="menuitemcheckbox"
           @click="$emit('select-all-connector')"
@@ -78,6 +80,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
         <v-list-item
           v-for="connector in sortedConnectors"
+          :id="`searchConnectorOption-${connector.name}`"
           :key="connector.name"
           :aria-checked="String(!allEnabled && connector.enabled)"
           role="menuitemcheckbox"
