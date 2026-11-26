@@ -231,6 +231,18 @@ class SpacePermanentLinkHandlerTest {
   }
 
   @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsTheContextRootWithAQueryAndTheUserHomeIsThisSpace() throws Exception {
+    when(portalConfigService.getDefaultPath(USERNAME)).thenReturn("/portal/s/12");
+    assertHomeLinkRedirectsTo("/portal/?lang=fr", SPACE_PAGE_URI);
+  }
+
+  @Test
+  void testRedirectsSpaceHomeToSpacePageWhenTheLinkIsTheHostRootWithAQueryAndTheUserHomeIsThisSpace() throws Exception {
+    when(portalConfigService.getDefaultPath(USERNAME)).thenReturn("/portal/s/12");
+    assertHomeLinkRedirectsTo("https://my.server.org/?utm_source=x", SPACE_PAGE_URI);
+  }
+
+  @Test
   void testRedirectsSpaceHomeToTheContextRootWhenTheUserHomeIsElsewhere() throws Exception {
     when(portalConfigService.getDefaultPath(USERNAME)).thenReturn("/portal/dw/stream");
     assertHomeLinkRedirectsTo("/portal/", "/portal/");

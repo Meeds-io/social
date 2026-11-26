@@ -181,9 +181,10 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
   /**
    * A redirect to this space's own {@code /s/{spaceId}} entry reaches this
    * handler again for the same space home, and so does a redirect to the root
-   * of this host or of this context when the portal sends that root to the
-   * user's default path and that path is this space's entry (a user who made
-   * this space their home page): either would loop.
+   * of this host or of this context, whatever its query, when the portal sends
+   * that root to the user's default path, dropping the query, and that path is
+   * this space's entry (a user who made this space their home page): either
+   * would loop.
    *
    * @param uri the URI to redirect to, possibly null
    * @param username the current user, null when anonymous
@@ -196,7 +197,9 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     String path = getRequestedPath(uri, request);
     if (path == null) {
       return false;
-    } else if (path.isEmpty() || path.equals(request.getContextPath())) {
+    }
+    String pathWithoutQuery = StringUtils.removeEnd(StringUtils.substringBefore(path, "?"), "/");
+    if (pathWithoutQuery.isEmpty() || pathWithoutQuery.equals(request.getContextPath())) {
       return isSpaceHomeEntry(portalConfigService.getDefaultPath(username), request, spaceId);
     } else {
       return isSpaceHomeEntry(uri, request, spaceId);
