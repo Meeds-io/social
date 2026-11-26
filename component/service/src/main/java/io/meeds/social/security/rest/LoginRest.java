@@ -264,7 +264,7 @@ public class LoginRest {
     String username = passwordRecoveryService.verifyToken(token, tokenType);
     if (username != null) {
       try {
-        String email = finishUserCreation(username, request, token, request.getLocale());
+        String email = finishUserCreation(username, request, token, tokenType, request.getLocale());
         cleanCapcha(request.getSession(),"email-validation");
         return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH).body(new JSONObject()
                                                                                                     .put("username", email).toString());
@@ -598,13 +598,16 @@ public class LoginRest {
     user.setEmail(email);
     user.setPassword(password);
     String data = generateUserDetailCredential(user);
-    passwordRecoveryService.sendAccountVerificationEmail(data,
-                                                         username,
-                                                         firsname,
-                                                         lastname,
-                                                         email,
-                                                         locale,
-                                                         getUrl(request));
+    if (passwordRecoveryService.sendAccountVerificationEmail(data,
+                                                             username,
+                                                             firsname,
+                                                             lastname,
+                                                             email,
+                                                             locale,
+                                                             getUrl(request))) {
+      // the registration goes on through the verification email's link
+      remindPasswordTokenService.deleteToken(token, CookieTokenService.EXTERNAL_REGISTRATION_TOKEN);
+    }
     return ResponseEntity.ok(new JSONObject().
                                  put(SUCCESS_MESSAGE_PARAM, EMAIL_VERIFICATION_SENT)
                                  .toString());
@@ -1060,11 +1063,15 @@ public class LoginRest {
                          user.getPassword());
   }
 
-  private String finishUserCreation(String username, HttpServletRequest request, String token, Locale locale) throws Exception {
+  private String finishUserCreation(String username,
+                                    HttpServletRequest request,
+                                    String token,
+                                    String tokenType,
+                                    Locale locale) throws Exception {
     User user = generateUserFromCredential(username);
     username = createUser(user);
     passwordRecoveryService.sendAccountCreatedConfirmationEmail(username, locale, getUrl(request));
-    remindPasswordTokenService.deleteToken(token);
+    passwordRecoveryService.deleteToken(token, tokenType);
     return user.getEmail();
   }
 
