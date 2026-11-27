@@ -19,6 +19,7 @@
 package org.exoplatform.social.core.listeners;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -293,7 +294,7 @@ public class SynchronizedUserProfileListenerTest {
   public void multiValuedPropertyWithNoDirectoryValueDoesNotBlockTheOtherProperties() throws Exception {
     Profile profile = syncWithLicenceAbsentFromDirectory(null);
     assertEquals("1234", profile.getProperty("badge"));
-    assertTrue(!profile.getProperties().containsKey("licence"));
+    assertFalse(profile.getProperties().containsKey("licence"));
     verify(identityManager).updateProfile(profile, true);
   }
 
@@ -330,7 +331,7 @@ public class SynchronizedUserProfileListenerTest {
                                                               idmExternalStoreImportService,
                                                               external));
 
-    assertTrue(!profile.getProperties().containsKey("licence"));
+    assertFalse(profile.getProperties().containsKey("licence"));
     verify(identityManager, never()).updateProfile(profile, true);
   }
 

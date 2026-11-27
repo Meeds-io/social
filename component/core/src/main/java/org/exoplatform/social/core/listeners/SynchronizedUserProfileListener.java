@@ -254,6 +254,7 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
     }
     return proprtiesMap;
   }
+
   private static boolean isEmptyList(Object value) {
     return value instanceof List<?> list && list.isEmpty();
   }
