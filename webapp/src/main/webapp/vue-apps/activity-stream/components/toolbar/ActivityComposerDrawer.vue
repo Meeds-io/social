@@ -621,6 +621,7 @@ export default {
             this.spaceId = eXo.env.portal.spaceId;
           }
           const scheduledTime = this.pendingScheduledTime;
+          let categoriesErrorMessage = null;
           this.$activityService.createActivity(message, activityType, this.files, this.spaceId, this.templateParams, scheduledTime)
             .then(activity => {
               this.activityId = activity.id;
@@ -637,6 +638,11 @@ export default {
                   spaceId: this.spaceId,
                   oldCategories: [],
                   newCategories: this.selectedCategoryIds,
+                }).catch(async (e) => {
+                  // The activity is posted: report the categories only, never an activity error
+                  console.error('Error when linking the posted activity to categories', e);
+                  const message = await this.$categoryLinkService.getUpdateErrorMessage(e, this.$t.bind(this));
+                  categoriesErrorMessage = message || this.$t('categoryInputDrawer.updated.error');
                 });
               }
             })
@@ -644,6 +650,9 @@ export default {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
               if (scheduledTime) {
                 this.$root.$emit('alert-message', this.$t('activity.composer.schedule.success'), 'success');
+              }
+              if (categoriesErrorMessage) {
+                this.$root.$emit('alert-message', categoriesErrorMessage, 'error');
               }
               this.resetAudienceChoice();
               this.close();

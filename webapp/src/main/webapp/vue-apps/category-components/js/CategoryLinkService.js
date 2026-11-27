@@ -17,6 +17,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { getCategory } from './CategoryService.js';
+
 export function link(id, object) {
   return fetch(`/social/rest/category/links/${id}`, {
     credentials: 'include',
@@ -55,40 +57,67 @@ export async function updateCategories({
   newCategories,
   dropExisting
 }) {
-  let result = true;
-  if (newCategories.length) {
-    const linkIds = newCategories.filter(id => oldCategories.indexOf(id) < 0);
-    if (linkIds?.length) {
-      for (let i = 0; i < linkIds.length; i++) {
-        const id = linkIds[i];
-        // Sequentially update links
-        // eslint-disable-next-line no-await-in-loop
-        const linkResult = await link(id, {
-          type: objectType,
-          id: objectId,
-          spaceId,
-        }).then(() => true).catch(() => false);
-        result = result || linkResult;
-      }
-    }
+  const object = {
+    type: objectType,
+    id: objectId,
+    spaceId,
+  };
+  const linkedIds = [];
+  const failedLinkIds = [];
+  const unlinkedIds = [];
+  const failedUnlinkIds = [];
+  // Sequentially update links
+  const linkIds = (newCategories || []).filter(id => (oldCategories || []).indexOf(id) < 0);
+  for (const id of linkIds) {
+    // eslint-disable-next-line no-await-in-loop
+    const linked = await link(id, object).then(() => true).catch(() => false);
+    (linked ? linkedIds : failedLinkIds).push(id);
   }
   if (dropExisting && oldCategories?.length) {
-    const unlinkIds = oldCategories.filter(id => newCategories.indexOf(id) < 0);
-    if (unlinkIds?.length) {
-      for (let i = 0; i < unlinkIds.length; i++) {
-        const id = unlinkIds[i];
-        // Sequentially update links
-        // eslint-disable-next-line no-await-in-loop
-        const unlinkResult = await unlink(id, {
-          type: objectType,
-          id: objectId,
-          spaceId,
-        }).then(() => true).catch(() => false);
-        result = result || unlinkResult;
-      }
+    const unlinkIds = oldCategories.filter(id => (newCategories || []).indexOf(id) < 0);
+    for (const id of unlinkIds) {
+      // eslint-disable-next-line no-await-in-loop
+      const unlinked = await unlink(id, object).then(() => true).catch(() => false);
+      (unlinked ? unlinkedIds : failedUnlinkIds).push(id);
     }
   }
-  if (!result) {
-    throw new Error('Error while updating categories');
+  if (failedLinkIds.length || failedUnlinkIds.length) {
+    const error = new Error('Error while updating categories');
+    error.linkedIds = linkedIds;
+    error.failedLinkIds = failedLinkIds;
+    error.unlinkedIds = unlinkedIds;
+    error.failedUnlinkIds = failedUnlinkIds;
+    throw error;
   }
+}
+
+// Computes the categories an object is really linked to after a partial
+// update, from the error thrown by updateCategories.
+export function getCategoryIdsAfterFailure(oldCategories, error) {
+  const unlinkedIds = error?.unlinkedIds || [];
+  const linkedIds = error?.linkedIds || [];
+  return (oldCategories || [])
+    .filter(id => unlinkedIds.indexOf(id) < 0)
+    .concat(linkedIds);
+}
+
+async function getCategoryNames(ids) {
+  const names = await Promise.all(ids.map(id => getCategory(id)
+    .then(category => category?.name || String(id))
+    .catch(() => String(id))));
+  return names.join(', ');
+}
+
+// Builds the user message naming the categories that could not be linked
+// and/or unlinked, from the error thrown by updateCategories.
+// `t` is the component's $t function.
+export async function getUpdateErrorMessage(error, t) {
+  const messages = [];
+  if (error?.failedLinkIds?.length) {
+    messages.push(t('categoryInputDrawer.updated.linkError', {0: await getCategoryNames(error.failedLinkIds)}));
+  }
+  if (error?.failedUnlinkIds?.length) {
+    messages.push(t('categoryInputDrawer.updated.unlinkError', {0: await getCategoryNames(error.failedUnlinkIds)}));
+  }
+  return messages.join(' ');
 }

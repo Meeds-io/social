@@ -86,15 +86,32 @@ export default {
 
     async saveAll(categoriesIds) {
       this.selectedCategoryIds = categoriesIds;
-      await Promise.all(this.objectIds.map(id => this.save(id)));
-      this.$root.$emit('alert-message', this.$t('categoryInput.drawer.bulk.updated.success'), 'success');
+      const failures = await Promise.all(this.objectIds.map(id => this.save(id)));
+      // Every object with a saved change: no error, or an error after a partial save
+      const savedObjectIds = this.objectIds.filter((id, index) => {
+        const e = failures[index];
+        return !e || e.linkedIds?.length || e.unlinkedIds?.length;
+      });
+      const errors = failures.filter(e => !!e);
+      if (errors.length) {
+        const merged = {
+          failedLinkIds: [...new Set(errors.flatMap(e => e.failedLinkIds || []))],
+          failedUnlinkIds: [...new Set(errors.flatMap(e => e.failedUnlinkIds || []))],
+        };
+        const message = await this.$categoryLinkService.getUpdateErrorMessage(merged, this.$t.bind(this));
+        this.$root.$emit('alert-message', message || this.$t('categoryInputDrawer.updated.error'), 'error');
+      } else {
+        this.$root.$emit('alert-message', this.$t('categoryInput.drawer.bulk.updated.success'), 'success');
+      }
       this.$refs.drawer.close();
-      document.dispatchEvent(new CustomEvent('categories-updated', {detail: {
-        objectType: this.objectType,
-        objectIds: this.objectIds,
-        spaceId: this.spaceId,
-        categoryIds: this.selectedCategoryIds,
-      }}));
+      if (savedObjectIds.length) {
+        document.dispatchEvent(new CustomEvent('categories-updated', {detail: {
+          objectType: this.objectType,
+          objectIds: savedObjectIds,
+          spaceId: this.spaceId,
+          categoryIds: this.selectedCategoryIds,
+        }}));
+      }
     },
 
     async save(objectId) {
@@ -108,9 +125,11 @@ export default {
           newCategories: this.selectedCategoryIds,
           dropExisting: this.dropExisting
         });
+        return null;
       } catch (e) {
         console.error(e);
-        this.$root.$emit('alert-message', this.$t('categoryInputDrawer.updated.error'), 'error');
+        // Returned to saveAll, which shows one message for the whole selection
+        return e;
       } finally {
         this.saving = false;
       }

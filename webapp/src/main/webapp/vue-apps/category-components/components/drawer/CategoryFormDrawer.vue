@@ -140,7 +140,17 @@ export default {
         this.close();
       } catch (e) {
         console.error(e);
-        this.$root.$emit('alert-message', this.$t('categoryInputDrawer.updated.error'), 'error');
+        // Keep the drawer open, with what has really been saved as the reference state
+        this.categoryIds = this.$categoryLinkService.getCategoryIdsAfterFailure(this.categoryIds, e);
+        if (e?.linkedIds?.length || e?.unlinkedIds?.length) {
+          document.dispatchEvent(new CustomEvent('categories-updated', {detail: {
+            objectType: this.objectType,
+            objectId: this.objectId,
+            categoryIds: this.categoryIds,
+          }}));
+        }
+        const message = await this.$categoryLinkService.getUpdateErrorMessage(e, this.$t.bind(this));
+        this.$root.$emit('alert-message', message || this.$t('categoryInputDrawer.updated.error'), 'error');
       } finally {
         this.saving = false;
       }
