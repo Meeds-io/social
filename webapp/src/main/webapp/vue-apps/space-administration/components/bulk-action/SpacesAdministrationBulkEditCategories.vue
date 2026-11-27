@@ -34,18 +34,27 @@
 export default {
   methods: {
     saveCategories(params) {
+      // Errors of this run only, collected to report them once the run is over
+      const errors = [];
       this.$root.applyOperationInBulk(
         async (space) => {
           const oldCategoryIds = space.categoryIds || [];
           const newCategoryIds = params.categoryIds || [];
-          await this.$categoryLinkService.updateCategories({
-            objectType: 'space',
-            objectId: space.id,
-            spaceId: space.id,
-            oldCategories: oldCategoryIds.slice(),
-            newCategories: newCategoryIds.slice(),
-            dropExisting: params.dropExisting
-          });
+          try {
+            await this.$categoryLinkService.updateCategories({
+              objectType: 'space',
+              objectId: space.id,
+              spaceId: space.id,
+              oldCategories: oldCategoryIds.slice(),
+              newCategories: newCategoryIds.slice(),
+              dropExisting: params.dropExisting
+            });
+          } catch (e) {
+            // The row shows what has really been saved
+            space.categoryIds = this.$categoryLinkService.getCategoryIdsAfterFailure(oldCategoryIds, e);
+            errors.push(e);
+            throw e;
+          }
           const categoryIds = newCategoryIds.slice();
           if (!params.dropExisting && oldCategoryIds.length) {
             categoryIds.push(...oldCategoryIds.filter(id => categoryIds.indexOf(id) < 0));
@@ -53,8 +62,17 @@ export default {
           space.categoryIds = categoryIds;
         },
         null,
-        () => {
-          this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.categoriesAppliedOnSpaces'), 'success');
+        async () => {
+          if (errors.length) {
+            const merged = {
+              failedLinkIds: [...new Set(errors.flatMap(e => e.failedLinkIds || []))],
+              failedUnlinkIds: [...new Set(errors.flatMap(e => e.failedUnlinkIds || []))],
+            };
+            const message = await this.$categoryLinkService.getUpdateErrorMessage(merged, this.$root.$t.bind(this.$root));
+            this.$root.$emit('alert-message', message || this.$root.$t('categoryInputDrawer.updated.error'), 'error');
+          } else {
+            this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.categoriesAppliedOnSpaces'), 'success');
+          }
         });
     },
   },
