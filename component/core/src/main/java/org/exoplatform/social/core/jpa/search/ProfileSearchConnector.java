@@ -22,8 +22,12 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import io.meeds.social.identity.permission.service.UserPermissionService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -50,11 +54,35 @@ import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.storage.impl.StorageUtils;
 
+import io.meeds.social.people.model.PeopleDirectoryFilter;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+
 public class ProfileSearchConnector {
+
+  /**
+   * Number of value combinations aggregated for a multi-valued property, whose
+   * index field holds one joined string per user.
+   */
+  public static final int     MULTI_VALUED_AGGREGATION_SIZE = 500;
 
   private static final Log LOG = ExoLogger.getLogger(ProfileSearchConnector.class);
 
   private static final String ES_RESERVED_CHARS = "+-=&|><!(){}[]^\"~*?:\\/";
+
+  /** Characters the Lucene regexp grammar reads as operators. */
+  private static final String REGEXP_RESERVED_CHARS = ".?+*|{}[]()\"\\#@&<>~";
+
+  /** The former placeholder of an owner-hidden value, never suggested. */
+  private static final String HIDDEN_VALUE = "hidden";
+
+  private static final JsonMapper JSON_MAPPER = new JsonMapper();
+
+  private static final String MATCH_NONE_CLAUSE = "{\"match_none\": {}}";
+
+  private static final String PERMISSIONS_FIELD = "permissions";
 
   private final ElasticSearchingClient client;
   private final ProfilePropertyService profilePropertyService;
@@ -397,6 +425,13 @@ public class ProfileSearchConnector {
         filterClauses.add(expEsForAdvancedFilter);
       }
     }
+    Supplier<Set<String>> membershipTypes = lazyMembershipTypes();
+    filterClauses.addAll(buildDirectoryClauses(filter.getDirectoryFilter(), membershipTypes));
+    if (filter.getGuestIdentityId() != null) {
+      filterClauses.add(buildGuestRestrictionClause(filter.getViewerSpaceGroupIds(),
+                                                    filter.getGuestIdentityId(),
+                                                    membershipTypes));
+    }
 
     if (CollectionUtils.isNotEmpty(mustClauses)) {
       if(appendCommar) {
@@ -554,9 +589,24 @@ public class ProfileSearchConnector {
     }
     StringBuilder query = new StringBuilder();
     int index = 0;
+    // looked up in the full list: a lookup by an unknown name caches the miss,
+    // and the index holds the visible settings only
+    List<ProfilePropertySetting> propertySettings = profilePropertyService.getPropertySettings();
     for(String key : settings.keySet()) {
-      ProfilePropertySetting property = profilePropertyService.getProfileSettingByName(key);
-      if (property != null) {
+      String settingName = key;
+      ProfilePropertySetting property = propertySettings.stream()
+                                                        .filter(setting -> StringUtils.equals(setting.getPropertyName(), settingName))
+                                                        .findFirst()
+                                                        .orElse(null);
+      if (property != null && !property.isVisible()) {
+        // the index holds no value for a non-visible setting: a criterion on
+        // it matches nobody, never widens the list
+        if (index > 0) {
+          query.append(",");
+        }
+        query.append(MATCH_NONE_CLAUSE);
+        index++;
+      } else if (property != null) {
         // split on whitespace, as Character#isWhitespace and the index's
         // whitespace tokenizer define it, before escaping: query_string
         // separates terms on tabs and line breaks too, which would leave a
@@ -612,6 +662,237 @@ public class ProfileSearchConnector {
     }
 
     return query.toString();
+  }
+
+  /**
+   * The distinct values the profile index holds for a property, at most limit,
+   * most frequent first. A multi-valued property's field holds one joined
+   * string per user: up to {@link #MULTI_VALUED_AGGREGATION_SIZE} combinations
+   * are aggregated, then split, so a value held only in rarer combinations is
+   * reached by narrowing with a query. Known limit: the joined string does not
+   * tell a separator from a comma inside a value, so a multi-valued value
+   * holding a comma ({@code Paris, France}) is listed as its pieces
+   * ({@code Paris}, {@code France}), each stripped of its spaces, which the
+   * directory clause skips. The values are the index's strings: a
+   * multi-valued property's and {@code position}'s come without their
+   * accents.
+   *
+   * @param propertyName the property name, a visible setting's
+   * @param multiValued whether the property is multi-valued
+   * @param query a text the values must contain, ignoring case, may be blank
+   * @param limit the maximum number of values
+   * @return the values, as the index holds them
+   */
+  public List<String> getAttributeValues(String propertyName, boolean multiValued, String query, int limit) {
+    String esQuery = buildAttributeValuesQuery(propertyName, multiValued, query, limit);
+    String jsonResponse = this.client.sendRequest(esQuery, this.index);
+    Set<String> values = new LinkedHashSet<>();
+    try {
+      JsonNode buckets = JSON_MAPPER.readTree(jsonResponse).path("aggregations").path("values").path("buckets");
+      for (JsonNode bucket : buckets) {
+        String key = bucket.path("key").asString();
+        if (multiValued) {
+          for (String value : StringUtils.split(key, ',')) {
+            // only the spaces the directory clause skips around a separator
+            String trimmed = StringUtils.strip(value, " ");
+            if (StringUtils.isNotEmpty(trimmed) && (StringUtils.isEmpty(query) || StringUtils.containsIgnoreCase(trimmed, query))) {
+              values.add(trimmed);
+            }
+          }
+        } else {
+          values.add(key);
+        }
+      }
+    } catch (Exception e) { // NOSONAR a malformed engine answer yields no value
+      LOG.warn("Error while parsing the attribute values of {}", propertyName, e);
+    }
+    return values.stream().limit(limit).toList();
+  }
+
+  String buildAttributeValuesQuery(String propertyName, boolean multiValued, String query, int limit) {
+    ObjectNode terms = JSON_MAPPER.createObjectNode();
+    terms.put("field", ProfileIndexingServiceConnector.getIndexedFieldName(propertyName) + ".raw");
+    terms.put("size", multiValued ? MULTI_VALUED_AGGREGATION_SIZE : limit);
+    terms.putArray("exclude").add(HIDDEN_VALUE);
+    if (StringUtils.isNotEmpty(query)) {
+      terms.put("include", ".*" + toCaseInsensitiveRegexp(query) + ".*");
+    }
+    terms.putObject("order").put("_count", "desc");
+    ObjectNode root = JSON_MAPPER.createObjectNode();
+    root.put("size", 0);
+    root.putObject("aggs").putObject("values").set("terms", terms);
+    return root.toString();
+  }
+
+  /**
+   * The group clause (see {@link #buildDirectoryGroupsClause}), then one clause
+   * per directory attribute, each matching a user holding one of
+   * its values: a term on the indexed field for a single-valued property, a
+   * regexp matching one value of the joined string for a multi-valued one,
+   * spaces around it ignored as the value picker strips them. An attribute
+   * that is not a visible, active, top-level setting matches nobody.
+   * Known limit: a multi-valued value holding a comma is read as several
+   * values, so {@code Paris} also matches a user holding {@code Paris, France}.
+   */
+  private List<String> buildDirectoryClauses(PeopleDirectoryFilter directoryFilter, Supplier<Set<String>> membershipTypes) {
+    if (directoryFilter == null) {
+      return Collections.emptyList();
+    }
+    List<String> clauses = new ArrayList<>();
+    if (directoryFilter.getGroups() != null) {
+      clauses.add(buildDirectoryGroupsClause(directoryFilter.getGroups(), membershipTypes));
+    }
+    if (MapUtils.isEmpty(directoryFilter.getAttributes())) {
+      return clauses;
+    }
+    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
+    for (Map.Entry<String, List<String>> attribute : directoryFilter.getAttributes().entrySet()) {
+      ProfilePropertySetting setting = settings.stream()
+                                               .filter(s -> StringUtils.equals(s.getPropertyName(), attribute.getKey()))
+                                               .findFirst()
+                                               .orElse(null);
+      List<String> values = attribute.getValue() == null ? Collections.emptyList()
+                                                         : attribute.getValue()
+                                                                    .stream()
+                                                                    .filter(StringUtils::isNotEmpty)
+                                                                    .toList();
+      if (setting == null || !setting.isVisible() || !setting.isActive() || setting.getParentId() != null
+          || values.isEmpty()) {
+        clauses.add(MATCH_NONE_CLAUSE);
+        continue;
+      }
+      String field = ProfileIndexingServiceConnector.getIndexedFieldName(setting.getPropertyName()) + ".raw";
+      ObjectNode bool = JSON_MAPPER.createObjectNode();
+      ArrayNode should = bool.putObject("bool").putArray("should");
+      for (String value : values) {
+        if (setting.isMultiValued()) {
+          ObjectNode regexp = should.addObject().putObject("regexp").putObject(field);
+          regexp.put("value", "(.*,)? *" + escapeRegexp(value) + " *(,.*)?");
+          regexp.put("flags", "NONE");
+        } else {
+          should.addObject().putObject("term").put(field, value);
+        }
+      }
+      ((ObjectNode) bool.get("bool")).put("minimum_should_match", 1);
+      clauses.add(bool.toString());
+    }
+    return clauses;
+  }
+
+  /**
+   * The clause matching a user who is a member of one of the groups, or of one
+   * of their sub-groups, through any membership type, directly or through a
+   * nested-group link: a term on each membership token of a group, and a
+   * prefix on the tokens of its sub-groups ({@code member:/organization/hr/}
+   * matches {@code member:/organization/hr/payroll}), so neither the group
+   * tree nor a member list is loaded. No group matches nobody.
+   */
+  String buildDirectoryGroupsClause(List<String> groupIds, Supplier<Set<String>> membershipTypesSupplier) {
+    List<String> groups = groupIds.stream().filter(StringUtils::isNotBlank).distinct().toList();
+    if (groups.isEmpty()) {
+      return MATCH_NONE_CLAUSE;
+    }
+    Set<String> membershipTypes = membershipTypesSupplier.get();
+    ObjectNode root = JSON_MAPPER.createObjectNode();
+    ObjectNode bool = root.putObject("bool");
+    ArrayNode should = bool.putArray("should");
+    ArrayNode tokens = should.addObject().putObject("terms").putArray(PERMISSIONS_FIELD);
+    for (String groupId : groups) {
+      for (String membershipType : membershipTypes) {
+        String token = membershipType + ":" + groupId;
+        tokens.add(token);
+        tokens.add(UserPermissionService.INHERITED_TOKEN_PREFIX + token);
+        should.addObject().putObject("prefix").put(PERMISSIONS_FIELD, token + "/");
+        should.addObject().putObject("prefix").put(PERMISSIONS_FIELD, UserPermissionService.INHERITED_TOKEN_PREFIX + token + "/");
+      }
+    }
+    bool.put("minimum_should_match", 1);
+    return root.toString();
+  }
+
+  /**
+   * The membership types a group clause matches, the star included, read from
+   * {@link UserPermissionService#getMembershipTypes()}, which is not cached, at
+   * most once per query statement and only when a clause needs them.
+   */
+  private Supplier<Set<String>> lazyMembershipTypes() {
+    AtomicReference<Set<String>> membershipTypes = new AtomicReference<>();
+    return () -> membershipTypes.updateAndGet(types -> types == null ? readMembershipTypes() : types);
+  }
+
+  private Set<String> readMembershipTypes() {
+    Set<String> membershipTypes = new LinkedHashSet<>(userPermissionService.getMembershipTypes());
+    membershipTypes.add(UserPermissionService.ANY_MEMBERSHIP_TYPE);
+    return membershipTypes;
+  }
+
+  /**
+   * The guest restriction, the query form of the {@code VIEW} rule of
+   * {@code UserAclPlugin} for a guest viewer: a user who is a member of one of
+   * the guest's space groups, through any membership type, directly or through
+   * a nested-group link; a confirmed connection of the guest; or the guest
+   * themself. One {@code bool.should}, ANDed with the other filters and never
+   * merged into the directory's group filter, whose terms are an OR. With no
+   * space group, it matches the guest's connections and the guest only.
+   */
+  String buildGuestRestrictionClause(List<String> spaceGroupIds,
+                                     long guestIdentityId,
+                                     Supplier<Set<String>> membershipTypesSupplier) {
+    ObjectNode root = JSON_MAPPER.createObjectNode();
+    ObjectNode bool = root.putObject("bool");
+    ArrayNode should = bool.putArray("should");
+    List<String> groups = spaceGroupIds == null ? Collections.emptyList()
+                                                : spaceGroupIds.stream().filter(StringUtils::isNotBlank).distinct().toList();
+    if (!groups.isEmpty()) {
+      Set<String> membershipTypes = membershipTypesSupplier.get();
+      ArrayNode tokens = should.addObject().putObject("terms").putArray(PERMISSIONS_FIELD);
+      for (String groupId : groups) {
+        for (String membershipType : membershipTypes) {
+          String token = membershipType + ":" + groupId;
+          tokens.add(token);
+          tokens.add(UserPermissionService.INHERITED_TOKEN_PREFIX + token);
+        }
+      }
+    }
+    should.addObject().putObject("term").put("connections", guestIdentityId);
+    should.addObject().putObject("ids").putArray("values").add(String.valueOf(guestIdentityId));
+    bool.put("minimum_should_match", 1);
+    return root.toString();
+  }
+
+  /**
+   * A Lucene regexp matching a text literally, ignoring case: each cased
+   * letter becomes the class of its lower and upper forms ({@code hr} gives
+   * {@code [hH][rR]}), every other character is escaped as by
+   * {@link #escapeRegexp}.
+   */
+  static String toCaseInsensitiveRegexp(String value) {
+    StringBuilder regexp = new StringBuilder(value.length() * 4);
+    for (char c : value.toCharArray()) {
+      char lower = Character.toLowerCase(c);
+      char upper = Character.toUpperCase(c);
+      if (lower != upper) {
+        regexp.append('[').append(lower).append(upper).append(']');
+      } else {
+        regexp.append(escapeRegexp(String.valueOf(c)));
+      }
+    }
+    return regexp.toString();
+  }
+
+  /**
+   * Escapes every character the Lucene regexp grammar reads as an operator,
+   * so that the value is matched literally.
+   */
+  static String escapeRegexp(String value) {
+    StringBuilder escaped = new StringBuilder(value.length());
+    for (char c : value.toCharArray()) {
+      if (REGEXP_RESERVED_CHARS.indexOf(c) >= 0) {
+        escaped.append('\\');
+      }
+      escaped.append(c);
+    }
+    return escaped.toString();
   }
 
   private static String removeAccents(String string) {

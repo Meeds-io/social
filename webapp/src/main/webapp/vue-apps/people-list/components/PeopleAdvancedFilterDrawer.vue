@@ -37,6 +37,7 @@
             class="d-flex flex-row">
             <people-advanced-filter-input-item
               :settings-item="item"
+              :disabled="isDirectoryAttribute(item)"
               @input-value-changed="setValueToSearch" />
           </div>
         </div>
@@ -76,6 +77,8 @@
   </exo-drawer>
 </template>
 <script>
+import {readUrlFilters} from '../js/PeopleListUrl.js';
+
 export default {
   name: 'PeopleAdvancedFilterDrawer',
   data() {
@@ -85,9 +88,38 @@ export default {
   },
   created() {
     this.$root.$on('open-people-advanced-filter-drawer', this.openDrawer);
+    // a reset from the list clears the values the drawer holds, a restored
+    // one included, even when the drawer was never opened
+    this.$root.$on('reset-advanced-filter', this.clearValues);
+    // a saved directory filter changes the attributes the viewer can apply
+    this.$root.$on('people-list-directory-updated', this.emitOwnAttributes);
     this.getSettings();
   },
+  beforeDestroy() {
+    this.$root.$off('open-people-advanced-filter-drawer', this.openDrawer);
+    this.$root.$off('reset-advanced-filter', this.clearValues);
+    this.$root.$off('people-list-directory-updated', this.emitOwnAttributes);
+  },
   methods: {
+    // the attributes the viewer can filter on: the only ones the list writes
+    // to the URL
+    emitOwnAttributes() {
+      this.$root.$emit('advanced-filter-attributes', this.settings
+        .filter(e => !this.isDirectoryAttribute(e))
+        .map(e => e.propertyName));
+    },
+    clearValues() {
+      this.settings.forEach((element) => {
+        if (element && element.valueToSearch) {
+          element.valueToSearch = '';
+        }
+      });
+    },
+    // an attribute the directory already filters on: the directory's values
+    // win, so the viewer cannot set it
+    isDirectoryAttribute(item) {
+      return (this.$root.directoryAttributes || []).includes(item?.propertyName);
+    },
     openDrawer() {
       this.$refs.peopleAdvancedFilterDrawer.open();
     },
@@ -112,22 +144,40 @@ export default {
       this.$root.$emit('reset-advanced-filter');
       this.$root.$emit('reset-advanced-filter-count');
     },
+    // the shared URL's values apply to the attributes the viewer can filter
+    // on, the directory's own excepted: any other name is dropped, the users
+    // resource refusing it
     getSettings() {
+      const urlAttributes = readUrlFilters().attributes;
+      const restoring = Object.keys(urlAttributes).length > 0;
       return this.$profileSettingsService.getSettings()
         .then(settings => {
           this.settings = settings?.settings.filter((e) => e.active && e.visible && e.parentId === null).map(obj => ({
             ...obj,
-            valueToSearch: ''
+            valueToSearch: !this.isDirectoryAttribute(obj) && urlAttributes[obj.propertyName] || '',
           })) || [];
+        })
+        .catch(() => this.settings = [])
+        .finally(() => {
+          this.emitOwnAttributes();
+          if (restoring) {
+            const restored = this.searchedValues();
+            this.$root.$emit('advanced-filter-restored', restored);
+            this.$root.$emit('advanced-filter-count', Object.keys(restored).length);
+          }
         });
     },
-    confirm() {
+    searchedValues() {
       const keyValue = {};
-      this.settings.forEach((e)=>{
-        if (e && e.valueToSearch){
+      this.settings.forEach((e) => {
+        if (e && e.valueToSearch && !this.isDirectoryAttribute(e)) {
           keyValue[e.propertyName] = e.valueToSearch;
         }
       });
+      return keyValue;
+    },
+    confirm() {
+      const keyValue = this.searchedValues();
       this.$root.$emit('advanced-filter', keyValue);
       const advancedFilterCount = Object.keys(keyValue).length || 0 ;
       this.$root.$emit('advanced-filter-count', advancedFilterCount);

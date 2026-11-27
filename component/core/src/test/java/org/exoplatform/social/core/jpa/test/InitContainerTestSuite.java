@@ -42,6 +42,7 @@ import org.exoplatform.social.core.jpa.storage.SpaceStorageTest;
 import org.exoplatform.social.core.jpa.storage.UserSpacesStorageTest;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAOTest;
+import org.exoplatform.social.core.jpa.storage.dao.IdentityKeysetQueriesTest;
 import org.exoplatform.social.core.jpa.storage.dao.ProfileLabelDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.SpaceDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.SpaceExternalInvitationDAOTest;
@@ -92,6 +93,7 @@ import io.meeds.social.translation.storage.cache.CachedTranslationStorageCacheTe
 @SuiteClasses({
   ActivityDAOTest.class,
   IdentityDAOTest.class,
+  IdentityKeysetQueriesTest.class,
   StreamItemDAOTest.class,
   RelationshipStorageTest.class,
   SpaceStorageTest.class,

@@ -20,10 +20,17 @@ package org.exoplatform.social.core.profileproperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,7 +53,9 @@ import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
+import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
@@ -57,6 +66,22 @@ import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.service.TranslationService;
 
 public class ProfilePropertyServiceImpl implements ProfilePropertyService, Startable {
+
+  /**
+   * Broadcast, with the updated setting as data, when an edit changes the
+   * string the profile index holds for the property's values: an option's
+   * value or labels, the dropdown switch, or the property hidden or shown
+   * again by the administrator, whose values the documents leave out while it
+   * is not visible.
+   */
+  public static final String                         PROPERTY_OPTIONS_UPDATED_EVENT         = "property_options_updated";
+
+  /** Number of property holders read, then queued for reindex, at once. */
+  public static final int                            PROPERTY_HOLDERS_PAGE_SIZE             = 1000;
+
+  private static final String                        PROPERTY_REINDEX_THREAD_NAME           = "profile-option-reindex";
+
+  private static final long                          PROPERTY_REINDEX_STOP_TIMEOUT_SECONDS  = 5;
 
   private static final Log                           LOG                                    =
                                                          ExoLogger.getLogger(ProfilePropertyServiceImpl.class);
@@ -70,6 +95,26 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   private final ListenerService                      listenerService;
 
   private final TranslationService                   translationService;
+
+  private final IdentityDAO                          identityDAO;
+
+  /**
+   * Set when the container stops: no page of a property holders walk starts
+   * once it is set. The interrupt flag is not the signal, since a page that
+   * turns the interrupt into an exception clears it.
+   */
+  private final AtomicBoolean                        stopping                               = new AtomicBoolean();
+
+  /** One property holders walk at a time; further edits are queued. */
+  private final ExecutorService                      propertyReindexExecutor                =
+                                                                             Executors.newSingleThreadExecutor(runnable -> {
+                                                                               Thread thread = new Thread(runnable,
+                                                                                                          PROPERTY_REINDEX_THREAD_NAME);
+                                                                               thread.setDaemon(true);
+                                                                               return thread;
+                                                                             });
+
+  int                                                propertyHoldersPageSize                = PROPERTY_HOLDERS_PAGE_SIZE;
 
   private static final String                        SYNCHRONIZED_DISABLED_PROPERTIES       = "synchronizationDisabledProperties";
 
@@ -113,8 +158,10 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                                     SettingService settingService,
                                     IndexingService indexingService,
                                     ListenerService listenerService,
-                                    TranslationService translationService) {
+                                    TranslationService translationService,
+                                    IdentityDAO identityDAO) {
     this.profileSettingStorage = profileSettingStorage;
+    this.identityDAO = identityDAO;
     this.settingService = settingService;
     this.indexingService = indexingService;
     this.listenerService = listenerService;
@@ -205,7 +252,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
       }
       throw e;
     }
-    savePropertyOptionsTranslations(storedProfilePropertySetting, profilePropertySetting.getPropertyOptions(), false);
+    savePropertyOptionsTranslations(storedProfilePropertySetting, profilePropertySetting.getPropertyOptions());
 
     try {
       listenerService.broadcast("profile-property-setting-created", this, storedProfilePropertySetting);
@@ -234,6 +281,12 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     }
     ProfilePropertySetting createdProfilePropertySetting =
                                                          profileSettingStorage.getProfileSettingById(profilePropertySetting.getId());
+    // read before the save: the stored options are compared after it
+    boolean wasDropdownList = createdProfilePropertySetting != null && createdProfilePropertySetting.isDropdownList();
+    boolean wasMultiValued = createdProfilePropertySetting != null && createdProfilePropertySetting.isMultiValued();
+    boolean wasVisible = createdProfilePropertySetting != null && createdProfilePropertySetting.isVisible();
+    Map<Long, String> previousOptionValues = getOptionValues(createdProfilePropertySetting == null ? null
+                                                                                                   : createdProfilePropertySetting.getPropertyOptions());
     
     if (createdProfilePropertySetting != null && isDefaultProperties(profilePropertySetting)) {
       profilePropertySetting.setMultiValued(createdProfilePropertySetting.isMultiValued());
@@ -244,7 +297,20 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
     profilePropertySetting.setUpdated(System.currentTimeMillis());
     ProfilePropertySetting updatedPropertySetting = saveUpdatedPropertySetting(profilePropertySetting);
-    savePropertyOptionsTranslations(updatedPropertySetting, profilePropertySetting.getPropertyOptions(), true);
+    boolean labelsChanged = savePropertyOptionsTranslations(updatedPropertySetting, profilePropertySetting.getPropertyOptions());
+    if (labelsChanged
+        || (createdProfilePropertySetting != null && wasVisible != updatedPropertySetting.isVisible())
+        // the indexed string of a value depends on the flag (toIndexedValue)
+        || (createdProfilePropertySetting != null && wasMultiValued != updatedPropertySetting.isMultiValued())
+        || isOptionValueChanged(updatedPropertySetting, wasDropdownList, previousOptionValues)) {
+      try {
+        listenerService.broadcast(PROPERTY_OPTIONS_UPDATED_EVENT, this, updatedPropertySetting);
+      } catch (Exception e) {
+        LOG.error("An error occurred when broadcasting the options update of the property setting {}",
+                  updatedPropertySetting.getPropertyName(),
+                  e);
+      }
+    }
     try {
       listenerService.broadcast("profile-property-setting-updated", this, updatedPropertySetting);
     } catch (Exception e) {
@@ -341,7 +407,93 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   @Override
   public void stop() {
-    // Nothing to stop
+    stopping.set(true);
+    propertyReindexExecutor.shutdownNow();
+    try {
+      if (!propertyReindexExecutor.awaitTermination(PROPERTY_REINDEX_STOP_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        LOG.warn("The reindex of profile property holders is still running {} seconds after the stop",
+                 PROPERTY_REINDEX_STOP_TIMEOUT_SECONDS);
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  @Override
+  public void reindexPropertyHolders(String propertyName) {
+    if (StringUtils.isBlank(propertyName) || stopping.get()) {
+      return;
+    }
+    try {
+      propertyReindexExecutor.execute(() -> walkPropertyHolders(propertyName));
+    } catch (RejectedExecutionException e) {
+      LOG.warn("The reindex of the holders of profile property {} is not queued: the service is stopping", propertyName);
+    }
+  }
+
+  /**
+   * Reindexes the holders of a property page by page, through a keyset on the
+   * identity id. A page whose reindex fails is logged and the walk resumes
+   * after its last id; a page whose read fails ends the walk, since there is
+   * no id to resume after. No page starts once the service is stopping.
+   *
+   * @param propertyName the name of the profile property
+   */
+  void walkPropertyHolders(String propertyName) {
+    long lastId = 0;
+    while (!stopping.get()) {
+      List<Long> identityIds;
+      try {
+        identityIds = readPropertyHolders(propertyName, lastId);
+      } catch (Exception e) {
+        LOG.warn("The reindex of the holders of profile property {} ends: the page after identity id {} could not be read",
+                 propertyName,
+                 lastId,
+                 e);
+        return;
+      }
+      if (identityIds.isEmpty()) {
+        return;
+      }
+      try {
+        reindexIdentities(identityIds);
+      } catch (Exception e) {
+        LOG.warn("The holders of profile property {} after identity id {} could not be queued for reindex, the walk resumes after id {}",
+                 propertyName,
+                 lastId,
+                 identityIds.getLast(),
+                 e);
+      }
+      lastId = identityIds.getLast();
+      if (identityIds.size() < propertyHoldersPageSize) {
+        return;
+      }
+    }
+  }
+
+  @ContainerTransactional(atomic = true)
+  List<Long> readPropertyHolders(String propertyName, long lastId) {
+    return doReadPropertyHolders(propertyName, lastId);
+  }
+
+  @ContainerTransactional(atomic = true)
+  void reindexIdentities(List<Long> identityIds) {
+    doReindexIdentities(identityIds);
+  }
+
+  /** The un-advised body of {@link #readPropertyHolders}, which tests call. */
+  List<Long> doReadPropertyHolders(String propertyName, long lastId) {
+    return identityDAO.getIdsHoldingPropertyAfterId(OrganizationIdentityProvider.NAME,
+                                                    propertyName,
+                                                    lastId,
+                                                    propertyHoldersPageSize);
+  }
+
+  /** The un-advised body of {@link #reindexIdentities}, which tests call. */
+  void doReindexIdentities(List<Long> identityIds) {
+    for (Long identityId : identityIds) {
+      indexingService.reindex(ProfileIndexingServiceConnector.TYPE, String.valueOf(identityId));
+    }
   }
 
   @Override
@@ -476,12 +628,18 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     }
   }
 
-  private void savePropertyOptionsTranslations(ProfilePropertySetting savedProfilePropertySetting,
-                                               List<ProfilePropertyOption> newOptions,
-                                               boolean update) {
-    if (!savedProfilePropertySetting.isDropdownList()) {
-      return;
+  /**
+   * Saves the labels of the posted options on the stored ones, paired by
+   * position.
+   *
+   * @return true when the labels of a stored option changed
+   */
+  private boolean savePropertyOptionsTranslations(ProfilePropertySetting savedProfilePropertySetting,
+                                                  List<ProfilePropertyOption> newOptions) {
+    if (!savedProfilePropertySetting.isDropdownList() || newOptions == null) {
+      return false;
     }
+    boolean labelsChanged = false;
     List<ProfilePropertyOption> savedOptions =
                                              profileSettingStorage.getProfilePropertyOptions(savedProfilePropertySetting.getId(),
                                                                                              0,
@@ -496,22 +654,61 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
         TranslationField translationField = translationService.getTranslationField(PROFILE_PROPERTY_OBJECT_TYPE,
                                                                                    savedOption.getId(),
                                                                                    PROFILE_PROPERTY_FIELD_NAME);
-        Map<Locale, String> translations = newOption.getTranslations()
-                                                    .entrySet()
-                                                    .stream()
-                                                    .collect(Collectors.toMap(entry -> Locale.forLanguageTag(entry.getKey()),
-                                                                              Map.Entry::getValue));
+        Map<Locale, String> previousTranslations = translationField == null ? Collections.emptyMap()
+                                                                            : translationField.getLabels();
+        Map<Locale, String> translations = newOption.getTranslations() == null ? Collections.emptyMap()
+                                                                               : newOption.getTranslations()
+                                                                                          .entrySet()
+                                                                                          .stream()
+                                                                                          .filter(entry -> entry.getKey() != null
+                                                                                                           && entry.getValue() != null)
+                                                                                          .collect(Collectors.toMap(entry -> Locale.forLanguageTag(entry.getKey()),
+                                                                                                                    Map.Entry::getValue));
         translationService.saveTranslationLabels(PROFILE_PROPERTY_OBJECT_TYPE,
                                                  savedOption.getId(),
                                                  PROFILE_PROPERTY_FIELD_NAME,
                                                  translations);
-        if (update && translationField != null && !translationField.getLabels().equals(translations)) {
-          listenerService.broadcast("property_options_updated", newOption, translationField.getLabels());
-        }
+        labelsChanged = labelsChanged || !previousTranslations.equals(translations);
       } catch (Exception e) {
         LOG.error("Error while saving translation labels for profile property option {}", savedOption.getId(), e);
       }
     }
+    return labelsChanged;
+  }
+
+  /**
+   * Whether an update changed the string the profile index holds for the
+   * property's values, other than through the option labels: the dropdown
+   * switch turned off or on while the property has options (the index then
+   * holds the raw option id, or the option again), an option removed, or an
+   * option's value changed.
+   */
+  private boolean isOptionValueChanged(ProfilePropertySetting updatedPropertySetting,
+                                       boolean wasDropdownList,
+                                       Map<Long, String> previousOptionValues) {
+    Map<Long, String> optionValues =
+                                   getOptionValues(profileSettingStorage.getProfilePropertyOptions(updatedPropertySetting.getId(),
+                                                                                                   0,
+                                                                                                   0));
+    if (wasDropdownList != updatedPropertySetting.isDropdownList()) {
+      return !previousOptionValues.isEmpty() || !optionValues.isEmpty();
+    } else if (!updatedPropertySetting.isDropdownList()) {
+      return false;
+    }
+    return previousOptionValues.entrySet()
+                               .stream()
+                               .anyMatch(previous -> !optionValues.containsKey(previous.getKey())
+                                                     || !Objects.equals(previous.getValue(), optionValues.get(previous.getKey())));
+  }
+
+  private Map<Long, String> getOptionValues(List<ProfilePropertyOption> options) {
+    Map<Long, String> optionValues = new HashMap<>();
+    if (options != null) {
+      options.stream()
+             .filter(option -> option != null && option.getId() != null)
+             .forEach(option -> optionValues.put(option.getId(), option.getValue()));
+    }
+    return optionValues;
   }
 
   private boolean isPropertySettingHiddenable(ProfilePropertySetting propertySetting) {

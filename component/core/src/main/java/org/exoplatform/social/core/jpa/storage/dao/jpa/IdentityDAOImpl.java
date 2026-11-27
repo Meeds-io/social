@@ -148,6 +148,29 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
+  public List<Long> getDisabledIdsByProviderAfterId(String providerId, long lastId, int limit) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SocIdentity.getDisabledIdsByProviderAfterId", Long.class);
+    query.setParameter(PROVIDER_ID_PARAM, providerId);
+    query.setParameter("lastId", lastId);
+    if (limit > 0) {
+      query.setMaxResults(limit);
+    }
+    return query.getResultList();
+  }
+
+  @Override
+  public List<Long> getIdsHoldingPropertyAfterId(String providerId, String propertyName, long lastId, int limit) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SocIdentity.getIdsHoldingPropertyAfterId", Long.class);
+    query.setParameter(PROVIDER_ID_PARAM, providerId);
+    query.setParameter("propertyName", propertyName);
+    query.setParameter("lastId", lastId);
+    if (limit > 0) {
+      query.setMaxResults(limit);
+    }
+    return query.getResultList();
+  }
+
+  @Override
   public List<Long> getIdsByProviderAfterId(String providerId, long lastId, int limit) {
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SocIdentity.getIdsByProviderAfterId", Long.class);
     query.setParameter(PROVIDER_ID_PARAM, providerId);

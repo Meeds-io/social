@@ -29,6 +29,8 @@ import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.search.Sorting;
 
+import io.meeds.social.people.model.PeopleDirectoryFilter;
+
 /**
  * This class using for filter profile of identity
  */
@@ -99,6 +101,25 @@ public class ProfileFilter implements Cloneable {
   private boolean isEnabled = true;
 
   private boolean wildcardSearch = true;
+
+  /*
+   * The filter of the People Directory instance serving the list: every
+   * listed user must match it, whatever the other criteria
+   */
+  private PeopleDirectoryFilter directoryFilter;
+
+  /**
+   * The space groups through which a guest viewer sees other users, set with
+   * {@link #guestIdentityId} only.
+   */
+  private List<String>          viewerSpaceGroupIds;
+
+  /**
+   * The social identity id of a guest viewer whose list is restricted to
+   * themself, their confirmed connections and the members of
+   * {@link #viewerSpaceGroupIds}; null when no guest restriction applies.
+   */
+  private Long                  guestIdentityId;
 
   public ProfileFilter() {
     this("");
@@ -378,8 +399,40 @@ public class ProfileFilter implements Cloneable {
     this.profileSettings = profileSettings;
   }
 
+  public PeopleDirectoryFilter getDirectoryFilter() {
+    return directoryFilter;
+  }
+
+  public void setDirectoryFilter(PeopleDirectoryFilter directoryFilter) {
+    this.directoryFilter = directoryFilter;
+  }
+
+  public List<String> getViewerSpaceGroupIds() {
+    return viewerSpaceGroupIds;
+  }
+
+  public void setViewerSpaceGroupIds(List<String> viewerSpaceGroupIds) {
+    this.viewerSpaceGroupIds = viewerSpaceGroupIds;
+  }
+
+  public Long getGuestIdentityId() {
+    return guestIdentityId;
+  }
+
+  public void setGuestIdentityId(Long guestIdentityId) {
+    this.guestIdentityId = guestIdentityId;
+  }
+
+  /**
+   * @return true when no criterion needs the profile index: an empty filter is
+   *         served from the database, which applies neither the directory
+   *         filter nor the guest restriction
+   */
   public boolean isEmpty() {
-    return StringUtils.isBlank(this.all)
+    return this.directoryFilter == null
+        && this.guestIdentityId == null
+        && this.viewerSpaceGroupIds == null
+        && StringUtils.isBlank(this.all)
         && StringUtils.isBlank(this.name)
         && StringUtils.isBlank(this.company)
         && StringUtils.isBlank(this.position)

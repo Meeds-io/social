@@ -21,7 +21,8 @@
 -->
 <template>
   <application-toolbar
-    id="peopleListApplication"
+    ref="toolbar"
+    class="people-list-application"
     :right-text-filter="{
       minCharacters: 3,
       placeholder: $t('peopleList.label.filterPeople.placeholder'),
@@ -31,6 +32,7 @@
     :right-filter-button="{
       hide: hideRightFilterButton,
       text: $t('pepole.advanced.filter.button.title'),
+      ariaLabel: filterButtonAriaLabel,
     }"
     :right-select-box="{
       hide: compactDisplay || hideFilter,
@@ -39,14 +41,42 @@
       ariaLabel: $t('peopleList.label.filter.select'),
     }"
     :compact="compactDisplay"
+    :cone-button-aria-label="coneButtonAriaLabel"
     :filters-count="advancedFilterCount"
     @filter-text-input-end-typing="keyword = $event"
     @filter-button-click="openPeopleAdvancedFilterDrawer"
     @filter-select-change="filterValue = $event"
+    @filter-expand="filterExpand = $event"
     @toggle-select="updateFilter($event)">
-    <template v-if="filterMessage" #left>
-      <div :class="filterMessageClass">
+    <!-- always passed: the toolbar reads $slots.left, which is not
+         reactive, so a slot removed when the count drops to 0 would leave
+         the previous count displayed -->
+    <template #left>
+      <div
+        v-if="headerTitle"
+        class="people-list-header-title text-header text-truncate">
+        {{ headerTitle }}
+      </div>
+      <div v-else-if="filterMessage" :class="filterMessageClass">
         {{ filterMessage }}
+      </div>
+    </template>
+    <!-- hidden while the filter bar is open, as in the Directory of Spaces -->
+    <template v-if="$root.canEdit && !filterExpand" #right>
+      <div class="ms-2 people-list-settings-button-container">
+        <!-- hidden visually only: the button stays in the tab order, and
+             focusing it shows it -->
+        <v-btn
+          :style="($root.hover || $root.focusWithin) ? '' : 'opacity: 0;'"
+          :title="$t('peopleList.settings.drawer.title')"
+          :aria-label="$t('peopleList.settings.drawer.title')"
+          class="people-list-settings-button"
+          height="36"
+          width="36"
+          icon
+          @click="$root.$emit('people-list-settings-open')">
+          <v-icon size="20">fa-cog</v-icon>
+        </v-btn>
       </div>
     </template>
   </application-toolbar>
@@ -77,12 +107,18 @@ export default {
     filterMessageClass: {
       type: String,
       default: ''
-    }
+    },
+    // the search text restored from a shared URL
+    initialKeyword: {
+      type: String,
+      default: null
+    },
   },
-  data: () => ({
+  data: vm => ({
     advancedFilterCount: 0,
-    keyword: null,
-    filterValue: null
+    keyword: vm.initialKeyword || null,
+    filterValue: null,
+    filterExpand: false,
   }),
   created() {
     this.filterValue = this.filter;
@@ -91,7 +127,35 @@ export default {
       this.advancedFilterCount = 0;
     });
   },
+  mounted() {
+    // shown in the search field, where it is already the list's search
+    if (this.initialKeyword) {
+      this.$refs.toolbar.setTerm(this.initialKeyword);
+    }
+  },
   computed: {
+    // the viewer's own filters only, never the directory's: its state is
+    // said, not only coloured
+    filterButtonAriaLabel() {
+      return this.advancedFilterCount
+        ? this.$t('peopleList.label.filterButton.applied', {0: this.advancedFilterCount})
+        : this.$t('pepole.advanced.filter.button.title');
+    },
+    // on mobile the search field and the filter button are hidden behind the
+    // cone button, which then says the search and the filters applied
+    coneButtonAriaLabel() {
+      if (this.keyword && this.advancedFilterCount) {
+        return this.$t('peopleList.label.coneButton.searchAndFilters', {0: this.keyword, 1: this.advancedFilterCount});
+      } else if (this.keyword) {
+        return this.$t('peopleList.label.coneButton.search', {0: this.keyword});
+      } else if (this.advancedFilterCount) {
+        return this.$t('peopleList.label.coneButton.filters', {0: this.advancedFilterCount});
+      }
+      return this.$t('peopleList.label.coneButton');
+    },
+    headerTitle() {
+      return this.$root.headerTitle;
+    },
     peopleFilters() {
       return [{
         text: this.$t('peopleList.label.filter.all'),

@@ -193,7 +193,7 @@
             v-if="showFilterButton"
             id="applicationToolbarAdvancedFilterButton"
             :class="filterButtonClass"
-            :aria-label="!showRightFilterButtonText && filterButtonAriaLabel || null"
+            :aria-label="rightFilterButton?.ariaLabel || !showRightFilterButtonText && filterButtonAriaLabel || null"
             :small="!showRightFilterButtonText"
             :disabled="rightFilterButton?.disabled"
             text
@@ -215,7 +215,7 @@
           <v-btn
             v-if="showConeButton"
             id="applicationToolbarConeButton"
-            :aria-label="$t('label.filter')"
+            :aria-label="coneButtonAriaLabel || $t('label.filter')"
             class="px-0 ms-4"
             small
             icon
@@ -318,6 +318,7 @@ export default {
         hide: true,
         text: null,
         displayText: null, // Force to display text even in compact mode
+        ariaLabel: null, // Accessible name, when the text alone does not say the state
       }),
     },
     filtersCount: { // Filter button: applied filter count
@@ -331,6 +332,10 @@ export default {
     hideConeButton: { // Force hide cone button, but generally useless since it's handled
       type: Boolean,
       default: false,
+    },
+    coneButtonAriaLabel: { // Cone button accessible name, saying the hidden filters' state
+      type: String,
+      default: null,
     },
     compact: { // Force the compact display
       type: Boolean,

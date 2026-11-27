@@ -30,6 +30,8 @@ import org.springframework.stereotype.Service;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import io.meeds.common.ContainerTransactional;
 import io.meeds.social.cms.model.ContentLink;
@@ -38,6 +40,7 @@ import io.meeds.social.cms.model.ContentLinkIdentifier;
 import io.meeds.social.cms.model.ContentLinkSearchResult;
 import io.meeds.social.cms.model.ContentObject;
 import io.meeds.social.cms.model.ContentObjectIdentifier;
+import io.meeds.social.cms.plugin.ContentLinkPlugin;
 import io.meeds.social.cms.storage.ContentLinkStorage;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -46,6 +49,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ContentLinkServiceImpl implements ContentLinkService {
+
+  private static final Log               LOG = ExoLogger.getLogger(ContentLinkServiceImpl.class);
 
   private final ContentLinkPluginService contentLinkPluginService;
 
@@ -81,6 +86,7 @@ public class ContentLinkServiceImpl implements ContentLinkService {
                                                      contentObject.getObjectId()));
     }
     return getLinkIdentifiers(contentObject).stream()
+                                            .filter(this::hasLinkPlugin)
                                             .filter(linkIdentifier -> canView(linkIdentifier, username))
                                             .map(this::getLink)
                                             .filter(Objects::nonNull)
@@ -186,6 +192,25 @@ public class ContentLinkServiceImpl implements ContentLinkService {
     return userAcl.hasEditPermission(contentObject.getObjectType(),
                                      contentObject.getObjectId(),
                                      username);
+  }
+
+  /**
+   * A stored link whose object type has no {@link ContentLinkPlugin}, such as a
+   * link to a user, which any tag can store, or a link left by an uninstalled
+   * add-on, cannot be rendered: it is left out of the host's links instead of
+   * failing the whole read. It is checked before the viewer's access, so that a
+   * type with no {@link io.meeds.portal.plugin.AclPlugin} either, whose access
+   * check throws, is left out too, and no access is checked for a link that is
+   * dropped anyway.
+   */
+  private boolean hasLinkPlugin(ContentLinkIdentifier linkIdentifier) {
+    if (!contentLinkPluginService.hasPlugin(linkIdentifier.getObjectType())) {
+      LOG.debug("Content link {}:{} is left out: no content link plugin handles its type",
+                linkIdentifier.getObjectType(),
+                linkIdentifier.getObjectId());
+      return false;
+    }
+    return true;
   }
 
   @ContainerTransactional

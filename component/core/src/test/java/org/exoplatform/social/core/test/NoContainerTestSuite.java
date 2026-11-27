@@ -20,6 +20,7 @@ package org.exoplatform.social.core.test;
 
 import io.meeds.social.cms.listener.PageContentBlockIndexingListenerTest;
 import io.meeds.social.cms.listener.PageRemovedIndexingListenerTest;
+import io.meeds.social.cms.service.ContentLinkServiceImplTest;
 import io.meeds.social.cms.service.PageContentBlockPluginServiceImplTest;
 import io.meeds.social.cms.service.PageUrlResolverServiceImplTest;
 import io.meeds.social.cms.storage.elasticsearch.PageContentIndexingConnectorTest;
@@ -56,6 +57,8 @@ import org.exoplatform.social.core.jpa.storage.entity.PortableSequenceChangelogC
 import org.exoplatform.social.core.plugin.ActivityAttachmentPluginTest;
 import org.exoplatform.social.core.processor.ActivityResourceBundlePluginTest;
 import org.exoplatform.social.core.profile.UserProfileComparatorTest;
+import org.exoplatform.social.core.jpa.search.ProfileSearchConnectorDirectoryFilterTest;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyHoldersReindexTest;
 import org.exoplatform.social.core.relationship.RelationshipTest;
 import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
@@ -112,6 +115,10 @@ import io.meeds.social.organizationalunit.service.OrganizationalUnitServiceTest;
 import io.meeds.social.organizationalunit.storage.OrganizationalUnitStorageTest;
 import io.meeds.social.analytics.CollaborativeActivityDeclarationTest;
 import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
+import io.meeds.social.people.service.PeopleDirectoryFilterServiceTest;
+import io.meeds.social.people.service.PeopleDirectoryGroupFilterServiceTest;
+import io.meeds.social.people.service.PeopleDirectoryServiceTest;
+import io.meeds.social.upgrade.ProfileIndexVisibilityUpgradePluginTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -120,6 +127,12 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     ChangesReminderServiceTest.class,
     UserHomePageServiceTest.class,
     OrganizationalChartSettingServiceTest.class,
+    PeopleDirectoryServiceTest.class,
+    PeopleDirectoryFilterServiceTest.class,
+    PeopleDirectoryGroupFilterServiceTest.class,
+    ProfilePropertyHoldersReindexTest.class,
+    ProfileSearchConnectorDirectoryFilterTest.class,
+    ProfileIndexVisibilityUpgradePluginTest.class,
     OrganizationalChartHeaderTranslationPermissionTest.class,
     UserCardSettingServiceTest.class,
     CacheSelectorTest.class,
@@ -173,6 +186,7 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     OrganizationIdentityProviderPopulateProfileTest.class,
     AccountKindServiceSpringTest.class,
     UserAclPluginTest.class,
+    ContentLinkServiceImplTest.class,
     RemoveProfilePropertyUpgradePlugin.class,
     SpaceInvitationLinkLinkJoinListenerTest.class,
     NavigationConfigurationStorageTest.class,

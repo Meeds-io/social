@@ -28,6 +28,10 @@ import PeopleUserRole from './components/usercard/PeopleUserRole.vue';
 import PeopleUserMenuItem from './components/usercard/PeopleUserMenuItem.vue';
 import PeopleUserCardRoles from './components/usercard/PeopleUserCardRoles.vue';
 import PeopleUserMenu from './components/usercard/PeopleUserMenu.vue';
+import PeopleListSettingsDrawer from './components/settings/PeopleListSettingsDrawer.vue';
+import PeopleListAttributeFilter from './components/settings/PeopleListAttributeFilter.vue';
+import PeopleListAttributeCard from './components/settings/PeopleListAttributeCard.vue';
+import PeopleListGroupFilter from './components/settings/PeopleListGroupFilter.vue';
 
 const components = {
   'people-list': PeopleList,
@@ -42,6 +46,10 @@ const components = {
   'people-user-card-roles': PeopleUserCardRoles,
   'people-user-menu': PeopleUserMenu,
   'people-user-menu-item': PeopleUserMenuItem,
+  'people-list-settings-drawer': PeopleListSettingsDrawer,
+  'people-list-attribute-filter': PeopleListAttributeFilter,
+  'people-list-attribute-card': PeopleListAttributeCard,
+  'people-list-group-filter': PeopleListGroupFilter,
 };
 
 for (const key in components) {
