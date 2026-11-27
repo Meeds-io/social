@@ -54,7 +54,7 @@
           :search-input.sync="query"
           :placeholder="$t('peopleList.settings.groupSearch')"
           :no-data-text="$t('peopleList.settings.groupSearch.noData')"
-          :aria-describedby="groupsMissing && groupsMissingId || null"
+          :aria-describedby="groupSearchDescribedBy"
           item-text="label"
           item-value="groupId"
           class="people-list-group-search mt-2 mb-0 mx-0 pa-0 elevation-0 no-border"
@@ -71,9 +71,10 @@
             </v-list-item-content>
           </template>
         </v-autocomplete>
-        <!-- why Apply is disabled, read with the field; text, not color -->
+        <!-- why Apply is disabled, read with the field; text, not color.
+             The missing groups' message below says it already -->
         <div
-          v-if="groupsMissing"
+          v-if="groupsMissing && !$root.missingGroups"
           :id="groupsMissingId"
           class="people-list-groups-missing caption error-color mt-1">
           {{ $t('peopleList.settings.group.required') }}
@@ -211,6 +212,14 @@ export default {
     // disabled (the drawer's groupsMissing)
     groupsMissing() {
       return this.enabled && !this.value.length && !this.otherGroupsApplied;
+    },
+    // the message the search field is read with: the missing groups' one
+    // while the stored filter misses groups, else why Apply is disabled
+    groupSearchDescribedBy() {
+      if (this.$root.missingGroups) {
+        return this.groupsUnavailableId;
+      }
+      return this.groupsMissing && this.groupsMissingId || null;
     },
     // the groups applied that the editor cannot select count too: with no
     // room left and no group of the editor's, the switch cannot be turned ON
