@@ -337,9 +337,11 @@ public class UserImportService {
       return userName;
     }
 
+    UserHandler userHandler = organizationService.getUserHandler();
+    User existingUser = userHandler.findUserByName(userName, UserStatus.ANY);
     String errorMessage = null;
     try {
-      errorMessage = validateUser(userObject, locale, fields);
+      errorMessage = validateUser(userObject, locale, fields, existingUser);
     } catch (Exception e) {
       errorMessage = "USER_VALIDATION_ERROR:" + e.getMessage();
     }
@@ -351,8 +353,6 @@ public class UserImportService {
     boolean userStatus = userObject.has(ENABLED_FIELD) && ("true".equalsIgnoreCase(userObject.getString(ENABLED_FIELD))
                                                            || "false".equalsIgnoreCase(userObject.getString(ENABLED_FIELD)));
 
-    UserHandler userHandler = organizationService.getUserHandler();
-    User existingUser = userHandler.findUserByName(userName, UserStatus.ANY);
     UserModificationSource.setSource("fileImportation");
     try {
       if (existingUser != null) {
@@ -659,7 +659,7 @@ public class UserImportService {
     }
   }
 
-  protected String validateUser(JSONObject userObject, Locale locale, List<String> fields) {
+  protected String validateUser(JSONObject userObject, Locale locale, List<String> fields, User existingUser) {
     String errorMessage = null;
     Iterator<UserFieldValidator> iterator = fields.contains(PASSWORD_FIELD) ? USER_FIELD_VALIDATORS.iterator() :
                                                                             USER_FIELD_NO_PASSWORD_VALIDATORS.iterator();
@@ -667,9 +667,28 @@ public class UserImportService {
       UserFieldValidator userFieldValidator = iterator.next();
       String fieldName = userFieldValidator.getField();
       String fieldValue = userObject.has(fieldName) ? userObject.getString(fieldName) : null;
-      errorMessage = userFieldValidator.validate(locale, fieldValue);
+      if (!isStoredName(existingUser, fieldName, fieldValue)) {
+        errorMessage = userFieldValidator.validate(locale, fieldValue);
+      }
     }
     return errorMessage;
+  }
+
+  /**
+   * A first or last name an existing account already holds is not checked
+   * against any name rule again: an account whose name predates a rule stays
+   * importable until that name is changed
+   */
+  private boolean isStoredName(User existingUser, String fieldName, String fieldValue) {
+    if (existingUser == null) {
+      return false;
+    } else if (FIRST_NAME_FIELD.equals(fieldName)) {
+      return StringUtils.equals(existingUser.getFirstName(), fieldValue);
+    } else if (LAST_NAME_FIELD.equals(fieldName)) {
+      return StringUtils.equals(existingUser.getLastName(), fieldValue);
+    } else {
+      return false;
+    }
   }
 
   protected void sendOnBoardingEmail(UserImpl user, String modifierUsername, String url) throws IllegalAccessException,

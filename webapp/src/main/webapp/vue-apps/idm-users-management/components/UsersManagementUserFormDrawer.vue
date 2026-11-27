@@ -170,6 +170,9 @@ export default {
     confirmPassword: '',
     confirmPasswordLeft: false,
     fieldErrors: {},
+    // The first and last names the account had at opening: one kept
+    // unchanged does not block Update, as the server updates it
+    storedNames: {},
     languages: [],
     // Counts the opens and the updates sent: an answer whose request bears
     // an earlier sequence belongs to an account the drawer has left
@@ -194,9 +197,11 @@ export default {
         : null;
     },
     // A value breaking its rule keeps Update disabled, whether the field has
-    // been left yet or not; a blank password leaves it unchanged
+    // been left yet or not, except a first or last name kept as stored; a
+    // blank password leaves it unchanged
     ruleBroken() {
       return ['firstName', 'lastName', 'email', 'password']
+        .filter(field => !this.isUnchangedStoredName(field))
         .some(field => this.$usersManagementFieldRules.fieldRuleError(field, this.user[field]));
     },
     // An extension that could not read what it shows asks that nothing be
@@ -254,6 +259,10 @@ export default {
         language: null,
         password: null,
       };
+      this.storedNames = {
+        firstName: this.user.firstName,
+        lastName: this.user.lastName,
+      };
       this.checkStoredFields();
       this.drawer = true;
       this.$userCreationService.getSupportedLanguages()
@@ -275,6 +284,10 @@ export default {
               fullname: this.user.fullname || account.fullName,
               language: this.user.language || account.language || null,
             });
+            this.storedNames = {
+              firstName: this.storedNames.firstName || account.firstName || '',
+              lastName: this.storedNames.lastName || account.lastName || '',
+            };
             this.checkStoredFields();
           }
         })
@@ -310,12 +323,16 @@ export default {
         this.setError(field, this.$t(rule));
       }
     },
-    // A stored name or email the rule refuses says so from the opening rather
-    // than through a disabled button. The rule reads every character, while the
-    // server skips a name's last one: a stored name whose last character the
-    // rule refuses is corrected here before the account is updated
+    // A stored name or email the rule refuses says so from the opening,
+    // with the rule it breaks. A stored email has to be corrected before
+    // Update; a stored name may be kept, the message then telling what a
+    // change of it has to follow
     checkStoredFields() {
       ['firstName', 'lastName', 'email'].forEach(field => this.checkField(field));
+    },
+    isUnchangedStoredName(field) {
+      return (field === 'firstName' || field === 'lastName')
+        && (this.user[field] || '').trim() === (this.storedNames[field] || '').trim();
     },
     async saveUser() {
       if (this.saving || !this.valid) {
