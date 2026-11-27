@@ -289,6 +289,56 @@ public class SynchronizedUserProfileListenerTest {
   }
 
   @Test
+  public void multiValuedPropertyWithNoDirectoryValueDoesNotBlockTheOtherProperties() throws Exception {
+    Profile profile = syncWithLicenceAbsentFromDirectory(null);
+    assertEquals("1234", profile.getProperty("badge"));
+    assertNull(profile.getProperty("licence"));
+    verify(identityManager).updateProfile(profile, true);
+  }
+
+  @Test
+  public void multiValuedPropertyWithNoDirectoryValueEmptiesTheStoredOne() throws Exception {
+    Profile profile = syncWithLicenceAbsentFromDirectory(new ArrayList<>(Arrays.asList(Map.of("value", "A"))));
+    assertEquals("1234", profile.getProperty("badge"));
+    assertTrue(profile.getProperties().containsKey("licence"));
+    assertNull(profile.getProperty("licence"));
+  }
+
+  /**
+   * Synchronizes a user whose directory entry has a value for the single-valued
+   * badge property and none for the multi-valued licence property.
+   */
+  private Profile syncWithLicenceAbsentFromDirectory(Object storedLicence) throws Exception {
+    Map<String, String> external = new HashMap<>();
+    external.put("username", "john");
+    external.put("badge", "1234");
+    external.put("licence", null);
+    commonsUtils.when(() -> CommonsUtils.getService(IdentityManager.class)).thenReturn(identityManager);
+    commonsUtils.when(() -> CommonsUtils.getService(ProfilePropertyService.class)).thenReturn(profilePropertyService);
+    Identity userIdentity = mock(Identity.class);
+    when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john")).thenReturn(userIdentity);
+    Profile profile = new Profile();
+    profile.setProperty("username", "john");
+    if (storedLicence != null) {
+      profile.setProperty("licence", storedLicence);
+    }
+    when(userIdentity.getProfile()).thenReturn(profile);
+    when(profilePropertyService.getPropertySettingNames()).thenReturn(Arrays.asList("badge", "licence"));
+    ProfilePropertySetting badge = mock(ProfilePropertySetting.class);
+    when(badge.getPropertyName()).thenReturn("badge");
+    when(profilePropertyService.getProfileSettingByName("badge")).thenReturn(badge);
+    ProfilePropertySetting licence = mock(ProfilePropertySetting.class);
+    when(licence.getPropertyName()).thenReturn("licence");
+    when(licence.isMultiValued()).thenReturn(true);
+    when(profilePropertyService.getProfileSettingByName("licence")).thenReturn(licence);
+
+    new SynchronizedUserProfileListener().onEvent(new Event<>("exo.idm.externalStore.user.profile.new",
+                                                              idmExternalStoreImportService,
+                                                              external));
+    return profile;
+  }
+
+  @Test
   public void invalidProfilePictureIsIgnored() throws Exception {
     Map<String, String> external = new HashMap<>();
     external.put("username", "john");

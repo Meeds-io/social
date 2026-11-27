@@ -226,7 +226,8 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
             proprtiesMap.put(propertyName, maps);
           } else {
             // check if the property is multivalued and its value matches the patern "["value one", "value two", "value three", etc ...]"
-            if (propertySetting.isMultiValued() && value.matches("^\\[(.*)\\]$")) {
+            // a directory attribute with no value comes as null: it is kept as is, so that it empties the property
+            if (propertySetting.isMultiValued() && value != null && value.matches("^\\[(.*)\\]$")) {
               List<Map<String, String>> multivaluedPropsList = new ArrayList<>();
               String[] valuesArray = value.substring(1, value.length() - 1).split(",");
               for (String valueString : valuesArray) {
