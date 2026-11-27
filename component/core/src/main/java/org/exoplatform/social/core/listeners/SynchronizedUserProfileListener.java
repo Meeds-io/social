@@ -86,6 +86,10 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
       Set<String> externalUserProfileAttributes = externalUserProperties.keySet();
       for (String externalUserProfileAttribute : externalUserProfileAttributes) {
         Object externalPropertyValue = externalUserProperties.getOrDefault(externalUserProfileAttribute, null);
+        if (isEmptyList(externalPropertyValue) && isNullOrEmptyList(internalUserProperties.get(externalUserProfileAttribute))) {
+          // nothing in the directory, nothing stored
+          continue;
+        }
         if ((!internalUserProperties.containsKey(externalUserProfileAttribute) && externalPropertyValue != null)
             || !Objects.equals(externalUserProperties.get(externalUserProfileAttribute),
                                internalUserProperties.get(externalUserProfileAttribute))) {
@@ -226,7 +230,11 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
             proprtiesMap.put(propertyName, maps);
           } else {
             // check if the property is multivalued and its value matches the patern "["value one", "value two", "value three", etc ...]"
-            if (propertySetting.isMultiValued() && value.matches("^\\[(.*)\\]$")) {
+            if (propertySetting.isMultiValued() && value == null) {
+              // a directory attribute with no value comes as null: an empty list empties the property, and the
+              // profile change listeners (search index, groups) see the change, which they don't with null
+              proprtiesMap.put(name, new ArrayList<Map<String, String>>());
+            } else if (propertySetting.isMultiValued() && value.matches("^\\[(.*)\\]$")) {
               List<Map<String, String>> multivaluedPropsList = new ArrayList<>();
               String[] valuesArray = value.substring(1, value.length() - 1).split(",");
               for (String valueString : valuesArray) {
@@ -246,6 +254,15 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
     }
     return proprtiesMap;
   }
+
+  private static boolean isEmptyList(Object value) {
+    return value instanceof List<?> list && list.isEmpty();
+  }
+
+  private static boolean isNullOrEmptyList(Object value) {
+    return value == null || isEmptyList(value);
+  }
+
   /*
    *  Remove the old saved multivalued property as a map of string key-value pairs.
    */
