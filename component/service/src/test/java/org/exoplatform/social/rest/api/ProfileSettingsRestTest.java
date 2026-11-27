@@ -44,6 +44,7 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import org.exoplatform.web.security.security.CookieTokenService;
 
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.profileproperty.service.ProfileFormFieldService;
 import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
 import io.meeds.social.security.rest.LoginRest;
@@ -66,7 +67,8 @@ public class ProfileSettingsRestTest extends AbstractResourceTest {
     profileFormFieldService =
                             new ProfileFormFieldService(getContainer().getComponentInstanceOfType(ProfileSettingStorage.class),
                                                                                 getContainer().getComponentInstanceOfType(IdentityStorage.class),
-                                                                                identityManager);
+                                                                                identityManager,
+                                                                                getContainer().getComponentInstanceOfType(AccountKindService.class));
     registry(new ProfileSettingsRest(profilePropertyService, profileFormFieldService));
   }
 

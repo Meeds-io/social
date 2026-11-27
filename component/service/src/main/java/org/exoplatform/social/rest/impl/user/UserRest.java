@@ -146,6 +146,7 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import io.meeds.social.core.identity.model.UserExportFilter;
 import io.meeds.social.core.identity.model.UserExportResult;
 import io.meeds.social.core.identity.model.UserImportResult;
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
@@ -299,6 +300,7 @@ public class UserRest implements ResourceContainer, Startable {
 
   private OtpService                      otpService;
 
+  private AccountKindService              accountKindService;
   private final ProfileFormFieldService   profileFormFieldService;
 
   private ExecutorService                 importExecutorService       = null;
@@ -318,6 +320,7 @@ public class UserRest implements ResourceContainer, Startable {
                   LocaleConfigService localeConfigService,
                   SettingService settingService,
                   OtpService otpService,
+                  AccountKindService accountKindService,
                   ProfileFormFieldService profileFormFieldService) {
     this.userACL = userACL;
     this.organizationService = organizationService;
@@ -333,6 +336,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.passwordRecoveryService = passwordRecoveryService;
     this.localeConfigService = localeConfigService;
     this.otpService = otpService;
+    this.accountKindService = accountKindService;
     this.profileFormFieldService = profileFormFieldService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
     this.settingService = settingService;
@@ -2335,12 +2339,29 @@ public class UserRest implements ResourceContainer, Startable {
     return onBoardingEmailSent;
   }
 
+  /**
+   * Sets one property of a user profile, refusing the properties no client may
+   * write: a non-editable property to a non-administrator, the external flag,
+   * the account kind and the user name to anyone, and a property an account
+   * kind keeps for administrators to a non-administrator on an account of
+   * that kind.
+   *
+   * @param profile the profile to update
+   * @param name the property name
+   * @param value the property value, or the upload id of an avatar or a banner
+   * @param save whether to save the profile once the property is set
+   * @param modifierUsername the user who makes the change, null for a change
+   *          made by the platform
+   * @throws IllegalAccessException when the property may not be written by
+   *           the modifier
+   */
   @SneakyThrows
   private void updateProfileField(Profile profile,
                                   String name,
                                   Object value,
                                   boolean save,
                                   String modifierUsername) throws IllegalAccessException {
+    accountKindService.checkPropertyUpdate(profile, name, modifierUsername);
     ProfilePropertySetting propertySetting = getPropertySetting(name);
     if (!canEdit(propertySetting, modifierUsername)) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));

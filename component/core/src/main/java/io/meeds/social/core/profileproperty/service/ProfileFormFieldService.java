@@ -27,6 +27,7 @@ import static io.meeds.social.core.profileproperty.exception.ProfileFormFieldExc
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
+import io.meeds.social.core.identity.service.AccountKindService;
 import io.meeds.social.core.profileproperty.constant.ProfileFormKind;
 import io.meeds.social.core.profileproperty.exception.ProfileFormFieldException;
 import io.meeds.social.core.profileproperty.model.ProfilePropertyValue;
@@ -76,12 +78,16 @@ public class ProfileFormFieldService {
 
   private final IdentityManager       identityManager;
 
+  private final AccountKindService    accountKindService;
+
   public ProfileFormFieldService(ProfileSettingStorage profileSettingStorage,
                                  IdentityStorage identityStorage,
-                                 IdentityManager identityManager) {
+                                 IdentityManager identityManager,
+                                 AccountKindService accountKindService) {
     this.profileSettingStorage = profileSettingStorage;
     this.identityStorage = identityStorage;
     this.identityManager = identityManager;
+    this.accountKindService = accountKindService;
   }
 
   /**
@@ -171,15 +177,43 @@ public class ProfileFormFieldService {
    * @param  modifier                the login of the user who writes
    * @throws ObjectNotFoundException when the user has no identity, or a
    *                                   deleted one
+   * @throws ProfileFormFieldException {@link ProfileFormFieldException#NOT_ALLOWED}
+   *                                   when the modifier may not change one of
+   *                                   the attributes, as
+   *                                   {@link AccountKindService#checkPropertyUpdate}
+   *                                   decides for every profile write; nothing
+   *                                   is written then
    */
   public void save(String username, Map<String, Object> values, String modifier) throws ObjectNotFoundException {
     Profile profile = getProfile(username);
     if (values == null || values.isEmpty()) {
       return;
     }
+    checkWritable(profile, values.keySet(), modifier);
     values.forEach(profile::setProperty);
     profile.setListUpdateTypes(new ArrayList<>(List.of(Profile.UpdateType.CONTACT)));
     identityManager.updateProfile(profile, modifier, false);
+  }
+
+  /**
+   * Checks that a modifier may write each of the attributes in a profile, as
+   * {@link AccountKindService#checkPropertyUpdate} decides for every profile
+   * write. Nothing is written.
+   *
+   * @param  profile                   the profile to write
+   * @param  names                     the attributes to write
+   * @param  modifier                  the login of the user who writes
+   * @throws ProfileFormFieldException {@link ProfileFormFieldException#NOT_ALLOWED}
+   *                                     naming the first attribute refused
+   */
+  public void checkWritable(Profile profile, Collection<String> names, String modifier) {
+    for (String name : names) {
+      try {
+        accountKindService.checkPropertyUpdate(profile, name, modifier);
+      } catch (IllegalAccessException e) {
+        throw new ProfileFormFieldException(NOT_ALLOWED, name);
+      }
+    }
   }
 
   /**

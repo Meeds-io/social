@@ -19,11 +19,25 @@
 package org.exoplatform.social.notification;
 
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mockStatic;
+
+import org.mockito.MockedStatic;
+
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
+
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 public class UtilsTestCase extends AbstractCoreTest {
@@ -59,6 +73,44 @@ public class UtilsTestCase extends AbstractCoreTest {
     assertEquals("Shared a document <a href=\"http://test.com/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\" style=\"color: #2f5e92; text-decoration: none;\">New design. eXo in Smart Watch.jpg</a>", Utils.processLinkTitle(title));
     title = "Shared a document <a href=\"/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\">New design. eXo in Smart Watch.jpg</a>";
     assertEquals("Shared a document <a href=\"http://test.com/portal/rest/Do_Thanh_Tung/Public/New+design.+eXo+in+Smart+Watch.jpg\" style=\"color: #2f5e92; text-decoration: none;\">New design. eXo in Smart Watch.jpg</a>", Utils.processLinkTitle(title));
+  }
+
+  /**
+   * The name of an account of a declared kind carries the kind's label in a
+   * notification, a guest's the guest label, and anyone else's, an account of
+   * a kind no plugin declares included, no label. The labels are stubbed: the
+   * test container serves no shared resource bundle.
+   */
+  public void testAddExternalFlagNamesAnAccountOfKindAndAGuest() {
+    try (MockedStatic<LinkProvider> linkProvider = mockStatic(LinkProvider.class, CALLS_REAL_METHODS)) {
+      linkProvider.when(() -> LinkProvider.getResourceBundleLabel(any(Locale.class), eq("accountKind.label.bot"))).thenReturn("Bot");
+      linkProvider.when(() -> LinkProvider.getResourceBundleLabel(any(Locale.class), eq("external.label.tag"))).thenReturn("Guest");
+      linkProvider.when(() -> LinkProvider.getCurrentUserLanguage(anyString())).thenReturn("en");
+      assertEquals("Bot Smith (Bot)", Utils.addExternalFlag(userIdentity("Bot Smith", Profile.ACCOUNT_KIND, "bot")));
+      assertEquals("Guest Smith (Guest)", Utils.addExternalFlag(userIdentity("Guest Smith", Profile.EXTERNAL, "true")));
+      assertEquals("Other Smith", Utils.addExternalFlag(userIdentity("Other Smith", Profile.ACCOUNT_KIND, "undeclared")));
+      assertEquals("Plain Smith", Utils.addExternalFlag(userIdentity("Plain Smith", null, null)));
+    }
+  }
+
+  /**
+   * An identity of the demo user, held in memory only, with the given full
+   * name and, when given, one profile property.
+   *
+   * @param fullName the full name
+   * @param property the profile property to set, or null for none
+   * @param value the property value
+   * @return the identity
+   */
+  private Identity userIdentity(String fullName, String property, String value) {
+    Identity identity = new Identity(OrganizationIdentityProvider.NAME, "demo");
+    Profile profile = new Profile(identity);
+    profile.setProperty(Profile.FULL_NAME, fullName);
+    if (property != null) {
+      profile.setProperty(property, value);
+    }
+    identity.setProfile(profile);
+    return identity;
   }
 
   public void testGetMentioners() {

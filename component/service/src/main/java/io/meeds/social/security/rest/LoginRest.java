@@ -699,7 +699,8 @@ public class LoginRest {
     }
 
     // The additional fields are checked, Required ones against the stored
-    // profile, before the password is set: a refused value sets nothing. An
+    // profile and each against what the account's kind lets its own user
+    // write, before the password is set: a refused value sets nothing. An
     // account the link does not serve them to is answered as without them
     Map<String, Object> profileValues = Collections.emptyMap();
     Profile profile = findProfile(usernameToken);
@@ -709,6 +710,7 @@ public class LoginRest {
                                                          ProfileFormKind.REGISTRATION,
                                                          true,
                                                          profile);
+        profileFormFieldService.checkWritable(profile, profileValues.keySet(), usernameToken);
       } catch (ProfileFormFieldException e) {
         return ResponseEntity.badRequest().body(new JSONObject()
                                                     .put(ERROR_MESSAGE_PARAM, e.getMessage())

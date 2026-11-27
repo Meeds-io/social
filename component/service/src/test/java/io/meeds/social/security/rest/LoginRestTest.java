@@ -1289,6 +1289,29 @@ public class LoginRestTest {
   }
 
   /**
+   * An additional field the account's kind keeps for administrators refuses
+   * the onboarding before the password is set, naming the attribute: the link
+   * is kept and nothing is written
+   */
+  @Test
+  @SneakyThrows
+  public void testSetPasswordRefusesAnAttributeTheAccountKindKeepsForAdministrators() {
+    Profile profile = prepareOnboarding(Map.of("team", "7"));
+    Map<String, Object> profileValues = Map.of("manager", "mary");
+    when(profileFormFieldService.validate(any(), eq(ProfileFormKind.REGISTRATION), eq(true), eq(profile))).thenReturn(profileValues);
+    doThrow(new ProfileFormFieldException(ProfileFormFieldException.NOT_ALLOWED, "manager")).when(profileFormFieldService)
+                                                                                           .checkWritable(profile,
+                                                                                                          profileValues.keySet(),
+                                                                                                          "john");
+
+    performOnboarding("[{\"propertyName\":\"manager\",\"value\":\"mary\"}]").andExpect(status().isBadRequest())
+                                                                              .andExpect(jsonPath("$.error").value(ProfileFormFieldException.NOT_ALLOWED))
+                                                                              .andExpect(jsonPath("$.propertyName").value("manager"));
+    verify(passwordRecoveryService, never()).changePass(any(), any(), any(), any());
+    verify(profileFormFieldService, never()).save(any(), any(), any());
+  }
+
+  /**
    * Additional fields that are not a JSON array of attribute values refuse the
    * onboarding before the password is set
    */
