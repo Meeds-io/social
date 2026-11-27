@@ -69,6 +69,7 @@ import io.meeds.social.reaction.service.ReactionServiceImplTest;
 import io.meeds.social.reaction.storage.ReactionStorageTest;
 import io.meeds.social.report.listener.ReportActivityListenerTest;
 import io.meeds.social.report.processor.ReportActivityProcessorTest;
+import io.meeds.social.hidden.service.HiddenApplicationServiceImplTest;
 import io.meeds.social.report.service.ActivityReportServiceImplTest;
 import io.meeds.social.coediting.service.CoeditingServiceTest;
 import io.meeds.social.core.mail.BrandedEmailSenderTest;
@@ -125,6 +126,7 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     CachedTranslationStorageTest.class,
     ReactionServiceImplTest.class,
     ActivityReportServiceImplTest.class,
+    HiddenApplicationServiceImplTest.class,
     ReportActivityProcessorTest.class,
     ReportActivityListenerTest.class,
     ReactionStorageTest.class,

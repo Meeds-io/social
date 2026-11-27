@@ -50,6 +50,7 @@ import org.exoplatform.social.service.rest.notification.IntranetNotificationsRes
 import io.meeds.social.category.rest.CategoryLinkRestTest;
 import io.meeds.social.category.rest.CategoryRestTest;
 import io.meeds.social.cms.rest.ContentLinkRestTest;
+import io.meeds.social.hidden.rest.HiddenApplicationRestTest;
 import io.meeds.social.observer.rest.ObserverRestTest;
 import io.meeds.social.resource.rest.SkinRestTest;
 import io.meeds.social.translation.rest.TranslationRestResourcesTest;
@@ -85,6 +86,7 @@ import org.exoplatform.social.websocket.listener.SpaceWebNotificationWebSocketSe
   CategoryRestTest.class,
   CategoryLinkRestTest.class,
   ContentLinkRestTest.class,
+  HiddenApplicationRestTest.class,
   LoginRestTest.class,
   OtpRestTest.class,
   ApiKeyRestTest.class,

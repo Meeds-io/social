@@ -58,6 +58,7 @@ import StickyPositionElement from './components/StickyPositionElement.vue';
 import FloatingArrowButton from './components/FloatingArrowButton.vue';
 import SelectPeriod from './components/SelectPeriod.vue';
 import ColorPicker from './components/ColorPicker.vue';
+import HideApplicationButton from './components/HideApplicationButton.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -111,6 +112,7 @@ const components = {
   'floating-arrow-button': FloatingArrowButton,
   'select-period': SelectPeriod,
   'color-picker': ColorPicker,
+  'hide-application-button': HideApplicationButton,
 };
 
 for (const key in components) {

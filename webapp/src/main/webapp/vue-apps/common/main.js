@@ -30,6 +30,7 @@ import * as featureService from './js/FeatureService.js';
 import * as changesReminderService from './js/ChangesReminderService.js';
 import * as activityService from './js/ActivityService.js';
 import * as reactionService from './js/ReactionService.js';
+import * as hiddenApplicationService from './js/HiddenApplicationService.js';
 import * as favoriteService from './js/FavoriteService.js';
 import * as observerService from './js/ObserverService.js';
 import * as tagService from './js/TagService.js';
@@ -98,6 +99,9 @@ window.Object.defineProperty(Vue.prototype, '$changesReminderService', {
 });
 window.Object.defineProperty(Vue.prototype, '$activityService', {
   value: activityService,
+});
+window.Object.defineProperty(Vue.prototype, '$hiddenApplicationService', {
+  value: hiddenApplicationService,
 });
 window.Object.defineProperty(Vue.prototype, '$reactionService', {
   value: reactionService,

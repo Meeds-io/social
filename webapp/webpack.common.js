@@ -50,6 +50,7 @@ let config = {
     profileContactInformation: './src/main/webapp/vue-apps/profile-contact-information/main.js',
     profileWorkExperience: './src/main/webapp/vue-apps/profile-work-experience/main.js',
     userSettingLanguage: './src/main/webapp/vue-apps/user-setting-language/main.js',
+    userSettingHiddenApplications: './src/main/webapp/vue-apps/user-setting-hidden-applications/main.js',
     userSettingNotifications: './src/main/webapp/vue-apps/notification-user-settings/main.js',
     userSettingSecurity: './src/main/webapp/vue-apps/user-setting-security/main.js',
     spaceInfos: './src/main/webapp/vue-apps/space-infos-app/main.js',
