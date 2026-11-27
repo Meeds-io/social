@@ -61,6 +61,8 @@ public class EntityBuilderHiddenProfilePropertyTest {
 
   private static final long      POSITION_SETTING_ID = 1L;
 
+  private static final long      TEAM_SETTING_ID     = 2L;
+
   private static final String    POSITION            = "Solution Architect";
 
   private static final String    TEAM                = "Core";
@@ -87,7 +89,7 @@ public class EntityBuilderHiddenProfilePropertyTest {
 
     when(profilePropertyService.getProfileSettingByName(Profile.POSITION)).thenReturn(setting(POSITION_SETTING_ID,
                                                                                               Profile.POSITION));
-    when(profilePropertyService.getProfileSettingByName(Profile.TEAM)).thenReturn(setting(2L, Profile.TEAM));
+    when(profilePropertyService.getProfileSettingByName(Profile.TEAM)).thenReturn(setting(TEAM_SETTING_ID, Profile.TEAM));
     when(profilePropertyService.getProfileSettingByName(Profile.CITY)).thenReturn(setting(3L, Profile.CITY));
 
     Identity identity = new Identity(OWNER_IDENTITY_ID);
@@ -115,6 +117,20 @@ public class EntityBuilderHiddenProfilePropertyTest {
     assertEquals("", entity.getPrimaryProperty());
     // only the hidden property is withheld
     assertEquals(TEAM, entity.getSecondaryProperty());
+  }
+
+  /**
+   * Only the property the owner hid is withheld: a hidden team leaves the
+   * position on the position key and on the card
+   */
+  @Test
+  public void testPositionIsSentToAnotherUserWhenItsOwnerHidAnotherProperty() {
+    when(profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(OWNER_IDENTITY_ID))).thenReturn(List.of(TEAM_SETTING_ID));
+    ProfileEntity entity = buildAs("bob", false);
+
+    assertEquals(POSITION, entity.getPosition());
+    assertEquals(POSITION, entity.getPrimaryProperty());
+    assertEquals("", entity.getSecondaryProperty());
   }
 
   @Test
