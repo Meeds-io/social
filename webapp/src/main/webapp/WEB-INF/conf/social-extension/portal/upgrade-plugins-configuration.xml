@@ -233,5 +233,38 @@
               </value-param>
           </init-params>
       </component-plugin>
+      <component-plugin>
+          <name>HiddenPositionReindexUpgradePlugin</name>
+          <set-method>addUpgradePlugin</set-method>
+          <type>io.meeds.social.upgrade.HiddenPositionReindexUpgradePlugin</type>
+          <description>An upgrade plugin reindexing the profiles of the users who hid their position, so that the profile search no longer finds it (EXO-92523)</description>
+          <init-params>
+              <value-param>
+                  <name>product.group.id</name>
+                  <description>The groupId of the product</description>
+                  <value>org.exoplatform.social</value>
+              </value-param>
+              <value-param>
+                  <name>plugin.upgrade.target.version</name>
+                  <description>The plugin target version</description>
+                  <value>7.3.x</value>
+              </value-param>
+              <value-param>
+                  <name>plugin.execution.order</name>
+                  <description>The plugin execution order</description>
+                  <value>100</value>
+              </value-param>
+              <value-param>
+                  <name>plugin.upgrade.execute.once</name>
+                  <description>The plugin must be executed only once</description>
+                  <value>true</value>
+              </value-param>
+              <value-param>
+                  <name>plugin.upgrade.async.execution</name>
+                  <description>The plugin will be executed in an asynchronous mode</description>
+                  <value>true</value>
+              </value-param>
+          </init-params>
+      </component-plugin>
   </external-component-plugins>
 </configuration>
