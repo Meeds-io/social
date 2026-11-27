@@ -31,6 +31,8 @@ import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.space.model.Space;
@@ -419,6 +421,22 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     response = service("GET", getURLResource("activities/"+ rootActivity.getId() +"?expand="), "", headers, null, new DummyContainerResponseWriter());
     assertNotNull(response);
     assertEquals(200, response.getStatus());
+
+    // The poster hiding a property through the service alone, with no profile
+    // update, should return HTTP 200: the hide renews the poster's cached
+    // identity, whose cache time the ETag carries
+    responseEtag = response.getHttpHeaders().getFirst("etag");
+    headers.put("if-none-match", Collections.singletonList(responseEtag.toString()));
+    ProfilePropertyService profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
+    long positionSettingId = profilePropertyService.getProfileSettingByName(Profile.POSITION).getId();
+    profilePropertyService.hidePropertySetting(Long.parseLong(rootIdentity.getId()), positionSettingId);
+    try {
+      response = service("GET", getURLResource("activities/"+ rootActivity.getId() +"?expand="), "", headers, null, new DummyContainerResponseWriter());
+      assertNotNull(response);
+      assertEquals(200, response.getStatus());
+    } finally {
+      profilePropertyService.showPropertySetting(Long.parseLong(rootIdentity.getId()), positionSettingId);
+    }
 
     activityManager.deleteActivity(rootActivity);
   }

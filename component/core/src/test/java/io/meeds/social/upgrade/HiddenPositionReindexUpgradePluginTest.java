@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -97,6 +98,10 @@ public class HiddenPositionReindexUpgradePluginTest {
     when(identityManager.getIdentity(1L)).thenReturn(identity("1", true));
     when(identityManager.getIdentity(4L)).thenReturn(identity("4", false));
     when(identityManager.getIdentity(6L)).thenReturn(identity("6", true));
+    // enabled, so that only the position check keeps 2 and 3 out: the plugin
+    // never asks for them when that check holds
+    lenient().when(identityManager.getIdentity(2L)).thenReturn(identity("2", true));
+    lenient().when(identityManager.getIdentity(3L)).thenReturn(identity("3", true));
 
     plugin.processUpgrade("7.2.0", "7.3.0");
 
