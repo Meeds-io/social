@@ -38,6 +38,7 @@ import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
@@ -109,10 +110,25 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
   private void profileUpdated(ProfileLifeCycleEvent profileLifeCycleEvent) {
     Profile profile = profileLifeCycleEvent.getProfile();
     try {
-      User user = organizationService.getUserHandler().findUserByName(profile.getIdentity().getRemoteId());
+      User user = organizationService.getUserHandler().findUserByName(profile.getIdentity().getRemoteId(), UserStatus.ANY);
       synchronizePropertyGroups(profileLifeCycleEvent.getProfile(), user);
     } catch (Exception e) {
       LOG.error("Error while synchronizing profile property of user {} to groups", profile.getIdentity().getRemoteId(), e);
+    }
+  }
+
+  /**
+   * Brings the groups derived from a profile in line with the active
+   * synchronized properties its profile holds, for an account in any status.
+   *
+   * @param profile the profile to synchronize
+   * @param user the account owning the profile
+   */
+  public void synchronizeGroups(Profile profile, User user) {
+    try {
+      synchronizePropertyGroups(profile, user);
+    } catch (Exception e) {
+      LOG.error("Error while synchronizing profile property of user {} to groups", user.getUserName(), e);
     }
   }
 

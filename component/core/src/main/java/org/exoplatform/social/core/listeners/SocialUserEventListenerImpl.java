@@ -32,12 +32,14 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
@@ -173,6 +175,16 @@ public class SocialUserEventListenerImpl extends UserEventListener {
     if (identity != null) {
       IdentityManager idm = container.getComponentInstanceOfType(IdentityManager.class);
       idm.processEnabledIdentity(user.getUserName(), user.isEnabled());
+
+      if (user.isEnabled()) {
+        // an enabled account's profile groups match the active synchronized properties its profile holds
+        Profile profile = idm.getProfile(identity);
+        if (profile != null) {
+          new GroupSynchronizationSocialProfileListener(container.getComponentInstanceOfType(ProfilePropertyService.class),
+                                                        container.getComponentInstanceOfType(OrganizationService.class)).synchronizeGroups(profile,
+                                                                                                                               user);
+        }
+      }
 
       // clear space caches where the user is member
       SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
