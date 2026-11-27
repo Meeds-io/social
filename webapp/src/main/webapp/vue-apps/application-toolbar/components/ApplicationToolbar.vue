@@ -193,10 +193,9 @@
             v-if="showFilterButton"
             id="applicationToolbarAdvancedFilterButton"
             :class="filterButtonClass"
-            :aria-label="!showRightFilterButtonText && filterButtonAriaLabel || null"
+            :aria-label="rightFilterButton?.ariaLabel || !showRightFilterButtonText && filterButtonAriaLabel || null"
             :small="!showRightFilterButtonText"
             :disabled="rightFilterButton?.disabled"
-            :aria-label="rightFilterButton?.ariaLabel || null"
             text
             @click="$emit('filter-button-click', $event)">
             <v-icon
@@ -216,9 +215,8 @@
           <v-btn
             v-if="showConeButton"
             id="applicationToolbarConeButton"
-            :aria-label="$t('label.filter')"
+            :aria-label="coneButtonAriaLabel || $t('label.filter')"
             class="px-0 ms-4"
-            :aria-label="coneButtonAriaLabel"
             small
             icon
             @click="expandFilter = true">
