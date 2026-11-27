@@ -339,6 +339,11 @@ public class EntityBuilder {
     boolean isAdmin = getUserACL().isAdministrator(getCurrentUserIdentity());
     boolean isCurrentUser = StringUtils.equals(getCurrentUserName(), profile.getIdentity().getRemoteId());
     boolean canViewProperties = isAdmin || isCurrentUser;
+    // the properties the owner hid matter only to a viewer who is neither the
+    // owner nor an administrator
+    List<Long> hiddenPropertyIds = canViewProperties ? Collections.emptyList()
+                                                     : getProfilePropertyService().getHiddenProfilePropertyIds(profile.getIdentity()
+                                                                                                                      .getIdentityId());
 
     if (canViewProperties || isProfilePropertyVisible(Profile.FIRST_NAME)) {
       userEntity.setFirstname((String) profile.getProperty(Profile.FIRST_NAME));
@@ -349,8 +354,9 @@ public class EntityBuilder {
     if (canViewProperties || isProfilePropertyVisible(Profile.FULL_NAME)) {
       userEntity.setFullname(profile.getFullName());
     }
-    if (canViewProperties || isProfilePropertyVisible(Profile.POSITION)) {
-      userEntity.setPosition(getProfilePropertyValue(profile, "position"));
+    if (canViewProperties
+        || (isProfilePropertyVisible(Profile.POSITION) && !isHiddenByOwner(Profile.POSITION, hiddenPropertyIds))) {
+      userEntity.setPosition(getProfilePropertyValue(profile, Profile.POSITION));
     }
     if (canViewProperties || isProfilePropertyVisible(Profile.EMAIL)) {
       userEntity.setEmail(profile.getEmail());
@@ -505,12 +511,15 @@ public class EntityBuilder {
       buildManagedUsersCount(userEntity);
     }
 
-    populateUserCardProperties(profile, userEntity);
+    populateUserCardProperties(profile, userEntity, canViewProperties, hiddenPropertyIds);
 
     return userEntity;
   }
 
-  private static void populateUserCardProperties(Profile profile, ProfileEntity userEntity) {
+  private static void populateUserCardProperties(Profile profile,
+                                                 ProfileEntity userEntity,
+                                                 boolean canViewProperties,
+                                                 List<Long> hiddenPropertyIds) {
 
     org.exoplatform.commons.api.settings.data.Scope userCardScope =
                                                                   new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
@@ -532,44 +541,62 @@ public class EntityBuilder {
                                                            userCardScope,
                                                            "UserDisplayedEmailPropertySetting");
 
-    userEntity.setPrimaryProperty(resolveUserCardProperty(profile, firstFieldSetting, "position"));
-    userEntity.setSecondaryProperty(resolveUserCardProperty(profile, secondFieldSetting, "team"));
-    userEntity.setTertiaryProperty(resolveUserCardProperty(profile, thirdFieldSetting, "city"));
+    userEntity.setPrimaryProperty(resolveUserCardProperty(profile,
+                                                          firstFieldSetting,
+                                                          Profile.POSITION,
+                                                          canViewProperties,
+                                                          hiddenPropertyIds));
+    userEntity.setSecondaryProperty(resolveUserCardProperty(profile,
+                                                            secondFieldSetting,
+                                                            Profile.TEAM,
+                                                            canViewProperties,
+                                                            hiddenPropertyIds));
+    userEntity.setTertiaryProperty(resolveUserCardProperty(profile,
+                                                           thirdFieldSetting,
+                                                           Profile.CITY,
+                                                           canViewProperties,
+                                                           hiddenPropertyIds));
 
     if (phoneFieldSetting != null) {
-      userEntity.setPhoneProperty(resolveUserCardProperty(profile, phoneFieldSetting, null));
+      userEntity.setPhoneProperty(resolveUserCardProperty(profile, phoneFieldSetting, null, canViewProperties, hiddenPropertyIds));
     }
 
     if (emailFieldSetting != null) {
-      userEntity.setEmailProperty(resolveUserCardProperty(profile, emailFieldSetting, null));
+      userEntity.setEmailProperty(resolveUserCardProperty(profile, emailFieldSetting, null, canViewProperties, hiddenPropertyIds));
     }
   }
 
+  /**
+   * The value of the property a user card field displays: the property an
+   * administrator chose for that field, or its default one. The owner and the
+   * administrators always get it; any other viewer gets it only when its setting
+   * is visible and the owner did not hide it.
+   */
   private static String resolveUserCardProperty(Profile profile,
-                                         SettingValue<?> setting,
-                                         String fallbackProperty) {
-
-    if (setting != null) {
-      String propertyName = String.valueOf(setting.getValue());
+                                                SettingValue<?> setting,
+                                                String defaultProperty,
+                                                boolean canViewProperties,
+                                                List<Long> hiddenPropertyIds) {
+    String propertyName = setting == null ? defaultProperty : String.valueOf(setting.getValue());
+    if (propertyName == null) {
+      return "";
+    }
+    if (!canViewProperties) {
       ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
-
-      if (propertySetting != null && propertySetting.isVisible()
-          && !getProfilePropertyService().getHiddenProfilePropertyIds(profile.getIdentity().getIdentityId())
-                                         .contains(propertySetting.getId())) {
-
-        return getProfilePropertyValue(profile, propertyName);
+      if (propertySetting == null || !propertySetting.isVisible() || hiddenPropertyIds.contains(propertySetting.getId())) {
+        return "";
       }
-      return "";
     }
+    String value = getProfilePropertyValue(profile, propertyName);
+    return StringUtils.isNotBlank(value) ? value : "";
+  }
 
-    if (fallbackProperty == null) {
-      return "";
+  private static boolean isHiddenByOwner(String propertyName, List<Long> hiddenPropertyIds) {
+    if (hiddenPropertyIds.isEmpty()) {
+      return false;
     }
-
-    return StringUtils.isNotBlank(getProfilePropertyValue(profile, fallbackProperty))
-                                                                                      ? getProfilePropertyValue(profile,
-                                                                                                                fallbackProperty)
-                                                                                      : "";
+    ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
+    return propertySetting != null && hiddenPropertyIds.contains(propertySetting.getId());
   }
 
   static String getProfilePropertyValue(Profile profile, String propertyName) {

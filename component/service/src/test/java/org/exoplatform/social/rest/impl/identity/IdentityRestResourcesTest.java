@@ -148,6 +148,32 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
   }
 
+  /**
+   * A hide made through the service alone, with no profile update, renews the
+   * owner's cached identity, whose cache time both identity endpoints' ETags
+   * carry: another viewer's answer depends on the properties the owner hid
+   */
+  public void testGetIdentityEtagFollowsThePropertiesTheOwnerHid() throws Exception {
+    ProfilePropertyService profileSettingsService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
+    Identity johnIdentity = identityManager.getOrCreateUserIdentity("john");
+    long johnIdentityId = Long.parseLong(johnIdentity.getId());
+    long positionSettingId = profileSettingsService.getProfileSettingByName(Profile.POSITION).getId();
+    String byIdPath = "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId();
+    String byRemoteIdPath = "/" + VersionResources.VERSION_ONE + "/social/identities/organization/john";
+    startSessionAs("mary");
+    try {
+      String byIdEtag = service("GET", byIdPath, "", null, null).getHttpHeaders().get("etag").toString();
+      String byRemoteIdEtag = service("GET", byRemoteIdPath, "", null, null).getHttpHeaders().get("etag").toString();
+      assertEquals(byIdEtag, service("GET", byIdPath, "", null, null).getHttpHeaders().get("etag").toString());
+
+      profileSettingsService.hidePropertySetting(johnIdentityId, positionSettingId);
+      assertFalse(byIdEtag.equals(service("GET", byIdPath, "", null, null).getHttpHeaders().get("etag").toString()));
+      assertFalse(byRemoteIdEtag.equals(service("GET", byRemoteIdPath, "", null, null).getHttpHeaders().get("etag").toString()));
+    } finally {
+      profileSettingsService.showPropertySetting(johnIdentityId, positionSettingId);
+    }
+  }
+
   public void testGetIdentityByIdWhenHiddenProperties() throws Exception {
     ProfilePropertyService profileSettingsService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
 

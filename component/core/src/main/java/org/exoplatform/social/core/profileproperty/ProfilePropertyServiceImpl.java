@@ -40,15 +40,18 @@ import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
+import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
 
 import io.meeds.common.ContainerTransactional;
 import io.meeds.social.core.profileproperty.util.ProfilePropertyValueUtil;
@@ -284,6 +287,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                        HIDDEN_PROFILE_PROPERTY_SETTINGS_KEY,
                        SettingValue.create(hiddenProperties.toString()));
     indexingService.reindex(ProfileIndexingServiceConnector.TYPE, String.valueOf(userIdentityId));
+    clearIdentityCache(userIdentityId);
   }
 
   /**
@@ -298,6 +302,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                        HIDDEN_PROFILE_PROPERTY_SETTINGS_KEY,
                        SettingValue.create(hiddenProperties.toString()));
     indexingService.reindex(ProfileIndexingServiceConnector.TYPE, String.valueOf(userIdentityId));
+    clearIdentityCache(userIdentityId);
   }
 
   /**
@@ -541,6 +546,23 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     return Stream.of(userCardFirstFieldSetting, userCardSecondFieldSetting, userCardThirdFieldSetting)
                  .filter(Objects::nonNull)
                  .anyMatch(setting -> propertyName.equals(setting.getValue()));                                            
+  }
+
+  /**
+   * What another viewer gets of a user (the position, the user card fields)
+   * depends on the properties the user hid: clearing the user's cached identity
+   * renews its cache time, which the cached REST answers' ETags carry, as a
+   * profile update does.
+   */
+  private void clearIdentityCache(long userIdentityId) {
+    CachedIdentityStorage cachedIdentityStorage = ExoContainerContext.getService(CachedIdentityStorage.class);
+    if (cachedIdentityStorage == null) {
+      return;
+    }
+    Identity identity = cachedIdentityStorage.findIdentityById(String.valueOf(userIdentityId));
+    if (identity != null) {
+      cachedIdentityStorage.clearIdentityCache(identity.getProviderId(), identity.getRemoteId(), false);
+    }
   }
 
 }

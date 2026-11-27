@@ -116,6 +116,33 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
     assertEquals("hidden", document.getFields().get("profession"));
   }
 
+  /**
+   * The position is written before the loop over the settings, which skips a
+   * field already written: it is the position's own write that must apply the
+   * user's choice to hide it
+   */
+  @Test
+  public void testHiddenPositionIsIndexedAsHidden() {
+    long identityId = Long.parseLong(userIdentity.getId());
+    long positionSettingId = profilePropertyService.getProfileSettingByName(Profile.POSITION).getId();
+    Profile profile = userIdentity.getProfile();
+    profile.setProperty(Profile.POSITION, "Solution Architect");
+    identityManager.updateProfile(profile, true);
+    try {
+      assertEquals("Solution Architect", profileIndexingServiceConnector.update(userIdentity.getId()).getFields().get(Profile.POSITION));
+
+      profilePropertyService.hidePropertySetting(identityId, positionSettingId);
+      assertEquals("hidden", profileIndexingServiceConnector.update(userIdentity.getId()).getFields().get(Profile.POSITION));
+
+      profilePropertyService.showPropertySetting(identityId, positionSettingId);
+      assertEquals("Solution Architect", profileIndexingServiceConnector.update(userIdentity.getId()).getFields().get(Profile.POSITION));
+    } finally {
+      profilePropertyService.showPropertySetting(identityId, positionSettingId);
+      profile.removeProperty(Profile.POSITION);
+      identityManager.updateProfile(profile, true);
+    }
+  }
+
   @Test
   public void testIndexDropdownPropertyOptionValue() throws Exception {
     ProfilePropertySetting dropdownListPropertySetting = createProfileSettingDropdownInstance("propDropdownTest");

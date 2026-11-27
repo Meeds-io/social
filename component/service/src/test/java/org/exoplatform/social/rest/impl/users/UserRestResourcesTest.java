@@ -575,6 +575,31 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(etag2, etag3);
   }
 
+  /**
+   * A hide made through the service alone, with no profile update, renews the
+   * owner's cached identity, whose cache time the ETag carries: another
+   * viewer's answer depends on the properties the owner hid
+   */
+  public void testGetUserEtagFollowsThePropertiesTheOwnerHid() throws Exception {
+    long johnIdentityId = Long.parseLong(johnIdentity.getId());
+    long positionSettingId = profilePropertyService.getProfileSettingByName(Profile.POSITION).getId();
+    startSessionAs("mary");
+    try {
+      String etag = service("GET", getURLResource("users/john"), "", null, null).getHttpHeaders().get("etag").toString();
+      assertEquals(etag, service("GET", getURLResource("users/john"), "", null, null).getHttpHeaders().get("etag").toString());
+
+      profilePropertyService.hidePropertySetting(johnIdentityId, positionSettingId);
+      String hiddenEtag = service("GET", getURLResource("users/john"), "", null, null).getHttpHeaders().get("etag").toString();
+      assertNotEquals(etag, hiddenEtag);
+
+      profilePropertyService.showPropertySetting(johnIdentityId, positionSettingId);
+      assertNotEquals(hiddenEtag,
+                      service("GET", getURLResource("users/john"), "", null, null).getHttpHeaders().get("etag").toString());
+    } finally {
+      profilePropertyService.showPropertySetting(johnIdentityId, positionSettingId);
+    }
+  }
+
   public void testGetUserProfilePropertiesById() throws Exception {
     startSessionAs("root");
     ContainerResponse response = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
