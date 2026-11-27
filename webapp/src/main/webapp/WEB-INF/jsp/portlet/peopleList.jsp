@@ -21,7 +21,10 @@
   settings.put("directoryAttributes", new JSONArray(PeopleListPortlet.directoryAttributes(preferences)));
   boolean canEdit = PeopleListPortlet.canEdit(renderRequest.getRemoteUser());
   settings.put("canEdit", canEdit);
-  if (canEdit) {
+  // an external editor gets the display options only: none of the stored filters
+  boolean canSetFilterOptions = canEdit && PeopleListPortlet.canSetFilterOptions(renderRequest.getRemoteUser());
+  settings.put("canSetFilterOptions", canSetFilterOptions);
+  if (canSetFilterOptions) {
     settings.put("guestsSpaceMembersOnly", PeopleListPortlet.storedGuestRestriction(preferences));
     settings.put("attributes", new JSONArray(PeopleListPortlet.storedAttributes(preferences, renderRequest.getLocale())));
     settings.put("attributeFilterInvalid", PeopleListPortlet.isAttributeFilterInvalid(preferences));

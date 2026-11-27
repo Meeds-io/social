@@ -27,6 +27,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
@@ -41,6 +43,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -77,6 +80,7 @@ import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.identity.permission.service.UserPermissionService;
@@ -98,6 +102,8 @@ public class PeopleDirectoryGroupFilterServiceTest {
   private static final String  ADMIN         = "root";
 
   private static final String  EDITOR        = "john";
+
+  private static final String  EXTERNAL      = "guest";
 
   private static final String  MANAGER_TYPE  = "manager";
 
@@ -646,6 +652,76 @@ public class PeopleDirectoryGroupFilterServiceTest {
     assertFalse(peopleDirectoryService.clearsGroupsToSet(null, ADMIN));
     assertFalse(peopleDirectoryService.clearsGroupsToSet("[]", EDITOR));
     assertFalse(peopleDirectoryService.clearsGroupsToSet("[\"" + PARIS + "\"]", EDITOR));
+  }
+
+  @Test
+  public void anyKnownUserButAnExternalOneMaySetTheFilterOptions() {
+    externalUser();
+
+    assertTrue(peopleDirectoryService.canSetFilterOptions(EDITOR));
+    assertTrue(peopleDirectoryService.canSetFilterOptions(MANAGER));
+    assertTrue(peopleDirectoryService.canSetFilterOptions(ADMIN));
+    assertFalse(peopleDirectoryService.canSetFilterOptions(EXTERNAL));
+    assertFalse(peopleDirectoryService.canSetFilterOptions(null));
+    assertFalse(peopleDirectoryService.canSetFilterOptions("unknown"));
+  }
+
+  @Test
+  public void anExternalManagerOrAdministratorMayNotSetTheGroupFilter() throws Exception {
+    Identity external = externalUser();
+    when(userAcl.hasEditPermission(page, external)).thenReturn(true);
+    // an external manager of Paris, who edits the page: lenient, the guard
+    // refuses before the managed groups are read, the guard-removed mutant
+    // reads them
+    lenient().when(userPermissionService.getPermissionTokens(EXTERNAL)).thenReturn(List.of(MANAGER_TYPE + ":" + PARIS));
+    String stored = stored(ADMIN_GROUP, null);
+
+    assertFalse(peopleDirectoryService.canSetGroupFilter(EXTERNAL));
+    // the stored filter is kept, whatever is posted, and the marker stays
+    assertEquals(stored, peopleDirectoryService.normalizeGroupFilter("[]", stored, EXTERNAL));
+    assertEquals(stored, peopleDirectoryService.normalizeGroupFilter("[\"" + PARIS + "\"]", stored, EXTERNAL));
+    assertFalse(peopleDirectoryService.clearsGroupsToSet("[]", EXTERNAL));
+    assertThrows(IllegalAccessException.class,
+                 () -> peopleDirectoryService.getSelectableGroups(PAGE_KEY, SITE_KEY, WINDOW_ID, "", null, EXTERNAL));
+    // the drawer gets none of the stored groups as chips
+    PeopleDirectoryEditorGroups editorGroups = peopleDirectoryService.getEditorGroups(stored(PARIS, "3"), null, EXTERNAL);
+    assertTrue(editorGroups.groups().isEmpty());
+    assertEquals(0, editorGroups.otherGroupsCount());
+
+    // an external administrator neither
+    lenient().when(userAcl.isAdministrator(external)).thenReturn(true);
+    assertFalse(peopleDirectoryService.canSetGroupFilter(EXTERNAL));
+  }
+
+  @Test
+  public void anExternalPageEditorGetsNoAttributeValues() {
+    Identity external = externalUser();
+    when(userAcl.hasEditPermission(page, external)).thenReturn(true);
+
+    assertTrue(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, EXTERNAL));
+    assertThrows(IllegalAccessException.class,
+                 () -> peopleDirectoryService.getAttributeValues(PAGE_KEY,
+                                                                 SITE_KEY,
+                                                                 WINDOW_ID,
+                                                                 "city",
+                                                                 "",
+                                                                 EXTERNAL,
+                                                                 Locale.ENGLISH));
+    verify(profilePropertyService, never()).getPropertySettings();
+    verify(profileSearchConnector, never()).getAttributeValues(any(), anyBoolean(), any(), anyInt());
+  }
+
+  /**
+   * @return the ACL identity of {@link #EXTERNAL}, a member of
+   *         {@code /platform/externals}
+   */
+  private Identity externalUser() {
+    Identity identity = mock(Identity.class);
+    identities.put(EXTERNAL, identity);
+    lenient().when(identity.getGroups()).thenReturn(Set.of(SpaceUtils.PLATFORM_EXTERNALS_GROUP));
+    lenient().when(userAcl.getUserIdentity(EXTERNAL)).thenReturn(identity);
+    lenient().when(userAcl.isAdministrator(identity)).thenReturn(false);
+    return identity;
   }
 
   private void group(String groupId, String name, String label) throws Exception {

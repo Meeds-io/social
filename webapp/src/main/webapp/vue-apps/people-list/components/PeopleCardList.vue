@@ -50,11 +50,14 @@
             <p class="text-title">
               {{ $t('peopleList.label.noResults') }}
             </p>
-            <p v-if="$root.canEdit" class="people-list-review-settings">
+            <!-- an external editor cannot change the filters that empty the list -->
+            <p v-if="$root.canEdit && $root.canSetFilterOptions" class="people-list-review-settings">
               {{ reviewSettingsPrefix }}<button
                 class="people-list-review-settings-link primary--text pa-0"
                 type="button"
-                @click="$root.$emit('people-list-settings-open')">{{ $t('peopleList.label.reviewSettings.link') }}</button>{{ reviewSettingsSuffix }}
+                @click="$root.$emit('people-list-settings-open')">
+                {{ $t('peopleList.label.reviewSettings.link') }}
+              </button>{{ reviewSettingsSuffix }}
             </p>
           </template>
           <template v-else-if="filter === 'connections'">
