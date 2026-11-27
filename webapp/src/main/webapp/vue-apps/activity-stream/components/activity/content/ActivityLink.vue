@@ -138,7 +138,7 @@
         <v-btn
           v-if="showReadMore"
           :aria-expanded="String(fullContent)"
-          :class="!fullContent && 'linear-gradient-white-background'"
+          :class="!fullContent && 'linear-gradient-app-background'"
           class="d-flex ms-auto pb-2px mb-0 pl-2 pr-0 height-auto r-0 b-0 text-light-color hover-underline hover-blue-color"
           text
           plain
