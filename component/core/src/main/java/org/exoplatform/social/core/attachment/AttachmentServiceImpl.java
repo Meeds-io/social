@@ -249,6 +249,13 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                  Identity userAclIdentity) throws ObjectNotFoundException,
                                                                            IllegalAccessException {
     checkAccessPermission(objectType, objectId, userAclIdentity);
+    // Viewing the object isn't enough to add a file to it
+    if (!hasEditPermission(userAclIdentity, objectType, objectId)) {
+      throw new IllegalAccessException(String.format("User %s doesn't have enough permissions to attach files on object %s/%s",
+                                                     userAclIdentity.getUserId(),
+                                                     objectType,
+                                                     objectId));
+    }
     String uploadId = attachmentObject.getUploadId();
     UploadResource uploadResource = uploadService.getUploadResource(uploadId);
     if (uploadResource != null) {

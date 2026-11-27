@@ -690,6 +690,74 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertEquals(FORMAT, attachmentDetail.getFormat());
   }
   
+  public void testCreateAttachmentWithEditPermission() throws Exception {
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    hasEditPermission.set(true);
+    hasViewPermission.set(true);
+    uploadResource();
+
+    ObjectAttachmentDetail createdAttachment = attachmentService.createAttachment(PUBLIC_OBJECT_TYPE,
+                                                                                  objectId,
+                                                                                  newUploadedAttachment(),
+                                                                                  userAcl);
+
+    assertNotNull(createdAttachment);
+    assertEquals(1, attachmentService.getAttachmentFileIds(PUBLIC_OBJECT_TYPE, objectId).size());
+  }
+
+  public void testCreateAttachmentWhenUserCanOnlyView() throws Exception {
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    hasEditPermission.set(false);
+    hasViewPermission.set(true);
+    uploadResource();
+
+    FileAttachmentObject attachmentObject = newUploadedAttachment();
+    assertThrows(IllegalAccessException.class,
+                 () -> attachmentService.createAttachment(PUBLIC_OBJECT_TYPE, objectId, attachmentObject, userAcl));
+
+    assertTrue(attachmentService.getAttachmentFileIds(PUBLIC_OBJECT_TYPE, objectId).isEmpty());
+    assertNotNull("The refused upload must not be consumed", uploadService.getUploadResource(UPLOAD_ID));
+    assertEquals(0L, eventCounts.getOrDefault(ATTACHMENT_CREATED_EVENT, 0L).longValue());
+  }
+
+  public void testCreateAttachmentWithoutAnyPermission() throws Exception {
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    hasEditPermission.set(false);
+    hasViewPermission.set(false);
+    uploadResource();
+
+    FileAttachmentObject attachmentObject = newUploadedAttachment();
+    assertThrows(IllegalAccessException.class,
+                 () -> attachmentService.createAttachment(PUBLIC_OBJECT_TYPE, objectId, attachmentObject, userAcl));
+
+    assertTrue(attachmentService.getAttachmentFileIds(PUBLIC_OBJECT_TYPE, objectId).isEmpty());
+  }
+
+  public void testGetAttachmentsWhenUserCanOnlyView() throws Exception {
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    hasEditPermission.set(true);
+    hasViewPermission.set(true);
+    uploadResource();
+    ObjectAttachmentDetail createdAttachment = attachmentService.createAttachment(PUBLIC_OBJECT_TYPE,
+                                                                                  objectId,
+                                                                                  newUploadedAttachment(),
+                                                                                  userAcl);
+
+    hasEditPermission.set(false);
+
+    ObjectAttachmentList attachments = attachmentService.getAttachments(PUBLIC_OBJECT_TYPE, objectId, userAcl);
+    assertEquals(1, attachments.getAttachments().size());
+    assertEquals(createdAttachment.getId(), attachments.getAttachments().getFirst().getId());
+  }
+
+  private FileAttachmentObject newUploadedAttachment() {
+    FileAttachmentObject fileAttachmentObject = new FileAttachmentObject();
+    fileAttachmentObject.setUploadId(UPLOAD_ID);
+    fileAttachmentObject.setAltText(ALT_TEXT);
+    fileAttachmentObject.setFormat(FORMAT);
+    return fileAttachmentObject;
+  }
+
   public void testGetAttachmentsKeepsTheFormatOfAnAttachmentWithoutAltText() throws Exception {
     Identity userAcl = startSessionAndRegisterAs(USERNAME);
     hasEditPermission.set(true);
