@@ -40,8 +40,9 @@ import io.meeds.portal.theme.util.ThemeColorCalculator;
  * {@code ColorContrast.js}) is a copy of the server's calculator, which the
  * stylesheet and the mails use: the constants they share are read from the
  * script and compared with {@link ThemeColorCalculator}, and the script's
- * formula, evaluated with the constants read from it, gives the server's ratio
- * and Auto text colour on the platform's backgrounds.
+ * luminance, contrast ratio and Auto choice, evaluated with the constants and
+ * the comparison read from it, give the server's ratio and Auto text colour on
+ * the platform's backgrounds.
  */
 class ColorContrastTest {
 
@@ -62,11 +63,26 @@ class ColorContrastTest {
 
   private static double[]           linearisation;
 
+  private static double[]           ratioOffsets;
+
+  private static String             autoComparison;
+
   @BeforeAll
   static void readScript() throws IOException {
     script = Files.readString(Paths.get("src/main/webapp/vue-apps/styling-inputs/js/ColorContrast.js"), StandardCharsets.UTF_8);
     weights = numbers("return ([0-9.]+) \\* r \\+ ([0-9.]+) \\* g \\+ ([0-9.]+) \\* b;");
     linearisation = numbers("channel <= ([0-9.]+) \\? channel / ([0-9.]+) : Math\\.pow\\(\\(channel \\+ ([0-9.]+)\\) / ([0-9.]+), ([0-9.]+)\\)");
+    ratioOffsets = numbers("return \\(Math\\.max\\(first, second\\) \\+ ([0-9.]+)\\) / \\(Math\\.min\\(first, second\\) \\+ ([0-9.]+)\\);");
+    Matcher auto = Pattern.compile("return contrastRatio\\(first, background\\) (>=|>|<=|<) contrastRatio\\(second, background\\) \\? first : second;")
+                          .matcher(script);
+    assertTrue(auto.find(), "ColorContrast.js no longer chooses the Auto text by comparing the two contrast ratios");
+    autoComparison = auto.group(1);
+  }
+
+  @Test
+  void anAutoTieKeepsTheLightColourAsTheServerDoes() {
+    // ThemeColorCalculator#autoText: contrast(light) >= contrast(dark) ? light : dark
+    assertEquals(">=", autoComparison, "the script's Auto choice on a tie");
   }
 
   @Test
@@ -96,7 +112,7 @@ class ColorContrastTest {
         }
         String light = level.getLightDefault();
         String dark = level.getDarkDefault();
-        String scriptAuto = contrast(light, background) >= contrast(dark, background) ? light : dark;
+        String scriptAuto = compare(contrast(light, background), contrast(dark, background)) ? light : dark;
         assertEquals(ThemeColorCalculator.autoText(level, background), scriptAuto, level + " Auto text on " + background);
       }
     }
@@ -105,7 +121,16 @@ class ColorContrastTest {
   private static double contrast(String first, String second) {
     double l1 = luminance(first);
     double l2 = luminance(second);
-    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    return (Math.max(l1, l2) + ratioOffsets[0]) / (Math.min(l1, l2) + ratioOffsets[1]);
+  }
+
+  private static boolean compare(double firstRatio, double secondRatio) {
+    return switch (autoComparison) {
+    case ">=" -> firstRatio >= secondRatio;
+    case ">" -> firstRatio > secondRatio;
+    case "<=" -> firstRatio <= secondRatio;
+    default -> firstRatio < secondRatio;
+    };
   }
 
   private static double luminance(String color) {
