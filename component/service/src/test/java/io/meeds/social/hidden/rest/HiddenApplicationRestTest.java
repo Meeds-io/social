@@ -18,7 +18,7 @@
  */
 package io.meeds.social.hidden.rest;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -27,6 +27,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -96,7 +98,7 @@ public class HiddenApplicationRestTest {
   @Test
   public void getHiddenApplicationsAnonymouslyIsForbidden() throws Exception {
     mockMvc.perform(get(REST_PATH)).andExpect(status().isForbidden());
-    verify(hiddenApplicationService, never()).getHiddenApplications(anyString(), anyString());
+    verify(hiddenApplicationService, never()).getHiddenApplications(nullable(String.class), nullable(String.class));
   }
 
   @Test
@@ -107,6 +109,7 @@ public class HiddenApplicationRestTest {
 
     mockMvc.perform(get(REST_PATH + "?lang=fr").with(testSimpleUser()))
            .andExpect(status().isOk())
+           .andExpect(header().string("Cache-Control", "no-store"))
            .andExpect(jsonPath("$[0].type").value(TYPE))
            .andExpect(jsonPath("$[0].name").value(NAME))
            .andExpect(jsonPath("$[0].title").value("Premiers pas"))
@@ -116,7 +119,7 @@ public class HiddenApplicationRestTest {
   @Test
   public void hideAnonymouslyIsForbidden() throws Exception {
     mockMvc.perform(put(REST_PATH + "/" + TYPE + "/" + NAME)).andExpect(status().isForbidden());
-    verify(hiddenApplicationService, never()).hide(anyString(), anyString(), anyString());
+    verify(hiddenApplicationService, never()).hide(nullable(String.class), nullable(String.class), nullable(String.class));
   }
 
   @Test
@@ -129,18 +132,20 @@ public class HiddenApplicationRestTest {
   public void hideMapsTheRefusalsOfTheService() throws Exception {
     doThrow(new IllegalArgumentException(HiddenApplicationService.HIDE_NOT_ALLOWED)).when(hiddenApplicationService)
                                                                                      .hide(TYPE, "notAllowed", SIMPLE_USER);
-    doThrow(new IllegalAccessException()).when(hiddenApplicationService).hide(TYPE, "notViewable", SIMPLE_USER);
     doThrow(new ObjectNotFoundException("")).when(hiddenApplicationService).hide(TYPE, "deleted", SIMPLE_USER);
 
-    mockMvc.perform(put(REST_PATH + "/" + TYPE + "/notAllowed").with(testSimpleUser())).andExpect(status().isBadRequest());
-    mockMvc.perform(put(REST_PATH + "/" + TYPE + "/notViewable").with(testSimpleUser())).andExpect(status().isForbidden());
+    // The 400 carries the refusal's message code, which the client shows through its label
+    mockMvc.perform(put(REST_PATH + "/" + TYPE + "/notAllowed").with(testSimpleUser()))
+           .andExpect(status().isBadRequest())
+           .andExpect(content().string(HiddenApplicationService.HIDE_NOT_ALLOWED));
+    // A window the user can't view is not found, as one that doesn't exist
     mockMvc.perform(put(REST_PATH + "/" + TYPE + "/deleted").with(testSimpleUser())).andExpect(status().isNotFound());
   }
 
   @Test
   public void showAnonymouslyIsForbidden() throws Exception {
     mockMvc.perform(delete(REST_PATH + "/" + TYPE + "/" + NAME)).andExpect(status().isForbidden());
-    verify(hiddenApplicationService, never()).show(anyString(), anyString(), anyString());
+    verify(hiddenApplicationService, never()).show(nullable(String.class), nullable(String.class), nullable(String.class));
   }
 
   @Test

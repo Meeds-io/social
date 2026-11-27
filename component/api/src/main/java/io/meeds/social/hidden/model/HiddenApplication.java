@@ -44,7 +44,11 @@ public class HiddenApplication {
    */
   private String  title;
 
-  /** Reference of the page holding the window, null when unknown */
+  /**
+   * Reference of the page holding the window; null when the window is on no
+   * page (a shared or site layout), its plugin then answering for its
+   * presence
+   */
   private String  pageReference;
 
   /** Whether the window allows each user to hide it */

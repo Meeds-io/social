@@ -55,11 +55,14 @@
 export default {
   data: () => ({
     hiddenApplications: [],
+    loadingError: false,
     displayed: true,
   }),
   computed: {
     countLabel() {
-      if (!this.hiddenApplications.length) {
+      if (this.loadingError) {
+        return this.$t('UserSettings.hiddenApplications.loadError');
+      } else if (!this.hiddenApplications.length) {
         return this.$t('UserSettings.hiddenApplications.none');
       } else if (this.hiddenApplications.length === 1) {
         return this.$t('UserSettings.hiddenApplications.one');
@@ -80,7 +83,11 @@ export default {
     document.addEventListener('showSettingsApps', this.showApplication);
     this.$hiddenApplicationService.getHiddenApplications(eXo.env.portal.language)
       .then(hiddenApplications => this.hiddenApplications = hiddenApplications || [])
-      .catch(() => this.hiddenApplications = [])
+      .catch(() => {
+        // Not the empty state: the user's hidden content may exist
+        this.hiddenApplications = [];
+        this.loadingError = true;
+      })
       .finally(() => this.$root.$applicationLoaded());
   },
   beforeDestroy() {

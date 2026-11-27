@@ -39,6 +39,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListResourceBundle;
@@ -130,21 +132,52 @@ public class HiddenApplicationServiceImplTest {
   }
 
   @Test
-  public void hideAWindowTheUserCannotViewIsRefused() {
+  public void hideAWindowTheUserCannotViewIsNotFound() {
     when(plugin.getApplication(NAME, null)).thenReturn(new HiddenApplication(TYPE, NAME, null, PAGE_REFERENCE, true));
     when(plugin.canView(NAME, identity)).thenReturn(false);
 
-    assertThrows(IllegalAccessException.class, () -> hiddenApplicationService.hide(TYPE, NAME, USERNAME));
+    // A window the user can't view answers as one that doesn't exist: no name is told apart
+    assertThrows(ObjectNotFoundException.class, () -> hiddenApplicationService.hide(TYPE, NAME, USERNAME));
     verify(settingService, never()).set(any(), any(), anyString(), any());
   }
 
   @Test
-  public void hideByAnUnknownUserIsRefused() {
+  public void hideByAnUnknownUserIsNotFound() {
     when(plugin.getApplication(NAME, null)).thenReturn(new HiddenApplication(TYPE, NAME, null, PAGE_REFERENCE, true));
 
-    assertThrows(IllegalAccessException.class, () -> hiddenApplicationService.hide(TYPE, NAME, "nobody"));
+    assertThrows(ObjectNotFoundException.class, () -> hiddenApplicationService.hide(TYPE, NAME, "nobody"));
     verify(plugin, never()).canView(anyString(), any());
     verify(settingService, never()).set(any(), any(), anyString(), any());
+  }
+
+  @Test
+  public void showByABlankUserDoesNothing() {
+    hiddenApplicationService.show(TYPE, NAME, null);
+    hiddenApplicationService.show(TYPE, NAME, " ");
+
+    verifyNoInteractions(settingService);
+  }
+
+  @Test
+  public void getHiddenApplicationsLeavesOutAWindowThatFailsToResolve() {
+    Map<String, SettingValue> settings = new LinkedHashMap<>();
+    settings.put(TYPE + ":broken", SettingValue.create("10"));
+    settings.put(TYPE + ":badReference", SettingValue.create("20"));
+    settings.put(TYPE + ":first", SettingValue.create("30"));
+    when(settingService.getSettingsByContextAndScope(Context.USER.getName(),
+                                                     USERNAME,
+                                                     HIDDEN_APPLICATIONS_SCOPE.getName(),
+                                                     HIDDEN_APPLICATIONS_SCOPE.getId())).thenReturn(settings);
+    when(plugin.getApplication("broken", "en")).thenThrow(new IllegalStateException("plugin failure"));
+    when(plugin.getApplication("badReference", "en")).thenReturn(new HiddenApplication(TYPE, "badReference", null, "not a page reference", true));
+    when(plugin.getApplication("first", "en")).thenReturn(new HiddenApplication(TYPE, "first", "First", null, true));
+    when(plugin.canView(anyString(), eq(identity))).thenReturn(true);
+
+    List<HiddenApplication> hiddenApplications = hiddenApplicationService.getHiddenApplications(USERNAME, "en");
+
+    assertEquals("The other hidden windows stay listed, to be shown again",
+                 List.of("first"),
+                 hiddenApplications.stream().map(HiddenApplication::getName).toList());
   }
 
   @Test
@@ -299,6 +332,30 @@ public class HiddenApplicationServiceImplTest {
   }
 
   @Test
+  public void clearHiddenChoicesClearsMoreThanTenFullPages() {
+    // 1001 users over 11 pages: no cap on how many users a clear reaches
+    List<List<Context>> pages = new ArrayList<>();
+    for (int page = 0; page < 11; page++) {
+      int start = page * 100;
+      pages.add(IntStream.range(start, Math.min(start + 100, 1001)).mapToObj(i -> Context.USER.id("user" + i)).toList());
+    }
+    pages.add(List.of());
+    Iterator<List<Context>> nextPage = pages.iterator();
+    when(settingService.getContextsByTypeAndScopeAndSettingName(Context.USER.getName(),
+                                                                HIDDEN_APPLICATIONS_SCOPE.getName(),
+                                                                HIDDEN_APPLICATIONS_SCOPE.getId(),
+                                                                KEY,
+                                                                0,
+                                                                100)).thenAnswer(invocation -> nextPage.next());
+
+    hiddenApplicationService.clearHiddenChoices(TYPE, NAME);
+
+    verify(settingService).remove(Context.USER.id("user1000"), HIDDEN_APPLICATIONS_SCOPE, KEY);
+    verify(settingService, times(1001)).remove(any(Context.class), eq(HIDDEN_APPLICATIONS_SCOPE), eq(KEY));
+  }
+
+  // The code before the fix loops forever on this: a timeout makes it fail
+  @Test(timeout = 10000)
   public void clearHiddenChoicesStopsWhenThePassReadsOnlyClearedUsers() {
     // The removals did not take: the same page comes back
     List<Context> page = IntStream.range(0, 100).mapToObj(i -> Context.USER.id("user" + i)).toList();

@@ -41,7 +41,10 @@ public interface HiddenApplicationPlugin {
    * @param name window name
    * @param language language of the returned title
    * @return the window, with its title in the given language and whether it
-   *         allows hiding, null when it doesn't exist
+   *         allows hiding, null when it doesn't exist. Its page reference is
+   *         null only for a window on no page (a shared or site layout): the
+   *         listing then trusts the plugin for its presence, instead of
+   *         checking that its page still holds it.
    */
   HiddenApplication getApplication(String name, String language);
 

@@ -74,8 +74,12 @@ export default {
           return this.$nextTick();
         })
         .then(() => nextFocusable?.focus?.())
-        .catch(() => this.$root.$emit('alert-message', this.errorLabel, 'error'))
+        .catch(e => this.$root.$emit('alert-message', this.getErrorLabel(e?.message), 'error'))
         .finally(() => this.hiding = false);
+    },
+    getErrorLabel(code) {
+      // A refusal's message code has its own label; any other error the host's
+      return code && this.$te(code) ? this.$t(code) : this.errorLabel;
     },
     getNextFocusableElement() {
       const application = this.$el?.closest?.('.PORTLET-FRAGMENT')?.parentElement || this.$el;

@@ -21,6 +21,7 @@ package io.meeds.social.hidden.rest;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -60,12 +61,15 @@ public class HiddenApplicationRest {
   @Operation(summary = "Retrieves the page applications the current user hid", method = "GET",
              description = "Retrieves the page applications the current user hid, in the order they were hidden")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled") })
-  public List<HiddenApplication> getHiddenApplications(
+  public ResponseEntity<List<HiddenApplication>> getHiddenApplications(
                                                        HttpServletRequest request,
                                                        @Parameter(description = "User language")
                                                        @RequestParam(name = "lang", required = false)
                                                        String lang) {
-    return hiddenApplicationService.getHiddenApplications(request.getRemoteUser(), lang);
+    // The caller's own list, at a URL every user shares
+    return ResponseEntity.ok()
+                         .cacheControl(CacheControl.noStore())
+                         .body(hiddenApplicationService.getHiddenApplications(request.getRemoteUser(), lang));
   }
 
   @PutMapping("{type}/{name}")
@@ -74,9 +78,8 @@ public class HiddenApplicationRest {
              description = "Hides a page application from its page for the current user, on every device")
   @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled"),
     @ApiResponse(responseCode = "400", description = "The application doesn't allow hiding"),
-    @ApiResponse(responseCode = "403", description = "The user can't view the application"),
-    @ApiResponse(responseCode = "404", description = "The application type or the application doesn't exist"), })
-  public ResponseEntity<Void> hide(
+    @ApiResponse(responseCode = "404", description = "The application type or the application doesn't exist, or the user can't view the application"), })
+  public ResponseEntity<String> hide(
                                    HttpServletRequest request,
                                    @Parameter(description = "Application type", required = true)
                                    @PathVariable("type")
@@ -88,9 +91,8 @@ public class HiddenApplicationRest {
       hiddenApplicationService.hide(type, name, request.getRemoteUser());
       return ResponseEntity.noContent().build();
     } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-    } catch (IllegalAccessException e) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The application can't be viewed");
+      // The message code, which the client shows through its label
+      return ResponseEntity.badRequest().body(e.getMessage());
     } catch (ObjectNotFoundException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The application type or the application doesn't exist");
     }

@@ -34,7 +34,12 @@ export function hide(type, name) {
     method: 'PUT',
     credentials: 'include',
   }).then(resp => {
-    if (!resp?.ok) {
+    if (resp?.status === 400) {
+      // The refusal's message code, which the caller shows through its label
+      return resp.text().then(code => {
+        throw new Error(code || 'Error while hiding the application');
+      });
+    } else if (!resp?.ok) {
       throw new Error('Error while hiding the application');
     }
   });

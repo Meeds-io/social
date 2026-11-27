@@ -47,6 +47,8 @@ import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.resources.ResourceBundleManager;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
@@ -61,6 +63,8 @@ public class HiddenApplicationServiceImpl implements HiddenApplicationService {
   public static final Scope                       HIDDEN_APPLICATIONS_SCOPE = Scope.APPLICATION.id("HiddenApplications");
 
   public static final Scope                       HIDE_ALLOWED_SCOPE        = Scope.APPLICATION.id("HideAllowedApplications");
+
+  private static final Log                        LOG                       = ExoLogger.getLogger(HiddenApplicationServiceImpl.class);
 
   private static final int                        CLEAR_PAGE_SIZE           = 100;
 
@@ -78,13 +82,12 @@ public class HiddenApplicationServiceImpl implements HiddenApplicationService {
   @Autowired
   private IdentityRegistry                        identityRegistry;
 
-  // Resolved at each call: the plugins live in the contexts of addons which
-  // start after social
+  // Resolved at each call, so that a plugin contributed by any add-on is found
   @Autowired
   private ObjectProvider<HiddenApplicationPlugin> plugins;
 
   @Override
-  public void hide(String type, String name, String username) throws ObjectNotFoundException, IllegalAccessException {
+  public void hide(String type, String name, String username) throws ObjectNotFoundException {
     HiddenApplicationPlugin plugin = getPlugin(type);
     HiddenApplication application = plugin == null ? null : plugin.getApplication(name, null);
     if (application == null) {
@@ -92,10 +95,9 @@ public class HiddenApplicationServiceImpl implements HiddenApplicationService {
     }
     Identity identity = getIdentity(username);
     if (identity == null || !plugin.canView(name, identity)) {
-      throw new IllegalAccessException(String.format("User %s can't view the application %s of type %s",
-                                                     username,
-                                                     name,
-                                                     type));
+      // A window the user can't view is, for this user, a window that doesn't
+      // exist: the answer tells no window name apart
+      throw new ObjectNotFoundException(String.format("Application %s of type %s doesn't exist", name, type));
     } else if (!application.isAllowHide()) {
       throw new IllegalArgumentException(HIDE_NOT_ALLOWED);
     }
@@ -109,6 +111,9 @@ public class HiddenApplicationServiceImpl implements HiddenApplicationService {
 
   @Override
   public void show(String type, String name, String username) {
+    if (StringUtils.isBlank(username)) {
+      return;
+    }
     settingService.remove(Context.USER.id(username), HIDDEN_APPLICATIONS_SCOPE, toKey(type, name));
   }
 
@@ -125,7 +130,7 @@ public class HiddenApplicationServiceImpl implements HiddenApplicationService {
       return Collections.emptyList();
     }
     return getHiddenKeys(username).stream()
-                                              .map(key -> getHiddenApplication(key, identity, language))
+                                              .map(key -> getListedHiddenApplication(key, identity, language))
                                               .filter(Objects::nonNull)
                                               .toList();
   }
@@ -204,6 +209,20 @@ public class HiddenApplicationServiceImpl implements HiddenApplicationService {
   @Override
   public boolean isHideAllowed(String type, String name) {
     return settingService.get(Context.GLOBAL, HIDE_ALLOWED_SCOPE, toKey(type, name)) != null;
+  }
+
+  /**
+   * A window that fails to resolve, in a plugin or in its page reference, is
+   * left out of the list: the user's other hidden windows stay listed, and
+   * shown again from it
+   */
+  private HiddenApplication getListedHiddenApplication(String key, Identity identity, String language) {
+    try {
+      return getHiddenApplication(key, identity, language);
+    } catch (RuntimeException e) {
+      LOG.warn("Hidden application {} of user {} can't be listed", key, identity.getUserId(), e);
+      return null;
+    }
   }
 
   private HiddenApplication getHiddenApplication(String key, Identity identity, String language) {
