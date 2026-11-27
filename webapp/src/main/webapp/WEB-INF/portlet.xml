@@ -762,15 +762,16 @@
       <name>layout-content-editable</name>
       <value>true</value>
     </init-param>
-    <!-- The group filter and the guest restriction are stored by the app only,
-         under the rights PeopleDirectoryService checks (the group right, and
-         the filter options an external editor may not change): the layout API
-         neither writes nor returns these preferences. A directory made from a
-         template gets the guest restriction's default, ON. Comma-separated
-         names. -->
+    <!-- The filter options (the group filter, the guest restriction and the
+         attribute filter) are stored by the app only, under the rights
+         PeopleDirectoryService checks (the group right, and the filter options
+         an external editor may not change): the layout API neither writes nor
+         returns these preferences. A directory made from a template gets their
+         defaults: the guest restriction ON, no attribute filter.
+         Comma-separated names. -->
     <init-param>
       <name>layout-protected-preferences</name>
-      <value>groupIds,guestsSpaceMembersOnly</value>
+      <value>groupIds,guestsSpaceMembersOnly,attributeFilter</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
