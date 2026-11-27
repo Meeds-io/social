@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.attachment.model.*;
@@ -196,7 +195,7 @@ public interface AttachmentService {
    * @param objectId object technical unique identifier
    * @param userAclIdentity user ACL identity retrieved used
    *          {@link IdentityRegistry}
-   * @return {@link List} of attached {@link FileInfo} id
+   * @return {@link List} of attached {@link org.exoplatform.commons.file.model.FileInfo} id
    * @throws IllegalAccessException  when user identified by its
    *                                   {@link org.exoplatform.social.core.identity.model.Identity}
    *                                   id doesn't have "read" permission of
@@ -209,7 +208,7 @@ public interface AttachmentService {
    * @param objectType object type, can be of any type: activity, comment,
    *          notes...
    * @param objectId object technical unique identifier
-   * @return {@link List} of attached {@link FileInfo} id
+   * @return {@link List} of attached {@link org.exoplatform.commons.file.model.FileInfo} id
    */
   List<String> getAttachmentFileIds(String objectType, String objectId);
 
