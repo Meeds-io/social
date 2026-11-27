@@ -29,6 +29,9 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
       data: {
         appId,
         canEdit: !!settings?.canEdit,
+        // whether the editor may change the filter options: an external
+        // editor gets the display options only, and none of the filters
+        canSetFilterOptions: !!settings?.canSetFilterOptions,
         filter: settings?.filter || 'all',
         headerTranslations: settings?.headerTranslations || {},
         pageSize: settings?.pageSize || 12,
@@ -47,7 +50,8 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
         otherGroupsCount: settings?.otherGroupsCount || 0,
         unresolvableGroups: !!settings?.unresolvableGroups,
         groupFilterInvalid: !!settings?.groupFilterInvalid,
-        // for any editor: the directory misses groups, never named
+        // for any editor who may set the filter options: the directory
+        // misses groups, never named
         missingGroups: !!settings?.missingGroups,
         directoryFiltered: !!settings?.directoryFiltered,
         // the names of the attributes the directory filters on, for every
@@ -94,6 +98,7 @@ export function init({appId, settings, saveSettingsUrl, settingsResourceUrl, use
           }).then(stored => {
             this.headerTranslations = stored?.headerTranslations || {};
             this.pageSize = stored?.pageSize || 12;
+            this.canSetFilterOptions = !!stored?.canSetFilterOptions;
             this.guestsSpaceMembersOnly = stored?.guestsSpaceMembersOnly !== false;
             this.attributes = stored?.attributes || [];
             this.attributeFilterInvalid = !!stored?.attributeFilterInvalid;

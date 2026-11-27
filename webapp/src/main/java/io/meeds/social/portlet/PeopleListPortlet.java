@@ -138,6 +138,15 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
                                                                              ATTRIBUTE_FILTER_PREFERENCE,
                                                                              GROUP_FILTER_PREFERENCE);
 
+  /**
+   * The stored preferences making the filter options, which only an editor
+   * who may set them ({@link PeopleDirectoryService#canSetFilterOptions})
+   * changes: posted by any other editor, they are ignored.
+   */
+  private static final List<String> FILTER_PREFERENCES             = List.of(GUEST_RESTRICTION_PREFERENCE,
+                                                                             ATTRIBUTE_FILTER_PREFERENCE,
+                                                                             GROUP_FILTER_PREFERENCE);
+
   private static final List<String> RESOURCE_IDS                   = List.of(SETTINGS_RESOURCE_ID,
                                                                              USERS_RESOURCE_ID,
                                                                              ATTRIBUTE_VALUES_RESOURCE_ID,
@@ -169,6 +178,17 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
    */
   public static boolean canSetGroupFilter(String username) {
     return getPeopleDirectoryService().canSetGroupFilter(username);
+  }
+
+  /**
+   * @param username the current user, may be null
+   * @return whether the filter options (guest restriction, attribute and group
+   *         filters) are offered to the user in the settings drawer, who must
+   *         also be allowed to edit the window: an external editor keeps the
+   *         display options only
+   */
+  public static boolean canSetFilterOptions(String username) {
+    return getPeopleDirectoryService().canSetFilterOptions(username);
   }
 
   /**
@@ -320,6 +340,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
     }
     PeopleDirectoryService peopleDirectoryService = getPeopleDirectoryService();
     PortletPreferences preferences = request.getPreferences();
+    boolean canSetFilterOptions = peopleDirectoryService.canSetFilterOptions(request.getRemoteUser());
     try {
       if (preferences.getValue(GROUPS_TO_SET_PREFERENCE, null) != null
           && peopleDirectoryService.clearsGroupsToSet(request.getParameter(GROUP_FILTER_PREFERENCE), request.getRemoteUser())) {
@@ -327,7 +348,7 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
       }
       for (String name : STORED_PREFERENCES) {
         String value = request.getParameter(name);
-        if (value != null) {
+        if (value != null && (canSetFilterOptions || !FILTER_PREFERENCES.contains(name))) {
           preferences.setValue(name, switch (name) {
           case PAGE_SIZE_PREFERENCE -> peopleDirectoryService.normalizePageSize(value);
           case GUEST_RESTRICTION_PREFERENCE -> peopleDirectoryService.normalizeGuestRestriction(value);
@@ -396,7 +417,11 @@ public class PeopleListPortlet extends GenericDispatchedViewPortlet {
     settings.put(PAGE_SIZE_PREFERENCE, storedPageSize(preferences));
     settings.put("directoryFiltered", isDirectoryFiltered(preferences));
     settings.put("directoryAttributes", new JSONArray(directoryAttributes(preferences)));
-    if (canEdit(username)) {
+    // an external editor gets the display options only: none of the stored
+    // filters, which they may not change
+    boolean canSetFilterOptions = canEdit(username) && canSetFilterOptions(username);
+    settings.put("canSetFilterOptions", canSetFilterOptions);
+    if (canSetFilterOptions) {
       settings.put(GUEST_RESTRICTION_PREFERENCE, storedGuestRestriction(preferences));
       settings.put("attributes", new JSONArray(storedAttributes(preferences, request.getLocale())));
       settings.put("attributeFilterInvalid", isAttributeFilterInvalid(preferences));

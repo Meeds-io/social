@@ -54,7 +54,9 @@
               {{ reviewSettingsPrefix }}<button
                 class="people-list-review-settings-link primary--text pa-0"
                 type="button"
-                @click="$root.$emit('people-list-settings-open')">{{ $t('peopleList.label.reviewSettings.link') }}</button>{{ reviewSettingsSuffix }}
+                @click="$root.$emit('people-list-settings-open')">
+                {{ $t('peopleList.label.reviewSettings.link') }}
+              </button>{{ reviewSettingsSuffix }}
             </p>
           </template>
           <template v-else-if="filter === 'connections'">
