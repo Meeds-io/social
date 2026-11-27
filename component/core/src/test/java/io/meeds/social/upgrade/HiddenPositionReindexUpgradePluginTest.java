@@ -94,9 +94,9 @@ public class HiddenPositionReindexUpgradePluginTest {
     when(profilePropertyService.getHiddenProfilePropertyIds(3L)).thenReturn(List.of());
     when(profilePropertyService.getHiddenProfilePropertyIds(4L)).thenReturn(List.of(POSITION_SETTING_ID));
     when(profilePropertyService.getHiddenProfilePropertyIds(6L)).thenReturn(List.of(OTHER_SETTING_ID, POSITION_SETTING_ID));
-    when(identityManager.getIdentity("1")).thenReturn(identity("1", true));
-    when(identityManager.getIdentity("4")).thenReturn(identity("4", false));
-    when(identityManager.getIdentity("6")).thenReturn(identity("6", true));
+    when(identityManager.getIdentity(1L)).thenReturn(identity("1", true));
+    when(identityManager.getIdentity(4L)).thenReturn(identity("4", false));
+    when(identityManager.getIdentity(6L)).thenReturn(identity("6", true));
 
     plugin.processUpgrade("7.2.0", "7.3.0");
 

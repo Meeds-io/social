@@ -81,7 +81,8 @@ public class EntityBuilderHiddenProfilePropertyTest {
     settingService = mock(SettingService.class);
     userACL = mock(UserACL.class);
     OrganizationService organizationService = mock(OrganizationService.class);
-    when(organizationService.getUserHandler()).thenReturn(mock(UserHandler.class));
+    UserHandler userHandler = mock(UserHandler.class);
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
     setStaticField("profilePropertyService", profilePropertyService);
     setStaticField("settingService", settingService);
     setStaticField("userACL", userACL);

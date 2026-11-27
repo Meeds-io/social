@@ -112,7 +112,7 @@ public class HiddenPositionReindexUpgradePlugin extends UpgradeProductPlugin {
    * never returns to it: reindexing either would put it back
    */
   private boolean isIndexed(long identityId) {
-    Identity identity = identityManager.getIdentity(String.valueOf(identityId));
+    Identity identity = identityManager.getIdentity(identityId);
     return identity != null && identity.isEnable() && !identity.isDeleted();
   }
 
