@@ -52,6 +52,7 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.AvatarAttachment;
+import org.exoplatform.social.core.profile.UserProfileComparator;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
@@ -292,16 +293,45 @@ public class SynchronizedUserProfileListenerTest {
   public void multiValuedPropertyWithNoDirectoryValueDoesNotBlockTheOtherProperties() throws Exception {
     Profile profile = syncWithLicenceAbsentFromDirectory(null);
     assertEquals("1234", profile.getProperty("badge"));
-    assertNull(profile.getProperty("licence"));
+    assertTrue(!profile.getProperties().containsKey("licence"));
     verify(identityManager).updateProfile(profile, true);
   }
 
   @Test
   public void multiValuedPropertyWithNoDirectoryValueEmptiesTheStoredOne() throws Exception {
-    Profile profile = syncWithLicenceAbsentFromDirectory(new ArrayList<>(Arrays.asList(Map.of("value", "A"))));
+    Profile storedProfile = new Profile();
+    storedProfile.setProperty("licence", new ArrayList<>(Arrays.asList(Map.of("value", "A"))));
+    Profile profile = syncWithLicenceAbsentFromDirectory(storedProfile.getProperty("licence"));
     assertEquals("1234", profile.getProperty("badge"));
-    assertTrue(profile.getProperties().containsKey("licence"));
-    assertNull(profile.getProperty("licence"));
+    assertEquals(new ArrayList<>(), profile.getProperty("licence"));
+    // the clear is a contact change for the profile listeners (search index, groups)
+    assertTrue(UserProfileComparator.hasChanged(profile, storedProfile, "licence"));
+  }
+
+  @Test
+  public void multiValuedPropertyAbsentFromDirectoryAndProfileDoesNotRewriteTheProfile() throws Exception {
+    Map<String, String> external = new HashMap<>();
+    external.put("username", "john");
+    external.put("licence", null);
+    commonsUtils.when(() -> CommonsUtils.getService(IdentityManager.class)).thenReturn(identityManager);
+    commonsUtils.when(() -> CommonsUtils.getService(ProfilePropertyService.class)).thenReturn(profilePropertyService);
+    Identity userIdentity = mock(Identity.class);
+    when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john")).thenReturn(userIdentity);
+    Profile profile = new Profile();
+    profile.setProperty("username", "john");
+    when(userIdentity.getProfile()).thenReturn(profile);
+    when(profilePropertyService.getPropertySettingNames()).thenReturn(Arrays.asList("licence"));
+    ProfilePropertySetting licence = mock(ProfilePropertySetting.class);
+    when(licence.getPropertyName()).thenReturn("licence");
+    when(licence.isMultiValued()).thenReturn(true);
+    when(profilePropertyService.getProfileSettingByName("licence")).thenReturn(licence);
+
+    new SynchronizedUserProfileListener().onEvent(new Event<>("exo.idm.externalStore.user.profile.new",
+                                                              idmExternalStoreImportService,
+                                                              external));
+
+    assertTrue(!profile.getProperties().containsKey("licence"));
+    verify(identityManager, never()).updateProfile(profile, true);
   }
 
   /**
