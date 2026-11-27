@@ -151,6 +151,8 @@ class PeopleListPortletTest {
     lenient().when(peopleDirectoryService.getPageSize(nullable(String.class))).thenCallRealMethod();
     lenient().when(peopleDirectoryService.getHeaderTranslations(nullable(String.class))).thenCallRealMethod();
 
+    // an internal user: the filter options are theirs to change
+    lenient().when(peopleDirectoryService.canSetFilterOptions(USERNAME)).thenReturn(true);
     lenient().when(request.getRemoteUser()).thenReturn(USERNAME);
     lenient().when(request.getPreferences()).thenReturn(preferences);
     lenient().when(preferences.getValue(eq(GROUPS_TO_SET_PREFERENCE), nullable(String.class))).thenReturn(null);
@@ -243,6 +245,27 @@ class PeopleListPortletTest {
     verify(preferences).store();
   }
 
+  @Test
+  void processActionKeepsTheStoredFilterOptionsOfAnExternalEditor() throws Exception {
+    when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
+    when(peopleDirectoryService.canSetFilterOptions(USERNAME)).thenReturn(false);
+    parameters.put(PAGE_SIZE_PREFERENCE, "20");
+    parameters.put(GUEST_RESTRICTION_PREFERENCE, "false");
+    parameters.put(ATTRIBUTE_FILTER_PREFERENCE, "{}");
+    parameters.put(GROUP_FILTER_PREFERENCE, "[]");
+
+    portlet.processAction(request, response);
+
+    // the display options are stored, the filter options left as stored
+    verify(preferences).setValue(PAGE_SIZE_PREFERENCE, "20");
+    verify(preferences, never()).setValue(eq(GUEST_RESTRICTION_PREFERENCE), nullable(String.class));
+    verify(preferences, never()).setValue(eq(ATTRIBUTE_FILTER_PREFERENCE), nullable(String.class));
+    verify(preferences, never()).setValue(eq(GROUP_FILTER_PREFERENCE), nullable(String.class));
+    verify(peopleDirectoryService, never()).normalizeGuestRestriction(nullable(String.class));
+    verify(peopleDirectoryService, never()).normalizeAttributeFilter(nullable(String.class));
+    verify(preferences).store();
+  }
+
   @ParameterizedTest
   @CsvSource(delimiter = '|', value = {
     "pageSize|0|peopleDirectory.pageSize.outOfRange",
@@ -318,6 +341,7 @@ class PeopleListPortletTest {
     portlet.serveResource(resourceRequest, resourceResponse);
 
     JSONObject settings = new JSONObject(body.toString());
+    assertTrue(settings.getBoolean("canSetFilterOptions"));
     assertTrue(settings.getBoolean(GUEST_RESTRICTION_PREFERENCE));
     assertTrue(settings.getBoolean("canSetGroupFilter"));
     assertTrue(settings.getBoolean("otherGroupsApplied"));
@@ -332,6 +356,35 @@ class PeopleListPortletTest {
     assertEquals("department", attribute.getString("name"));
     assertEquals("HR", attribute.getJSONArray("values").getJSONObject(0).getString("value"));
     assertFalse(attribute.getBoolean("available"));
+  }
+
+  @Test
+  void settingsResourceGivesAnExternalEditorTheDisplayOptionsOnly() throws Exception {
+    ResourceRequest resourceRequest = resourceRequest(SETTINGS_RESOURCE_ID);
+    StringWriter body = new StringWriter();
+    ResourceResponse resourceResponse = resourceResponse(body);
+    when(peopleDirectoryService.canEditSettings(PAGE_KEY, SITE_KEY, WINDOW_ID, USERNAME)).thenReturn(true);
+    when(peopleDirectoryService.canSetFilterOptions(USERNAME)).thenReturn(false);
+    lenient().when(preferences.getValue(eq(HEADER_TRANSLATIONS_PREFERENCE), nullable(String.class))).thenReturn("{\"en\":\"Team\"}");
+    // what an internal editor would get: lenient, never read for this one
+    lenient().when(peopleDirectoryService.getEditorGroups(nullable(String.class), nullable(String.class), any()))
+             .thenReturn(new PeopleDirectoryEditorGroups(List.of(new PeopleDirectoryGroup("/spaces/paris", "Paris office")), true, 1, false, false, true));
+    lenient().when(peopleDirectoryService.getEditorAttributes(nullable(String.class), any())).thenReturn(List.of());
+
+    portlet.serveResource(resourceRequest, resourceResponse);
+
+    JSONObject settings = new JSONObject(body.toString());
+    assertFalse(settings.getBoolean("canSetFilterOptions"));
+    assertEquals("Team", settings.getJSONObject(HEADER_TRANSLATIONS_PREFERENCE).getString("en"));
+    // none of the stored filter options, which they may not change
+    assertFalse(settings.has(GUEST_RESTRICTION_PREFERENCE));
+    assertFalse(settings.has("attributes"));
+    assertFalse(settings.has("attributeFilterInvalid"));
+    assertFalse(settings.has("canSetGroupFilter"));
+    assertFalse(settings.has("groups"));
+    assertFalse(settings.has("missingGroups"));
+    verify(peopleDirectoryService, never()).getEditorGroups(nullable(String.class), nullable(String.class), any());
+    verify(peopleDirectoryService, never()).getEditorAttributes(nullable(String.class), any());
   }
 
   @Test

@@ -451,8 +451,23 @@ public class PeopleDirectoryService {
 
 
   /**
+   * Whether a user may change the filter options of a People Directory window
+   * (the guest restriction, the attribute filter and the group filter): any
+   * user but an external one, a member of {@code /platform/externals}, who
+   * keeps the display options only, whatever grants them the edit right.
+   *
+   * @param username the user asking, may be null
+   * @return true when the filter options are offered to the user
+   */
+  public boolean canSetFilterOptions(String username) {
+    Identity identity = StringUtils.isBlank(username) ? null : userAcl.getUserIdentity(username);
+    return identity != null && !UserAclPlugin.isGuest(identity);
+  }
+
+  /**
    * Whether a user may set the group filter of a People Directory window: a
-   * platform administrator, or a manager of at least one group, space or
+   * user who may set its filter options ({@link #canSetFilterOptions}) and is
+   * a platform administrator, or a manager of at least one group, space or
    * organizational unit (see {@link #getManagedGroupIds}).
    *
    * @param username the user asking, may be null
@@ -460,7 +475,9 @@ public class PeopleDirectoryService {
    */
   public boolean canSetGroupFilter(String username) {
     Identity identity = StringUtils.isBlank(username) ? null : userAcl.getUserIdentity(username);
-    return identity != null && (userAcl.isAdministrator(identity) || !getManagedGroupIds(username).isEmpty());
+    return identity != null
+        && !UserAclPlugin.isGuest(identity)
+        && (userAcl.isAdministrator(identity) || !getManagedGroupIds(username).isEmpty());
   }
 
   /**
@@ -734,7 +751,8 @@ public class PeopleDirectoryService {
    * @param locale the editor's language, for the option labels
    * @return the values
    * @throws IllegalAccessException when the user may not edit the window's
-   *           settings
+   *           settings or may not set its filter options: the values are
+   *           those of all users, an external user's visible ones or not
    * @throws IllegalArgumentException with {@link #UNKNOWN_ATTRIBUTE_MESSAGE}
    *           when the attribute is not a directory attribute
    */
@@ -745,7 +763,7 @@ public class PeopleDirectoryService {
                                                                 String query,
                                                                 String username,
                                                                 Locale locale) throws IllegalAccessException {
-    if (!canEditSettings(pageKey, siteKey, windowId, username)) {
+    if (!canEditSettings(pageKey, siteKey, windowId, username) || !canSetFilterOptions(username)) {
       throw new IllegalAccessException("User " + username + " may not edit the people directory " + windowId);
     }
     ProfilePropertySetting setting = getSetting(profilePropertyService.getPropertySettings(), attribute);

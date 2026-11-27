@@ -82,28 +82,31 @@
             class="people-list-page-size ms-4"
             @valid="pageSizeTyped = $event" />
         </div>
-        <div class="mt-8 mb-4 text-header">{{ $t('peopleList.settings.filterOptions') }}</div>
-        <div class="d-flex align-center text-start mb-4">
-          <div class="text-subtitle-1 text-color">
-            {{ $t('peopleList.settings.guestsSpaceMembersOnly') }}
+        <!-- an external editor keeps the display options only -->
+        <template v-if="canSetFilterOptions">
+          <div class="mt-8 mb-4 text-header">{{ $t('peopleList.settings.filterOptions') }}</div>
+          <div class="d-flex align-center text-start mb-4">
+            <div class="text-subtitle-1 text-color">
+              {{ $t('peopleList.settings.guestsSpaceMembersOnly') }}
+            </div>
+            <v-spacer />
+            <v-switch
+              :id="guestsSwitchId"
+              v-model="guestsSpaceMembersOnly"
+              :aria-label="$t('peopleList.settings.guestsSpaceMembersOnly')"
+              class="people-list-guests-switch ma-0 ms-4 width-fit-content"
+              hide-details
+              @keydown.native.enter.exact.prevent="$event.repeat || (guestsSpaceMembersOnly = !guestsSpaceMembersOnly)" />
           </div>
-          <v-spacer />
-          <v-switch
-            :id="guestsSwitchId"
-            v-model="guestsSpaceMembersOnly"
-            :aria-label="$t('peopleList.settings.guestsSpaceMembersOnly')"
-            class="people-list-guests-switch ma-0 ms-4 width-fit-content"
-            hide-details
-            @keydown.native.enter.exact.prevent="$event.repeat || (guestsSpaceMembersOnly = !guestsSpaceMembersOnly)" />
-        </div>
-        <people-list-attribute-filter
-          v-model="attributes"
-          :enabled.sync="attributeFilterEnabled" />
-        <people-list-group-filter
-          v-model="groups"
-          :enabled.sync="groupFilterEnabled"
-          :can-set-group-filter="canSetGroupFilter"
-          :other-groups-applied="$root.otherGroupsApplied" />
+          <people-list-attribute-filter
+            v-model="attributes"
+            :enabled.sync="attributeFilterEnabled" />
+          <people-list-group-filter
+            v-model="groups"
+            :enabled.sync="groupFilterEnabled"
+            :can-set-group-filter="canSetGroupFilter"
+            :other-groups-applied="$root.otherGroupsApplied" />
+        </template>
       </div>
     </template>
     <template #footer>
@@ -229,8 +232,11 @@ export default {
           || this.attributes.some(attribute => attribute.values.length > this.maxValues
             || attribute.values.some(v => !v.value?.trim?.() || v.value.length > this.maxValueLength)));
     },
+    canSetFilterOptions() {
+      return !!this.$root.canSetFilterOptions;
+    },
     canSetGroupFilter() {
-      return !!this.$root.canSetGroupFilter;
+      return this.canSetFilterOptions && !!this.$root.canSetGroupFilter;
     },
     // the editor's groups to store: none when the toggle is OFF; the groups
     // the editor cannot select stay applied, whatever is posted
@@ -280,9 +286,14 @@ export default {
       const toSave = {
         headerTranslations: this.headerToSave,
         pageSize: this.pageSize,
-        guestsSpaceMembersOnly: this.guestsSpaceMembersOnly,
-        attributeFilter: this.attributeFilterToSave,
       };
+      // an external editor posts no filter option: the portlet keeps the
+      // stored ones, whatever is posted
+      if (!this.canSetFilterOptions) {
+        return toSave;
+      }
+      toSave.guestsSpaceMembersOnly = this.guestsSpaceMembersOnly;
+      toSave.attributeFilter = this.attributeFilterToSave;
       // the group filter is posted when the editor changed it, or when its
       // stored value is unreadable or holds groups that no longer exist,
       // which any Apply drops; otherwise, and for an editor who may not set
@@ -361,9 +372,11 @@ export default {
       const params = new URLSearchParams({
         headerTranslations: JSON.stringify(toSave.headerTranslations),
         pageSize: String(toSave.pageSize),
-        guestsSpaceMembersOnly: String(toSave.guestsSpaceMembersOnly),
-        attributeFilter: JSON.stringify(toSave.attributeFilter),
       });
+      if ('attributeFilter' in toSave) {
+        params.append('guestsSpaceMembersOnly', String(toSave.guestsSpaceMembersOnly));
+        params.append('attributeFilter', JSON.stringify(toSave.attributeFilter));
+      }
       if (toSave.groupIds) {
         params.append('groupIds', JSON.stringify(toSave.groupIds));
       }
@@ -390,6 +403,14 @@ export default {
         .finally(() => this.saving = false);
     },
     isStored(toSave) {
+      const stored = {
+        headerTranslations: this.$root.headerTranslations,
+        pageSize: this.$root.pageSize,
+      };
+      // an external editor's form holds the display options only
+      if (!('attributeFilter' in toSave)) {
+        return this.canonical(stored) === this.canonical(toSave);
+      }
       // a stored attribute filter the directory cannot read lists nobody
       // (PeopleDirectoryService#getAttributeFilter): Apply replaces it with
       // what the form holds
@@ -398,12 +419,8 @@ export default {
       }
       const storedAttributeFilter = {};
       (this.$root.attributes || []).forEach(attribute => storedAttributeFilter[attribute.name] = attribute.values.map(v => v.value));
-      const stored = {
-        headerTranslations: this.$root.headerTranslations,
-        pageSize: this.$root.pageSize,
-        guestsSpaceMembersOnly: this.$root.guestsSpaceMembersOnly !== false,
-        attributeFilter: storedAttributeFilter,
-      };
+      stored.guestsSpaceMembersOnly = this.$root.guestsSpaceMembersOnly !== false;
+      stored.attributeFilter = storedAttributeFilter;
       if (toSave.groupIds) {
         // groups that no longer exist stay stored, and a stored value the
         // directory cannot read is never the stored state of the groups
