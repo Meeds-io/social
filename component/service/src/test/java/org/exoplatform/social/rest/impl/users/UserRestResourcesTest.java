@@ -904,8 +904,20 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(0, collections.getEntities().size());
 
-    spaceTest.setMembers(new String[] { "john" });
+    // The common spaces are the ones both users are members of: root, the
+    // creator, has to stay in the members list when john is added
+    spaceTest.setMembers(new String[] { "root", "john" });
     spaceService.updateSpace(spaceTest);
+    response = service("GET", getURLResource("users/root/spaces/john?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
+
+    // A space where john is only invited is not a common space
+    Space spaceInvited = getSpaceInstance(2, "root");
+    spaceInvited.setInvitedUsers(new String[] { "john" });
+    spaceService.updateSpace(spaceInvited);
     response = service("GET", getURLResource("users/root/spaces/john?limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
