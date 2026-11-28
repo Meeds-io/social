@@ -75,6 +75,7 @@ import org.exoplatform.portal.rest.UserAccountConfirmationSettings;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -82,6 +83,8 @@ import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.thumbnail.ImageThumbnailService;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
+import org.exoplatform.social.core.profile.ProfileListener;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ProfileSearchConnector;
@@ -1146,6 +1149,57 @@ public class UserRestResourcesTest extends AbstractResourceTest {
       assertEquals(UserRest.CREATION_SOURCE_API, createdUser.getCreationSource());
     } finally {
       organizationService.getUserHandler().removeUser("api.created", false);
+    }
+  }
+
+  public void testDeleteUserNotifiesUserDeletionListeners() throws Exception {
+    startSessionAs("root", true);
+    UserHandler userHandler = organizationService.getUserHandler();
+    User user = userHandler.createUserInstance("deleted.listener");
+    user.setPassword("Passw0rd!");
+    user.setEmail("deleted.listener@exoplatform.com");
+    user.setFirstName("Deleted");
+    user.setLastName("Listener");
+    userHandler.createUser(user, true);
+    Identity deletedIdentity = identityManager.getOrCreateUserIdentity("deleted.listener");
+
+    List<String> createdProfiles = new ArrayList<>();
+    ProfileListener profileListener = new ProfileListener() {
+      @Override
+      public void createProfile(ProfileLifeCycleEvent event) {
+        createdProfiles.add(event.getProfile().getIdentity().getRemoteId());
+      }
+    };
+    identityManager.registerProfileListener(profileListener);
+    List<String> preDeleted = new ArrayList<>();
+    List<String> postDeleted = new ArrayList<>();
+    UserEventListener listener = new UserEventListener() {
+      @Override
+      public void preDelete(User deletedUser) {
+        preDeleted.add(deletedUser.getUserName());
+        // some deletion listeners resolve the identity by username
+        identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, deletedUser.getUserName());
+      }
+
+      @Override
+      public void postDelete(User deletedUser) {
+        postDeleted.add(deletedUser.getUserName());
+      }
+    };
+    userHandler.addUserEventListener(listener);
+    try {
+      ContainerResponse response = service("DELETE", getURLResource("users/deleted.listener"), "", null, null, "root");
+      assertNotNull(response);
+      assertEquals(String.valueOf(response.getEntity()), 200, response.getStatus());
+      assertNull(userHandler.findUserByName("deleted.listener", UserStatus.ANY));
+      assertEquals(List.of("deleted.listener"), preDeleted);
+      assertEquals(List.of("deleted.listener"), postDeleted);
+      assertTrue(createdProfiles.isEmpty());
+      assertTrue(identityManager.getIdentity(deletedIdentity.getId()).isDeleted());
+    } finally {
+      identityManager.unregisterProfileListener(profileListener);
+      userHandler.removeUserEventListener(listener);
+      userHandler.removeUser("deleted.listener", false);
     }
   }
 

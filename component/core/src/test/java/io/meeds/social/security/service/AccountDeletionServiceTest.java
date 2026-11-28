@@ -165,8 +165,8 @@ public class AccountDeletionServiceTest {
 
     InOrder order = inOrder(settingService, identityManager, userHandler, cookieTokenService, indexingService, identity, listenerService);
     order.verify(settingService).remove(Context.USER.id(USERNAME), DELETION_REQUEST_SCOPE, DELETION_REQUEST_SETTING_NAME);
+    order.verify(userHandler).removeUser(USERNAME, true);
     order.verify(identityManager).hardDeleteIdentity(identity);
-    order.verify(userHandler).removeUser(USERNAME, false);
     order.verify(cookieTokenService).deleteTokensOfUser(USERNAME);
     order.verify(indexingService).unindex(ProfileIndexingServiceConnector.TYPE, IDENTITY_ID);
     order.verify(identity).setDeleted(true);
@@ -253,12 +253,12 @@ public class AccountDeletionServiceTest {
         - 31 * DAY_IN_MS)));
     when(userHandler.findUserByName("failing", UserStatus.ANY)).thenReturn(user);
     when(identityManager.getOrCreateUserIdentity("failing")).thenReturn(identity);
-    doThrow(new RuntimeException("IDM down")).when(userHandler).removeUser("failing", false);
+    doThrow(new RuntimeException("IDM down")).when(userHandler).removeUser("failing", true);
 
     accountDeletionService.processPendingDeletionRequests();
 
-    verify(userHandler).removeUser("failing", false);
-    verify(userHandler).removeUser(USERNAME, false);
+    verify(userHandler).removeUser("failing", true);
+    verify(userHandler).removeUser(USERNAME, true);
     // the failing account aborts before its broadcast: one single event
     verify(listenerService, times(1)).broadcast(eq(ACCOUNT_DELETED_EVENT), anyString(), any());
     verify(listenerService).broadcast(ACCOUNT_DELETED_EVENT, USERNAME, identity);

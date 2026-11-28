@@ -1707,11 +1707,13 @@ public class UserRest implements ResourceContainer, Startable {
     // a deleted account is firstly deactivated: an account deleted by an
     // admin while still active must never keep surfacing as enabled
     identityManager.processEnabledIdentity(id, false);
+    // The user is removed first, notifying the user deletion listeners: some
+    // of them resolve the social identity by username while the user still
+    // exists, which would restore an identity deleted beforehand
+    userHandler.removeUser(id, true);
     identityManager.hardDeleteIdentity(identity);
     identity.setDeleted(true);
     identity.setEnable(false);
-    // Deletes the user on Portal side
-    userHandler.removeUser(id, false);
     // deletes the stored tokens of the account, under its stored name
     cookieTokenService.deleteTokensOfUser(user.getUserName());
     //
