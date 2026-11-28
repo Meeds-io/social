@@ -18,15 +18,16 @@
  */
 package io.meeds.social.category.injection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -46,12 +47,13 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
@@ -71,8 +73,8 @@ import io.meeds.social.category.storage.CategoryStorage;
  * {@code default-categories.json}, and how the import treats it on an
  * instance that already imported every other default category.
  */
-@ExtendWith(MockitoExtension.class)
-class CategoryImportServiceTest {
+@RunWith(MockitoJUnitRunner.class)
+public class CategoryImportServiceTest {
 
   private static final Path         DESCRIPTORS_FILE   = Path.of("src/main/resources/default-categories.json");
 
@@ -117,11 +119,11 @@ class CategoryImportServiceTest {
    *
    * @throws Exception when the file cannot be read
    */
-  @BeforeEach
-  void readShippedDescriptors() throws Exception {
+  @Before
+  public void readShippedDescriptors() throws Exception {
     URL url = DESCRIPTORS_FILE.toUri().toURL();
     descriptors = categoryImportService.parseDescriptors(url);
-    assertFalse(descriptors.isEmpty(), "the shipped default categories must parse");
+    assertFalse("the shipped default categories must parse", descriptors.isEmpty());
   }
 
   /**
@@ -130,14 +132,14 @@ class CategoryImportServiceTest {
    * without a forced re-import.
    */
   @Test
-  void workAreasShipsWithItsEightSubCategories() {
+  public void workAreasShipsWithItsEightSubCategories() {
     CategoryDescriptor workAreas = getDescriptor(WORK_AREAS);
-    assertNotNull(workAreas, "Work Areas must be a top-level default category");
+    assertNotNull("Work Areas must be a top-level default category", workAreas);
     assertEquals(WORK_AREA_CHILDREN, workAreas.getSubCategories().stream().map(CategoryDescriptor::getNameId).toList());
-    assertTrue(workAreas.getSubCategories().stream().allMatch(c -> c.getSubCategories() == null || c.getSubCategories().isEmpty()),
-               "a Work Areas sub-category has no children of its own");
+    assertTrue("a Work Areas sub-category has no children of its own",
+               workAreas.getSubCategories().stream().allMatch(c -> c.getSubCategories() == null || c.getSubCategories().isEmpty()));
     assertEquals(List.of("*:/platform/users"), workAreas.getLinkPermissions());
-    workAreas.getSubCategories().forEach(c -> assertEquals(List.of("*:/platform/users"), c.getLinkPermissions(), c.getNameId()));
+    workAreas.getSubCategories().forEach(c -> assertEquals(c.getNameId(), List.of("*:/platform/users"), c.getLinkPermissions()));
   }
 
   /**
@@ -145,10 +147,10 @@ class CategoryImportServiceTest {
    * {@code version} key, since they all share one settings namespace.
    */
   @Test
-  void everyNameIdIsUniqueAndNotTheVersionKey() {
+  public void everyNameIdIsUniqueAndNotTheVersionKey() {
     List<String> nameIds = new ArrayList<>();
     descriptors.forEach(d -> collectNameIds(d, nameIds));
-    assertEquals(nameIds.size(), new HashSet<>(nameIds).size(), "duplicate nameId in " + nameIds);
+    assertEquals("duplicate nameId in " + nameIds, nameIds.size(), new HashSet<>(nameIds).size());
     assertFalse(nameIds.contains("version"));
   }
 
@@ -159,7 +161,7 @@ class CategoryImportServiceTest {
    * @throws Exception when the bundle cannot be read
    */
   @Test
-  void everyLabelKeyIsInTheEnglishBundle() throws Exception {
+  public void everyLabelKeyIsInTheEnglishBundle() throws Exception {
     Properties labels = new Properties();
     try (InputStream inputStream = Files.newInputStream(LABELS_FILE)) {
       labels.load(inputStream);
@@ -168,7 +170,7 @@ class CategoryImportServiceTest {
     descriptors.forEach(d -> collect(d, all));
     for (CategoryDescriptor descriptor : all) {
       String key = descriptor.getNames().get("en");
-      assertTrue(labels.containsKey(key), "missing label " + key + " of " + descriptor.getNameId());
+      assertTrue("missing label " + key + " of " + descriptor.getNameId(), labels.containsKey(key));
     }
     assertEquals("Work Areas", labels.getProperty("categoryManagement.category.workAreas.name"));
   }
@@ -180,28 +182,9 @@ class CategoryImportServiceTest {
    * an administrator).
    */
   @Test
-  void anExistingInstanceImportsTheNewBranchAloneWithItsChildren() {
-    Map<String, Long> stored = new HashMap<>();
-    AtomicLong nextId = new AtomicLong(100);
-    descriptors.stream()
-               .filter(d -> !WORK_AREAS.equals(d.getNameId()))
-               .forEach(d -> collectNameIds(d, new ArrayList<>()).forEach(id -> stored.put(id, nextId.incrementAndGet())));
-    lenient().when(settingService.get(any(Context.class), any(Scope.class), anyString()))
-             .thenAnswer(invocation -> {
-               Long id = stored.get(invocation.getArgument(2, String.class));
-               return id == null ? null : SettingValue.create(String.valueOf(id));
-             });
-    mockIdentities();
-    Category root = new Category();
-    root.setId(ROOT_ID);
-    when(categoryStorage.getRootCategory(anyLong())).thenReturn(root);
-    when(categoryStorage.createCategory(any(Category.class))).thenAnswer(invocation -> {
-      Category category = invocation.getArgument(0);
-      category.setId(nextId.incrementAndGet());
-      return category;
-    });
+  public void anExistingInstanceImportsTheNewBranchAloneWithItsChildren() {
+    Map<String, Long> stored = importOnAnExistingInstance();
 
-    descriptors.forEach(categoryImportService::importDescriptor);
 
     Set<String> imported = new HashSet<>(WORK_AREA_CHILDREN);
     imported.add(WORK_AREAS);
@@ -225,14 +208,67 @@ class CategoryImportServiceTest {
   }
 
   /**
+   * The « Work Areas » id is recorded only after every child's: an add-on
+   * that finds the branch's id finds each child's too, even while the import
+   * runs. Mutant: the parent's id recorded before its children's.
+   */
+  @Test
+  public void theWorkAreasIdIsRecordedAfterEveryChildsId() {
+    importOnAnExistingInstance();
+
+    for (String child : WORK_AREA_CHILDREN) {
+      InOrder order = inOrder(settingService);
+      order.verify(settingService).set(eq(CategoryImportService.CATEGORY_CONTEXT),
+                                       eq(CategoryImportService.CATEGORY_IMPORT_SCOPE),
+                                       eq(child),
+                                       any());
+      order.verify(settingService).set(eq(CategoryImportService.CATEGORY_CONTEXT),
+                                       eq(CategoryImportService.CATEGORY_IMPORT_SCOPE),
+                                       eq(WORK_AREAS),
+                                       any());
+    }
+  }
+
+  /**
    * The settings scope and context that hold each imported category's id keep
    * their stored names: every instance's existing mapping lives under them,
    * and email-connector reads them by their literals.
    */
   @Test
-  void theImportedIdsStayUnderTheirStoredScopeAndContext() {
+  public void theImportedIdsStayUnderTheirStoredScopeAndContext() {
     assertEquals("CATEGORY_IMPORT", CategoryImportService.CATEGORY_IMPORT_SCOPE.getId());
     assertEquals("CATEGORY", CategoryImportService.CATEGORY_CONTEXT.getId());
+  }
+
+  /**
+   * Imports every shipped descriptor on an instance that already imported
+   * every default category but « Work Areas » and its children.
+   *
+   * @return the nameIds the instance had already imported, with their ids
+   */
+  private Map<String, Long> importOnAnExistingInstance() {
+    Map<String, Long> stored = new HashMap<>();
+    AtomicLong nextId = new AtomicLong(100);
+    descriptors.stream()
+               .filter(d -> !WORK_AREAS.equals(d.getNameId()))
+               .forEach(d -> collectNameIds(d, new ArrayList<>()).forEach(id -> stored.put(id, nextId.incrementAndGet())));
+    lenient().when(settingService.get(any(Context.class), any(Scope.class), anyString()))
+             .thenAnswer(invocation -> {
+               Long id = stored.get(invocation.getArgument(2, String.class));
+               return id == null ? null : SettingValue.create(String.valueOf(id));
+             });
+    mockIdentities();
+    Category root = new Category();
+    root.setId(ROOT_ID);
+    when(categoryStorage.getRootCategory(anyLong())).thenReturn(root);
+    when(categoryStorage.createCategory(any(Category.class))).thenAnswer(invocation -> {
+      Category category = invocation.getArgument(0);
+      category.setId(nextId.incrementAndGet());
+      return category;
+    });
+
+    descriptors.forEach(categoryImportService::importDescriptor);
+    return stored;
   }
 
   /**

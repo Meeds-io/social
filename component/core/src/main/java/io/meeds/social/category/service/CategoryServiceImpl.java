@@ -261,7 +261,7 @@ public class CategoryServiceImpl implements CategoryService {
    */
   @Override
   public long getDefaultCategoryId(String nameId) {
-    if (StringUtils.isBlank(nameId)) {
+    if (StringUtils.isBlank(nameId) || CategoryImportService.CATEGORY_VERSION.equals(nameId)) {
       return 0L;
     }
     SettingValue<?> settingValue = settingService.get(CategoryImportService.CATEGORY_CONTEXT,

@@ -72,7 +72,11 @@ public class CategoryImportService {
   /** The settings context of {@link #CATEGORY_IMPORT_SCOPE}. */
   public static final Context              CATEGORY_CONTEXT      = Context.GLOBAL.id("CATEGORY");
 
-  private static final String              CATEGORY_VERSION      = "version";
+  /**
+   * The key, under {@link #CATEGORY_IMPORT_SCOPE}, of the import's version:
+   * the one key of that scope that holds no category id.
+   */
+  public static final String               CATEGORY_VERSION      = "version";
 
   private static final Log                 LOG                   = ExoLogger.getLogger(CategoryImportService.class);
 

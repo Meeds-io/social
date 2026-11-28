@@ -63,6 +63,7 @@ import org.exoplatform.social.core.storage.cache.model.key.SpaceFilterKeysetTest
 
 import io.meeds.social.activity.schedule.ActivityPublicationPluginTest;
 import io.meeds.social.authorization.AuthorizationManagerTest;
+import io.meeds.social.category.injection.CategoryImportServiceTest;
 import io.meeds.social.category.service.CategoryServiceUnitTest;
 import io.meeds.social.category.storage.elasticsearch.CategorySearchConnectorTest;
 import io.meeds.social.reaction.listener.ReactionLikeDeletedListenerTest;
@@ -158,6 +159,7 @@ import org.exoplatform.social.core.storage.cache.selector.CacheSelectorTest;
     SpaceTemplateDatabindPluginTest.class,
     SpaceTemplateStorageTest.class,
     SpaceTemplateServiceTest.class,
+    CategoryImportServiceTest.class,
     CategoryServiceUnitTest.class,
     CategorySearchConnectorTest.class,
     CoeditingServiceTest.class,

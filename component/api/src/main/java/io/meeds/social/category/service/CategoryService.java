@@ -201,8 +201,9 @@ public interface CategoryService {
    *
    * @param nameId the {@code nameId} of a default category descriptor
    * @return the id of the category imported for it, 0 when none was imported
-   *         yet (before the first import, or after a failed one) or for a
-   *         blank {@code nameId}
+   *         yet (before the first import, or after a failed one), for a
+   *         blank {@code nameId}, or for the importer's reserved
+   *         {@code version} key, which holds no category id
    */
   long getDefaultCategoryId(String nameId);
 

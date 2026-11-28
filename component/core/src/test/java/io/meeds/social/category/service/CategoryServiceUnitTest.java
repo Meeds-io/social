@@ -433,8 +433,9 @@ public class CategoryServiceUnitTest {
   /**
    * EXO-94953: a default category resolves by its {@code nameId} to the id the
    * import stored under the importer's own scope and context, and to 0 when
-   * nothing was imported for it, the value is not a number, or the
-   * {@code nameId} is blank.
+   * nothing was imported for it, the value is not a number, the
+   * {@code nameId} is blank, or it is the importer's reserved version key.
+   * Mutant: the version key's guard removed.
    */
   @Test
   public void testGetDefaultCategoryIdReadsTheIdTheImportStored() {
@@ -444,10 +445,14 @@ public class CategoryServiceUnitTest {
     when(settingService.get(CategoryImportService.CATEGORY_CONTEXT,
                             CategoryImportService.CATEGORY_IMPORT_SCOPE,
                             "brokenCategory")).thenAnswer(invocation -> SettingValue.create("not a number"));
+    when(settingService.get(CategoryImportService.CATEGORY_CONTEXT,
+                            CategoryImportService.CATEGORY_IMPORT_SCOPE,
+                            CategoryImportService.CATEGORY_VERSION)).thenAnswer(invocation -> SettingValue.create("7"));
 
     assertEquals(42L, categoryService.getDefaultCategoryId("workAreasCategory"));
     assertEquals(0L, categoryService.getDefaultCategoryId("neverImportedCategory"));
     assertEquals(0L, categoryService.getDefaultCategoryId("brokenCategory"));
+    assertEquals(0L, categoryService.getDefaultCategoryId(CategoryImportService.CATEGORY_VERSION));
     assertEquals(0L, categoryService.getDefaultCategoryId(" "));
     assertEquals(0L, categoryService.getDefaultCategoryId(null));
   }
