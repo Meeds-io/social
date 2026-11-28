@@ -26,7 +26,7 @@
     class="flex-column justify-center">
     <v-card
       v-if="display"
-      :class="isMobile && 'overflow-x-auto specific-scrollbar'"
+      :class="(isMobile || scrollable) && 'overflow-x-auto specific-scrollbar'"
       class="d-flex align-center transparent"
       min-height="34"
       flat>
@@ -45,6 +45,7 @@
         v-if="displayChipsSelection"
         :categories="selectedSubcategories"
         :selected-id="value"
+        :scrollable="scrollable"
         class="flex-grow-1 flex-shrink-1 text-start"
         @select="selectCategory"
         @open-more="openMore" />
@@ -96,6 +97,12 @@ export default {
       default: () => 4,
     },
     hideOnEmpty: {
+      type: Boolean,
+      default: false,
+    },
+    // Lay the filter's chips out in a horizontally scrollable row (mobile behaviour)
+    // whatever the viewport width, for use in narrow containers such as side drawers.
+    scrollable: {
       type: Boolean,
       default: false,
     },

@@ -22,12 +22,12 @@
 -->
 <template>
   <div
-    :class="!isMobile && 'specific-scrollbar overflow-x-auto overflow-y-hidden'"
+    :class="(!isMobile || scrollable) && 'specific-scrollbar overflow-x-auto overflow-y-hidden'"
     class="d-flex align-center position-relative d-inline text-no-wrap">
     <component
       v-if="initialized"
-      :is="isMobile ? 'div' : 'card-carousel'"
-      class="flex-grow-0 flex-shrink-1 overflow-hidden"
+      :is="(isMobile || scrollable) ? 'div' : 'card-carousel'"
+      :class="scrollable ? 'flex-grow-0 flex-shrink-0' : 'flex-grow-0 flex-shrink-1 overflow-hidden'"
       hide-arrows
       dense>
       <category-chip
@@ -35,7 +35,7 @@
         :ref="`category${index}`"
         :key="category.id"
         :category="category"
-        :parent-width="parentWidth"
+        :parent-width="scrollable ? 0 : parentWidth"
         :selected-id="selectedId"
         chip-class="flex-shrink-0 me-2"
         breadcrumb
@@ -44,7 +44,7 @@
         @select="openCategory" />
     </component>
     <v-btn
-      v-if="!isMobile"
+      v-if="!isMobile && !scrollable"
       ref="moreButton"
       :class="{
         'invisible' : !hasInvisibleItems,
@@ -69,6 +69,13 @@ export default {
     selectedId: {
       type: Number,
       default: () => 0,
+    },
+    // When true, always lay the chips out in a horizontally scrollable row (the
+    // mobile behaviour) instead of the desktop carousel with a "See all" overflow
+    // button — useful in narrow containers such as side drawers.
+    scrollable: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
