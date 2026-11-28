@@ -39,7 +39,7 @@ export default {
   },
   computed: {
     phoneUrl() {
-      return `tel://${this.displayedPhone}`;
+      return this.$utils.toPhoneHref(this.displayedPhone);
     }
   }
 };

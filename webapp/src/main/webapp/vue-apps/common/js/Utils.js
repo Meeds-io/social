@@ -1,5 +1,9 @@
 
 const PHONE_REGEX = /^([+*#]?\d{1,20}#?)$/;
+// Visual separators a phone number may be written with: spaces, dots, dashes, parentheses
+const PHONE_SEPARATORS_REGEX = /[\s().-]/g;
+// A national trunk prefix written after the country code, as in +33 (0)4 72 56 13 17
+const PHONE_TRUNK_PREFIX_REGEX = /^(\s*\+\d{1,3})\s*\(0\)/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 const TEXTAREA = document.createElement('textarea');
@@ -188,8 +192,20 @@ export function isMacOs() {
   return detectOS() === 'Mac';
 }
 
+// The number as a tel: URI dials it: no visual separator, no trunk prefix after the country code
+export function normalizePhone(value) {
+  return String(value || '')
+    .replace(PHONE_TRUNK_PREFIX_REGEX, '$1')
+    .replace(PHONE_SEPARATORS_REGEX, '');
+}
+
 export function isValidPhone(value) {
-  return !!value && PHONE_REGEX.test(value);
+  return !!value && PHONE_REGEX.test(normalizePhone(value));
+}
+
+// The tel: link of a phone number: normalized when the profile accepts it, as stored otherwise
+export function toPhoneHref(value) {
+  return `tel:${isValidPhone(value) ? normalizePhone(value) : value}`;
 }
 
 export function isValidEmail(value) {

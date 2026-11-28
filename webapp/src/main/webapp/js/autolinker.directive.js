@@ -50,23 +50,16 @@ Vue.directive('autolinker', (el, binding) => {
 
   let html = autolinker.link(binding.value);
 
-  if (isPhone) {
-    html = html.replaceAll(/([*#+]?\d[\d\s().-]{0,20}#?)/g, match => {
-      if (
-        html.includes(`href="tel:${match}`) ||
-          /<\/?a\b[^>]*>/i.test(match) ||
-          /^(?:https?:\/\/|www\.)[^\s]+$|^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$/i.test(match)
-      ) {
-        return match;
-      }
-
-      const safeNumber = match
-        .replaceAll(/&/g, '&amp;')
-        .replaceAll(/</g, '&lt;')
-        .replaceAll(/>/g, '&gt;');
-
-      return `<a href="tel:${safeNumber}">${safeNumber}</a>`;
-    });
+  // $utils comes with commonVueComponents: without it, numbers Autolinker left as text stay text
+  const utils = Vue.prototype.$utils;
+  if (isPhone && utils) {
+    // Links the numbers Autolinker left as text, never inside one of its anchors, and only
+    // a run the profile accepts as a phone number. A run holds only digits, separators and
+    // +*#: nothing to escape.
+    html = html.split(/(<a\b[^>]*>[\s\S]*?<\/a>)/gi)
+      .map(part => (/^<a\b/i.test(part) ? part : part.replaceAll(/[*#+]?\d(?:[\d\s().-]*\d)?#?/g,
+        match => (utils.isValidPhone(match) ? `<a href="tel:${utils.normalizePhone(match)}">${match}</a>` : match))))
+      .join('');
   }
 
   el.innerHTML = html;
