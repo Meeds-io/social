@@ -62,13 +62,21 @@ public class CategoryImportService {
 
   public static final String               ADMINISTRATORS_GROUP  = "/platform/administrators";
 
-  private static final String              CATEGORY_IMPORT       = "CATEGORY_IMPORT";
+  /**
+   * The settings scope under which the id of each imported category is stored,
+   * keyed by its descriptor's {@code nameId}: read by
+   * {@link io.meeds.social.category.service.CategoryService#getDefaultCategoryId(String)}.
+   */
+  public static final Scope                CATEGORY_IMPORT_SCOPE = Scope.APPLICATION.id("CATEGORY_IMPORT");
 
-  private static final Scope               CATEGORY_IMPORT_SCOPE = Scope.APPLICATION.id(CATEGORY_IMPORT);
+  /** The settings context of {@link #CATEGORY_IMPORT_SCOPE}. */
+  public static final Context              CATEGORY_CONTEXT      = Context.GLOBAL.id("CATEGORY");
 
-  private static final Context             CATEGORY_CONTEXT      = Context.GLOBAL.id("CATEGORY");
-
-  private static final String              CATEGORY_VERSION      = "version";
+  /**
+   * The key, under {@link #CATEGORY_IMPORT_SCOPE}, of the import's version:
+   * the one key of that scope that holds no category id.
+   */
+  public static final String               CATEGORY_VERSION      = "version";
 
   private static final Log                 LOG                   = ExoLogger.getLogger(CategoryImportService.class);
 
